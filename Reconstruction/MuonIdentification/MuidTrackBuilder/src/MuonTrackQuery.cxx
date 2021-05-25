@@ -34,7 +34,7 @@
 
 namespace Units = Athena::Units;
 namespace {
-    static const double OneOverSqrt2 = 1. / std::sqrt(2);
+    constexpr double OneOverSqrt2 = M_SQRT1_2;
 }
 namespace Rec {
 
@@ -651,7 +651,7 @@ namespace Rec {
                 refittedTrack = m_fitter->fit(ctx, track, false, Trk::muon);
             }
             if (!refittedTrack) return ScatteringAngleSignificance(0);
-        }
+        } else { refittedTrack = std::make_unique<Trk::Track>(track); }
 
         // collect sigma of scatterer up to TSOS carrying caloEnergy
         double charge = refittedTrack->perigeeParameters()->charge();

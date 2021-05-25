@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -142,7 +142,8 @@ namespace Trig {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){
-        ATH_MSG_WARNING("downcast failed");
+        ATH_MSG_ERROR("downcast failed");
+        return StatusCode::FAILURE;
       }
       
       fullNav->reset();

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonFourMomentumCorrection/e1hg_systematics.h"
 #include "PathResolver/PathResolver.h"
-#include <stdlib.h>
-#include <math.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "TAxis.h"
 #include "Riostream.h"

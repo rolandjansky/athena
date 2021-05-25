@@ -9,7 +9,6 @@
 #include "eflowRec/eflowCellEOverPTool_mc12_JetETMiss.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_HLLHC.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_LC.h"
-#include "eflowRec/eflowOverlapRemoval.h"
 #include "eflowRec/PFLeptonSelector.h"
 #include "eflowRec/PFTrackSelector.h"
 #include "eflowRec/PFClusterSelectorTool.h"
@@ -32,7 +31,6 @@
 #include "../PFTrackMuonCaloTaggingAlg.h"
 #include "../PFTrackMuonIsoTaggingAlg.h"
 
-DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
 DECLARE_COMPONENT( PFEGammaPFOAssoc )
 DECLARE_COMPONENT( PFClusterSelectorTool )

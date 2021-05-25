@@ -31,7 +31,7 @@
 
 namespace {
     struct PullCluster {
-        double pull;
+        double pull{};
         std::unique_ptr<const Trk::TrackParameters> pars;
         std::unique_ptr<const Muon::MuonClusterOnTrack> clus;
     };
@@ -179,7 +179,7 @@ namespace Muon {
         trackStateOnSurfaces->reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces->push_back(nit.release()); }
-        Trk::Track* newTrack = new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
+        Trk::Track* newTrack = new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 
@@ -367,7 +367,7 @@ namespace Muon {
 
         if (doHoleSearch) {
             // ensure that we are not passing in the same parameters
-            if (parsLast == pars) parsLast = 0;
+            if (parsLast == pars) parsLast = nullptr;
 
             // create holes
             createHoleTSOSsForMdtChamber(chId, ctx, *pars, parsLast, ids, newStates);
@@ -1031,7 +1031,7 @@ namespace Muon {
         if (layIds.size() == 2 * nGasGaps) return holes;
 
         // create layer matrix
-        typedef std::vector<std::pair<int, int>> LayerMatrix;
+        using LayerMatrix = std::vector<std::pair<int, int> >;
         LayerMatrix layerMatrix(nGasGaps, std::make_pair(0, 0));
 
         // loop over layer identifiers and fill
@@ -1120,7 +1120,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->mdtIdHelper().get_module_hash(chId, hash_id);
 
-        auto collptr = mdtPrdContainer->indexFindPtr(hash_id);
+        const auto *collptr = mdtPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId) << "  not found in container ");
         }
@@ -1140,7 +1140,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->cscIdHelper().get_geo_module_hash(detElId, hash_id);
 
-        auto collptr = cscPrdContainer->indexFindPtr(hash_id);
+        const auto *collptr = cscPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" CscPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1160,7 +1160,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->tgcIdHelper().get_module_hash(detElId, hash_id);
 
-        auto collptr = tgcPrdContainer->indexFindPtr(hash_id);
+        const auto *collptr = tgcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1180,7 +1180,7 @@ namespace Muon {
         if (!rpcPrdContainer || rpcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->rpcIdHelper().get_module_hash(detElId, hash_id);
-        auto collptr = rpcPrdContainer->indexFindPtr(hash_id);
+        const auto *collptr = rpcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1201,7 +1201,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->stgcIdHelper().get_module_hash(detElId, hash_id);
 
-        auto collptr = stgcPrdContainer->indexFindPtr(hash_id);
+        const auto *collptr = stgcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" StgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1221,7 +1221,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->mmIdHelper().get_module_hash(detElId, hash_id);
 
-        auto collptr = mmPrdContainer->indexFindPtr(hash_id);
+        const auto *collptr = mmPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" MmPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }

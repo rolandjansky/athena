@@ -9,7 +9,7 @@
 #include <memory>
 
 namespace {
-  const static SG::AuxElement::Decorator<char> decPass("passPFTrackPresel");
+  const SG::AuxElement::Decorator<char> decPass("passPFTrackPresel");
 }
 
 PFTrackPreselAlg::PFTrackPreselAlg(const std::string& name, ISvcLocator* pSvcLocator)

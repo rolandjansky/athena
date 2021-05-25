@@ -46,9 +46,6 @@
 #include <cassert>
 #include "SGTools/TestStore.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-
 #include <ctime>
 
 #define DEBUG_VHB 1
@@ -73,19 +70,6 @@ StatusCode jFEXDriver::initialize()
 {
 
   m_numberOfEvents = 1;
-
-  ServiceHandle<ITHistSvc> histSvc("THistSvc","");
-  StatusCode scHist = histSvc.retrieve();
-  if (scHist ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to retrieve THistSvc"); }
-
-  //Reta
-  TH1F* hReta = new TH1F("Reta", "Reta",20,0,1);
-  hReta->GetXaxis()->SetTitle("TObs Reta");
-  hReta->GetYaxis()->SetTitle("Events");
-  
-  StatusCode scReg = histSvc->regHist("/ISO/Reta", hReta); 
-  if (scReg ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to define stream"); }
-
 
   ATH_CHECK( m_jTowerBuilderTool.retrieve() );
 

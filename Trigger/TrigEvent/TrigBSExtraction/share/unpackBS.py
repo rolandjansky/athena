@@ -5,7 +5,7 @@
 ##  2009/09/09       Jiri.Masik@hep.manchester.ac.uk
 ################################################################################
 
-run = 2    # set the run period to test
+run = 1    # set the run period to test
 edmCheck = False
 theApp.EvtMax = 10
 
@@ -15,32 +15,18 @@ BSFileList = {
 }
 
 ################################################################################
-from ByteStreamCnvSvc import ReadByteStream
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageInputSvc
-svcMgr += ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
+from AthenaCommon.AppMgr import ToolSvc, ServiceMgr as svcMgr
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AlgSequence import AlgSequence
 
-svcMgr.EventSelector.Input = BSFileList[run]
+globalflags.DataSource = 'data'
+globalflags.InputFormat = 'bytestream'
+athenaCommonFlags.FilesInput = BSFileList[run]
+job = AlgSequence()
 
-from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
-svcMgr += ROBDataProviderSvc()
-
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import EventSelectorByteStream
-svcMgr += EventSelectorByteStream("EventSelector")
-theApp.EvtSel = "EventSelector"
-
-# for EventType
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
-svcMgr += ByteStreamCnvSvc()
-
-# Properties 
-EventSelector = svcMgr.EventSelector
-EventSelector.ByteStreamInputSvc     = "ByteStreamInputSvc"
-EventPersistencySvc = svcMgr.EventPersistencySvc
-EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-
-# ByteStreamAddressProviderSvc
-from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-svcMgr += ByteStreamAddressProviderSvc()
+from ByteStreamCnvSvc import ReadByteStream  # noqa: F401
+svcMgr.EventSelector.Input = athenaCommonFlags.FilesInput()
 
 if run==1:
   svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/HLTResult_L2",
@@ -52,24 +38,21 @@ elif run==2:
 #svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/DataScouting_03" ]
 #svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/DataScouting_05" ]
 
-from SGComps.SGCompsConf import ProxyProviderSvc
-svcMgr += ProxyProviderSvc()
-svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
-
-
-# TrigBSExtraction
+from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
 from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
 extr = TrigBSExtraction(OutputLevel=DEBUG)
+job += extr
 if run==1:
   extr.L2ResultKey = "HLTResult_L2"
   extr.EFResultKey = "HLTResult_EF"
   extr.HLTResultKey = ""
+  extr.NavigationForL2 = HLTNavigationOffline("NavigationForL2")
+  extr.NavigationForL2.ClassesFromPayloadIgnore = ["TrigPassBits#passbits"]  # ATR-23411
 elif run==2:
   extr.L2ResultKey = ""
   extr.EFResultKey = ""
   extr.HLTResultKey = "HLTResult_HLT"
 
-from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
 extr.Navigation = HLTNavigationOffline()
 
 from TrigEDMConfig.TriggerEDM import getEDMLibraries, getPreregistrationList, getTPList
@@ -80,15 +63,28 @@ extr.Navigation.ClassesToPreregister = getPreregistrationList(run)
 #extr.DSResultKeys += [ "DataScouting_03" ]
 #extr.DSResultKeys += [ "DataScouting_05" ]
 
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
-job += extr
-
-from AthenaCommon.AppMgr import ToolSvc
 from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
 ToolSvc += TrigSerTPTool('TrigSerTPTool')
 ToolSvc.TrigSerTPTool.TPMap = getTPList(run)
 
+from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
+TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
+ToolSvc += TrigSerializeConvHelper
+
+if run==1:  # for Run-1 we need the detector geometry and conditions
+  globalflags.DatabaseInstance = 'COMP200'
+  globalflags.ConditionsTag = "COMCOND-BLKPA-RUN1-07"
+  from IOVDbSvc.CondDB import conddb
+  conddb.setGlobalTag(globalflags.ConditionsTag())
+  from AthenaCommon.DetFlags import DetFlags
+  DetFlags.detdescr.all_setOn()
+  DetFlags.detdescr.ALFA_setOff()
+  include("RecExCond/AllDet_detDescr.py")
+
+
+svcMgr.MessageSvc.verboseLimit = 0
+svcMgr.MessageSvc.debugLimit = 0
+svcMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 svcMgr.StoreGateSvc.Dump = False
 
 if edmCheck:

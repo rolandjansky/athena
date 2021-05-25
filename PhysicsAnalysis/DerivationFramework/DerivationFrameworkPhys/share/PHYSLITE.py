@@ -41,14 +41,14 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addPVCollection
   addStandardTruthContents(SeqPHYSLITE)
   addPVCollection(SeqPHYSLITE)
-'''
-  from DerivationFrameworkMCTruth.HFHadronsCommon import *
-  # Extra classifiers for the Higgs group
-  import DerivationFrameworkHiggs.TruthCategories
   # Set appropriate truth jet collection for tau truth matching
   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
   # Add sumOfWeights metadata for LHE3 multiweights =======
   from DerivationFrameworkCore.LHE3WeightMetadata import *
+'''
+  from DerivationFrameworkMCTruth.HFHadronsCommon import *
+  # Extra classifiers for the Higgs group
+  import DerivationFrameworkHiggs.TruthCategories
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION

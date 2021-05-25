@@ -168,7 +168,7 @@ EGAM2_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM2_GainDecoratorTool
 augmentationTools += [EGAM2_GainDecoratorTool]
 
-cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+cluster_sizes = (3,7), (5,5), (7,11)
 EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 augmentationTools += EGAM2_ClusterEnergyPerLayerDecorators
 
@@ -277,8 +277,8 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
-egam2Seq = CfgMgr.AthSequencer("EGAM2Sequence")
-DerivationFrameworkJob += egam2Seq
+EGAM2Sequence = CfgMgr.AthSequencer("EGAM2Sequence")
+DerivationFrameworkJob += EGAM2Sequence
 
 
 #=======================================
@@ -289,7 +289,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 print("EGAM2 skimming tools: ", [EGAM2_SkimmingTool])
 print("EGAM2 thinning tools: ", thinningTools)
 print("EGAM2 augmentation tools: ", augmentationTools)
-egam2Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
+EGAM2Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
                                                          AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM2_SkimmingTool],
                                                          ThinningTools = thinningTools
@@ -302,14 +302,14 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = []
 if (DerivationFrameworkIsMonteCarlo):
     reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,egam2Seq,"EGAM2")
+replaceAODReducedJets(reducedJetList,EGAM2Sequence,"EGAM2")
 
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',egam2Seq)
+FtagJetCollection('AntiKt4EMPFlowJets',EGAM2Sequence)
 
 
 #========================================
@@ -320,8 +320,9 @@ if (DerivationFrameworkIsMonteCarlo):
         if hasattr(topSequence, alg):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
-            egam2Seq += edtalg
+            EGAM2Sequence += edtalg
 
+			
 #====================================================================
 # SET UP STREAM SELECTION
 #====================================================================

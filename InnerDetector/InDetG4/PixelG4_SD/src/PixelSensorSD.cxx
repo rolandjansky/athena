@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -298,6 +298,7 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     // Do not expect other numbers. Need to fix PixelGeoModel if this occurs.
     G4ExceptionDescription description;
     description << "ProcessHits: Unrecognized geometry in Pixel sensitive detector. Please contact the maintainer of the Pixel Detector Description.";
+    description << "If you are processing a GeoModelXML geometry, please ensure a PixelSensorGmxSD instance is used instead of this (PixelSensorSD).";
     G4Exception("PixelSensorSD", "UnrecognizedPixelGeometry", FatalException, description);
     abort();
   }

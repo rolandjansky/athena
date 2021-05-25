@@ -38,6 +38,3 @@ alg                 ERROR FILE:LINE (StatusCode test1()): code FAILURE: foox
 alg                 ERROR ../test/errorcheck_test.cxx:245 (StatusCode test1()): code FAILURE: fooy
 test2                INFO ../test/errorcheck_test.cxx:261 (void test2(std::vector<int>, const int*, int (*)(), int*)): test2
 test3                INFO ../test/errorcheck_test.cxx:270 (void test3(const std::string&, int)): test3
-test_checking       ERROR ../test/errorcheck_test.cxx:281 (FUNC): code SUCCESS: sc1
-test_checking       ERROR ../test/errorcheck_test.cxx:290 (FUNC): code FAILURE: sc1
-test_checking       ERROR ../test/errorcheck_test.cxx:315 (FUNC): code FAILURE

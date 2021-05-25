@@ -52,7 +52,7 @@ namespace pool
    {
   public:
 
-     CollAppendBase(std::string name="CollAppend");
+     CollAppendBase(const std::string& name="CollAppend");
      virtual ~CollAppendBase();
 
      CollAppendBase (const CollAppendBase&) = delete;
@@ -77,7 +77,7 @@ namespace pool
      buildDstDesc(const pool::ICollectionDescription& sourceDesc,
 		  const pool::TokenList &tokens,
 		  const coral::AttributeList &attribs,
-                  const std::string queryopt );
+                  const std::string& queryopt );
 
      virtual pool::ICollection*
      openSrcCollection( const std::string& name, const std::string& type, const std::string& connect );

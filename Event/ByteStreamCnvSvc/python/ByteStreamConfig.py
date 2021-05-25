@@ -24,6 +24,7 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import logging
 from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
 
 
 def ByteStreamReadCfg(flags, type_names=None):
@@ -95,6 +96,9 @@ def ByteStreamReadCfg(flags, type_names=None):
     proxy = comp_factory.ProxyProviderSvc()
     proxy.ProviderNames += [address_provider.name]
     result.addService(proxy)
+
+    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
+    result.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
 
     return result
 
@@ -213,6 +217,9 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
     proxy = comp_factory.ProxyProviderSvc()
     proxy.ProviderNames += [address_provider.name]
     result.addService(proxy)
+
+    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
+    result.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
 
     return result
 

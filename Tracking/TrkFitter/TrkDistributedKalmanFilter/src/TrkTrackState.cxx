@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ namespace Trk
     m_isScattered=false;m_pPrevState=nullptr;
   }
 
-  TrkTrackState::TrkTrackState(double Rk[5])
+  TrkTrackState::TrkTrackState(const double Rk[5])
   {
     int i;
     for(i=0;i<5;i++) m_Rk[i]=Rk[i];
@@ -109,7 +109,7 @@ namespace Trk
     return m_pSurface;
   }
 
-  void TrkTrackState::updateTrackState(double* pUpd)
+  void TrkTrackState::updateTrackState(const double* pUpd)
   {
     for(int i=0;i<5;i++) m_Rk[i]+=pUpd[i];
     if(m_Rk[2]>M_PI) m_Rk[2]-=2*M_PI;
@@ -118,7 +118,7 @@ namespace Trk
     if(m_Rk[3]>M_PI) m_Rk[3]-=M_PI; 
   }
 
-  void TrkTrackState::updateTrackCovariance(double* pUpd)
+  void TrkTrackState::updateTrackCovariance(const double* pUpd)
   {
     int idx=0;
     for(int i=0;i<5;i++)
@@ -136,11 +136,11 @@ namespace Trk
     m_scattMode=mode;
   }
 
-  int TrkTrackState::getScatteringMode()
+  int TrkTrackState::getScatteringMode() const
   {
     return m_scattMode;
   }
-  void TrkTrackState::setTrackState(double R[5])
+  void TrkTrackState::setTrackState(const double R[5])
   {
     for(int i=0;i<5;i++) m_Re[i]=m_Rk[i]=R[i];
   }

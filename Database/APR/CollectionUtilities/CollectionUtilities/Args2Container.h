@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef UTILITIES_COLLECTION_ARGS2CONTAINER
@@ -63,7 +63,7 @@ namespace pool
      enum XMLVersion {V1=0,V2,NUM_VERSIONS}; 
      enum XMLOption {FILEONLY=0,OVERRIDE,APPEND}; 
 
-     Args2Container(std::string name="Args2Container",
+     Args2Container(const std::string& name="Args2Container",
 		    bool doxml = false,
 		    coral::MessageStream* log = 0); 
 
@@ -77,7 +77,7 @@ namespace pool
      bool evalArgs( int argc, const char *argv[] );
 
      // Pass argv to specified cliarg
-     bool evalArgs(const std::string cliarg, std::vector<std::string>& argv);
+     bool evalArgs(const std::string& cliarg, std::vector<std::string>& argv);
 
      bool doXML() const {return m_xml;}
      void setXMLOption(Args2Container::XMLOption a) {

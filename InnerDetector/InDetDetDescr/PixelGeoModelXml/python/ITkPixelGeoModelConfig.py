@@ -16,7 +16,7 @@ def ITkPixelGeometryCfg(flags):
     # ITkPixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     ITkPixelDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkPixelDetectorTool.DetectorName = "ITkPixel"
-    if flags.ITk.useLocalGeometry:
+    if flags.GeoModel.useLocalGeometry:
       # Setting this filename triggers reading from local file rather than DB
       ITkPixelDetectorTool.GmxFilename = flags.ITk.pixelGeometryFilename
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]

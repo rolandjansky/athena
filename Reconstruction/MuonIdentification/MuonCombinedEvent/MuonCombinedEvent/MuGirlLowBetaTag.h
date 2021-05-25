@@ -30,7 +30,7 @@ namespace MuonCombined {
     
     /** Constructor a combined track and a list of segments as input
     */
-    MuGirlLowBetaTag( ElementLink<TrackCollection> combLink, const std::vector<ElementLink<Trk::SegmentCollection> >& segments );
+    MuGirlLowBetaTag( const ElementLink<TrackCollection>& combLink, const std::vector<ElementLink<Trk::SegmentCollection> >& segments );
 
     /** Constructor taking a list of segments
     */
@@ -62,7 +62,8 @@ namespace MuonCombined {
     MuGirlNS::CandidateSummary* getStauSummary();
     
     void setStauExtras(MuGirlNS::StauExtras* stauExtras);
-    MuGirlNS::StauExtras* getStauExtras() const;
+    MuGirlNS::StauExtras* getStauExtras();
+    const MuGirlNS::StauExtras* getStauExtras() const;
     
     void setRHExtras(MuGirlNS::RHExtras* rhExtras);
     MuGirlNS::RHExtras* getRHExtras();
@@ -122,7 +123,8 @@ namespace MuonCombined {
   inline MuGirlNS::CandidateSummary* MuGirlLowBetaTag::getStauSummary() {return m_stauSummary;}
   
   inline void MuGirlLowBetaTag::setStauExtras(MuGirlNS::StauExtras* stauExtras) {m_stauExtras = stauExtras;}
-  inline MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() const {return m_stauExtras;}
+  inline MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() {return m_stauExtras;}
+  inline const MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() const {return m_stauExtras;}
   
   inline void MuGirlLowBetaTag::setRHExtras(MuGirlNS::RHExtras* rhExtras) {m_rhExtras = rhExtras;}
   inline MuGirlNS::RHExtras* MuGirlLowBetaTag::getRHExtras() {return m_rhExtras;}

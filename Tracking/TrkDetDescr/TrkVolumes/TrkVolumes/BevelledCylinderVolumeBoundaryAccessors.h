@@ -87,10 +87,10 @@ namespace Trk {
 
       private:
 
-        std::array<ThreeObjectsAccessor,4> m_bevelledcylinderAccessors;
+        std::array<ThreeObjectsAccessor,4> m_bevelledcylinderAccessors{};
         std::array<FourObjectsAccessor,12> m_bevelledtubeAccessors;
-        std::array<FiveObjectsAccessor,1>  m_sectoralBevelledCylinderAccessors;
-        std::array<SixObjectsAccessor,1>   m_sectoralBevelledTubeAccessors;
+        std::array<FiveObjectsAccessor,1>  m_sectoralBevelledCylinderAccessors{};
+        std::array<SixObjectsAccessor,1>   m_sectoralBevelledTubeAccessors{};
 
    };
 

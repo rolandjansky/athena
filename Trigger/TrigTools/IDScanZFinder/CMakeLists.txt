@@ -10,4 +10,4 @@ find_package( CLHEP )
 atlas_add_component( IDScanZFinder
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel IRegionSelector TrigInDetEvent TrigInDetToolInterfacesLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel IRegionSelector TrigInDetEvent TrigInDetToolInterfacesLib xAODTrigger xAODTracking TrigCompositeUtilsLib)

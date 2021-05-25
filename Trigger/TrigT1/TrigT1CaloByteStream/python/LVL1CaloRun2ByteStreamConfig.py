@@ -113,12 +113,12 @@ def readOnlyToolsForRerunLVL1(flags):
     return acc
 
 
-def LVL1CaloRun2ReadBSCfg(flags):
+def LVL1CaloRun2ReadBSCfg(flags, forRoIBResultToxAOD=False):
     acc = ComponentAccumulator()
     typeNamesToDecode = []
 
-    if flags.Trigger.doLVL1:
-        # Rerun L1Calo simulation on data - only need a few inputs from data
+    if flags.Trigger.doLVL1 or forRoIBResultToxAOD:
+        # Rerun L1Calo simulation on data or run RoIBResultToxAOD - only need a few inputs from data
         typeNamesToDecode = typeNamesToDecodeForRerunLVL1()
     else:
         # Configure the full list of objects to decode

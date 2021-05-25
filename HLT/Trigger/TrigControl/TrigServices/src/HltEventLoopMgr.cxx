@@ -286,6 +286,18 @@ StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
   ATH_MSG_DEBUG("Setting context for start transition: " << m_currentRunCtx.eventID());
   Gaudi::Hive::setCurrentContext(m_currentRunCtx);
 
+  try {
+    ATH_CHECK( clearTemporaryStores() );                 // do the necessary resets
+    ATH_CHECK( m_sorHelper->fillSOR(m_currentRunCtx) );  // update SOR in det store
+
+    const auto& soral = getSorAttrList();
+    updateInternal(soral);       // update internally kept info
+    updateMetadataStore(soral);  // update metadata store
+  }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Exception: " << e.what());
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -299,17 +311,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
   try
   {
-    // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
-    // (void)TClass::GetClass("vector<unsigned long>");
-
-    ATH_CHECK( clearTemporaryStores() );                 // do the necessary resets
-    ATH_CHECK( m_sorHelper->fillSOR(m_currentRunCtx) );  // update SOR in det store
     ATH_CHECK( updateMagField(pt) );                     // update magnetic field
-
-    auto& soral = getSorAttrList();
-
-    updateInternal(soral);       // update internally kept info
-    updateMetadataStore(soral);  // update metadata store
 
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginRun, m_currentRunCtx));
 

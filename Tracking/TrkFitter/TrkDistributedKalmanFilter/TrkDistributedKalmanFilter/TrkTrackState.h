@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ namespace Trk {
     {
     public:
       TrkTrackState();
-      TrkTrackState(double[5]);
+      TrkTrackState(const double[5]);
       TrkTrackState(const TrkTrackState*);
       ~TrkTrackState(){};
       void report();
@@ -33,12 +33,12 @@ namespace Trk {
       TrkPlanarSurface* getSurface();
       void attachToSurface(TrkPlanarSurface*);
       void setScatteringMode(int);
-      int getScatteringMode();
+      int getScatteringMode() const;
       void applyMaterialEffects();
-      void updateTrackState(double*);
-      void updateTrackCovariance(double*);
+      void updateTrackState(const double*);
+      void updateTrackCovariance(const double*);
       void setTrackCovariance(double A[5][5]);
-      void setTrackState(double A[5]);
+      void setTrackState(const double A[5]);
       void setSmootherGain(double A[5][5]);
       void setPreviousState(TrkTrackState*);
       void runSmoother();
@@ -57,13 +57,13 @@ namespace Trk {
 	  return 5;
 	}
     protected:
-      double m_Rk[5],m_Re[5];
-      double m_Gk[5][5],m_Ge[5][5];
+      double m_Rk[5]{},m_Re[5]{};
+      double m_Gk[5][5]{},m_Ge[5][5]{};
       int m_scattMode;
       bool m_isScattered;
       TrkPlanarSurface* m_pSurface;
       TrkTrackState* m_pPrevState;
-      double m_A[5][5];
+      double m_A[5][5]{};
     };
 }
 

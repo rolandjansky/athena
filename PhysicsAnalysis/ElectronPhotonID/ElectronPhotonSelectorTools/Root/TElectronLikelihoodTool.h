@@ -337,7 +337,7 @@ private:
   static const unsigned int s_fnVariables = 13;
   // 5D array of ptr to SafeTH1  // [sig(0)/bkg(1)][ip][et][eta][variable]
   EGSelectors::SafeTH1* fPDFbins[2][IP_BINS][s_fnEtBinsHist][s_fnEtaBins]
-                                [s_fnVariables];
+                                [s_fnVariables]{};
   static const std::string fVariables[s_fnVariables];
 
   unsigned int getIpBin(double ip) const;

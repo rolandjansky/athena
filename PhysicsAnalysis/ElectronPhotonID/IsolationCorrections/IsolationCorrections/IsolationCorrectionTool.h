@@ -109,7 +109,7 @@ private:
   bool m_apply_etaEDParPU_mc_corr;
   bool m_is_mc;
   bool m_AFII_corr;
-  bool m_apply_dd, m_apply_ddDefault;
+  bool m_apply_dd{}, m_apply_ddDefault;
   bool m_correct_etcone;
   bool m_trouble_categories;
   bool m_useLogLogFit;

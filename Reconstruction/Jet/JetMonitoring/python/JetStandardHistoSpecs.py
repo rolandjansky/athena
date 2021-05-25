@@ -25,6 +25,7 @@ knownVar = dict(
 # Explicitly declare variables which have underlying type vector<int> (otherwise the system would automatically configure them as vector<float>)
 knownVar['NumTrkPt1000[0]'] = VarSpec('NumTrkPt1000[0]', 'vecint', )
 knownVar['NumTrkPt500[0]']  = VarSpec('NumTrkPt500[0]', 'vecint', )
+knownVar['numConstituents'] = VarSpec('numConstituents', 'int', )
 
 knownEventVar = dict(    
     # These always are of type 'float'
@@ -57,6 +58,7 @@ knownEventVar = dict(
     njetsPt260Eta32_49 = ToolSpec('NumJetVarTool', 'njetsPt260Eta32_49', PtCut=260., EtaMin=3.2, EtaMax=4.9),
     njetsPt200Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt200Eta0_32', PtCut=200., EtaMin=0., EtaMax=3.2),
     njetsPt330Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt330Eta0_32', PtCut=330., EtaMin=0., EtaMax=3.2),
+    njetsPt200 = ToolSpec('NumJetVarTool', 'njetsPt200', PtCut=200.),
 
 )
 
@@ -73,6 +75,7 @@ _knownHistos = [
     # Simple form : histogram of variable 'eta' (the name of spec is the same as the name of variable)
     #        As in TH1 ctor, ';' in the title is interpreted as in "Main Title;Title xAxis;Title yAxis"
     HistoSpec( 'eta',  (50,-5,5) , title='#eta;#eta;Entries'),
+    HistoSpec( 'rapidity',  (50,-5,5) , title='rapidity;y;Entries'), # Test non-EDM variable 
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
     HistoSpec( 'pt:GeV',  (100,0,750) , title='p_{T};p_{T} [GeV];'),    
@@ -84,7 +87,9 @@ _knownHistos = [
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
     HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
 
+    HistoSpec( 'avgMu', (100, 0., 200.) , title='Ave. Interactions per Crossing; Ave. mu' , xvar='avgMu'),
     #EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
+    #HistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' , xvar='njets'),
     # When the jet variable is not a simple float, use the xvar argument to refer to a detailed variable spec in 'knownVar'
     HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;Entries', xvar='JVF'),    
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')
@@ -173,7 +178,8 @@ _knownHistos = [
     HistoSpec('C1', (100, -1, 1), title='C1;C1;', ),
 
     HistoSpec('NegativeE:GeV', (80, -10, 0), title='Negative E in Jet;Energy;', ),
-    HistoSpec('N90Constituents', (15, 0, 15), title='N90Constituents; N90Constituents;', ),
+    HistoSpec('N90Constituents', (100, 0, 100), title='N90Constituents; N90Constituents;', ),
+    HistoSpec('nconstit', (100,0, 200), title='Num. of Consituents; Nconstituents;'),
 
     HistoSpec('BchCorrDotx', (50, 0, 1), title='BchCorrDotx:BchCorrDotx;', ),
     HistoSpec('BchCorrCell', (50, 0, 1), title='BchCorrCell:BchCorrCell;', ),

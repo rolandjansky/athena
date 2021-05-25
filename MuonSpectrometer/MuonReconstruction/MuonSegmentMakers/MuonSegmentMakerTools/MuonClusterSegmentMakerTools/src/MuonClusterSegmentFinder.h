@@ -211,9 +211,9 @@ class MuonClusterSegmentFinder : virtual public IMuonClusterSegmentFinder, publi
     };
 
     bool                       m_doNtuple;
-    TFile*                     m_file;
-    TTree*                     m_tree;
-    ClusterSeg::ClusterNtuple* m_ntuple;
+    TFile*                     m_file{};
+    TTree*                     m_tree{};
+    ClusterSeg::ClusterNtuple* m_ntuple{};
 
     bool        matchTruth(const PRD_MultiTruthCollection& truthCol, const Identifier& id, int& barcode) const;
     Trk::Track* fit(const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar) const;

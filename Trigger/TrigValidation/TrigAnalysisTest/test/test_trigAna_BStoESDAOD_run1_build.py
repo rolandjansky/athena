@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Test of reconstruction of Run-1 data with trigger
 # art-type: build
@@ -18,7 +18,7 @@ ex.input = 'data_run1'
 ex.args = '--outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root --outputHISTFile=HIST.root'
 ex.args += ' --autoConfiguration="everything"'
 ex.args += ' --conditionsTag "all:COMCOND-BLKPA-RUN1-07"'
-ex.args += ' --preExec "all:DQMonFlags.doCTPMon=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doHLTMon=False;" "RAWtoESD:TriggerFlags.doMergedHLTResult=False;"'
+ex.args += ' --preExec "all:DQMonFlags.doCTPMon=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doHLTMon=False;"'
 
 test = Test.Test()
 test.art_type = 'build'

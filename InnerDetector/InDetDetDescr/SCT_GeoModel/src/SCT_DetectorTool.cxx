@@ -169,7 +169,7 @@ SCT_DetectorTool::clear()
 StatusCode 
 SCT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE () // Thread unsafe detStore()->regFcn (callback) is used.
 {
-  StatusCode sc{StatusCode::FAILURE, true};
+  StatusCode sc{StatusCode::FAILURE};
   if (m_alignable.value()) {
     if (m_useDynamicAlignFolders.value()) {
 

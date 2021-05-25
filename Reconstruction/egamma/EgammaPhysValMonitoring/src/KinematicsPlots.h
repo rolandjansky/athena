@@ -18,7 +18,7 @@ namespace Egamma{
 class KinematicsPlots:public PlotBase {
     public:
       KinematicsPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-      void fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo);
+      void fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo) const;
       
       // Reco only information
       std::string m_sParticleType;

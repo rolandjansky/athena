@@ -42,7 +42,7 @@ public:
   StatusCode printProbMap(const std::string&) const;
 
   double getMobility(double electricField, bool isHoleBit);
-  double getDriftTime(bool isHoleBit);
+  std::vector<double> getDriftTime(bool isHoleBit, size_t number);
 
 private:
 

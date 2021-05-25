@@ -63,8 +63,6 @@ namespace Trk {
         /** AlgTool initialize method */
         StatusCode initialize();
 
-        /** AlgTool finalize method */
-        StatusCode finalize();
 
         /** Method to glue two Volumes together
             input:

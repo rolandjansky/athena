@@ -75,12 +75,28 @@ public:
             const InDetDD::SiDetectorElement* detEl,
             const Amg::MatrixX* locErrMat = nullptr);
 
+  SiCluster(const Identifier& RDOId,
+            const Amg::Vector2D& locpos,
+	    const Amg::Vector3D& globpos,
+            const std::vector<Identifier>& rdoList,
+            const InDet::SiWidth& width,
+            const InDetDD::SiDetectorElement* detEl,
+            const Amg::MatrixX* locErrMat = nullptr);
+
   /**
    * Constructor with parameters using unique_ptr of Amg::MatrixX.
    * All parameters have to be given!
    */
   SiCluster(const Identifier& RDOId,
             const Amg::Vector2D& locpos,
+            std::vector<Identifier>&& rdoList,
+            const InDet::SiWidth& width,
+            const InDetDD::SiDetectorElement* detEl,
+            std::unique_ptr<const Amg::MatrixX> locErrMat);
+
+  SiCluster(const Identifier& RDOId,
+            const Amg::Vector2D& locpos,
+	    const Amg::Vector3D& globpos,
             std::vector<Identifier>&& rdoList,
             const InDet::SiWidth& width,
             const InDetDD::SiDetectorElement* detEl,

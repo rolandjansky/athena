@@ -39,7 +39,7 @@ class TrigEgammaFastElectronHypoToolConfig:
     self.__lrtInfo    = lrtinfo
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastElectronHypoToolInc(name)
+    tool = CompFactory.TrigEgammaFastElectronHypoTool(name)
     self.__tool = tool
 
     tool.AcceptAll      = False

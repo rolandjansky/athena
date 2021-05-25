@@ -17,7 +17,7 @@ namespace Egamma{
 class PhotonAmbPlots:public PlotBase {
     public:
       PhotonAmbPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType);
-      void fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt);
+      void fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const;
       
       // Reco only information
       Egamma::KinematicsPlots         m_oKinAllPlots;

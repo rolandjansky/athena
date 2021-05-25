@@ -762,7 +762,7 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
   // CGL: FIXME
   // bool noTimeLimit(false);
   bool loop_ended=false;
-  StatusCode sc(StatusCode::SUCCESS,true);
+  StatusCode sc(StatusCode::SUCCESS);
 
   bool newEvtAllowed = ! m_firstEventAlone;
   

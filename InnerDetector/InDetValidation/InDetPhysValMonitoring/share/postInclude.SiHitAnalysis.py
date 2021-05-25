@@ -5,13 +5,10 @@ topSequence.PixelHitAnalysis.CollectionName='PixelHits'
 topSequence += SiHitAnalysis('SCTHitAnalysis')
 topSequence.SCTHitAnalysis.CollectionName='SCT_Hits'
 topSequence.PixelHitAnalysis.HistPath='/SiHitAnalysis/'
-if InDetGeometryFlags.isSLHC():
- topSequence.PixelHitAnalysis.isITK = True
 topSequence.SCTHitAnalysis.HistPath='/SiHitAnalysis/'
-if InDetGeometryFlags.isSLHC():
- topSequence.SCTHitAnalysis.isITK = True
-topSequence.PixelHitAnalysis.ExpertMode= "off"
-topSequence.SCTHitAnalysis.ExpertMode= "off"
+# Uncomment to enable expert mode
+# topSequence.PixelHitAnalysis.ExpertMode= True
+# topSequence.SCTHitAnalysis.ExpertMode= True
 
 if not hasattr(ServiceMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc

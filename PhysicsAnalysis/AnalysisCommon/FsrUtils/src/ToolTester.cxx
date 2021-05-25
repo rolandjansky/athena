@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -28,7 +28,6 @@ namespace FSR {
    StatusCode ToolTester::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
       ATH_MSG_INFO( "SGMuonKey = "     << m_sgMuonKey );
       ATH_MSG_INFO( "SGPhotonKey = "   << m_sgPhotonKey );
       ATH_MSG_INFO( "SGElectronKey = " << m_sgElectronKey );

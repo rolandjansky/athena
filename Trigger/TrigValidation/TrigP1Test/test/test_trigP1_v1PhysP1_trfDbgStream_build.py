@@ -20,7 +20,7 @@ hlt.args  = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
 hlt.args += ' --streamSelection=All'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
-hlt.args += ' --outputHIST_DEBUGSTREAMMONFile=HIST_DEBUGSTREAMMON.testing.data' # Turn on debug recovery step
+hlt.args += ' --outputHIST_DEBUGSTREAMMONFile=HIST_DEBUGSTREAMMON.ntup.root' # Turn on debug recovery step
 hlt.input = 'data_dbg_stream'
 
 

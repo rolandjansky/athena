@@ -40,6 +40,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 mv log.Overlay log.OverlayLegacy
 echo "art-result: $rc configLegacy"
 
@@ -59,6 +60,7 @@ then
     --imf False \
     --athenaopts="--threads=1"
     rc2=$?
+    status=$rc2
     mv log.Overlay log.OverlayTest
 fi
 echo  "art-result: $rc2 configNew"
@@ -68,5 +70,8 @@ if [ $rc2 -eq 0 ]
 then
     acmd.py diff-root legacyMcOverlayRDO.pool.root mcOverlayRDO.pool.root --error-mode resilient --mode=semi-detailed --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
+
+exit $status

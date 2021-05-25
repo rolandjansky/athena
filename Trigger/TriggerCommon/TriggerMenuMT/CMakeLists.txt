@@ -122,50 +122,36 @@ atlas_install_scripts( scripts/generateL1MenuMT.sh
 atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
 
-# Tests:
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
+# Full menu tests (athena):
 atlas_add_test( generateMenuMT_newJO
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO
+                PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
 
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest )
-atlas_add_test( ViewCFTest
-                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest
-                POST_EXEC_SCRIPT nopost.sh )
-
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT )
 atlas_add_test( generateMenuMT
                 SCRIPT test_HLTmenu.sh
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT
-                PROPERTIES TIMEOUT 4000
-                POST_EXEC_SCRIPT nopost.sh )
-
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
-atlas_add_test( full_menu_cf
-                SCRIPT scripts/test_full_menu_cf.sh
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf 
+                PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
-                
 
-file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences )
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences )
+atlas_add_test( full_menu_cf
+                SCRIPT scripts/test_full_menu_cf.sh
+                PRIVATE_WORKING_DIRECTORY
+                PROPERTIES TIMEOUT 500
+                POST_EXEC_SCRIPT nopost.sh )
+
+# Unit tests:
+atlas_add_test( ViewCFTest
+                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
+                POST_EXEC_SCRIPT nopost.sh )
+
 atlas_add_test( EventBuildingSequences
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequences
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequences
-		)
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
-                PROPERTIES TIMEOUT 200 
-                POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" 
-              )
+                POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" )
 
 atlas_add_test( RecoFragmentsPool
                 SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.RecoFragmentsPoolTest

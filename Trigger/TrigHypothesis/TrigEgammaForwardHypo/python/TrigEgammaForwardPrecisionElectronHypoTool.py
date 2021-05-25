@@ -10,12 +10,12 @@ def same( val , tool):
 #
 # Create the hypo alg with all selectors
 #
-def createTrigEgammaForwardPrecisionElectronHypoAlgMT(name, sequenceOut):
+def createTrigEgammaForwardPrecisionElectronHypoAlg(name, sequenceOut):
     # make the Hypo
     #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaForwardPrecisionElectronLHSelectors
 
-    from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionElectronHypoAlgMT
-    thePrecisionElectronHypo = TrigEgammaForwardPrecisionElectronHypoAlgMT(name)
+    from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionElectronHypoAlg
+    thePrecisionElectronHypo = TrigEgammaForwardPrecisionElectronHypoAlg(name)
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
     #thePrecisionElectronHypo.FwdElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
@@ -55,8 +55,8 @@ class TrigEgammaForwardPrecisionElectronHypoToolConfig:
     self.__sel = sel
     self.__iso = iso
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoToolInc
-    tool = TrigEgammaPrecisionElectronHypoToolInc( name )
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
+    tool = TrigEgammaPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = []
     tool.PidName        = ""

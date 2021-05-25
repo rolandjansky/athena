@@ -114,7 +114,7 @@ struct componentsCache
     double determinantR;
     double chi2;
   };
-  std::array<element, GSFConstants::maxComponentsAfterConvolution> elements;
+  std::array<element, GSFConstants::maxComponentsAfterConvolution> elements{};
   size_t numElements = 0;
 };
 
@@ -237,7 +237,7 @@ Trk::PosteriorWeightsCalculator::weights(
   size_t index(0);
   double sumWeights(0.);
   std::array<double, GSFConstants::maxComponentsAfterConvolution>
-    fallBackWeights;
+    fallBackWeights{};
   auto componentItr = returnMultiComponentState.begin();
   for (; componentItr != returnMultiComponentState.end();
        ++componentItr, ++index) {

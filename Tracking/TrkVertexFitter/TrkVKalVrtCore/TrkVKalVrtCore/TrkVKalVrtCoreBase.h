@@ -74,28 +74,28 @@ namespace Trk {
        int Charge;       //track charge
 
                // Fitted track perameters at vertex VKVErtex->fitV
-       double fitP[3];
+       double fitP[3]{};
        double Chi2;
 
                // Track perameters at vertex VKVErtex->cnstV for constraint calculations
-       double cnstP[3];
+       double cnstP[3]{};
 
                // ALL is estimated at VKVErtex->iniV posision - start position of the fit
-       double iniP[3];     //perigee parameters assuming that track passes through iniXYZ 
+       double iniP[3]{};     //perigee parameters assuming that track passes through iniXYZ 
 
                // ALL is estimated at VKVErtex->refIterV posision - iteration reference position 
-       double Perig[5];         //perigee parameters prepared for vertex estimation
-       double WgtM[15];         //symmetric weight matrix prepared for vertex estimation
-       double WgtM_save[15];    //copy of weight matrix for speed optimisation
+       double Perig[5]{};         //perigee parameters prepared for vertex estimation
+       double WgtM[15]{};         //symmetric weight matrix prepared for vertex estimation
+       double WgtM_save[15]{};    //copy of weight matrix for speed optimisation
 
                // All for robustification
-       double rmnd[5];     //remnants with respect to fitted vertex position
-       double e[5];        //eigenvalues of weight matrix
-       double v[5][5];     //corresponding eigenvectors of weight matrix
+       double rmnd[5]{};     //remnants with respect to fitted vertex position
+       double e[5]{};        //eigenvalues of weight matrix
+       double v[5][5]{};     //corresponding eigenvectors of weight matrix
 
                // ALL is estimated at VKVErtex->refXYZ posision - reference position for vertex fit
-       double refPerig[5];  //perigee parameters
-       double refCovar[15]; //symmetric covariance matrix 
+       double refPerig[5]{};  //perigee parameters
+       double refCovar[15]{}; //symmetric covariance matrix 
 
      public:
        double getMass() const  {return m_mass;}
@@ -138,32 +138,32 @@ namespace Trk {
 
      public:        // Relative coordinates with respect to refIterV[]
        double Chi2;         // vertex Chi2
-       double fitV[3];      //fitted vertex position on given iteration step
-       double fitVcov[6];   //symmetric covariance matrix of fitted vertex
-       double iniV[3];      //starting point for the fit.
-       double cnstV[3];     //position for constraint values calculation. May be different from fitV or iniV
+       double fitV[3]{};      //fitted vertex position on given iteration step
+       double fitVcov[6]{};   //symmetric covariance matrix of fitted vertex
+       double iniV[3]{};      //starting point for the fit.
+       double cnstV[3]{};     //position for constraint values calculation. May be different from fitV or iniV
 
      public:        //Global coordinates
-       double refIterV[3];  //initial point for iteration step and target for preparatory
+       double refIterV[3]{};  //initial point for iteration step and target for preparatory
                             //track extrapolation. At this point Perig[] and WgtM[] for each track are defined.
-       double refV[3];      //reference point for given vertex. At this point refPerig[] and refCovar[]
+       double refV[3]{};      //reference point for given vertex. At this point refPerig[] and refCovar[]
                             //for each track are defined
 
        int useApriorVertex;   //for a priory vertex position knowledge usage
-       double apriorV[3];     //global coordinates (the same as refV and refIterV)
-       double apriorVWGT[6];  //weight matrix of a priori vertex   
+       double apriorV[3]{};     //global coordinates (the same as refV and refIterV)
+       double apriorVWGT[6]{};  //weight matrix of a priori vertex   
 
 
        bool passNearVertex;       // needed for "passing near vertex" constraint
        bool passWithTrkCov;       //  Vertex, CovVertex, Charge and derivatives 
-       double fitMom[3];          //   are in ForVrtClose structure
-       double fitCovXYZMom[21];   //  Mom and CovMom are here because they are used also for other purposes
+       double fitMom[3]{};          //   are in ForVrtClose structure
+       double fitCovXYZMom[21]{};   //  Mom and CovMom are here because they are used also for other purposes
        ForVrtClose FVC;
 
 
-       double T[3];           // save T(see Billoir) vector for futher use
-       double wa[6];          // save WA matrix for futher use
-       double dxyz0[3];       // unconstrained shift of vertex on current iteration. Needed for PostFit
+       double T[3]{};           // save T(see Billoir) vector for futher use
+       double wa[6]{};          // save WA matrix for futher use
+       double dxyz0[3]{};       // unconstrained shift of vertex on current iteration. Needed for PostFit
       
        std::vector<std::unique_ptr<VKTrack> > TrackList;
        std::vector<std::unique_ptr<TWRK> >    tmpArr;
@@ -179,13 +179,13 @@ namespace Trk {
 
        VKVertex * nextCascadeVrt;
        std::vector<VKVertex*> includedVrt;  // these vertices are NOT owned by given object.
-       double savedVrtMomCov[21]; // saved covariance WITHOUT pointing constraint
+       double savedVrtMomCov[21]{}; // saved covariance WITHOUT pointing constraint
 				  // for correct cascade error definition 
      public: 
 
        bool truncatedStep;
        int  existFullCov;
-       double ader[(3*vkalNTrkM+3)*(3*vkalNTrkM+3)];  // was [903][903]
+       double ader[(3*vkalNTrkM+3)*(3*vkalNTrkM+3)]{};  // was [903][903]
 
      public:        // Object with defining information for VKalVrtCore library.
                     // Each vertex has a copy of VKalVrtControl object what allows

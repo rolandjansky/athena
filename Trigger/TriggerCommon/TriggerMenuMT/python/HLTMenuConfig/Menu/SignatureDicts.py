@@ -455,7 +455,7 @@ TEChainParts_Default['trigType']  = ['te']
 #==========================================================
 # Electron Chains
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg","bBeeM6000"]
+AllowedTopos_e = ['Jpsiee','Zeg','Zee','Heg','bBeeM6000']
 # ---- Electron Dictionary of all allowed Values ----
 ElectronChainParts = {
     'signature'      : ['Electron'],
@@ -506,6 +506,7 @@ ElectronChainParts_Default = {
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
+    'topo'          : [],
     'chainPartIndex': 0
 }
 
@@ -513,7 +514,7 @@ ElectronChainParts_Default = {
 # Photon chains
 #==========================================================
 # ---- Photon Dictionary of all allowed Values ----
-AllowedTopos_g = ['dPhi15']
+AllowedTopos_g = ['dPhi15', 'm80']
 PhotonChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Photon'],
@@ -558,7 +559,8 @@ PhotonChainParts_Default = {
     'addInfo'        : [],
     'sigFolder'     : 'Egamma',
     'subSigs'       : ['Electron','Photon'],
-    'chainPartIndex': 0,
+    'topo'          : [],
+    'chainPartIndex': 0
     }
 
 #==========================================================

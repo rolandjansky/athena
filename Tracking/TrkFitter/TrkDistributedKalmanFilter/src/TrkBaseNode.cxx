@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -71,12 +71,12 @@ namespace Trk {
     return m_nodeType;
   }
   
-  int TrkBaseNode::getNdof()
+  int TrkBaseNode::getNdof() const
   {
     return m_ndof;
   }
 
-  double TrkBaseNode::getChi2()
+  double TrkBaseNode::getChi2() const
   {
     return m_dChi2;
   }

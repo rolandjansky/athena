@@ -62,7 +62,6 @@ public:
   virtual ~TrackParticleCreatorTool() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
 
   /** Method to construct a TrackParticle from a passed Track. Currently, it
   will ONLY fill the MeasuredPerigee i.e. the TrackParticle will not be complete

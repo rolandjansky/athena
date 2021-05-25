@@ -166,7 +166,7 @@ namespace InDet{
       std::string                              m_multiTruthCollectionTRTName; //!< Name of TRT TruthCollection
       bool                                     m_phaseMode   ; //!< Switch to destinguish between phase calculation and full reco
       std::string                              m_ntrtmanager ; //!< Name of TRT det. manager 
-      const TRT_ID*                            m_trtid       ; 
+      const TRT_ID*                            m_trtid{}       ; 
 
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container 
       SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap

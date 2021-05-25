@@ -15,11 +15,8 @@ def RoIBResultToxAODCfg(flags):
     acc.addEventAlgo(alg)
 
     if flags.Input.Format == 'BS':
-        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        typeNames = [
-            'xAOD::JetElementContainer/JetElements', 'xAOD::JetElementAuxContainer/JetElementsAux.',
-            'xAOD::CPMTowerContainer/CPMTowers', 'xAOD::CPMTowerAuxContainer/CPMTowersAux.']
-        acc.merge(ByteStreamReadCfg(flags, typeNames))
+        from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+        acc.merge(LVL1CaloRun2ReadBSCfg(flags, forRoIBResultToxAOD=True))
 
     # Create output list to return for use by the caller
     outputList = []

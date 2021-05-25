@@ -41,8 +41,7 @@ namespace Trk {
     pt->Fill(prt.pt() * 0.001, weight); 
     eta->Fill(prt.eta(),weight);
     phi->Fill(prt.phi(),weight);
-    // not sure yet how to add weights for these cases. (JEF 8/4/2021)
-    eta_pt->Fill(prt.eta(), prt.pt() * 0.001);
-    eta_phi->Fill(prt.eta(), prt.phi());
+    eta_pt->Fill(prt.eta(), prt.pt() * 0.001, weight);
+    eta_phi->Fill(prt.eta(), prt.phi(),weight);
   }
 }

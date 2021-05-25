@@ -33,7 +33,7 @@ namespace Egamma{
 
   }
 
-  void ClusMomentumPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo){
+  void ClusMomentumPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const{
 
     float weight = 1.;
     weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;

@@ -205,18 +205,12 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
 def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=False, **kwargs):
     Muon__MooCandidateMatchingTool=CompFactory.Muon.MooCandidateMatchingTool
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonStraightLineExtrapolatorCfg
     
     result = ComponentAccumulator()
 
     # Won't explicitly configure MuonEDMHelperSvc
     kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
 
-    acc = MuonStraightLineExtrapolatorCfg(flags)
-    slextrap = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("SLExtrapolator", slextrap)
-    
     acc = AtlasExtrapolatorCfg(flags)
     extrap = acc.getPrimary()
     result.merge(acc)

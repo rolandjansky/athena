@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthPhotonHistograms.h"
@@ -94,7 +94,7 @@ void TruthPhotonHistograms::fill(const xAOD::IParticle& phrec, float mu) {
 
 
   // access reco photon from the xAOD::TruthParticle (can't use the IParticle* here)
-  auto truthParticle = dynamic_cast<const xAOD::TruthParticle*>(&phrec);
+  const auto *truthParticle = dynamic_cast<const xAOD::TruthParticle*>(&phrec);
   if (truthParticle) {
     const xAOD::Photon *photon = xAOD::EgammaHelpers::getRecoPhoton(truthParticle);
 

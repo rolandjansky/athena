@@ -541,7 +541,7 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	  WaveMap::iterator itm = waveMap.find((*it)->DAC());
 
 	  if ( itm == waveMap.end() ) { // A new LArCaliWave is booked
-	    LArCaliWave wave(samplesum.size()*m_NStep, m_dt, (*it)->DAC());
+	    LArCaliWave wave(samplesum.size()*m_NStep, m_dt, (*it)->DAC(), 0x1);
 	    wave.setFlag( LArWave::meas ) ;
 
 	    // Be careful! Don't call addAccumulatedEvent() twice!!!

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef E1HG_SYSTEMATICS_H
@@ -32,9 +32,9 @@ class e1hg_systematics {
  private:
 
   // histograms to store parameters
-  TH1D* m_helec[8];
-  TH1D* m_hphot[8];
-  TH1D* m_hphot2[8];
+  TH1D* m_helec[8]{};
+  TH1D* m_hphot[8]{};
+  TH1D* m_hphot2[8]{};
   TFile* m_file0;
   const TArrayD* m_etBins;
 

@@ -543,15 +543,15 @@ namespace Rec {
             double energyBalance = combinedEnergyParameters->momentum().mag() + caloEnergy->deltaE() - indetMaxE;
 
             // get parametrised eloss if large energy imbalance and refit track
-            CaloEnergy* paramEnergy = nullptr;
+            std::unique_ptr<CaloEnergy> paramEnergy;
             if (indetMaxE > 0. && energyBalance > m_numberSigmaFSR * caloEnergy->sigmaMinusDeltaE()) {
                 // parametrized energy deposition
                 // run-2 schema, update default eloss with parametrised value
                 if (m_useCaloTG) {
-                    paramEnergy = m_materialUpdator->getParamCaloELoss(muonTrack.get());
+                    paramEnergy.reset(m_materialUpdator->getParamCaloELoss(muonTrack.get()));
                 } else {
                     // run-1 schema, recalculate parametrised eloss
-                    paramEnergy = m_caloEnergyParam->energyLoss(combinedEnergyParameters->momentum().mag(),
+                    paramEnergy = m_caloEnergyParam->energyLoss(ctx, combinedEnergyParameters->momentum().mag(),
                                                                 combinedEnergyParameters->position().eta(),
                                                                 combinedEnergyParameters->position().phi());
                 }
@@ -571,8 +571,9 @@ namespace Rec {
                               << (caloEnergy->deltaE() - paramEnergy->deltaE()) / Gaudi::Units::GeV);
 
                 ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-                muonTrack = createMuonTrack(ctx, extrapolatedTrack, nullptr, paramEnergy, muonTrack->trackStateOnSurfaces()->begin(),
-                                            muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size());
+                muonTrack =
+                    createMuonTrack(ctx, extrapolatedTrack, nullptr, paramEnergy.release(), muonTrack->trackStateOnSurfaces()->begin(),
+                                    muonTrack->trackStateOnSurfaces()->end(), muonTrack->trackStateOnSurfaces()->size());
 
                 if (muonTrack) {
                     std::unique_ptr<Trk::Track> refittedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
@@ -1829,10 +1830,10 @@ namespace Rec {
         trackStateOnSurfaces->push_back(std::move(innerTSOS));
         trackStateOnSurfaces->push_back(std::move(middleTSOS));
         trackStateOnSurfaces->push_back(std::move(outerTSOS));
-
+        const Trk::TrackParameters* outerTSOSParam = trackStateOnSurfaces->back()->trackParameters();
         // MS entrance perigee
         if (m_perigeeAtSpectrometerEntrance) {
-            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOS->trackParameters(), ctx);
+            const Trk::TrackStateOnSurface* entranceTSOS = entrancePerigee(outerTSOSParam, ctx);
             if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
         }
 
@@ -2110,23 +2111,19 @@ namespace Rec {
         // calo association (if relevant)
 
         // create Perigee if starting parameters given for a different surface type
-        const Trk::TrackParameters* perigee = &perigeeStartValue;
-        Trk::PerigeeSurface* perigeeSurface = nullptr;
+        std::unique_ptr<const Trk::TrackParameters> perigee = perigeeStartValue.uniqueClone();
+        std::unique_ptr<Trk::PerigeeSurface> perigeeSurface;
 
-        if (!dynamic_cast<const Trk::Perigee*>(perigee)) {
+        if (!dynamic_cast<const Trk::Perigee*>(perigee.get())) {
             Amg::Vector3D origin(perigeeStartValue.position());
-            perigeeSurface = new Trk::PerigeeSurface(origin);
+            perigeeSurface = std::make_unique<Trk::PerigeeSurface>(origin);
 
-            perigee =
-                new Trk::Perigee(perigeeStartValue.position(), perigeeStartValue.momentum(), perigeeStartValue.charge(), *perigeeSurface);
+            perigee = std::make_unique<Trk::Perigee>(perigeeStartValue.position(), perigeeStartValue.momentum(), perigeeStartValue.charge(),
+                                                     *perigeeSurface);
         }
 
         // FIT
         std::unique_ptr<Trk::Track> fittedTrack(fitter->fit(ctx, measurementSet, *perigee, false, particleHypothesis));
-        if (perigeeSurface) {
-            delete perigeeSurface;
-            delete perigee;
-        }
 
         if (!fittedTrack) return nullptr;
 
@@ -2405,7 +2402,7 @@ namespace Rec {
                 }
 
                 float sigmaDeltaPhi = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_phi->get_uncertainty(track));
-                float sigmaDeltaTheta = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_theta->get_uncertainty(track));
+                float sigmaDeltaTheta = std::hypot(scat->sigmaDeltaTheta(), m_alignUncertTool_theta->get_uncertainty(track));
                 float X0 = trk_srf->materialEffectsOnTrack()->thicknessInX0();
 
                 //
@@ -3345,7 +3342,7 @@ namespace Rec {
             // TDDO Run2 Calo TG
             // energy loss correction
             std::unique_ptr<CaloEnergy> caloEnergy{
-                m_caloEnergyParam->energyLoss(trackEnergy, parameters->position().eta(), parameters->position().phi())};
+                m_caloEnergyParam->energyLoss(ctx, trackEnergy, parameters->position().eta(), parameters->position().phi())};
 
             if (trackEnergy + caloEnergy->deltaE() < m_minEnergy) {
                 ATH_MSG_DEBUG("standaloneFit: trapped in calorimeter");
@@ -3445,7 +3442,7 @@ namespace Rec {
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
                         parameterVector[Trk::qOverP], AmgSymMatrix(5)(*parameters->covariance()));
 
-                    perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
+                    perigee = propagator->propagate(ctx, *correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                     m_magFieldProperties, Trk::nonInteracting);
                 }
 

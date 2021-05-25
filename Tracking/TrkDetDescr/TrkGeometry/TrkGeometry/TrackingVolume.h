@@ -417,7 +417,7 @@ namespace Trk {
        
       const TrackingVolume*        m_motherVolume;  //!< mother volume of this volume
 
-      std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >* m_boundarySurfaces;  //!< boundary Surfaces
+      std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >* m_boundarySurfaces{};  //!< boundary Surfaces
       //(a)
       const LayerArray*                                                     m_confinedLayers;   //!< Array of Layers inside the Volume
       const TrackingVolumeArray*                                            m_confinedVolumes;  //!< Array of Volumes inside the Volume

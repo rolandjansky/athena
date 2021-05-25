@@ -52,8 +52,8 @@ def fastPhotonMenuSequence():
     l2PhotonViewsMaker.ViewNodeName = "photonInViewAlgs"
 
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlgMT
-    thePhotonHypo = TrigEgammaFastPhotonHypoAlgMT()
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg
+    thePhotonHypo = TrigEgammaFastPhotonHypoAlg()
     thePhotonHypo.Photons = thePhotonFex.PhotonsName
     thePhotonHypo.RunInView=True
 

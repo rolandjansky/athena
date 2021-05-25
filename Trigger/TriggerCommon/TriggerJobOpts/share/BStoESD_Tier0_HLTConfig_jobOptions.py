@@ -68,9 +68,8 @@ if rec.doTrigger():
             tf.readLVL1configFromXML = True # has to use the .xml file used for reco
             # You have to set the 2 following files to the .xml files you want.
             # Here are the default files for reprocessing special case with trigger
-            tf.inputHLTconfigFile = "HLTMenu.xml" # Has to be set correctly
+            # FW, May 2021: Setting of HLT XML file removed
             tf.inputLVL1configFile = "LVL1Menu.xml" # Has to be set correctly
-            tf.inputHLTconfigFile.lock() 
             tf.inputLVL1configFile.lock() # this is needed to not be overwritten by TrigT1CTMonitoring
 
     #---------------------------------------------------------------------------    

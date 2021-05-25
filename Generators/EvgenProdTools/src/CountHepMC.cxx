@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -72,7 +72,7 @@ StatusCode CountHepMC::execute() {
       newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
 
       McEventCollection::const_iterator evt = newmcEvtColl->begin();
-      HepMC::GenEvent* hepMC = new HepMC::GenEvent(*(*evt));
+      HepMC::GenEvent* hepMC = m_corRunNumber? const_cast<HepMC::GenEvent*>(*evt) : new HepMC::GenEvent(*(*evt));
 
       hepMC->set_event_number(newnum);
       newmcEvtColl->pop_back();
@@ -103,23 +103,18 @@ else{
   if (m_corRunNumber) {
     // Change the EventID in the eventinfo header
     const EventInfo* pInputEvt(0);
-    ATH_MSG_INFO("Set new run number called !!" << m_newRunNumber);
     unsigned int oldRunNumber = 0;
     if (evtStore()->retrieve(pInputEvt).isSuccess()) {
       assert(pInputEvt);
       EventID* eventID = const_cast<EventID*>(pInputEvt->event_ID());
-      ATH_MSG_INFO("git eventid !! " );
       oldRunNumber = eventID->run_number();
       eventID->set_run_number(m_newRunNumber);
-      ATH_MSG_INFO("Set new run number" << m_newRunNumber);
-      ATH_MSG_DEBUG("Set new run number in event_ID");
+      ATH_MSG_DEBUG("Set new run number in event_ID " << m_newRunNumber);
 
       // also set the MC channel number
       EventType* event_type = const_cast<EventType*>(pInputEvt->event_type());
-      ATH_MSG_INFO("got event_type !! " );
       event_type->set_mc_channel_number(m_newRunNumber);
-      ATH_MSG_INFO("Set new MC channel number " << event_type->mc_channel_number());
-      ATH_MSG_DEBUG("Set new mc_channel_number in event_type");
+      ATH_MSG_DEBUG("Set new MC channel number " << event_type->mc_channel_number());
     } else {
       ATH_MSG_ERROR("No EventInfo object found");
       return StatusCode::SUCCESS;

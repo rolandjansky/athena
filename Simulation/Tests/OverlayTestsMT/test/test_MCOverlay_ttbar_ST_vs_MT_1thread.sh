@@ -27,6 +27,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlayMT"
 mv log.Overlay log.OverlayMT
 
@@ -44,6 +45,7 @@ then
     --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
     --imf False
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 overlayST"
 
@@ -52,5 +54,8 @@ if [ $rc2 -eq 0 ]
 then
     acmd.py diff-root MC_plus_MC.ST.RDO.pool.root MC_plus_MC.MT.RDO.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
+
+exit $status

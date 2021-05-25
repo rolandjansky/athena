@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -14,11 +14,10 @@ CaloDetDescriptor::CaloDetDescriptor(const Identifier& id,
 				     const CaloCell_Base_ID* calo_helper,
 				     CaloCell_ID::CaloSample sample,
 				     int layer)
-  : m_calo_eta_min (0),
+  : m_id (id),
+    m_calo_eta_min (0),
     m_calo_eta_max (0)
 {
-  // -- m_id, m_calo_helper
-  m_id=id;  
   m_helper=helper;
   m_calo_helper=calo_helper;
 

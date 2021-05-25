@@ -407,7 +407,10 @@ StatusCode AthenaSharedMemoryTool::clearObject(const char** tokenString, int& nu
          m_dataClients.erase(num);
          evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
          if (m_dataClients.empty()) {
-            ATH_MSG_INFO("Server clearObject() got stop, client ALL");
+            ATH_MSG_INFO("Server clearObject() got stop, client ALL: " << m_num);
+            if (num == m_num - 1) { // mother process
+              return(StatusCode::SUCCESS);
+            }
             return(StatusCode::FAILURE);
          }
          num = -1;

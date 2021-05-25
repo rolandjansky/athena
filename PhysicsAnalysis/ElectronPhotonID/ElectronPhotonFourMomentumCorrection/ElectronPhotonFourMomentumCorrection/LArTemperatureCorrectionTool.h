@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTEMPERATURECORRECTIONTOOL_H
@@ -44,8 +44,8 @@ public:
   int get_cache_size() const { return m_cache.size(); }
   int get_first_run() const { return m_first_run; }
   int get_last_run() const { return m_last_run; }
-  AllValues base_temperature;
-  AllValues sensitivity_temperature;
+  AllValues base_temperature{};
+  AllValues sensitivity_temperature{};
 private:
   std::unique_ptr<TFile> m_file;
   TTree* m_tree;  // raw pointer, let ROOT manage it

@@ -865,7 +865,10 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                }
 
                /// Handle variable selections.
-               if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
+               /// Both variable selection and lossy float compression
+               /// are limited to event data for the time being
+               if ((*m_currentStore)->storeID() == StoreID::EVENT_STORE &&
+                   item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
 
                   const SG::IConstAuxStore* auxstore( nullptr );
                   try {

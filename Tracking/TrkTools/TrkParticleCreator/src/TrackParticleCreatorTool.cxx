@@ -269,12 +269,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     return sc;
   }
 
-  StatusCode TrackParticleCreatorTool::finalize()
-  {
-    ATH_MSG_INFO( " finalize successful" );
-    return StatusCode::SUCCESS;
-  }
-
   Rec::TrackParticle*
   TrackParticleCreatorTool::createParticle(
     const EventContext& ctx,

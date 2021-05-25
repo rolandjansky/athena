@@ -464,36 +464,27 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Cabling map Setup #
     #####################
-    if geoFlags.isIBL() and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
-        conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
-
-    if geoFlags.isIBL() and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-        condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
-
-    if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
-        conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
-
-    if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
-        condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
-
-    pixelReadKey = ''
     if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
+        if geoFlags.isIBL() and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
+
+        if geoFlags.isIBL() and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+            condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+
+        if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+
+        if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+            condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
+
         if not conddb.folderRequested("/PIXEL/CablingMap"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
 
-    if not hasattr(condSeq, 'PixelCablingCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey = pixelReadKey)
-
-    if not conddb.folderRequested("/PIXEL/PixReco"):
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
-
-    if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
-        condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        PixelOfflineCalibCondAlg.InputSource = 2
+        if not hasattr(condSeq, 'PixelCablingCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey = '')
 
     if not conddb.folderRequested("/Indet/PixelDist"):
         conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")

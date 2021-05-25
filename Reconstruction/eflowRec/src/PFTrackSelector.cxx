@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 #include "eflowRec/PFTrackSelector.h"
@@ -60,7 +60,7 @@ StatusCode PFTrackSelector::execute(){
 
   /* Do the track selection for tracks to be used in all of the following steps: */
   int trackIndex = 0;
-  for (auto thisTrack : *tracksReadHandle){
+  for (const auto *thisTrack : *tracksReadHandle){
 
     if (!thisTrack){
       ATH_MSG_WARNING("Have invalid pointer to xAOD::TrackParticle");
@@ -74,7 +74,7 @@ StatusCode PFTrackSelector::execute(){
     bool isElectron = this->isElectron(thisTrack);
     bool isMuon = this->isMuon(thisTrack);
     ATH_MSG_DEBUG("isElectron is " << isElectron << " and isMuon is " << isMuon);
-    if (true == isElectron || true == isMuon) rejectTrack = true;
+    if (isElectron || isMuon) rejectTrack = true;
 
     ATH_MSG_DEBUG("rejectTrack is " << rejectTrack);
     
@@ -115,7 +115,7 @@ bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
   SG::ReadHandle<xAOD::ElectronContainer> electronsReadHandle(m_electronsReadHandleKey);
   if (electronsReadHandle.isValid()){
 
-    for (auto thisElectron : *electronsReadHandle){
+    for (const auto *thisElectron : *electronsReadHandle){
 
       if (thisElectron){
 	unsigned int nTrack = thisElectron->nTrackParticles();
@@ -147,10 +147,10 @@ bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
   SG::ReadHandle<xAOD::MuonContainer> muonsReadHandle(m_muonsReadHandleKey);
   if (muonsReadHandle.isValid()){
 
-    for (auto theMuon : *muonsReadHandle){      
+    for (const auto *theMuon : *muonsReadHandle){      
       if (theMuon){
 	ATH_MSG_DEBUG("Considering muon in isMuon with e,pt, eta and phi of " << theMuon->e() << ", " << theMuon->pt() << ", " << theMuon->eta() << " and " << theMuon->phi());
-	const ElementLink< xAOD::TrackParticleContainer > theLink = theMuon->inDetTrackParticleLink();
+	const ElementLink< xAOD::TrackParticleContainer >& theLink = theMuon->inDetTrackParticleLink();
 	if (theLink.isValid()){
 	  const xAOD::TrackParticle* ID_track = *theLink;
 	  if (ID_track){

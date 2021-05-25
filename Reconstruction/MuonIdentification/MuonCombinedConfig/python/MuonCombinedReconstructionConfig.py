@@ -311,8 +311,14 @@ def MuonCombinedReconstructionCfg(flags):
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     result.merge(TRT_GeometryCfg(flags))
 
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    result.merge(TrackingGeometrySvcCfg(flags))
+# @TODO retire once migration to TrackingGeometry conditions data is complete
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg :
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+        result.merge( TrackingGeometryCondAlgCfg(flags) )
+    else :
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        result.merge( TrackingGeometrySvcCfg(flags) )
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )

@@ -88,21 +88,22 @@ StatusCode TrigBmumuxComboHypo::initialize() {
     const std::vector<int>& multiplicity = itr->second;
     std::vector<HLT::Identifier> legDecisionIds;
     if (multiplicity.size() == 1) {
-      std::fill_n(std::back_inserter(legDecisionIds), multiplicity[0], id);
+      legDecisionIds.assign(multiplicity[0], id);
     }
     else {
       size_t n = static_cast<size_t>(std::accumulate(multiplicity.begin(), multiplicity.end(), 0));
+      legDecisionIds.reserve(n);
       for (size_t i = 0; i < n; i++) {
         legDecisionIds.push_back(TrigCompositeUtils::createLegName(id, i));
       }
     }
-    tool->setLegDecisionIds(legDecisionIds);
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG( "Leg decisions for tool " << tool->name() );
       for (const auto& legId : legDecisionIds) {
         ATH_MSG_DEBUG( " +++ " << legId );
       }
     }
+    tool->setLegDecisionIds(std::move(legDecisionIds));
   }
 
   if (!m_monTool.empty()) {

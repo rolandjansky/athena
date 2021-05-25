@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -300,7 +300,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
     std::vector<double>  particleChi2;
 //
     int ntrk=0;
-    StatusCode sc; sc.setChecked();
+    StatusCode sc;
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
        std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
@@ -530,7 +530,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
        }
 // Pseudo-tracks. They are filled based on fitted results for nonmerged vertices
 //             or as sum for merged vertices
-       VectMOM tmpMom;
+       VectMOM tmpMom{};
        for(iv=0; iv<(int)cstate.m_cascadeVList.size(); iv++){
          index=getSimpleVIndex( cstate.m_cascadeVList[iv].vID, cstate );               //index of current vertex in simplified structure
          int NTrkInVrt=cstate.m_cascadeVList[iv].trkInVrt.size();

@@ -24,7 +24,7 @@ echo "Output Validation file : ${ART_Validation}"
 echo "Submitting Reconstruction ..."
 
 Reco_tf.py \
-    --maxEvents -1 \
+    --maxEvents=${Nevents} \
     --inputHITSFile=${HITSFile} \
     --outputAODFile=${ART_AOD} \
     --outputNTUP_PHYSVALFile ${ART_Validation} \

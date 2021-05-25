@@ -140,8 +140,8 @@ namespace Muon {
 
             // now compare chi2
             const Trk::FitQuality* fq0 = track->fitQuality();
-            const Trk::FitQuality* fq1 = result1 ? result1->fitQuality() : 0;
-            const Trk::FitQuality* fq2 = result2 ? result2->fitQuality() : 0;
+            const Trk::FitQuality* fq1 = result1 ? result1->fitQuality() : nullptr;
+            const Trk::FitQuality* fq2 = result2 ? result2->fitQuality() : nullptr;
 
             bool doSelection = true;
 
@@ -155,7 +155,7 @@ namespace Muon {
                 // ugly bit of code to get the hit counts for the three tracks
                 int nhits0 = -1;
                 Trk::TrackSummary* summary0 = track->trackSummary();
-                Trk::MuonTrackSummary* muonSummary0 = 0;
+                Trk::MuonTrackSummary* muonSummary0 = nullptr;
                 if (summary0) {
                     if (summary0->muonTrackSummary()) {
                         muonSummary0 = summary0->muonTrackSummary();
@@ -175,7 +175,7 @@ namespace Muon {
 
                 int nhits1 = -1;
                 Trk::TrackSummary* summary1 = track->trackSummary();
-                Trk::MuonTrackSummary* muonSummary1 = 0;
+                Trk::MuonTrackSummary* muonSummary1 = nullptr;
                 if (summary1) {
                     if (summary1->muonTrackSummary())
                         muonSummary1 = summary1->muonTrackSummary();
@@ -194,7 +194,7 @@ namespace Muon {
 
                 int nhits2 = -1;
                 Trk::TrackSummary* summary2 = track->trackSummary();
-                Trk::MuonTrackSummary* muonSummary2 = 0;
+                Trk::MuonTrackSummary* muonSummary2 = nullptr;
                 if (summary2) {
                     if (summary2->muonTrackSummary())
                         muonSummary2 = summary2->muonTrackSummary();

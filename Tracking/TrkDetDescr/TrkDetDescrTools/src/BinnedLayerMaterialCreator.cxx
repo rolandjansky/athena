@@ -38,18 +38,6 @@ Trk::BinnedLayerMaterialCreator::~BinnedLayerMaterialCreator()
 {}
 
 
-// initialize
-StatusCode Trk::BinnedLayerMaterialCreator::initialize() 
-{
-    return StatusCode::SUCCESS;
-}
-    
-// finalize
-StatusCode Trk::BinnedLayerMaterialCreator::finalize() 
-{
-    return StatusCode::SUCCESS;
-}
-
 Trk::LayerMaterialProperties* Trk::BinnedLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
   // get the material matrix and copy 

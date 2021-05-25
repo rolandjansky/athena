@@ -238,7 +238,7 @@ if jobproperties.Beam.beamType() == 'cosmics':
     # to remove ER ROR message
     from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
     if not athenaCommonFlags.isOnline():
-        include("InDetBeamSpotService/BeamCondSvc.py")
+        include("BeamSpotConditions/BeamCondAlgSetup.py")
 
     # get rid of event loop WAR NINGS like:
     #  MuTagAllStations                WAR NING p_VxContainer not found at VxPrimaryCandidate

@@ -116,7 +116,7 @@ protected:
     friend class ::CompetingRIOsOnTrackCnv_p1;
 
     //! index of hightest assignment probability
-    mutable std::atomic_uint m_indexMaxAssignProb;
+    mutable std::atomic_uint m_indexMaxAssignProb{};
 
     //! assignment probabilities of the ROTs
     const std::vector<AssignmentProb>* m_assignProb;

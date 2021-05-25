@@ -5,7 +5,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 import AthenaCommon.CfgMgr as CfgMgr
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import  ViewCreatorPreviousROITool
-#from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFexMT
+#from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFex
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
@@ -26,9 +26,9 @@ def TLAPhotonSequence(flags, photonsIn):
     ViewVerify.DataObjects = [( 'xAOD::PhotonContainer' , 'StoreGateSvc+HLT_egamma_Photons')]
     
 
-    from TrigEgammaHypo import TrigEgammaTLAPhotonFexMTConfig
+    from TrigEgammaHypo import TrigEgammaTLAPhotonFexConfig
     # this has yet to be written, should be similar to the jet tla
-    TLAPhotonAlg = TrigEgammaTLAPhotonFexMTConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
+    TLAPhotonAlg = TrigEgammaTLAPhotonFexConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
 
     # The OR makes sure that TLAPhotonAlg can access the data dependencies specified by ViewVerify
     photonInViewAlgs = parOR("tlaPhotonInViewAlgs", [ViewVerify, TLAPhotonAlg])
@@ -59,18 +59,18 @@ def TLAPhotonAthSequence(flags, photonsIn):
     
 
     (tlaPhotonSequence, sequenceOut) = RecoFragmentsPool.retrieve( TLAPhotonSequence, flags, photonsIn=photonsIn )
-    # the TLAPhoton sequence is now tlaPhotonViewsMakerAlg --> TrigEgammaTLAPhotonFexMT
+    # the TLAPhoton sequence is now tlaPhotonViewsMakerAlg --> TrigEgammaTLAPhotonFex
     tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence_"+photonsIn, [tlaPhotonViewsMakerAlg, tlaPhotonSequence] )
     
     return (tlaPhotonAthSequence, tlaPhotonViewsMakerAlg, sequenceOut)
 
 def TLAPhotonMenuSequence(flags, photonsIn):
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlg
     from TrigEgammaHypo.TrigEgammaTLAPhotonHypoTool import TrigEgammaTLAPhotonHypoToolFromDict # JetTLA calls a function "FromDict" from a python, investigate later
 
     (tlaPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn)
-    hypo = TrigEgammaTLAPhotonHypoAlgMT("TrigEgammaTLAPhotonHypoAlgMT_"+photonsIn)
+    hypo = TrigEgammaTLAPhotonHypoAlg("TrigEgammaTLAPhotonHypoAlg_"+photonsIn)
     hypo.Photons = sequenceOut
 
 

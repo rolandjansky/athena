@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
@@ -63,7 +63,8 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
         for (unsigned int nD=0;nD<nDAC;nD++){
           double time   	=persObj->m_dt[chIndex];
           unsigned int f  =persObj->m_flag[chIndex];
-          int dac			=persObj->m_DAC[chIndex];
+          int dac		=(persObj->m_DAC[chIndex])&0xFFFF;
+          int pulsed            =(persObj->m_DAC[chIndex])>>16;
           chIndex++;
 				
           std::vector<double> val, err;
@@ -76,7 +77,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
             waveIndex++;
           }	  
 		    	
-          LArCaliWave cv(val,err,tri, time,dac, f);
+          LArCaliWave cv(val,err,tri, time,dac, pulsed, f);
           val.clear();
           err.clear();
           tri.clear();
@@ -119,7 +120,8 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 		
       double time 	= persObj->m_dt[chIndex];
       unsigned int f  = persObj->m_flag[chIndex];
-      int dac			= persObj->m_DAC[chIndex];
+      int dac		=(persObj->m_DAC[chIndex])&0xFFFF;
+      int pulsed        =(persObj->m_DAC[chIndex])>>16;
       chIndex++;
       std::vector<double> val, err;
       std::vector<int> 	tri;
@@ -135,7 +137,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
         waveIndex++;
       }		
 	
-      LArCaliWave cv(val,err,tri, time,dac, f);
+      LArCaliWave cv(val,err,tri, time,dac, pulsed, f);
       val.clear();
       err.clear();
       tri.clear();

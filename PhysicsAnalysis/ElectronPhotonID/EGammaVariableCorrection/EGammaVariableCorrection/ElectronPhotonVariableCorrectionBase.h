@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ElectronPhotonVariableCorrectionBase_H
@@ -145,7 +145,7 @@ private:
     //! @brief The actual TF1 correction function
     std::unique_ptr<TF1> m_correctionFunctionTF1;
     //! @brief Number of parameters of the variable correction function
-    int m_numberOfFunctionParameters;
+    int m_numberOfFunctionParameters{};
     //! @brief Map of the correction function parameter number to the parameter type
     std::vector<parameterType> m_ParameterTypeVector;
     //! @brief Copy of the TGraph from the root file, stored if needed by the respective correction function parameter
@@ -159,7 +159,7 @@ private:
     //! @brief List of bin boundaries in eta, stored if needed by any correction function parameter
     std::vector<float> m_etaBins;
     //! @brief Store if the eta binned parameters need the eta or abs(eta) value for evaluation
-    bool m_useAbsEtaBinned;
+    bool m_useAbsEtaBinned{};
     //! @brief List of bin boundaries in pT, stored if needed by any correction function parameter
     std::vector<float> m_ptBins;
     //! @brief List of bools whether a parameter should use linear interpolation in pT if it's some kind of pT binned parameter

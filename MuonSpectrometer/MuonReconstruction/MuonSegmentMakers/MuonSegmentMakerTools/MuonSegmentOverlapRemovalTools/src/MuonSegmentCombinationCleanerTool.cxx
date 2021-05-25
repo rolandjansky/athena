@@ -381,7 +381,7 @@ MuonSegmentCombinationCleanerTool::resolveLayerOverlap(const std::vector<MuonSeg
                                                        const std::vector<MuonSegment*>& chamberVec2,
                                                        MuonSegmentCombiOverlapSummary&  summary) const
 {
-    CompareMuonSegmentKeys compareKeys;
+    CompareMuonSegmentKeys compareKeys{};
 
     std::vector<int> uniqueFirst(chamberVec1.size(), 1);
     std::vector<int> uniqueSecond(chamberVec2.size(), 1);
@@ -539,7 +539,7 @@ MuonSegmentCombination*
 MuonSegmentCombinationCleanerTool::removeDuplicateSegments(MuonSegmentCombination& combi) const
 {
 
-    CompareMuonSegmentKeys compareKeys;
+    CompareMuonSegmentKeys compareKeys{};
 
     // store pointers to segments that should be kept
     std::set<MuonSegment*> segmentsToBeKept;

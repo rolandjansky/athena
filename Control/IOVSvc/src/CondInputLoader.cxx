@@ -88,6 +88,7 @@ CondInputLoader::initialize()
   ATH_CHECK( m_condStore.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
   ATH_CHECK( m_rcuSvc.retrieve() );
+  ATH_CHECK( m_dictLoader.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
@@ -107,6 +108,9 @@ CondInputLoader::initialize()
     }
   }
 
+  // We can get warnings later if we don't get this defined first.
+  TClass::GetClass ("coral::AttributeList", true, false);
+
   for (const auto& itr : m_keyFolderMap) { //loop over keys of IOVDbSvc
     for (auto id : m_load) {
       if (id.key() == itr.second) {//CondInputLoader deals with this folder
@@ -118,7 +122,12 @@ CondInputLoader::initialize()
 
 	SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer,
 			       StoreID::storeName(StoreID::CONDITION_STORE));
-	handles_to_load.emplace(vhk.fullKey()); 
+	handles_to_load.emplace(vhk.fullKey());
+
+        // Loading root dictionaries in a multithreaded environment
+        // is unreliable.
+        // So try to be sure all dictionaries are loaded now.
+        m_dictLoader->load_type (id.clid());
 	break; //quit loop over m_load
       } // end if CondInputLoader deals with this folder
     }//end loop over m_load
@@ -152,6 +161,8 @@ CondInputLoader::initialize()
           SG::VarHandleKey vhk(clid2,e->key(),Gaudi::DataHandle::Writer,
                                StoreID::storeName(StoreID::CONDITION_STORE));
           m_load.value().emplace(vhk.fullKey());
+          // Again, make sure all needed dictionaries are loaded.
+          m_dictLoader->load_type (clid2);
         }
       }
     }

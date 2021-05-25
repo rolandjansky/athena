@@ -56,22 +56,22 @@ namespace Trk {
     std::pair<GXFTrackState *, GXFTrackState *> findFirstLastMeasurement(void);
     bool hasKink(void);
 
-    int numberOfScatterers();
+    int numberOfScatterers() const;
     void setNumberOfScatterers(int);
-    int numberOfBrems();
+    int numberOfBrems() const;
     void setNumberOfBrems(int);
-    int numberOfUpstreamStates();
-    int numberOfUpstreamScatterers();
-    int numberOfUpstreamBrems();
-    int numberOfPerigeeParameters();
-    int numberOfFitParameters();
-    int numberOfSiliconHits();
-    int numberOfTRTPrecHits();
-    int numberOfTRTTubeHits();
-    int numberOfTRTHits();
-    int numberOfHits();
-    int numberOfPseudoMeasurements();
-    int numberOfOutliers();
+    int numberOfUpstreamStates() const;
+    int numberOfUpstreamScatterers() const;
+    int numberOfUpstreamBrems() const;
+    int numberOfPerigeeParameters() const;
+    int numberOfFitParameters() const;
+    int numberOfSiliconHits() const;
+    int numberOfTRTPrecHits() const;
+    int numberOfTRTTubeHits() const;
+    int numberOfTRTHits() const;
+    int numberOfHits() const;
+    int numberOfPseudoMeasurements() const;
+    int numberOfOutliers() const;
 
     void updateTRTHitCount(int index, float oldError);
 
@@ -82,21 +82,21 @@ namespace Trk {
     std::vector<double> & brems();
     
     const TrackParameters * referenceParameters();
-    bool converged();
-    int prefit();
+    bool converged() const;
+    int prefit() const;
     void resetReferenceParameters();
     double chi2() const;
-    double prevchi2();
+    double prevchi2() const;
     int nDOF() const;
   
     Amg::VectorX & residuals();
     Amg::VectorX & errors();
     Amg::MatrixX & weightedResidualDerivatives();
 
-    double totalX0();
-    double totalEnergyLoss();
+    double totalX0() const;
+    double totalEnergyLoss() const;
 
-    double mass();
+    double mass() const;
     GXFTrackState *caloElossState();
 
     std::vector < std::pair < const Layer *,

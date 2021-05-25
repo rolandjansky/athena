@@ -44,7 +44,6 @@ namespace CP {
         declareProperty("MinQuality", m_muon_quality);
         
         // force strict checking of return codes
-        StatusCode::enableChecking();
         CP::CorrectionCode::enableFailure();
     }
 

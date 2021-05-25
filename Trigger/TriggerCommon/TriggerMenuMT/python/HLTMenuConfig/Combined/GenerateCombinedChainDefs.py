@@ -49,19 +49,45 @@ def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs
 def TrigComboHypoToolFromDict(chainDict):
     from TrigHypoCommonTools.TrigHypoCommonToolsConf import TrigComboHypoTool
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+    import math
 
     name     = chainDict['chainName']
     topoInfo = chainDict['extraComboHypos'][0]
     #here we need to decompress the name to get: variable_name, min, max
     log.debug("[TrigComboHypoToolFromDict] new combo hypo name: %s, topoInfo = %s", name, topoInfo)
-
+    
+    isLegMET = []
+    for chId in range(len(chainDict['chainParts'])):
+        if chainDict['chainParts'][chId]['signature'] == 'MET':
+            isLegMET.append(True)
+        else:
+            isLegMET.append(False)            
+        log.debug("[TrigComboHypoToolFromDict] chainParts[%i]: %s", chId, chainDict['chainParts'][chId])
+        
+    #the list of the variables reported below must match the one specified                                
+    # here: Trigger/TrigHypothesis/TrigHypoCommonTools/src/TrigComboHypoTool.cxx::fillVarMap()
+    # (and accordingly the list of the enums comboHypoVars in the header file)              
     allowed_obs = {
         'dR' : {
+            'n_MET_legs' : [0],
             'hist_nbins' : 50,
             'hist_min'   : 0.,
             'hist_max'   : 5.
         },
         'invm' : {
+            'n_MET_legs' : [0],
+            'hist_nbins' : 100,
+            'hist_min'   : 0.,
+            'hist_max'   : 1000.
+        },
+        'dphi' : {
+            'n_MET_legs' : [0,1,2],
+            'hist_nbins' : 40,
+            'hist_min'   : 0.,
+            'hist_max'   : math.pi
+        },
+        'mT' : {
+            'n_MET_legs' : [1],
             'hist_nbins' : 100,
             'hist_min'   : 0.,
             'hist_max'   : 1000.
@@ -119,6 +145,17 @@ def TrigComboHypoToolFromDict(chainDict):
     if legA<0 or legB<0:
         log.error("[TrigComboHypoToolFromDict] Didn't find leg indexes in %s", l_names)
         raise Exception("[TrigComboHypoToolFromDict]  Didn't find leg indexes")
+    
+    #count the number of MET legs used in the hypo
+    n_MET_legs=0
+    if isLegMET[legA]:
+        n_MET_legs += 1
+    if isLegMET[legB]:
+        n_MET_legs += 1
+    #now check that the variable we plan to use allows the use of the MET
+    if n_MET_legs not in allowed_obs[obs_to_use[0]]['n_MET_legs']:
+        log.error("[TrigComboHypoToolFromDict] Attempting to use the MET leg in var %s. N_MET_legs = %d", obs_to_use[0], isLegMET.count(True))
+        raise Exception("[TrigComboHypoToolFromDict] Attempting to use the MET leg in var")
 
     monTool = GenericMonitoringTool("MonTool_"+name)
     monTool.Histograms = [defineHistogram(obs_to_use[0]+'OfAccepted', type='TH1F', path='EXPERT', 
@@ -136,7 +173,9 @@ def TrigComboHypoToolFromDict(chainDict):
     tool= TrigComboHypoTool(name)
     tool.Variable    = obs_to_use[0]
     tool.LegA        = "leg{:03d}".format(legA)
+    tool.IsLegA_MET  = isLegMET[legA]
     tool.LegB        = "leg{:03d}".format(legB)
+    tool.IsLegB_MET  = isLegMET[legB]
     if len(l_min)==1:
         tool.UseMin    = True
         tool.LowerCut  = cut_min

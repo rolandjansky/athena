@@ -24,7 +24,7 @@ def getOverallL1item(chainName):
     """
     assert '_L1' in chainName, 'ERROR IN CHAIN {}, missing L1 seed at the end i.e. _L1...' .format(chainName)
 
-    from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.L1Seeds import getSpecificL1Seeds
+    from .L1Seeds import getSpecificL1Seeds
     from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
     from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
 

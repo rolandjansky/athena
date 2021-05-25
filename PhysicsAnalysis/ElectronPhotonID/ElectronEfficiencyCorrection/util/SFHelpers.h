@@ -8,12 +8,13 @@
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include <xAODEgamma/Electron.h>
 
-namespace SFHelpers{
-    int result(AsgElectronEfficiencyCorrectionTool& tool, 
-            const xAOD::Electron& el,
-            double& nominalSF,
-            double& totalPos, 
-            double& totalNeg, 
-            const bool isToys);
+namespace SFHelpers {
+int
+result(AsgElectronEfficiencyCorrectionTool& tool,
+       const xAOD::Electron& el,
+       double& nominalSF,
+       double& totalPos,
+       double& totalNeg,
+       const bool isToys);
 }
 #endif

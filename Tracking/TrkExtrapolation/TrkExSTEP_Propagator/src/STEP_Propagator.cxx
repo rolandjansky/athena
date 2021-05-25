@@ -13,9 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
-
-
-
 #include "TrkExSTEP_Propagator/STEP_Propagator.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkSurfaces/Surface.h"
@@ -1300,7 +1297,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
   if (!distanceEstimationSuccessful) return false;
 
   //Set initial step length to 100mm or the distance to the target surface.
-  double h;
+  double h = 0;
   distanceToTarget > 100. ? h = 100. : distanceToTarget < -100. ? h = -100. : h = distanceToTarget;
 
   // Step to within distanceTolerance, then do the rest as a Taylor expansion.
@@ -1480,7 +1477,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   std::vector< std::pair<int,std::pair<double,double> > >::iterator vsEnd   = cache.m_currentDist.end();
 
   //Set initial step length to 100mm or the distance to the target surface.
-  double h;
+  double h = 0;
   double absPath=0.;
   distanceToTarget > 100. ? h = 100. : distanceToTarget < -100. ? h = -100. : h = distanceToTarget;
 
@@ -1782,8 +1779,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
               if ((*vsIter).first!=-1) flipDirection = true;
             } else if ( std::abs((*vsIter).second.second)>tol && std::abs(distSol.currentDistance(true))>tol ) {
               // here we need to compare with distance from current closest
-              if ( ic>nextSf ) {   // easy case, already calculated
-                if (propDir*distanceEst<(*(vsBeg+nextSf)).second.first-tol)  {
+              if ( ic>nextSf && nextSf!=-1 ) {   // easy case, already calculated
+                if (propDir*distanceEst<(cache.m_currentDist.at(nextSf)).second.first-tol)  {
                   if ((*vsIter).first!=-1) {
                     ((*vsIter).first)++;
                     flipDirection = true;
@@ -1797,8 +1794,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
                   nextSf = ic;
                 }
               }
-            }
-          } else if (ic==nextSf) {
+	    }
+	  } else if (ic==nextSf) {
             vsIter = vsBeg; restart = true;
             continue;
           }
@@ -1958,7 +1955,7 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
                                       double& distanceStepped) const
 {
   double sol = 0.0299792458;			// Speed of light
-  double charge;
+  double charge = 0;
   P[6] >= 0. ? charge = 1. : charge = -1.;      // Set charge
   double     lambda1 = P[6];
   double     lambda2 = P[6];	// Store inverse momentum for Jacobian transport

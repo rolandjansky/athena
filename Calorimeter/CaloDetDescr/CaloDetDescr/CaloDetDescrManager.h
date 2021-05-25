@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -159,7 +159,7 @@ class CaloDetDescrManager_Base
   inline std::string lar_geometry() const {return m_lar_geometry;}
   /** @brief set lar geometry label, distinguish between full atlas and TB
    */
-  inline void set_lar_geometry(std::string geom) { m_lar_geometry = geom;}
+  inline void set_lar_geometry(const std::string& geom) { m_lar_geometry = geom;}
  
   /** @brief get calo cell ID helper
    */

@@ -9,7 +9,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
     PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
     PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
-    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg,
+    PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg,
     PixelDeadMapCondAlgCfg, PixelRadSimFluenceMapAlgCfg
 # NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
 )
@@ -161,16 +161,16 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     acc.merge(PixelDCSCondHVAlgCfg(flags))
     acc.merge(PixelDCSCondTempAlgCfg(flags))
     # cabling setup
-    acc.merge(PixelHitDiscCnfgAlgCfg(flags))
-    acc.merge(PixelReadoutSpeedAlgCfg(flags))
-    acc.merge(PixelCablingCondAlgCfg(flags))
+    if not flags.Input.isMC:
+        acc.merge(PixelHitDiscCnfgAlgCfg(flags))
+        acc.merge(PixelReadoutSpeedAlgCfg(flags))
+        acc.merge(PixelCablingCondAlgCfg(flags))
     # deadmap
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
     acc.merge(PixelDeadMapCondAlgCfg(flags))
     # offline calibration
     acc.merge(PixelDistortionAlgCfg(flags))
-    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
 
     acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
     acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))

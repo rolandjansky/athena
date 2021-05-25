@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -107,7 +107,7 @@ SG_BASE(BarCont, FooCont);
 struct Baz
   : public std::string
 {
-  Baz (std::string the_s = "") : std::string(the_s), s (the_s+"asd") {}
+  Baz (const std::string& the_s = "") : std::string(the_s), s (the_s+"asd") {}
   std::string s;
 };
 
@@ -173,7 +173,7 @@ struct IdentTest
     return m_vec.end();
   }
 
-  void fill (std::string prefix);
+  void fill (const std::string& prefix);
   
   vec_t m_vec;
 };
@@ -181,7 +181,7 @@ struct IdentTest
 
 CLASS_DEF (IdentTest, 23423560, 1)
 
-void IdentTest::fill (std::string prefix)
+void IdentTest::fill (const std::string& prefix)
 {
   for (int i=0; i < 4; i++) {
     IDENTIFIABLE* v = new IDENTIFIABLE;

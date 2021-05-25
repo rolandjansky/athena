@@ -55,7 +55,7 @@ if DetFlags.detdescr.any_on():
     from AthenaCommon.GlobalFlags import globalflags
     # use even if commisisoning and not globalflags.DetGeo=='commis' :
     if DetFlags.detdescr.ID_on() and not rec.doAODMerging():
-        protectedInclude("InDetBeamSpotService/BeamCondSvc.py" )        
+        protectedInclude("BeamSpotConditions/BeamCondAlgSetup.py" )
 
 
     if DetFlags.detdescr.Muon_on() and not rec.doAODMerging():

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   m_detTypeHelper = new MeasurementTypeID(m_idHelper);
 
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
   // ----------------------------------
   // use updator to get unbiased states
   if ( ! m_updatorHandle.empty() ) {
@@ -359,7 +359,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
 
     ATH_MSG_VERBOSE ("added own branches to ntuple");
 
-    StatusCode sc(StatusCode::SUCCESS,true);
+    StatusCode sc(StatusCode::SUCCESS);
     ToolHandleArray< IValidationNtupleHelperTool >::const_iterator itTools;
     // get all the given ntuple helper tools for Pixel
     itTools = m_PixelNtupleHelperToolHandles.begin();

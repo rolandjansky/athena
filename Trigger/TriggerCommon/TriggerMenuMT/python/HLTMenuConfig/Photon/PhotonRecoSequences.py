@@ -135,7 +135,7 @@ def l2PhotonRecoCfg( flags ):
 def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    l2PhotonHypo = CompFactory.TrigEgammaFastPhotonHypoAlgMT()
+    l2PhotonHypo = CompFactory.TrigEgammaFastPhotonHypoAlg()
     l2PhotonHypo.Photons = Photons
     l2PhotonHypo.RunInView = RunInView
 
@@ -148,8 +148,8 @@ def generatePhotonsCfg( flags ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-    l2CaloHypo              = TrigEgammaFastCaloHypoAlgMT("EgammaFastPhotonCaloHypo")
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
+    l2CaloHypo              = TrigEgammaFastCaloHypoAlg("EgammaFastPhotonCaloHypo")
     l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
 
 
@@ -171,8 +171,8 @@ def generatePhotonsCfg( flags ):
     l2PhotonReco = RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags )
     acc.merge( l2PhotonReco )
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlgMT
-    l2PhotonHypo = TrigEgammaFastPhotonHypoAlgMT()
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg
+    l2PhotonHypo = TrigEgammaFastPhotonHypoAlg()
     l2PhotonHypo.Photons = "L2Photons"
     l2PhotonHypo.RunInView=True
 

@@ -29,6 +29,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlay"
 
 rc2=-9999
@@ -38,5 +39,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 "${ArtPackage}" "${ArtJobName}" --mode=semi-detailed --order-trees --diff-root
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 regression"
+
+exit $status

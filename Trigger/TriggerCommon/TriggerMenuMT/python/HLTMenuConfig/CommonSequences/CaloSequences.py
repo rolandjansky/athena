@@ -39,11 +39,11 @@ def fastCaloMenuSequence(name, doRinger=True, is_probe_leg=False):
 
     # hypo
     if doRinger:
-      from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlgMT
+      from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlg
     else:
-      from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlgMT_noringer as createTrigEgammaFastCaloHypoAlgMT
+      from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloHypoAlg_noringer as createTrigEgammaFastCaloHypoAlg
 
-    theFastCaloHypo = createTrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo", sequenceOut)
+    theFastCaloHypo = createTrigEgammaFastCaloHypoAlg(name+"EgammaFastCaloHypo", sequenceOut)
     CaloMenuDefs.L2CaloClusters = sequenceOut
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict

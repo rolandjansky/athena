@@ -85,7 +85,7 @@ def TGC_DigitizationBasicCfg(flags, **kwargs):
 
 def TGC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with TGC Overlay digitization"""
-    acc = MuonGeoModelCfg(flags)
+    acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(TGC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

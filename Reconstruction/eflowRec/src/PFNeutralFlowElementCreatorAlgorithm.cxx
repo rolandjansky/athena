@@ -26,7 +26,7 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::execute(const EventContext& ctx
 
   ATH_MSG_DEBUG("Looping over eflowCaloObjects");
   // Create FlowElements and fill the containers
-  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) {
+  for (const auto *thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) {
     if( createNeutralFlowElement(*thisEflowCaloObject, neutralFEContainer.get()).isFailure()) {
       ATH_MSG_WARNING("Problem encountered while creating neutral FlowElements");
       return StatusCode::SUCCESS;
@@ -239,7 +239,7 @@ PFNeutralFlowElementCreatorAlgorithm::addMoment(
 
   double moment = 0.0;
   bool isRetrieved = theCluster.retrieveMoment(momentType, moment);
-  if (true == isRetrieved) {
+  if (isRetrieved) {
     float float_moment = moment;
    feAttribute(theFE) = float_moment;
   } else

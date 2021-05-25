@@ -38,6 +38,7 @@ Digi_tf.py \
 --skipEvents 0
 
 rc=$?
+status=$rc
 echo  "art-result: $rc Digi_tf.py"
 # rc1=-9999
 # rc2=-9999
@@ -53,6 +54,7 @@ echo  "art-result: $rc Digi_tf.py"
 #     # Do reference comparisons
 #     art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
 #     rc1=$?
+#     status=$rc1
 # fi
 # echo  "art-result: $rc1 diff-pool"
 # #
@@ -62,6 +64,7 @@ echo  "art-result: $rc Digi_tf.py"
 # then
 #     art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root --mode=semi-detailed
 #     rc2=$?
+#     status=$rc2
 # fi
 # echo  "art-result: $rc2 diff-root"
 # #
@@ -69,6 +72,7 @@ echo  "art-result: $rc Digi_tf.py"
 # then
 #     checkFile ./$DigiOutFileName
 #     rc3=$?
+#     status=$rc3
 # fi
 # echo "art-result: $rc3 checkFile"
 # #
@@ -79,5 +83,8 @@ echo  "art-result: $rc Digi_tf.py"
 #     ArtJobName=$2
 #     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 #     rc4=$?
+#     status=$rc4
 # fi
 # echo  "art-result: $rc4 art-compare"
+
+exit $status

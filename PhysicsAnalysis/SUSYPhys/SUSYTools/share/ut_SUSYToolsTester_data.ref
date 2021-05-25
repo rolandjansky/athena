@@ -267,7 +267,7 @@ Info in <CP::TPileupReweighting::UsePeriodConfig>: Using MC16 Period configurati
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xd062240
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xbfaa6f0
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
@@ -357,6 +357,7 @@ ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWI
 ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_ValidPtRangeHigh : pass upper pt range
 ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_ValidPtRangeLow : pass lower pt range
 ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_ValidEtaRange : pass eta range
+ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_ValidKinRange : pass kinematic range
 ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_ValidJetContent : has valid jet content
 ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_ValidEventContent : has valid event content
 ToolSvc.WTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothWInclusive50_PassMass : pass mass cut
@@ -396,6 +397,7 @@ ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZI
 ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_ValidPtRangeHigh : pass upper pt range
 ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_ValidPtRangeLow : pass lower pt range
 ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_ValidEtaRange : pass eta range
+ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_ValidKinRange : pass kinematic range
 ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_ValidJetContent : has valid jet content
 ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_ValidEventContent : has valid event content
 ToolSvc.ZTagger          INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.SmoothZInclusive50_PassMass : pass mass cut
@@ -436,6 +438,7 @@ ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTagge
 ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_ValidPtRangeHigh : pass upper pt range
 ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_ValidPtRangeLow : pass lower pt range
 ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_ValidEtaRange : pass eta range
+ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_ValidKinRange : pass kinematic range
 ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_ValidJetContent : has valid jet content
 ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_ValidEventContent : has valid event content
 ToolSvc.TopTagger        INFO      AntiKt10LCTopoTrimmedPtFrac5SmallR20.DNNTaggerTopQuarkInclusive80_PassMass : pass mass cut
@@ -716,7 +719,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-04-22T0354/AnalysisBase/22.2.21/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBase/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -1034,7 +1037,7 @@ ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    PWD: /data/CERN/workdir/ST_r22/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
-ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/data:/data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-04-22T0354/AnalysisBase/22.2.21/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-04-22T0354/AnalysisBase/22.2.21/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-04-22T0354/AnalysisBaseExternals/22.2.21/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-04-22T0354/AnalysisBaseExternals/22.2.21/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
+ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/data:/data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBase/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBase/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBaseExternals/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBaseExternals/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
 ToolSvc.METSystTool      INFO    Configuring from file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    Will read histograms from : METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
 ToolSvc.METSystTool      INFO    Systpath :/
@@ -1244,9 +1247,9 @@ Info in <SUSYToolsTester>: ===>>>  done processing event #252990016, run #358031
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 253017498run #358031 499 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #253017498, run #358031 500 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 206.580000 / 259.090788 ms
-  First event           - 320.000000 / 8318.473101 ms
-  Excluding first event - 206.352705 / 242.939719 ms
+  Entire loop           - 211.620000 / 492.149240 ms
+  First event           - 340.000000 / 52073.816061 ms
+  Excluding first event - 211.362725 / 388.779162 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 500, mu: 500
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 500, mu: 500
