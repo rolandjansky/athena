@@ -378,7 +378,7 @@ namespace Muon {
         }
 
         // clean-up of alignment deviations
-        for (auto *it : align_deviations) delete it;
+        for (auto* it : align_deviations) delete it;
         align_deviations.clear();
 
         const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -545,8 +545,8 @@ namespace Muon {
         }
 
         if (indicesOfAffectedTSOS.empty() && indicesOfAffectedTSOSInner.empty()) {
-            std::unique_ptr<Trk::Track> newTrack =
-                std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+            std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces,
+                                                                                track.fitQuality() ? track.fitQuality()->clone() : nullptr);
             return newTrack;
         }
 
@@ -594,8 +594,8 @@ namespace Muon {
             }
             trackStateOnSurfacesAEOT->push_back(tsit);
         }
-        std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfacesAEOT, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), trackStateOnSurfacesAEOT,
+                                                                            track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         ATH_MSG_DEBUG(m_printer->print(*newTrack));
         ATH_MSG_DEBUG(m_printer->printMeasurements(*newTrack));
 
