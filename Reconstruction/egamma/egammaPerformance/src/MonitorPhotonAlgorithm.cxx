@@ -152,7 +152,7 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     // Set the values of the monitored variables for the event
 
     u_int16_t mynp=0;
-    for (const auto p_iter : *photons) {
+    for (const auto *const p_iter : *photons) {
       // Check that the electron meets our requirements
       bool isGood;
       if (! p_iter->passSelection(isGood,m_RecoName)) {

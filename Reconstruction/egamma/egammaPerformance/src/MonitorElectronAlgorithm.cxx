@@ -140,7 +140,7 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     lbNCandidates = mylb;
 
     u_int16_t mynp = 0;
-    for (const auto e_iter : *electrons) {
+    for (const auto *const e_iter : *electrons) {
       // Check that the electron meets our requirements
       bool isGood;
       if (! e_iter->passSelection(isGood,m_RecoName)) {

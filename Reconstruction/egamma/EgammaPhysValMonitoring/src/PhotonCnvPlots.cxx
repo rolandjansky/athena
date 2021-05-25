@@ -41,7 +41,7 @@ void PhotonCnvPlots::initializePlots(){
 
 
 
-  void PhotonCnvPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt){
+  void PhotonCnvPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
  
     float weight = 1.;
     weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
