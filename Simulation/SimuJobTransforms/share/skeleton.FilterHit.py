@@ -160,7 +160,7 @@ Stream1.ItemList += ["LArHitContainer#LArHitFCAL"]
 Stream1.ItemList += ["TileHitVector#TileHitVec"]
 
 if hasattr(DetFlags.detdescr, 'HGTD_on') and DetFlags.detdescr.HGTD_on():
-    Stream1.ItemList += ["LArHitContainer#LArHitHGTD"]
+    Stream1.ItemList += ["SiHitCollection#HGTD_Hits"]
 else:
     Stream1.ItemList += ["TileHitVector#MBTSHits"]
 #Calo Calibration Hits - not required, so leave out to save space
