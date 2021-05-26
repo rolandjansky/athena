@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFTauSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackSequence, tauTrackTwoSequence, tauEFSequence, tauMVASequence, tauPreSelSequence, tauPreSelTTSequence, tauPrecTrackSequence, tauPrecIsoTrackSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFTauSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackSequence, tauTrackTwoSequence, tauEFSequence, tauMVASequence, tauLLPSequence, tauPreSelSequence, tauPreSelTTSequence, tauPrecTrackSequence, tauPrecIsoTrackSequence
 
 # ===============================================================================================
 #      Calo step
@@ -203,6 +203,25 @@ def tauTrackTwoMVASeq():
                           Maker       = mvaViewsMaker,
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+# ===============================================================================================
+#     Tau Precision LLP Alg + EFMVHypo step   (tracktwoLLP)
+# ===============================================================================================
+
+def tauTrackTwoLLPSeq():
+    (sequence, mvaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauLLPSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
+    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgLLP")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = mvaViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
 
 # ===============================================================================================                                                            
 #     Tau Preselection + EFMVHypo step   (track)                                                                             
