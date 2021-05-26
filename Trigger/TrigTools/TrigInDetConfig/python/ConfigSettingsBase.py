@@ -28,6 +28,7 @@ class _ConfigSettingsBase() :
       self._DoubletDR_Max       = 270
       self._SeedRadBinWidth     = 2
       self._holeSearch_FTF      = False
+      self._electronPID         = False
       self._etaHalfWidth        = 0.1
       self._phiHalfWidth        = 0.1
       self._doFullScan          = False
@@ -127,6 +128,10 @@ class _ConfigSettingsBase() :
    @property
    def doResMon(self):
       return self._doResMon
+
+   @property
+   def electronPID(self):
+      return self._electronPID
 
    @property
    def doCloneRemoval(self):

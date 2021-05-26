@@ -102,7 +102,7 @@ def trackSummaryTool_builder( signature, config, prefix="InDetTrigMT" ) :
                                                      doSharedHits           = True,
                                                      doHolesInDet           = True )
         
-        if "electron" in config.name  or "tau" in config.name:
+        if config.electronPID: 
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTRT_ElectronPidTool
             trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
             
