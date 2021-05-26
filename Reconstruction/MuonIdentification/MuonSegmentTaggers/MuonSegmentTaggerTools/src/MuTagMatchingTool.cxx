@@ -420,8 +420,7 @@ bool MuTagMatchingTool::matchSegmentDirection(MuonCombined::MuonSegmentInfo* inf
             return false;
         }
     } else {
-        return true;
-        //    if (fabs(info->pullXZ) < m_MATCH_PHIANGLE) return true;
+        return true;        
     }
 }
 
@@ -610,9 +609,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
     info.segment = segment;
     info.trackAtSegment = exTrack;
 
-    if (!segment) return info;
-    if (!exTrack) return info;
-
+    if (!segment || !exTrack) return info;    
     // hit summaries
 
     Muon::IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(*segment);
@@ -624,20 +621,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
     // Global angular differences
 
     info.dtheta = exTrack->momentum().theta() - segment->globalDirection().theta();
-    double dotprod = exTrack->momentum().x() * segment->globalDirection().x() + exTrack->momentum().y() * segment->globalDirection().y();
-    dotprod = dotprod / exTrack->momentum().perp();
-    if (dotprod > 1.) dotprod = 1.;
-    if (dotprod < -1.) dotprod = -1.;
-    info.dphi = acos(dotprod);
+    info.dphi =  exTrack->momentum().deltaPhi(segment->globalDirection());
 
     // Global angular differences for position
 
     info.dthetaPos = exTrack->position().theta() - segment->globalPosition().theta();
-    dotprod = std::cos(exTrack->position().phi()) * std::cos(segment->globalPosition().phi()) +
-              std::sin(exTrack->position().phi()) * std::sin(segment->globalPosition().phi());
-    if (dotprod > 1.) dotprod = 1.;
-    if (dotprod < -1.) dotprod = -1.;
-    info.dphiPos = acos(dotprod);
+    info.dphiPos = exTrack->position().deltaPhi (segment->globalPosition());
 
     // Local positions
 
