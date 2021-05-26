@@ -80,14 +80,14 @@ class IsolationCorrection : public asg::AsgMessaging{
     CP::ShowerDepthTool* m_shower;
 
     std::string m_previousYear;
-    bool m_corrInitialized[3][2];
-    int m_crackBin;
+    bool m_corrInitialized[3][2]{};
+    int m_crackBin{};
     // follow the period (2015, rel20 / 2015_2016, 2017, rel21) dedicated vectors (in case different mc periods in a same job. But probably never happens, right ??)
-    std::vector<float>* m_feta_bins_dd; //!
-    std::vector<TGraph*>* m_graph_dd_cone40_unconv_photon_shift; //!
-    std::vector<TGraph*>* m_graph_dd_cone40_conv_photon_shift;   //!
-    std::vector<TGraph*>* m_graph_dd_cone20_unconv_photon_shift; //!
-    std::vector<TGraph*>* m_graph_dd_cone20_conv_photon_shift;   //!
+    std::vector<float>* m_feta_bins_dd{}; //!
+    std::vector<TGraph*>* m_graph_dd_cone40_unconv_photon_shift{}; //!
+    std::vector<TGraph*>* m_graph_dd_cone40_conv_photon_shift{};   //!
+    std::vector<TGraph*>* m_graph_dd_cone20_unconv_photon_shift{}; //!
+    std::vector<TGraph*>* m_graph_dd_cone20_conv_photon_shift{};   //!
 
     template <class T> void FreeClear( T & cntr );
 

@@ -8,9 +8,9 @@
 
 namespace MuonCombined {
   
-  InDetCandidate::InDetCandidate(const xAOD::TrackParticle& idTrack) : m_idTrackParticle(&idTrack), m_siAssociated(false), m_extension(0) {}
+  InDetCandidate::InDetCandidate(const xAOD::TrackParticle& idTrack) : m_idTrackParticle(&idTrack), m_siAssociated(false), m_extension(nullptr) {}
 
-  InDetCandidate::InDetCandidate( const ElementLink<xAOD::TrackParticleContainer>& idTrackLink ) : m_idTrackParticleLink(idTrackLink), m_idTrackParticle(0),m_siAssociated(false), m_extension(0) {}
+  InDetCandidate::InDetCandidate( const ElementLink<xAOD::TrackParticleContainer>& idTrackLink ) : m_idTrackParticleLink(idTrackLink), m_idTrackParticle(nullptr),m_siAssociated(false), m_extension(nullptr) {}
 
   InDetCandidate::~InDetCandidate() {
     delete m_extension;

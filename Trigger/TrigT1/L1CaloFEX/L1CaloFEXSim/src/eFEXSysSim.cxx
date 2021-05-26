@@ -56,6 +56,8 @@ namespace LVL1 {
 
     ATH_CHECK(m_eFexOutKey.initialize());
 
+    ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -96,6 +98,18 @@ namespace LVL1 {
     // remove TOBs of the previous events from the map
     m_allEmTobs.clear();
 
+    // do mapping with preloaded csv file if it is available
+    if (m_eFEXFPGATowerIdProviderTool->ifhaveinputfile()) {
+      ATH_CHECK( m_eFEXFPGATool.retrieve() );
+      int tmp_eTowersIDs_subset_eFEX[10][18];
+      for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
+          ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));
+          m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
+          ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX));
+          m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
+          m_eFEXSimTool->reset();
+      }
+    } else {
     // We need to split the towers into 3 blocks in eta and 8 blocks in phi.
 
     // boundaries in eta: -2.5, -0.8, 0.8, 2.5
@@ -362,7 +376,7 @@ namespace LVL1 {
 
     }
     
-
+    }
     m_eContainer = std::make_unique<xAOD::eFexEMRoIContainer> ();
     m_eAuxContainer = std::make_unique<xAOD::eFexEMRoIAuxContainer> ();
     m_eContainer->setStore(m_eAuxContainer.get());

@@ -18,9 +18,6 @@
 
 namespace Rec {
 
-    /** Interface ID for IMuidTrackIsolation*/
-    static const InterfaceID IID_IMuidTrackIsolation("IMuidTrackIsolation", 1, 0);
-
     /**@class IMuidTrackIsolation
 
     Base class for MuidTrackIsolation AlgTool
@@ -31,15 +28,18 @@ namespace Rec {
     class IMuidTrackIsolation : virtual public IAlgTool {
     public:
         /**Virtual destructor*/
-        virtual ~IMuidTrackIsolation() {}
+        virtual ~IMuidTrackIsolation() = default;
 
         /** AlgTool and IAlgTool interface methods */
-        static const InterfaceID& interfaceID() { return IID_IMuidTrackIsolation; }
+        static const InterfaceID& interfaceID() { /** Interface ID for IMuidTrackIsolation*/
+            static const InterfaceID IID_IMuidTrackIsolation("IMuidTrackIsolation", 1, 0);
+            return IID_IMuidTrackIsolation;
+        }
 
         /**IMuidTrackIsolation interface:
            get the number of tracks and summed momentum
            in a cone at the production vertex or around the muon calo intersect*/
-        virtual std::pair<int, double> trackIsolation(double eta, double phi) const = 0;
+        virtual std::pair<int, double> trackIsolation(const EventContext& ctx, double eta, double phi) const = 0;
     };
 
 }  // namespace Rec

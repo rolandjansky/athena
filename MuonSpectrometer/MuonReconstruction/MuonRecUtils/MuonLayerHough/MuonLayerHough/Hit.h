@@ -69,23 +69,23 @@ namespace MuonHough {
     /// =operator
     Hit& operator=( const Hit& h_ );
 
-    int   layer;        /// layer identifier (packed word containing technology/sublayer)
-    float x;            /// global hit position (x=r in barrel, x=z in endcap)
-    float ymin;         /// minimum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
-    float ymax;         /// maximum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
-    float w;            /// weight of the hit
+    int   layer{};        /// layer identifier (packed word containing technology/sublayer)
+    float x{};            /// global hit position (x=r in barrel, x=z in endcap)
+    float ymin{};         /// minimum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
+    float ymax{};         /// maximum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
+    float w{};            /// weight of the hit
 
     /// access to debug information
     const HitDebugInfo* debugInfo() const { return m_debug; } 
     HitDebugInfo* debugInfo() { return m_debug; }
 
     /// access to assiciated hit, either the prd or the tgc pointer is set in athena
-    const Trk::PrepRawData* prd;
-    const Muon::TgcClusterObj3D* tgc;
+    const Trk::PrepRawData* prd{};
+    const Muon::TgcClusterObj3D* tgc{};
 
   private:
   
-    HitDebugInfo* m_debug;  /// pointer to debug information
+    HitDebugInfo* m_debug{};  /// pointer to debug information
 
     /// copy function for internal use
     void copy( const Hit& hit );
@@ -107,22 +107,22 @@ namespace MuonHough {
     /// =operator
     PhiHit& operator=( const PhiHit& h_ );
 
-    int   layer;   /// layer identifier (packed word containing technology/sublayer)
-    float r;       /// global hit position (x=r in barrel, x=z in endcap)
-    float phimin;  /// minimum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
-    float phimax;  /// maximum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
-    float w;       /// weight of the hit
+    int   layer{};   /// layer identifier (packed word containing technology/sublayer)
+    float r{};       /// global hit position (x=r in barrel, x=z in endcap)
+    float phimin{};  /// minimum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
+    float phimax{};  /// maximum value of the hit in the precision coordinate (y=z in barrel, y=r in endcap)
+    float w{};       /// weight of the hit
 
     /// access to debug information
     const HitDebugInfo* debugInfo() const { return m_debug; }
     HitDebugInfo* debugInfo() { return m_debug; }
 
     /// access to assiciated hit, either the prd or the tgc pointer is set in athena
-    const Trk::PrepRawData* prd;
-    const Muon::TgcClusterObj3D* tgc;
+    const Trk::PrepRawData* prd{};
+    const Muon::TgcClusterObj3D* tgc{};
 
   private:
-    HitDebugInfo* m_debug; /// pointer to debug information
+    HitDebugInfo* m_debug{}; /// pointer to debug information
 
     /// copy function for internal use
     void copy( const PhiHit& hit );

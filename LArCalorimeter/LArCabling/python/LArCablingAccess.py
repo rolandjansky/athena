@@ -71,7 +71,6 @@ def LArCalibIdMapping():
         larCondFlags.config_idmap_MC()
     else:
         dbname="LAR"
-        larCondFlags.config_idmap_comm()
 
     folder="/LAR/Identifier/CalibIdMap"
     conddb.addFolder(dbname,folder,className="AthenaAttributeList")

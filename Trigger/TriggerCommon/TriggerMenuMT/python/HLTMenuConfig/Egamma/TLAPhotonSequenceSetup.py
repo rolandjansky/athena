@@ -5,7 +5,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 import AthenaCommon.CfgMgr as CfgMgr
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import  ViewCreatorPreviousROITool
-#from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFexMT
+#from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFex
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
@@ -26,7 +26,8 @@ def TLAPhotonSequence(flags, photonsIn, chainDict):
     ViewVerify.DataObjects = [( 'xAOD::PhotonContainer' , 'StoreGateSvc+HLT_egamma_Photons')]
     
 
-    from TrigEgammaHypo import TrigEgammaTLAPhotonFexMTConfig
+
+    from TrigEgammaHypo import TrigEgammaTLAPhotonFexConfig
 
 
 
@@ -37,7 +38,7 @@ def TLAPhotonSequence(flags, photonsIn, chainDict):
     # at this point the threshold is in GeV, provide it in MeV to the selector
     TLA_threshold = HLT_threshold - 20 if HLT_threshold - 20 > 0 else 0
 
-    TLAPhotonAlg = TrigEgammaTLAPhotonFexMTConfig.getConfiguredTLAPhotonSelector(photonPtThreshold=TLA_threshold*1000, inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
+    TLAPhotonAlg = TrigEgammaTLAPhotonFexConfig.getConfiguredTLAPhotonSelector(photonPtThreshold=TLA_threshold*1000, inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
 
     
 
@@ -77,7 +78,7 @@ def TLAPhotonAthSequence(flags, photonsIn, chainDict):
 
 def TLAPhotonMenuSequence(flags, photonsIn, chainDict):
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlg
     from TrigEgammaHypo.TrigEgammaTLAPhotonHypoTool import TrigEgammaTLAPhotonHypoToolFromDict # JetTLA calls a function "FromDict" from a python, investigate later
 
     (tlaPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn, chainDict=chainDict)

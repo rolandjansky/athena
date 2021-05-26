@@ -40,8 +40,9 @@ namespace LVL1 {
 
     virtual StatusCode safetyTest() override;
     virtual void setup(int inputTable[7][7], bool barrel_region) override;
+    virtual int realValue(int ID, int eta) override;
     virtual unsigned int getRealPhi() override;
-    virtual unsigned int getRealEta() override;   
+    virtual int getRealEta() override;   
     virtual unsigned int getTTowerET() override;
     virtual void buildSeeds() override; 
     virtual bool isSeedLocalMaxima() override; 

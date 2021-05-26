@@ -47,8 +47,9 @@ int usage(const std::string& name, int status) {
   s << "    -k,  --key       value   \t prepends key 'value' to the front of output plot names, \n\n";
   s << "    -a,  --auto              \t process all histograms that are in the file, \n";
   s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
-  s << "      ,  --nodir             \t do not print the directory name on the plot,\n";
-  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
+  s << "         --nodir             \t do not print the directory name on the plot,\n";
+  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n";
+  s << "    -f,  --frac              \t explicitly include the fractional plots\n\n";
   s << "    -nr, --noref             \t do not use a reference file, \n\n";
   s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
   s << "         --logx               \t force logx \n\n";
@@ -114,7 +115,7 @@ int main(int argc, char** argv) {
   std::vector<std::string> taglabels;
 
   std::string directory = "TIMERS";
-  std::string pattern = "_TotalTime";
+  std::vector<std::string> patterns;
 
   TDirectory* tdir = gDirectory;
 
@@ -131,6 +132,10 @@ int main(int argc, char** argv) {
   bool norm_width = true;
 
   bool logx = false;
+
+  bool withlumiblock = false;
+
+  bool withfractional = false;
 
   // Parse the arguments
   std::vector<std::string> algorithms;
@@ -162,6 +167,9 @@ int main(int argc, char** argv) {
     else if (arg == "-np" || arg == "--nopng") {
       nopng = true;
     }
+    else if (arg == "-f" || arg == "--frac" ) {
+      withfractional = true;
+    }
     else if (arg == "-a" || arg == "--auto") {
       autochains = true;
     }
@@ -170,6 +178,9 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-v" || arg == "--verbose") {
       verbose = true;
+    }
+    else if (arg == "-lb" ) {
+      withlumiblock = true;
     }
     else if (arg == "-nr" || arg == "--noref") {
       noref = true;
@@ -189,7 +200,7 @@ int main(int argc, char** argv) {
       else                 return usage(argv[0], -1); 
     }
     else if (arg == "-p" || arg == "--pattern") {
-      if (++argnum < argc) pattern = argv[argnum];
+      if (++argnum < argc) patterns.push_back(argv[argnum]);
       else                 return usage(argv[0], -1); 
     }
     else {
@@ -209,6 +220,9 @@ int main(int argc, char** argv) {
       }
     }
   }
+
+  if ( patterns.empty() ) patterns.push_back( "_TotalTime" );
+
   
   if (ftest == 0 || ( noref==false && frefname=="" ) ) {
     return usage(argv[0], -4);
@@ -238,8 +252,8 @@ int main(int argc, char** argv) {
     ftest->cd();
 
     std::vector<std::string> dirs;
-    contents( dirs, gDirectory, directory, pattern );
 
+    contents( dirs, gDirectory, directory, patterns );
 
     if ( autopattern=="" ) { 
       for ( unsigned j=0 ; j<dirs.size() ; j++ ) { 
@@ -308,6 +322,8 @@ int main(int argc, char** argv) {
   //  for (unsigned int histogram = 0; histogram < histograms.size(); ++histogram) {
   for (unsigned int histogram=histograms.size(); histogram-- ; ) {
 
+    
+
     std::cout << "\nhistogram " << histograms.at(histogram) << " : with " << algorithms.size() << " algorithms" << std::endl;
 
 
@@ -319,7 +335,9 @@ int main(int argc, char** argv) {
     //    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
     for (unsigned int algorithm = algorithms.size(); algorithm-- ; ) {
       
-      if ( algorithms[algorithm].find("LumiBlock")!=std::string::npos ) continue;
+      if ( !withlumiblock && algorithms[algorithm].find("LumiBlock")!=std::string::npos ) continue;
+
+      if ( !withfractional && algorithms[algorithm].find("Fractional")!=std::string::npos ) continue;
 
       std::cout << "\nmain() processing algorithm : " << algorithms[algorithm] << std::endl;
 
@@ -356,6 +374,8 @@ int main(int argc, char** argv) {
         std::cerr << "main(): can not find hist " << histname << " in test file" << std::endl;
         continue;
       }
+
+      std::cout << "mean time: " << testhist->GetMean() << "\t:: " << testhist->GetName() << std::endl;
 
       if ( norm_width ) binwidth( testhist );
 
@@ -403,9 +423,20 @@ int main(int argc, char** argv) {
 
       plots.push_back( Plotter( testhist, refhist, " "+algname ) );
 
-      std::string plotname = output_dir + key + algpname + tag;
-      //                              histograms.at(histogram).fname + tag;
+      std::string plotname = key + algpname + tag;
+      
+      std::string stub = directory;
 
+      size_t pos = stub.find("/");
+      while ( pos!=std::string::npos ) { stub.erase( pos, 1 ); pos = stub.find("/"); }
+
+      while ( plotname.find(stub)!=std::string::npos ) { 
+	plotname.erase( 0, plotname.find(stub)+stub.size() );
+      }
+
+      while ( plotname.find("_")==0 ) plotname.erase( 0, 1 );
+
+      plotname = output_dir + plotname;
 
       std::cout << "output dir " << output_dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
 
@@ -435,6 +466,8 @@ int main(int argc, char** argv) {
 
       plots.SetLogy(ylogt);
 
+      if ( logx ) plots.SetLogx(true); 
+
       double rmin = plots.realmin();
       double rmax = plots.realmax();
       
@@ -444,7 +477,7 @@ int main(int argc, char** argv) {
 	  if ( rmin == 0 ) rmin = rmax*0.0001; 
 	  double delta = std::log10(rmax)-std::log10(rmin);
 	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1.5)) );
-	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+0.5)) );
+	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1.0)) );
 	  plots.Min( rmin*std::pow(10,-delta*0.1) );
       }
       else { 
@@ -468,7 +501,10 @@ int main(int argc, char** argv) {
 
       plots.Draw( legend, true );
 
-      if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirname, kBlack, legend.TextSize(), legend.TextFont() );
+      std::string dirtitle = dirname;
+      if ( dirtitle.find("HLT_")==0 && dirtitle.find("__")!=std::string::npos ) dirtitle.erase( dirtitle.find("__"), dirtitle.size() ); 
+
+      if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirtitle, kBlack, legend.TextSize(), legend.TextFont() );
 
       /// could simply run gPad->SetLogyx( logx );
       /// but that would interfere with the individual plot 

@@ -1,40 +1,37 @@
-#include "../TrigEgammaFastCaloHypoAlgMT.h"
-#include "../TrigEgammaFastCaloHypoToolInc.h"
-#include "../TrigEgammaPrecisionCaloHypoToolInc.h"
-#include "../TrigEgammaPrecisionTrackingHypoToolInc.h"
-#include "../TrigEgammaPrecisionPhotonHypoToolInc.h"
-#include "../TrigEgammaPrecisionElectronHypoToolInc.h"
-#include "../TrigEgammaFastElectronHypoToolInc.h"
-#include "../TrigEgammaFastElectronHypoAlgMT.h"
-#include "../TrigEgammaFastPhotonHypoAlgMT.h"
-#include "../TrigEgammaFastPhotonHypoToolInc.h"
-#include "../TrigEgammaPrecisionCaloHypoAlgMT.h"
-#include "../TrigEgammaPrecisionTrackingHypoAlgMT.h"
-#include "../TrigEgammaPrecisionPhotonHypoAlgMT.h"
-#include "../TrigEgammaPrecisionElectronHypoAlgMT.h"
-#include "../combos/TrigEgammaMassHypoTool.h"
-#include "../combos/TrigEgammaDPhiHypoTool.h"
-#include "../TrigEgammaTLAPhotonHypoAlgMT.h"
+#include "../TrigEgammaFastCaloHypoAlg.h"
+#include "../TrigEgammaFastCaloHypoTool.h"
+#include "../TrigEgammaPrecisionCaloHypoTool.h"
+#include "../TrigEgammaPrecisionTrackingHypoTool.h"
+#include "../TrigEgammaPrecisionPhotonHypoTool.h"
+#include "../TrigEgammaPrecisionElectronHypoTool.h"
+#include "../TrigEgammaFastElectronHypoTool.h"
+#include "../TrigEgammaFastElectronHypoAlg.h"
+#include "../TrigEgammaFastPhotonHypoAlg.h"
+#include "../TrigEgammaFastPhotonHypoTool.h"
+#include "../TrigEgammaPrecisionCaloHypoAlg.h"
+#include "../TrigEgammaPrecisionTrackingHypoAlg.h"
+#include "../TrigEgammaPrecisionPhotonHypoAlg.h"
+#include "../TrigEgammaPrecisionElectronHypoAlg.h"
+#include "../TrigEgammaTLAPhotonHypoAlg.h"
+#include "../combos/TrigEgammaTopoHypoTool.h"
 #include "../TrigEgammaTLAPhotonHypoTool.h"
-#include "../TrigEgammaTLAPhotonFexMT.h"
+#include "../TrigEgammaTLAPhotonFex.h"
 
-DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoAlgMT )
+DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoAlg )
 DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoTool )
-DECLARE_COMPONENT( TrigEgammaTLAPhotonFexMT )
-DECLARE_COMPONENT( TrigEgammaTLAPhotonFexMT )
-DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaFastCaloHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionTrackingHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaFastElectronHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaFastPhotonHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaPrecisionTrackingHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaMassHypoTool )
-DECLARE_COMPONENT( TrigEgammaDPhiHypoTool )
+DECLARE_COMPONENT( TrigEgammaTLAPhotonFex )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlg )
+DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlg )
+DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlg )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionTrackingHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoTool )
+DECLARE_COMPONENT( TrigEgammaFastElectronHypoTool )
+DECLARE_COMPONENT( TrigEgammaFastPhotonHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlg )
+DECLARE_COMPONENT( TrigEgammaPrecisionTrackingHypoAlg )
+DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoAlg )
+DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoAlg )
+DECLARE_COMPONENT( TrigEgammaTopoHypoTool )

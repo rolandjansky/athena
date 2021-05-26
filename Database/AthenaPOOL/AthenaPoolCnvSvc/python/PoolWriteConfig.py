@@ -1,6 +1,6 @@
 """Configuration for POOL file writing
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -40,16 +40,18 @@ def PoolWriteCfg(flags):
 
     if flags.Output.RDOFileName:
         # Use LZMA w/ Level 1
-        PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, 2 ) ]
+        comp_alg = 1 if '_000' in flags.Output.RDOFileName or 'tmp.' in flags.Output.RDOFileName else 2
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.RDOFileName, 1 ) ]
-        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 1 events
-        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "CollectionTree", 1 ) ]
-        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainer", 1 ) ]
-        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainerForm", 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 10 events
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "CollectionTree", 10 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainer", 10 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainerForm", 10 ) ]
 
     if flags.Output.ESDFileName:
         # Use LZMA w/ Level 1
-        PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, 2 ) ]
+        comp_alg = 1 if '_000' in flags.Output.ESDFileName or 'tmp.' in flags.Output.ESDFileName else 2
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.ESDFileName, 1 ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 10 events
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.ESDFileName, "CollectionTree", 10 ) ]
@@ -58,7 +60,8 @@ def PoolWriteCfg(flags):
 
     if flags.Output.AODFileName:
         # Use LZMA w/ Level 1
-        PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, 2 ) ]
+        comp_alg = 1 if '_000' in flags.Output.AODFileName or 'tmp.' in flags.Output.AODFileName else 2
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "CollectionTree", 100 ) ]

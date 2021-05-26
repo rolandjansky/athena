@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // Navigator.cxx, (c) ATLAS Detector Software
 ///////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/SmartDataPtr.h"
 // Trk inlcudes
 #include "TrkExTools/Navigator.h"
 #include "TrkExInterfaces/IPropagator.h"
@@ -49,7 +47,6 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_useStraightLineApproximation(false),
   m_searchWithDistance(true),
   m_fastField(false),
-  m_validationMode(false),
   m_forwardCalls{},
   m_forwardFirstBoundSwitch{},
   m_forwardSecondBoundSwitch{},
@@ -71,12 +68,10 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   declareProperty("SearchWithDistanceToSurface", m_searchWithDistance);
   // Magnetic field properties
   declareProperty("MagneticFieldProperties", m_fastField);
-  declareProperty("ValidationMode", m_validationMode);
   }
 
 // destructor
-Trk::Navigator::~Navigator() {
-}
+Trk::Navigator::~Navigator() = default;
 
 // Athena standard methods
 // initialize

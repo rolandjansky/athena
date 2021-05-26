@@ -305,7 +305,7 @@ if __name__ == "__main__":
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
     top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
 
-    from InDetOverlay.PixelOverlayConfig import PixelRawDataProviderAlgCfg
+    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
     top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
 
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))

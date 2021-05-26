@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###### Here some graphical methods to produce dot files from Decision Handling
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
@@ -7,11 +7,6 @@ from AthenaCommon.AlgSequence import AthSequencer
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import algColor, isPassFilterAlg
 import itertools
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
-
-def create_dot():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    return TriggerFlags.generateMenuDiagnostics() or ConfigFlags.Trigger.generateMenuDiagnostics
 
 
 DrawHypoTools=True

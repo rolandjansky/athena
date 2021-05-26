@@ -40,9 +40,6 @@ namespace Trk {
         
         /** initialize */
         StatusCode initialize();
-        
-        /** finalize */
-        StatusCode finalize();
 
         /** LayerBuilder interface method - returning the layers at negative side */
         std::pair<EventIDRange, const std::vector< const Layer* > > negativeLayers(const EventContext& ctx) const; 

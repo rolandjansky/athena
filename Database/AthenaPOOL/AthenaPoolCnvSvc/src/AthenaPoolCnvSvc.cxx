@@ -1099,14 +1099,14 @@ StatusCode AthenaPoolCnvSvc::makeServer(int num) {
 }
 //________________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::makeClient(int num) {
-   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && num > 0) {
+   if (!m_outputStreamingTool.empty()/* && !m_outputStreamingTool[0]->isClient() && num > 0*/) {
       ATH_MSG_DEBUG("makeClient: " << m_outputStreamingTool << " = " << num);
       for (std::size_t streamClient = 0; streamClient < m_outputStreamingTool.size(); streamClient++) {
          std::string streamPortSuffix;
          if (m_outputStreamingTool[streamClient]->makeClient(num, streamPortSuffix).isFailure()) {
             ATH_MSG_ERROR("makeClient: " << m_outputStreamingTool << ", " << streamClient << " failed");
             return(StatusCode::FAILURE);
-         } else if (streamClient == 0) {
+         } else if (streamClient == 0 && m_streamPortString.value().find("localhost:0") != std::string::npos) {
             // We don't seem to use a dedicated port per stream so doing this for the first client is probably OK
             ATH_MSG_DEBUG("makeClient: Setting conversion service port suffix to " << streamPortSuffix);
             m_streamPortString.setValue(streamPortSuffix);

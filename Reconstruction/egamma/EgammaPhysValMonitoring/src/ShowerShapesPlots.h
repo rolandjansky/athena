@@ -16,7 +16,7 @@ namespace Egamma{
 class ShowerShapesPlots:public PlotBase {
     public:
       ShowerShapesPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-      void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo);
+      void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const;
       
       std::string m_sParticleType;
 

@@ -53,7 +53,7 @@ def _ftf(flags, chainDict):
     from TrigEgammaFastRec.TrigEgammaFastElectronConfig import fastElectronFexAlgCfg
     fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
     selAcc.mergeReco(fastInDetReco)
-    fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlgMT()
+    fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlg()
     fastElectronHypoAlg.Electrons = 'HLT_FastElectrons'
     fastElectronHypoAlg.RunInView = True
     selAcc.addHypoAlgo(fastElectronHypoAlg)
@@ -81,7 +81,7 @@ def _precisonCalo(flags, chainDict):
 
     selAcc = SelectionCA('PrecisionCalo')
     selAcc.mergeReco(recoAcc)
-    hypoAlg = CompFactory.TrigEgammaPrecisionCaloHypoAlgMT(name='ElectronPrecisionCaloHypo',
+    hypoAlg = CompFactory.TrigEgammaPrecisionCaloHypoAlg(name='ElectronPrecisionCaloHypo',
                                                            CaloClusters=recordable('HLT_CaloEMClusters'))
     selAcc.addHypoAlgo(hypoAlg)
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict

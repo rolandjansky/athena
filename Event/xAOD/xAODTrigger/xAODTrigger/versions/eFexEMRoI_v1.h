@@ -69,7 +69,7 @@ namespace xAOD {
       /// Eta Coordinates (decoded from TOB, float stored for convenience)
       float   eta() const; /// Getter for floating point, full precision (0.025) eta
       void    setEta(float value); /// setter for the above 
-      int     iEta() const;  /// getter for integer eta index (0-49)
+      int     iEta() const;  /// getter for integer eta index (-25->+24)
       unsigned int seed() const; /// Seed supercell index within central tower (0 -> 3)
 
       /// Phi coordinates (as for eta)
@@ -77,6 +77,9 @@ namespace xAOD {
       void    setPhi( float value); /// Setter for the above
       int     iPhi() const; /// Getter for integer phi index (0-63)
 
+      /// Getters for Topo coordinate indices
+      int iEtaTopo() const;
+      int iPhiTopo() const;
       
       /// Jet Discriminants
       /// Derived floating point values (not used in actual algorithm)
@@ -151,7 +154,6 @@ namespace xAOD {
       static const float s_tobEtScale;
       static const float s_xTobEtScale;
       static const float s_towerEtaWidth;
-      static const float s_minEta;
 
 
       /** Constants used in decoding TOB words
@@ -198,10 +200,8 @@ namespace xAOD {
       static const int s_eFexEtaWidth    = 16;
       static const int s_fpgaEtaWidth    =  4;
       static const int s_shelfPhiWidth   =  4;
+      static const int s_minEta          = -25;
 
-      /// Compute eta & phi indices from TOB word
-      //int etaIndex() const;
-      //int phiIndex() const;
 
    }; // class eFexEMRoI_v1
 

@@ -59,22 +59,24 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
+//
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-
+//
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "egammaRecEvent/egammaRecContainer.h"
-
+//
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
-#include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
+#include "egammaInterfaces/IegammaOQFlagsBuilder.h"
+#include "egammaRecEvent/egammaRecContainer.h"
+#include "egammaUtils/electronPearShapeAlignmentCorrection.h"
+
 class egammaRec;
 
 class topoEgammaBuilder : public AthReentrantAlgorithm
@@ -167,13 +169,16 @@ private:
         "SuperPhotonRecCollectionName",
         "PhotonSuperRecCollection",
         "Input container for electron  Super Cluster  egammaRec objects"};
+
     //
     // Other properties.
-    //
+    /** @brief Option to do truth*/
+    Gaudi::Property<bool> m_isTruth {this, "isTruth", false, "is truth"};
     Gaudi::Property<bool> m_doPhotons {this, "doPhotons", true, "Run the Photon reconstruction"};
     Gaudi::Property<bool> m_doElectrons {this, "doElectrons", true, "Run the Electron reconstruction"};
-    bool m_doAmbiguity;
-    bool m_doOQ;
+    electronPearShapeAlignmentCorrection m_deltaEta1Pear;
+    bool m_doAmbiguity{};
+    bool m_doOQ{};
 };
 
 #endif

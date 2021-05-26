@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -270,52 +270,6 @@ void test3 (const std::string& = "", int = 0)
   REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "test3") << "test3" << endmsg;
 }
 
-void test_checking()
-{
-  errorcheck::ReportMessage::hideFunctionNames (true);
-
-  // Test the error reporting macro
-  {
-    StatusCode sc1;
-    StatusCode sc2;
-    auto check = [&]() -> StatusCode { CHECK_FAILED(sc1, "test_checking", sc1, sc2); };
-    StatusCode sc = check();
-    assert( sc1.checked() );     // macro checks the StatusCode
-    assert( sc2.checked() );     // sc2 copied on return, i.e. checked
-    assert( not sc.checked() );  // the returned copy of sc2 is unchecked
-  }
-  // Test the CHECK macro
-  {
-    auto check = [](StatusCode& sc1, StatusCode& sc2) -> StatusCode {
-                   CHECK_WITH_CONTEXT(sc1, "test_checking", sc2);
-                   return StatusCode::SUCCESS;
-                 };
-    // Test CHECK macro on success
-    {
-      StatusCode sc1;
-      StatusCode sc2;
-      StatusCode sc = check(sc1, sc2);
-      assert( sc1.checked() );     // macro checks the StatusCode
-      assert( not sc2.checked() ); // on success the macro does not return sc2
-      assert( not sc.checked() );  // the returned copy of sc2 is unchecked
-    }
-    // Test CHECK macro on failure
-    {
-      StatusCode sc1(StatusCode::FAILURE);
-      StatusCode sc2;
-      StatusCode sc = check(sc1, sc2);
-      assert( sc1.checked() );     // macro checks the StatusCode
-      assert( sc2.checked() );     // on failure, sc2 copied on return, i.e. checked
-      assert( not sc.checked() );  // the returned copy of sc2 is unchecked
-    }
-  }
-  // Test REPORT macro
-  {
-    StatusCode sc(StatusCode::FAILURE);
-    REPORT_ERROR_WITH_CONTEXT(sc, "test_checking");
-    assert( sc.checked() );
-  }
-}
 
 int main()
 {
@@ -324,6 +278,5 @@ int main()
   assert(test1().isSuccess());
   test2();
   test3();
-  test_checking();
   return 0;
 }

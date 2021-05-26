@@ -298,11 +298,13 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
     result.setPrivateTools(TopoSplitter)
     return result
 
-# Steering options for trigger
-# Maybe offline reco options should be extracted from flags elsewhere
 def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopoClusters",doLCCalib=None):
-    result=ComponentAccumulator()
+    """
+    Configures topo clustering
 
+    If output writing is enabled (ESD,AOD) the topo clusters are added to them
+    """
+    result=ComponentAccumulator()
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     from TileGeoModel.TileGMConfig import TileGMCfg
@@ -333,7 +335,6 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopo
     # NumberOfCellsCut              = 4,
     # EnergyCut                     = 500*MeV,
 
-
     CaloTopoCluster=CaloClusterMaker(clustersname+"Maker")
     CaloTopoCluster.ClustersOutputName=clustersname
 
@@ -360,6 +361,14 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopo
         result.merge(caloTopoCoolFolderCfg(configFlags))
 
     result.addEventAlgo(CaloTopoCluster,primary=True)
+
+    from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
+    toAOD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}", 
+            f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux."]
+    toESD = []
+    result.merge(addToESD(configFlags, toAOD+toESD))
+    result.merge(addToAOD(configFlags, toAOD))
+
     return result
 
 

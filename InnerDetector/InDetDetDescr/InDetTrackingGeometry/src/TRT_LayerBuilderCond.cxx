@@ -115,20 +115,12 @@ InDet::TRT_LayerBuilderCond::~TRT_LayerBuilderCond()
 // initialize
 StatusCode InDet::TRT_LayerBuilderCond::initialize()
 {
-   ATH_MSG_INFO( "initialize()" );
+   ATH_MSG_DEBUG( "initialize()" );
    // get TRT Detector Description Manager
    if ((detStore()->retrieve(m_trtMgr, m_trtMgrLocation)).isFailure())
      ATH_MSG_ERROR( "Could not get TRT_DetectorManager, no layers for TRT Detector will be built. " );
 
    return StatusCode::SUCCESS;
-}
-
-// finalize
-StatusCode InDet::TRT_LayerBuilderCond::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
-
-    return StatusCode::SUCCESS;
 }
 
 

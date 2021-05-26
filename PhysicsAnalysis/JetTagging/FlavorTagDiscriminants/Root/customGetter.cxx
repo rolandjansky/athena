@@ -25,48 +25,26 @@ namespace {
 
   // _______________________________________________________________________
   // Custom getters for track variables
-  //
-  // TODO: only use a subset of the signed_ip functions from the
-  // augmenter below
-  class SignedD0SequenceGetter
-  {
-  private:
-    BTagTrackIpAccessor m_augmenter;
-  public:
-    SignedD0SequenceGetter():
-      m_augmenter()
-      {}
-    std::vector<double> operator()(
-      const xAOD::Jet& jet,
-      const std::vector<const xAOD::TrackParticle*>& tracks) const {
-      std::vector<double> signed_d0;
-      for (const auto* track: tracks) {
-        signed_d0.push_back(
-          m_augmenter.getSignedIp(*track, jet).ip3d_signed_d0_significance);
-      }
-      return signed_d0;
-    }
-  };
-  class SignedZ0SequenceGetter
-  {
-  private:
-    BTagTrackIpAccessor m_augmenter;
-  public:
-    SignedZ0SequenceGetter():
-      m_augmenter()
-      {}
-    std::vector<double> operator()(
-      const xAOD::Jet& jet,
-      const std::vector<const xAOD::TrackParticle*>& tracks) const {
-      std::vector<double> signed_z0;
-      for (const auto* track: tracks) {
-        signed_z0.push_back(
-          m_augmenter.getSignedIp(*track, jet).ip3d_signed_z0_significance);
-      }
-      return signed_z0;
-    }
-  };
 
+  template <typename T>
+  class TJGetter
+  {
+  private:
+    T m_getter;
+  public:
+    TJGetter(T getter):
+      m_getter(getter)
+      {}
+    std::vector<double> operator()(
+      const xAOD::Jet& jet,
+      const std::vector<const xAOD::TrackParticle*>& tracks) const {
+      std::vector<double> sequence;
+      for (const auto* track: tracks) {
+        sequence.push_back(m_getter(*track, jet));
+      }
+      return sequence;
+    }
+  };
 
 }
 
@@ -112,53 +90,69 @@ namespace FlavorTagDiscriminants {
     const xAOD::Jet&,
     const std::vector<const xAOD::TrackParticle*>&)>
   customSequenceGetter(const std::string& name) {
+    using Ac = BTagTrackIpAccessor;
+    using Tp = xAOD::TrackParticle;
+    using Jet = xAOD::Jet;
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     if (name == "IP3D_signed_d0_significance") {
-      return SignedD0SequenceGetter();
+      return TJGetter([a=Ac()](const Tp& t, const Jet& j){
+        return a.getSignedIp(t, j).ip3d_signed_d0_significance;
+      });
     }
     if (name == "IP3D_signed_z0_significance") {
-      return SignedZ0SequenceGetter();
+      return TJGetter([a=Ac()](const Tp& t, const Jet& j){
+        return a.getSignedIp(t, j).ip3d_signed_z0_significance;
+      });
+    }
+    if (name == "IP2D_signed_d0") {
+      return TJGetter([a=Ac()](const Tp& t, const Jet& j){
+        return a.getSignedIp(t, j).ip2d_signed_d0;
+      });
+    }
+    if (name == "IP3D_signed_d0") {
+      return TJGetter([a=Ac()](const Tp& t, const Jet& j){
+        return a.getSignedIp(t, j).ip3d_signed_d0;
+      });
+    }
+    if (name == "IP3D_signed_z0") {
+      return TJGetter([a=Ac()](const Tp& t, const Jet& j){
+        return a.getSignedIp(t, j).ip3d_signed_z0;
+      });
     }
     if (name == "log_ptfrac") {
-      return [](const xAOD::Jet& j, const Tracks& t) {
-               double jpt = j.pt();
-               std::vector<double> pfc;
-               for (const auto& trk: t) {
-                 pfc.push_back(std::log(trk->pt() / jpt));
-               }
-               return pfc;
-             };
+      return TJGetter([](const Tp& t, const Jet& j) {
+        return std::log(t.pt() / j.pt());
+      });
     }
     if (name == "log_dr") {
-      return [](const xAOD::Jet& j, const Tracks& t) {
-               const auto jp4 = j.p4();
-               std::vector<double> log_dr;
-               for (const auto& trk: t) {
-                 log_dr.push_back(std::log(trk->p4().DeltaR(jp4)));
-               }
-               return log_dr;
-             };
+      return TJGetter([](const Tp& t, const Jet& j) {
+        return std::log(t.p4().DeltaR(j.p4()));
+      });
     }
     if (name == "log_dr_nansafe") {
-      return [](const xAOD::Jet& j, const Tracks& t) {
-               const auto jp4 = j.p4();
-               std::vector<double> log_dr;
-               for (const auto& trk: t) {
-                 double dr = trk->p4().DeltaR(jp4) + 1E-7;
-                 log_dr.push_back(std::log( dr ) );
-               }
-               return log_dr;
-             };
+      return TJGetter([](const Tp& t, const Jet& j) {
+        return std::log(t.p4().DeltaR(j.p4()) + 1e-7);
+      });
+    }
+    if (name == "dphi") {
+      return TJGetter([](const Tp& t, const Jet& j) {
+        return t.p4().DeltaPhi(j.p4());
+      });
+    }
+    if (name == "deta") {
+      return TJGetter([](const Tp& t, const Jet& j) {
+        return t.eta() - j.eta();
+      });
     }
     if (name == "pt") {
-      return [](const xAOD::Jet&, const Tracks& t) {
+      return [](const Jet&, const Tracks& t) {
                std::vector<double> tracks;
                for (auto* trk: t) tracks.push_back(trk->pt());
                return tracks;
              };
     }
     if (name == "eta") {
-      return [](const xAOD::Jet&, const Tracks& t) {
+      return [](const Jet&, const Tracks& t) {
                std::vector<double> tracks;
                for (auto* trk: t) tracks.push_back(trk->eta());
                return tracks;

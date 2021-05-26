@@ -43,7 +43,7 @@ TEST(MultiFilterTester, fourjets_twofilters) {
   std::pair<HypoJetCIter, HypoJetCIter> iters =
     std::make_pair(tv.begin(), tv.end());
 
-  EXPECT_EQ(filters.size(), 2);
+  EXPECT_EQ(filters.size(), 2u);
 
   // apply the filters in a chain
   for (const auto& fp : filters) {
@@ -63,7 +63,7 @@ TEST(MultiFilterTester, fourjets_twofilters) {
 		 [](const pHypoJet& hj){return hj->eta();});
   std::sort(etas.begin(), etas.end());
 
-  EXPECT_EQ(etas.size(), 2);
+  EXPECT_EQ(etas.size(), 2u);
   EXPECT_DOUBLE_EQ(etas[0], 0.5);
   EXPECT_DOUBLE_EQ(etas[1], 1.0);
 

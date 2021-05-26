@@ -32,7 +32,8 @@ namespace LVL1 {
     void fill_largeRJet();
     void addValue_tau(std::string, int);
     void fill_tau();
-    int size();
+    int SRsize();
+    int LRsize();
     int tausize();
     std::map<std::string, float>* get_smallRJet(int);
     std::map<std::string, float>* get_largeRJet(int);

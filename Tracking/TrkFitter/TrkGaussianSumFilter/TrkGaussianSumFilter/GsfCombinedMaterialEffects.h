@@ -22,7 +22,7 @@
 
 namespace Trk {
 
-class GsfCombinedMaterialEffects
+class GsfCombinedMaterialEffects final
   : public AthAlgTool
   , virtual public IMultiStateMaterialEffects
 {
@@ -73,22 +73,6 @@ public:
     ParticleHypothesis = nonInteracting) const override final;
 
 private:
-  // Multipe scattering
-  void scattering(
-    GsfMaterial::Scattering&,
-    const ComponentParameters& componentParameters,
-    const MaterialProperties& materialProperties,
-    double pathLength) const;
-
-  // Non brem (non-electron) energy loss
-  void energyLoss(
-    GsfMaterial::EnergyLoss&,
-    const ComponentParameters&,
-    const MaterialProperties&,
-    double,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
-
   // Electron enrrgy loss due to Bremsstrahlung
   void BetheHeitler(
     GsfMaterial::EnergyLoss& cache,
@@ -101,23 +85,23 @@ private:
   // Read polynomial fit parameters from a specified file
   bool readBHParameters();
 
-  int m_BHnumberOfComponents;
-  int m_BHtransformationCode;
-  int m_BHnumberOfComponentsHighX0;
-  int m_BHtransformationCodeHighX0;
+  int m_BHnumberOfComponents{};
+  int m_BHtransformationCode{};
+  int m_BHnumberOfComponentsHighX0{};
+  int m_BHtransformationCodeHighX0{};
 
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialWeights;
+    m_BHpolynomialWeights{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialMeans;
+    m_BHpolynomialMeans{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialVariances;
+    m_BHpolynomialVariances{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialWeightsHighX0;
+    m_BHpolynomialWeightsHighX0{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialMeansHighX0;
+    m_BHpolynomialMeansHighX0{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
-    m_BHpolynomialVariancesHighX0;
+    m_BHpolynomialVariancesHighX0{};
 
   Gaudi::Property<bool> m_useHighX0{ this,
                                      "UseHighX0",

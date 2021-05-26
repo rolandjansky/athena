@@ -40,7 +40,6 @@ namespace Muon {
         if (!m_errorOptimisationTool.empty()) ATH_CHECK(m_errorOptimisationTool.retrieve());
         ATH_CHECK(m_candidateHandler.retrieve());
         ATH_CHECK(m_candidateMatchingTool.retrieve());
-        if (!m_hitRecoverTool.empty()) ATH_CHECK(m_hitRecoverTool.retrieve());
         ATH_CHECK(m_muonChamberHoleRecoverTool.retrieve());
         ATH_CHECK(m_trackExtrapolationTool.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
@@ -67,17 +66,17 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackBuilder::refit(Trk::Track& track) const {
         // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+        const EventContext& ctx = Gaudi::Hive::currentContext();
 
         if (m_edmHelperSvc->isSLTrack(track)) return m_slFitter->refit(track);
 
         // Also check if toriod is off:
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        EventContext ctx = Gaudi::Hive::currentContext();
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-        if (fieldCondObj == nullptr) {
+        if (!fieldCondObj) {
             ATH_MSG_ERROR("refit: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
             return nullptr;
         }
@@ -86,12 +85,14 @@ namespace Muon {
 
         // if not refit tool specified do a pure refit
         if (m_errorOptimisationTool.empty()) return m_fitter->refit(track);
-        std::unique_ptr<Trk::Track> optTrack = m_errorOptimisationTool->optimiseErrors(&track);
+        std::unique_ptr<Trk::Track> optTrack = m_errorOptimisationTool->optimiseErrors(track, ctx);
         return optTrack;
     }
 
     void MooTrackBuilder::refine(MuPatTrack& track, GarbageContainer& trash_bin) const {
-        std::unique_ptr<Trk::Track> finalTrack(m_hitRecoverTool->recover(track.track()));
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+
+        std::unique_ptr<Trk::Track> finalTrack(m_muonChamberHoleRecoverTool->recover(track.track(), ctx));
         if (!finalTrack) { ATH_MSG_WARNING(" final track lost, this should not happen "); }
         ATH_MSG_VERBOSE("refine: after recovery " << std::endl
                                                   << m_printer->print(*finalTrack) << std::endl
@@ -117,13 +118,13 @@ namespace Muon {
             finalTrack.swap(refittedTrack);
 
         // redo holes as they are dropped in the fitter
-        std::unique_ptr<Trk::Track> finalTrackWithHoles(m_muonChamberHoleRecoverTool->recover(*finalTrack));
+        std::unique_ptr<Trk::Track> finalTrackWithHoles(m_muonChamberHoleRecoverTool->recover(*finalTrack, ctx));
         if (!finalTrackWithHoles) {
             ATH_MSG_WARNING(" failed to add holes to final track, this should not happen ");
         } else
             finalTrack.swap(finalTrackWithHoles);
 
-        std::unique_ptr<Trk::Track> entryRecordTrack(m_trackExtrapolationTool->extrapolate(*finalTrack));
+        std::unique_ptr<Trk::Track> entryRecordTrack(m_trackExtrapolationTool->extrapolate(*finalTrack, ctx));
         if (entryRecordTrack) {
             finalTrack.swap(entryRecordTrack);
             ATH_MSG_VERBOSE(" track at muon entry record " << std::endl << m_printer->print(*finalTrack));
@@ -511,7 +512,7 @@ namespace Muon {
         ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments->size() << " reference size "
                                                                           << referenceSegments.size());
 
-        CompareMuonSegmentKeys compareSegmentKeys;
+        CompareMuonSegmentKeys compareSegmentKeys{};
 
         // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
         std::vector<std::pair<MuonSegmentKey, Trk::SegmentCollection::iterator> > segKeys;

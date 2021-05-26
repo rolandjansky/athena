@@ -27,7 +27,7 @@ class TrigEgammaFastPhotonHypoToolConfig:
     self.__sel        = sel
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastPhotonHypoToolInc(name)
+    tool = CompFactory.TrigEgammaFastPhotonHypoTool(name)
     tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47] 
 
     self.__tool = tool

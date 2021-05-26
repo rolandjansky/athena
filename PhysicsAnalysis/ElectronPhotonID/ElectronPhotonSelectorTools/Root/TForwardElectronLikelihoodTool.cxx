@@ -239,7 +239,7 @@ Root::TForwardElectronLikelihoodTool::accept(double likelihood,
                                              double eT,
                                              double ip) const
 {
-  LikeEnumForward::LHAcceptVars_t vars;
+  LikeEnumForward::LHAcceptVars_t vars{};
 
   vars.likelihood = likelihood;
   vars.eta = eta;
@@ -328,7 +328,7 @@ Root::TForwardElectronLikelihoodTool::calculate(double eta,
                                                 double secondDensity,
                                                 double ip) const
 {
-  LikeEnumForward::LHCalcVars_t vars;
+  LikeEnumForward::LHCalcVars_t vars{};
   vars.eta = eta;
   vars.eT = eT;
   vars.secondLambda = secondLambda;

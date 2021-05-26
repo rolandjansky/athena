@@ -141,9 +141,9 @@ private:
   bool m_skipDeltaPoverP;
 
   /// Multiclass model or not
-  bool m_multiClass;
+  bool m_multiClass{};
   /// Use the CF output node in the numerator or the denominator
-  bool m_cfSignal;
+  bool m_cfSignal{};
   /// Fractions to combine the output nodes of a multiclass model into one discriminant.
   std::vector<double> m_fractions;
 
@@ -156,23 +156,23 @@ private:
   /// cut min on precision hits
   std::vector<int> m_cutSCT;
   /// do smooth interpolation between bins
-  bool m_doSmoothBinInterpolation;
+  bool m_doSmoothBinInterpolation{};
   /// cut on mva output
   std::vector<double> m_cutSelector;
 
 
   /// The position of the kinematic cut bit in the AcceptInfo return object
-  int m_cutPosition_kinematic;
+  int m_cutPosition_kinematic{};
   /// The position of the NSilicon cut bit in the AcceptInfo return object
-  int m_cutPosition_NSilicon;
+  int m_cutPosition_NSilicon{};
   /// The position of the NPixel cut bit in the AcceptInfo return object
-  int m_cutPosition_NPixel;
+  int m_cutPosition_NPixel{};
   /// The position of the NBlayer cut bit in the AcceptInfo return object
-  int m_cutPosition_NBlayer;
+  int m_cutPosition_NBlayer{};
   /// The position of the ambiguity cut bit in the AcceptInfo return object
-  int m_cutPosition_ambiguity;
+  int m_cutPosition_ambiguity{};
   /// The position of the MVA cut bit in the AcceptInfo return object
-  int m_cutPosition_MVA;
+  int m_cutPosition_MVA{};
 
 
   /// number of discrimintants vs Et

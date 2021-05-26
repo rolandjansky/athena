@@ -26,8 +26,6 @@ def bool_flag_with_default(name, val):
 default_true_flags = [
     "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
     "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
-    "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
-    "doAlwaysUnpackDSResult",  # if False disable decoding of DS results for all files but for real DS files
     "doID",  # if False, disable ID algos at LVL2 and EF """
     "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
     "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
@@ -36,16 +34,11 @@ default_true_flags = [
 ]
 
 default_false_flags = [
-    "fakeLVL1", # create fake RoI from KINE info  """
     "useRun1CaloEnergyScale",
     "doTruth",
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
-    "doTransientByteStream",  # Write transient ByteStream before executing HLT algorithms.
-                              # To be used for running on MC RDO with clients which require BS inputs.
-    "writeBS",  # Write ByteStream output file """
     "readBS",
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
-    "generateMenuDiagnostics",  # Generate additional files heling in menu diagnostics """
 ]
 
 for name in default_true_flags:
@@ -433,33 +426,6 @@ class outputLVL1configFile(JobProperty):
         
 _flags.append(outputLVL1configFile)
 
-class outputHLTconfigFile(JobProperty):
-    """ File name for output HLT configuration XML file """
-    statusOn=True
-#    allowedType=['str']
-    StoredValue=""
-    
-    def __call__(self):
-        if self.get_Value() == "":
-            return "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-
-_flags.append(outputHLTconfigFile)
-
-class outputHLTmenuJsonFile(JobProperty):
-    """ File name for output HLT configuration XML file """
-    statusOn=True
-    StoredValue=""
-
-    def __call__(self):
-        if self.get_Value() == "":
-            return "HLTMenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
-        else:
-            return self.get_Value()
-
-_flags.append(outputHLTmenuJsonFile)
-
 
 class inputLVL1configFile(JobProperty):
     """ File name for input LVL1 configuration XML file """
@@ -486,24 +452,6 @@ def _getMenuBaseName(menuName):
         menuName = m.groups()[0]
     return menuName
 
-
-class inputHLTconfigFile(JobProperty):
-    """ File name for input HLT configuration XML file """
-    statusOn=True
-    allowedType=['str']
-#   The following default is appropriate when XML cofig is the default
-#    StoredValue="TriggerMenuXML/HLTconfig_default_" + TriggerFlags.menuVersion() + ".xml"
-#   The following default is appropriate when python config is the default
-    StoredValue=""
-#    StoredValue = "TriggerMenuXML/HLTconfig_default_" + TriggerFlags.menuVersion() + ".xml"
-
-    def __call__(self):
-        if self.get_Value() == "":
-            return "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-        else:
-            return self.get_Value()
-        
-_flags.append(inputHLTconfigFile)
 
 # =================
 #
@@ -695,8 +643,5 @@ def sync_Trigger2Reco():
         TriggerFlags.readBS = True
         TriggerFlags.doLVL1 = False
         TriggerFlags.doHLT   = False
-
-    if rec.doWriteBS():
-        TriggerFlags.writeBS = True
 
 del log

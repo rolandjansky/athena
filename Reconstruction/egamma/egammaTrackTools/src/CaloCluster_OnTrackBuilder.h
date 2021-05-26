@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTER_ONTRACKBUILER_H
@@ -54,9 +54,7 @@ private:
   const Amg::MatrixX*      getClusterErrorMatrix( const xAOD::CaloCluster* cluster,
                                                   const Trk::Surface* surf,
                                                   int charge) const;
-
-  static double getClusterPhiError( const xAOD::CaloCluster* cluster ) ;
-
+  
   /** @brief Tool to build calorimeter layer surfaces */
   ToolHandle<ICaloSurfaceBuilder>  m_calosurf {this,
       "CaloSurfaceBuilder", "CaloSurfaceBuilder", "Tool to build calorimeter layer surfaces"};

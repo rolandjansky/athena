@@ -40,7 +40,7 @@ MuonSegmentOverlapRemovalTool::removeDuplicates(Trk::SegmentCollection* segments
 
     ATH_MSG_DEBUG(" working on segment vector of size " << segments->size());
 
-    CompareMuonSegmentKeys compareSegmentKeys;
+    CompareMuonSegmentKeys compareSegmentKeys{};
 
     // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
     std::vector<std::pair<MuonSegmentKey, MuonSegment*> > goodSegments;
@@ -279,7 +279,7 @@ MuonSegmentOverlapRemovalTool::removeDuplicates(MuonSegmentCombination::SegmentV
 
     ATH_MSG_DEBUG(" working on segment vector of size " << segments.size());
 
-    CompareMuonSegmentKeys compareSegmentKeys;
+    CompareMuonSegmentKeys compareSegmentKeys{};
 
     // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
     std::vector<std::pair<MuonSegmentKey, MuonSegment*> > goodSegments;

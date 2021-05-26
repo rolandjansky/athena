@@ -161,6 +161,9 @@ private:
   /// Flag for skip the use of deltaPoverP in  LH computation (like at HLT)
   bool m_skipDeltaPoverP;
 
+  /// Flag to toggle the correction of deltaEta1 for the pear shape distortion of the LAr
+  bool m_correctDeltaEta;
+
   ///  read handle key to heavy ion container
   SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_HIESContKey{
     this,

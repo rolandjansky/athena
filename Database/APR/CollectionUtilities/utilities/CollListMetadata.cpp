@@ -199,19 +199,18 @@ int main(int argc, const char *argv[])
                // set a target as the file argument
                //std::string file("CollMetadata.xml");
                std::cout << "About to write summary file " << file << std::endl;
-               XMLFormatTarget* myFormTarget = new LocalFileFormatTarget(file.c_str());
+               LocalFileFormatTarget myFormTarget (file.c_str());
 
                // write document to target
                // See http://xerces.apache.org/xerces-c/program-dom-3.html
                DOMLSOutput* theOutput = ((DOMImplementationLS*)impl)->createLSOutput();
-               theOutput->setByteStream(myFormTarget);
+               theOutput->setByteStream(&myFormTarget);
                theSerializer->write(newDocument, theOutput);
 
                // clean up the mess
-               if (theSerializer!=NULL) delete theSerializer;
-               if (theOutput!=NULL) delete theOutput;
-               if (myFormTarget!=NULL)   delete myFormTarget;
-               if (newDocument!=NULL)     delete newDocument;
+               delete theSerializer;
+               delete theOutput;
+               delete newDocument;
             }
             catch (const SAXException& e) {
                char* s = XMLString::transcode(e.getMessage( ));

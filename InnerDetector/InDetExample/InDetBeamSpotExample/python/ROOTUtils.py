@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Miscellaneous utilities for PyROOT.
@@ -46,7 +46,7 @@ class MyCanvas(ROOT.TCanvas):
     autoName = '%s.autosave%s'
 
     def __init__(self,name='MyCanvas', size='default', xdivs=1, ydivs=1, saveAsList=None, autoSaveOnExit=None):
-        super(MyCanvas,self).__init__(name,name,myCanvasSizes[size][0],myCanvasSizes[size][1])
+        super(MyCanvas,self).__init__(name)
         self.name = name
         if saveAsList is not None:
             self.saveAsList = saveAsList

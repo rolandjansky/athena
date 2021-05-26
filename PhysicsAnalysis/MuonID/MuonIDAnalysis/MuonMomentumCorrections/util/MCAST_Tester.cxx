@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -97,7 +97,6 @@ int main( int argc, char* argv[] ) {
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
   ANA_CHECK (xAOD::Init( APP_NAME ));
-  StatusCode::enableChecking();
 
   //::: Open the input file:
   std::string fileName = argv[1];

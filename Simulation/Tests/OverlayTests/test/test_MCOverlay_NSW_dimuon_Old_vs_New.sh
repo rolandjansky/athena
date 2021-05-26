@@ -39,6 +39,7 @@ OverlayPool_tf.py \
 --imf False
 
 rc2=$?
+status=$rc2
 echo "art-result: $rc2 overlaypool_tf"
 
 
@@ -56,5 +57,8 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.mcChannelNumber \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.mcEventNumber
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 comparison"
+
+exit $status

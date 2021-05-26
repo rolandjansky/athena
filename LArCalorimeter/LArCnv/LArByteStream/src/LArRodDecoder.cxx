@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of LArRodDecoder class 
@@ -136,17 +136,12 @@ LArRodDecoder::initialize ATLAS_NOT_THREAD_SAFE ()
    //Build list of preselected Feedthroughs
    if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {
      ATH_MSG_INFO("Building list of selected feedthroughs");
-     std::vector<int>::const_iterator it_BE=m_vBEPreselection.begin();
-     for (;it_BE!=m_vBEPreselection.end();it_BE++) {
-       const unsigned BE=*it_BE;
-       std::vector<int>::const_iterator it_PN=m_vPosNegPreselection.begin();
-       for (;it_PN!=m_vPosNegPreselection.end();it_PN++) {
-	 const unsigned PN=*it_PN;
-	 std::vector<int>::const_iterator it_FT=m_vFTPreselection.begin();
-	 for (;it_FT!=m_vFTPreselection.end();it_FT++) {
-	   HWIdentifier finalFTId=m_onlineHelper->feedthrough_Id(BE,PN,*it_FT);
+     for (const unsigned BE : m_vBEPreselection) {
+       for (const unsigned PN : m_vPosNegPreselection) {
+         for (const unsigned FT : m_vFTPreselection) {
+	   HWIdentifier finalFTId=m_onlineHelper->feedthrough_Id(BE,PN,FT);
 	   unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
-	   ATH_MSG_INFO("Adding feedthrough Barrel/Endcap=" << BE << " pos/neg=" << PN << " FT=" << *it_FT 
+	   ATH_MSG_INFO("Adding feedthrough Barrel/Endcap=" << BE << " pos/neg=" << PN << " FT=" << FT 
 			<< " (0x" << std::hex << finalFTId32 << std::dec << ")");
 	   m_vFinalPreselection.push_back(finalFTId32);
 	 }
@@ -924,7 +919,7 @@ LArRodDecoder::prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragm
     constexpr int maxMess = 100;
     static std::atomic<int> nMess = 1;
     int thismess = nMess++;
-    if (thismess < maxMess) {
+    if (thismess <= maxMess) {
       msg(MSG::ERROR) << "Could not set fragment (wrong number of samples in data ?) - container will not be filled" << endmsg;
       if (thismess == maxMess)
         msg(MSG::ERROR) << "This message will not be repeated" << endmsg;

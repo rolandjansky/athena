@@ -10,7 +10,7 @@
 #include <memory>
 
 PixelAlignCondAlg::PixelAlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -41,12 +41,12 @@ StatusCode PixelAlignCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelAlignCondAlg::execute()
+StatusCode PixelAlignCondAlg::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKey};
+  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKey, ctx};
 
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
@@ -69,14 +69,14 @@ StatusCode PixelAlignCondAlg::execute()
 
   if (not m_useDynamicAlignFolders.value()) { // Static
     // ____________ Get Read Cond Object ____________
-    SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic};
+    SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic, ctx};
     const AlignableTransformContainer* readCdoStatic{*readHandleStatic};
     if (readCdoStatic==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyStatic.key());
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist, ctx};
     const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
     if (readCdoIBLDist==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
@@ -111,28 +111,28 @@ StatusCode PixelAlignCondAlg::execute()
 
   } else { // Dynamic
     // ____________ Get Read Cond Object ____________
-    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1, ctx};
     const CondAttrListCollection* readCdoDynamicL1{*readHandleDynamicL1};
     if (readCdoDynamicL1==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyDynamicL1.key());
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL2{m_readKeyDynamicL2};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL2{m_readKeyDynamicL2, ctx};
     const CondAttrListCollection* readCdoDynamicL2{*readHandleDynamicL2};
     if (readCdoDynamicL2==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicL2.key());
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicL3{m_readKeyDynamicL3};
+    SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicL3{m_readKeyDynamicL3, ctx};
     const AlignableTransformContainer* readCdoDynamicL3{*readHandleDynamicL3};
     if (readCdoDynamicL3==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicL3.key());
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist, ctx};
     const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
     if (readCdoIBLDist==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());

@@ -48,7 +48,7 @@ public:
   { std::abort(); }
   virtual int maxNumberOfErrors() const override
   { std::abort(); }
-  
+
   virtual const Trk::Surface* getSurface(const Identifier& id) const override;
   void addSurface (std::unique_ptr<Trk::Surface> surf);
 
@@ -95,7 +95,7 @@ class TestElement
 public:
   TestElement (unsigned int val);
   virtual Identifier identify() const override final;
-    
+
   virtual IdentifierHash identifyHash() const override final
   { std::abort(); }
   virtual const Amg::Transform3D & transform() const override
@@ -118,6 +118,9 @@ public:
   { std::abort(); }
   virtual const Amg::Vector3D & normal(const Identifier& /*id*/) const override
   { std::abort(); }
+  virtual Trk::DetectorElemType detectorType() const override{
+    return Trk::DetectorElemType::Silicon; //should be fine for a test
+  }
 
   Identifier m_id;
 };
@@ -191,7 +194,7 @@ void add_det_surface (unsigned int val)
 {
   auto detel = std::make_unique<TestElement> (val);
   auto surf = make_surf<SURF>() (*detel.release());
-  
+
   ToolHandle<Trk::IEventCnvSuperTool> h ("TestCnvTool");
   TestCnvTool* tool = dynamic_cast<TestCnvTool*> (&*h);
   if (tool) tool->addSurface (std::move (surf));

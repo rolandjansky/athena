@@ -113,7 +113,7 @@ class MonitorDef:
             "L1_MU4","L1_MU10","L1_MU20",
             "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
             "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20p31ETA49", "L1_J30p31ETA49",
-            "L1_XE35", "L1_XE80", "L1_XS20", 
+            "L1_XE35", "L1_XE60",
             "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
             "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",

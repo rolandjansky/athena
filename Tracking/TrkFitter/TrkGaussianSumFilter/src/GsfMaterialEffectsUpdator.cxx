@@ -181,13 +181,7 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG(
-    "Material effects update prior to propagation using layer "
-    "information and particle hypothesis: "
-    << particleHypothesis);
-
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
-
   if (!trackParameters) {
     ATH_MSG_ERROR(
       "Trying to update component without trackParameters... returing 0!");
@@ -284,12 +278,6 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   PropDirection direction,
   ParticleHypothesis particleHypothesis) const
 {
-
-  ATH_MSG_DEBUG(
-    "Material effects update after propagation using layer "
-    "information and particle hypothesis: "
-    << particleHypothesis);
-
   Trk::TrackParameters* trackParameters = componentParameters.first.get();
 
   if (!trackParameters) {
@@ -388,7 +376,6 @@ Trk::GsfMaterialEffectsUpdator::compute(
   double momentum = componentParameters.first->momentum().mag();
 
   if (momentum <= m_momentumCut) {
-    ATH_MSG_DEBUG("Ignoring material effects... Momentum too low");
     Trk::MultiComponentState clonedMultiComponentState{};
     clonedMultiComponentState.emplace_back(
       componentParameters.first->clone(), componentParameters.second);

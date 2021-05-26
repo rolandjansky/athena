@@ -101,6 +101,7 @@ def createTriggerFlags():
 
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
     flags.addFlag('Trigger.doEDMVersionConversion', True)
+    flags.addFlag('Trigger.doConfigVersionConversion', True)
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
@@ -294,9 +295,6 @@ def createTriggerFlags():
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
-    # fakeLVL1
-    # doMergedHLTResult - not needed now
-    # doAlwaysUnpackDSResult - never set
     # configForStartup
     # the flags related to trigger DB are redundant of triggerConfig - need to decide if they are needed in this form
     # also not defined the Prescale sets yet

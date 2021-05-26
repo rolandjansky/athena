@@ -25,7 +25,7 @@ namespace Egamma{
     etvseta = Book2D("etvseta", "E_{T} vs #eta of "+ m_sParticleType +"; #eta ; E_{T} (GeV) ", 1000,-5.,5., 200, 0., 200);
   }
   
-  void KinematicsPlots::fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo){
+  void KinematicsPlots::fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo) const{
 
     float weight = 1.;
     weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;

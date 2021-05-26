@@ -23,6 +23,7 @@ OverlayPool_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlaypool"
 
 rc2=-9999
@@ -36,6 +37,7 @@ then
     --preExec 'rec.doTrigger=False;from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' \
     --imf False
     rc2=$?
+    status=$rc2
 fi
 echo "art-result: $rc2 reco"
 
@@ -46,5 +48,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 "${ArtPackage}" "${ArtJobName}" --mode=semi-detailed --file MC_plus_MC.RDO.pool.root --diff-root
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 regression"
+
+exit $status

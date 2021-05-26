@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "MuPatPrimitives/MuPatCandidateBase.h"
 #include "MuPatPrimitives/MuPatSegment.h"
 #include "MuPatPrimitives/MuPatTrack.h"
@@ -22,16 +23,13 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
-
 namespace Muon {
 
     std::string print(const MuPatSegment& /* seg */) { return ""; }
 
     std::string print(const std::vector<MuPatSegment*>& segVec) {
         std::ostringstream s;
-        std::vector<MuPatSegment*>::const_iterator sit = segVec.begin();
-        std::vector<MuPatSegment*>::const_iterator sit_end = segVec.end();
-        for (; sit != sit_end; ++sit) { s << " " << print(**sit); }
+        for (const MuPatSegment* sit : segVec) { s << " " << print(*sit); }
         return s.str();
     }
 
@@ -43,9 +41,7 @@ namespace Muon {
 
     std::string print(const std::vector<std::unique_ptr<MuPatTrack> >& tracks) {
         std::ostringstream s;
-        std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit = tracks.begin();
-        std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit_end = tracks.end();
-        for (; tit != tit_end; ++tit) s << std::endl << print(**tit);
+        for (const std::unique_ptr<MuPatTrack>& tit : tracks) s << std::endl << print(*tit);
 
         return s.str();
     }
@@ -108,41 +104,8 @@ namespace Muon {
             // Perform the actual track finding
             result = findTracks(chamberSegments, stationSegments, trash_bin);
         }
-        // Tracking complete - cleanup
-        cleanUp();
-
         return result;
     }
-
-    //-----------------------------------------------------------------------------------------------------------
-
-    void MuonTrackSteering::cleanUp() const {
-        {
-            const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
-            std::for_each(m_constsegmentsToDelete.begin(), m_constsegmentsToDelete.end(), MuonDeleteObject<const MuonSegment>());
-            m_constsegmentsToDelete.clear();
-        }
-
-        {
-            const std::lock_guard<std::mutex> lock(m_segmentsMutex);
-            // sanity check that the track/segment association is ok
-            // at this point all MuPatTracks should be deleted so the segments should not be assigned to any track anymore
-            SegColIt sit = m_segmentsToDelete.begin();
-            SegColIt sit_end = m_segmentsToDelete.end();
-            for (; sit != sit_end; ++sit) {
-                if (!(*sit)->tracks().empty()) {
-                    ATH_MSG_WARNING("Detected segment/track association issue for segment ");
-                    std::set<MuPatTrack*>::const_iterator tit = (*sit)->tracks().begin();
-                    std::set<MuPatTrack*>::const_iterator tit_end = (*sit)->tracks().end();
-                    for (; tit != tit_end; ++tit) { ATH_MSG_DEBUG(" Track ptr " << *tit); }
-                }
-            }
-            std::for_each(m_segmentsToDelete.begin(), m_segmentsToDelete.end(), MuonDeleteObject<MuPatSegment>());
-            m_segmentsToDelete.clear();
-        }
-    }
-
-    //-----------------------------------------------------------------------------------------------------------
 
     bool MuonTrackSteering::extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
                                             ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const {
@@ -157,11 +120,9 @@ namespace Muon {
         ATH_MSG_DEBUG("New collection " << theSegments.size());
 
         // Sort the input collection by chamber & station IDs
-        MuonSegmentCollection::const_iterator iter = theSegments.begin();
-        MuonSegmentCollection::const_iterator iend = theSegments.end();
-        for (; iter != iend; ++iter) {
+        for (const MuonSegment* segment : theSegments) {
             ATH_MSG_DEBUG("Adding segment ");
-            MuPatSegment* aSeg = m_candidateTool->createSegInfo(*(*iter), trash_bin);
+            MuPatSegment* aSeg = m_candidateTool->createSegInfo(*segment, trash_bin);
             ATH_MSG_DEBUG(" -> MuPatSegment " << m_candidateTool->print(*aSeg));
 
             MuonStationIndex::ChIndex chIndex = aSeg->chIndex;
@@ -179,10 +140,7 @@ namespace Muon {
                 std::vector<MuPatSegment*>& segments2 = stationSegments[stIndex];
                 segments2.push_back(aSeg);
             }
-            {
-                std::lock_guard<std::mutex> lock(m_segmentsMutex);
-                m_segmentsToDelete.push_back(aSeg);
-            }
+            trash_bin.push_back(aSeg);
         }
 
         if (m_combinedSLOverlaps) {
@@ -230,15 +188,13 @@ namespace Muon {
         std::vector<bool> wasMatched2(ch2.size(), false);
 
         // loop over all possible combinations
-        SegColIt sit1 = ch1.begin();
-        SegColIt sit1_end = ch1.end();
-        for (; sit1 != sit1_end; ++sit1) {
+        for (MuPatSegment* sit1 : ch1) {
             // do not combine poor quality segments
             int qualityLevel1 = ch1.size() > 5 ? 1 : 2;
-            if ((*sit1)->quality < qualityLevel1) {
-                ATH_MSG_VERBOSE("resolveSLOverlaps::bad segment1 q: " << (*sit1)->quality << " cut " << qualityLevel1 << std::endl
-                                                                      << m_printer->print(*(*sit1)->segment));
-                stationVec.push_back(*sit1);
+            if (sit1->quality < qualityLevel1) {
+                ATH_MSG_VERBOSE("resolveSLOverlaps::bad segment1 q: " << sit1->quality << " cut " << qualityLevel1 << std::endl
+                                                                      << m_printer->print(*sit1->segment));
+                stationVec.push_back(sit1);
                 continue;
             }
 
@@ -246,68 +202,65 @@ namespace Muon {
 
             // apply looser cuts as we perform matching
             int qualityLevel2 = ch2.size() > 5 ? 1 : 2;
-            SegColIt sit2 = ch2.begin();
-            SegColIt sit2_end = ch2.end();
-            for (; sit2 != sit2_end; ++sit2) {
+            /// Start with -1 as the first operation in the loop over the second set of chambers
+            /// is the counter incrementation
+            int idx_ch2 = -1;
+            for (MuPatSegment* sit2 : ch2) {
+                ++idx_ch2;
                 // do not combine poor quality segments AND require at least one of the segments to have a quality beter than 1
-                if ((*sit2)->quality < qualityLevel2) {
-                    ATH_MSG_VERBOSE("resolveSLOverlaps::bad segment2:  q " << (*sit2)->quality << " cut " << qualityLevel2 << std::endl
-                                                                           << m_printer->print(*(*sit2)->segment));
+                if (sit2->quality < qualityLevel2) {
+                    ATH_MSG_VERBOSE("resolveSLOverlaps::bad segment2:  q " << sit2->quality << " cut " << qualityLevel2 << std::endl
+                                                                           << m_printer->print(*sit2->segment));
                     continue;
                 }
-                if ((*sit1)->quality < 2 && (*sit2)->quality < 2) {
+                if (sit1->quality < 2 && sit2->quality < 2) {
                     ATH_MSG_VERBOSE("resolveSLOverlaps:: combination of insufficient quality " << std::endl
-                                                                                               << " q1 " << (*sit1)->quality << " q2 "
-                                                                                               << (*sit1)->quality);
+                                                                                               << " q1 " << sit1->quality << " q2 "
+                                                                                               << sit1->quality);
                     continue;
                 }
 
                 ATH_MSG_VERBOSE(" combining entries: " << std::endl
-                                                       << m_printer->print(*(*sit1)->segment) << std::endl
-                                                       << m_printer->print(*(*sit2)->segment));
+                                                       << m_printer->print(*sit1->segment) << std::endl
+                                                       << m_printer->print(*sit2->segment));
 
-                if (!m_candidateMatchingTool->match(**sit1, **sit2, false)) {
-                    ATH_MSG_VERBOSE(" overlap combination rejected based on matching" << std::endl << m_printer->print(*(*sit2)->segment));
+                if (!m_candidateMatchingTool->match(*sit1, *sit2, false)) {
+                    ATH_MSG_VERBOSE(" overlap combination rejected based on matching" << std::endl << m_printer->print(*sit2->segment));
                     continue;
                 }
 
                 // create MuonSegment
-                MuonSegment* newseg = m_mooBTool->combineToSegment(**sit1, **sit2);
+                MuonSegment* newseg = m_mooBTool->combineToSegment(*sit1, *sit2);
                 if (!newseg) {
                     ATH_MSG_DEBUG(" Combination of segments failed ");
                     continue;
                 }
-
+                trash_bin.push_back(newseg);
                 const Trk::FitQuality* fq = newseg->fitQuality();
                 if (!fq || fq->numberDoF() == 0) {
                     ATH_MSG_WARNING(" no fit quality, dropping segment ");
-                    delete newseg;
                     continue;
                 }
                 if (fq->chiSquared() / fq->numberDoF() > 2.5) {
                     ATH_MSG_DEBUG("bad fit quality, dropping segment " << fq->chiSquared() / fq->numberDoF());
-                    delete newseg;
                     continue;
                 }
 
                 MuPatSegment* segInfo = m_candidateTool->createSegInfo(*newseg, trash_bin);
-
+                trash_bin.push_back(segInfo);
                 // check whether segment of good quality AND that its quality is equal or better than the input segments
-                if (segInfo->quality < 2 || (segInfo->quality < (*sit1)->quality || segInfo->quality < (*sit2)->quality)) {
+                if (segInfo->quality < 2 || (segInfo->quality < sit1->quality || segInfo->quality < sit2->quality)) {
                     ATH_MSG_VERBOSE("resolveSLOverlaps::bad segment " << std::endl << m_printer->print(*segInfo->segment));
-                    delete segInfo;
-                    delete newseg;
                     continue;
                 }
                 int shared_eta = 0, shared_phi = 0;  // check for hits shared between segments
-                const MuPatSegment* temp1 = (*sit1);
-                const MuPatSegment* temp2 = (*sit2);
-                MuPatHitCit lit1 = temp1->hitList().begin(), lit1_end = temp1->hitList().end();
-                for (; lit1 != lit1_end; ++lit1) {
-                    MuPatHitCit lit2 = temp2->hitList().begin(), lit2_end = temp2->hitList().end();
-                    for (; lit2 != lit2_end; ++lit2) {
-                        if ((*lit1)->info().id == (*lit2)->info().id) {
-                            if ((*lit1)->info().measuresPhi)
+
+                const MuPatSegment* const_sit1 = sit1;
+                const MuPatSegment* const_sit2 = sit2;
+                for (const MuPatHit* hit_ch1 : const_sit1->hitList()) {
+                    for (const MuPatHit* hit_ch2 : const_sit2->hitList()) {
+                        if (hit_ch1->info().id == hit_ch2->info().id) {
+                            if (hit_ch1->info().measuresPhi)
                                 shared_phi++;
                             else
                                 shared_eta++;
@@ -315,58 +268,43 @@ namespace Muon {
                     }
                 }
 
-                if ((*sit1)->etaHits().size() + (*sit2)->etaHits().size() - shared_eta - segInfo->etaHits().size() > 1) {
+                if (sit1->etaHits().size() + sit2->etaHits().size() - shared_eta - segInfo->etaHits().size() > 1) {
                     ATH_MSG_VERBOSE("resolveSLOverlaps::more than one eta measurement removed, dropping track "
                                     << std::endl
                                     << m_printer->print(*segInfo->segment));
-                    delete segInfo;
-                    delete newseg;
                     continue;
                 }
 
-                int phiHitDiff = (*sit1)->phiHits().size() + (*sit2)->phiHits().size() - shared_phi - segInfo->phiHits().size();
-                if (phiHitDiff > 1 || ((*sit1)->phiHits().size() + (*sit2)->phiHits().size() > 0 && segInfo->phiHits().size() == 0)) {
+                int phiHitDiff = sit1->phiHits().size() + sit2->phiHits().size() - shared_phi - segInfo->phiHits().size();
+                if (phiHitDiff > 1 || (sit1->phiHits().size() + sit2->phiHits().size() > 0 && segInfo->phiHits().size() == 0)) {
                     ATH_MSG_VERBOSE("resolveSLOverlaps::more than one phi measurement removed, dropping track "
                                     << std::endl
                                     << m_printer->print(*segInfo->segment));
-                    delete segInfo;
-                    delete newseg;
                     continue;
                 }
-
+                /// Actually this should be always 1. What should it conceptionally reject?
+                /// The angle between the combined segment and the segment from the first collection?
                 double cosPointingAngle = (newseg->globalPosition().x() * newseg->globalDirection().x() +
                                            newseg->globalPosition().y() * newseg->globalDirection().y()) /
                                           (newseg->globalPosition().perp() * newseg->globalDirection().perp());
                 if (cosPointingAngle < 0.995) {
                     ATH_MSG_VERBOSE("resolveSLOverlaps: rejected due to too large pointing angle " << std::endl
                                                                                                    << m_printer->print(*segInfo->segment));
-                    delete segInfo;
-                    delete newseg;
                     continue;
                 }
                 ATH_MSG_VERBOSE("created SL overlap segment: cos pointing " << cosPointingAngle << std::endl
                                                                             << m_printer->print(*segInfo->segment));
 
-                // store pointer to segment so it can be deleted at the end of track search
-                {
-                    const std::lock_guard<std::mutex> lock(m_constSegmentsMutex);
-                    m_constsegmentsToDelete.push_back(newseg);
-                }
-                {
-                    const std::lock_guard<std::mutex> lock(m_segmentsMutex);
-                    m_segmentsToDelete.push_back(segInfo);
-                }
-
                 // flag segments as matched
                 wasMatched1 = true;
-                wasMatched2[std::distance(ch2.begin(), sit2)] = true;
+                wasMatched2[idx_ch2] = true;
 
                 // add segment
                 stationVec.push_back(segInfo);
             }
 
             // if entry was not associated with entry in other station add it to entries
-            if (!wasMatched1) { stationVec.push_back(*sit1); }
+            if (!wasMatched1) { stationVec.push_back(sit1); }
         }
 
         // loop over entries in second station and add unassociated entries to candidate entries
@@ -385,6 +323,7 @@ namespace Muon {
 
     TrackCollection* MuonTrackSteering::findTracks(SegColVec& chamberSegments, SegColVec& stationSegments,
                                                    GarbageContainer& trash_bin) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // Very basic : output all of the segments we are starting with
         ATH_MSG_DEBUG("List of all strategies: " << m_strategies.size());
         for (unsigned int i = 0; i < m_strategies.size(); ++i) ATH_MSG_DEBUG((*(m_strategies[i])));
@@ -425,7 +364,7 @@ namespace Muon {
                         if (strategy.option(MuonTrackSteeringStrategy::BarrelEndcapFilter)) {
                             // SegCol filteredSegments;
                             for (unsigned int iseg = 0; iseg < segments.size(); iseg++) {
-                                double thetaSeg = fabs((*segments[iseg]).segment->globalPosition().theta());
+                                double thetaSeg = std::abs((*segments[iseg]).segment->globalPosition().theta());
 
                                 // only select segments in barrel/endcap overlap
                                 if ((0.74159 > thetaSeg && thetaSeg > 0.51159) || (2.63 > thetaSeg && thetaSeg > 2.40))
@@ -495,7 +434,7 @@ namespace Muon {
             }
             ATH_MSG_VERBOSE("Selected seed layers " << seeds.size());
 
-            MuPatSegment* seedSeg = 0;
+            MuPatSegment* seedSeg = nullptr;
             // Loop over seed layers
             for (unsigned int lin = 0; lin < seeds.size(); ++lin) {
                 // Loop over segments in that layer
@@ -527,13 +466,9 @@ namespace Muon {
                         double phiSeg = seg->segment->globalPosition().phi();
                         double etaSeg = seg->segment->globalPosition().eta();
 
-                        double deltaPhi = fabs(phiSeed - phiSeg);
-                        const double PI = acos(-1);
-                        if (deltaPhi > PI) deltaPhi = 2 * PI - deltaPhi;
-
-                        double deltaEta = fabs(etaSeed - etaSeg);
-
-                        double deltaR = sqrt(deltaPhi * deltaPhi + deltaEta * deltaEta);
+                        double deltaPhi = xAOD::P4Helpers::deltaPhi(phiSeed, phiSeg);
+                        double deltaEta = std::abs(etaSeed - etaSeg);
+                        double deltaR = std::hypot(deltaPhi, deltaEta);
 
                         if (deltaR < 0.35) segsInCone++;
                     }
@@ -573,20 +508,18 @@ namespace Muon {
             SegCol& emSegments = stationSegments[MuonStationIndex::EM];
             // loop over segments in EM stations
             if (!emSegments.empty()) {
-                SegCol::const_iterator sit = emSegments.begin();
-                SegCol::const_iterator sit_end = emSegments.end();
-                for (; sit != sit_end; ++sit) {
+                for (MuPatSegment* sit : emSegments) {
                     // skip segments that are associated to a track
-                    if (!(*sit)->tracks().empty()) continue;
+                    if (!sit->tracks().empty()) continue;
 
                     // only take highest quality segments
-                    if ((*sit)->quality < 2) continue;
+                    if (sit->quality < 2) continue;
 
                     // fit segment and add the track if fit ok
-                    std::unique_ptr<Trk::Track> segmentTrack(m_segmentFitter->fit(*(*sit)->segment));
+                    std::unique_ptr<Trk::Track> segmentTrack(m_segmentFitter->fit(*sit->segment));
                     if (segmentTrack) {
                         // Try to recover hits on the track
-                        std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecoverTool->recover(*segmentTrack));
+                        std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecoverTool->recover(*segmentTrack, ctx));
                         if (recoveredTrack) segmentTrack.swap(recoveredTrack);
 
                         // generate a track summary for this track
@@ -594,7 +527,7 @@ namespace Muon {
                             m_trackSummaryTool->computeAndReplaceTrackSummary(*segmentTrack, nullptr, false);
                         }
 
-                        std::unique_ptr<MuPatTrack> can = m_candidateTool->createCandidate(**sit, segmentTrack, trash_bin);
+                        std::unique_ptr<MuPatTrack> can = m_candidateTool->createCandidate(*sit, segmentTrack, trash_bin);
                         if (can)
                             resultAll.push_back(std::move(can));
                         else
@@ -624,8 +557,6 @@ namespace Muon {
         // the resulting vector of tracks to be returned
         std::vector<std::unique_ptr<MuPatTrack> > result;
         ATH_MSG_DEBUG("Working on seed: " << std::endl << " --- " << m_candidateTool->print(seedSeg));
-        m_findingDepth = 0;
-        m_seedCombinatorics = 0;
         const unsigned int endLayer = strat.getAll().size();
         ///  Loop over layers following the seed layer
         for (unsigned int ilayer = 0; ilayer < strat.getAll().size(); ++ilayer) {
@@ -646,13 +577,9 @@ namespace Muon {
                     double phiSeg = (*segs[ilayer][j]).segment->globalPosition().phi();
                     double etaSeg = (*segs[ilayer][j]).segment->globalPosition().eta();
 
-                    double deltaPhi = fabs(phiSeed - phiSeg);
-                    const double PI = acos(-1);
-                    if (deltaPhi > PI) deltaPhi = 2 * PI - deltaPhi;
-
-                    double deltaEta = fabs(etaSeed - etaSeg);
-
-                    double deltaR = sqrt(deltaPhi * deltaPhi + deltaEta * deltaEta);
+                    double deltaPhi = xAOD::P4Helpers::deltaPhi(phiSeed, phiSeg);
+                    double deltaEta = std::abs(etaSeed - etaSeg);
+                    double deltaR = std::hypot(deltaPhi, deltaEta);
 
                     if (deltaR < 0.35) segsInCone++;
                 }
@@ -674,8 +601,6 @@ namespace Muon {
                 tracks = m_trackBTool->find(seedSeg, matchedSegs, trash_bin);
             else
                 tracks = m_trackBTool->find(seedSeg, segs[ilayer], trash_bin);
-            ++m_seedCombinatorics;
-            ++m_findingDepth;
             if (!tracks.empty()) {
                 // if we reached the end of the sequence, we should save what we have else continue to next layer
                 if (ilayer + 1 == strat.getAll().size()) {
@@ -683,22 +608,18 @@ namespace Muon {
                     break;
                 }
 
-                std::vector<std::unique_ptr<MuPatTrack> >::iterator cit = tracks.begin();
-                std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = tracks.end();
-
                 // loop on found tracks
-                for (; cit != cit_end; ++cit) {
+                for (std::unique_ptr<MuPatTrack>& cit : tracks) {
                     unsigned int nextLayer = ilayer + 1;
-
                     if (nextLayer < strat.getAll().size()) {
                         int cutLevel = tightCuts ? 1 : 0;
                         std::vector<std::unique_ptr<MuPatTrack> > nextTracks =
-                            extendWithLayer(**cit, segs, nextLayer, endLayer, trash_bin, cutLevel);
+                            extendWithLayer(*cit, segs, nextLayer, endLayer, trash_bin, cutLevel);
                         if (!nextTracks.empty()) {
                             result.insert(result.end(), std::make_move_iterator(nextTracks.begin()),
                                           std::make_move_iterator(nextTracks.end()));
                         } else {
-                            result.push_back(std::move(*cit));
+                            result.push_back(std::move(cit));
                         }
                     }
                 }
@@ -712,34 +633,27 @@ namespace Muon {
     std::vector<std::unique_ptr<MuPatTrack> > MuonTrackSteering::extendWithLayer(MuPatTrack& candidate, const SegColVec& segs,
                                                                                  unsigned int nextlayer, const unsigned int endlayer,
                                                                                  GarbageContainer& trash_bin, int cutLevel) const {
-        ++m_findingDepth;
-
         std::vector<std::unique_ptr<MuPatTrack> > result;
         if (nextlayer < endlayer) {
             for (; nextlayer != endlayer; nextlayer++) {
                 if (segs[nextlayer].empty()) continue;
 
-                std::vector<std::unique_ptr<MuPatTrack> > nextTracks;
-                nextTracks = m_trackBTool->find(candidate, segs[nextlayer], trash_bin);
-                ++m_seedCombinatorics;
-
+                std::vector<std::unique_ptr<MuPatTrack> > nextTracks = m_trackBTool->find(candidate, segs[nextlayer], trash_bin);
                 if (!nextTracks.empty()) {
-                    std::vector<std::unique_ptr<MuPatTrack> >::iterator cit = nextTracks.begin();
-                    std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = nextTracks.end();
-                    for (; cit != cit_end; ++cit) {
+                    for (std::unique_ptr<MuPatTrack>& cit : nextTracks) {
                         std::vector<std::unique_ptr<MuPatTrack> > nextTracks2 =
-                            extendWithLayer((**cit), segs, nextlayer + 1, endlayer, trash_bin, cutLevel);
+                            extendWithLayer(*cit, segs, nextlayer + 1, endlayer, trash_bin, cutLevel);
                         if (!nextTracks2.empty()) {
                             result.insert(result.end(), std::make_move_iterator(nextTracks2.begin()),
                                           std::make_move_iterator(nextTracks2.end()));
                         } else {
-                            result.push_back(std::move(*cit));
+                            result.push_back(std::move(cit));
                         }
                     }
                 }
             }
         }
-        --m_findingDepth;
+
         return result;
     }
 
@@ -747,17 +661,15 @@ namespace Muon {
     TrackCollection* MuonTrackSteering::selectTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates, bool takeOwnership) const {
         TrackCollection* result = takeOwnership ? new TrackCollection() : new TrackCollection(SG::VIEW_ELEMENTS);
         result->reserve(candidates.size());
-        std::vector<std::unique_ptr<MuPatTrack> >::iterator cit = candidates.begin();
-        std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = candidates.end();
-        for (; cit != cit_end; ++cit) {
+        for (std::unique_ptr<MuPatTrack>& cit : candidates) {
             // if track selector is configured, use it and remove bad tracks
-            if (!m_trackSelector.empty() && !m_trackSelector->decision((*cit)->track())) continue;
+            if (!m_trackSelector.empty() && !m_trackSelector->decision(cit->track())) continue;
 
             Trk::Track* track;
             if (takeOwnership)
-                track = new Trk::Track((*cit)->track());
+                track = new Trk::Track(cit->track());
             else
-                track = &(*cit)->track();
+                track = &cit->track();
             // add track summary to this track
             if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false); }
             result->push_back(track);

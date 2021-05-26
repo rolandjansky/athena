@@ -7,4 +7,4 @@ atlas_add_library( L1CaloFEXToolInterfaces
                    L1CaloFEXToolInterfaces/*.h
                    INTERFACE
                    PUBLIC_HEADERS L1CaloFEXToolInterfaces
-                   LINK_LIBRARIES AthenaBaseComps CaloEvent CaloIdentifier GaudiKernel L1CaloFEXSimLib xAODTrigL1Calo )
+                   LINK_LIBRARIES AthenaBaseComps CaloEvent CaloIdentifier GaudiKernel L1CaloFEXSimLib xAODTrigL1Calo TrigConfData)

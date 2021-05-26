@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -167,18 +167,12 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
 // loop over all Febs
 
-  std::vector<HWIdentifier>::const_iterator feb = m_onlineID->feb_begin();
-  std::vector<HWIdentifier>::const_iterator feb_end = m_onlineID->feb_end();
-
-
-  for ( ; feb != feb_end; feb++) {
-
+  for (HWIdentifier febId : m_onlineID->feb_range()) {
       bool toMask1 = false;   // mask because of bad error
       bool inError = false;   // mask because Feb listed in database as being to mask
       bool isDead  = false;   // set to true if Feb is deadAll or deadReadout 
 
 // for debug
-      HWIdentifier febId = (*feb);
       unsigned int ifeb = febId.get_identifier32().get_compact();
       ATH_MSG_DEBUG (" process Feb: " << ifeb);
 

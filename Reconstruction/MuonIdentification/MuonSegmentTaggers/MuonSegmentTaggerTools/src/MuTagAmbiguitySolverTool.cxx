@@ -303,7 +303,7 @@ MuTagAmbiguitySolverTool::ambiguousSegment(const Muon::MuonSegment& seg1, const 
         Muon::MuonSegmentKey key2;
         key2.calculateKeys(seg2.containedMeasurements(), 2);
 
-        Muon::CompareMuonSegmentKeys                compareSegments;
+        Muon::CompareMuonSegmentKeys                compareSegments{};
         Muon::CompareMuonSegmentKeys::OverlapResult result = compareSegments(key1, key2);
 
         if (compareSegments.intersectionSize > 0) {

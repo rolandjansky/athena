@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/CheckLArFebHeader.h"
@@ -35,20 +35,18 @@ StatusCode CheckLArFebHeader::execute()
   m_count++; 
   const LArFebHeaderContainer *larFebHeaderContainer = nullptr;
   ATH_CHECK( evtStore()->retrieve(larFebHeaderContainer) );
-  
-  LArFebHeaderContainer::const_iterator it=larFebHeaderContainer->begin();
-  LArFebHeaderContainer::const_iterator it_e=larFebHeaderContainer->end();
-  for (;it!=it_e;it++) {
-    if((*it)->CheckErrorELVL1Id() || (*it)->CheckErrorBCId()) {
-      HWIdentifier febid=(*it)->FEBId();
+
+  for (const LArFebHeader* feb : *larFebHeaderContainer) {
+    if(feb->CheckErrorELVL1Id() || feb->CheckErrorBCId()) {
+      HWIdentifier febid=feb->FEBId();
       int barrel_ec = m_onlineHelper->barrel_ec(febid);
       int pos_neg   = m_onlineHelper->pos_neg(febid);
       int FT        = m_onlineHelper->feedthrough(febid);
       int slot      = m_onlineHelper->slot(febid);
-      int BCID      = (*it)->BCId();
-      int LVL1ID    = (*it)->ELVL1Id();
-      int FebBCID   = (*it)->FebBCId();
-      int FebLVL1ID = (*it)->FebELVL1Id();
+      int BCID      = feb->BCId();
+      int LVL1ID    = feb->ELVL1Id();
+      int FebBCID   = feb->FebBCId();
+      int FebLVL1ID = feb->FebELVL1Id();
 	
       ATH_MSG_FATAL ( "TTC information mismatch in event " << m_count << ":" );
       ATH_MSG_FATAL ( "    FEBID = " << febid.get_compact() );

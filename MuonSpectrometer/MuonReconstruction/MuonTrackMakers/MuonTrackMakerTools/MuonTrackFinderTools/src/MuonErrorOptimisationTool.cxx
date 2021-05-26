@@ -63,12 +63,9 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    std::unique_ptr<Trk::Track> MuonErrorOptimisationTool::optimiseErrors(Trk::Track* track) const {
-        return optimiseErrors(track, Gaudi::Hive::currentContext());
-    }
-    std::unique_ptr<Trk::Track> MuonErrorOptimisationTool::optimiseErrors(Trk::Track* track, const EventContext& ctx) const {
-        if (m_refitTool.empty()) return std::unique_ptr<Trk::Track>();
-        const Trk::Perigee* pp = track->perigeeParameters();
+    std::unique_ptr<Trk::Track> MuonErrorOptimisationTool::optimiseErrors(Trk::Track& track, const EventContext& ctx) const {
+        if (m_refitTool.empty()) return nullptr;
+        const Trk::Perigee* pp = track.perigeeParameters();
         bool isLowPt = false;
         if (pp && pp->momentum().mag() < m_lowPtThreshold) isLowPt = true;
         if (isLowPt)
@@ -109,7 +106,7 @@ namespace Muon {
         if (!refittedTrack) {
             // second refit track
             settings.broad = true;
-            refittedTrack = m_refitTool->refit(track, &settings);
+            refittedTrack = m_refitTool->refit(track, ctx, &settings);
             if (refittedTrack) {
                 // check whether it is ok
                 if (!m_edmHelperSvc->goodTrack(*refittedTrack, m_chi2NdofCutRefit)) {
@@ -134,14 +131,14 @@ namespace Muon {
         }
 
         // if failed to refit or refit returned original track, return 0
-        if (!refittedTrack || *refittedTrack->perigeeParameters() == *track->perigeeParameters()) {
+        if (!refittedTrack || *refittedTrack->perigeeParameters() == *track.perigeeParameters()) {
             // check if any refit succeeded
-            if (!result1 && !result2) return std::unique_ptr<Trk::Track>();
+            if (!result1 && !result2) return nullptr;
 
             // now compare chi2
-            const Trk::FitQuality* fq0 = track->fitQuality();
-            const Trk::FitQuality* fq1 = result1 ? result1->fitQuality() : 0;
-            const Trk::FitQuality* fq2 = result2 ? result2->fitQuality() : 0;
+            const Trk::FitQuality* fq0 = track.fitQuality();
+            const Trk::FitQuality* fq1 = result1 ? result1->fitQuality() : nullptr;
+            const Trk::FitQuality* fq2 = result2 ? result2->fitQuality() : nullptr;
 
             bool doSelection = true;
 
@@ -154,59 +151,59 @@ namespace Muon {
                 doSelection = false;
                 // ugly bit of code to get the hit counts for the three tracks
                 int nhits0 = -1;
-                Trk::TrackSummary* summary0 = track->trackSummary();
-                Trk::MuonTrackSummary* muonSummary0 = 0;
+                Trk::TrackSummary* summary0 = track.trackSummary();
+                Trk::MuonTrackSummary* muonSummary0 = nullptr;
                 if (summary0) {
                     if (summary0->muonTrackSummary()) {
                         muonSummary0 = summary0->muonTrackSummary();
                         if (muonSummary0) nhits0 = muonSummary0->netaHits() + muonSummary0->nphiHits();
                     } else {
                         Trk::TrackSummary tmpSum(*summary0);
-                        m_trackSummaryTool->addDetailedTrackSummary(*track, tmpSum);
+                        m_trackSummaryTool->addDetailedTrackSummary(track, tmpSum);
                         muonSummary0 = tmpSum.muonTrackSummary();
                         if (muonSummary0) nhits0 = muonSummary0->netaHits() + muonSummary0->nphiHits();
                     }
                 } else {
                     Trk::TrackSummary tmpSummary;
-                    m_trackSummaryTool->addDetailedTrackSummary(*track, tmpSummary);
+                    m_trackSummaryTool->addDetailedTrackSummary(track, tmpSummary);
                     if (tmpSummary.muonTrackSummary()) muonSummary0 = tmpSummary.muonTrackSummary();
                     if (muonSummary0) nhits0 = muonSummary0->netaHits() + muonSummary0->nphiHits();
                 }
 
                 int nhits1 = -1;
-                Trk::TrackSummary* summary1 = track->trackSummary();
-                Trk::MuonTrackSummary* muonSummary1 = 0;
+                Trk::TrackSummary* summary1 = track.trackSummary();
+                Trk::MuonTrackSummary* muonSummary1 = nullptr;
                 if (summary1) {
                     if (summary1->muonTrackSummary())
                         muonSummary1 = summary1->muonTrackSummary();
                     else {
                         Trk::TrackSummary* tmpSum = summary1;
-                        if (tmpSum) m_trackSummaryTool->addDetailedTrackSummary(*track, *tmpSum);
+                        if (tmpSum) m_trackSummaryTool->addDetailedTrackSummary(track, *tmpSum);
                         if (tmpSum->muonTrackSummary()) muonSummary1 = tmpSum->muonTrackSummary();
                     }
                     if (muonSummary1) nhits1 = muonSummary1->netaHits() + muonSummary1->nphiHits();
                 } else {
                     Trk::TrackSummary tmpSummary;
-                    m_trackSummaryTool->addDetailedTrackSummary(*track, tmpSummary);
+                    m_trackSummaryTool->addDetailedTrackSummary(track, tmpSummary);
                     if (tmpSummary.muonTrackSummary()) muonSummary1 = tmpSummary.muonTrackSummary();
                     if (muonSummary1) nhits1 = muonSummary1->netaHits() + muonSummary1->nphiHits();
                 }
 
                 int nhits2 = -1;
-                Trk::TrackSummary* summary2 = track->trackSummary();
-                Trk::MuonTrackSummary* muonSummary2 = 0;
+                Trk::TrackSummary* summary2 = track.trackSummary();
+                Trk::MuonTrackSummary* muonSummary2 = nullptr;
                 if (summary2) {
                     if (summary2->muonTrackSummary())
                         muonSummary2 = summary2->muonTrackSummary();
                     else {
                         Trk::TrackSummary* tmpSum = summary2;
-                        if (tmpSum) m_trackSummaryTool->addDetailedTrackSummary(*track, *tmpSum);
+                        if (tmpSum) m_trackSummaryTool->addDetailedTrackSummary(track, *tmpSum);
                         if (tmpSum->muonTrackSummary()) muonSummary2 = tmpSum->muonTrackSummary();
                     }
                     if (muonSummary2) nhits2 = muonSummary2->netaHits() + muonSummary2->nphiHits();
                 } else {
                     Trk::TrackSummary tmpSummary;
-                    m_trackSummaryTool->addDetailedTrackSummary(*track, tmpSummary);
+                    m_trackSummaryTool->addDetailedTrackSummary(track, tmpSummary);
                     if (tmpSummary.muonTrackSummary()) muonSummary2 = tmpSummary.muonTrackSummary();
                     if (muonSummary2) nhits2 = muonSummary2->netaHits() + muonSummary2->nphiHits();
                 }
@@ -237,8 +234,7 @@ namespace Muon {
                     }
                 }
             }
-
-            return std::unique_ptr<Trk::Track>();
+            return nullptr;
         }
         return refittedTrack;
     }

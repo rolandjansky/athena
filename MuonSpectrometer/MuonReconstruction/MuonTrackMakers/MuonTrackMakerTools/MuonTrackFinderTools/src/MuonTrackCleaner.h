@@ -149,14 +149,14 @@ namespace Muon {
         typedef PullChamberMap::const_iterator PullChamberCit;
 
         struct EtaPhiHits {
-            EtaPhiHits() : neta(0), nphi(0) {}
-            int neta;
-            int nphi;
+            EtaPhiHits() = default;
+            int neta{0};
+            int nphi{0};
         };
         typedef std::map<Identifier, EtaPhiHits> EtaPhiPerChamberMap;
         typedef EtaPhiPerChamberMap::iterator EtaPhiPerChamberIt;
 
-        typedef std::vector<std::pair<double, Identifier> > PullChVec;
+        typedef std::vector<std::pair<double, Identifier>> PullChVec;
         typedef PullChVec::iterator PullChIt;
 
         struct SortByAvePull {
@@ -166,14 +166,13 @@ namespace Muon {
         };
 
         struct ChamberLayerStatistics {
-            MuonStationIndex::ChIndex chIndex;
-            unsigned int nhits;
-            unsigned int noutliers;
-            unsigned int ndeltas;
-            unsigned int nrecoverableOutliers;
-            unsigned int noutBounds;
-            ChamberLayerStatistics() :
-                chIndex(MuonStationIndex::ChUnknown), nhits(0), noutliers(0), ndeltas(0), nrecoverableOutliers(0), noutBounds(0) {}
+            MuonStationIndex::ChIndex chIndex{MuonStationIndex::ChUnknown};
+            unsigned int nhits{0};
+            unsigned int noutliers{0};
+            unsigned int ndeltas{0};
+            unsigned int nrecoverableOutliers{0};
+            unsigned int noutBounds{0};
+            ChamberLayerStatistics() = default;
         };
 
         // struct to hold the internal state information, i.e. the various track properties relevant for the cleaner
@@ -185,27 +184,27 @@ namespace Muon {
 
             // need to keep these somewhere while they're being used: couldn't figure out how to make unique_ptr work with
             // Trk::TrackParameter given the inheritance issues
-            std::vector<const Trk::TrackParameters*> parsToBeDeleted;
+            std::vector<std::unique_ptr<const Trk::TrackParameters>> parsToBeDeleted;
 
-            unsigned int nscatterers;
-            unsigned int nhits;
-            unsigned int noutliers;
+            unsigned int nscatterers{0};
+            unsigned int nhits{0};
+            unsigned int noutliers{0};
 
-            bool slFit;
-            unsigned int nIdHits;
-            unsigned int nPseudoMeasurements;
-            unsigned int nPhiConstraints;
+            bool slFit{false};
+            unsigned int nIdHits{0};
+            unsigned int nPseudoMeasurements{0};
+            unsigned int nPhiConstraints{0};
 
-            unsigned int numberOfFlippedMdts;
-            unsigned int numberOfCleanedCompROTs;
-            bool hasOfBoundsOutliers;
-            bool hasVertexConstraint;
-            bool hasSmall;
-            bool hasLarge;
+            unsigned int numberOfFlippedMdts{0};
+            unsigned int numberOfCleanedCompROTs{0};
+            bool hasOfBoundsOutliers{false};
+            bool hasVertexConstraint{false};
+            bool hasSmall{false};
+            bool hasLarge{false};
 
-            ChamberPullInfo pullSum;
-            ChamberPullInfo pullSumPhi;
-            ChamberPullInfo pullSumTrigEta;
+            ChamberPullInfo pullSum{};
+            ChamberPullInfo pullSumPhi{};
+            ChamberPullInfo pullSumTrigEta{};
 
             EtaPhiPerChamberMap hitsPerChamber;
             EtaPhiPerChamberMap outBoundsPerChamber;
@@ -223,23 +222,7 @@ namespace Muon {
             std::map<MuonStationIndex::ChIndex, ChamberLayerStatistics> chamberLayerStatistics;
 
             std::set<Identifier> chamberRemovalExclusionList;
-            CleaningState() :
-                nscatterers(0),
-                nhits(0),
-                noutliers(0),
-                nIdHits(0),
-                nPseudoMeasurements(0),
-                nPhiConstraints(0),
-                numberOfFlippedMdts(0),
-                numberOfCleanedCompROTs(0),
-                hasOfBoundsOutliers(false),
-                hasVertexConstraint(false),
-                hasSmall(false),
-                hasLarge(false) {
-                pullSum = ChamberPullInfo();
-                pullSumPhi = ChamberPullInfo();
-                pullSumTrigEta = ChamberPullInfo();
-            }
+            CleaningState() = default;
         };
 
     public:
@@ -256,7 +239,6 @@ namespace Muon {
         If the input track is does not require cleaning a pointer the the initial track is return in which case the
         user should not delete the old track!
         The caller should ensure the track gets deleted. */
-        std::unique_ptr<Trk::Track> clean(const Trk::Track& track) const override;
         std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const EventContext& ctx) const override;
 
         /** @brief clean a track, returns a pointer to a new track if successfull.
@@ -264,7 +246,6 @@ namespace Muon {
         user should not delete the old track! The cleaning will not clean if all the chambers in the exclusions list
         are marked as to be deleted.
         The caller should ensure the track gets deleted. */
-        std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList) const override;
         std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList,
                                           const EventContext& ctx) const override;
 
@@ -295,7 +276,7 @@ namespace Muon {
             If the additional chamber index is provided, the code will only consider that particular layer
         */
         std::unique_ptr<Trk::Track> outlierRecovery(const EventContext& ctx, std::unique_ptr<Trk::Track> track, CleaningState& state,
-                                                    MuonStationIndex::ChIndex* currentIndex = nullptr) const;
+                                                    const MuonStationIndex::ChIndex* currentIndex = nullptr) const;
 
         /** check whether hit is an outlier */
         bool isOutsideOnTrackCut(const Identifier& id, double res, double pull, double cutScaleFactor) const;

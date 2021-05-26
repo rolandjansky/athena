@@ -19,7 +19,6 @@ import PerfMonComps.DomainsRegistry as pdr
 from AODFix.AODFix import *
 AODFix_Init()
 
-
 from CaloRec.CaloRecFlags import jobproperties
 
 #
@@ -135,7 +134,10 @@ else:
 
 pdr.flag_domain('btagging')
 btaggingOK = False
-if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
+#By default disable b-tagging from ESD, unless user has set it and locked it to true upstream
+if rec.readESD():
+    rec.doBTagging=False
+if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         from AthenaCommon.Configurable import Configurable
         Configurable.configurableRun3Behavior=1

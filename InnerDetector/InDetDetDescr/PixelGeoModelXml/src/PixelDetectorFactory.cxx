@@ -72,7 +72,7 @@ namespace InDetDDSLHC {
     ATH_MSG_INFO( "C R E A T E   W O R L D" );
    
     ATH_MSG_INFO( m_detectorManager->getVersion().fullDescription() );
-    PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
+    ITk::PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
     //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
     //    comment out above line and uncomment the following line; also, switch header files above.
     //    GmxInterface gmxInterface;
@@ -116,16 +116,19 @@ namespace InDetDDSLHC {
     bool foundVolume = false;
 
     for (int iChild = nChildren - 1; iChild>=0; --iChild) {
-      if (world->getNameOfChildVol(iChild) == "ITkPixel") {
-	// The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
-	// the & takes its address.
-	foundVolume  = true;
-	m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
-	break;
+      //stop if you find a volume for pixel plus PP1...
+      if( world->getNameOfChildVol(iChild) == "ITkPixelplusPP1") foundVolume  = true;
+      //otherwise, continue looking for a volume just for the pixel
+      if (foundVolume  == true || world->getNameOfChildVol(iChild) == "ITkPixel") {
+	      // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
+	      // the & takes its address.
+	      foundVolume  = true;
+	      m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
+	      break;
       }
     }
-    
-    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkPixel\" - this is required to provide the Envelope!");
+  
+    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkPixel\" or \"ITkPixelplusPP1\" - this is required to provide the Envelope!");
 
     doNumerology();
 

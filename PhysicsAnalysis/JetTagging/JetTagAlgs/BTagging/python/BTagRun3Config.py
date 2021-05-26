@@ -138,6 +138,10 @@ def PrepareStandAloneBTagCfg(inputFlags):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg( inputFlags ))
 
+    #Beamspot conditions
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    result.merge(BeamSpotCondAlgCfg(inputFlags))
+
     from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     
     #load folders needed for Run2 ID alignment

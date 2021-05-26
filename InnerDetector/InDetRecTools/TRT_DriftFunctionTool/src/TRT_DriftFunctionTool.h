@@ -101,8 +101,8 @@ private:
   double m_error;                      //!< universal error
   
   enum ETimeBins { MaxTimeBin = 50 } ; //!< number of time bins
-  double m_radius[MaxTimeBin];         //!< most probable radius in each bin
-  double m_errors[MaxTimeBin];         //!< width of radius dist in each bin         
+  double m_radius[MaxTimeBin]{};         //!< most probable radius in each bin
+  double m_errors[MaxTimeBin]{};         //!< width of radius dist in each bin         
   double m_drifttimeperhalfbin;        //!< 1.5625ns
 
   bool m_isdata;                       //!< flag for real data
@@ -127,8 +127,8 @@ private:
   std::string m_inputfile;             //!< file overriding MC constants
   std::string m_key;                   //!< GeoModel version key
   std::string m_trt_mgr_location;      //!< Name of TRT detector manager
-  double m_t0_barrel[3];               //!< t0 for the 3 barrel rings
-  double m_t0_endcap[18];              //!< t0 for the 14(18) endcap wheels
+  double m_t0_barrel[3]{};               //!< t0 for the 3 barrel rings
+  double m_t0_endcap[18]{};              //!< t0 for the 14(18) endcap wheels
   double m_t0_shift;                   //!< digiversion dependent t0 shift
   double m_ht_correction_barrel_Xe;    //!< HT correction for Xe straws in barrel
   double m_ht_correction_endcap_Xe;    //!< HT correction for Xe straws in barrel

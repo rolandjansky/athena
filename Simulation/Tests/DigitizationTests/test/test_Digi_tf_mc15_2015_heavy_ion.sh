@@ -31,4 +31,8 @@ Digi_tf.py \
 --bunchSpacing 100 \
 --imf False
 
-echo  "art-result: $? Digi_tf.py"
+rc=$?
+status=$rc
+echo  "art-result: $rc Digi_tf.py"
+
+exit $status

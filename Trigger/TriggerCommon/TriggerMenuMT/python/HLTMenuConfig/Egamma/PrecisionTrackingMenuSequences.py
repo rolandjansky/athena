@@ -46,10 +46,10 @@ def precisionTrackingMenuSequence(name, is_probe_leg=False, ion=False):
     (sequence, precisionTrackingViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionTrackingSequence, ConfigFlags, ion=ion)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlg
     from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
 
-    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlgMT(name + tag(ion) + "Hypo")
+    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlg(name + tag(ion) + "Hypo")
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTrackingViewsMaker, 

@@ -7,8 +7,18 @@ def retrieveAODList():
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
+    jetPileUpTruthList = []
+    if rec.doTruth():
+      jetPileUpTruthList += [
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
+      ]
+
     if rec.doWriteESD():
-        return jetFlags.jetAODList()
+        jetAODList = jetFlags.jetAODList()
+        if rec.doTruth():
+          jetAODList += jetPileUpTruthList 
+        return jetAODList
     # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some
     # jobs starts from empty files. See ATEAM-191.
@@ -36,6 +46,9 @@ def retrieveAODList():
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
 
+    if rec.doTruth():
+      l += jetPileUpTruthList
+
     if jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
@@ -53,7 +66,7 @@ def retrieveAODList():
                 'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
                 'xAOD::JetContainer#CamKt12TruthJets',                  'xAOD::JetAuxContainer#CamKt12TruthJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
+                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',                
                 ]
 
     if jetFlags.detailLevel()>=JetContentDetail.Validation:

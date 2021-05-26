@@ -400,8 +400,8 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
-egam4Seq = CfgMgr.AthSequencer("EGAM4Sequence")
-DerivationFrameworkJob += egam4Seq
+EGAM4Sequence = CfgMgr.AthSequencer("EGAM4Sequence")
+DerivationFrameworkJob += EGAM4Sequence
 
 
 #=======================================
@@ -419,7 +419,7 @@ augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
 print("EGAM4 skimming tools: ", [EGAM4_SkimmingTool])
 print("EGAM4 thinning tools: ", thinningTools)
 print("EGAM4 augmentation tools: ", augmentationTools)
-egam4Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
+EGAM4Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
                                                          AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM4_SkimmingTool],
                                                          ThinningTools = thinningTools
@@ -433,14 +433,14 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = []
 if (DerivationFrameworkIsMonteCarlo):
     reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,egam4Seq,"EGAM4")
+replaceAODReducedJets(reducedJetList,EGAM4Sequence,"EGAM4")
 
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',egam4Seq)
+FtagJetCollection('AntiKt4EMPFlowJets',EGAM4Sequence)
 
 
 #========================================

@@ -12,12 +12,12 @@ def same( val , tool):
 #
 # For electrons only
 #
-def createTrigEgammaFastCaloHypoAlgMT(name, sequenceOut):
+def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
   #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-  theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name)
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
+  theFastCaloHypo = TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
 
   # Just for electrons
@@ -47,11 +47,11 @@ def createTrigEgammaFastCaloHypoAlgMT(name, sequenceOut):
 # For photons only
 # NOTE: For future, ringer will be applied at the fast photon step
 #
-def createTrigEgammaFastCaloHypoAlgMT_noringer(name, sequenceOut):
+def createTrigEgammaFastCaloHypoAlg_noringer(name, sequenceOut):
   
   # make the Hypo
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-  theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name)
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
+  theFastCaloHypo = TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
 
   # Just for electrons
@@ -119,7 +119,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__noringerinfo = noringerinfo
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastCaloHypoToolInc( name )
+    tool = CompFactory.TrigEgammaFastCaloHypoTool( name )
     tool.AcceptAll      = False
     tool.UseRinger      = False
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]

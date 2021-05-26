@@ -69,8 +69,9 @@ void jTowerBuilder::execute(std::unique_ptr<jTowerContainer> & jTowerContainerRa
   // Regions 0 only.  Region 1 is 'transition region'.
   for (int ieta = 0; ieta < 14; ++ieta) { // loop over 14 eta steps (ignoring last step as it is transition region)
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 100000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 200000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 100000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 200000, 1, ieta, iphi);
     }
   }
 
@@ -84,8 +85,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
 
   for (int ieta = tmpVal; ieta < tmpVal + 1; ieta++){ // loop over eta steps
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 300000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 400000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 300000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 400000, 1, ieta, iphi);
     }
   }
 
@@ -99,8 +101,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
 
   for (int ieta = tmpVal; ieta < tmpVal + 3; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 500000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 600000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000, 1, ieta, iphi);
     }
     EME_MODIFIER++;
   }
@@ -109,8 +112,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
   tmpVal = EME_MODIFIER;
   for (int ieta = tmpVal; ieta < tmpVal + 2; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 500000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 600000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000, 1, ieta, iphi);
     }
     EME_MODIFIER++;
   }
@@ -119,8 +123,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
   tmpVal = EME_MODIFIER;
   for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 500000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 600000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000, 1, ieta, iphi);
     }
     EME_MODIFIER++;
   }
@@ -129,8 +134,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
   tmpVal = EME_MODIFIER;
   for (int ieta = tmpVal; ieta < tmpVal + 1; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 500000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 600000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000, 1, ieta, iphi);
     }
     EME_MODIFIER++;
   }
@@ -146,8 +152,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
 
     for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps (there are 4 here, 2.5-2.7, 2.7-2.9, 2.9-3.1, 3.1-3.2)
       for (int iphi = 0; iphi < 32; ++iphi){ // loop over 32 phi steps
-	BuildSingleTower(jTowerContainerRaw, ieta, iphi, 700000, -1, ieta, iphi);
-	BuildSingleTower(jTowerContainerRaw, ieta, iphi, 800000, 1, ieta, iphi);
+	int key_eta = ieta;
+	BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, /*7*/500000, -1, ieta, iphi);
+	BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, /*8*/600000, 1, ieta, iphi);
       }
       EMEI_MODIFIER++;
     }
@@ -177,13 +184,15 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
     float phi_base = 0.0;
     float phi_width = 0.4;
     int cellCountEta = 0;
+    int FCAL0_INITIAL = FCAL_MODIFIER;
     for (int ieta = tmpVal; ieta < tmpVal + 12; ++ieta){ // loop over eta steps (there are 12 here in varying positions for FCAL0)
+      int key_eta = ieta - FCAL0_INITIAL;
       cellCountEta++;
       float centre_eta = eta_base + (cellCountEta * eta_width) - (eta_width * 0.5);
       for (int iphi = 0; iphi < 16; ++iphi){ // loop over 16 phi steps
 	float centre_phi = phi_base + ((iphi+1) * phi_width) - (phi_width * 0.5);
-        BuildSingleTower(jTowerContainerRaw, ieta, iphi, 700000, -1, -1*centre_eta, centre_phi, 0);
-        BuildSingleTower(jTowerContainerRaw, ieta, iphi, 800000, 1, centre_eta, centre_phi, 0);
+        BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 700000, -1, -1*centre_eta, centre_phi, 0);
+        BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 800000, 1, centre_eta, centre_phi, 0);
       }
       FCAL_MODIFIER++;
     }
@@ -192,13 +201,15 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
     eta_width = 0.16;
     cellCountEta = 0;
     tmpVal = FCAL_MODIFIER;
+    int FCAL1_INITIAL = FCAL_MODIFIER;
     for (int ieta = tmpVal; ieta < tmpVal + 8; ++ieta){ // loop over eta steps (there are 8 here in varying positions for FCAL1)
+      int key_eta = ieta - FCAL1_INITIAL;
       cellCountEta++;
       float centre_eta = eta_base + (cellCountEta * eta_width) - (eta_width * 0.5);
       for (int iphi = 0; iphi < 16; ++iphi){ // loop over 16 phi steps
 	float centre_phi = phi_base + ((iphi+1) * phi_width) - (phi_width * 0.5);;
-	BuildSingleTower(jTowerContainerRaw, ieta, iphi, 700000, -1, -1*centre_eta, centre_phi, 1);
-	BuildSingleTower(jTowerContainerRaw, ieta, iphi, 800000, 1, centre_eta, centre_phi, 1);
+	BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 900000, -1, -1*centre_eta, centre_phi, 1);
+	BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 1000000, 1, centre_eta, centre_phi, 1);
       }
       FCAL_MODIFIER++;
     }
@@ -208,13 +219,15 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
     eta_width = 0.32;
     cellCountEta = 0;
     tmpVal = FCAL_MODIFIER;
+    int FCAL2_INITIAL = FCAL_MODIFIER;
     for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps (there are 4 here in varying positions for FCAL2)
+      int key_eta = ieta - FCAL2_INITIAL;
       cellCountEta++;
       float centre_eta = eta_base + (cellCountEta * eta_width) - (eta_width * 0.5);
       for (int iphi = 0; iphi < 16; ++iphi){ // loop over 16 phi steps
 	float centre_phi = phi_base + ((iphi+1) * phi_width) - (phi_width * 0.5);
-	BuildSingleTower(jTowerContainerRaw, ieta, iphi, 700000, -1, -1*centre_eta, centre_phi, 2);
-	BuildSingleTower(jTowerContainerRaw, ieta, iphi, 800000, 1, centre_eta, centre_phi, 2);
+	BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 1100000, -1, -1*centre_eta, centre_phi, 2);
+	BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 1200000, 1, centre_eta, centre_phi, 2);
       }
       FCAL_MODIFIER++;
     }
@@ -232,8 +245,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
   int tmpVal = HEC_MODIFIER;
   for (int ieta = tmpVal; ieta < tmpVal + 10; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 64; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 11100000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 22200000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 11100000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 22200000, 1, ieta, iphi);
     }
     HEC_MODIFIER++;
   }
@@ -242,8 +256,9 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
   tmpVal = HEC_MODIFIER;
   for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 32; ++iphi){ // loop over 64 phi steps
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 11100000, -1, ieta, iphi);
-      BuildSingleTower(jTowerContainerRaw, ieta, iphi, 22200000, 1, ieta, iphi);
+      int key_eta = ieta;
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 11100000, -1, ieta, iphi);
+      BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 22200000, 1, ieta, iphi);
     }
     HEC_MODIFIER++;
   }
@@ -251,7 +266,7 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
 }
 //=================================================================================================================================================================
 
-  void jTowerBuilder::BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainerRaw,float eta, float phi, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer)  const
+  void jTowerBuilder::BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainerRaw,float eta, float phi, int key_eta, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer)  const
 {
 
   if(centre_eta == 0.0){
@@ -261,7 +276,7 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
     centre_phi = phi + 0.05;
   }
     
-  jTowerContainerRaw->push_back(eta, phi, keybase, posneg, centre_eta, centre_phi, fcal_layer);
+  jTowerContainerRaw->push_back(eta, phi, key_eta, keybase, posneg, centre_eta, centre_phi, fcal_layer);
 
 }
 

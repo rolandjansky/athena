@@ -35,11 +35,22 @@ Digi_tf.py \
 --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
 --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_mc16a.py' \
 --skipEvents 0
-echo  "art-result: $? Digi_tf.py"
 
-ArtPackage=$1
-ArtJobName=$2
+rc=$?
+status=$rc
+echo  "art-result: $rc Digi_tf.py"
 
+rc1=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
 
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
-echo  "art-result: $? regression"
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+
+    rc1=$?
+    status=$rc1
+fi
+echo  "art-result: $rc1 regression"
+
+exit $status

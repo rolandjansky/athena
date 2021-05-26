@@ -10,8 +10,6 @@
 #
 ###########################################################################
 
-import commands
-
 CWOFC2NtupleLog = logging.getLogger( "CWOFC2NtupleLog" )
 
 if not 'PoolFileName' in dir():
@@ -88,13 +86,21 @@ else:
    InputDBConnectionBadChannel = DBConnectionCOOL
 
 if ( not 'InputBadChannelSQLiteFile' in dir()) and ("ONL" in DBConnectionCOOL):
-   conddb.addFolder("","/LAR/BadChannels/BadChannels<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-   conddb.addFolder("","/LAR/BadChannels/MissingFEBs<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 else:   
-   conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-   conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 
-include("LArCalibProcessing/LArCalib_BadChanTool.py")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
 
 from AthenaCommon.ConfigurableDb import getConfigurable
 svcMgr += getConfigurable( "ProxyProviderSvc" )()

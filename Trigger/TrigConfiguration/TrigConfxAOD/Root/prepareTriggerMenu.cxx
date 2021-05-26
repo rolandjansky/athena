@@ -292,7 +292,7 @@ namespace TrigConf {
             item->setCtpId( loadedItem.ctpId() );
             ctpConfig.menu().addTriggerItem( item );
  
-            float ps = 0;
+            float ps = -1.0;
             if (loadedL1ps.isInitialized()) {
                const L1PrescalesSet::L1Prescale& loadedPrescale = loadedL1ps.prescale( loadedItem.name() );
                ps = static_cast< float >( loadedPrescale.prescale );

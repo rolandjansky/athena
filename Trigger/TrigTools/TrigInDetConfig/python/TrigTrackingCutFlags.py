@@ -4,51 +4,42 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from InDetConfig.TrackingCutsFlags import createTrackingFlags
 
 # for the time when the two config systems coexist we reuse flags 
-from TrigInDetConfig.ConfigSettings import _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT
-from TrigInDetConfig.ConfigSettingsBase import _ConfigSettingsBase
+from TrigInDetConfig.ConfigSettings import _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT, _ConfigSettings_muonIso
 
 
-def copyValues(flags, configClass):
-    settings = configClass
-    for setting, value in settings.__dict__.items():
-        setting = setting.lstrip("_")
-        if value is None:
-            flags._set(setting, lambda pf: None )
-        else:
-            flags._set(setting, value)
-
-def __sliceFlags():
+def __flagsFromConfigSettings(settings):
     flags = createTrackingFlags()
-    for setting, value in _ConfigSettingsBase().__dict__.items():
+    for setting, value in settings.__dict__.items():
         setting = setting.lstrip("_")
         if value is None:
             flags.addFlag(setting, lambda pf: None)
         else:
             flags.addFlag(setting, value)
-    return flags
 
-def __electronFlags():
-    flags = __sliceFlags()
-    copyValues(flags, _ConfigSettings_electron())
+    flags.addFlag("trkTracks_FTF", f'HLT_IDTrkTrack_{flags.suffix}_FTF')
+    flags.addFlag("tracks_FTF", f'HLT_IDTrack_{flags.suffix}_FTF')
     flags.minPT = flags.pTmin # hack to sync pT threshold used in offline and trigger
     return flags
 
+def __electronFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_electron())
+
 def __muonFlags():
-    flags = __sliceFlags()
-    copyValues(flags, _ConfigSettings_muon())
-    flags.minPT = flags.pTmin
-    return flags
+    return __flagsFromConfigSettings(_ConfigSettings_muon())
+
+def __muonIsoFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_muonIso())
 
 def _muonLRTFlags():
-    flags = __sliceFlags()
-    copyValues(flags, _ConfigSettings_muonLRT())
-    flags.minPT = flags.pTmin
-    return flags
+    return __flagsFromConfigSettings( _ConfigSettings_muonLRT())
 
 def createTrigTrackingFlags():
     flags = AthConfigFlags()
     flags.addFlagsCategory('Trigger.InDetTracking.Electron', __electronFlags, prefix=True)
     flags.addFlagsCategory('Trigger.InDetTracking.Muon', __muonFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.MuonIso', __muonIsoFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.MuonFS', __muonFlags, prefix=True)
+
     flags.addFlagsCategory('Trigger.InDetTracking.MuonLRT', _muonLRTFlags, prefix=True)
     return flags
 
@@ -61,11 +52,14 @@ class FlagsCopiedTest(unittest.TestCase):
         flags.Trigger.doID
         flags.Trigger.InDetTracking.Muon
         flags.Trigger.InDetTracking.Electron.minPT = 2.0 * Units.GeV
+        flags.loadAllDynamicFlags()
         self.newflags = flags.cloneAndReplace('InDet.Tracking', 'Trigger.InDetTracking.Electron')
+
         self.newflags.dump(".*InDet")
 
     def runTest(self):
         self.assertEqual(self.newflags.InDet.Tracking.minPT, 2.0 * Units.GeV, msg="Flags are not copied")
+
 
 
 class UnsetFlagsTest(FlagsCopiedTest):

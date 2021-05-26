@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArAccumulatedCalibDigitContSplitter.h"
@@ -18,14 +18,13 @@
 #include <fstream>
 
 LArAccumulatedCalibDigitContSplitter::LArAccumulatedCalibDigitContSplitter(const std::string& name, ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),m_recAll(false), m_numLine(4), m_useDacAndIsPulsedIndex(false),
+  : AthAlgorithm(name, pSvcLocator),m_recAll(false), m_numLine(4),
     m_event_counter(0)
 {
  declareProperty("KeyList",     m_keylist);
  declareProperty("RecAllCells", m_recAll);
  declareProperty("NumberSplitted", m_numLine);
 
- declareProperty("UseDacAndIsPulsedIndex",  m_useDacAndIsPulsedIndex); 
  declareProperty("KeyOutputList",    m_OutputList); 
 }
 

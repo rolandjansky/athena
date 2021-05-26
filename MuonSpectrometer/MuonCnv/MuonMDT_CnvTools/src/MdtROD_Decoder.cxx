@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtROD_Decoder.h"
@@ -8,6 +8,13 @@
 
 #include <algorithm> 
 
+namespace {
+   // elevator chambers are read out by 2 CSMs
+   // they are split in the middle (for both multilayers)
+   // the first tube read out by the 2nd CSM is (offline!) tube 43
+   constexpr int BME_1st_tube_2nd_CSM = 43;
+
+}
 using eformat::helper::SourceIdentifier; 
 
 static const InterfaceID IID_IMdtROD_Decoder
@@ -18,7 +25,7 @@ static const InterfaceID IID_IMdtROD_Decoder
 MdtROD_Decoder::MdtROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
 :  AthAlgTool(type,name,parent), 
-   m_hid2re(0), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
+   m_hid2re(nullptr), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
 {
   declareInterface< MdtROD_Decoder  >( this );
 
@@ -33,7 +40,7 @@ StatusCode MdtROD_Decoder::initialize() {
   ATH_CHECK( m_idHelperSvc.retrieve() );
 
   // Here the mapping service has to be initialized
-  m_hid2re=new MDT_Hid2RESrcID();
+  m_hid2re=std::make_unique<MDT_Hid2RESrcID>();
   ATH_CHECK(m_hid2re->set(&m_idHelperSvc->mdtIdHelper())); 
 
   // check if the layout includes elevator chambers
@@ -54,8 +61,6 @@ StatusCode MdtROD_Decoder::initialize() {
 }
 
 StatusCode MdtROD_Decoder::finalize() {
-
-  if (m_hid2re) delete m_hid2re;
 
   if(m_nCache>0 || m_nNotCache>0) {
     const float cacheFraction = ((float)m_nCache) / ((float)(m_nCache + m_nNotCache));
@@ -247,7 +252,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
       // for layouts with BMEs (read out by 2 CSMs) the RDOs have to be registered with the detectorElement hash
       // registration of common chambers is always done with detectorElement hash of 1st multilayer
       // boundary in BME when 2nd CSM starts is (offline!) tube 43, 1st CMS is registered with ML1 hash, 2nd CSM is ML2 hash
-      if (StationName == m_BMEid && Tube > 42)
+      if (StationName == m_BMEid && Tube >=BME_1st_tube_2nd_CSM)
         moduleId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 2, 1, 1);
       else
         moduleId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 1, 1, 1);

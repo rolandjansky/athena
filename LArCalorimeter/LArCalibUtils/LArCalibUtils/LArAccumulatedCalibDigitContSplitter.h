@@ -40,8 +40,6 @@ class LArAccumulatedCalibDigitContSplitter : public AthAlgorithm
   bool  m_recAll;
   unsigned   m_numLine;
 
-  bool m_useDacAndIsPulsedIndex;//used to store different waves for different HEC calib lines
-
   unsigned m_event_counter; 
 };  
 

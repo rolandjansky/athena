@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/DumpLArDigits.h"
@@ -95,13 +95,11 @@ StatusCode DumpLArDigits::execute()
  
  mySort aSort;
  std::sort(digitVector.begin(),digitVector.end(),aSort);
- LArDigitVector::const_iterator vec_it=digitVector.begin();
- LArDigitVector::const_iterator vec_it_e=digitVector.end();
- for (;vec_it!=vec_it_e;vec_it++)
+ for (const LArDigit* digit : digitVector)
    {
-     //if ((*vec_it)->energy()==0)
+     //if (digit->energy()==0)
      //continue;
-     const HWIdentifier chid=(*vec_it)->channelID();//hardwareID();
+     const HWIdentifier chid=digit->channelID();//hardwareID();
      const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
      std::cout << "FEB_ID: 0x" << std::hex << febid.get_identifier32().get_compact() 
 	       << " channel: " << std::dec <<  m_onlineHelper->channel(chid) 
@@ -134,14 +132,14 @@ StatusCode DumpLArDigits::execute()
        m_outfile << "Barrel ";
       }
     std::cout << "  l/e/p= " << layer << "/" << eta << "/" << phi << ":";
-    for(unsigned int i=0;i<(*vec_it)->samples().size();i++)
-      std::cout << " " << (*vec_it)->samples()[i];
-    std::cout << " G="  << (*vec_it)->gain() << std::endl;
+    for(unsigned int i=0;i<digit->samples().size();i++)
+      std::cout << " " << digit->samples()[i];
+    std::cout << " G="  << digit->gain() << std::endl;
     
     m_outfile << "l/e/p= " << layer << "/" << eta << "/" << phi << ":";
-    for(unsigned int i=0;i<(*vec_it)->samples().size();i++)
-      m_outfile << " " << (*vec_it)->samples()[i];
-    m_outfile << " G="  << (*vec_it)->gain() << std::endl;
+    for(unsigned int i=0;i<digit->samples().size();i++)
+      m_outfile << " " << digit->samples()[i];
+    m_outfile << " G="  << digit->gain() << std::endl;
    }
  //std::cout << "Collection #" << ++nColl << " contains " << chan_coll->size() << " elementes." << std::endl;
  std::cout << "Event " << m_count << " contains " << m_chan << " (" <<digitVector.size() <<")  channels\n";

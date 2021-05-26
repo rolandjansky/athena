@@ -3,6 +3,7 @@
 */
 
 #include "TrigComboHypoTool.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 #include <cmath>
 
@@ -14,6 +15,12 @@ TrigComboHypoTool::TrigComboHypoTool(const std::string& type,
   : ComboHypoToolBase(type, name, parent)
 {}
 
+void   TrigComboHypoTool::fillVarMap(){
+  m_varMap["dR"]   = comboHypoVars::DR;
+  m_varMap["invm"] = comboHypoVars::INVM;
+  m_varMap["dphi"] = comboHypoVars::DPHI;
+  m_varMap["mT"]   = comboHypoVars::MT;
+}
 
 StatusCode TrigComboHypoTool::initialize()
 {
@@ -43,7 +50,13 @@ StatusCode TrigComboHypoTool::initialize()
     ATH_MSG_ERROR("Trying to configure the Tool without setting UseMin and UseMax!");
     return StatusCode::FAILURE;
   }
-  
+
+  fillVarMap();
+  if (m_varMap.find(m_varTag) == m_varMap.end()){
+    ATH_MSG_ERROR("The variable is not present in the comboHypoVars list");
+    return StatusCode::FAILURE;
+  }
+  m_var = m_varMap[m_varTag];
 
   ATH_MSG_DEBUG("Initialization completed successfully");
 
@@ -87,38 +100,94 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
     return false;
   }
 
+  float  eta1, phi1, pt1;
+  float  eta2, phi2, pt2;
+  
   auto EL= combination[legA_index].second;    
-  auto legA_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
-  if (!legA_pLink.isValid()){
-    ATH_MSG_ERROR("link for "<<m_legA<<" not valid");
-    return false;
+
+  if (m_isLegA_MET) {
+    auto legA_pLink = TrigCompositeUtils::findLink<xAOD::TrigMissingETContainer>( *EL, featureString() ).link;
+    if (!legA_pLink.isValid()){
+      ATH_MSG_ERROR("link for "<<m_legA<<"is MET");
+      ATH_MSG_ERROR("link for "<<m_legA<<" not valid");
+      return false;
+    }
+    float ex = (*legA_pLink)[0].ex()/1000.;//converting to GeV
+    float ey = (*legA_pLink)[0].ey()/1000.;//converting to GeV
+    eta1 = -9999.;
+    phi1 = ex==0.0 && ey==0.0 ? 0.0: std::atan2(ey,ex);
+    pt1  = std::sqrt(ex*ex+ey*ey);
+  }else {
+    auto legA_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
+    if (!legA_pLink.isValid()){
+      ATH_MSG_ERROR("link for "<<m_legA<<"is not MET");
+      ATH_MSG_ERROR("link for "<<m_legA<<" not valid");
+      return false;
+    }
+    eta1 = (*legA_pLink)->p4().Eta();
+    phi1 = (*legA_pLink)->p4().Phi();
+    pt1  = (*legA_pLink)->p4().Pt();
+
   }
   ATH_MSG_DEBUG("link for legA: "<<m_legA<<" is valid");
 
   EL = combination[legB_index].second;
-  auto legB_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
-  if (!legB_pLink.isValid()){
-    ATH_MSG_ERROR("link for "<<m_legB<<" not valid");
-    return false;
+
+  if (m_isLegB_MET) {
+    auto legB_pLink = TrigCompositeUtils::findLink<xAOD::TrigMissingETContainer>( *EL, featureString() ).link;
+    if (!legB_pLink.isValid()){
+      ATH_MSG_ERROR("link for "<<m_legB<<" not valid");
+      return false;
+    }
+    float ex = (*legB_pLink)[0].ex()/1000.;//converting to GeV
+    float ey = (*legB_pLink)[0].ey()/1000.;//converting to GeV
+    eta2 = -9999.;
+    phi2 = ex==0.0 && ey==0.0 ? 0.0: std::atan2(ey,ex);
+    pt2  = std::sqrt(ex*ex+ey*ey);
+  }else {
+    auto legB_pLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
+    if (!legB_pLink.isValid()){
+      ATH_MSG_ERROR("link for "<<m_legB<<"is not MET");
+      ATH_MSG_ERROR("link for "<<m_legB<<" not valid");
+      return false;
+    }
+    eta2 = (*legB_pLink)->p4().Eta();
+    phi2 = (*legB_pLink)->p4().Phi();
+    pt2  = (*legB_pLink)->p4().Pt();
   }
   ATH_MSG_DEBUG("link for legB: "<<m_legB<<" is valid");
-
-  TLorentzVector hlv1 = (*legA_pLink)->p4();
-  TLorentzVector hlv2 = (*legB_pLink)->p4();  
 
   // apply the cut
   bool  pass(true);
   float value(-9999.);
 
-  //should we make a switch? (if this list of observables is used only here probably not...)
-  std::array<std::string, 2> valid_varTags = {"dR","invm"};
-  if(m_varTag ==  valid_varTags[0]) {
-    value =  hlv1.DeltaR(hlv2);
-  }else if (m_varTag == valid_varTags[1]){
-    TLorentzVector hlvtot = hlv1+hlv2;
-    value = hlvtot.M();
-  }else {
-    ATH_MSG_ERROR("m_varTag =  "<<m_varTag<<" not present in the list of valid_tags : " << valid_varTags);
+  switch(m_var){
+  case comboHypoVars::DR:
+    {
+      float dEta = eta2 - eta1;
+      float dPhi = -remainder( -phi1 + phi2, 2*M_PI );
+      value      = std::sqrt(dEta*dEta + dPhi*dPhi);
+      break;
+    }
+  case comboHypoVars::INVM:
+    {
+      value = std::sqrt(2.*pt1*pt2*(std::cosh(eta1 - eta2) - std::cos(phi1 - phi2) ) );
+      break;
+    }
+  case comboHypoVars::DPHI:
+    {
+      value = std::fabs(remainder( -phi1 + phi2, 2*M_PI ));
+      break;
+    }
+  case comboHypoVars::MT:
+    {
+      float ex = pt1*std::cos(phi1) + pt2*std::cos(phi2);
+      float ey = pt1*std::sin(phi1) + pt2*std::sin(phi2);      
+      value    = std::sqrt(ex*ex + ey*ey);
+      break;
+    }
+  default:
+    ATH_MSG_ERROR("m_varTag =  "<<m_varTag<<" not present in the list of comboHypoVars");
     return false;
   }
   varOfProcessed = value;

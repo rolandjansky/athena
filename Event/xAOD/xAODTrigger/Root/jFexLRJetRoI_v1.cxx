@@ -22,16 +22,18 @@ namespace xAOD {
    jFexLRJetRoI_v1::jFexLRJetRoI_v1()
      : SG::AuxElement() {
    }
-   void jFexLRJetRoI_v1::initialize( uint8_t jFexNumber, uint32_t word0) {
+   void jFexLRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t word0) {
  
      setWord0( word0 );
      setjFexNumber( jFexNumber );
-        
+     setfpgaNumber(fpgaNumber);
      setTobEt(unpackEtTOB());
      setEta( unpackEtaIndex() );
      setPhi( unpackPhiIndex() ); 
      setSatFlag(unpackSaturationIndex());
-      
+     setGlobalEta(getGlobalEta());
+     setGlobalPhi(getGlobalPhi());
+    
    //include in future when xTOB in jFEX has been implemented.
 
    // If the object is a TOB then the isTOB should be true.
@@ -46,21 +48,19 @@ namespace xAOD {
    /// Raw data words
    //----------------
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint32_t, word0,
-                                         setWord0 )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, jFexNumber,
-                                         setjFexNumber )
-   /// Only calculable externally
- 
-   /// Extracted from data words, stored for convenience
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint16_t, tobEt,
-                                         setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iEta,
-                                         setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iPhi,
-                                         setPhi )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, satFlag,
-                                         setSatFlag)
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint32_t, word0, setWord0 )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, jFexNumber, setjFexNumber )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, fpgaNumber, setfpgaNumber)   
+   /// Extracted from data words
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint16_t, tobEt, setTobEt )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iEta, setEta )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iPhi, setPhi )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, satFlag, setSatFlag)
+
+   //global coordinates, stored for future use but not sent to L1Topo
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(jFexLRJetRoI_v1, int8_t, globalEta, setGlobalEta)
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(jFexLRJetRoI_v1, uint8_t, globalPhi, setGlobalPhi)
+
    //-----------------
    /// Methods to decode data from the TOB/RoI and return to the user
    //-----------------
@@ -112,6 +112,19 @@ namespace xAOD {
   unsigned int jFexLRJetRoI_v1::phi() const {
      return iPhi();
    }
+  //Global coords
+  int8_t jFexLRJetRoI_v1::getGlobalEta() const{
+     int8_t globalEta = iEta() + (8*(jFexNumber() -3) -1); 
+     return globalEta; 
+  }
+
+
+  uint8_t jFexLRJetRoI_v1::getGlobalPhi() const{
+     uint8_t globalPhi = iPhi() + (fpgaNumber() * 16);
+     return globalPhi;
+  }
+
+
 } // namespace xAOD
 
 

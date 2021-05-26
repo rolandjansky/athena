@@ -26,22 +26,24 @@ namespace xAOD {
       jFexTauRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize(uint8_t jFexNumber, uint32_t word0 );
+      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t word0 );
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t word0() const;
       uint8_t jFexNumber() const;
+      uint8_t fpgaNumber() const;
       uint16_t tobEt() const;
       uint16_t tobIso() const;
       uint8_t iEta() const;
       uint8_t iPhi() const; 
       uint8_t satFlag() const;
-
+      int8_t globalEta() const;
+      uint8_t globalPhi() const;
 
       /// Set the "raw" 32-bit words describing the object candidate
       void setWord0( uint32_t word0 );
       void setjFexNumber( uint8_t jFexNumber);
-            
+      void setfpgaNumber(uint8_t fpgaNumber);      
       /// TOB ET (decoded from TOB, stored for convenience)
       unsigned int unpackEtTOB() const;
       void setTobEt( uint16_t value); 
@@ -68,6 +70,13 @@ namespace xAOD {
       
       //TOB word flag
       unsigned int tob() const;
+
+      //Global coords
+      int8_t getGlobalEta() const;
+      void setGlobalEta(int8_t value);
+
+      uint8_t getGlobalPhi() const;
+      void setGlobalPhi(uint8_t value);
    private:
       //Constants used in converting to ATLAS units
       static const float s_tobEtScale;

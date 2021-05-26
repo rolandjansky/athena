@@ -2,6 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // silence Boost pragma message (fixed in Boost 1.76)
 #include <boost/property_tree/json_parser.hpp>
 
 #include "GaudiKernel/ThreadLocalContext.h"

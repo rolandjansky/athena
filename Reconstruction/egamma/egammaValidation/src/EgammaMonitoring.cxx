@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -91,11 +91,11 @@ StatusCode EgammaMonitoring::initialize() {
     ATH_CHECK(truthRecoElectronLooseLH->initializePlots());
     ATH_CHECK(truthRecoElectronMediumLH->initializePlots());
     ATH_CHECK(truthRecoElectronTightLH->initializePlots());
-    ATH_CHECK(truthElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronAll->initializePlots());
+    ATH_CHECK(truthElectronAll->initializePlots(true));
+    ATH_CHECK(truthPromptElectronAll->initializePlots(true));
     ATH_CHECK(truthElectronRecoElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronWithTrack->initializePlots());
-    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots());
+    ATH_CHECK(truthPromptElectronWithTrack->initializePlots(true));
+    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots(true));
     ATH_CHECK(truthPromptElectronWithReco->initializePlots());
     ATH_CHECK(recoElectronIsoFixedCutTightTrackOnly->initializePlots());
 
@@ -434,7 +434,7 @@ StatusCode EgammaMonitoring::execute() {
 
 
     ATH_MSG_DEBUG( "------------ Truth Egamma Container ---------------" );
-    for (auto egtruth : *egTruthParticles) {
+    for (const auto *egtruth : *egTruthParticles) {
 
       if (!egtruth) continue;
 
@@ -454,7 +454,7 @@ StatusCode EgammaMonitoring::execute() {
 
     ATH_MSG_DEBUG( "------------ Truth Particles Container ---------------" );
     unsigned int promtpElectronTruthIndex = - 9;
-    for (auto truth : *truthParticles) {
+    for (const auto *truth : *truthParticles) {
 
       if (!truth) continue;
       if (fabs(truth->pdgId()) != 11) continue;
@@ -491,7 +491,7 @@ StatusCode EgammaMonitoring::execute() {
 
     bool foundPromptElectron = false;
 
-    for (auto tp : *InDetTracks) {
+    for (const auto *tp : *InDetTracks) {
 
       if (!tp) continue;
 
@@ -544,7 +544,7 @@ StatusCode EgammaMonitoring::execute() {
 
     foundPromptElectron = false;
 
-    for (auto gsf : *GSFTracks) {
+    for (const auto *gsf : *GSFTracks) {
 
       if (!gsf) continue;
 
@@ -616,7 +616,7 @@ StatusCode EgammaMonitoring::execute() {
 
     foundPromptElectron = false;
 
-    for (auto elrec : *RecoEl) {
+    for (const auto *elrec : *RecoEl) {
 
       if (!elrec) continue;
       clusterAll->fill(*elrec,mu);
@@ -685,7 +685,7 @@ StatusCode EgammaMonitoring::execute() {
       return StatusCode::FAILURE;
     }
 
-    for (auto phrec : *RecoPh) {
+    for (const auto *phrec : *RecoPh) {
 
       if (!phrec) continue;
 
@@ -702,7 +702,7 @@ StatusCode EgammaMonitoring::execute() {
 
     } // RecoPh Loop
 
-    for (auto egtruth : *egTruthParticles) {
+    for (const auto *egtruth : *egTruthParticles) {
 
       if (!egtruth) continue;
 
@@ -811,7 +811,7 @@ StatusCode EgammaMonitoring::execute() {
       return StatusCode::FAILURE;
     }
 
-    for(auto tp : *InDetTPs) {
+    for(const auto *tp : *InDetTPs) {
 
       InDetTracks->fill(*tp, mu);
       if(matchedToElectron(*tp)) InDetTracksMatchElectron->fill(*tp, mu);

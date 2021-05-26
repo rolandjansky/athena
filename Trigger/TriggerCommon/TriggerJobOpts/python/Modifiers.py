@@ -426,10 +426,7 @@ class rewriteLVL1(_modifier):
         L1ByteStreamEncodersRecExSetup()
 
     def postSetup(self):
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if not TriggerFlags.writeBS:
-            log.warning('rewriteLVL1 is True but TriggerFlags.writeBS is False')
         if not ConfigFlags.Output.doWriteBS:
             log.warning('rewriteLVL1 is True but ConfigFlags.Output.doWriteBS is False')
         if not ConfigFlags.Trigger.writeBS:

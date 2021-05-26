@@ -75,7 +75,7 @@ namespace Rec{
       std::unique_ptr<std::vector<WrkVrt>> wrkVrtSet = std::make_unique<std::vector<WrkVrt>>();
       WrkVrt newvrt; newvrt.Good=true;
       std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
-      StatusCode sc; sc.setChecked(); 
+      StatusCode sc;
       long int NPTR=0, nth=2; // VK nth=2 to speed up PGRAPH when it's used
 
 

@@ -25,7 +25,6 @@
 #include "TrigT1Interfaces/MuCTPICTP.h"
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
-#include "TrigT1Interfaces/NimCTP.h"
 
 
 // Inlcudes for the MuCTPI simulation
@@ -71,7 +70,6 @@ LVL1MUCTPI::L1Muctpi::L1Muctpi( const std::string& name, ISvcLocator* pSvcLocato
    declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
    declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
 
-   declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = LVL1MUCTPI::DEFAULT_MuonL1TopoLocation);
    // The LUTs can be huge, so the default is to turn their printing off:
    declareProperty( "DumpLUT", m_dumpLut = false );
    
@@ -80,7 +78,6 @@ LVL1MUCTPI::L1Muctpi::L1Muctpi( const std::string& name, ISvcLocator* pSvcLocato
  
    // Declare the properties of the NIM output creation:
    declareProperty( "DoNIMOutput", m_doNimOutput = false );
-   declareProperty( "NIMOutputLocID", m_nimOutputLocId = LVL1::DEFAULT_NimCTPLocation );
    declareProperty( "NIMBarrelBit", m_nimBarrelBit = 0,
                     "Bit on the NIM input of the CTP, showing that there was at least "
                     "one barrel candidate in the event" );
@@ -124,6 +121,9 @@ LVL1MUCTPI::L1Muctpi::initialize()
    ATH_CHECK( m_rdoOutputLocId.initialize( SG::AllowEmpty ) );
    ATH_CHECK( m_muctpi2CtpKey.initialize( SG::AllowEmpty ) );
    ATH_CHECK( m_muctpi2RoibKey.initialize( SG::AllowEmpty ) );
+   ATH_CHECK( m_nimctpKey.initialize( SG::AllowEmpty ) );
+   ATH_CHECK( m_topoOutputLocId.initialize( SG::AllowEmpty ) );
+   ATH_CHECK( m_topoOutputOffsetLocId.initialize( SG::AllowEmpty ) );
 
 
    // Now this is a tricky part. We have to force the message logging of the
@@ -244,7 +244,7 @@ LVL1MUCTPI::L1Muctpi::initialize()
    if( m_doNimOutput ) {
       ATH_MSG_INFO( "NIM output for CTP will be created" );
       ATH_MSG_DEBUG( "SG key for the NIM object will be: "
-                     << m_nimOutputLocId );
+                     << m_nimctpKey.key() );
       // A small sanity check:
       if( m_nimBarrelBit == m_nimEndcapBit ) {
          REPORT_ERROR( StatusCode::FAILURE )
@@ -720,33 +720,35 @@ LVL1MUCTPI::L1Muctpi::saveOutput(int bcidOffset)
             cw1|=nimEndcapBitMask;
          }
 
-         //constructing NimCTP object 
-         LVL1::NimCTP* nim = new LVL1::NimCTP( 0, cw1, 0 );
-
-         // Save it into StoreGate:
-         if( evtStore()->contains< LVL1::NimCTP >( m_nimOutputLocId ) ) {
-            ATH_MSG_ERROR("NimCTP object already in store gate. This should not happen!");
-            return StatusCode::FAILURE;
-         }
-         CHECK( evtStore()->record( nim, m_nimOutputLocId ) );
+         // Construct and save NimCTP object
+         auto nim = SG::makeHandle(m_nimctpKey);
+         CHECK(nim.record(std::make_unique<LVL1::NimCTP>(0, cw1, 0)));
       }
 
       // get outputs for L1Topo and store into Storegate
       ATH_MSG_DEBUG("Getting the output for L1Topo");
       LVL1::MuCTPIL1Topo l1topoCandidates = m_theMuctpi->getL1TopoData();
-      LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(l1topoCandidates.getCandidates());
-      CHECK( evtStore()->record( l1topo, m_l1topoOutputLocId ) );
+      auto l1topo = SG::makeHandle(m_topoOutputLocId);
+      CHECK(l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(l1topoCandidates.getCandidates())));
       //      std::cout << "TW: ALG central slice: offset: " <<  bcidOffset << "  location: " << m_l1topoOutputLocId << std::endl;
       //      l1topo->print();
    }
 
    /// if we have a bcid offset, then just get the topo output and put it on storegate
    if (bcidOffset  != 0) {
+      auto getHandleKey = [this](const int bcidOffset) -> SG::WriteHandleKey<LVL1::MuCTPIL1Topo>* {
+         for (SG::VarHandleKey* key : m_topoOutputOffsetLocId.keys()) {
+            if (key->key() == m_topoOutputLocId.key()+std::to_string(bcidOffset)) {
+               return dynamic_cast<SG::WriteHandleKey<LVL1::MuCTPIL1Topo>*>(key);
+            }
+         }
+         return nullptr;
+      };
       ATH_MSG_DEBUG("Getting the output for L1Topo for BCID slice");
       LVL1::MuCTPIL1Topo l1topoCandidatesBC = m_theMuctpi->getL1TopoData();
-      LVL1::MuCTPIL1Topo* l1topoBC = new LVL1::MuCTPIL1Topo(l1topoCandidatesBC.getCandidates());
+      auto l1topoBC = SG::makeHandle(*getHandleKey(bcidOffset));
+      CHECK(l1topoBC.record(std::make_unique<LVL1::MuCTPIL1Topo>(l1topoCandidatesBC.getCandidates())));
       l1topoBC->setBcidOffset(bcidOffset);
-      CHECK( evtStore()->record( l1topoBC, m_l1topoOutputLocId+std::to_string(bcidOffset) ) );
       // std::cout << "TW: slice: offset: " <<  bcidOffset << "  location: " 
       //		<< m_l1topoOutputLocId+std::to_string(bcidOffset) << std::endl;
       // l1topoBC->print();

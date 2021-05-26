@@ -30,6 +30,9 @@ namespace pool
      CollSplitByGUIDBase( const std::string& name = "CollSplitByGUID" );
      virtual ~CollSplitByGUIDBase();
 
+     CollSplitByGUIDBase( const CollSplitByGUIDBase& ) = delete;
+     CollSplitByGUIDBase& operator= ( const CollSplitByGUIDBase& ) = delete;
+
      virtual bool	init( std::vector<std::string> argv_v );
      
      virtual int	execute( std::vector<std::string> argv_v );

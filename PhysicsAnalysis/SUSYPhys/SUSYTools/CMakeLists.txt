@@ -94,7 +94,7 @@ if( XAOD_STANDALONE )
 endif()
 
 # Log ignore patterns
-set (extra_patterns "  (Entire loop|Excluding first event|First event).*ms|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-centos7-gcc[0-9]*-opt/data/SUSYTools|build/Analysis.*/x86_64-centos7-gcc[0-9]*-opt|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s|create data set info.*")
+set (extra_patterns "  (Entire loop|Excluding first event|First event).*ms|cvmfs/atlas.*\.cern\.ch/repo|INFO|x86_64-centos7-gcc[0-9]*-opt/data/SUSYTools|build/Analysis.*/x86_64-centos7-gcc[0-9]*-opt|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s|create data set info.*|Booked|<HEADER>")
 
 # Test(s) in the package:
 if( XAOD_STANDALONE )

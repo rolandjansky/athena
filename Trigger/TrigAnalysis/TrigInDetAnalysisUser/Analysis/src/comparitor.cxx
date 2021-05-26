@@ -406,6 +406,7 @@ int main(int argc, char** argv) {
   double effmin =  90;
   double effmax = 102;
 
+  std::string defreflabel = "";
 
   /// control flags and labels
 
@@ -715,8 +716,9 @@ int main(int argc, char** argv) {
       std::cerr << "main(): ref file not specified " << std::endl;
       Plotter::setplotref(false);
       noref = true;
-      /// leave this commented here - now instead of bombing out if we don't specify the reference file, 
-      /// just carry on as if it was not specified at all, so as this changes the external behaviour 
+      /// leave this commented here - now instead of bombing out if we don't 
+      /// specify the reference file, just carry on as if it was not specified 
+      /// at all, so as this changes the external behaviour 
       /// of the code we want this retained
       //       return -1;
     }
@@ -733,10 +735,19 @@ int main(int argc, char** argv) {
   else fref_ = ftest_;
   
   if ( chainfiles.size()==0 ) { 
-
-    if ( ftest_==0 || ( noref==false && fref_==0 ) ) { 
-      std::cerr << "could not open files " << std::endl;
+    if ( ftest_==0 ) { 
+      std::cerr << "could not open test file " << ftestname << std::endl;
       return -1;
+    }
+
+    if ( noref==false && fref_==0 ) { 
+      std::cerr << "could not open files " << std::endl;
+      /// don't fail anymore if can't open the reference file, now 
+      /// continue without plotting the refereces, instead printing 
+      /// a warning on the plots
+      noref=true;
+      fref_=ftest_;
+      defreflabel = "failed to open reference file";
     }
     
   }
@@ -842,7 +853,7 @@ int main(int argc, char** argv) {
 	release += "  (" + release_data[0]+")"; 
       }
       else {
-	release += "  (" + nightly; 
+	release += " (" + nightly; 
 	chop( release_data[0], " " );
 	release += " " + chop(release_data[0], " " ) + ")";
       }
@@ -1322,14 +1333,15 @@ int main(int argc, char** argv) {
       Plots plots( "", yinfo.trim() );
       plots.clear();
       
-      std::string noreflabel="";
+      std::string noreflabel=defreflabel;
 	              
       double xpos  = 0.18;
-      double ypos  = 0.93;
+      double ypos  = 0.91;
       
-      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.15;
+      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.19;
 
-      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.15;
+      ///  leave this code commented here for the time being ...
+      ///      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.19;
       
       if ( atlasstyle ) { 
 	xpos  = 0.18;
@@ -1369,14 +1381,12 @@ int main(int argc, char** argv) {
       if ( ALLRANGEMAP || (RANGEMAP && xaxis.find("p_{T}")!=std::string::npos && ccolours.size() ) ) 
 	Nrows = ( Nrows < ccolours.size() ? Nrows : ccolours.size() );
       
-      std::cout << "\n\n\tNrows " << Nrows << std::endl;
-
       int Nlines = Nrows + taglabels.size();
       
       std::vector<double> ypositions;
       
       double deltay = (Nrows*0.055-0.005)/Nrows;
-      
+
       double ylo = ypos;
       double yhi = ypos;
       
@@ -1391,7 +1401,7 @@ int main(int argc, char** argv) {
       
       /// legends ....
 
-      Legend legend( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
+      Legend legend(     xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
       Legend legend_eff( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
             
       
@@ -1529,6 +1539,9 @@ int main(int argc, char** argv) {
 	    }
 	    else { 
 	      hreft = Get( *ffref, refchain[j]+"/"+histo.name(), rawrefrun, chainmap );
+	      if ( hreft==0 ) {
+		std::cerr << "ERROR: could not find " << (refchain[j]+"/"+histo.name()) << std::endl;
+	      }
 	    }
 	  }
 	      
@@ -2358,7 +2371,7 @@ int main(int argc, char** argv) {
 	/// actually draw the plot here ...
       
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
+	
 	plots.Draw( legend );
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;

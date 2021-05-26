@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ namespace Trk {
     {
     public:
       TrkPixelNode(TrkPlanarSurface*,double,const PrepRawData*);
-      TrkPixelNode(TrkPlanarSurface*,double,double[2],double[4]);
+      TrkPixelNode(TrkPlanarSurface*,double,const double[2],const double[4]);
       virtual ~TrkPixelNode(){};
       virtual void validateMeasurement(TrkTrackState*);
       virtual void updateTrackState(TrkTrackState*);

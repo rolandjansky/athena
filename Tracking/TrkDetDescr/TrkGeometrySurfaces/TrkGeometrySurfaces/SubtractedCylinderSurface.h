@@ -39,10 +39,13 @@ public:
   SubtractedCylinderSurface(const SubtractedCylinderSurface& psf);
 
   /** Copy Constructor with shift*/
-  SubtractedCylinderSurface(const SubtractedCylinderSurface& psf, const Amg::Transform3D& transf);
+  SubtractedCylinderSurface(const SubtractedCylinderSurface& psf,
+                            const Amg::Transform3D& transf);
 
   /** Constructor */
-  SubtractedCylinderSurface(const CylinderSurface& cs, AreaExcluder* vol, bool shared);
+  SubtractedCylinderSurface(const CylinderSurface& cs,
+                            AreaExcluder* vol,
+                            bool shared);
 
   /**Destructor*/
   virtual ~SubtractedCylinderSurface();

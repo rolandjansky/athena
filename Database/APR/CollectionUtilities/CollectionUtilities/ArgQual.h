@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef UTILITIES_COLLECTION_ARGQUAL
@@ -56,7 +56,7 @@ namespace pool
 						  required(r) 
      {}
 
-     ArgQual(std::string d, int i, bool b=false, bool r=false)
+     ArgQual(const std::string& d, int i, bool b=false, bool r=false)
            : argsize(i),
              multiarg(b),
              required(r) 

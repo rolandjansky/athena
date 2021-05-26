@@ -7,7 +7,7 @@
 #ifndef PIXELCONDITIONSALGORITHMS_PIXELALIGNCONDALG_H
 #define PIXELCONDITIONSALGORITHMS_PIXELALIGNCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -21,14 +21,14 @@ namespace InDetDD {
   class PixelDetectorManager;
 }
 
-class PixelAlignCondAlg : public AthAlgorithm
+class PixelAlignCondAlg : public AthReentrantAlgorithm
 {
  public:
   PixelAlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~PixelAlignCondAlg() override = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
   BooleanProperty m_useDynamicAlignFolders{

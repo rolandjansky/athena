@@ -55,7 +55,9 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname)
   declareProperty("skipDeltaPoverP",
                   m_skipDeltaPoverP = false,
                   "If true, it wil skip the check of deltaPoverP");
-
+  declareProperty("correctDeltaEta",
+                  m_correctDeltaEta = false,
+                  "If true, deltaEta1 will be corrected for the pear shape disortion of the LAr");
   //
   // Configurables in the root tool
   //
@@ -333,6 +335,10 @@ AsgElectronLikelihoodTool::initialize()
     m_rootTool->m_pileupMaxForPileupTransform =
       env.GetValue("PileupMaxForPileupTransform", 50);
 
+    // if true, deltaEta1 will be corrected for the pear shape disortion of the LAr
+    m_correctDeltaEta =
+      env.GetValue("doCorrectDeltaEta", false);
+
   } else { // Error if it cant find the conf
     ATH_MSG_ERROR("Could not find configuration file");
     return StatusCode::FAILURE;
@@ -457,13 +463,24 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
       ATH_MSG_ERROR("Failed, no track particle. et= " << et << "eta= " << eta);
       return m_rootTool->accept();
     }
-
+    
     if (!el->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1)) {
       allFound = false;
       notFoundList += "deltaEta1 ";
     }
+    // correction of deltaEta1 for pear shape distortion
+    else if ( m_correctDeltaEta ) {
+      const static SG::AuxElement::Accessor<float> acc("deltaEta1PearDistortion");
+      if ( acc.isAvailable(*el) ) {
+	deltaEta -= acc(*el);
+      } else {
+	allFound = false;
+	notFoundList += "deltaEta1PearDistortion ";
+      }
+    }
+
     if (!el->trackCaloMatchValue(deltaPhiRescaled2,
-                                 xAOD::EgammaParameters::deltaPhiRescaled2)) {
+				 xAOD::EgammaParameters::deltaPhiRescaled2)) {
       allFound = false;
       notFoundList += "deltaPhiRescaled2 ";
     }
@@ -801,6 +818,17 @@ AsgElectronLikelihoodTool::calculate(const EventContext& ctx,
       allFound = false;
       notFoundList += "deltaEta1 ";
     }
+    // correction of deltaEta1 for pear shape distortion
+    else if ( m_correctDeltaEta ) {
+      const static SG::AuxElement::Accessor<float> acc("deltaEta1PearDistortion");
+      if ( acc.isAvailable(*el) ) {
+	deltaEta -= acc(*el);
+      } else {
+	allFound = false;
+	notFoundList += "deltaEta1PearDistortion ";
+      }
+    }
+
     // difference between the cluster phi (sampling 2) and the eta of the track
     // extrapolated from the last measurement point.
     if (!el->trackCaloMatchValue(deltaPhiRescaled2,

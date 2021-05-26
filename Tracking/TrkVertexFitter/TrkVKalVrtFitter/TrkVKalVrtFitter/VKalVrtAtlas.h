@@ -36,7 +36,7 @@ class TrkVKalVrtFitter;
 
     private:
 
-       MagField::AtlasFieldCache * m_VKalAthenaField;
+       MagField::AtlasFieldCache * m_VKalAthenaField{};
        double m_FIXED_ATLAS_FIELD=1.997;
        double m_magFrameX, m_magFrameY, m_magFrameZ ;
 

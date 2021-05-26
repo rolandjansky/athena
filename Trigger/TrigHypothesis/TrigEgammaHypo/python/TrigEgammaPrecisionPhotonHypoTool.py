@@ -6,11 +6,11 @@ from AthenaCommon.SystemOfUnits import GeV
 #
 # photon hypo alg
 #
-def createTrigEgammaPrecisionPhotonHypoAlgMT(name, sequenceOut):
+def createTrigEgammaPrecisionPhotonHypoAlg(name, sequenceOut):
 
   from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionPhotonSelectors
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoAlgMT
-  thePrecisionPhotonHypo = TrigEgammaPrecisionPhotonHypoAlgMT(name)
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoAlg
+  thePrecisionPhotonHypo = TrigEgammaPrecisionPhotonHypoAlg(name)
   thePrecisionPhotonHypo.IsEMNames = ['tight','medium','loose']
   thePrecisionPhotonHypo.PhotonIsEMSelectorTools = createTrigEgammaPrecisionPhotonSelectors()
   thePrecisionPhotonHypo.Photons = sequenceOut
@@ -47,8 +47,8 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
     self.__sel        = sel
     self.__isoinfo    = isoinfo
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoToolInc    
-    tool = TrigEgammaPrecisionPhotonHypoToolInc( name ) 
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoTool    
+    tool = TrigEgammaPrecisionPhotonHypoTool( name ) 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( float(threshold) , tool)
     tool.dETACLUSTERthr = 0.1

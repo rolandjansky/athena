@@ -8,7 +8,7 @@ find_package( Boost )
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
-atlas_add_library( MuonEventAthenaPoolLib
+atlas_add_tpcnv_library( MuonEventAthenaPoolLib
    MuonEventAthenaPool/*.h src/*Cnv_p*.h src/*Cnv_p*.cxx
    PUBLIC_HEADERS MuonEventAthenaPool
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}

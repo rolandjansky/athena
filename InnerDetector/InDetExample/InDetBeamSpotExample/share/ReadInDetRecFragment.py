@@ -222,6 +222,7 @@ InDetFlags.doForwardTracks = False
 InDetFlags.doLargeD0 = False
 InDetFlags.doR3LargeD0 = False
 InDetFlags.doLowPtLargeD0 = False
+InDetFlags.doCaloSeededAmbi = False
 
 if jobConfig['doRobustReco']:
     try:

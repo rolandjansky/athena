@@ -2003,7 +2003,7 @@ void Trk::TrkMaterialProviderTool::getMopAndIoniEnergyLoss(const std::vector<con
 bool Trk::TrkMaterialProviderTool::isIsolatedTrack(double eta, double phi) const
 {
   int nTracks 	= 0;
-  std::pair<int,double> inner = m_trackIsolationTool->trackIsolation(eta,phi);
+  std::pair<int,double> inner = m_trackIsolationTool->trackIsolation(Gaudi::Hive::currentContext(),eta,phi);
   nTracks 	= inner.first;
 
   ATH_MSG_VERBOSE("Isolation : Number of tracks in cone " << nTracks << " cut < " << m_maxNTracksIso);
@@ -2018,7 +2018,7 @@ double Trk::TrkMaterialProviderTool::getCaloMeasuredEnergy(double eta, double ph
 							   double& fsrCaloEnergy) const
 {
   // Retrieve the measured energy from calorimeter
-  Rec::CaloMeas* caloMeas = m_caloMeasTool->energyMeasurement(eta,phi,eta,phi);
+  std::unique_ptr<Rec::CaloMeas> caloMeas = m_caloMeasTool->energyMeasurement(Gaudi::Hive::currentContext(),eta,phi,eta,phi);
 
   // Check isolation
 //  if(!isIsolatedTrack(eta,phi)) {
@@ -2027,8 +2027,7 @@ double Trk::TrkMaterialProviderTool::getCaloMeasuredEnergy(double eta, double ph
 //  }
 
   // Sum-up components
-  double FinalMeasuredEnergy = getFinalMeasuredEnergy(caloMeas, totalEloss, meanElossIoni, eta, fsrCaloEnergy);
-  delete caloMeas;
+  double FinalMeasuredEnergy = getFinalMeasuredEnergy(caloMeas.get(), totalEloss, meanElossIoni, eta, fsrCaloEnergy);
 
   return FinalMeasuredEnergy;
 }

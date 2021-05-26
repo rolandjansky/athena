@@ -93,9 +93,9 @@ else:
 	TestMonTool.mcTruth = False
 	TestMonTool.ntupleChainNames = ['']
 
-from InDetBeamSpotService.InDetBeamSpotServiceConf import BeamCondSvc
+#from InDetBeamSpotService.InDetBeamSpotServiceConf import BeamCondSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr += BeamCondSvc(name="InDetBeamSpotOnline")
+#svcMgr += BeamCondSvc(name="InDetBeamSpotOnline")
 
 #Tau 3-prong - false by default
 #TestMonTool.doTauThreeProng = True

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -101,7 +101,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       result.addEventAlgo(tagBuilder)
 
    # For xAOD output
-   if "xAOD" in streamName:
+   if "AOD" in streamName:
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
       AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
@@ -114,3 +114,27 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
 
    result.addEventAlgo(outputStream)
    return result
+
+def addToESD(configFlags, itemOrList):
+   """
+   Adds items to ESD stream
+
+   The argument can be either list of items or just one item
+
+   returns CA to be merged i.e.: result.merge(addToESD(flags, "xAOD::CoolObject"))
+   """
+   if not configFlags.Output.doWriteESD:
+      return ComponentAccumulator()
+   items = [itemOrList] if isinstance(itemOrList, str) else itemOrList   
+   return OutputStreamCfg(configFlags, "ESD", ItemList=items)
+
+def addToAOD(configFlags, itemOrList):
+   """
+   Adds items to AOD stream
+
+   @see add addToESD
+   """
+   if not configFlags.Output.doWriteAOD:
+      return ComponentAccumulator()
+   items = [itemOrList] if isinstance(itemOrList, str) else itemOrList   
+   return OutputStreamCfg(configFlags, "AOD", ItemList=items)

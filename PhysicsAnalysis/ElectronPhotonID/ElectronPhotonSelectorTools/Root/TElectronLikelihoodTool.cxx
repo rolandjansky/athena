@@ -470,7 +470,7 @@ Root::TElectronLikelihoodTool::accept(double likelihood,
                                       double EoverP,
                                       double ip) const
 {
-  LikeEnum::LHAcceptVars_t vars;
+  LikeEnum::LHAcceptVars_t vars{};
   vars.likelihood = likelihood;
   vars.eta = eta;
   vars.eT = eT;
@@ -703,7 +703,7 @@ Root::TElectronLikelihoodTool::calculate(double eta,
                                          double ip) const
 {
 
-  LikeEnum::LHCalcVars_t vars;
+  LikeEnum::LHCalcVars_t vars{};
 
   vars.eta = eta;
   vars.eT = eT;

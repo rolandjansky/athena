@@ -83,7 +83,7 @@ def _run(input):
 
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
-#    flags.Output.AODFileName="myAOD.pool.root"
+    flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()
     args = flags.fillFromArgs(parser=parser)
 
@@ -94,6 +94,9 @@ def _run(input):
             flags.Input.Files = defaultTestFiles.RAW
         if input == "ESD":
             flags.Input.Files = defaultTestFiles.ESD
+        if input == "RDO":
+            flags.Input.Files = defaultTestFiles.RDO
+
 
     flags.lock()
 
@@ -119,17 +122,9 @@ def _run(input):
 
 if __name__ == "__main__":
     statusCode = None
-    if "--RAW" in sys.argv:
-        del sys.argv[sys.argv.index("--RAW")]
-        statusCode = _run(input="RAW")
-
-    if "--ESD" in sys.argv:    
-        del sys.argv[sys.argv.index("--ESD")]
-        statusCode = _run(input="ESD")
-
-#TODO enable digest production once able to read the AOD
-#        if statusCode.isSuccess():
-#            import subprocess
-#            subprocess.run("xAODDigest.py outputAOD.pool.root digetst.txt")
-
+    for test in ["RAW", "ESD", "RDO"]:
+        if f"--{test}" in sys.argv:
+            del sys.argv[sys.argv.index(f"--{test}")]
+            statusCode = _run(input=test)
+    assert statusCode is not None, "No test was run"
     sys.exit(not statusCode.isSuccess())

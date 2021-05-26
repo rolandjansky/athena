@@ -53,7 +53,7 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       Amg::Vector3D gpos(0.,0.,0.);
       Amg::Vector2D lpos(0.,0.);
 
-      rdoEl->surface(Id).localToGlobal(lpos, gpos,gpos);
+      rdoEl->surface(Id).globalToLocal(gpos, gpos, lpos);
       
       m_MDT_dig_localPosX.push_back( lpos.x() );
       m_MDT_dig_localPosY.push_back( lpos.y() );
