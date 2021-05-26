@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -48,14 +48,14 @@
 CaloDmNeighbours::CaloDmNeighbours() ctor
 ************************************************************************** */
 CaloDmNeighbours::CaloDmNeighbours(const CaloDmDescrManager *dmMgr)
-  : m_caloDM_ID(nullptr),
+  : m_DmNeighboursFileName ("DeadMaterialCaloNeighbours.dat"),
+    m_caloDmDescrManager (dmMgr),
+    m_caloDM_ID(nullptr),
     m_caloCell_ID(nullptr),
     m_larFcal_ID(nullptr),
     m_larHec_ID(nullptr),
     m_id_helper(nullptr)
 {
-  m_caloDmDescrManager = dmMgr;
-  m_DmNeighboursFileName = "DeadMaterialCaloNeighbours.dat";
   initialize(m_DmNeighboursFileName);
 }
 
@@ -740,7 +740,7 @@ int CaloDmNeighbours::make_CaloSample2DmRegion_map()
   for(int i=0; i<(int)CaloCell_ID::Unknown; i++){
     m_CaloSample2DmRegion[i].resize(CALOMAP_NETA);
   }
-  for(std::vector<CaloDmRegion *>::const_iterator it=m_caloDmDescrManager->reg_begin();  it!=m_caloDmDescrManager->reg_end(); it++){
+  for(std::vector<CaloDmRegion *>::const_iterator it=m_caloDmDescrManager->reg_begin();  it!=m_caloDmDescrManager->reg_end(); ++it){
     const CaloDmRegion *myRegion = (*it);
     for(unsigned int i=0; i<myRegion->m_CaloSampleNeighbours.size(); i++){
       int csmp = myRegion->m_CaloSampleNeighbours[i];
