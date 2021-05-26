@@ -471,7 +471,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr) {
                 continue;
             }
             athenaId = m_idToFixedIdTool->fixedIdToId(id);
-            const std::string stationName_str = m_idHelperSvc->mdtIdHelper().stationNameString(id.stationName());
+            const std::string stationName_str = m_idHelperSvc->mdtIdHelper().stationNameString(std::abs(id.stationName()));
             if (!m_idHelperSvc->isMuon(athenaId) || stationName_str == "UNKNOWN") {
                 ATH_MSG_WARNING("The translation from the region Id "
                                 << regionId << " to the athena Id: " << athenaId << " eta: " << id.eta() << " phi: " << id.phi()
