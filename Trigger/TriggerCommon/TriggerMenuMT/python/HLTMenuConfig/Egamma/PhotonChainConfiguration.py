@@ -30,9 +30,9 @@ def fastPhotonSequenceCfg( flags ):
 
     return fastPhotonMenuSequence()
 
-def TLAPhotonSequenceCfg( flags ):
+def TLAPhotonSequenceCfg( flags, chainDict ):
     photonsIn = "HLT_egamma_Photons"
-    return TLAPhotonMenuSequence(flags, photonsIn)
+    return TLAPhotonMenuSequence(flags, photonsIn, chainDict=chainDict)
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
