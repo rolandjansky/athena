@@ -357,11 +357,9 @@ std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::selectBestM
     }
     return outputMTSs;
 }
-
+/// What are these hardcoded constants about?
+///  d +  a / (1 + exp())
 double MuTagAmbiguitySolverTool::Rseg(unsigned int nseg) const {
-    const float a_seg(3.61883);
-    const float b_seg(20.4547);
-    const float c_seg(1. / 0.132675);
-    const float d_seg(0.102262);
-    return static_cast<double>(a_seg / (1. + exp(b_seg - nseg * c_seg)) + d_seg);
+    constexpr float a_seg{3.61883}, b_seg{20.4547}, c_seg{1. / 0.132675}, d_seg{0.102262};
+    return (a_seg / (1. + std::exp(b_seg - nseg * c_seg)) + d_seg);
 }
