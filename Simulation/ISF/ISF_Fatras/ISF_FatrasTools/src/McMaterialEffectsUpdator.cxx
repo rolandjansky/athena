@@ -579,13 +579,12 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     // update parent parameters:
     // use the manipulator to update the track parameters -------> get rid of 0!
     updated = parm->associatedSurface()
-      .createUniqueTrackParameters(updatedParameters[0],
-                                   updatedParameters[1],
-                                   updatedParameters[2],
-                                   updatedParameters[3],
-                                   updatedParameters[4],
-                                   std::nullopt)
-      .release();
+      .createTrackParameters(updatedParameters[0],
+			     updatedParameters[1],
+			     updatedParameters[2],
+			     updatedParameters[3],
+			     updatedParameters[4],
+			     0);
 
     if (isp!=m_isp) {
       delete parm;
