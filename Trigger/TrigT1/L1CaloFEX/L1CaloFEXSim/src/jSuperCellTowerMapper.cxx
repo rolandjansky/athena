@@ -225,11 +225,11 @@ void jSuperCellTowerMapper::reset(){
     }
     case CaloSampling::EME3: { 
       if(region == 0){
-	if(eta0 < 2.5){ eta_index += 15; }
+	if(/*eta0 < 2.5*/ phi_max == 63){ eta_index += 15; } // We should use eta0 here but the MC information is bugged for EME3 positive-side supercells
 	else{ eta_index += 25; }
       }
       else if (region == 1){
-	if(eta0 < 2.5){ eta_index += 15; }
+	if(/*eta0 < 2.5*/ phi_max == 63){ eta_index += 15; } // We should use eta0 here but the MC information is bugged for EME3 positive-side supercells
         else{ eta_index += 28; }
       }
       break; 
@@ -561,7 +561,6 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
       break;
     }
     default: {
-      // This should never fire because we don't go beyond 2.5 -- is this still true for jFEX? // jFEX IMPORTANT
       ATH_MSG_DEBUG("CaloSampling::EME1 -> invalid 'region' value: " << region << " (Under investigation) ");
       break;
     }

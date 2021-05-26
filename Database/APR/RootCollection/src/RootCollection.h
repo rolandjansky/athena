@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTCOLLECTION_ROOTCOLLECTION_H
@@ -215,19 +215,19 @@ namespace pool {
 
      private:
 
-        mutable CollectionDescription        m_description;
+        CollectionDescription                m_description;
         
-        std::string                         m_name;
-        std::string                         m_fileName;
-        ICollection::OpenMode                 m_mode;
-        mutable TTree*                         m_tree;
-        mutable TFile*                         m_file;
-        mutable ISession*                    m_session;
+        std::string                          m_name;
+        std::string                          m_fileName;
+        ICollection::OpenMode                m_mode;
+        TTree*                               m_tree;
+        TFile*                               m_file;
+        ISession*                            m_session;
         bool                                 m_open;
         bool                                 m_readOnly;
         
-        mutable std::unique_ptr<pool::IFileCatalog> m_fileCatalog;
-        mutable coral::MessageStream        m_poolOut;
+        std::unique_ptr<pool::IFileCatalog> m_fileCatalog;
+        coral::MessageStream                m_poolOut;
 
         RootCollectionSchemaEditor*        m_schemaEditor;
         RootCollectionDataEditor*        m_dataEditor;

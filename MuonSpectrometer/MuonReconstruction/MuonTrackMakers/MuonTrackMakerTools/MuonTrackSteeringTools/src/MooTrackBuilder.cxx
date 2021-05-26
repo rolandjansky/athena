@@ -40,7 +40,6 @@ namespace Muon {
         if (!m_errorOptimisationTool.empty()) ATH_CHECK(m_errorOptimisationTool.retrieve());
         ATH_CHECK(m_candidateHandler.retrieve());
         ATH_CHECK(m_candidateMatchingTool.retrieve());
-        if (!m_hitRecoverTool.empty()) ATH_CHECK(m_hitRecoverTool.retrieve());
         ATH_CHECK(m_muonChamberHoleRecoverTool.retrieve());
         ATH_CHECK(m_trackExtrapolationTool.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
@@ -93,7 +92,7 @@ namespace Muon {
     void MooTrackBuilder::refine(MuPatTrack& track, GarbageContainer& trash_bin) const {
         const EventContext& ctx = Gaudi::Hive::currentContext();
 
-        std::unique_ptr<Trk::Track> finalTrack(m_hitRecoverTool->recover(track.track(), ctx));
+        std::unique_ptr<Trk::Track> finalTrack(m_muonChamberHoleRecoverTool->recover(track.track(), ctx));
         if (!finalTrack) { ATH_MSG_WARNING(" final track lost, this should not happen "); }
         ATH_MSG_VERBOSE("refine: after recovery " << std::endl
                                                   << m_printer->print(*finalTrack) << std::endl

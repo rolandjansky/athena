@@ -375,7 +375,9 @@ public:
     /// ha ! don't actually create the legend until we want to draw it, 
     /// then we can determine the size etc automatically
 
-    double y0 = m_y[1] - 0.4*m_entries.size()*(m_y[1]-m_y[0]);
+    double y0 = m_y[0];
+
+    m_y[1] = y0 + m_entries.size()*0.05;
 
     m_leg = new TLegend( m_x[0], y0, m_x[1], m_y[1] );
 
@@ -475,7 +477,7 @@ public:
 
   bool  trim_errors() const { return m_trim_errors; } 
 
-  void Draw( int i, Legend& leg, bool mean=false, bool first=true ) { 
+  void Draw( int i, Legend& leg, bool mean=false, bool first=true, bool drawlegend=false ) { 
 
     if ( htest() ) {
       gStyle->SetOptStat(0);
@@ -632,7 +634,7 @@ public:
 
       m_entries++;
 
-      leg.Draw();
+      if ( drawlegend ) leg.Draw();
 
     }
   }
@@ -832,7 +834,7 @@ public:
       
     if ( size()>0 ) v = ::findxrangeuser( hf, symmetric );
 
-    bool first = true;
+    bool first = false;
 
     for ( unsigned i=1 ; i<size() ; i++ ) { 
   
@@ -951,9 +953,9 @@ public:
   }
 
   void Draw_i( Legend& leg, bool means=false ) {  
-    
-    bool first = true;
 
+    bool first = true;
+    
     if ( m_logy ) {
       /// increase the number of log labels if only a few decades
       for ( unsigned i=0 ; i<size() ; i++, first=false ) { 
@@ -967,7 +969,7 @@ public:
 
     for ( unsigned i=0 ; i<size() ; i++ ) at(i).trim_errors( m_trim_errors );
 
-    for ( unsigned i=0 ; i<size() ; i++, first=false ) at(i).Draw( i, leg, means, first );
+    for ( unsigned i=0 ; i<size() ; i++,  first=false ) at(i).Draw( i, leg, means, first, (i==size()-1) );
     if ( watermark ) DrawLabel(0.1, 0.02, "built "+stime()+release, kBlack, 0.03 );
 
     gPad->SetLogy(m_logy);

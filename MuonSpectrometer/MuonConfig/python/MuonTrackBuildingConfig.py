@@ -17,7 +17,6 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     mctb_fitter = result.getPrimary()
     result.addPublicTool(mctb_fitter)
     kwargs.setdefault("Fitter",          mctb_fitter)
-    kwargs.setdefault("FitterPreFit",          mctb_fitter)
         
     acc = MuPatHitToolCfg(flags)
     mu_pat_hit_tool = acc.getPrimary()
@@ -110,8 +109,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     prop = Trk__STEP_Propagator(name = 'MuonStraightLinePropagator')
     result.addPublicTool(prop)
     
-    # TODO - check why Fitter and FitterPreFit are identical
-    acc = MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, FitterPreFit=mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True)
+    acc = MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True)
     moo_sl_track_fitter = acc.getPrimary()
     result.addPublicTool(moo_sl_track_fitter)
     result.merge(acc)
@@ -144,7 +142,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     hole_recovery_tool =  acc.getPrimary()
     result.addPublicTool(hole_recovery_tool)
     result.merge(acc)
-    kwargs.setdefault("HitRecoveryTool", hole_recovery_tool)
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
 
     acc  = MagneticFieldSvcCfg(flags) 
