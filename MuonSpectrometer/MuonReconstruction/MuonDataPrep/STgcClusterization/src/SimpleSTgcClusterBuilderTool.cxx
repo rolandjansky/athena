@@ -188,8 +188,8 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
       << " " << multilayer << " " 
       << gasGap << " " << stripNum);
   
-  // if no cluster is present start creating a new one
-  if (clustersStripNum[multilayer][gasGap].size()==0 ) {
+  // if no cluster is present or if it's a pad start creating a new one
+  if (clustersStripNum[multilayer][gasGap].size()==0 || m_stgcIdHelper->channelType(prd_id)!=1 ) {
 
     ATH_MSG_DEBUG( ">>> No strip present in this gap: adding it as first cluster " );
     set<unsigned int> clusterStripNum;

@@ -64,7 +64,7 @@ namespace Muon {
 
   std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) {
     ATH_MSG_DEBUG("Entering MuonClusterSegmentFinderTool with " << muonClusters.size() << " clusters to be fit" );
-    if(belowThreshold(muonClusters,4)) return 0;
+    if(belowThreshold(muonClusters,2)) return 0;
     std::vector<const Muon::MuonSegment*>* segs = findPrecisionSegments(muonClusters);
     if(segs == 0) return 0;
     if(segs->size() == 0)
@@ -89,7 +89,7 @@ namespace Muon {
     bool selectPhiHits(false);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     ATH_MSG_VERBOSE("After hit cleaning, there are " << clusters.size() << " 2D clusters to be fit" );
-    if(belowThreshold(clusters,4)){
+    if(belowThreshold(clusters,2)){
       return 0;
     }
     
@@ -107,7 +107,7 @@ namespace Muon {
     for(unsigned int i=0; i<seeds.size(); ++i) {
       std::vector< const Muon::MuonClusterOnTrack* > rioVec = getClustersOnSegment(orderedClusters,seeds[i]);
 //  make consistent cut
-      if(belowThreshold(rioVec,4)) continue;
+      if(belowThreshold(rioVec,2)) continue;
       // logic to reduce combinatorics
       if(rioVec.size() == rioVecPrevious.size()) {
          bool sameContent = true;
@@ -270,7 +270,7 @@ namespace Muon {
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     std::vector< const Muon::MuonClusterOnTrack* > etaClusters = cleanClusters(muonClusters,false);
     ATH_MSG_DEBUG("After hit cleaning, there are " << clusters.size() << " 3D clusters to be fit" );
-    if(belowThreshold(clusters,4)) {
+    if(belowThreshold(clusters,2)) {
       ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
       return etaSegs;
     }
@@ -516,7 +516,7 @@ namespace Muon {
   MuonClusterSegmentFinderTool::segmentSeed( std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, bool usePhi ) const {
 
     std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seeds;
-    if(orderedClusters.size() < 4) return seeds;
+    if(orderedClusters.size() < 2) return seeds;
 
     //calculate the straight line between the two furthest points
     int seedlayers1 = 0;
@@ -742,7 +742,7 @@ namespace Muon {
           if(fabs(etaDistance)<distance+0.001) {
             double lastDistance = distance; 
             distance = fabs(etaDistance);
-            if(distance<100.) {
+            if(distance<200.) {
   	      if(lp1.y() < lpos.y() && lp2.y() > lpos.y()) {
                 if(hits.size() == 0) {
                    ATH_MSG_DEBUG(" start best etaDistance " << etaDistance );
@@ -767,13 +767,30 @@ namespace Muon {
 
     ATH_MSG_DEBUG(" sTgc1.size() " << sTgc1.size() << " sTgc2.size() " << sTgc2.size());
 
-    if(sTgc1.size() == 0 || sTgc2.size() == 0) return seeds;
+    if(sTgc1.size() == 0 && sTgc2.size() == 0) return seeds;
+
     //store reference surfaces
-    const sTgcPrepData* prdL1 = dynamic_cast<const sTgcPrepData*>(sTgc1.front().front()->prepRawData());
-    const sTgcPrepData* prdL2 = dynamic_cast<const sTgcPrepData*>(sTgc2.back().front()->prepRawData());
-    const Trk::PlaneSurface* surf1 = dynamic_cast<const Trk::PlaneSurface*>(&(sTgc1.front().front())->associatedSurface());
-    const Trk::PlaneSurface* surf2 = dynamic_cast<const Trk::PlaneSurface*>(&(sTgc2.back().front())->associatedSurface());
-    
+    const sTgcPrepData* prdL1 = nullptr;
+    const sTgcPrepData* prdL2 = nullptr;
+    const Trk::PlaneSurface* surf1 = nullptr;
+    const Trk::PlaneSurface* surf2 = nullptr;
+
+    if (sTgc1.size()>0) {
+      prdL1 = dynamic_cast<const sTgcPrepData*>(sTgc1.front().front()->prepRawData());
+      surf1 = dynamic_cast<const Trk::PlaneSurface*>(&(sTgc1.front().front())->associatedSurface());
+    }
+    if (sTgc2.size()>0) {
+      prdL2 = dynamic_cast<const sTgcPrepData*>(sTgc2.back().front()->prepRawData());
+      surf2 = dynamic_cast<const Trk::PlaneSurface*>(&(sTgc2.back().front())->associatedSurface());
+    }
+    if (!prdL1) {
+      prdL1 = dynamic_cast<const sTgcPrepData*>(sTgc2.front().front()->prepRawData());
+      surf1 = dynamic_cast<const Trk::PlaneSurface*>(&(sTgc2.front().front())->associatedSurface());
+    } 
+    if (!prdL2) {
+      prdL2 = dynamic_cast<const sTgcPrepData*>(sTgc1.back().front()->prepRawData());
+      surf2 = dynamic_cast<const Trk::PlaneSurface*>(&(sTgc1.back().front())->associatedSurface());
+    } 
 
     //ensure there are 4 entries per sTgc chamber
     while(sTgc1.size() < 4) {
@@ -820,7 +837,7 @@ namespace Muon {
 	phiPos2.push_back(gpL2);
       }
     }
-    
+
     for(unsigned int i=0; i<phiPos1.size(); ++i) {      
       //create the seed pair
       // Peter this is badly defined -> use phi from positions
