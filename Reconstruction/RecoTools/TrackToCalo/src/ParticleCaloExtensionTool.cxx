@@ -227,7 +227,7 @@ ParticleCaloExtensionTool::caloExtension(
     } else {
       unsigned int index(0);
       if (particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)) {
-        return caloExtension(
+        return caloExtension(ctx,
           particle.curvilinearParameters(index), alongMomentum, particleType);
       }
     }
