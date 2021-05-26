@@ -120,14 +120,14 @@ namespace MuonCombined {
         }
 
         // find best candidate and exit if none found
-        std::pair<const Muon::MuonCandidate*, std::unique_ptr<Trk::Track>> bestCandidate = findBestCandidate(ctx, indetTrackParticle, allLayers);
+        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> bestCandidate = findBestCandidate(ctx, indetTrackParticle, allLayers);
         if (!bestCandidate.first) { return; }
 
         // add candidate to indet candidate
         addTag(ctx, indetCandidate, tagMap, *bestCandidate.first, bestCandidate.second, combTracks, meTracks, segColl);
     }
 
-    std::pair<const Muon::MuonCandidate*, std::unique_ptr<Trk::Track>> MuonInsideOutRecoTool::findBestCandidate(
+    std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> MuonInsideOutRecoTool::findBestCandidate(
         const EventContext& ctx,
         const xAOD::TrackParticle& indetTrackParticle, const std::vector<Muon::MuonLayerRecoData>& allLayers) const {
         // resolve ambiguities
@@ -136,13 +136,13 @@ namespace MuonCombined {
 
         // fit candidates
         TrackCollection tracks(SG::VIEW_ELEMENTS);
-        typedef std::pair<std::unique_ptr<Trk::Track>, const Muon::MuonCandidate*> candidatePair;
+        typedef std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<const Muon::MuonCandidate>> candidatePair;
         std::vector<candidatePair> trackCandidateLookup;
-        for (const auto& candidate : resolvedCandidates) {
+        for ( Muon::MuonCandidate & candidate : resolvedCandidates) {
             std::unique_ptr<Trk::Track> track = m_candidateTrackBuilder->buildCombinedTrack(ctx, *indetTrackParticle.track(), candidate);
             if (track) {
                 tracks.push_back(track.get());
-                trackCandidateLookup.emplace_back(std::move(track), &candidate);
+                trackCandidateLookup.emplace_back(std::move(track), std::make_unique<Muon::MuonCandidate>(std::move(candidate)));
             }
         }
 
@@ -184,7 +184,7 @@ namespace MuonCombined {
         // generate a track summary for this candidate
         if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*selectedTrack, nullptr, false); }
 
-        return std::make_pair(look_itr->second, std::move(look_itr->first));
+        return std::make_pair(std::move(look_itr->second), std::move(look_itr->first));
     }
 
     void MuonInsideOutRecoTool::addTag(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
@@ -237,7 +237,7 @@ namespace MuonCombined {
         }
         // get segments
         std::vector<ElementLink<Trk::SegmentCollection> > segLinks;
-        for (const auto& layer : candidate.layerIntersections) {
+        for (const Muon::MuonLayerIntersection& layer : candidate.layerIntersections) {
             segments->push_back(new Muon::MuonSegment(*layer.segment));
             ElementLink<Trk::SegmentCollection> sLink(*segments, segments->size() - 1);
             segLinks.push_back(sLink);

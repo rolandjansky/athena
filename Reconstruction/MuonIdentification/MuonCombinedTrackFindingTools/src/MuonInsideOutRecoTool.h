@@ -60,7 +60,7 @@ namespace MuonCombined {
                             TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
         /** find the best candidate for a given set of segments */
-        std::pair<const Muon::MuonCandidate*, std::unique_ptr<Trk::Track>> findBestCandidate(const EventContext& ctx,
+        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> findBestCandidate(const EventContext& ctx,
             const xAOD::TrackParticle& indetTrackParticle, const std::vector<Muon::MuonLayerRecoData>& allLayers) const;
 
     private:

@@ -785,7 +785,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Combining candidates " << candidates.size());
         for (auto& candidate : candidates) {
             // find best matching track
-            std::pair<const Muon::MuonCandidate*, std::unique_ptr<Trk::Track>> result =
+            std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> result =
                 m_insideOutRecoTool->findBestCandidate(ctx, indetTrackParticle, candidate->allLayers);
 
             if (result.first && result.second) {
@@ -793,7 +793,7 @@ namespace MuonCombined {
                                                          << m_printer->print(*result.second) << std::endl
                                                          << m_printer->printStations(*result.second));
                 // add segments and track pointer to the candidate
-                candidate->muonCandidate = std::make_unique<Muon::MuonCandidate>(*result.first);
+                candidate->muonCandidate = std::move(result.first);
                 candidate->combinedTrack = std::move(result.second);
 
                 // extract times form track
