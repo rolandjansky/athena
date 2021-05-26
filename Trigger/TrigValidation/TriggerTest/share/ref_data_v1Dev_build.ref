@@ -1693,7 +1693,7 @@ HLT_j0_perf_L1J12_EMPTY:
   stepCounts:
     0: 8
   stepFeatures:
-    0: 129
+    0: 90
 HLT_j0_pf_ftf_HT50XX010jvt_L1J20:
   eventCount: 5
   stepCounts:
@@ -1947,7 +1947,7 @@ HLT_j40_j0_HT50XX10etXX0eta320_L1J20:
   stepCounts:
     0: 7
   stepFeatures:
-    0: 177
+    0: 173
 HLT_j40_j0_HT50XX10ptXX0eta320_L1J20:
   eventCount: 7
   stepCounts:
@@ -4191,11 +4191,7 @@ HLT_unconvtrk50_isohpttrack_L1XE50:
   stepFeatures:
     0: 20
 HLT_xe100_mht_L1XE50:
-  eventCount: 1
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
+  eventCount: 0
 HLT_xe100_pfsum_L1XE50:
   eventCount: 0
   stepCounts:
@@ -4259,11 +4255,11 @@ HLT_xe30_cvfpufit_L1XE30:
     0: 20
     1: 6
 HLT_xe30_mht_L1XE30:
-  eventCount: 12
+  eventCount: 13
   stepCounts:
-    0: 12
+    0: 13
   stepFeatures:
-    0: 12
+    0: 13
 HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30:
   eventCount: 3
   stepCounts:
