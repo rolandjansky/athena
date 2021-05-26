@@ -12,7 +12,7 @@
 
 Reco_tf.py \
 --AMI=f739 \
---preExec 'r2a:from InDetPrepRawDataToxAOD.SCTxAODJobProperties import SCTxAODFlags;SCTxAODFlags.Prescale.set_Value_and_Lock(50);from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False'
+--preExec 'r2a:from InDetPrepRawDataToxAOD.SCTxAODJobProperties import SCTxAODFlags;SCTxAODFlags.Prescale.set_Value_and_Lock(50);from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
 --conditionsTag=CONDBR2-BLKPA-RUN2-03 \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data16_13TeV.00304008.physics_Main.daq.RAW._lb0838._SFO-6._0001.data \
