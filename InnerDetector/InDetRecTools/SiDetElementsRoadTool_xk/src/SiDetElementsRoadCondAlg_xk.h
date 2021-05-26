@@ -69,6 +69,7 @@ namespace InDet {
     //@{
     BooleanProperty m_usePIX{this, "usePixel", true, "Flag to use Pixel"};
     BooleanProperty m_useSCT{this, "useSCT",   true, "Flag to use SCT"};
+    BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
     //@}
 
     ///////////////////////////////////////////////////////////////////
