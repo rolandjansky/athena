@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -83,11 +83,24 @@ namespace InDet{
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<bool>   &used) const;
 
-      void getEndcapDetElements
-	      (const std::array<float,6> & startingPoint,
+      void getITkBarrelDetElements
+        (const std::array<float,6> & startingPoint,
          const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<bool>   &used) const;
+
+      void getEndcapDetElements
+        (const std::array<float,6> & startingPoint,
+         const std::array<float,3> & searchDirection,
+         std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+         std::vector<bool>   &used) const;
+
+      void getITkEndcapDetElements
+        (const std::array<float,6> & startingPoint,
+         const std::array<float,3> & searchDirection,
+         std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+         std::vector<bool>   &used) const;
+
 
       void sortDetectorElements();
 

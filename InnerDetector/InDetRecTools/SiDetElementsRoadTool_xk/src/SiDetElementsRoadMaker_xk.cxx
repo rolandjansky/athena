@@ -440,7 +440,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 	      if (par_targetPoint[3] < layer[1][n1].r()) break;
         assert( roadMakerData.elementUsageTracker[1].size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements from the current layer
-	      layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        if(m_ITkGeometry) layer[1][n1].getITkBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        else layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
       }
       /// if we are moving inward in R, iterate the other way for the barrel
     } else {
@@ -448,8 +449,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
         /// stop if we moved past the test point in R
 	      if (par_targetPoint[3] > layer[1][n1].r()+dr) break;
         assert( roadMakerData.elementUsageTracker[1].size() > static_cast<unsigned int>(n1) );
-        /// collect all compatible detector elements        
-	      layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[1][n1].getITkBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        else layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
 
       }
       ++n1;
@@ -461,15 +463,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
 	      if (par_targetPoint[2] < layer[2][n2].z()) break;
         assert( roadMakerData.elementUsageTracker[2].size() > static_cast<unsigned int>(n2) );
-        /// collect all compatible detector elements        
-	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[2][n2].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
+        else layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
 	      if (par_targetPoint[2] > layer[2][n2].z()) break;
         assert( roadMakerData.elementUsageTracker[2].size() > static_cast<unsigned int>(n2) );
-        /// collect all compatible detector elements        
-	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[2][n2].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
+        else layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
       }
       ++n2;
     }
@@ -480,15 +484,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       for (; n0<static_cast<int>(layer[0].size()); ++n0) {
 	      if (par_targetPoint[2] > layer[0][n0].z()) break;
         assert( roadMakerData.elementUsageTracker[0].size() > static_cast<unsigned int>(n0) );
-        /// collect all compatible detector elements        
-	      layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[0][n0].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        else layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
 	      if (par_targetPoint[2] < layer[0][n0].z()) break;
         assert( roadMakerData.elementUsageTracker[0].size() > static_cast<unsigned int>(n0) );
-        /// collect all compatible detector elements        
-	      layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[0][n0].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        else layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
       }
       ++n0;
     }
