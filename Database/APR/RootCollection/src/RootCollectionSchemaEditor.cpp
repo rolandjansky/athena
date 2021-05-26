@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/CollectionBaseNames.h"
@@ -303,8 +303,7 @@ void
 pool::RootCollection::RootCollectionSchemaEditor::
 addTreeBranch( const std::string& name, const std::string& type_name )
 {
-   static std::map< std::string, char > typeDict;
-   if( !typeDict.size() ) {
+   static const std::map< std::string, char > typeDict = {
       // primitive types supported in ROOT (4.00.08) TTrees 
       //  - C : a character string terminated by the 0 character
       //  - B : an 8 bit signed integer (Char_t)
@@ -317,28 +316,31 @@ addTreeBranch( const std::string& name, const std::string& type_name )
       //  - D : a 64 bit floating point (Double_t)
       //  - L : a 64 bit signed integer (Long64_t)
       //  - l : a 64 bit unsigned integer (ULong64_t)
-      
-      typeDict["double"] = 'D';   
-      typeDict["long double"] = 'D';        // only 64 bit doubles are supported 
-      typeDict["float"] = 'F';
-      typeDict["int"] = 'I';
-      typeDict["long"] = 'I';      
-      typeDict["unsigned int"] = 'i';
-      typeDict["unsigned long"] = 'i';
-      typeDict["long long"] = 'L';
-      typeDict["unsigned long long"] = 'l';
-      typeDict["short"] = 'S';
-      typeDict["unsigned short"] = 's';
-      typeDict["char"] = 'B';            
-      typeDict["unsigned char"] = 'b';   
-      typeDict["bool"] = 'B';       
-      typeDict["string"] = 'C';
-      typeDict["Token"] = 'C';
-   }
+      { "double", 'D' },
+      { "long double", 'D' },        // only 64 bit doubles are supported 
+
+      { "float", 'F' },
+      { "int", 'I' },
+      { "long", 'I' },
+      { "unsigned int", 'i' },
+      { "unsigned long", 'i' },
+      { "long long", 'L' },
+      { "unsigned long long", 'l' },
+      { "short", 'S' },
+      { "unsigned short", 's' },
+      { "char", 'B' },
+      { "unsigned char", 'b' },
+      { "bool", 'B' },
+      { "string", 'C' },
+      { "Token", 'C' },
+   };
 
    std::string type = "/?";
    //type[1] = get_root_type_char(type_name());
-   type[1] = typeDict[ type_name ];
+   auto it = typeDict.find (type_name);
+   if (it != typeDict.end()) {
+     type[1] = it->second;
+   }
    std::string leaflist = name + type;
    m_tree->Branch( name.c_str(), 0, leaflist.c_str(), TBRANCH_DEF_BUFSIZE);
 

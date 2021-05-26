@@ -99,8 +99,8 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
     ATH_MSG_FATAL("Could not find hPoly");
     return StatusCode::FAILURE;
   }
-
-  m_hPoly.reset(static_cast<TH2Poly*>(hPoly->Clone()));
+  //pass ownership to class variable
+  m_hPoly.reset(static_cast<TH2Poly*>(hPoly));
   m_hPoly->SetDirectory(nullptr);
 
   // Load variables

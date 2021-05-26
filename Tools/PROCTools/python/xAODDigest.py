@@ -113,13 +113,17 @@ def xAODDigest(evt, counter=False, extravars=False):
 def main():
     parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(description="Extracts a few basic quantities from the xAOD file and dumps them into a text file")
-    parser.add_argument("xAODFile", nargs='?', type=str, help="xAOD input filename", action="store")
+    parser.add_argument("xAODFile", nargs='?', type=str, help="xAOD filename", action="store")
     parser.add_argument("outfilename", nargs='?', help="output text file for results", action="store", default=None)
     parser.add_argument("--outputfilename", help="output text file for results", action="store", default=None)
     parser.add_argument("--extravars", help="Extract extra variables: pt/eta/phi", action="store_true", default=False)
-    parser.add_argument("--counter", help="Print event counter%100", action="store_true", default=False)
+    parser.add_argument("--counter", help="Print event counter mod 100", action="store_true", default=False)
     parser.add_argument("--inputlist", help="Optional list of xAOD file instead of xAODFile parameter", nargs='+', action="store", default=False)
     args = parser.parse_args()
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(-1)
 
     # Check input file existance
     if not args.inputlist and not os.access(args.xAODFile, os.R_OK):
@@ -133,7 +137,8 @@ def main():
     elif args.outputfilename:
         outfilename = args.outputfilename
 
-    print("Writing to file ", outfilename)
+    if outfilename:
+        print("Writing to file ", outfilename)
 
     # Create TChain or single inputfile
     if args.inputlist:
