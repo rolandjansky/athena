@@ -78,11 +78,11 @@ namespace MuonCombined {
 
     void MuonStauRecoTool::extend(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
                                   TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments,
-                                  const EventContext&) const {
+                                  const EventContext& ctx) const {
         ATH_MSG_DEBUG(" extending " << inDetCandidates.size());
 
         if (meTracks) ATH_MSG_DEBUG("Not currently creating ME tracks for staus");
-        for (const InDetCandidate* it : inDetCandidates) { handleCandidate(*it, tagMap, combTracks, segments); }
+        for (const InDetCandidate* it : inDetCandidates) { handleCandidate(ctx, *it, tagMap, combTracks, segments); }
     }
 
     MuonStauRecoTool::TruthInfo* MuonStauRecoTool::getTruth(const xAOD::TrackParticle& indetTrackParticle) const {
@@ -95,7 +95,7 @@ namespace MuonCombined {
         return nullptr;
     }
 
-    void MuonStauRecoTool::handleCandidate(const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
+    void MuonStauRecoTool::handleCandidate(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
                                            TrackCollection* combTracks, Trk::SegmentCollection* segments) const {
         if (m_ignoreSiAssocated && indetCandidate.isSiliconAssociated()) {
             ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -164,7 +164,7 @@ namespace MuonCombined {
             combineCandidates: run the combined reconstruction
         */
 
-        if (!combineCandidates(indetTrackParticle, candidates)) { return; }
+        if (!combineCandidates(ctx, indetTrackParticle, candidates)) { return; }
 
         if (!m_recoValidationTool.empty()) addCandidatesToNtuple(indetTrackParticle, candidates, 2);
         /** STAGE 5
@@ -219,7 +219,7 @@ namespace MuonCombined {
                 }
 
                 // add layer list
-                candidate->allLayers.push_back(Muon::MuonLayerRecoData(layerData.intersection, std::move(selectedSegments)));
+                candidate->allLayers.emplace_back(layerData.intersection, std::move(selectedSegments));
             }
 
             // keep candidate if any segments were found
@@ -339,7 +339,7 @@ namespace MuonCombined {
                     float TlocR = rtRelation->tr()->tFromR(std::abs(locR), out_of_bound_flag);
                     float trackTimeRes = errR / drdt;
                     float tofShiftFromBeta = calculateTof(betaSeed, distance) - tof;
-                    er = sqrt(tres * tres + trackTimeRes * trackTimeRes);
+                    er = std::sqrt(tres * tres + trackTimeRes * trackTimeRes);
                     mdtTimeCalibration(id, driftTime, er);
                     time = driftTime - TlocR + tofShiftFromBeta;
                     propTime = driftTime;
@@ -355,7 +355,7 @@ namespace MuonCombined {
                             float trackTimeResu = errRu / drdt;
                             sh = TlocR - TlocRu;
                             time = driftTime - TlocRu + tofShiftFromBeta;
-                            er = sqrt(tres * tres + trackTimeResu * trackTimeResu);
+                            er = std::sqrt(tres * tres + trackTimeResu * trackTimeResu);
                             ie = trackTimeResu;
                             ATH_MSG_VERBOSE(" Got unbiased parameters: r " << locR << " ur " << locRu << " err " << errR << " uerr "
                                                                            << errRu << " terr " << trackTimeRes << " terru "
@@ -585,7 +585,7 @@ namespace MuonCombined {
                 TrkDriftCircleMath::TransformToLine toLine(segment.line());
                 const TrkDriftCircleMath::DCOnTrack& dc = segment.dcs()[i];
                 double res = dc.residual();
-                double err = sqrt(dc.dr() * dc.dr() + dc.errorTrack() * dc.errorTrack());
+                double err = std::sqrt(dc.dr() * dc.dr() + dc.errorTrack() * dc.errorTrack());
                 double pull = res / err;
                 double rline = toLine.toLineY(dc.position());
                 int index = dc.index();
@@ -632,7 +632,7 @@ namespace MuonCombined {
                 float TlocR = rtRelation->tr()->tFromR(std::abs(locR), out_of_bound_flag);
                 float trackTimeRes = errR / drdt;
                 float tofShiftFromBeta = 0.;  // muonBetaCalculationUtils.calculateTof(betaSeed,distance)-tof;
-                er = sqrt(tres * tres + trackTimeRes * trackTimeRes);
+                er = std::sqrt(tres * tres + trackTimeRes * trackTimeRes);
                 mdtTimeCalibration(id, driftTime, er);
                 time = driftTime - TlocR + tofShiftFromBeta;
                 propTime = driftTime;
@@ -776,7 +776,7 @@ namespace MuonCombined {
         return true;
     }
 
-    bool MuonStauRecoTool::combineCandidates(const xAOD::TrackParticle& indetTrackParticle,
+    bool MuonStauRecoTool::combineCandidates(const EventContext& ctx, const xAOD::TrackParticle& indetTrackParticle,
                                              MuonStauRecoTool::CandidateVec& candidates) const {
         // keep track of candidates that have a successfull fit
         CandidateVec combinedCandidates;
@@ -785,16 +785,16 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Combining candidates " << candidates.size());
         for (auto& candidate : candidates) {
             // find best matching track
-            std::pair<std::unique_ptr<const Muon::MuonCandidate>, Trk::Track*> result =
-                m_insideOutRecoTool->findBestCandidate(indetTrackParticle, candidate->allLayers);
+            std::pair<const Muon::MuonCandidate*, std::unique_ptr<Trk::Track>> result =
+                m_insideOutRecoTool->findBestCandidate(ctx, indetTrackParticle, candidate->allLayers);
 
             if (result.first && result.second) {
                 ATH_MSG_DEBUG("   combined track found " << std::endl
                                                          << m_printer->print(*result.second) << std::endl
                                                          << m_printer->printStations(*result.second));
                 // add segments and track pointer to the candidate
-                candidate->muonCandidate = std::unique_ptr<const Muon::MuonCandidate>(result.first.release());
-                candidate->combinedTrack.reset(result.second);
+                candidate->muonCandidate = std::make_unique<Muon::MuonCandidate>(*result.first);
+                candidate->combinedTrack = std::move(result.second);
 
                 // extract times form track
                 extractTimeMeasurementsFromTrack(*candidate);
@@ -1372,7 +1372,7 @@ namespace MuonCombined {
             float maxwidth = (maximum.binposmax - maximum.binposmin);
             if (maximum.hough) maxwidth *= maximum.hough->m_binsize;
 
-            float pull = residual / sqrt(errx * errx + maxwidth * maxwidth / 12.);
+            float pull = residual / std::sqrt(errx * errx + maxwidth * maxwidth / 12.);
 
             ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos << "," << maximum.pos << ") residual " << residual
                                               << " pull " << pull << " angle " << maximum.theta << " residual " << residualTheta);
