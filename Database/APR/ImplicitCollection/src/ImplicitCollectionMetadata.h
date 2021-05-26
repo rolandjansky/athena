@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ImplicitCollectionMetadata_h
@@ -26,21 +26,21 @@ namespace pool {
   public:
     ImplicitCollectionMetadata() { }
 
-    unsigned long long		entries() const 	{
+    virtual unsigned long long		entries() const override {
        return 0;
     }
     
-    bool existsKey( const std::string& /* key */) const        {
+    virtual bool existsKey( const std::string& /* key */) override {
         return false;
     }
 
-    const char* getValueForKey( const std::string& /*key*/ ) const {
+    virtual const char* getValueForKey( const std::string& /*key*/ ) override {
         return 0;
     }
 
     
-    void setValueForKey( const std::string& /*key*/,
-                          const std::string& /*val*/ )
+    virtual void setValueForKey( const std::string& /*key*/,
+                                 const std::string& /*val*/ ) override
     {
         throw pool::Exception( "Metadata functionality not implemented",
                               "ImplicitCollectionMetadata::setValueForKey", 
@@ -56,30 +56,33 @@ namespace pool {
       
       ImplicitCollectionMetadataIterator() {}
 
-      bool operator==( const ICollectionMetadataIterator& /*_rhs*/ ) const {
+      virtual
+      bool operator==( const ICollectionMetadataIterator& /*_rhs*/ ) const override {
           return true;
       }
 
-          
-      bool operator!=( const ICollectionMetadataIterator& rhs ) const {
+
+      virtual
+      bool operator!=( const ICollectionMetadataIterator& rhs ) const override {
           return !operator==( rhs );
       }
           
-      void operator++() { }
+      virtual void operator++() override { }
 
-      const std::string&        key() const { static std::string key; return key; }
-      const char *                value() const { return 0; }
+      virtual const std::string&        key() const override { static std::string key; return key; }
+      virtual const char *                value() override { return 0; }
 
     };
 
     
-    
-    ICollectionMetadata::const_iterator        begin() const        {
+    virtual
+    ICollectionMetadata::const_iterator        begin() override {
         return ICollectionMetadata::const_iterator( std::make_unique<ImplicitCollectionMetadataIterator>() );
     }
 
-    
-    ICollectionMetadata::const_iterator        end() const        {
+
+    virtual
+    ICollectionMetadata::const_iterator        end() override {
         return ICollectionMetadata::const_iterator( std::make_unique<ImplicitCollectionMetadataIterator>() );
     }
             
