@@ -381,8 +381,8 @@ namespace Rec {
         if (fittedTrack) {
             std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(fittedTrack.get())};
             if (newTrack) {
-                std::unique_ptr<Trk::Track> refittedTrack{fit(*newTrack, false, Trk::muon)};
-                /// Both hold the same ojbect. release the newTrack from its duty
+                std::unique_ptr<Trk::Track> refittedTrack{fit(*newTrack, ctx, false, Trk::muon)};
+                /// Both hold the same object. Release the newTrack from its duty.
                 if (newTrack == fittedTrack) { newTrack.release(); }
 
                 if (refittedTrack) {
