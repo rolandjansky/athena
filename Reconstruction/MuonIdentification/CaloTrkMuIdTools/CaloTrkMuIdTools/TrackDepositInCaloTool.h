@@ -52,12 +52,8 @@ public:
     TrackDepositInCaloTool(const std::string& type, const std::string& name, const IInterface* pInterface);
     virtual ~TrackDepositInCaloTool() = default;
 
-    virtual StatusCode initialize();
+    StatusCode initialize() override;
 
-    /**
-       Deprecated method, do not use. This method will be removed soon.
-    */
-    std::vector<DepositInCalo> deposits(const Trk::Track* track, const double deltaR, const bool inCell) const override;
     /**
        Fills the vector of DepositInCalo using TrackParameters as input.
        @param par TrackParameters to be used as input. The parameters are assumed to be within the solenoid volume.
@@ -69,7 +65,7 @@ public:
     std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont,
                                            const CaloExtensionCollection* extensionCache) const override;
 
-    std::vector<DepositInCalo> deposits(const Trk::TrackParameters* par, const double deltaR, const bool inCell) const override;
+    std::vector<DepositInCalo> deposits(const Trk::TrackParameters* par, const CaloCellContainer* cellContainer) const override;
     /**
        This function determines which calorimeter regions the tracks traverses.
        The vector caloInfo and extrapolations are returned. Straight line approximation is employed in the calorimeter regions
@@ -82,7 +78,7 @@ public:
        @param extrapolations   Resulting vector of straight-line extrapolations that were obtained.
     */
     StatusCode getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo,
-                                  std::vector<Amg::Vector3D>& extrapolations) const;
+                                  std::vector<Amg::Vector3D>& extrapolations) const override;
     /**
        Creates a Trk::Surface for a calorimeter region that is described by CaloDetDescr.
 
@@ -94,44 +90,32 @@ public:
        @param descr The CaloDetDescriptor for the surface that you want to create.
        @param type What type of surface to create.
     */
-    Trk::Surface* createSurface(const CaloDetDescriptor* descr, CaloSurfaceType type) const;
-    /**
-       Retrieve the CaloCell for which its center is closest to the position of the particle.
-       @param par TrackParameters of the particle.
-       @param descr Calorimeter detector region information. Only cells from this detector region are considered.
-    */
-    const CaloCell* getClosestCell(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
+    Trk::Surface* createSurface(const CaloDetDescriptor* descr, CaloSurfaceType type) const override;
+
     /**
        Calculate the energy using @f$ E^2 = m^2 + p^2 @f$.
        @param par Input TrackParameters
        @param particleHypo Particle type. This determines the mass.
     */
-    double calcEnergy(const Trk::TrackParameters* par, const Trk::ParticleHypothesis& particleHypo) const;
-
-    const Trk::TrackParameters* extrapolateToSolenoid(const Trk::TrackParameters* par, bool oppositeMomentum) const override;
-    std::unique_ptr<const Trk::TrackParameters> extrapolateToSolenoid(const EventContext& ctx, const Trk::TrackParameters* par,
-                                                                      bool oppositeMomentum = false) const;
-    /**
-       Ordered map of CaloDetDescriptor. Layer distance (\f$R\f$ in case of a cylindric detector element or \f$z\f$ in case of a
-       disc-like detector element) versus descriptor.
-    */
-    typedef std::map<double, std::vector<const CaloDetDescriptor*> > CaloLayerMap;
-    /**
-       The CaloLayerMap iterator.
-    */
-    typedef std::map<double, std::vector<const CaloDetDescriptor*> >::const_iterator CaloLayerMapIt;
-    /**
-      Map of cells in (eta(phi,CaloCell))
-    */
-    typedef std::map<double, std::map<double, const CaloCell*> > NeighbourMap;
+    double calcEnergy(const Trk::TrackParameters* par, const Trk::ParticleHypothesis& particleHypo) const override;
 
 private:
+    std::unique_ptr<const Trk::TrackParameters> extrapolateToSolenoid(const EventContext& ctx, const Trk::TrackParameters* par,
+                                                                      bool oppositeMomentum = false) const;
+
     /**
        Invoked from initialize(), initializes the CaloLayerMap.
        Marked const because it must be called from some const methods
        Actually will change mutable member variables
     */
     StatusCode initializeDetectorInfo() const;
+    /**
+       Retrieve the CaloCell for which its center is closest to the position of the particle.
+       @param par TrackParameters of the particle.
+       @param descr Calorimeter detector region information. Only cells from this detector region are considered.
+    */
+    const CaloCell* getClosestCell(const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
+                                   const CaloCellContainer* cellContainer) const;
     /**
        Extrapolate track to cylinder surface along straight line.
        (x0, y0, z0) is the starting position, (phi0,theta0) is the direction of the momentum, r is the bound of
@@ -168,13 +152,11 @@ private:
     bool isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable = false) const;
     bool isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) const;
     bool inCell(const CaloCell* cell, const Amg::Vector3D& pos) const;
- 
+
 private:
     // Services & Tools
     ITHistSvc* m_histSvc{};
     ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "ExtrapolatorHandle", ""};
-
-    SG::ReadHandleKey<CaloCellContainer> m_cellKey{this, "CaloCellKey", "AllCalo", ""};
 
     const TileDetDescrManager* m_tileDDM{nullptr};
 
@@ -187,7 +169,8 @@ private:
     bool m_doExtr;  //!< Flag to perform extrapolations using m_extrapolator
     bool m_doHist;  //!< Flag to write histograms to track performance
 
-    CaloLayerMap mutable m_barrelLayerMap ATLAS_THREAD_SAFE;  //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
+    CaloLayerMap mutable m_barrelLayerMap
+        ATLAS_THREAD_SAFE;  //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
     CaloLayerMap mutable m_endCapLayerMap ATLAS_THREAD_SAFE;  //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
 
     std::once_flag mutable m_initializeOnce ATLAS_THREAD_SAFE;
