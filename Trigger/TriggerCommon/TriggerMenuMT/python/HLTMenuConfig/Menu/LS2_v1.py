@@ -381,13 +381,14 @@ def setupMenu():
         ChainProp(name='HLT_j165_LArPEBHLT_L1J100',			stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
 
         # TLA test chains, ATR-20395
-        ChainProp(name='HLT_JetDS_j20_L1J100', stream=['JetDS'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1J100', stream=['JetDS'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
         # TLA test HT chains, ATR-21594
-        ChainProp(name='HLT_JetDS_j20_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
+        # Piggybacking on HH4b, exact thresholds for preselections to be determined later - this is for rate and cost
+        ChainProp(name='HLT_j60_j45_2j20_JetDS_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*3, stream=['JetDS'], groups=MultiJetGroup),
 
        
-
-
         # ATR-22096
         ChainProp(name='HLT_j420_ftf_L1J100',             groups=SingleJetGroup+ PrimaryLegGroup),
         ChainProp(name='HLT_j420_pf_ftf_L1J100',          groups=SingleJetGroup+ PrimaryLegGroup),
