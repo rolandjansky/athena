@@ -213,7 +213,7 @@ void HGTD_DetectorFactory::readDbParameters() {
     m_hgtdPars = { 320., // rMid
         640., // rOuter - only used in one place, and there 20 mm is added to it...
         0.,   // disk1Rotation (in degrees)
-        -15., // disk2Rotation (in degrees)
+        15., // disk2Rotation (in degrees)
         1.,   // rowSpaceSide
         4.,   // rowBacksideInnerShift
         17.,  // rowBacksideOuterShift
@@ -731,6 +731,8 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
         eta = mod + 1;
         //module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta); //This was the previous string, but doesn't match expectations of HGTDSensorSD
         module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
+
+        myx = -myx;
     }
     // two-ring layout
     else {
