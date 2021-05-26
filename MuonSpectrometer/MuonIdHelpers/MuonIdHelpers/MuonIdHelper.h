@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETECTORDESCRIPTION_MUONIDHELPER_H
@@ -83,7 +83,7 @@ class MuonIdHelper : public AtlasDetectorID
 
   // Constructor
 
-  MuonIdHelper(std::string logName);
+  MuonIdHelper(const std::string& logName);
 
   // Destructor
 
@@ -331,7 +331,7 @@ class MuonIdHelper : public AtlasDetectorID
   };
 
  protected:
-  mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
+  std::string m_logName;
   bool m_init;
 };
 
@@ -557,7 +557,6 @@ inline bool MuonIdHelper::isSmall(const int& stationNameIndex) const
 // Access to name and technology maps
 inline int MuonIdHelper::stationNameIndex(const std::string& name) const
 {
-// (*m_Log) << MSG::WARNING << "Bad habit: please avoid using string" << endmsg;
   int index = -1;
   std::vector< std::string >::const_iterator first = m_stationNameVector.begin();
   std::vector< std::string >::const_iterator last   = m_stationNameVector.end();
@@ -575,7 +574,6 @@ inline int MuonIdHelper::stationNameIndex(const std::string& name) const
 /*******************************************************************************/
 inline int MuonIdHelper::technologyIndex(const std::string& name) const
 {
-// (*m_Log) << MSG::WARNING << "Bad habit: please avoid using string" << endmsg;
   int index = -1;
   std::vector< std::string >::const_iterator first = m_technologyNameVector.begin();
   std::vector< std::string >::const_iterator last  = m_technologyNameVector.end();
