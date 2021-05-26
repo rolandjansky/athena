@@ -601,8 +601,9 @@ void MuTagMatchingTool::nrTriggerHits(const Muon::MuonSegment* seg, int& nRPC, i
 
 MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSegment* segment,
                                                                   const Trk::AtaPlane* exTrack) const {
-    MuonCombined::MuonSegmentInfo info = MuonCombined::MuonSegmentInfo();
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    MuonCombined::MuonSegmentInfo info;
+  
     //  segment and track pointers
 
     info.track = track;
@@ -731,7 +732,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
 
             // use SL within station to speed up extrapolation
             // lifetime only in this scope
-            auto exP = m_propagator->propagate(*exTrack, mdt->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
+            std::unique_ptr<const Trk::TrackParameters> exP = m_propagator->propagate(ctx, *exTrack, mdt->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
             if (!exP) {
                 ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelperSvc->toString(id));
                 continue;
@@ -741,7 +742,6 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
             double exResidual = std::abs(exP->parameters()[Trk::locZ]) - 0.5 * tubeLen;
             if (maxResXMdt < exResidual) maxResXMdt = exResidual;
             if (exResidual > 0.) ATH_MSG_DEBUG("Extrapolated position outside tube, " << exResidual);
-            // delete exP;
         } else {
             // get id and check that it is a muon hit id
             Identifier id = m_edmHelperSvc->getIdentifier(*seg_it);
@@ -749,7 +749,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
             if (!m_idHelperSvc->measuresPhi(id)) continue;
             // lifetime only in this scope
             std::unique_ptr<const Trk::TrackParameters> exP{
-                m_propagator->propagate(*exTrack, seg_it->associatedSurface(), Trk::anyDirection, false, Trk::NoField)};
+                m_propagator->propagate(ctx, *exTrack, seg_it->associatedSurface(), Trk::anyDirection, false, Trk::NoField)};
             if (!exP) {
                 ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelperSvc->toString(id));
                 continue;
