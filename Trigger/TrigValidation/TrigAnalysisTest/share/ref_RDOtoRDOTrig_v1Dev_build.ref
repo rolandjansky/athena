@@ -3354,13 +3354,13 @@ HLT_j0_FBDJNOSHARED10etXX20etXX34massXX50fbet_L1J20:
   stepCounts:
     0: 7
   stepFeatures:
-    0: 127
+    0: 125
 HLT_j0_FBDJSHARED_L1J20:
   eventCount: 7
   stepCounts:
     0: 7
   stepFeatures:
-    0: 130
+    0: 129
 HLT_j0_HT1000XX30et_L1J20:
   eventCount: 0
 HLT_j0_HT1000_L1J20:
@@ -3724,7 +3724,7 @@ HLT_j40_j0_HT50XX10etXX0eta320_L1J20:
   stepCounts:
     0: 19
   stepFeatures:
-    0: 804
+    0: 802
 HLT_j40_j0_HT50XX10ptXX0eta320_L1J20:
   eventCount: 19
   stepCounts:
@@ -4116,7 +4116,7 @@ HLT_j60_j0_FBDJSHARED_L1J20:
   stepCounts:
     0: 7
   stepFeatures:
-    0: 278
+    0: 276
 HLT_j60_j45_2j20_JetDS_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 9
   stepCounts:

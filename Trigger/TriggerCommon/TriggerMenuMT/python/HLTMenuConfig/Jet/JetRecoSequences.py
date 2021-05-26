@@ -218,9 +218,9 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef,decorations=decorList,monTool=monTool)
     recoSeq += copyCalibAlg
 
-    jetPtMin = 10 # 10 GeV minimum pt for jets to be seen by hypo
+    jetPtMin = 10e3 # 10 GeV minimum pt for jets to be seen by hypo
     from JetRec.JetRecConf import JetViewAlg
-    filteredJetsName = jetDef.fullname()+"_pt{}".format(jetPtMin)
+    filteredJetsName = jetDef.fullname()+"_pt10"
     recoSeq += JetViewAlg("jetview_"+filteredJetsName,
                           InputContainer=jetDef.fullname(),
                           OutputContainer=filteredJetsName,

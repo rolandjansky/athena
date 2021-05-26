@@ -663,7 +663,7 @@ def trackConverterCfg(flags, signature, signatureName):
 
   return acc
 
-def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
+def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_view=True ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
 
@@ -679,21 +679,22 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
   acc.merge(beamposCondCfg(flags))
 
 
-  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDetFTF'+signature,
-                                                    DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
-                                                                  ('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
-                                                                  ('PixelRDO_Cache', 'PixRDOCache'),
-                                                                  ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
-                                                                  ('SCT_RDO_Cache', 'SctRDOCache'),
-                                                                  ('SpacePointCache', 'PixelSpacePointCache'),
-                                                                  ('SpacePointCache', 'SctSpacePointCache'),
-                                                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
-                                                                  ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
-                                                                  ('xAOD::EventInfo', 'EventInfo'),
-                                                                  ('TrigRoiDescriptorCollection', roisKey),
-                                                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
+  if in_view:
+    verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDetFTF'+signature,
+                                                      DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
+                                                                    ('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
+                                                                    ('PixelRDO_Cache', 'PixRDOCache'),
+                                                                    ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
+                                                                    ('SCT_RDO_Cache', 'SctRDOCache'),
+                                                                    ('SpacePointCache', 'PixelSpacePointCache'),
+                                                                    ('SpacePointCache', 'SctSpacePointCache'),
+                                                                    ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                                                    ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
+                                                                    ('xAOD::EventInfo', 'EventInfo'),
+                                                                    ('TrigRoiDescriptorCollection', roisKey),
+                                                                    ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
 
-  acc.addEventAlgo(verifier)
+    acc.addEventAlgo(verifier)
   #Only add raw data decoders if we're running over raw data
   acc.merge(pixelDataPrepCfg(flags, roisKey, signature))
   acc.merge(sctDataPrepCfg(flags, roisKey, signature))

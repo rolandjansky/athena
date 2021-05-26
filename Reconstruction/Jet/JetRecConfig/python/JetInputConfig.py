@@ -59,13 +59,20 @@ def buildLabelledTruth(parentjetdef, truthmod):
 
 
 ########################################################################
+def getEventShapeName( parentjetdef, inputspec):
+    """ Get the name of the event shape container for a given event shape alg """
+    nameprefix = inputspec or ""
+    label = parentjetdef.inputdef.label
+    return nameprefix+"Kt4"+label+"EventShape"
+
+
 def buildEventShapeAlg( parentjetdef, inputspec ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
     
+    rhokey = getEventShapeName(parentjetdef, inputspec)
     nameprefix = inputspec or ""
     label = parentjetdef.inputdef.label
-    rhokey = nameprefix+"Kt4"+label+"EventShape"
     rhotoolname = "EventDensity_"+nameprefix+"Kt4"+label
     
     rhotool = CompFactory.EventDensityTool(rhotoolname)
