@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
 
 
 def typeNamesToDecodeAll():
@@ -124,18 +125,10 @@ def LVL1CaloRun2ReadBSCfg(flags, forRoIBResultToxAOD=False):
         # Configure the full list of objects to decode
         typeNamesToDecode = typeNamesToDecodeAll()
 
-    if flags.Trigger.Online.isPartition:
-        from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
-        servicesCfgFunction = TrigByteStreamCfg
-        toolsCfg = readOnlyToolsForRerunLVL1(flags)
-        acc.merge(toolsCfg)
-    else:
-        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        servicesCfgFunction = ByteStreamReadCfg
-        # In principle could configure all public tools for conversion
-        # explicitly here, but they all use default properties, so no need to
+    acc.merge(ByteStreamReadCfg(flags, type_names=typeNamesToDecode))
 
-    servicesCfg = servicesCfgFunction(flags, type_names=typeNamesToDecode)
-    acc.merge(servicesCfg)
+    if flags.Trigger.Online.isPartition:
+        acc.merge(readOnlyToolsForRerunLVL1(flags))
+
     return acc
 
