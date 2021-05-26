@@ -26,11 +26,11 @@
 */
 
 namespace Muon {
-class MuonSegment;
+    class MuonSegment;
 }
 
 class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, public AthAlgTool {
-  public:
+public:
     MuTagAmbiguitySolverTool(const std::string& t, const std::string& n, const IInterface* p);
     virtual ~MuTagAmbiguitySolverTool() = default;
 
@@ -38,12 +38,11 @@ class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, publi
 
     std::vector<MuonCombined::MuonSegmentInfo> solveAmbiguities(std::vector<MuonCombined::MuonSegmentInfo> mtos) const;
 
-    std::vector<MuonCombined::MuonSegmentInfo> selectBestMuTaggedSegments(
-        std::vector<MuonCombined::MuonSegmentInfo> mtss) const;
+    std::vector<MuonCombined::MuonSegmentInfo> selectBestMuTaggedSegments(std::vector<MuonCombined::MuonSegmentInfo> mtss) const;
 
-  private:
+private:
     ///////////////////////////////////
-    int    ambiguousSegment(const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const;
+    int ambiguousSegment(const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const;
     double Rseg(unsigned int nseg) const;
 
     ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{
@@ -75,6 +74,5 @@ class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, publi
     bool m_rejectOuterEndcap;   //!< reject Endcap Outer one station layer tags (without EI or EM)
     bool m_rejectMatchPhi;      //!< reject one station tags with phi hits and a fabs(MatchPhi = minPullPhi) > 3
 };
-
 
 #endif  // MuTagAmbiguitySolverTool_H
