@@ -209,11 +209,7 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
         oldFitterName = getProperty(fitter,"Fitter").getName()
         newFitterName = namePrefix + oldFitterName + namePostfix
         fitter.Fitter = getPublicToolClone(newFitterName,oldFitterName)
-
-        oldFitterName = getProperty(fitter,"FitterPreFit").getName()
-        newFitterName = namePrefix + oldFitterName + namePostfix
-        fitter.FitterPreFit = getPublicToolClone(newFitterName,oldFitterName)
- 
+     
     return fitter 
     
 # end of factory function MooTrackFitter
