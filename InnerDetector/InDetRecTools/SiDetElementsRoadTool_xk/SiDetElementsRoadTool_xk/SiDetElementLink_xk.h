@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ namespace InDet{
        };
 
       SiDetElementLink_xk();
-      SiDetElementLink_xk(const InDetDD::SiDetectorElement*,const double*);
+      SiDetElementLink_xk(const InDetDD::SiDetectorElement*,const double*,bool isITk = false);
       SiDetElementLink_xk(const SiDetElementLink_xk&) = default;
       ~SiDetElementLink_xk() = default;
       SiDetElementLink_xk& operator  = (const SiDetElementLink_xk&) = default;
@@ -53,10 +53,13 @@ namespace InDet{
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      void set (const double*);
+      void set (const double*, bool isITk = false);
       const InDetDD::SiDetectorElement* detElement() const {return m_detelement;}
       float phi () const {return m_phi;}
+      float z   () const {return m_z  ;}
+      float dz  () const {return m_dz ;}
       void intersect(const float*,const float*,float*) const;
+      bool intersectITk(const float*,const float*,float&) const;
 
     protected:
       
@@ -66,6 +69,8 @@ namespace InDet{
 
       const InDetDD::SiDetectorElement*   m_detelement ;
       float                               m_phi        ;
+      float                               m_z          ;
+      float                               m_dz         ;
       float                               m_geo     [6];
       float                               m_center  [2];
       float                               m_bound[4][3];
@@ -84,13 +89,15 @@ namespace InDet{
     {
       m_detelement = 0    ;
       m_phi        = 0.   ;
+      m_z          = 0.   ;
+      m_dz         = 0.   ;
     }
 
 
   inline InDet::SiDetElementLink_xk::SiDetElementLink_xk
-    (const InDetDD::SiDetectorElement* el,const double* P)
+    (const InDetDD::SiDetectorElement* el,const double* P,bool isITk)
     {
-      m_detelement = el; set(P);
+      m_detelement = el; set(P,isITk);
     } 
 
 

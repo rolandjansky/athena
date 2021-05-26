@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollectionMetadata.h"
@@ -18,7 +18,7 @@ using namespace std;
 namespace pool {
    namespace RootCollection { 
 
-      static char emptyStr[2] = { (char)0xFF, (char)0x00 }; 
+      static const char emptyStr[2] = { (char)0xFF, (char)0x00 }; 
 
       RootCollectionMetadata::RootCollectionMetadata() :
         m_mode(ICollection::READ),
@@ -96,7 +96,7 @@ namespace pool {
 	 
 
       void
-      RootCollectionMetadata::readKeys() const
+      RootCollectionMetadata::readKeys()
       {
          if( m_tree ) {
 	    size_t valsize = m_valBranch->GetLeaf("Value")->GetLen();
@@ -123,7 +123,7 @@ namespace pool {
               
 
       bool 
-      RootCollectionMetadata::existsKey( const std::string& key ) const
+      RootCollectionMetadata::existsKey( const std::string& key )
       {
          if( !m_hasKeys )
             readKeys();
@@ -132,7 +132,7 @@ namespace pool {
 
       
       const char* 
-      RootCollectionMetadata::getValueForKey( const std::string& key ) const
+      RootCollectionMetadata::getValueForKey( const std::string& key )
       {
          if( !m_hasKeys )
             readKeys();
@@ -163,10 +163,15 @@ namespace pool {
             throw pool::Exception( "Attempt to set metadata with an empty Key",
                                    "RootCollectionMetadata::setValueForKey", 
                                    "RootCollection");
-         } 
-         m_keyBranch->SetAddress( (void*)key.c_str() );
+         }
+         std::string key_nc = key;
+         m_keyBranch->SetAddress( key_nc.data() );
          // protect against ROOT bug? dealing with empty strings - write a substitute
-         m_valBranch->SetAddress( val.c_str()[0]? (void*)val.c_str() : (void*)emptyStr );
+         std::string val_nc = val;
+         if (val_nc.empty()) {
+           val_nc = emptyStr;
+         }
+         m_valBranch->SetAddress( val_nc.data() );
          Long64_t entry = m_tree->GetEntries();
          if( m_tree->Fill() <= 0 )
             throw pool::Exception( "TTree::Fill() failed",           
@@ -188,7 +193,7 @@ namespace pool {
       
       RootCollectionMetadata::RootCollectionMetadataIterator::
       RootCollectionMetadataIterator( const MetadataKeyMap_t::const_iterator& iter,
-                                      const RootCollectionMetadata* mdata ) 
+                                      RootCollectionMetadata* mdata ) 
             : m_iterator( iter ),
               m_metadata( mdata )
       { }
@@ -220,14 +225,14 @@ namespace pool {
 
       const char *
       RootCollectionMetadata::RootCollectionMetadataIterator::
-      value() const
+      value()
       { return m_metadata->getValueForKey(key()); }
 
         
         
       ICollectionMetadata::const_iterator
       RootCollectionMetadata::
-      begin() const
+      begin()
       {
          if( !m_hasKeys )
             readKeys();
@@ -238,7 +243,7 @@ namespace pool {
         
       ICollectionMetadata::const_iterator
       RootCollectionMetadata::
-      end() const
+      end()
       {
          if( !m_hasKeys )   // check also here, in case End is evaluated before Begin
             readKeys();

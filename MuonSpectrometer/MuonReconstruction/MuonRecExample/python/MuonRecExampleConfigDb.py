@@ -194,7 +194,6 @@ addTool( "MuonRecExample.MooreTools.MooTrackFitter", "MooTrackFitter")
 
 addTool( "MuonRecExample.MooreTools.MooTrackFitter", "MooSLTrackFitter",
          Fitter="MCTBSLFitter",
-         FitterPreFit="MCTBSLFitter",
          Propagator="MuonStraightLinePropagator",
          ReducedChi2Cut = 10.0 ,
          SLFit=True)

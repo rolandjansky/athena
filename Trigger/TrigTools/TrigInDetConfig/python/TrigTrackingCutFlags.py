@@ -4,7 +4,9 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from InDetConfig.TrackingCutsFlags import createTrackingFlags
 
 # for the time when the two config systems coexist we reuse flags 
-from TrigInDetConfig.ConfigSettings import _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT, _ConfigSettings_muonIso
+from TrigInDetConfig.ConfigSettings import (
+    _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT, _ConfigSettings_fullScan, _ConfigSettings_muonIso,
+)
 
 
 def __flagsFromConfigSettings(settings):
@@ -33,6 +35,9 @@ def __muonIsoFlags():
 def _muonLRTFlags():
     return __flagsFromConfigSettings( _ConfigSettings_muonLRT())
 
+def __jetFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_fullScan())
+
 def createTrigTrackingFlags():
     flags = AthConfigFlags()
     flags.addFlagsCategory('Trigger.InDetTracking.Electron', __electronFlags, prefix=True)
@@ -41,6 +46,7 @@ def createTrigTrackingFlags():
     flags.addFlagsCategory('Trigger.InDetTracking.MuonFS', __muonFlags, prefix=True)
 
     flags.addFlagsCategory('Trigger.InDetTracking.MuonLRT', _muonLRTFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.jet', __jetFlags, prefix=True)
     return flags
 
 

@@ -40,7 +40,7 @@ class jTowerBuilder: public AthAlgTool, virtual public IjTowerBuilder {
   virtual void BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildHECjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildAllTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
-  virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainerRawRaw,float eta, float phi, float keybase, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1) const override ;
+  virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainerRawRaw,float eta, float phi, int key_eta, float keybase, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1) const override ;
 
 };
 

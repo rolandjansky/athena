@@ -36,6 +36,7 @@ class _ConfigSettings_electron( _ConfigSettingsBase ):
       self._doCloneRemoval      = True #Previously False in Run2!
       self._doSeedRedundancyCheck = True
       self._doTRT               = True
+      self._electronPID         = True
       self._keepTrackParameters = True
 
 
@@ -96,6 +97,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       self._etaHalfWidth   = 0.4
       self._phiHalfWidth   = 0.4
       self._doTRT          = True
+      self._electronPID    = True
       self._adaptiveVertex = True
       self._addSingleTrackVertices = True
       self._vertex         = "HLT_IDVertex_Tau"

@@ -36,6 +36,7 @@
 
 #include "TrigT1TGC/TGCArguments.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
+#include "MuonRDO/TgcRdoContainer.h"
 
 // Tile-Muon
 #include "TileEvent/TileMuContainer.h"
@@ -180,6 +181,7 @@ namespace LVL1TGCTrigger {
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
 
+    SG::ReadHandleKey<TgcRdoContainer> m_keyTgcRdo{this,"InputRDO","TGCRDO","Location of TgcRdoContainer"};
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
     SG::ReadHandleKey<Muon::NSW_TrigRawDataContainer> m_keyNSWTrigOut{this,"NSWTrigger_Input","NSWTRGRDO","Location of NSW_TrigRawDataContainer"};

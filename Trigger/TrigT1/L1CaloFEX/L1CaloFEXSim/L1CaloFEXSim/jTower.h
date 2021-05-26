@@ -43,7 +43,7 @@ namespace LVL1 {
     
     /** Constructors */
     jTower();
-    jTower(float eta, float phi, int id_modifier, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1);
+    jTower(float eta, float phi, int eta_modifier_input, int id_modifier, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1);
     
     /** Destructor */
     virtual ~jTower() = default;

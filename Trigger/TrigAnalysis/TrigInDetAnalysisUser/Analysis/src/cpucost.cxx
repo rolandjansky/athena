@@ -375,6 +375,8 @@ int main(int argc, char** argv) {
         continue;
       }
 
+      std::cout << "mean time: " << testhist->GetMean() << "\t:: " << testhist->GetName() << std::endl;
+
       if ( norm_width ) binwidth( testhist );
 
       /// skip TH2 and TProfiles for the moment ... 

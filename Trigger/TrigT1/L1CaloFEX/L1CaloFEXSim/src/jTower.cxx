@@ -36,10 +36,10 @@ namespace LVL1 {
   }
   
   /** constructs a tower and sets the coordinates and identifier */
-  jTower::jTower(float eta, float phi, int id_modifier, int posneg, float centre_eta, float centre_phi, int fcal_layer):
+  jTower::jTower(float eta, float phi, int eta_modifier_input, int id_modifier, int posneg, float centre_eta, float centre_phi, int fcal_layer):
     m_eta(eta),
     m_phi(phi),
-    m_tower_id(id_modifier + phi + (64 * eta)),
+    m_tower_id(id_modifier + phi + (64 * eta_modifier_input)),
     m_posneg(posneg),
     m_centre_eta(centre_eta),
     m_centre_phi(centre_phi),
