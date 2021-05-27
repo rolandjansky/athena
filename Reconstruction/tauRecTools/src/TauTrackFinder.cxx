@@ -386,14 +386,17 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
       caloExtension = (*particleCache)[trackIndex];
       ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
       if( not caloExtension ){
-	ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-	uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
-	caloExtension = uniqueExtension.get();
+        ATH_MSG_VERBOSE("Cache does not contain a calo extension -> "
+                        "Calculating with the a CaloExtensionTool");
+        uniqueExtension = m_caloExtensionTool->caloExtension(
+          Gaudi::Hive::currentContext(), *orgTrack);
+        caloExtension = uniqueExtension.get();
       }
     }else{
       /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
       ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-      uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+      uniqueExtension = m_caloExtensionTool->caloExtension(
+        Gaudi::Hive::currentContext(), *orgTrack);
       caloExtension = uniqueExtension.get();
     }
 

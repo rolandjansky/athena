@@ -288,8 +288,10 @@ namespace MuonCombined {
 
                 // in case of along momentum extrapolation, use pre-existing extrapolation if available
                 std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-                if (!m_caloExtensionTool.empty()) { extension = m_caloExtensionTool->caloExtension(idTP->indetTrackParticle()); }
-
+                if (!m_caloExtensionTool.empty()) {
+                  extension = m_caloExtensionTool->caloExtension(
+                    Gaudi::Hive::currentContext(), idTP->indetTrackParticle());
+                }
                 if (direction == Trk::alongMomentum) {
                     if (extension && extension->muonEntryLayerIntersection()) {
                         const Trk::TrackParameters& pars = *extension->muonEntryLayerIntersection();
