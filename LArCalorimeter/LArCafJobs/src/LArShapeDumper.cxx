@@ -14,7 +14,6 @@
 #include "LArRawConditions/LArPhysWave.h"
 #include "LArRawConditions/LArShapeComplete.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
@@ -49,7 +48,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nPrescaledAway(0),
   m_nLArError(0),
   m_nNoDigits(0),
-  m_badChannelMasker("BadChannelMasker", this),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
   m_caloDetDescrMgr(nullptr),
@@ -70,7 +68,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("MinADCMax", m_minADCMax = -1);
   declareProperty("Gains", m_gainSpec = "HIGH,MEDIUM,LOW");
   declareProperty("DumpDisconnected", m_dumpDisc = false);
-  declareProperty("BadChannelMasker", m_badChannelMasker);
   declareProperty("DoStream", m_doStream = false);
   declareProperty("DoTrigger", m_doTrigger = true);
   declareProperty("DoOFCIter", m_doOFCIter = true);
@@ -102,9 +99,12 @@ StatusCode LArShapeDumper::initialize()
   ATH_CHECK( m_pedestalKey.initialize() );
   ATH_CHECK( m_bcDataKey.initialize() );
 
-  ATH_CHECK( m_badChannelMasker.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
+
+  /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
 
   if (m_doTrigger) {
     ATH_CHECK( m_trigDec.retrieve() );
@@ -293,6 +293,13 @@ StatusCode LArShapeDumper::execute()
     ATH_MSG_ERROR("Failed to retrieve pedestal cond obj");
      return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
+     return StatusCode::FAILURE;
+  }
   
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
@@ -308,7 +315,7 @@ StatusCode LArShapeDumper::execute()
        channel != rawChannelContainer->end(); ++channel) 
   {
     if (m_energyCut > 0 && TMath::Abs(channel->energy()) < m_energyCut) continue;
-    if (m_badChannelMasker->cellShouldBeMasked(channel->channelID(), channel->gain())) continue;
+    if (m_bcMask.cellShouldBeMasked(bcCont,channel->channelID())) continue;
 
     IdentifierHash hash = m_onlineHelper->channel_Hash(channel->channelID());
     
@@ -341,13 +348,6 @@ StatusCode LArShapeDumper::execute()
   ATH_MSG_INFO ( "njpbSizes : " << larDigitContainer->size()
                  << " " << (ofIterResult ? ofIterResult->size() : 0) << " " 
                  << rawChannelContainer->size() << " " << channelsToKeep.size() );
-
-  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
-  const LArBadChannelCont *bcCont {*readHandle};
-  if(!bcCont) {
-     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
-     return StatusCode::FAILURE;
-  }
 
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
   const CaloNoise* noiseCDO=*noiseHdl;

@@ -596,15 +596,9 @@ if ( len(PoolFileList)>0 ):
 ###########################################################################
 
 from LArCalibUtils.LArCalibUtilsConf import LArPhysWavePredictor
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theMask=LArBadChannelMasker("BadChannelMask",
-                            DoMasking=True,
-                            ProblemsToMask=["deadCalib","deadReadout","deadPhys","almostDead","short"]
-                            )
-svcMgr.ToolSvc+=theMask
 
 LArPhysWavePredictor = LArPhysWavePredictor( "LArPhysWavePredictor" )
-LArPhysWavePredictor.MaskingTool              = theMask
+LArPhysWavePredictor.ProblemsToMask           = ["deadCalib","deadReadout","deadPhys","almostDead","short"]
 LArPhysWavePredictor.TestMode	              = doTest
 LArPhysWavePredictor.isSC                     = SuperCells
 LArPhysWavePredictor.KeyCaliList              = KeyCaliList

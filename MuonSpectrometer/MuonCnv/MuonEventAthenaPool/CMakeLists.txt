@@ -23,9 +23,10 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
    MuonEventAthenaPool/*.h src/*Cnv.h src/*Cnv.cxx
    FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h
          MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h
-         MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h
+         MuonRDO/TgcRdoContainer.h MuonRDO/TgcL1RdoContainer.h  MuonRDO/CscRawDataContainer.h
          MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h
          MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h
+         MuonDigitContainer/MdtDigitContainer.h
          MuonDigitContainer/RpcDigitContainer.h
          MuonDigitContainer/TgcDigitContainer.h
          MuonDigitContainer/CscDigitContainer.h
@@ -109,9 +110,11 @@ foreach( name
     TgcRawDataCnv_p1_test
     TgcRawDataCnv_p2_test
     TgcRawDataCnv_p3_test
+    TgcRawDataCnv_p4_test
     TgcRdoCnv_p1_test
     TgcRdoCnv_p2_test
-    TgcRdoCnv_p3_test )
+    TgcRdoCnv_p3_test
+    TgcRdoCnv_p4_test )
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx

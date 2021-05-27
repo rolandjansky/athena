@@ -184,12 +184,10 @@ StatusCode LArPileUpTool::initialize()
   // retrieve tool to compute sqrt of time correlation matrix
   ATH_CHECK(m_autoCorrNoiseKey.initialize(!m_RndmEvtOverlay && m_NoiseOnOff));
 
-  if (m_maskingTool.retrieve().isFailure()) {
-       ATH_MSG_INFO(" No tool for bad channel masking");
-      m_useBad=false;
-  }
-
+  ATH_CHECK(m_bcContKey.initialize());
   ATH_CHECK(m_badFebKey.initialize());
+
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));  
 
   if (m_useTriggerTime) {
      if (m_triggerTimeTool.retrieve().isFailure()) {
@@ -1649,6 +1647,9 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
     autoCorrNoise=*autoCorrNoiseHdl;
   }
 
+  /** Retrieve BadChannels */
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_bcContKey,ctx};
+  const LArBadChannelCont* bcCont{*bch}; 
 
   LArDigit *Digit;
   LArDigit *Digit_DigiHSTruth;
@@ -1699,8 +1700,7 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
 //
 // convert Hits into energy samples and add result to m_Samples assuming LARHIGHGAIN for pulse shape
 //
-  bool isDead = false;
-  if (m_useBad) isDead = m_maskingTool->cellShouldBeMasked(ch_id);
+  bool isDead = m_bcMask.cellShouldBeMasked(bcCont,ch_id);
 
   if (!isDead) {
     if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE, m_Samples).isFailure() ) return StatusCode::SUCCESS;

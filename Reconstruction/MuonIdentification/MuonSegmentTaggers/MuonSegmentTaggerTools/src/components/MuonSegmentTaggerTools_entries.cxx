@@ -1,7 +1,5 @@
-#include "../MuTagMatchingTool.h"
 #include "../MuTagAmbiguitySolverTool.h"
+#include "../MuTagMatchingTool.h"
 
-
-DECLARE_COMPONENT( MuTagMatchingTool )
-DECLARE_COMPONENT( MuTagAmbiguitySolverTool )
-
+DECLARE_COMPONENT(MuTagMatchingTool)
+DECLARE_COMPONENT(MuTagAmbiguitySolverTool)

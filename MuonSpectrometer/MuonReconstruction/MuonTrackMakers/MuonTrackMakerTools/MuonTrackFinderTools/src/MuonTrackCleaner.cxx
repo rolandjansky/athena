@@ -562,7 +562,7 @@ namespace Muon {
         ChamberRemovalOutput& finalResult = cleaningResults.front();
         if (nchambers > 1) {
             // loop over removed hits and redo 'remove'
-            for (auto *hit : finalResult.removedHits) hit->useInFit = 0;
+            for (auto* hit : finalResult.removedHits) hit->useInFit = 0;
         }
 
         ATH_MSG_DEBUG(" chamberCleaning:  track ");
@@ -651,7 +651,8 @@ namespace Muon {
     }
 
     std::unique_ptr<Trk::Track> MuonTrackCleaner::outlierRecovery(const EventContext& ctx, std::unique_ptr<Trk::Track> track,
-                                                                  CleaningState& state, const MuonStationIndex::ChIndex* currentIndex) const {
+                                                                  CleaningState& state,
+                                                                  const MuonStationIndex::ChIndex* currentIndex) const {
         const Trk::Perigee* perigee = track->perigeeParameters();
         if (!perigee) {
             ATH_MSG_DEBUG("   track without perigee ");
@@ -1534,7 +1535,7 @@ namespace Muon {
 
     void MuonTrackCleaner::unremoveHits(ChamberRemovalOutput& result) const {
         // loop over removed hits and 'unremove' them so they are used in the next iteration
-        for (auto *hit : result.removedHits) hit->useInFit = 1;
+        for (auto* hit : result.removedHits) hit->useInFit = 1;
     }
 
     void MuonTrackCleaner::printStates(Trk::Track* track) const {

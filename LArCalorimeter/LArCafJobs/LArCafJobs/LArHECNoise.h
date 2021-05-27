@@ -18,7 +18,6 @@
 //LAr services:
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"

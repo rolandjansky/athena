@@ -30,7 +30,7 @@ theLArOddCellsMonTool = LArOddCellsMonTool(name="LArOddCellsMonTool",
                                            maximumRefNoise           = [10000,10000], # [EM,HEC] - Use BadChannel db instead!
                                            burstyEventsThreshold     = 1.,
                                            maskBadChannels           = MaskBadChannel,   # Mask bad channels in monitoring
-                                           LArBadChannelMask         = theLArBadChannelsMasker,
+                                           ProblemsToMask            = ProblemsToMask
                                            nbEvtsComputePeds         = 500,     # Nb of events to compute pedestal (if not from Cool)
                                            retrieveFromCool          = True,    # Retrieve pedestal from Cool
                                            LArDigitContainerKey      = LArMonFlags.LArDigitKey(),

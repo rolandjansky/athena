@@ -13,7 +13,6 @@
 #include "LArRecConditions/LArBadChannelEnum.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
 
-#include "LArBadChannelTool/LArBadChannelMasker.h"
 
 std::pair<bool,LArBadChannelEnum::ProblemType> dummy1;
 std::pair<HWIdentifier,LArBadFeb> dummy2;

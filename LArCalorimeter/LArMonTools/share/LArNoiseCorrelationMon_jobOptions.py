@@ -28,7 +28,7 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
                              LArDigitContainerKey  = LArMonFlags.LArDigitKey(),
                              IsOnline              = OnlineMode,
                              IgnoreBadChannels     = True,
-                             LArBadChannelMask     = theLArBadChannelsMasker,
+                             ProblemsToMask        = ProblemsToMask,
                              ProcessNEvents        = EventBlockSize,
                              TriggerChain          = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY",
                              FEBsToMonitor         = defaultFEBs,

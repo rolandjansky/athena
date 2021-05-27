@@ -30,7 +30,6 @@
 
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 
 #include "LArRawUtils/LArRoI_Map.h"
@@ -253,9 +252,6 @@ private:
   std::vector<unsigned int> m_IgnoreCheckFEBs;
   std::vector<const CaloCellCorrection*> m_LArCellCorrTools;
   
-  bool m_doBadChanMasking;
-  const ILArBadChannelMasker* m_badChannelMasker;
-  
   double m_delayScale;
   mutable SG::SlotSpecificObj<std::vector<std::unique_ptr<LArRodBlockStructure> > >
     m_blstructs ATLAS_THREAD_SAFE;
@@ -387,12 +383,6 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
         iprovenance=0x1000; // data comes from DSP computation
         iquality=0;
         if ( quality>=0 ) { iprovenance|= 0x2000; iquality=(quality& 0xffff);}
-	if(m_doBadChanMasking) {
-	  const HWIdentifier hwid= m_onlineHelper->channel_Id(fId,fcNb);
-	  if (m_badChannelMasker->cellShouldBeMasked(hwid, gain)) {
-	    {energy = 0;   iquality = 0; iprovenance|=0x0800;} 
-	  }
-	}
 	// time converted to ns
 	collElem->set(energy, time*1e-3, iquality, iprovenance, (CaloGain::CaloGain)gain);
         //setCellEnergy(collElem,energy, time, quality, (CaloGain::CaloGain)gain);

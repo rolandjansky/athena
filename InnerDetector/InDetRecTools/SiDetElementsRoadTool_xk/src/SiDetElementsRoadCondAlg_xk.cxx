@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiDetElementsRoadCondAlg_xk.h"
@@ -181,7 +181,7 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
               if (df1>dfm) dfm = df1;
               if (df2>dfm) dfm = df2;
 
-              InDet::SiDetElementLink_xk link(pE[j], P);
+              InDet::SiDetElementLink_xk link(pE[j], P, m_ITkGeometry);
               layer.add(link);
             }
           }

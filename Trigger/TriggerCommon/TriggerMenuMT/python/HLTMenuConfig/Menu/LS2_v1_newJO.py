@@ -83,6 +83,14 @@ def setupMenu():
         ChainProp(name='HLT_tau0_perf_ptonly_L1TAU8', groups=SingleTauGroup),
     ]
     chains["met"] = [
+        ChainProp(name='HLT_xe30_tcpufit_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_trkmht_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_cssk_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_vssk_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfopufit_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_cell_L1XE30', groups=SingleMETGroup),
     ]
 
