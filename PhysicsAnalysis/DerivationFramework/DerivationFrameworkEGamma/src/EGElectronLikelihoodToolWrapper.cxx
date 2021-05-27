@@ -79,13 +79,12 @@ EGElectronLikelihoodToolWrapper::addBranches() const
     m_decoratorIsEM, ctx
   };
 
-  SG::WriteDecorHandle<xAOD::EgammaContainer, double>* decoratorResult =
-    nullptr;
+  std::unique_ptr<SG::WriteDecorHandle<xAOD::EgammaContainer, double>>
+    decoratorResult = nullptr;
   if (m_storeTResult) {
-    SG::WriteDecorHandle<xAOD::EgammaContainer, double> concreteHandle{
-      m_decoratorResult, ctx
-    };
-    decoratorResult = &concreteHandle;
+    decoratorResult =
+      std::make_unique<SG::WriteDecorHandle<xAOD::EgammaContainer, double>>(
+        m_decoratorResult, ctx);
   }
 
   bool applyFF = (!m_fudgeMCTool.empty());
