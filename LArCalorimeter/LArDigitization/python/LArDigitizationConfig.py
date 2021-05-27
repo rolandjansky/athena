@@ -150,13 +150,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         LArAutoCorrNoiseCondAlgDefault()
 
     # bad channel masking
-    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-    theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-    theLArRCBMasker.DoMasking=True
-    theLArRCBMasker.ProblemsToMask=[
-         "deadReadout","deadPhys"]
-    kwargs.setdefault('MaskingTool', theLArRCBMasker )
-    
+    kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
     # CosmicTriggerTimeTool for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :

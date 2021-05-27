@@ -1,4 +1,3 @@
-#include "LArBadChannelTool/LArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadChannelDBAlg.h"
 #include "LArBadChannelTool/LArBadChannelTimingAlg.h"
 #include "LArBadChannelTool/LArBadChannel2Ascii.h"
@@ -7,7 +6,6 @@
 #include "LArBadChannelTool/LArBadFebCondAlg.h"
 #include "LArBadChannelTool/LArBadFebMasker.h"
 
-DECLARE_COMPONENT( LArBadChannelMasker )
 DECLARE_COMPONENT( LArBadChannelDBAlg )
 DECLARE_COMPONENT( LArBadChannelTimingAlg )
 DECLARE_COMPONENT( LArBadChannel2Ascii )

@@ -15,7 +15,9 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArROD/LArRawChannelBuilderToolBase.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 
@@ -37,8 +39,9 @@ class LArRawChannelBuilderToolBadChannelTool : public LArRawChannelBuilderToolBa
   StatusCode initTool();
 
  private:
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask{this,"BadChannelMask", "BadLArRawChannelMask"};
-    
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},"Bad-Channel categories to mask"}; 
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};    
 };
 
 #endif

@@ -27,7 +27,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArCabling/LArCablingLegacyService.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "CaloConditions/CaloNoise.h"
@@ -85,7 +86,8 @@ private:
   /** Handle to LArCablingService */
   ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to bad-channel tools */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
 
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
   SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey{this, "LArRawChannelKey", "LArRawChannels"};

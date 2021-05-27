@@ -17,7 +17,8 @@
 
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -63,8 +64,10 @@ protected:
   const LArOnlineID* m_LArOnlineIDHelper;
 
   /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
   /** Handle to cabling */
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   
@@ -137,7 +140,7 @@ private:
   int m_evtCounter;
   
   /** Declare methods used*/
-  bool isGoodChannel(const HWIdentifier id,const float ped,const LArOnOffIdMapping *cabling) const;
+  bool isGoodChannel(const HWIdentifier id,const float ped,const LArOnOffIdMapping *cabling, const LArBadChannelCont* bcCont) const;
   void fillInCorrelations();
   void bookSelectedFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
   void bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
