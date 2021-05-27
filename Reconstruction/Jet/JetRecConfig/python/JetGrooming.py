@@ -26,6 +26,7 @@ class GroomingDefinition(object):
                  modifiers=[],  # JetModifiers to run after grooming
                  suffix = '',   # allows to tune the full JetContainer name
                  lock=False,    # lock the properties of this instance to avoid accidental overwrite after __init__
+                 context = None, # describe a context for which this definition will be used. See StandardJetContext
                  **properties   # any other argument is expected a grooming tool property
                  ): 
 
@@ -34,6 +35,8 @@ class GroomingDefinition(object):
         if lock: properties = ldict(properties) # ldict to freeze the properties
         self.properties = properties
 
+        context = context if context is not None else ungroomeddef.context
+        self._context = context
         self.suffix = suffix
         self._defineName()
 
@@ -72,6 +75,9 @@ class GroomingDefinition(object):
     def modifiers(self): pass
     @make_lproperty
     def suffix(self): pass
+
+    @make_lproperty
+    def context(self): pass
     
     # To be overriden in derived classes
     def groomSpecAsStr(self):
