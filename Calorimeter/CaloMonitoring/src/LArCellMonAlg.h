@@ -8,7 +8,8 @@
 
 #include "CaloMonAlgBase.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "Identifier/IdentifierHash.h"
@@ -103,7 +104,7 @@ private:
   std::array<std::string,NOTA> m_triggerNames; 
   std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};
 
-  BooleanProperty m_maskKnownBadChannels{this, "MaskBadChannels", false, "Do not fill histograms with values from known bad channels"};
+  BooleanProperty m_ignoreKnownBadChannels{this, "MaskBadChannels", false, "Do not fill histograms with values from known bad channels"};
   BooleanProperty m_maskNoCondChannels{this, "MaskNoCondChannels", false, "Do not fill histograms with values from cells reco'ed w/o conditions database"};
 
   BooleanArrayProperty m_doBeamBackgroundRemovalProp{this, "DoBeamBackgroundRemoval"}; 
@@ -237,8 +238,9 @@ private:
   // other private variables
  
   // bad channel mask  
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-  
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
   std::vector<threshold_t> m_thresholds;
 
   // Identifer helpers and such

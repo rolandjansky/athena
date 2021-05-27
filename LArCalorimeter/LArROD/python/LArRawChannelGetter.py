@@ -72,16 +72,12 @@ class LArRawChannelGetter ( Configured )  :
                     # The first tool filters out bad channels
                     from LArROD.LArRODConf import LArRawChannelBuilderToolBadChannelTool
                     theLArRawChannelBuilderToolBadChannel=LArRawChannelBuilderToolBadChannelTool()
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-                    theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-                    theLArRCBMasker.DoMasking=True
-                    theLArRCBMasker.ProblemsToMask=[
+                    theLArRawChannelBuilderToolBadChannel.ProblemsToMask=[
                        "deadReadout","deadPhys","almostDead","short",
                        "lowNoiseHG","highNoiseHG","unstableNoiseHG",
                        "lowNoiseMG","highNoiseMG","unstableNoiseMG",
                        "lowNoiseLG","highNoiseLG","unstableNoiseLG"
                       ]
-                    theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
                     theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel]
                     ToolSvc+=theLArRawChannelBuilderToolBadChannel
 

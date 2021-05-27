@@ -167,6 +167,7 @@ class AlgConfig(ABC):
         return self._athSequences
 
     def menuSequences(self):
+        
         """ Get the menu sequences (split by step) """
         if hasattr(self, "_menuSequences"):
             return self._menuSequences

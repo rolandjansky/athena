@@ -81,6 +81,7 @@ def setupMenu():
 
     chains["tau"] = [
         ChainProp(name='HLT_tau0_perf_ptonly_L1TAU8', groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_track_L1TAU12IM", groups=SingleTauGroup),
     ]
     chains["met"] = [
         ChainProp(name='HLT_xe30_tcpufit_L1XE30', groups=SingleMETGroup),

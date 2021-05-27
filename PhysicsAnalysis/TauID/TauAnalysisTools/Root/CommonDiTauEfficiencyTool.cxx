@@ -18,11 +18,11 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 CommonDiTauEfficiencyTool::CommonDiTauEfficiencyTool(const std::string& sName)
   : CommonEfficiencyTool( sName )
-  , m_fX(&TruthLeadPt)
-  , m_fY(&TruthSubleadPt)
-  , m_fZ(&TruthDeltaR)
-  , m_bSFIsAvailable(false)
-  , m_bSFIsAvailableChecked(false)
+  , m_fXDiTau(&TruthLeadPt)
+  , m_fYDiTau(&TruthSubleadPt)
+  , m_fZDiTau(&TruthDeltaR)
+  , m_bSFIsAvailableDiTau(false)
+  , m_bSFIsAvailableCheckedDiTau(false)
 {
 }
 
@@ -152,7 +152,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAO
   Get scale factor from getEfficiencyScaleFactor and decorate it to the
   tau. Note that this can only be done if the variable name is not already used,
   e.g. if the variable was already decorated on a previous step (enured by the
-  m_bSFIsAvailableChecked check).
+  m_bSFIsAvailableCheckedDiTau check).
 
   Technical note: cannot use `static SG::AuxElement::Decorator` as we will have
   multiple instances of this tool with different decoration names.
@@ -163,17 +163,17 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const x
 {
   double dSf = 0.;
 
-  if (!m_bSFIsAvailableChecked)
+  if (!m_bSFIsAvailableCheckedDiTau)
   {
-    m_bSFIsAvailable = xDiTau.isAvailable< double >(m_sVarName);
-    m_bSFIsAvailableChecked = true;
-    if (m_bSFIsAvailable)
+    m_bSFIsAvailableDiTau = xDiTau.isAvailable< double >(m_sVarName);
+    m_bSFIsAvailableCheckedDiTau = true;
+    if (m_bSFIsAvailableDiTau)
     {
       ATH_MSG_DEBUG(m_sVarName << " decoration is available on first ditau processed, switched of applyEfficiencyScaleFactor for further ditaus.");
       ATH_MSG_DEBUG("If an application of efficiency scale factors needs to be redone, please pass a shallow copy of the original ditau.");
     }
   }
-  if (m_bSFIsAvailable)
+  if (m_bSFIsAvailableDiTau)
     return CP::CorrectionCode::Ok;
 
   // retreive scale factor
@@ -191,9 +191,9 @@ void CommonDiTauEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &TruthLeadPt;
-  m_fY = &TruthSubleadPt;
-  m_fZ = &TruthDeltaR;
+  m_fXDiTau = &TruthLeadPt;
+  m_fYDiTau = &TruthSubleadPt;
+  m_fZDiTau = &TruthDeltaR;
 
   TKey *kKey;
   TIter itNext(fFile->GetListOfKeys());
@@ -307,9 +307,9 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getValue(const std::string& sHistN
   tTupleObjectFunc tTuple = (*m_mSF)[sHistName];
 
   // get pt and eta (for x and y axis respectively)
-  double dX = m_fX(xDiTau);
-  double dY = m_fY(xDiTau);
-  double dZ = m_fZ(xDiTau);
+  double dX = m_fXDiTau(xDiTau);
+  double dY = m_fYDiTau(xDiTau);
+  double dZ = m_fZDiTau(xDiTau);
 
   double dVars[3] = {dX, dY, dZ};
   // finally obtain efficiency scale factor from TH1F/TH1D/TF1, by calling the

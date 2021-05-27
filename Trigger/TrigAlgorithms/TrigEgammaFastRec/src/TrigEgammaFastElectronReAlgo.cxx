@@ -284,12 +284,13 @@ bool TrigEgammaFastElectronReAlgo::extrapolate(const xAOD::TrigEMCluster *clus, 
     layersToSelect.insert(CaloSampling::CaloSample::EMB2); 
     layersToSelect.insert(CaloSampling::CaloSample::EME2); 
     // extrapolate track using tool
-    // get calo extension 
-    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(*trk); 
-    if( !caloExtension || caloExtension->caloLayerIntersections().empty() ) {
-        ATH_MSG_VERBOSE("extrapolator failed 1");
-        return false;
-    }  
+    // get calo extension
+    std::unique_ptr<Trk::CaloExtension> caloExtension =
+      m_caloExtensionTool->caloExtension(Gaudi::Hive::currentContext(), *trk);
+    if (!caloExtension || caloExtension->caloLayerIntersections().empty()) {
+      ATH_MSG_VERBOSE("extrapolator failed 1");
+      return false;
+    }
     // extract eta/phi in EM2 
     CaloExtensionHelpers::EtaPhiPerLayerVector intersections; 
     CaloExtensionHelpers::midPointEtaPhiPerLayerVector( *caloExtension, intersections, &layersToSelect ); 

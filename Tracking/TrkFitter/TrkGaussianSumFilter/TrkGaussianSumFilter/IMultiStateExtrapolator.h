@@ -12,7 +12,6 @@
 #ifndef TrkIMultiStateExtrapolator_H
 #define TrkIMultiStateExtrapolator_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkGaussianSumFilterUtils/GsfMaterial.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 //

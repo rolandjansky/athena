@@ -104,7 +104,7 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  PrecisionQRange3 = 3,
                                  PrecisionQRangeMax = 3,
                                  # Some other flags
-                                 LArBadChannelMask = theLArBadChannelsMasker,
+                                 ProblemsToMask = ProblemsToMask,
                                  SkipKnownProblematicChannels = False,
                                  SkipNullPed = False,
                                  SkipNullQT = True,

@@ -48,91 +48,18 @@
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
-#include <CLHEP/Units/SystemOfUnits.h>
 
 
 #include "TMatrixF.h"
 #include "TDecompChol.h"
 #include "cmath"
 
+#include <algorithm>
 
 using CLHEP::RandGaussQ;
 using CLHEP::RandFlat;
 using Athena::Units::MeV;
 
-
-//
-// Constructor
-//
-TileDigitsMaker::TileDigitsMaker(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_mergeSvc(nullptr),
-    m_tileID(nullptr),
-    m_tileTBID(nullptr),
-    m_tileHWID(nullptr),
-    m_tileInfo(nullptr),
-    m_cabling(nullptr),
-    m_nSamples(0),
-    m_iTrig(0),
-    m_tileNoise(false),
-    m_tileCoherNoise(false),
-    m_tileThresh(false),
-    m_tileThreshHi(0.0),
-    m_tileThreshLo(0.0),
-    m_nShapeHi(0),
-    m_nBinsPerXHi(0),
-    m_binTime0Hi(0),
-    m_timeStepHi(0.0),
-    m_nShapeLo(0),
-    m_nBinsPerXLo(0),
-    m_binTime0Lo(0),
-    m_timeStepLo(0.0)
-{
-  declareProperty("FilterThreshold",       m_filterThreshold = 100.0 * MeV, "Threshold on filtered digits (default - 100 MeV)");
-  declareProperty("FilterThresholdMBTS",   m_filterThresholdMBTS = 0.0 * MeV, "Threshold on filtered digits of MBTS (default - 0 MeV)");
-  declareProperty("TileInfoName",   m_infoName = "TileInfo");
-  declareProperty("IntegerDigits",  m_integerDigits = true);
-  declareProperty("CalibrationRun", m_calibRun = false);
-  declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false,"Pileup and/or noise added by overlaying random events (default=false)");
-  declareProperty("UseCoolPulseShapes",m_useCoolPulseShapes = true,"Pulse shapes from database (default=true)");
-  declareProperty("MaskBadChannels",m_maskBadChannels = false,"Remove channels tagged bad (default=false)");
-  declareProperty("DoHSTruthReconstruction",m_doDigiTruth = false);
-  declareProperty("AllChannels", m_allChannels = -1, "Create all channels, use 0 or 1 or 2 (default=-1 - unset)");
-}
-
-TileDigitsMaker::~TileDigitsMaker() {
-  std::vector<HWIdentifier *>::iterator itr = m_all_ids.begin();
-  std::vector<HWIdentifier *>::iterator last = m_all_ids.end();
-  for (; itr != last; ++itr) {
-    delete[] (*itr);
-  }
-
-  std::vector<double *>::iterator itr1 = m_drawerBufferHi.begin();
-  std::vector<double *>::iterator last1 = m_drawerBufferHi.end();
-  for (; itr1 != last1; ++itr1) {
-    delete[] (*itr1);
-  }
-
-  std::vector<double *>::iterator itr2 = m_drawerBufferLo.begin();
-  std::vector<double *>::iterator last2 = m_drawerBufferLo.end();
-  for (; itr2 != last2; ++itr2) {
-    delete[] (*itr2);
-  }
-
-  if(m_doDigiTruth){
-    std::vector<double *>::iterator itr3 = m_drawerBufferHi_DigiHSTruth.begin();
-    std::vector<double *>::iterator last3 = m_drawerBufferHi_DigiHSTruth.end();
-    for (; itr3 != last3; ++itr3) {
-      delete[] (*itr3);
-    }
-
-    std::vector<double *>::iterator itr4 = m_drawerBufferLo_DigiHSTruth.begin();
-    std::vector<double *>::iterator last4 = m_drawerBufferLo_DigiHSTruth.end();
-    for (; itr4 != last4; ++itr4) {
-      delete[] (*itr4);
-    }
-  }
-}
 
 //
 // Alg standard initialize function
@@ -301,7 +228,10 @@ StatusCode TileDigitsMaker::initialize() {
   for (int dr = 0; dr < ndrawers; ++dr) {
     HWIdentifier drawer_id;
     m_tileHWID->get_id(dr, drawer_id, &drawer_context);
-    HWIdentifier* adc_ids = new HWIdentifier[nchMax];
+
+    m_all_ids.push_back(std::make_unique<HWIdentifier[]>(nchMax));
+    std::unique_ptr<HWIdentifier[]>& adc_ids = m_all_ids.back();
+
     int ros = m_tileHWID->ros(drawer_id);
     if (ros > 0) {
       int drawer = m_tileHWID->drawer(drawer_id);
@@ -320,35 +250,10 @@ StatusCode TileDigitsMaker::initialize() {
         adc_ids[ch] = m_tileHWID->adc_id(drawer_id, ch, TileID::HIGHGAIN);
       }
     }
-    m_all_ids.push_back(adc_ids);
   }
 
-  /* ==================================*/
-  /* Create buffers to contain all digits in a single drawer. */
-  m_drawerBufferHi.reserve(nchMax);
-  m_drawerBufferLo.reserve(nchMax);
-  int nSamp = m_tileInfo->NdigitSamples();
-  for (int ich = 0; ich < nchMax; ++ich) {
-    double * pDigitSamplesHi = new double[nSamp];
-    double * pDigitSamplesLo = new double[nSamp];
-    m_drawerBufferHi.push_back(pDigitSamplesHi);
-    m_drawerBufferLo.push_back(pDigitSamplesLo);
-  }
-  if(m_doDigiTruth){
-    m_drawerBufferHi_DigiHSTruth.reserve(nchMax);
-    m_drawerBufferLo_DigiHSTruth.reserve(nchMax);
-    for (int ich = 0; ich < nchMax; ++ich) {
-      double * pDigitSamplesHi = new double[nSamp];
-      double * pDigitSamplesLo = new double[nSamp];
-      m_drawerBufferHi_DigiHSTruth.push_back(pDigitSamplesHi);
-      m_drawerBufferLo_DigiHSTruth.push_back(pDigitSamplesLo);
-    }
-  }
   ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize(m_doDigiTruth) );
   ATH_CHECK( m_digitsContainer_DigiHSTruthKey.initialize(m_doDigiTruth) );
-
-  /* ==================================*/
-
 
   ATH_CHECK( m_hitContainerKey.initialize() );
   ATH_CHECK( m_digitsContainerKey.initialize() );
@@ -359,19 +264,19 @@ StatusCode TileDigitsMaker::initialize() {
 }
 
 
-StatusCode TileDigitsMaker::execute() {
+StatusCode TileDigitsMaker::execute(const EventContext &ctx) const {
   ATH_MSG_DEBUG( "Executing TileDigitsMaker");
-
-  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   // Prepare RNG service
   ATHRNG::RNGWrapper* rngWrapper = nullptr;
+  CLHEP::HepRandomEngine* rngEngine = nullptr;
   if (m_tileNoise || m_tileCoherNoise || m_rndmEvtOverlay) {
     rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
     rngWrapper->setSeed( m_randomStreamName, ctx );
+    rngEngine = rngWrapper->getEngine(ctx);
   }
 
-  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );
+  bool first = (msgLvl(MSG::VERBOSE) && ctx.evt() == 0 && !m_rndmEvtOverlay );
   if (first) {
     ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
     first = false;
@@ -467,15 +372,13 @@ StatusCode TileDigitsMaker::execute() {
   /* Set up buffers for handling information in a single collection. */
   IdentifierHash idhash;
   IdContext drawer_context = m_tileHWID->drawer_context();
-  HWIdentifier * adc_ids;
   const int nchMax = 48; // number of channels per drawer
-  int igain[nchMax];
-  int ntot_ch[nchMax];
-  double ech_tot[nchMax];
-  double ech_int[nchMax];
-  double ech_int_DigiHSTruth[nchMax];
-  int over_gain[nchMax];
-  memset(over_gain,-1,sizeof(over_gain));
+  std::vector<int> igain(nchMax, -1);
+  std::vector<int> ntot_ch(nchMax, 0);
+  std::vector<double> ech_tot(nchMax, 0.0);
+  std::vector<double> ech_int(nchMax, 0);
+  std::vector<double> ech_int_DigiHSTruth(nchMax, 0);
+  std::vector<int> over_gain(nchMax, -1);
 
   /* Make a vector of digits (to be filled at the end from m_drawerBuffer arrays) */
   std::vector<float> digitsBuffer(m_nSamples);
@@ -483,23 +386,33 @@ StatusCode TileDigitsMaker::execute() {
   std::vector<float> digitsBuffer_DigiHSTruth(m_nSamples);
   std::vector<float> digitsBufferLo_DigiHSTruth(m_nSamples); // for calib runs
 
+  std::vector<double> emptyBuffer;
+  std::vector<std::vector<double>> drawerBufferHi(nchMax, std::vector<double>(m_nSamples));
+  std::vector<std::vector<double>> drawerBufferLo(nchMax, std::vector<double>(m_nSamples));
+
+  std::vector<std::vector<double>> drawerBufferHi_DigiHSTruth;
+  std::vector<std::vector<double>> drawerBufferLo_DigiHSTruth;
+  if (m_doDigiTruth) {
+    drawerBufferHi_DigiHSTruth.resize(nchMax, std::vector<double>(m_nSamples));
+    drawerBufferLo_DigiHSTruth.resize(nchMax, std::vector<double>(m_nSamples));
+  }
+
+
   /* everything for calculation of coherent noise */
   // booleans for coherent noise
   Bool_t coherNoiseHi = false;
   Bool_t coherNoiseLo = false;
   TMatrixD CorrWeightHi;
   TMatrixD CorrWeightLo;
-  std::vector<double *> CorrRndmVec;
-  std::vector<double *> CorrRndmVecLo;
+  std::vector<std::unique_ptr<double[]>> CorrRndmVec;
+  std::vector<std::unique_ptr<double[]>> CorrRndmVecLo;
   if (m_tileCoherNoise) {
     for (int k = 0; k < m_nSamples; ++k) {
-      double * RndmVec = new double[nchMax];
-      CorrRndmVec.push_back(RndmVec);
+      CorrRndmVec.push_back(std::make_unique<double[]>(nchMax));
     }
     if (m_calibRun) {
       for (int k = 0; k < m_nSamples; ++k) {
-        double * RndmVecLo = new double[nchMax];
-        CorrRndmVecLo.push_back(RndmVecLo);
+        CorrRndmVecLo.push_back(std::make_unique<double[]>(nchMax));
       }
     }
   }
@@ -554,8 +467,6 @@ StatusCode TileDigitsMaker::execute() {
   }
 
   // iterate over all collections in a container
-  TileHitContainer::const_iterator collItr = hitContainer->begin();
-  TileHitContainer::const_iterator lastColl = hitContainer->end();
   // Hit Container and signal hit container are the same size (1 entry per channel)
   TileHitContainer::const_iterator collItr_DigiHSTruth;
   if(m_doDigiTruth) collItr_DigiHSTruth = hitContainer_DigiHSTruth->begin();
@@ -565,9 +476,7 @@ StatusCode TileDigitsMaker::execute() {
   /* (even if they have no hits), and all the digit information        */
   /* including pileup events are contained in the collection.          */
   /*-------------------------------------------------------------------*/
-
-  for (; collItr != lastColl; ++collItr) {
-    const TileHitCollection *hitCollection(*collItr);
+  for (const TileHitCollection* hitCollection : *hitContainer) {
     /* Get array of HWID's for this drawer (stored locally). */
     HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
@@ -586,7 +495,7 @@ StatusCode TileDigitsMaker::execute() {
     }
 
     m_tileHWID->get_hash(drawer_id, idhash, &drawer_context);
-    adc_ids = m_all_ids[idhash];
+    const std::unique_ptr<HWIdentifier[]>& adc_ids = m_all_ids[idhash];
 
     /* Initialize gain settings.  If noise is requested, all channels are */
     /* set to be active.  If not, set them all to be inactive (gain=-1).  */
@@ -594,58 +503,55 @@ StatusCode TileDigitsMaker::execute() {
     /* hits are read in.                                                  */
     int igainch = (m_allChannels) ? TileID::HIGHGAIN : -1;
     if (m_rndmEvtOverlay) {
-      memset(over_gain, -1, sizeof(over_gain));
+      std::fill(over_gain.begin(), over_gain.end(), -1);
     } else if (m_tileNoise || m_tileCoherNoise) {
       igainch = TileID::HIGHGAIN;
     }
-    for (int ich = 0; ich < nchMax; ++ich) {
-      igain[ich] = igainch;
-      ech_tot[ich] = 0.;
-      ech_int[ich] = 0.;
-      ntot_ch[ich] = 0;
-      double * pDigitSamplesHi = m_drawerBufferHi[ich];
-      double * pDigitSamplesLo = m_drawerBufferLo[ich];
-      double * pDigitSamplesHi_DigiHSTruth = nullptr;
-      double * pDigitSamplesLo_DigiHSTruth = nullptr;
-      if(m_doDigiTruth){
-        pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
-        pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
-      }
-      for (int js = 0; js < m_nSamples; ++js) {
-        pDigitSamplesHi[js] = 0.;
-        pDigitSamplesLo[js] = 0.;
-        if(m_doDigiTruth){
-          pDigitSamplesHi_DigiHSTruth[js] = 0.;
-          pDigitSamplesLo_DigiHSTruth[js] = 0.;
-        }
+
+    std::fill(ech_tot.begin(), ech_tot.end(), 0.0);
+    std::fill(ech_int.begin(), ech_int.end(), 0.0);
+    std::fill(ntot_ch.begin(), ntot_ch.end(), 0);
+    std::fill(igain.begin(), igain.end(), igainch);
+
+    std::vector<std::reference_wrapper<std::vector<std::vector<double>>>> drawerBuffers{drawerBufferHi, drawerBufferLo};
+    if (m_doDigiTruth) {
+      drawerBuffers.push_back(drawerBufferHi_DigiHSTruth);
+      drawerBuffers.push_back(drawerBufferLo_DigiHSTruth);
+    }
+    for (std::vector<std::vector<double>>& drawerBuffer : drawerBuffers) {
+      for (std::vector<double>& digitsBuffer : drawerBuffer) {
+        std::fill(digitsBuffer.begin(), digitsBuffer.end(), 0);
       }
     }
 
     if (m_rndmEvtOverlay && collItrRndm != lastCollRndm) {
       const TileDigitsCollection *bkgDigitCollection(*collItrRndm);
-      ATH_CHECK(overlayBackgroundDigits(bkgDigitCollection, hitCollection, igain, ros, drawer, drawerIdx, over_gain, ctx));
+      ATH_CHECK(overlayBackgroundDigits(bkgDigitCollection, hitCollection, drawerBufferLo, drawerBufferHi,
+                                        igain, ros, drawer, drawerIdx, over_gain, ctx));
       ++collItrRndm; // skip to next digi collection
     }
 
-    std::vector<bool> signal_in_channel(nchMax, 0);
-    std::vector<bool> signal_in_channel_DigiHSTruth(nchMax, 0);
-    ATH_CHECK(FillDigitCollection( *collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain, ech_int, signal_in_channel, ctx));
+    std::vector<bool> signal_in_channel(nchMax, false);
+    std::vector<bool> signal_in_channel_DigiHSTruth(nchMax, false);
+    ATH_CHECK(fillDigitCollection( hitCollection, drawerBufferLo, drawerBufferHi,
+                                   igain, over_gain, ech_int, signal_in_channel, ctx));
     if(m_doDigiTruth){
-      ATH_CHECK(FillDigitCollection( *collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth, ctx));
+      ATH_CHECK(fillDigitCollection( *collItr_DigiHSTruth, drawerBufferLo_DigiHSTruth, drawerBufferHi_DigiHSTruth,
+                                     igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth, ctx));
     } // End DigiHSTruth stuff
 
     /* Now all signals for this collection are stored in m_drawerBuffer, 
-     accessed with pDigitSamplesHi and pDigitSampleLo. */
+     accessed with digitSamplesHi and digitSampleLo. */
     if (msgLvl(MSG::VERBOSE)) {
       for (int ich = 0; ich < nchMax; ++ich) {
         if (igain[ich] > -1) {
-          double * pDigitSamplesHi = m_drawerBufferHi[ich];
-          double * pDigitSamplesLo = m_drawerBufferLo[ich];
+          std::vector<double>& digitSamplesHi = drawerBufferHi[ich];
+          std::vector<double>& digitSamplesLo = drawerBufferLo[ich];
           msg(MSG::VERBOSE) << "total:  ADC " << m_tileHWID->to_string(adc_ids[ich],-1) << "/" << igain[ich] 
                             << " nhit=" << ntot_ch[ich]
                             << " e_ch=" << ech_tot[ich]
-                            << " AinTHi=" << pDigitSamplesHi[m_iTrig]
-                            << " AinTLo=" << pDigitSamplesLo[m_iTrig] << endmsg;
+                            << " AinTHi=" << digitSamplesHi[m_iTrig]
+                            << " AinTLo=" << digitSamplesLo[m_iTrig] << endmsg;
         }
       }
     }
@@ -687,14 +593,14 @@ StatusCode TileDigitsMaker::execute() {
 
       //NOTE: ShootArray's inputs are : the engine, the size, the vector, the mean, the standard dev
       for (int k = 0; k < m_nSamples; ++k) {
-        double * RndmVec = CorrRndmVec[k];
-        RandGaussQ::shootArray(*rngWrapper, nchMax, RndmVec, 0.0, 1.0);
+        double* RndmVec = CorrRndmVec[k].get();
+        RandGaussQ::shootArray(rngEngine, nchMax, RndmVec, 0.0, 1.0);
       }
 
       if (m_calibRun) {
         for (int k = 0; k < m_nSamples; ++k) {
-          double * RndmVecLo = CorrRndmVecLo[k];
-          RandGaussQ::shootArray(*rngWrapper, nchMax, RndmVecLo, 0.0, 1.0);
+          double * RndmVecLo = CorrRndmVecLo[k].get();
+          RandGaussQ::shootArray(rngEngine, nchMax, RndmVecLo, 0.0, 1.0);
         }
       }
     }
@@ -777,38 +683,38 @@ StatusCode TileDigitsMaker::execute() {
 
       /* If tileNoise is requested, generate array of random numbers.   */
       if (tileNoiseLG) { // true if tileNoise is set or noise is needed for low gain in overlay
-        RandGaussQ::shootArray(*rngWrapper, m_nSamples, Rndm, 0.0, 1.0);
-        RandFlat::shootArray(*rngWrapper, 1, Rndm_dG, 0.0, 1.0);
+        RandGaussQ::shootArray(rngEngine, m_nSamples, Rndm, 0.0, 1.0);
+        RandFlat::shootArray(rngEngine, 1, Rndm_dG, 0.0, 1.0);
         if (m_calibRun) {
-          RandGaussQ::shootArray(*rngWrapper, m_nSamples, RndmLo, 0.0, 1.0);
-          RandFlat::shootArray(*rngWrapper, 1, RndmLo_dG, 0.0, 1.0);
+          RandGaussQ::shootArray(rngEngine, m_nSamples, RndmLo, 0.0, 1.0);
+          RandFlat::shootArray(rngEngine, 1, RndmLo_dG, 0.0, 1.0);
         }
       }
 
-      double * pDigitSamplesHi = m_drawerBufferHi[ich];
-      double * pDigitSamplesLo = m_drawerBufferLo[ich];
-      double * pDigitSamplesHi_DigiHSTruth = nullptr;
-      double * pDigitSamplesLo_DigiHSTruth = nullptr;
-      if(m_doDigiTruth) pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
-      if(m_doDigiTruth) pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
+      std::vector<double>& digitSamplesHi = drawerBufferHi[ich];
+      std::vector<double>& digitSamplesLo = drawerBufferLo[ich];
+      std::vector<double>& digitSamplesHi_DigiHSTruth = (m_doDigiTruth) ? drawerBufferHi_DigiHSTruth[ich] : emptyBuffer;
+      std::vector<double>& digitSamplesLo_DigiHSTruth = (m_doDigiTruth) ? drawerBufferLo_DigiHSTruth[ich] : emptyBuffer;
 
       ATH_MSG_DEBUG(" Channel " << ros << '/' << drawer << '/' << ich 
-                     << " sampHi=" << pDigitSamplesHi[m_iTrig]
+                     << " sampHi=" << digitSamplesHi[m_iTrig]
                      << " pedHi=" << pedSimHi
-                     << " sampLo=" << pDigitSamplesLo[m_iTrig]
+                     << " sampLo=" << digitSamplesLo[m_iTrig]
                      << " pedLo=" << pedSimLo);
 
       // looping over samples
       for (int js = 0; js < m_nSamples; ++js) {
 
-        digitsBuffer[js] = pDigitSamplesHi[js] + pedSimHi;
-        if(m_doDigiTruth && pDigitSamplesHi_DigiHSTruth != nullptr) digitsBuffer_DigiHSTruth[js] = pDigitSamplesHi_DigiHSTruth[js] + pedSimHi;
+        digitsBuffer[js] = digitSamplesHi[js] + pedSimHi;
+        if(m_doDigiTruth) {
+          digitsBuffer_DigiHSTruth[js] = digitSamplesHi_DigiHSTruth[js] + pedSimHi;
+        }
 
         double noiseHi(0.0);
         // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
         if (coherNoiseHi) {
           // get the js-th  correct random vector of 48 elements for the jsth sample k  //F Spano'
-          double *CorVec = CorrRndmVec[js];
+          std::unique_ptr<double[]>& CorVec = CorrRndmVec[js];
           // apply Y=C*Z where Z is the random vector of 48 normal indep variables, and C is the Cholesky decomposition //F Spano'
           for (int i = 0; i < nchMax; ++i) noiseHi += CorrWeightHi(i, ich) * CorVec[i];
         } else if (tileNoiseHG) {
@@ -820,9 +726,7 @@ StatusCode TileDigitsMaker::execute() {
         if (digitsBuffer[js] + noiseHi >= 0.0) {
           digitsBuffer[js] += noiseHi;
           if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] += noiseHi;
-        }
-
-        else { 
+        } else {
           digitsBuffer[js] -= noiseHi;
           if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] -= noiseHi;
         }
@@ -834,13 +738,13 @@ StatusCode TileDigitsMaker::execute() {
         }
 
         if (m_calibRun) { //Calculate also low gain
-          digitsBufferLo[js] = pDigitSamplesLo[js] + pedSimLo;
-          if(m_doDigiTruth && pDigitSamplesLo_DigiHSTruth != nullptr) digitsBufferLo_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
+          digitsBufferLo[js] = digitSamplesLo[js] + pedSimLo;
+          if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = digitSamplesLo_DigiHSTruth[js] + pedSimLo;
           double noiseLo(0.0);
           // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
           if (coherNoiseLo) {
             // get the js-th  correct random vector of 48 elements for the jsth sample // F Spano'
-            double *CorVecLo = CorrRndmVecLo[js];
+            std::unique_ptr<double[]>& CorVecLo = CorrRndmVecLo[js];
             // apply Y=C*Z where Z is the random vector of 48 normal indep variables, and C is the Cholesky decomposition // F Spano'
             for (int i = 0; i < nchMax; ++i) noiseLo += CorrWeightLo(i, ich) * CorVecLo[i];
           } else if (tileNoiseLG) {
@@ -852,8 +756,7 @@ StatusCode TileDigitsMaker::execute() {
           if (digitsBufferLo[js] + noiseLo >= 0.0) {
             digitsBufferLo[js] += noiseLo;
             if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] += noiseLo;
-          }
-          else {
+          } else {
             digitsBufferLo[js] -= noiseLo;
             if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] -= noiseLo;
           }
@@ -873,13 +776,13 @@ StatusCode TileDigitsMaker::execute() {
 
           // reset all samples in digitsBuffer[] to Low Gain values
           for (js = 0; js < m_nSamples; ++js) {
-            digitsBuffer[js] = pDigitSamplesLo[js] + pedSimLo;
-            if(m_doDigiTruth && pDigitSamplesLo_DigiHSTruth != nullptr) digitsBuffer_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
+            digitsBuffer[js] = digitSamplesLo[js] + pedSimLo;
+            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = digitSamplesLo_DigiHSTruth[js] + pedSimLo;
             double noiseLo(0.0);
             // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
             if (coherNoiseLo) {
               // get the js-th  correct random vector of 48 elements for the jsth sample // F Spano'
-              double *CorVec = CorrRndmVec[js]; // reuse the same rndm as for high gain
+              double* CorVec = CorrRndmVec[js].get(); // reuse the same rndm as for high gain
               // apply Y=C*Z where Z is the random vector of 48 normal indep variables, and C is the Cholesky decomposition // F Spano'
               for (int i = 0; i < nchMax; ++i) noiseLo += CorrWeightLo(i, ich) * CorVec[i];
             } else if (tileNoiseLG) {
@@ -892,16 +795,15 @@ StatusCode TileDigitsMaker::execute() {
             if (digitsBuffer[js] + noiseLo >= 0.0) {
               digitsBuffer[js] += noiseLo;
               if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] += noiseLo;
-            }
-            else {
+            } else {
               digitsBuffer[js] -= noiseLo;
               if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] -= noiseLo;
             }
 
-	    if (digitsBuffer[js] > m_f_ADCmax && good_ch) {
-	      digitsBuffer[js] = m_f_ADCmax;
-	      if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmax;
-	    }
+            if (digitsBuffer[js] > m_f_ADCmax && good_ch) {
+              digitsBuffer[js] = m_f_ADCmax;
+              if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmax;
+            }
             if (m_integerDigits) {
               digitsBuffer[js] = round(digitsBuffer[js]);
               if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = round(digitsBuffer_DigiHSTruth[js]);
@@ -953,9 +855,9 @@ StatusCode TileDigitsMaker::execute() {
       if (m_calibRun) { // calib run - keep both low and high gain
 
         if (chanHiIsBad) {
-          for (int js = 0; js < m_nSamples; ++js) {
-            digitsBuffer[js] = m_f_ADCmaskValue;
-            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmaskValue;
+          std::fill(digitsBuffer.begin(), digitsBuffer.end(), m_f_ADCmaskValue);
+          if (m_doDigiTruth) {
+            std::fill(digitsBuffer_DigiHSTruth.begin(), digitsBuffer_DigiHSTruth.end(), m_f_ADCmaskValue);
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG" );
         }
@@ -963,23 +865,24 @@ StatusCode TileDigitsMaker::execute() {
         auto pDigits = std::make_unique<TileDigits>(adc_id, digitsBuffer);
         ATH_CHECK( digitsContainer->push_back(std::move(pDigits)) );
 
-        if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
+        if(m_doDigiTruth && digitsContainer_DigiHSTruth){
           auto digits_DigiHSTruth = std::make_unique<TileDigits>(adc_id, digitsBuffer_DigiHSTruth);
           ATH_CHECK( digitsContainer_DigiHSTruth->push_back(std::move(digits_DigiHSTruth)) );
         }
 
         if (chanLoIsBad) {
-          for (int js = 0; js < m_nSamples; ++js) {
-            digitsBufferLo[js] = m_f_ADCmaskValue;
-            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = m_f_ADCmaskValue;
+          std::fill(digitsBufferLo.begin(), digitsBufferLo.end(), m_f_ADCmaskValue);
+          if(m_doDigiTruth) {
+            std::fill(digitsBufferLo_DigiHSTruth.begin(), digitsBufferLo_DigiHSTruth.end(), m_f_ADCmaskValue);
           }
+
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
         }
 
         auto pDigitsLo = std::make_unique<TileDigits>(adc_id_lo, digitsBufferLo);
         ATH_CHECK( digitsContainer->push_back(std::move(pDigitsLo)) );
 
-        if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
+        if(m_doDigiTruth && digitsContainer_DigiHSTruth){
           auto pDigitsLo_DigiHSTruth = std::make_unique<TileDigits>(adc_id_lo, digitsBufferLo_DigiHSTruth);
           ATH_CHECK( digitsContainer_DigiHSTruth->push_back(std::move(pDigitsLo_DigiHSTruth)) );
         }
@@ -988,7 +891,7 @@ StatusCode TileDigitsMaker::execute() {
         bool hiGain = (igain[ich] == TileID::HIGHGAIN);
 
         // If tileThresh, apply threshold cut to the in-time Digits signal
-        bool Good = true;
+        bool isChannelGood = true;
         if (m_tileThresh) {
           if (hiGain) { // make threshold only on high gain
             double ampInTime = digitsBuffer[m_iTrig] - pedSimHi;
@@ -996,15 +899,15 @@ StatusCode TileDigitsMaker::execute() {
               ampInTime = round(ampInTime);
             if (m_tileThreshHi < 0) {
               if (fabs(ampInTime) < fabs(m_tileThreshHi))
-                Good = false;
+                isChannelGood = false;
             } else {
               if (ampInTime < m_tileThreshHi)
-                Good = false;
+                isChannelGood = false;
             }
           }
         }
         // If channel is good, create TileDigits object and store in container.
-        if (Good) {
+        if (isChannelGood) {
           echtot_Acc += ech_tot[ich];
           echint_Acc += fabs(ech_int[ich]);
           if (hiGain) {
@@ -1021,15 +924,15 @@ StatusCode TileDigitsMaker::execute() {
             //}
             if (chanHiIsBad) {
               if (pmt_id.is_valid()) {
-                for (int js = 0; js < m_nSamples; ++js) {
-                  digitsBuffer[js] = m_f_ADCmaskValue;
-                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmaskValue;
+                std::fill(digitsBuffer.begin(), digitsBuffer.end(), m_f_ADCmaskValue);
+                if (m_doDigiTruth) {
+                  std::fill(digitsBuffer_DigiHSTruth.begin(), digitsBuffer_DigiHSTruth.end(), m_f_ADCmaskValue);
                 }
               } else if (good_ch) {
                 ATH_MSG_DEBUG( "Disconnected Channel " << ros << '/' << drawer << '/' << ich);
-                for (int js = 0; js < m_nSamples; ++js) {
-                  digitsBuffer[js] = 0;
-                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 0;
+                std::fill(digitsBuffer.begin(), digitsBuffer.end(), 0.);
+                if (m_doDigiTruth) {
+                  std::fill(digitsBuffer_DigiHSTruth.begin(), digitsBuffer_DigiHSTruth.end(), 0.);
                 }
               }
               ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG");
@@ -1042,15 +945,15 @@ StatusCode TileDigitsMaker::execute() {
             //}
             if (chanLoIsBad) {
               if (pmt_id.is_valid()) {
-                for (int js = 0; js < m_nSamples; ++js) {
-                  digitsBuffer[js] = m_f_ADCmaskValue;
-                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmaskValue;
+                std::fill(digitsBuffer.begin(), digitsBuffer.end(), m_f_ADCmaskValue);
+                if (m_doDigiTruth) {
+                  std::fill(digitsBuffer_DigiHSTruth.begin(), digitsBuffer_DigiHSTruth.end(), m_f_ADCmaskValue);
                 }
               } else if (good_ch) {
                 ATH_MSG_DEBUG( "Disconnected Channel " << ros << '/' << drawer << '/' << ich);
-                for (int js = 0; js < m_nSamples; ++js) {
-                  digitsBuffer[js] = 0;
-                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 0;
+                std::fill(digitsBuffer.begin(), digitsBuffer.end(), 0.);
+                if (m_doDigiTruth) {
+                  std::fill(digitsBuffer_DigiHSTruth.begin(), digitsBuffer_DigiHSTruth.end(), 0.);
                 }
               }
               ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
@@ -1069,7 +972,7 @@ StatusCode TileDigitsMaker::execute() {
           }
 
           ATH_CHECK( digitsContainer->push_back(std::move(pDigits)) );
-          if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
+          if(m_doDigiTruth && digitsContainer_DigiHSTruth){
             auto pDigits_DigiHSTruth = std::make_unique<TileDigits>(adc_id, digitsBuffer_DigiHSTruth);
             ATH_CHECK( digitsContainer_DigiHSTruth->push_back(std::move(pDigits_DigiHSTruth)) );
           }
@@ -1117,19 +1020,6 @@ StatusCode TileDigitsMaker::execute() {
     if(m_doDigiTruth) ++collItr_DigiHSTruth;
   }
 
-  if (m_tileCoherNoise) {
-    for (int k = 0; k < m_nSamples; ++k) {
-      double * RndmVec = CorrRndmVec[k];
-      delete[] RndmVec;
-    }
-    if (m_calibRun) {
-      for (int k = 0; k < m_nSamples; ++k) {
-        double * RndmVecLo = CorrRndmVecLo[k];
-        delete[] RndmVecLo;
-      }
-    }
-  }
-
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "TileDigitsMaker execution completed." << endmsg;
     msg(MSG::DEBUG) << " nCh=" << nChSum
@@ -1172,7 +1062,11 @@ StatusCode TileDigitsMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[], double ech_int[], std::vector<bool> &signal_in_channel, const EventContext &ctx) const{
+StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitCollection,
+                                                std::vector<std::vector<double>>& drawerBufferLo,
+                                                std::vector<std::vector<double>>& drawerBufferHi,
+                                                std::vector<int>& igain, std::vector<int>& over_gain, std::vector<double>& ech_int,
+                                                std::vector<bool> &signal_in_channel, const EventContext &ctx) const{
   
   // Zero sums for monitoring.
   int nChSum = 0;
@@ -1195,24 +1089,21 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
 
 
   // iterate over all hits in a collection
-  TileHitCollection::const_iterator hitItr = hitCollection->begin();
-  TileHitCollection::const_iterator lastHit = hitCollection->end();
-
-  for (; hitItr != lastHit; ++hitItr) {
+  for (const TileHit* tileHit : *hitCollection) {
 
     /* Get hit Identifier (= pmt_ID) and needed parameters for this channel */
-    Identifier pmt_id = (*hitItr)->pmt_ID();
+    Identifier pmt_id = tileHit->pmt_ID();
     double mbts_extra_factor = (m_tileTBID->is_tiletb(pmt_id)) ? -1.0 : 1.0;
-    HWIdentifier channel_id = (*hitItr)->pmt_HWID();
+    HWIdentifier channel_id = tileHit->pmt_HWID();
     int ich = m_tileHWID->channel(channel_id);
     signal_in_channel[ich] = true;
 
     if (over_gain[ich] > 9) {
       if (msgLvl(MSG::DEBUG)) {
-        int n_hits = (*hitItr)->size();
+        int n_hits = tileHit->size();
         double e_hit(0.);
         for (int ihit = 0; ihit < n_hits; ++ihit) {
-          e_hit += (*hitItr)->energy(ihit);
+          e_hit += tileHit->energy(ihit);
         }
         HitSum += e_hit;
         e_hit *= m_tileInfo->HitCalib(pmt_id);
@@ -1239,18 +1130,18 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
     double efactorLo = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, ich, TileID::LOWGAIN, 1.
                                   , TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
 
-    double* pDigitSamplesHi = drawerBufferHi[ich];
-    double* pDigitSamplesLo = drawerBufferLo[ich];
+    std::vector<double>& digitSamplesHi = drawerBufferHi[ich];
+    std::vector<double>& digitSamplesLo = drawerBufferLo[ich];
     /* Loop over the subhits for this channel.  For each one,
      convolute with shaping function and add to digitSamples.                  */
-    int n_hits = (*hitItr)->size();
+    int n_hits = tileHit->size();
     for (int ihit = 0; ihit < n_hits; ++ihit) {
       /* Get hit energy and convert to amplitude of high-gain and low-gain channel */
-      double e_hit = (*hitItr)->energy(ihit);
+      double e_hit = tileHit->energy(ihit);
       double amp_ch = e_hit * efactorHi;
       double amp_ch_lo = e_hit * efactorLo;
       double ech_sub = e_hit * hit_calib;
-      double t_hit = (*hitItr)->time(ihit);
+      double t_hit = tileHit->time(ihit);
 
       ech_tot[ich] += ech_sub;
       if (fabs(t_hit) < 50.0) // ene within +/- 50 ns, used for filtered digits cut
@@ -1275,14 +1166,14 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
           float y, dy;
           m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, ich, 1, phase, y, dy, ctx);
           double ampl = (double) y;
-          pDigitSamplesHi[js] += amp_ch * ampl;
+          digitSamplesHi[js] += amp_ch * ampl;
           ATH_MSG_VERBOSE( "Sample no.=" << js
                            << " Pulse index=" << k
                            << " Shape wt. =" << ampl
                            << " HIGAIN from COOL");
 
         } else {
-          pDigitSamplesHi[js] += amp_ch * m_digitShapeHi[k];
+          digitSamplesHi[js] += amp_ch * m_digitShapeHi[k];
           ATH_MSG_VERBOSE( "Sample no.=" << js
                            << " Pulse index=" << k
                            << " Shape wt. =" << m_digitShapeHi[k]
@@ -1290,7 +1181,7 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
         }
 
       }
-    int ishiftLo = (int) (t_hit / m_timeStepLo + 0.5);
+      int ishiftLo = (int) (t_hit / m_timeStepLo + 0.5);
       for (int js = 0; js < m_nSamples; ++js) {
         int k = m_binTime0Lo + (js - m_iTrig) * m_nBinsPerXLo - ishiftLo;
         if (k < 0)
@@ -1303,13 +1194,13 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
           float y, dy;
           m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, ich, 0, phase, y, dy, ctx);
           double ampl = (double) y;
-          pDigitSamplesLo[js] += amp_ch_lo * ampl;
+          digitSamplesLo[js] += amp_ch_lo * ampl;
           ATH_MSG_VERBOSE( "Sample no.=" << js
                            << " Pulse index=" << k
                            << " Shape wt. =" << ampl
                            << " LOGAIN from COOL");
         } else {
-          pDigitSamplesLo[js] += amp_ch_lo * m_digitShapeLo[k];
+          digitSamplesLo[js] += amp_ch_lo * m_digitShapeLo[k];
           ATH_MSG_VERBOSE( "Sample no.=" << js
                            << " Pulse index=" << k
                            << " Shape wt. =" << m_digitShapeLo[k]
@@ -1322,8 +1213,8 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
         msg(MSG::VERBOSE) << "subHit:  ch=" << ich
                           << " e_hit=" << e_hit
                           << " t_hit=" << t_hit
-                          << " SamplesHi[" << m_iTrig << "]=" << pDigitSamplesHi[m_iTrig]
-                          << " SamplesLo[" << m_iTrig << "]=" << pDigitSamplesLo[m_iTrig] << endmsg;
+                          << " SamplesHi[" << m_iTrig << "]=" << digitSamplesHi[m_iTrig]
+                          << " SamplesLo[" << m_iTrig << "]=" << digitSamplesLo[m_iTrig] << endmsg;
       }
     } /* end loop over sub-hits */
   } /* end loop over hits for this collection. */
@@ -1333,7 +1224,13 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
 
 }
 
-StatusCode TileDigitsMaker::overlayBackgroundDigits(const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[], const EventContext &ctx) {
+StatusCode TileDigitsMaker::overlayBackgroundDigits(const TileDigitsCollection *bkgDigitCollection,
+                                                    const TileHitCollection* hitCollection,
+                                                    std::vector<std::vector<double>>& drawerBufferLo,
+                                                    std::vector<std::vector<double>>& drawerBufferHi,
+                                                    std::vector<int>& igain, int ros, int drawer, int drawerIdx,
+                                                    std::vector<int>& over_gain, const EventContext &ctx) const {
+
   if (hitCollection->identify() != bkgDigitCollection->identify()) {
     ATH_MSG_ERROR ( "Frag IDs for hit collection and digits overlay collection do not match "
                     << MSG::hex << hitCollection->identify() << " != " << bkgDigitCollection->identify()
@@ -1364,57 +1261,55 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits(const TileDigitsCollection *
     int nSamp2 = digits.size();
     int goodDigits = nSamp2;
     float dig(m_f_ADCmaskValue),digmin(65536.),digmax(-65536.);
+    if (goodDigits > 0) {
+      auto minmax = std::minmax_element(digits.begin(), digits.end());
+      digmin = *minmax.first;
+      digmax = *minmax.second;
+    }
+
     if (good_dq) {
-      for (int js = 0; js < nSamp2; ++js) {
-        dig=digits[js];
-        if (dig<digmin) digmin=dig;
-        if (dig>digmax) digmax=dig;
-        if (dig<0.01) { // skip zeros
-          --goodDigits;
-	} else if (dig > m_ADCmaxMinusEps) { // skip overflows
-	  if (dig > m_ADCmaxPlusEps) { // ignore everything in case of invalid digits
-	    dig = m_f_ADCmaskValue;
-            goodDigits = 0;
-            break;
-          }
-          --goodDigits;
-        }
-      } 
+      if (digmax > m_ADCmaxPlusEps) { // ignore everything in case of invalid digits
+        dig = m_f_ADCmaskValue;
+        goodDigits = 0;
+      } else { // skip zeros or overflows
+        float ADCmaxMinusEps = m_ADCmaxMinusEps;
+        int badDigits = std::count_if(digits.begin(), digits.end(), [ADCmaxMinusEps](float dig){
+                                                                      return (dig < 0.01) || (dig > ADCmaxMinusEps);});
+        goodDigits -= badDigits;
+        dig = digits.back();
+      }
     } else if (goodDigits>0) {
       goodDigits = 0;
-      dig = digmin = digmax = digits[0];
-      for (int js = 1; js < nSamp2; ++js) {
-        dig=digits[js];
-        if (dig<digmin) digmin=dig;
-        else if (dig>digmax) digmax=dig;
-      }
+      dig = digits.back();
     }
-        
+
     if (goodDigits>0) {
       over_gain[channel] = gain;
       if (nSamp2 != m_nSamples) {
+        float lastDigit = digits.back();
         digits.resize(m_nSamples);
-        for (int js = nSamp2; js < m_nSamples; ++js)
-          digits[js] = digits[js - 1]; // repeat last value in vector (nSamp-nSamp2) times
+        // repeat last value in vector (nSamp-nSamp2) times
+        std::fill(digits.begin() + nSamp2, digits.end(), lastDigit);
       }
 
-      double * buffer;
-      double * bufferLG=0;
+      std::vector<double>& buffer = (gain == TileID::HIGHGAIN) ? drawerBufferHi[channel] : drawerBufferLo[channel];
+      std::vector<double>& bufferLG = drawerBufferLo[channel];
+
+      bool isFilledLG = false;
       if (gain == TileID::HIGHGAIN) {
         if (digmax - digmin > 5. && good_ch ) {// 5 ADC counts cut - to ignore pure noise in HG (less than 0.1 count effect in LG)
           float ratio = m_tileToolEmscale->doCalibCisOnl(drawerIdx, channel, TileID::HIGHGAIN, 1.)
             / m_tileToolEmscale->doCalibCisOnl(drawerIdx, channel, TileID::LOWGAIN, 1.); // ratio between low and high gain
-          dig=std::min(digits[0],std::max(digmin,m_tileToolNoiseSample->getPed(drawerIdx, channel, TileID::HIGHGAIN, TileRawChannelUnit::ADCcounts, ctx)));
-          bufferLG = m_drawerBufferLo[channel]; 
-          for (int js = 0; js < m_nSamples; ++js)        // in case low gain background is needed later
-            bufferLG[js] = (digits[js]-dig)*ratio;    // put in low gain buffer signal divided by 64 (LG/HG ratio) 
+
+          dig=std::min(digits[0],std::max(digmin,m_tileToolNoiseSample->getPed(drawerIdx, channel, TileID::HIGHGAIN,
+                                                                               TileRawChannelUnit::ADCcounts, ctx)));
+
+          std::transform(digits.begin(), digits.end(), bufferLG.begin(), [dig,ratio](float digit){return (digit - dig) * ratio;});
+          isFilledLG = true;
         }
-        buffer = m_drawerBufferHi[channel];
-      } else {
-        buffer = m_drawerBufferLo[channel];
       }
-      for (int js = 0; js < m_nSamples; ++js)
-        buffer[js] = digits[js];
+
+      std::copy(digits.begin(), digits.end(), buffer.begin());
 
       if (msgLvl(MSG::VERBOSE)) {
         msg(MSG::VERBOSE) << "RNDM BG ADC " << m_tileHWID->to_string(adcId)
@@ -1425,7 +1320,7 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits(const TileDigitsCollection *
           msg(MSG::VERBOSE) << " BCH";
         if (!good_dq) {
           msg(MSG::VERBOSE) << " BDQ";
-        } else if (bufferLG) {
+        } else if (isFilledLG) {
           msg(MSG::VERBOSE) << "  LG=";
           for (int js = 0; js < m_nSamples; ++js)
             msg(MSG::VERBOSE) << " " << int(bufferLG[js]*100)/100.;
@@ -1436,16 +1331,12 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits(const TileDigitsCollection *
     } else if (nSamp2 > 0) {
       over_gain[channel] = 10+gain; // flag problematic channel
 
-      double * buffer;
-      if (gain == TileID::HIGHGAIN) {
-        buffer = m_drawerBufferHi[channel];
-      } else {
-        buffer = m_drawerBufferLo[channel];
-      }
+      std::vector<double>& buffer = (gain == TileID::HIGHGAIN) ? drawerBufferHi[channel] : drawerBufferLo[channel];
 
-      if (digmin != digmax || (dig!=0. && dig!=m_f_ADCmax)) dig = m_f_ADCmaskValue; // keep only 0 or m_f_ADCmax as it is
-      for (int js = 0; js < m_nSamples; ++js)
-        buffer[js] = dig;
+      if (digmin != digmax || (dig!=0. && dig!=m_f_ADCmax)) {
+        dig = m_f_ADCmaskValue; // keep only 0 or m_f_ADCmax as it is
+      }
+      std::fill(buffer.begin(), buffer.end(), dig);
 
       if (msgLvl(MSG::VERBOSE)) {
         msg(MSG::VERBOSE) << "BAD BG  ADC " << m_tileHWID->to_string(adcId)

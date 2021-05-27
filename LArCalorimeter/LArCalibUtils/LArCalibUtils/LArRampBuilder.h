@@ -45,6 +45,7 @@
 
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 
 #include "LArRecConditions/LArCalibLineMapping.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
@@ -52,7 +53,7 @@
 #include <string>
 #include <map>
 
-class ILArBadChannelMasker;
+
 class LArOnlineID_Base;
 class LArCalibTriggerAccumulator;
 
@@ -82,7 +83,8 @@ private:
   //Does the fitting of the raw ramp. Result is returned as LArRampDB_t.
   StatusCode rampfit(unsigned deg, const std::vector<LArRawRamp::RAMPPOINT_t>& data, 
 		     std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
-		     const HWIdentifier chid, const LArOnOffIdMapping* cabling);
+		     const HWIdentifier chid, const LArOnOffIdMapping* cabling,
+		     const LArBadChannelCont* bcCont);
 
   LArConditionsContainer<ACCRAMP>* m_ramps;
 
@@ -133,8 +135,12 @@ private:
   //  hashID     sample
   std::vector<std::vector<short> > m_adc0;
 
-  ToolHandle< ILArBadChannelMasker> m_badChannelMask;
   bool m_doBadChannelMask;
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
+  
 
   const LArOnlineID_Base* m_onlineHelper;
   const LArEM_Base_ID* m_emId;

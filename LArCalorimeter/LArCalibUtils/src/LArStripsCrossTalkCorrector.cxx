@@ -7,7 +7,6 @@
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
 #include <math.h>
@@ -15,8 +14,6 @@
 
 LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  m_dontUseForCorr("LArBadChannelMasker/DontUseForXtalkCorr",this),
-  m_dontCorrect("LArBadChannelMasker/NoXtalkCorr",this),
   m_onlineHelper(nullptr),
   m_emId(nullptr),
   m_event_counter(0),
@@ -33,10 +30,6 @@ LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name
   declareProperty("UseAccumulatedDigits",m_useAccumulatedDigits=true); 
   declareProperty("AcceptableDifference",m_acceptableDifference=20,
 		  "For sanity check: By how much the corrected value may differ from the original one (in %)");
-  declareProperty("DontUseForXtalkCorr",m_dontUseForCorr,
-		  "LArBadChannelMaskingTool telling what types of bad channel should not be taken into accout for xtalk correction of their neighbor");
-  declareProperty("NoXtalkCorr",m_dontCorrect,
-		  "LArBadChannelMaskingTool telling what types of bad channel should be ignored and not x-talk corrected");
   declareProperty("PedestalKey",m_pedKey="Pedestal",
 		  "Key of the pedestal object (to be subtracted)");
    
@@ -59,23 +52,9 @@ StatusCode LArStripsCrossTalkCorrector::initialize() {
   }
   
 
-  sc=m_dontCorrect.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( " Can't get LArBadChannelMaskingTool " << m_dontCorrect.typeAndName() );
-    return sc;
-  }
-  else 
-        ATH_MSG_DEBUG( "Successfully retrieved " << m_dontCorrect.typeAndName() );
-  
-  sc=m_dontUseForCorr.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( " Can't get LArBadChannelMaskingTool " << m_dontUseForCorr.typeAndName() );
-    return sc;
-  }
-  else
-    ATH_MSG_DEBUG(  "Successfully retrieved " << m_dontUseForCorr.typeAndName() );
+  ATH_CHECK(m_dontUseForCorrMask.buildBitMask(m_dontUseForCorr,msg()));
+  ATH_CHECK(m_dontCorrMask.buildBitMask(m_dontCorr,msg()));
 
-    
   ATH_CHECK(m_BCKey.initialize());
   ATH_CHECK(m_BFKey.initialize());
   ATH_CHECK(m_cablingKey.initialize());
@@ -112,9 +91,8 @@ StatusCode LArStripsCrossTalkCorrector::execute()
 }
 
 
-StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits() 
-{
-  MsgStream log(msgSvc(), name());
+StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
+
   StatusCode sc;
   unsigned nSaturation=0;
 
@@ -136,6 +114,10 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
      ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping");
      return StatusCode::FAILURE;
   }
+
+
+  SG::ReadCondHandle<LArBadChannelCont> bcHdl{m_BCKey};
+  const LArBadChannelCont* bcCont{*bcHdl};
 
   const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
   
@@ -303,9 +285,9 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	  if ( currDig->isPulsed() ) {
 	    chid = currDig->hardwareID();
 	    CaloGain::CaloGain t_gain = currDig->gain();
-	    if (m_dontCorrect->cellShouldBeMasked(chid,t_gain)) {
+	    if (m_dontCorrMask.cellShouldBeMasked(bcCont,chid)) {
 	      ATH_MSG_DEBUG("Strips 0x"  << MSG::hex << chid.get_compact() << MSG::dec << " (Eta = " << ieta << ", Phi = " 
-			    << iphi2 << ") should not be touched accoring to " << m_dontCorrect.typeAndName());
+			    << iphi2 << ") should not be touched accoring to jobConfig");
 	      continue;
 	    }
 
@@ -360,7 +342,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 		continue;
 	      }
 	      //Check if neighbour is on the bad-channel list
-	      if (m_dontUseForCorr->cellShouldBeMasked(neighDig->hardwareID(),t_gain)) {
+	      if (m_dontUseForCorrMask.cellShouldBeMasked(bcCont,neighDig->hardwareID())) {
 		ATH_MSG_DEBUG("Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
 			      << " (Eta = " << ieta << ", Phi = " << iphi 
 			      << ") is flagged by the LArBadChannelMaskingTool. Not used for correction.");

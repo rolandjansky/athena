@@ -26,23 +26,32 @@ namespace xAOD {
       jFexMETRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize(uint32_t word0 );
+      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t word0);
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t word0() const;
-      uint16_t E_x() const;
-      uint16_t E_y() const;
+      uint8_t jFexNumber() const;
+      uint8_t fpgaNumber() const;
+      int16_t E_x() const;
+      int16_t E_y() const;
       uint8_t Res() const;
       uint8_t Sat() const; 
 
       /// Set the "raw" 32-bit words describing the object candidate
+      uint32_t gettob() const;
       void setWord0( uint32_t word0 );
       
-      unsigned int getE_x() const;
-      void setE_x(uint16_t value);
+      int getjFexNumber() const;
+      void setjFexNumber( uint8_t jFexNumber );
+      
+      int getfpgaNumber() const;
+      void setfpgaNumber( uint8_t fpgaNumber );
+      
+      int getE_x() const;
+      void setE_x(int16_t value);
 
-      unsigned int getE_y() const;
-      void setE_y(uint16_t value);
+      int getE_y() const;
+      void setE_y(int16_t value);
 
       unsigned int getRes() const;
       void setRes(uint8_t value);
@@ -59,16 +68,18 @@ namespace xAOD {
       static const float s_minEta;
 
       // Data locations within word
-      static const int s_E_xBit = 27; 
-      static const int s_E_yBit = 23; 
-      static const int s_ResBit = 12; 
-      static const int s_SatBit =  1;
+      static const int s_E_xBit = 17;
+      static const int s_SatBit = 16;
+      static const int s_E_yBit = 1; 
+      static const int s_ResBit = 0; 
+      
 
       //Data masks
-      static const int s_E_xMask  = 0x1f;
-      static const int s_E_yMask  = 0xf;
-      static const int s_ResMask  = 0x7ff;
-      static const int s_SatMask  = 0x7ff;  
+      static const int s_E_xMask  = 0x7fff;
+      static const int s_E_yMask  = 0x7fff;
+      static const int s_ResMask  = 0x1;
+      static const int s_SatMask  = 0x1;  
+      static const int s_signed_E = 14;  
 
    }; // class jFexMETRoI_v1
 
