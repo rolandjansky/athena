@@ -161,7 +161,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0, ipPerigee->clone(), 0, 0, typePattern));
+                trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
             }
         }
 
