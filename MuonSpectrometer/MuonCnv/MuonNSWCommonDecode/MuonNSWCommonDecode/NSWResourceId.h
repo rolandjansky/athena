@@ -13,6 +13,29 @@ namespace Muon
 {
   namespace nsw
   {
+    enum NSWResourceTypes
+    {
+      NSW_RESOURCE_PAD = 0,
+      NSW_RESOURCE_STRIP = 1,
+      NSW_RESOURCE_TRIG_PROC = 2,
+      NSW_RESOURCE_PAD_TRIG = 3,
+      NSW_RESOURCE_L1DDC = 4,
+      NSW_RESOURCE_ADDC = 5,
+      NSW_RESOURCE_ROUTER = 6,
+      NSW_RESOURCE_RIM_L1DDC = 7
+    };
+
+    enum NSWDataTypes
+    {
+      NSW_DATA_L1A = 0,
+      NSW_DATA_MONITOR = 1,
+      NSW_DATA_TO_SCA = 2,
+      NSW_DATA_FROM_SCA = 3,
+      NSW_DATA_TTC = 4,
+      NSW_DATA_L1A_INFO = 5,
+      NSW_DATA_AUX = 6
+    };
+
     class NSWResourceId
     {
      private:
@@ -52,11 +75,59 @@ namespace Muon
       uint8_t technology     () {return m_Tech;}
 
       bool pre_version       () {return m_pre_version;};
+
+      // Offline decoder
+
+      bool is_large_station  ();
+
+      int8_t  station_eta    ();
+      uint8_t station_phi    ();
+      uint8_t multi_layer    ();
+      uint8_t gas_gap        ();
     };
   }
 }
 
-Muon::nsw::NSWResourceId::NSWResourceId (uint32_t logical_id)
+inline bool Muon::nsw::NSWResourceId::is_large_station ()
+{
+  // counting from 0, even sectors are large
+  return ((m_Sector % 2) == 0);
+}
+
+inline int8_t Muon::nsw::NSWResourceId::station_eta ()
+{
+  int8_t mod_eta;
+  // Odd identifiers are on side A
+  int8_t side_sign = (m_DetId % 2) == 0 ? -1 : 1;
+
+  // MM identifiers are less than STGC identifiers
+  if (m_DetId < eformat::MUON_STGC_ENDCAP_A_SIDE)
+    mod_eta = m_Radius < 10 ? 1 : 2;
+  else
+    mod_eta = m_Radius + 1;
+
+  return (side_sign * mod_eta);
+}
+
+inline uint8_t Muon::nsw::NSWResourceId::station_phi ()
+{
+  // Becomes 1 to 8
+  return (m_Sector / 2 + 1);
+}
+
+inline uint8_t Muon::nsw::NSWResourceId::multi_layer ()
+{
+  // 1 = IP; 2 = HO
+  return (m_Layer / 4 + 1);
+}
+
+inline uint8_t Muon::nsw::NSWResourceId::gas_gap ()
+{
+  // 1 to 4
+  return (m_Layer + 1 - 4 * (m_Layer / 4));
+}
+
+inline Muon::nsw::NSWResourceId::NSWResourceId (uint32_t logical_id)
 {
   m_DetId        = Muon::nsw::helper::get_bits (logical_id, Muon::nsw::bitMaskDetId, Muon::nsw::bitPosDetId);
 
