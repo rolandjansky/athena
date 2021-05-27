@@ -115,7 +115,7 @@ namespace Muon {
                             newCandidate.layerIntersections.back() =
                                 layerIntersection;  // replace the last intersection on the original candidate
                             // newCandidate.layerIntersections.push_back(layerIntersection);
-                            newCandidates.push_back(std::move(newCandidate));
+                            newCandidates.emplace_back(std::move(newCandidate));
                         }
                         ++selectedSegmentsInLayer;
                     }
@@ -180,23 +180,23 @@ namespace Muon {
         muonLayerDataHashVec.resize(MuonStationIndex::StIndexMax);
 
         // loop over layers
-        for (const auto& layer : allLayers) {
+        for (const MuonLayerRecoData& layer : allLayers) {
             const MuonLayerSurface& layerSurface = layer.intersection.layerSurface;
             MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex(layerSurface.regionIndex, layerSurface.layerIndex);
 
             // create layer intersections
             std::vector<MuonLayerIntersection> layerIntersections;
-            for (auto segment : layer.segments) {
+            for (const std::shared_ptr<const MuonSegment>& segment : layer.segments) {
                 // get quality and skip bad ones
                 int quality = m_segmentSelector->quality(*segment);
                 if (quality < m_minSegmentQuality) continue;
 
-                layerIntersections.push_back(MuonLayerIntersection(layer.intersection, segment));
+                layerIntersections.emplace_back(layer.intersection, segment);
             }
 
             // if there are no segments yet in the layer, directly add them
             if (muonLayerDataHashVec[stIndex].empty()) {
-                std::swap(muonLayerDataHashVec[stIndex], layerIntersections);
+                muonLayerDataHashVec[stIndex] = std::move(layerIntersections);
             } else {
                 // there are already segment, try resolving small/large overlaps
                 resolveSmallLargeOverlaps(muonLayerDataHashVec[stIndex], layerIntersections);
@@ -226,12 +226,11 @@ namespace Muon {
         std::vector<MuonLayerIntersection> combinedIntersections;
 
         // loop over all permutations
-        for (const auto& layerIntersection1 : existingLayerIntersections) {
+        for (const MuonLayerIntersection& layerIntersection1 : existingLayerIntersections) {
             // get quality and skip bad ones
             int quality1 = m_segmentSelector->quality(*layerIntersection1.segment);
             if (quality1 < m_minSegmentQuality) continue;
-
-            for (const auto& layerIntersection2 : newLayerIntersections) {
+            for (const MuonLayerIntersection& layerIntersection2 : newLayerIntersections) {
                 // get quality and skip bad ones
                 int quality2 = m_segmentSelector->quality(*layerIntersection2.segment);
                 if (quality2 < m_minSegmentQuality) continue;
@@ -243,8 +242,8 @@ namespace Muon {
                 if (!m_segmentMatchingTool->match(*layerIntersection1.segment, *layerIntersection2.segment)) continue;
 
                 // build new segment
-                std::shared_ptr<const MuonSegment> newseg(
-                    m_muonTrackBuilder->combineToSegment(*layerIntersection1.segment, *layerIntersection2.segment));
+                std::shared_ptr<const MuonSegment> newseg{
+                    m_muonTrackBuilder->combineToSegment(*layerIntersection1.segment, *layerIntersection2.segment)};
                 if (!newseg) {
                     ATH_MSG_DEBUG(" Fit of combination of segments failed ");
                     continue;
@@ -273,15 +272,15 @@ namespace Muon {
                 Amg::Vector3D direction = newseg->globalPosition().unit();
                 // lambda to project the intersection positions on the line, treats the case where pointer is null
                 auto getDistance = [](const MuonLayerIntersection& layerIntersection, const Amg::Vector3D& direction) {
-                    if (layerIntersection.intersection.trackParameters.get() == nullptr) return 1e9;
+                    if (!layerIntersection.intersection.trackParameters.get()) return 1e9;
                     return layerIntersection.intersection.trackParameters->position().dot(direction);
                 };
                 double dist1 = getDistance(layerIntersection1, direction);
                 double dist2 = getDistance(layerIntersection2, direction);
                 if (dist1 < dist2)
-                    combinedIntersections.push_back(MuonLayerIntersection(layerIntersection1.intersection, newseg));
+                    combinedIntersections.emplace_back(layerIntersection1.intersection, newseg);
                 else
-                    combinedIntersections.push_back(MuonLayerIntersection(layerIntersection2.intersection, newseg));
+                    combinedIntersections.emplace_back(layerIntersection2.intersection, newseg);
 
                 ATH_MSG_DEBUG(" Combined segments " << std::endl
                                                     << " first   " << m_printer->print(*layerIntersection1.segment) << std::endl
@@ -295,17 +294,13 @@ namespace Muon {
         }
 
         // lambda to loop over the input intersections and add them to the new list
-        auto insertLayerIntersections = [](std::vector<MuonLayerIntersection>& target, const std::vector<MuonLayerIntersection>& layers,
-                                           std::set<const MuonSegment*>& exclusionSet) {
-            for (auto& layer : layers) {
-                if (exclusionSet.count(layer.segment.get())) continue;
-                target.push_back(layer);
-            }
-        };
-
+        auto insert_intersection = [&combinedSegments] ( const Muon::MuonLayerIntersection& inter_sect){
+            return !combinedSegments.count(inter_sect.segment.get());
+        };        
         // do the insertion and swap the new vector with the existingLayerIntersections
-        insertLayerIntersections(combinedIntersections, existingLayerIntersections, combinedSegments);
-        insertLayerIntersections(combinedIntersections, newLayerIntersections, combinedSegments);
-        std::swap(existingLayerIntersections, combinedIntersections);
+        combinedIntersections.reserve(existingLayerIntersections.size() + newLayerIntersections.size() );
+        std::copy_if(existingLayerIntersections.begin(), existingLayerIntersections.end(), std::back_inserter(combinedIntersections), insert_intersection );
+        std::copy_if(newLayerIntersections.begin(), newLayerIntersections.end(), std::back_inserter(combinedIntersections), insert_intersection );
+        existingLayerIntersections = std::move(combinedIntersections);
     }
 }  // namespace Muon

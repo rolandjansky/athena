@@ -16,30 +16,20 @@ def _buildJetAlgForInput(suffix, tools ):
     )
     return jetalg
 
-def buildJetSelectedTracks( parentjetdef, inputspec ):
-    from JetRecTools import JetRecToolsConfig
-    # Jet track selection
-    t = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True,
-                                          cutLevel="NoCut", minPt=500) 
-    return _buildJetAlgForInput("JetSelectedTrack",
-                                tools = [ t ]
-                                )
-
 def buildJetTrackUsedInFitDeco( parentjetdef, inputspec ):
     from JetRecTools import JetRecToolsConfig
     # Jet track used-in-fit decoration
     return _buildJetAlgForInput("JetUsedInFitDeco",
-                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool() ]
+                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool(parentjetdef.context) ]
     )
 
 def buildJetTrackVertexAssoc( parentjetdef, inputspec ):
     from JetRecTools import JetRecToolsConfig
     # Jet track TTVA
     return _buildJetAlgForInput("JetTVA",
-                                tools = [ JetRecToolsConfig.getTrackVertexAssocTool() ]
+                                tools = [ JetRecToolsConfig.getTrackVertexAssocTool(parentjetdef.context) ]
     )
     
-
 
     
 def buildJetInputTruth(parentjetdef, truthmod):

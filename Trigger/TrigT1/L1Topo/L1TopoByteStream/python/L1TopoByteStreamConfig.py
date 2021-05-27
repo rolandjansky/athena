@@ -4,29 +4,20 @@ Functions creating ComponentAccumulator with ByteStream converters for L1Topo ob
 '''
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
 
-# This function could likely be moved somewhere central
-def GenericByteStreamCnvCfg(flags, typeNamesToDecode):
-    if flags.Trigger.Online.isPartition:
-        from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
-        servicesCfgFunction = TrigByteStreamCfg
-    else:
-        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        servicesCfgFunction = ByteStreamReadCfg
-
-    acc = ComponentAccumulator()
-    acc.merge(servicesCfgFunction(flags, type_names=typeNamesToDecode))
-    return acc
 
 def L1TopoRDOCollectionBSCnvCfg(flags):
     typeNamesToDecode = ["L1TopoRDOCollection/L1TopoRDOCollection",
                          "SG::AuxVectorBase/L1TopoRDOCollection"]
-    return GenericByteStreamCnvCfg(flags, typeNamesToDecode)
+    return ByteStreamReadCfg(flags, typeNamesToDecode)
+
 
 def L1TopoRawDataContainerBSCnvCfg(flags):
     typeNamesToDecode = ["xAOD::L1TopoRawDataContainer/L1TopoRawData",
                          "xAOD::L1TopoRawDataAuxContainer/L1TopoRawDataAux."]
-    return GenericByteStreamCnvCfg(flags, typeNamesToDecode)
+    return ByteStreamReadCfg(flags, typeNamesToDecode)
+
 
 def L1TopoByteStreamCfg(flags):
     acc = ComponentAccumulator()

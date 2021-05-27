@@ -135,14 +135,15 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms(const std::vector<std::str
 ///////////////////////////////////////////////////////////////////////////////
 double CaloMuonLikelihoodTool::getLHR(const xAOD::TrackParticle* trk, const xAOD::CaloClusterContainer* ClusContainer,
                                       const double dR_CUT) const {
+    
     ATH_MSG_DEBUG("in CaloMuonLikelihoodTool::getLHR()");
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if (trk && ClusContainer) {
         const double eta_trk = trk->eta();
         const double qOverP = trk->qOverP();
         const double p_trk = qOverP != 0. ? std::abs(1 / qOverP) : 0.;
 
-        std::unique_ptr<Trk::CaloExtension> caloExt = m_caloExtensionTool->caloExtension(*trk);
+        std::unique_ptr<Trk::CaloExtension> caloExt = m_caloExtensionTool->caloExtension(ctx, *trk);
 
         if (!caloExt) return 0;
         const Trk::TrackParameters* caloEntryInterSec = caloExt->caloEntryLayerIntersection();
@@ -155,10 +156,8 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::TrackParticle* trk, const xAOD
 
         return getLHR(ClusContainer, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
     }
-
     return 0;
-}
-
+}    
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool::getLHR
 ///////////////////////////////////////////////////////////////////////////////

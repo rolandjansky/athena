@@ -323,16 +323,6 @@ def triggerOutputCfg(flags, hypos):
     if onlineWriteBS:
         __log.info("Configuring online ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, hypos)
-        # Configure the online HLT result maker to use the above tools
-        # For now use old svcMgr interface as this service is not available from acc.getService()
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = []
-        for tool in acc.popPrivateTools():
-            if 'StreamTagMaker' in tool.getName():
-                hltEventLoopMgr.ResultMaker.StreamTagMaker = conf2toConfigurable(tool)
-            else:
-                hltEventLoopMgr.ResultMaker.MakerTools += [ conf2toConfigurable(tool) ]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, hypos, offline=True)
@@ -373,7 +363,7 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
     # Tool serialising EDM objects to fill the HLT result
-    serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
+    serialiser = TriggerEDMSerialiserToolCfg()
     for item, modules in ItemModuleDict.items():
         sModules = sorted(modules)
         __log.debug('adding to serialiser list: %s, modules: %s', item, sModules)
@@ -406,6 +396,14 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
         acc.addEventAlgo(hltResultMakerAlg)
 
+        # Provide ByteStreamMetaData from input, required by the result maker tool
+        if flags.Input.Format == 'BS':
+            from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+            readBSAcc = ByteStreamReadCfg(flags)
+            readBSAcc.getEventAlgo('SGInputLoader').Load += [
+                ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+            acc.merge(readBSAcc)
+
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
         decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
         acc.addEventAlgo(decmaker)
@@ -416,16 +414,21 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         acc.merge(L1PrescaleCondAlgCfg(flags))
 
         # Create OutputStream alg
-        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
-        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ])
-        writingAcc.getPrimary().ExtraInputs = [
-            ("HLT::HLTResultMT", "HLTResultMT"),
-            ("xAOD::TrigDecision", "xTrigDecision")]
-        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
-        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
+        from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamWriteCfg
+        writingOutputs = ["HLT::HLTResultMT#HLTResultMT"]
+        writingInputs = [("HLT::HLTResultMT", "HLTResultMT"),
+                         ("xAOD::TrigDecision", "xTrigDecision")]
+        writingAcc = ByteStreamWriteCfg(flags, type_names=writingOutputs, extra_inputs=writingInputs)
         acc.merge(writingAcc)
     else:
-        acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
+        from TrigServices.TrigServicesConfig import TrigServicesCfg
+        onlineServicesAcc = TrigServicesCfg(flags)
+        hltEventLoopMgr = onlineServicesAcc.getPrimary()
+        hltEventLoopMgr.ResultMaker.StreamTagMaker = stmaker
+        hltEventLoopMgr.ResultMaker.MakerTools = [serialiser, bitsmaker]
+        onlineServicesAcc.getEventAlgo('SGInputLoader').Load += [
+            ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+        acc.merge(onlineServicesAcc)
     return acc
 
 

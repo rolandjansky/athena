@@ -546,7 +546,8 @@ namespace xAOD {
     const Trk::CaloExtension* caloExtension = nullptr;
     if (m_caloExtensionKey.empty())
     {
-      caloExtensionUPtr = m_caloExtTool->caloExtension(*tp);
+      caloExtensionUPtr =
+        m_caloExtTool->caloExtension(Gaudi::Hive::currentContext(), *tp);
       caloExtension = caloExtensionUPtr.get();
     }
     else
