@@ -40,12 +40,6 @@ class ParticleCaloExtensionTool final
   , public AthAlgTool
 {
 public:
-  /** This following "using" statements can be removed after the methods in
-   * IParticleCaloExtensionTool.h for the old interfaces WITHOUT EventContext
-   * are removed, i.e. only the new ones with EventContext are used throughout
-   * the sw */
-  using IParticleCaloExtensionTool::caloExtension;
-  using IParticleCaloExtensionTool::caloExtensionCollection;
 
   ParticleCaloExtensionTool(
     const std::string&,
