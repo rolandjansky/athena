@@ -159,6 +159,25 @@ int pproc_file(const std::string & p_infile) {
     }
 
     int res = postProcessDir(gDirectory,theHelper); // recursively post-process the directory tree, starting from the root.  
+    
+    // process the vertexing plot 
+    TH1F* vx_hs_long_reso = dynamic_cast<TH1F*>(infile->GetDirectory("IDPerformanceMon")->GetDirectory("Vertices")->GetDirectory("Details")->Get("vx_hs_long_reso")->Clone());
+    TH1F* vx_hs_long_bias = dynamic_cast<TH1F*>(infile->GetDirectory("IDPerformanceMon")->GetDirectory("Vertices")->GetDirectory("Details")->Get("vx_hs_long_bias")->Clone()); 
+    TH1F* vx_hs_trans_reso = dynamic_cast<TH1F*>(infile->GetDirectory("IDPerformanceMon")->GetDirectory("Vertices")->GetDirectory("Details")->Get("vx_hs_trans_reso")->Clone());
+    TH1F* vx_hs_trans_bias = dynamic_cast<TH1F*>(infile->GetDirectory("IDPerformanceMon")->GetDirectory("Vertices")->GetDirectory("Details")->Get("vx_hs_trans_bias")->Clone());
+ 
+    TH2F* long_reso_2D = dynamic_cast<TH2F*>(infile->GetDirectory("IDPerformanceMon")->GetDirectory("Vertices")->GetDirectory("Details")->Get("vx_hs_truth_long_reso_vs_PU"));
+    TH2F* trans_reso_2D = dynamic_cast<TH2F*>(infile->GetDirectory("IDPerformanceMon")->GetDirectory("Vertices")->GetDirectory("Details")->Get("vx_hs_truth_trans_reso_vs_PU")); 
+
+    theHelper.makeResolutions(long_reso_2D,vx_hs_long_reso,vx_hs_long_bias, IDPVM::ResolutionHelper::iterRMS_convergence);
+    theHelper.makeResolutions(trans_reso_2D,vx_hs_trans_reso,vx_hs_trans_bias, IDPVM::ResolutionHelper::iterRMS_convergence);
+    gDirectory->cd("/IDPerformanceMon/Vertices/Details/");
+
+    vx_hs_long_reso->Write("",TObject::kOverwrite);
+    vx_hs_long_bias->Write("",TObject::kOverwrite);
+    vx_hs_trans_reso->Write("",TObject::kOverwrite);
+    vx_hs_trans_bias->Write("",TObject::kOverwrite);
+
     infile->Close();
     return res;
 }
