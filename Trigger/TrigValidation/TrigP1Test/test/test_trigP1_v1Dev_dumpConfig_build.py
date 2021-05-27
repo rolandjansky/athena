@@ -14,6 +14,7 @@ ex.input = 'data'
 ex.args = '-c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 ex.args += ' -M --dump-config-exit'
 ex.perfmon = False  # Cannot use PerfMon with -M
+ex.fpe_auditor = False  # Don't want FPEAuditor in SMK for P1
 
 test = Test.Test()
 test.art_type = 'build'

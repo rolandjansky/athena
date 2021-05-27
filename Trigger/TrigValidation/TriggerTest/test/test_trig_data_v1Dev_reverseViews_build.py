@@ -19,7 +19,6 @@ precommand = ''.join([
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
   "forceEnableAllChains=True;",
-  "fpeAuditor=True;",
   "reverseViews=True;"
 ])
 ex.args = '-c "{:s}"'.format(precommand)
