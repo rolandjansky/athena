@@ -388,9 +388,7 @@ def tauFTFSequence( RoIs, name ):
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
 
-    for viewAlg in viewAlgs:
-       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-         TrackCollection = viewAlg.TrackName
+    TrackCollection = IDTrigConfig.trkTracks_FTF()
 
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 
