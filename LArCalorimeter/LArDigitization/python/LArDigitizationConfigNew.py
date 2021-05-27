@@ -11,7 +11,7 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
-from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
+from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg,LArBadChannelCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 # for Digitization
@@ -82,6 +82,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     # AutoCorrNoise, the list of bad FEBs and the cabling
     acc.merge(LArADC2MeVCondAlgCfg(flags))
     acc.merge(LArBadFebCfg(flags))
+    acc.merge(LArBadChannelCfg(flags))
     if flags.Overlay.DataOverlay:
         kwargs.setdefault("ShapeKey", "LArShape")
     if not flags.Digitization.DoCaloNoise:
@@ -92,9 +93,9 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
 
     if flags.Common.ProductionStep != ProductionStep.Overlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
-    if "MaskingTool" not in kwargs:
-        maskerTool = acc.popToolsAndMerge(LArBadChannelMaskerCfg(flags, ["deadReadout", "deadPhys"], ToolName="LArRCBMasker"))
-        kwargs["MaskingTool"] = maskerTool
+
+    if "ProblemsToMask" not in kwargs:
+        kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]
     # defaults
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)

@@ -29,17 +29,11 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :base_class (type, name, parent),
-   m_maskingTool(this),
-   m_maskingSporadicTool(this),
    m_qualityCut(65536),
    m_maskNoise(true),
    m_maskSporadic(true)
 { 
-  declareProperty("MaskingTool",m_maskingTool,"Tool handle for noisy/dead channel masking");
-  declareProperty("MaskingSporadicTool",m_maskingSporadicTool,"Tool handle for sporadic noisy channel masking");
   declareProperty("qualityCut",m_qualityCut,"Quality cut for sporadic noise channel");
-  declareProperty("maskNoise",m_maskNoise,"Flag to mask high Noise / dead channels");
-  declareProperty("maskSporadic",m_maskSporadic,"Flag to mask sporadic noise channels");
   m_caloNums.clear();
   m_caloNums.push_back( static_cast<int>(CaloCell_ID::LAREM) );
   m_caloNums.push_back( static_cast<int>(CaloCell_ID::LARHEC) );
@@ -55,19 +49,25 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 // The initialize method will create all the required algorithm objects
 /////////////////////////////////////////////////////////////////////
 
-StatusCode LArCellNoiseMaskingTool::initialize()
-{
-  if (!m_maskingTool.empty()) {
-    ATH_CHECK( m_maskingTool.retrieve() );
-    ATH_MSG_INFO (" Cell masking for noise/dead channels activated using bad channel masking tool ");
+StatusCode LArCellNoiseMaskingTool::initialize() {
+
+  m_maskNoise= not m_problemsToMask.empty();
+  m_maskSporadic = not m_sporadicProblemsToMask.empty();
+
+  ATH_CHECK(m_bcContKey.initialize(m_maskNoise or m_maskSporadic));
+
+  ATH_CHECK(m_noiseMask.buildBitMask(m_problemsToMask,msg()));
+  ATH_CHECK(m_sporadicNoiseMask.buildBitMask(m_sporadicProblemsToMask,msg()));
+
+  if (m_maskNoise) {
+    ATH_MSG_INFO (" Cell masking for noise/dead channels activated");
   }
   else {
     ATH_MSG_INFO (" Cell masking for noise/dead channels not activated ");
   }
 
-  if (!m_maskingSporadicTool.empty()) {
-    ATH_CHECK( m_maskingSporadicTool.retrieve() );
-    ATH_MSG_INFO (" Cell masking for sporadic noise activated using  masking tool ");
+  if (m_maskSporadic) {
+    ATH_MSG_INFO (" Cell masking for sporadic noise activated");
   }
   else {
     ATH_MSG_INFO (" Cell masking for sporadic noise not activated ");
@@ -78,14 +78,14 @@ StatusCode LArCellNoiseMaskingTool::initialize()
 
 StatusCode
 LArCellNoiseMaskingTool::process (CaloCellContainer * theCont,
-                                  const EventContext& /*ctx*/) const
+                                  const EventContext& ctx) const
 {
   StatusCode returnSc = StatusCode::SUCCESS ;
 
   if (!m_maskNoise && !m_maskSporadic) return returnSc;
 
-  bool sporadicMask = !m_maskingSporadicTool.empty() && m_maskSporadic;
-  bool noiseMask    = !m_maskingTool.empty() && m_maskNoise;
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+  const LArBadChannelCont* bcCont{*bcContHdl};
 
   for (std::vector<int>::const_iterator itrCalo=m_caloNums.begin();itrCalo!=m_caloNums.end();++itrCalo){
       CaloCell_ID::SUBCALO caloNum=static_cast<CaloCell_ID::SUBCALO>(*itrCalo);
@@ -99,21 +99,21 @@ LArCellNoiseMaskingTool::process (CaloCellContainer * theCont,
           bool toMask = false;
 
 // sporadic noise masking using quality cut.   Logic could be improved using neighbour information...
-          if (sporadicMask) {
+          if (m_maskSporadic) {
               if (aCell->quality() > m_qualityCut) {
-                  if (m_maskingSporadicTool->cellShouldBeMasked(cellId)) {
-                      toMask=true;
-                      ATH_MSG_DEBUG (" Mask sporadic noise cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality());
-                  }
+		if (m_sporadicNoiseMask.cellShouldBeMasked(bcCont,cellId)) {
+		  toMask=true;
+		  ATH_MSG_DEBUG (" Mask sporadic noise cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality());
+		}
               }      
           }
 
 // high noise / dead channel masking
-          if (noiseMask) {
-             if (m_maskingTool->cellShouldBeMasked(cellId)) {
-                 toMask=true;
-                 ATH_MSG_DEBUG (" Mask highNoise/dead  cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality());
-             }
+          if (m_maskNoise) {
+	    if (m_noiseMask.cellShouldBeMasked(bcCont,cellId)) {
+	      toMask=true;
+	      ATH_MSG_DEBUG (" Mask highNoise/dead  cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality());
+	    }
           }
 
 

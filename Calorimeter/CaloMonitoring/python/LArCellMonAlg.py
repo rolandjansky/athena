@@ -106,19 +106,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     else: 
        badChanMaskProblems=["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG","unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"]
 
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg():
-       from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-
-       acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=badChanMaskProblems,ToolName="BadLArRawChannelMask")
-       LArCellMonAlg.LArBadChannelMask=acc.popPrivateTools()
-       helper.resobj.merge(acc)
-    else:
-       from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-       theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-       theLArBadChannelsMasker.DoMasking=True
-       theLArBadChannelsMasker.ProblemsToMask=badChanMaskProblems
-       LArCellMonAlg.LArBadChannelMask=theLArBadChannelsMasker
+    LArCellMonAlg.ProblemsToMask=badChanMaskProblems
 
     if not isCosmics and not isMC:
         LArCellMonAlg.useReadyFilterTool=True

@@ -41,7 +41,6 @@ using Athena::Units::GeV;
 LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,const IInterface* parent) 
   :CaloMonToolBase(type, name, parent),
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-   m_badChannelMask("BadLArRawChannelMask",this),
    m_LArOnlineIDHelper(nullptr),
    m_calo_id(nullptr),
    m_counter_sporadic_protc(0),
@@ -60,7 +59,6 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
   declareProperty("miscTriggerNames",m_triggerNames[MISC]);
   
   // Bad channel masking options 
-  declareProperty("LArBadChannelMask",m_badChannelMask,"Tool handle for LArBadChanelMasker AlgTool");
   declareProperty("MaskBadChannels",m_maskKnownBadChannels=false,"Do not fill histograms with values from known bad channels"); 
   declareProperty("MaskNoCondChannels", m_maskNoCondChannels=false,"Do not fill histograms with values from cells reco'ed w/o conditions database");
 
@@ -150,21 +148,10 @@ StatusCode LArCellMonTool::initialize() {
   ATH_CHECK( detStore()->retrieve(m_calo_id) );
 
   // Bad channel masker tool 
-  if(m_maskKnownBadChannels){
-    ATH_CHECK(m_badChannelMask.retrieve());
-  }
-  else {
-    m_badChannelMask.disable();
-  }
+  ATH_CHECK(m_BCKey.initialize(m_maskKnownBadChannels || m_doKnownBadChannelsVsEtaPhi));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   ATH_CHECK( m_cablingKey.initialize() );
-
-  // Bad channels key
-  //(used for building eta phi map of known bad channels)
-  if( m_doKnownBadChannelsVsEtaPhi) {
-    ATH_CHECK(m_BCKey.initialize());
-  }
-
   ATH_CHECK(m_noiseKey.initialize());
 
   //JobO consistency check:
@@ -652,6 +639,15 @@ StatusCode LArCellMonTool::fillHistograms(){
 
   SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
 
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle (m_BCKey, ctx);
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(m_maskKnownBadChannels && !bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container !!!" );
+     return StatusCode::FAILURE;
+  }
+
+
   SG::ReadHandle<CaloCellContainer> cellContHandle (m_cellContainerName, ctx);
   if (! cellContHandle.isValid()) { return StatusCode::FAILURE; }
   const CaloCellContainer* cellCont = cellContHandle.get();
@@ -689,7 +685,7 @@ StatusCode LArCellMonTool::fillHistograms(){
     const bool celltqavailable = ( cellprovenance & 0x2000 );
     
     // No more filling if we encounter a bad channel ....
-    if (m_maskKnownBadChannels && m_badChannelMask->cellShouldBeMasked(id,gain)) continue;
+    if (m_maskKnownBadChannels && m_bcMask.cellShouldBeMasked(bcCont,id)) continue;
 
     // ...or a channel w/o conditions
     if (m_maskNoCondChannels && (cellprovenance & 0x00FF) != 0x00A5) continue; //FIXME, I think that cut is wrong

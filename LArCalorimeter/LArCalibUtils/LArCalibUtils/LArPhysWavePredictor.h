@@ -9,16 +9,15 @@
 #define LARPHYSWAVEPREDICTOR_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 
 #include <vector>
 #include <string>
 
-class ILArBadChannelMasker;
 class LArOnlineID_Base;
 
 class LArPhysWavePredictor : public AthAlgorithm
@@ -34,9 +33,12 @@ class LArPhysWavePredictor : public AthAlgorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
  private:
-  ToolHandle<ILArBadChannelMasker> m_maskingTool;
+  
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+
 
   const LArOnlineID_Base* m_onlineHelper;
   bool m_testmode;

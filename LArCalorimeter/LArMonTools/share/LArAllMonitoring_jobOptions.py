@@ -33,14 +33,10 @@ if metadata['eventTypes'][0] == 'IS_SIMULATION':
 
 
 # Define ONE LArBadChannelMask for all Monitoring tools
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBadChannelsMasker=LArBadChannelMasker("LArBadChannelsMasker")
-theLArBadChannelsMasker.DoMasking=True
-theLArBadChannelsMasker.ProblemsToMask=[
+ProblemsToMask=[
     "deadReadout","deadPhys","short","almostDead",
     "highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"
     ]
-ToolSvc+=theLArBadChannelsMasker
 
 # Parameter to avoid the "procHist" offline. More efficient
 if athenaCommonFlags.isOnline():

@@ -537,23 +537,11 @@ topSequence += LArPedACBuilder
 
 
 if ( doLArCalibDataQuality  ) :
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArPedValBCMask=LArBadChannelMasker("PedValBCMask",
-                                          DoMasking=True,
-                                          ProblemsToMask=[]
-                                          )
-   ServiceMgr.ToolSvc+=theLArPedValBCMask
-   theLArACValBCMask=LArBadChannelMasker("ACValBCMask",
-                                          DoMasking=True,
-                                          ProblemsToMask=[]
-                                          )
-   ServiceMgr.ToolSvc+=theLArACValBCMask
    
    if  Pedestal :
       from LArCalibDataQuality.Thresholds import pedThr,rmsThr, pedThrFEB,rmsThrFEB
       from LArCalibDataQuality.LArCalibDataQualityConf import LArPedestalValidationAlg
       thePedestalValidationAlg=LArPedestalValidationAlg("PedestalVal")
-      thePedestalValidationAlg.BadChannelMaskingTool=theLArPedValBCMask
       thePedestalValidationAlg.ValidationKey="Pedestal"
       thePedestalValidationAlg.ReferenceKey="PedestalRef"
       thePedestalValidationAlg.PedestalTolerance=pedThr
@@ -570,7 +558,6 @@ if ( doLArCalibDataQuality  ) :
 
       ## second instance of the validation tool to detect "bad" channel
       theBadPedestal=LArPedestalValidationAlg("PedestalFail")
-      theBadPedestal.BadChannelMaskingTool=theLArPedValBCMask
       theBadPedestal.ValidationKey="Pedestal"
       theBadPedestal.ReferenceKey="PedestalRef"
       theBadPedestal.PedestalTolerance       = ["10,10,10"]
@@ -588,7 +575,6 @@ if ( doLArCalibDataQuality  ) :
       from LArCalibDataQuality.Thresholds import acThr, acThrFEB
       from LArCalibDataQuality.LArCalibDataQualityConf import LArAutoCorrValidationAlg
       theAutoCorrValidationAlg=LArAutoCorrValidationAlg("AutoCorrVal")
-      theAutoCorrValidationAlg.BadChannelMaskingTool=theLArACValBCMask
       theAutoCorrValidationAlg.ValidationKey="LArAutoCorr"
       theAutoCorrValidationAlg.ReferenceKey="LArAutoCorrRef"
       theAutoCorrValidationAlg.AutoCorrTolerance=acThr
@@ -603,7 +589,6 @@ if ( doLArCalibDataQuality  ) :
       
       ## second instance of the validation tool to detect "bad" channel     
       theBadAutoCorr=LArAutoCorrValidationAlg("AutoCorrFail")
-      theBadAutoCorr.BadChannelMaskingTool=theLArACValBCMask
       theBadAutoCorr.ValidationKey="LArAutoCorr"
       theBadAutoCorr.ReferenceKey="LArAutoCorrRef"
       theBadAutoCorr.AutoCorrTolerance    = ["0.15, 0.15, 0.15"]
@@ -643,14 +628,10 @@ if ( doMonitoring ) :
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.isOnline=online
       from LArMonTools.LArMonFlags import LArMonFlags
-      from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-      theLArBadChannelsMasker=LArBadChannelMasker("LArBadChannelsMasker")
-      theLArBadChannelsMasker.DoMasking=True
-      theLArBadChannelsMasker.ProblemsToMask=[
+      ProblemsToMask=[
          "deadReadout","deadPhys","short","almostDead",
          "highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"
          ]
-      ToolSvc+=theLArBadChannelsMasker
       from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedestalCondAlg 
       svcMgr.IOVDbSvc.Folders.append("<db>COOLONL_LAR/CONDBR2</db>/LAR/ElecCalibFlat/Pedestal")
       from AthenaCommon.AlgSequence import AthSequencer

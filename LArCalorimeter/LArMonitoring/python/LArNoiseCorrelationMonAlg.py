@@ -59,26 +59,12 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
     if isRun3Cfg() :
         if inputFlags.DQ.Environment == 'online':
             isOnline=True
-
-        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-        cfg=ComponentAccumulator()
-
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-        larNoiseCorrelMonAlg.LArBadChannelMask=acc.popPrivateTools()
-        cfg.merge(acc)
     else :
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         if athenaCommonFlags.isOnline:
             isOnline=True
-
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-        theLArBadChannelsMasker.DoMasking=True
-        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
-        larNoiseCorrelMonAlg.LArBadChannelMask=theLArBadChannelsMasker
-        pass
-
+ 
+    larNoiseCorrelMonAlg.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
     larNoiseCorrelMonAlg.IgnoreBadChannels=True
     larNoiseCorrelMonAlg.TriggerChain = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY" #turn off for calibration run 
     larNoiseCorrelMonAlg.IsCalibrationRun = False
@@ -199,7 +185,10 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
 
     print(correlArray)
 
+
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     if isRun3Cfg():
+        cfg=ComponentAccumulator()
         cfg.merge(helper.result())
         return cfg
     else:    
