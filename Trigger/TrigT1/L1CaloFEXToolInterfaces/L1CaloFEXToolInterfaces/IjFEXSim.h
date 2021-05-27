@@ -42,6 +42,7 @@ Interface definition for jFEXSim
     virtual std::vector<std::vector<uint32_t>> getLargeRJetTOBs() =0;
     virtual std::vector<std::vector<uint32_t>> getTauTOBs() =0;
     virtual std::vector<std::vector<uint32_t>> getSumEtTOBs() =0;
+    virtual std::vector<std::vector<uint32_t>> getMetTOBs() =0;
 
     virtual StatusCode ExecuteForwardASide(int tmp[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;
     virtual StatusCode ExecuteForwardCSide(int tmp[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;

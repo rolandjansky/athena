@@ -23,9 +23,11 @@ namespace xAOD {
    jFexSumETRoI_v1::jFexSumETRoI_v1()
      : SG::AuxElement() {
    }
-   void jFexSumETRoI_v1::initialize(uint32_t word0) {
+   void jFexSumETRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t word0) {
  
      setWord0( word0 );
+     setjFexNumber( jFexNumber );
+     setfpgaNumber( fpgaNumber );     
      setEt_upper(getEt_upper());
      setSat_upper(getSat_upper());
      setEt_lower(getEt_lower());
@@ -46,7 +48,8 @@ namespace xAOD {
    //----------------
 
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint32_t, word0, setWord0)
-
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t, jFexNumber, setjFexNumber)
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSumETRoI_v1, uint8_t, fpgaNumber, setfpgaNumber)
    /// Only calculable externally
  
    /// Extracted from data words, stored for convenience
@@ -69,13 +72,25 @@ namespace xAOD {
    //}
 
    //Hardware coordinate elements  
+   
+    uint32_t jFexSumETRoI_v1::gettob() const {
+        return word0();
+    }
+    
+    unsigned int jFexSumETRoI_v1::getjFexNumber() const {
+        return jFexNumber();
+    }
 
+    unsigned int jFexSumETRoI_v1::getfpgaNumber() const {
+        return fpgaNumber();
+    }
+   
    //Raw ET on TOB scale (200 MeV/count)
     unsigned int jFexSumETRoI_v1::getEt_upper() const{
      return (word0() >> s_Et_upperBit) & s_Et_upperMask;
     }
    unsigned int jFexSumETRoI_v1::getEt_lower() const{
-     return (word0() >> s_Et_lowerBit) * s_Et_lowerMask;
+     return (word0() >> s_Et_lowerBit) & s_Et_lowerMask;
    }
 
    //Return sat upper flag

@@ -23,6 +23,8 @@ namespace xAOD{
 
   private:
     std::vector<uint32_t> word0;
+    std::vector<uint8_t>  fpgaNumber;
+    std::vector<uint8_t>  jFexNumber;
     std::vector<uint16_t> Et_lower;
     std::vector<uint16_t> Et_upper;
     std::vector<uint8_t>  Sat_lower;
