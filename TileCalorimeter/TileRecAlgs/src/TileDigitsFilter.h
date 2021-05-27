@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -55,7 +55,7 @@ class TileHWID;
 class TileDigitsFilter: public AthReentrantAlgorithm {
   public:
     // Constructor
-    TileDigitsFilter(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsFilter(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TileDigitsFilter();
