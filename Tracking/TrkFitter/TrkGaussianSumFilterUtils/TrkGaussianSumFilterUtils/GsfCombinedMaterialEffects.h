@@ -13,21 +13,20 @@
 #ifndef TrkGsfCombinedMaterialEffects_H
 #define TrkGsfCombinedMaterialEffects_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
+#include "TrkGaussianSumFilterUtils/ComponentParameters.h"
+#include "TrkGaussianSumFilterUtils/GsfConstants.h"
+#include "TrkGaussianSumFilterUtils/GsfMaterial.h"
 //
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
-//
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGeometry/MaterialProperties.h"
 
 namespace Trk {
 
-class GsfCombinedMaterialEffects final
-  : public AthAlgTool
-  , virtual public IMultiStateMaterialEffects
+class GsfCombinedMaterialEffects
 {
 public:
-  /** Helper Struct for multiple Gaussian componets*/
+  /** Helper Struct for multiple Gaussian components*/
   struct ComponentValues
   {
     double weight;
@@ -52,25 +51,26 @@ public:
     std::array<double, GSFConstants::polynomialCoefficients> coefficients;
   };
 
-  /** Constructor with AlgTool parameters*/
+  // ctor with arguments
   GsfCombinedMaterialEffects(
-    const std::string&,
-    const std::string&,
-    const IInterface*);
+    const std::string& parameterisationFileName,
+    const std::string& parameterisationFileNameHighX0);
 
-  /** Virtual destructor */
-  virtual ~GsfCombinedMaterialEffects() override;
+  // ctor with arguments
+  GsfCombinedMaterialEffects() = default;
+  GsfCombinedMaterialEffects(const GsfCombinedMaterialEffects&) = default;
+  GsfCombinedMaterialEffects(GsfCombinedMaterialEffects&&) = default;
+  GsfCombinedMaterialEffects& operator=(const GsfCombinedMaterialEffects&) =
+    default;
+  GsfCombinedMaterialEffects& operator=(GsfCombinedMaterialEffects&&) = default;
+  ~GsfCombinedMaterialEffects() = default;
 
-  /** AlgTool initialise method */
-  virtual StatusCode initialize() override final;
-
-  virtual void compute(
-    GsfMaterial::Combined&,
-    const ComponentParameters&,
-    const MaterialProperties&,
-    double,
-    PropDirection = anyDirection,
-    ParticleHypothesis = nonInteracting) const override final;
+  void compute(GsfMaterial::Combined&,
+               const Trk::ComponentParameters&,
+               const Trk::MaterialProperties&,
+               double,
+               Trk::PropDirection = anyDirection,
+               Trk::ParticleHypothesis = nonInteracting) const;
 
 private:
   // Electron enrrgy loss due to Bremsstrahlung
@@ -81,9 +81,6 @@ private:
     double pathLenght,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
-
-  // Read polynomial fit parameters from a specified file
-  bool readBHParameters();
 
   int m_BHnumberOfComponents{};
   int m_BHtransformationCode{};
@@ -102,26 +99,8 @@ private:
     m_BHpolynomialMeansHighX0{};
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
     m_BHpolynomialVariancesHighX0{};
-
-  Gaudi::Property<bool> m_useHighX0{ this,
-                                     "UseHighX0",
-                                     true,
-                                     "Use the high X0 parametrization" };
-
-  Gaudi::Property<std::string> m_parameterisationFileName{
-    this,
-    "BetheHeitlerParameterisationFileName",
-    "GeantSim_LT01_cdf_nC6_O5.par",
-    "Parametrization of Bethe Heitler material effects"
-  };
-
-  Gaudi::Property<std::string> m_parameterisationFileNameHighX0{
-    this,
-    "BetheHeitlerParameterisationFileNameHighX0",
-    "GeantSim_GT01_cdf_nC6_O5.par",
-    "Parametrization of Bethe Heitler material effects for high X0"
-  };
 };
+
 } // end Trk namespace
 
 #endif

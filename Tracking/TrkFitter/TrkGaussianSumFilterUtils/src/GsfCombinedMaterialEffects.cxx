@@ -8,19 +8,18 @@
  * @brief         Implementation code for GsfCombinedMaterialEffects class
  */
 
-#include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
+#include "TrkGaussianSumFilterUtils/GsfCombinedMaterialEffects.h"
 //
 #include "PathResolver/PathResolver.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkExUtils/MaterialInteraction.h"
-#include "TrkGeometry/Layer.h"
-#include "TrkGeometry/MaterialProperties.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkSurfaces/Surface.h"
 //
 #include <cmath>
+#include <exception>
 #include <fstream>
+#include <sstream>
 
 namespace {
 const Trk::ParticleMasses s_particleMasses{};
@@ -29,6 +28,7 @@ constexpr double s_lowerRange = 0.002;
 constexpr double s_xOverRange = 0.10;
 constexpr double s_upperRange = 0.20;
 constexpr double s_componentMeanCut = 0.0;
+
 inline bool
 inRange(int var, int lo, int hi)
 {
@@ -107,23 +107,9 @@ getMixtureParameters(
   return mixture;
 }
 
-Trk::GsfCombinedMaterialEffects::Polynomial
-readPolynomial(std::ifstream& fin)
-{
-  Trk::GsfCombinedMaterialEffects::Polynomial poly{};
-  for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
-    if (!fin) {
-      throw std::runtime_error(
-        "Reached end of stream but still expecting data.");
-    }
-    fin >> poly.coefficients[i];
-  }
-  return poly;
-}
-
 // Ioniation energy loss helper calling
 // MaterialInteraction::PDG_energyLoss_ionization
-Trk::EnergyLoss
+inline Trk::EnergyLoss
 ionizationEnergyLoss(const Trk::MaterialProperties& mat,
                      double p,
                      double pathcorrection,
@@ -142,7 +128,7 @@ ionizationEnergyLoss(const Trk::MaterialProperties& mat,
   return Trk::EnergyLoss(meanIoni, sigIoni, sigIoni, sigIoni);
 }
 
-void
+inline void
 scattering(GsfMaterial::Scattering& cache,
            const Trk::ComponentParameters& componentParameters,
            const Trk::MaterialProperties& materialProperties,
@@ -179,7 +165,7 @@ scattering(GsfMaterial::Scattering& cache,
   cache.deltaPhiCov = angularVariation / (sinTheta * sinTheta);
 }
 
-void
+inline void
 energyLoss(GsfMaterial::EnergyLoss& cache,
            const Trk::ComponentParameters& componentParameters,
            const Trk::MaterialProperties& materialProperties,
@@ -219,136 +205,136 @@ energyLoss(GsfMaterial::EnergyLoss& cache,
   cache.numElements = 1;
 }
 
+// Helper to read in polynomials
+Trk::GsfCombinedMaterialEffects::Polynomial
+readPolynomial(std::ifstream& fin)
+{
+  Trk::GsfCombinedMaterialEffects::Polynomial poly{};
+  for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
+    if (!fin) {
+      throw std::logic_error("Reached end of stream but still expecting data.");
+    }
+    fin >> poly.coefficients[i];
+  }
+  return poly;
+}
+
 } //  end of anonymous namespace
 
 // GsfCombinedMaterialEffects methods
 Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(
-  const std::string& type,
-  const std::string& name,
-  const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  const std::string& parameterisationFileName,
+  const std::string& parameterisationFileNameHighX0)
 {
-  declareInterface<IMultiStateMaterialEffects>(this);
-}
 
-Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects() = default;
-
-StatusCode
-Trk::GsfCombinedMaterialEffects::initialize()
-{
-  if (!readBHParameters()) {
-    ATH_MSG_ERROR(
-      "Bethe Heitler Parameters could NOT be successfully imported from "
-      "file");
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-bool
-Trk::GsfCombinedMaterialEffects::readBHParameters()
-{
-  // Read std polynomial
-  std::string resolvedFileName =
-    PathResolver::find_file(m_parameterisationFileName, "DATAPATH");
-  if (!resolvedFileName.empty()) {
-    ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
-  } else {
-    ATH_MSG_ERROR("Parameterisation file not found");
-    return false;
-  }
-
-  const char* filename = resolvedFileName.c_str();
-  std::ifstream fin(filename);
-  if (fin.bad()) {
-    ATH_MSG_ERROR("Error opening file: " << resolvedFileName);
-    return false;
-  }
-
-  int orderPolynomial = 0;
-  fin >> m_BHnumberOfComponents;
-  fin >> orderPolynomial;
-  fin >> m_BHtransformationCode;
+  // The following is a bit repetitive code
+  // we could consider refactoring
   //
-  if (not inRange(
-        m_BHnumberOfComponents, 0, GSFConstants::maxNumberofBHComponents)) {
-    ATH_MSG_ERROR("numberOfComponents Parameter out of range 0- "
-                  << GSFConstants::maxNumberofBHComponents << " : "
-                  << m_BHnumberOfComponents);
-    return false;
-  }
-  if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
-    ATH_MSG_ERROR("orderPolynomial  order !=  "
-                  << (GSFConstants::polynomialCoefficients - 1));
-    return false;
-  }
-  if (not inRange(m_BHtransformationCode, 0, 1)) {
-    ATH_MSG_ERROR("transformationCode Parameter out of range 0-1: "
-                  << m_BHtransformationCode);
-    return false;
-  }
-  if (!fin) {
-    ATH_MSG_ERROR("Error while reading file : " << resolvedFileName);
-    return false;
-  }
-
-  // Fill the polynomials
-  int componentIndex = 0;
-  for (; componentIndex < m_BHnumberOfComponents; ++componentIndex) {
-    m_BHpolynomialWeights[componentIndex] = readPolynomial(fin);
-    m_BHpolynomialMeans[componentIndex] = readPolynomial(fin);
-    m_BHpolynomialVariances[componentIndex] = readPolynomial(fin);
-  }
-
-  // Read the high X0 polynomial
-  if (m_useHighX0) {
-    resolvedFileName =
-      PathResolver::find_file(m_parameterisationFileNameHighX0, "DATAPATH");
-    if (!resolvedFileName.empty()) {
-      ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
-    } else {
-      ATH_MSG_ERROR("Parameterisation file not found");
-      return false;
+  // The low X0 polynomials
+  {
+    std::string resolvedFileName =
+      PathResolver::find_file(parameterisationFileName, "DATAPATH");
+    if (resolvedFileName.empty()) {
+      std::ostringstream ss;
+      ss << "Parameterisation file : " << parameterisationFileName
+         << " not found";
+      throw std::logic_error(ss.str());
     }
 
     const char* filename = resolvedFileName.c_str();
     std::ifstream fin(filename);
-
     if (fin.bad()) {
-      ATH_MSG_ERROR("Error opening file: " << resolvedFileName);
-      return false;
+      std::ostringstream ss;
+      ss << "Error opening file: " << resolvedFileName;
+      throw std::logic_error(ss.str());
     }
 
+    fin >> m_BHnumberOfComponents;
+    int orderPolynomial = 0;
+    fin >> orderPolynomial;
+    fin >> m_BHtransformationCode;
+    if (not inRange(
+          m_BHnumberOfComponents, 0, GSFConstants::maxNumberofBHComponents)) {
+      std::ostringstream ss;
+      ss << "numberOfComponents Parameter out of range 0- "
+         << GSFConstants::maxNumberofBHComponents << " : "
+         << m_BHnumberOfComponents;
+      throw std::logic_error(ss.str());
+    }
+    if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+      std::ostringstream ss;
+      ss << "orderPolynomial  order !=  "
+         << (GSFConstants::polynomialCoefficients - 1);
+      throw std::logic_error(ss.str());
+    }
+    if (not inRange(m_BHtransformationCode, 0, 1)) {
+      std::ostringstream ss;
+      ss << "transformationCode Parameter out of range 0-1: "
+         << m_BHtransformationCode;
+      throw std::logic_error(ss.str());
+    }
+    if (!fin) {
+      std::ostringstream ss;
+      ss << "Error while reading file : " << resolvedFileName;
+      throw std::logic_error(ss.str());
+    }
+    // Fill the polynomials
+    int componentIndex = 0;
+    for (; componentIndex < m_BHnumberOfComponents; ++componentIndex) {
+      m_BHpolynomialWeights[componentIndex] = readPolynomial(fin);
+      m_BHpolynomialMeans[componentIndex] = readPolynomial(fin);
+      m_BHpolynomialVariances[componentIndex] = readPolynomial(fin);
+    }
+  }
+  // Read the high X0 polynomials
+  {
+    std::string resolvedFileName =
+      PathResolver::find_file(parameterisationFileNameHighX0, "DATAPATH");
+    if (resolvedFileName.empty()) {
+      std::ostringstream ss;
+      ss << "Parameterisation file : " << parameterisationFileNameHighX0
+         << " not found";
+      throw std::logic_error(ss.str());
+    }
+
+    const char* filename = resolvedFileName.c_str();
+    std::ifstream fin(filename);
+    if (fin.bad()) {
+      std::ostringstream ss;
+      ss << "Error opening file: " << resolvedFileName;
+      throw std::logic_error(ss.str());
+    }
     fin >> m_BHnumberOfComponentsHighX0;
+    int orderPolynomial = 0;
     fin >> orderPolynomial;
     fin >> m_BHtransformationCodeHighX0;
     //
     if (not inRange(m_BHnumberOfComponentsHighX0,
                     0,
                     GSFConstants::maxNumberofBHComponents)) {
-      ATH_MSG_ERROR("numberOfComponentsHighX0 Parameter out of range 0- "
-                    << GSFConstants::maxNumberofBHComponents << " : "
-                    << m_BHnumberOfComponentsHighX0);
-      return false;
+      std::ostringstream ss;
+      ss << "numberOfComponentsHighX0 Parameter out of range 0- "
+         << GSFConstants::maxNumberofBHComponents << " : "
+         << m_BHnumberOfComponentsHighX0;
+      throw std::logic_error(ss.str());
     }
     if (m_BHnumberOfComponentsHighX0 != m_BHnumberOfComponents) {
-      ATH_MSG_ERROR(" numberOfComponentsHighX0 != numberOfComponents");
-      return false;
+      std::ostringstream ss;
+      ss << " numberOfComponentsHighX0 != numberOfComponents";
+      throw std::logic_error(ss.str());
     }
     if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
-      ATH_MSG_ERROR("orderPolynomial  order !=  "
-                    << (GSFConstants::polynomialCoefficients - 1));
-      return false;
+      std::ostringstream ss;
+      ss << "orderPolynomial  order !=  "
+         << (GSFConstants::polynomialCoefficients - 1);
+      throw std::logic_error(ss.str());
     }
     if (not inRange(m_BHtransformationCodeHighX0, 0, 1)) {
-      ATH_MSG_ERROR("transformationCode Parameter out of range "
-                    "0-1: "
-                    << m_BHtransformationCodeHighX0);
-      return false;
-    }
-    if (fin.bad()) {
-      ATH_MSG_ERROR("Error reading file: " << resolvedFileName);
-      return false;
+      std::ostringstream ss;
+      ss << "transformationCode Parameter out of range "
+            "0-1: "
+         << m_BHtransformationCodeHighX0;
+      throw std::logic_error(ss.str());
     }
 
     // Fill the polynomials
@@ -359,7 +345,6 @@ Trk::GsfCombinedMaterialEffects::readBHParameters()
       m_BHpolynomialVariancesHighX0[componentIndex] = readPolynomial(fin);
     }
   }
-  return true;
 }
 
 void
@@ -378,7 +363,6 @@ Trk::GsfCombinedMaterialEffects::compute(
   GsfMaterial::Scattering cache_multipleScatter;
   scattering(
     cache_multipleScatter, componentParameters, materialProperties, pathLength);
-
   /*
    * 2. Retrieve energy loss corrections
    */
@@ -397,7 +381,6 @@ Trk::GsfCombinedMaterialEffects::compute(
                direction,
                particleHypothesis);
   }
-
   // Protect if there are no new energy loss
   // components
   // we want at least on dummy to "combine"
@@ -435,6 +418,10 @@ Trk::GsfCombinedMaterialEffects::compute(
   } // end for loop over energy loss components
 }
 
+/*
+ * Use polynomials to get the BetheHeitler
+ * energy loss
+ */
 void
 Trk::GsfCombinedMaterialEffects::BetheHeitler(
   GsfMaterial::EnergyLoss& cache,
@@ -488,7 +475,7 @@ Trk::GsfCombinedMaterialEffects::BetheHeitler(
 
   // Get proper mixture parameters
   MixtureParameters mixture;
-  if (m_useHighX0 && pathlengthInX0 > s_xOverRange) {
+  if (pathlengthInX0 > s_xOverRange) {
     if (m_BHtransformationCodeHighX0) {
       mixture = getTranformedMixtureParameters(m_BHpolynomialWeightsHighX0,
                                                m_BHpolynomialMeansHighX0,
@@ -517,10 +504,8 @@ Trk::GsfCombinedMaterialEffects::BetheHeitler(
                                      m_BHnumberOfComponents);
     }
   }
-
   // Correct the mixture
   correctWeights(mixture, m_BHnumberOfComponents);
-
   int componentIndex = 0;
   double weightToBeRemoved(0.);
   int componentWithHighestMean(0);
