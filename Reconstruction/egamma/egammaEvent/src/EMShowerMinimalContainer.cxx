@@ -32,7 +32,7 @@ void EMShowerMinimalContainer::print()
   std::cout << "Number of EMShowerMinimal objects in container " 
 	    << this->size() << std::endl;
 
-  for (c_itr=begin(); c_itr!=end(); c_itr++) 
+  for (c_itr=begin(); c_itr!=end(); ++c_itr) 
   {
     (*c_itr)->print();
   }

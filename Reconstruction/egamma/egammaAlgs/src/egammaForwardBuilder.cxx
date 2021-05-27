@@ -102,7 +102,7 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   xAOD::CaloClusterContainer::const_iterator  clus_begin = cluster->begin();
   xAOD::CaloClusterContainer::const_iterator  clus_end   = cluster->end();
 
-  for (; clus_begin!=clus_end; clus_begin++) {
+  for (; clus_begin!=clus_end; ++clus_begin) {
 
     //Preselectcion cuts
     if((*clus_begin)->et() < m_ETcut||
