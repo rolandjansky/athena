@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -143,12 +143,10 @@ StatusCode GetLCDeadMaterialTree::initialize()
   // how we have to set correspondance between dead material areas and calibration moments
   m_momentForDMArea.resize( m_HadDMCoeff->getSizeAreaSet());
   for(int i_dm=0; i_dm<m_HadDMCoeff->getSizeAreaSet(); i_dm++){
-    moment_name_vector::const_iterator mVNameIter = validNames.begin(); 
-    moment_name_vector::const_iterator mVNameIterEnd = validNames.end();
     bool isValid(false);
-    for(; mVNameIter!=mVNameIterEnd; mVNameIter++) {
-      if ( m_HadDMCoeff->getArea(i_dm)->getTitle() == mVNameIter->first ) {
-        m_momentForDMArea[i_dm] = mVNameIter->second;
+    for (const moment_name_pair& vname : validNames) {
+      if ( m_HadDMCoeff->getArea(i_dm)->getTitle() == vname.first ) {
+        m_momentForDMArea[i_dm] = vname.second;
         isValid = true;
         break;
       }
@@ -277,7 +275,7 @@ StatusCode GetLCDeadMaterialTree::execute()
   xAOD::CaloClusterContainer::const_iterator clusIter = pClusColl->begin();
   xAOD::CaloClusterContainer::const_iterator clusIterEnd = pClusColl->end();
   unsigned int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
+  for( ;clusIter!=clusIterEnd;++clusIter,++iClus) {
     const xAOD::CaloCluster * theCluster = (*clusIter);
 
     (*m_data->m_cls_ener)[iClus] = theCluster->e();

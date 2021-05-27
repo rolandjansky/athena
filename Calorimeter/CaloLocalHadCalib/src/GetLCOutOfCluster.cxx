@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -95,7 +95,7 @@ GetLCOutOfCluster::~GetLCOutOfCluster()
 
 StatusCode GetLCOutOfCluster::initialize() {
 
-  m_outputFile = new TFile(m_outputFileName.c_str(),"RECREATE");
+  m_outputFile = std::make_unique<TFile>(m_outputFileName.c_str(),"RECREATE");
   m_outputFile->cd();
   m_ooc.resize(0);
 
@@ -219,19 +219,17 @@ StatusCode GetLCOutOfCluster::initialize() {
     }
   }
   //--- check sampling names to use exclude in correction
-  std::vector<std::string>::iterator samplingIter = m_invalidSamplingNames.begin(); 
-  std::vector<std::string>::iterator samplingIterEnd = m_invalidSamplingNames.end(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++) { 
+  for (const std::string& name : m_invalidSamplingNames) {
     int theSampling(CaloSampling::Unknown);
     for (unsigned int jsamp = 0;jsamp< CaloSampling::Unknown; jsamp++) {
-      if ( *samplingIter == CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)jsamp)) {
+      if ( name == CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)jsamp)) {
 	theSampling = jsamp;
 	break;
       }
     }
     if ( theSampling == CaloSampling::Unknown ) {
       msg(MSG::ERROR)  << "Calorimeter sampling " 
-	  << *samplingIter
+	  << name
           << " is not a valid Calorimeter sampling name and will be ignored! "
           << "Valid names are: ";
       for (unsigned int jsamp = 0;jsamp< CaloSampling::Unknown; jsamp++) {
@@ -249,9 +247,8 @@ StatusCode GetLCOutOfCluster::initialize() {
   }
 
   msg(MSG::INFO) << "Samplings to exclude from the out-of-cluster weighting:";
-  samplingIter = m_invalidSamplingNames.begin(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++)  
-    msg() << " " << *samplingIter;
+  for (const std::string& name : m_invalidSamplingNames)
+    msg() << " " << name;
   msg() << endmsg;
 
   ATH_CHECK( m_clusterCollName.initialize() );
@@ -325,10 +322,8 @@ StatusCode GetLCOutOfCluster::execute()
       }
 
       // subtract the samplings to ignore from eng
-      std::set<int>::const_iterator ivSamplingIter = m_invalidSamplings.begin(); 
-      std::set<int>::const_iterator ivSamplingIterEnd = m_invalidSamplings.end(); 
-      for(; ivSamplingIter!=ivSamplingIterEnd; ivSamplingIter++) {
-	eng -= pClus->eSample((CaloSampling::CaloSample)(*ivSamplingIter));
+      for (int sampling : m_invalidSamplings) {
+	eng -= pClus->eSample((CaloSampling::CaloSample)(sampling));
       }
       
       if ( eng > 0 ) { 
@@ -380,7 +375,8 @@ StatusCode GetLCOutOfCluster::execute()
 	
 	  if ( lamb > 0 &&
 	       etot > 0 &&
-	       isol > 0.5 ) {
+	       isol > 0.5 )
+          {
 	    int iO = ilogE*nphi*nside+iphi*nside+iside;
 	    if (m_ooc[iO]) {
 	      double norm = 0.0;
@@ -388,15 +384,11 @@ StatusCode GetLCOutOfCluster::execute()
 		norm = etot*inv_eCalibTot;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
-		if ( etot > 0 ) {
-		  // cluster has to have at least 1% of the calib hit E
-		  norm = log10(etot*inv_eCalibTot)+2.0;
-		}
+                // cluster has to have at least 1% of the calib hit E
+                norm = log10(etot*inv_eCalibTot)+2.0;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
-		if ( etot > 0 ) {
-		  norm = inv_nClusECalibGt0;
-		}
+                norm = inv_nClusECalibGt0;
 	      }
 	      else {
 		norm = 1.0;
@@ -422,15 +414,12 @@ void GetLCOutOfCluster::mapinsert(const std::vector<Gaudi::Histo1DDef> & dims) {
 
 void GetLCOutOfCluster::mapparse() {
 
-  std::map<std::string,Gaudi::Histo1DDef>::iterator miter = m_dimensionsmap.begin();
-  std::map<std::string,Gaudi::Histo1DDef>::iterator mend = m_dimensionsmap.end();
-  
-  for( ; miter != mend; miter++ ) {
-    m_dimensions.push_back(miter->second);
+  for (std::pair<const std::string, Gaudi::Histo1DDef>& p : m_dimensionsmap) {
+    m_dimensions.push_back(p.second);
     ATH_MSG_DEBUG(" New Dimension: " 
-		  << miter->second.title() << ", [" << miter->second.lowEdge()
-		  << ", " << miter->second.highEdge() 
-		  << ", " << miter->second.bins()
+		  << p.second.title() << ", [" << p.second.lowEdge()
+		  << ", " << p.second.highEdge() 
+		  << ", " << p.second.bins()
 		  << "]");
   }
 }
