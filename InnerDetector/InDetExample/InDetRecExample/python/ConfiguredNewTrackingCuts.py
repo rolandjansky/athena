@@ -319,6 +319,12 @@ class ConfiguredNewTrackingCuts :
           self.__minPTSeed             = 1.0 * Units.GeV
           self.__maxZImpactSeed        = 150.0 * Units.mm
 
+        if self.__indetflags.doStagingStudies():
+          if self.__indetflags.stagingConfig() == "noOuterEndcap":
+            self.__minClusters             = [9, 6, 6]
+            self.__minSiNotShared          = [7, 4, 4]
+            self.__maxPixelHoles           = [2, 1, 1]
+
       else:
         
         # --- higher pt cut and impact parameter cut
