@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Bill Balunas <bill.balunas@cern.ch>
 
-#include "PFlowUtils/FEHelpers.h"
+#include "xAODPFlow/FEHelpers.h"
 
 namespace FEHelpers {
 
