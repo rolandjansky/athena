@@ -228,6 +228,7 @@ if hasattr(runArgs,'TruthReductionScheme'):
         from SGComps import AddressRemappingSvc
         AddressRemappingSvc.addInputRename("McEventCollection","TruthEvent","TruthEventOLD")
         AddressRemappingSvc.addInputRename("SiHitCollection","BCMHits","BCMHitsOLD")
+        AddressRemappingSvc.addInputRename("SiHitCollection","HGTD_Hits","HGTD_HitsOLD")
         AddressRemappingSvc.addInputRename("SiHitCollection","PixelHits","PixelHitsOLD")
         AddressRemappingSvc.addInputRename("SiHitCollection","SCT_Hits","SCT_HitsOLD")
         AddressRemappingSvc.addInputRename("TRTUncompressedHitCollection","TRTUncompressedHits","TRTUncompressedHitsOLD")
@@ -258,6 +259,14 @@ if hasattr(runArgs,'TruthReductionScheme'):
             McEventCollectionFilter.UseBCMHits = False
         except:
             filterHitLog.error('Trying to run on upgrade samples (no BCM) with an old version of McEventCollectionFilter - job will fail.')
+
+    ## HGTD is only there for Phase-II jobs
+    if DetFlags.detdescr.HGTD_on():
+        try:
+            McEventCollectionFilter.UseHGTDHits = True
+        except:
+            filterHitLog.error('Failed to add HGTD hits to McEventCollectionFilter - job will fail.')
+
     ## For RUN3 geometries the CSC may be removed, so should be switched off.
     if not DetFlags.detdescr.CSC_on():
         try:
