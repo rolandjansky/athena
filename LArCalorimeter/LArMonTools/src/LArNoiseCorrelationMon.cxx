@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
 */
@@ -350,7 +350,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	  }
 
 	/** Loop over the samples and compute average and sum of squares*/
-	for(int i=0;i<Nsam;i++,iterSam++,iterSam2++)
+	for(int i=0;i<Nsam;++i,++iterSam,++iterSam2)
 	  {
 	    if(!av_set) { /** fill the mean only once per ch1. This code is here to avoid one additional loop over samples before the second loop. */
 	      m_histos.second.second->Fill(m_ch1,(*iterSam-pedestal));
