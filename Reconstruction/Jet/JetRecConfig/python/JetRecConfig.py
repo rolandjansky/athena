@@ -269,39 +269,36 @@ def getInputAlgs(jetOrConstitdef, configFlags, context="default", monTool=None):
     
     jetlog.info("Inspecting input file contents")
 
+    # We won't prepare an alg if the input already exists in the in input file 
     try:
         filecontents = configFlags.Input.Collections
     except Exception:
         filecontents = []
+    # local function to check if the container of the JetInputXXXX 'c' is already in filecontents :
+    def isInInput( c ):
+        cname = c.containername if isinstance(c, JetInputConstit) else c.containername(jetdef,c.specs)
+        return cname in filecontents
 
+    # Loop over all inputs required by jetdefs and get the corresponding algs
     inputdeps = [ inputkey for inputkey in jetdef._prereqOrder if inputkey.startswith('input:')]
     algs = []
     for inputfull in inputdeps:
         inputInstance = jetdef._prereqDic[inputfull]
+        if isInInput( inputInstance ):
+            jetlog.debug(f"Input container for {inputInstance} already in input file.")
+            continue
         
         if isinstance(inputInstance, JetInputConstit):
-            if inputInstance.containername in filecontents:
-                jetlog.debug("Input container {0} for label {1} already in input file.".format(inputInstance.containername, inputInstance.name))
-            else:
-                jetlog.debug("Preparing Constit Mods for label {0} from {1}".format(inputInstance.name,inputInstance.inputname))
-                # May need to generate constituent modifier sequences to
-                # produce the input collection
-                #from . import ConstModHelpers
-                constitalg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
-                if constitalg:
-                    algs +=[ constitalg ]
+            constitalg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
+            if constitalg:
+                algs +=[ constitalg ]
         else: # it must be a JetInputExternal
-            cname = inputInstance.containername(jetdef,inputInstance.specs) # (by defaults this is just inputInstance.name)
-            if cname in filecontents:
-                jetlog.debug("Input container {0} for prereq {1} already in input file.".format(cname, inputInstance.name))
+            # check if it has something to build an Algorithm
+            if inputInstance.algoBuilder:
+                algs+=[ inputInstance.algoBuilder( jetdef, inputInstance.specs ) ]
             else:
-                jetlog.debug("Requesting input {} with function {} and specs {}".format(inputInstance.name, inputInstance.algoBuilder, inputInstance.specs) )
-                # check if it has something to build an Algorithm
-                if inputInstance.algoBuilder:
-                    algs+=[ inputInstance.algoBuilder( jetdef, inputInstance.specs ) ]
-                else:
-                    # for now just hope the input will be present... 
-                    pass
+                # for now just hope the input will be present... 
+                pass
     return algs
 
 
