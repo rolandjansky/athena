@@ -21,7 +21,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 namespace {
-    static constexpr const double MeVtoGeV = 1 / Gaudi::Units::GeV;
+    constexpr const double MeVtoGeV = 1 / Gaudi::Units::GeV;
 }
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
@@ -73,7 +73,7 @@ StatusCode MuonCreatorAlg::initialize() {
 }
 
 StatusCode MuonCreatorAlg::execute() {
-    const InDetCandidateCollection* indetCandidateCollection = 0;
+    const InDetCandidateCollection* indetCandidateCollection = nullptr;
     std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
     if (!m_doSA) {
         SG::ReadHandle<InDetCandidateCollection> indetRH(m_indetCandidateCollectionName);
@@ -160,7 +160,7 @@ StatusCode MuonCreatorAlg::execute() {
         output.clusterContainer = wh_clusters.ptr();
     }
 
-    const MuonCandidateCollection* muonCandidateCollection = 0;
+    const MuonCandidateCollection* muonCandidateCollection = nullptr;
 
     SG::WriteHandle<xAOD::SlowMuonContainer> wh_slowmuon;
     if (m_buildSlowMuon) {
@@ -180,7 +180,7 @@ StatusCode MuonCreatorAlg::execute() {
 
     if (m_makeClusters) {
         CaloClusterCellLinkContainer* clusterlinks = new CaloClusterCellLinkContainer();
-        auto sg = wh_clusters.storeHandle().get();
+        auto *sg = wh_clusters.storeHandle().get();
         for (xAOD::CaloCluster* cl : *(wh_clusters.ptr())) { cl->setLink(clusterlinks, sg); }
         ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
     }

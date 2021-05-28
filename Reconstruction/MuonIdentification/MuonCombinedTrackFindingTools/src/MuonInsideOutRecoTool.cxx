@@ -199,7 +199,7 @@ namespace MuonCombined {
             if (!vertices.isValid()) {
                 ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
             } else {
-                for (const auto vx : *vertices) {
+                for (const auto *const vx : *vertices) {
                     for (const auto& tpLink : vx->trackParticleLinks()) {
                         if (*tpLink == &idTrackParticle) {
                             matchedVertex = vx;
@@ -342,7 +342,7 @@ namespace MuonCombined {
         // loop over hashes
         for (Muon::MuonLayerHashProviderTool::HashVec::const_iterator it = hashes.begin(); it != hashes.end(); ++it) {
             // skip if not found
-            auto colIt = input->indexFindPtr(*it);
+            const auto *colIt = input->indexFindPtr(*it);
             if (colIt == nullptr) { continue; }
             ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(colIt->identify()) << " size " << colIt->size());
             // else add

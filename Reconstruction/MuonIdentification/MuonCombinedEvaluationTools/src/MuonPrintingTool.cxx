@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -259,6 +259,6 @@ std::string Rec::MuonPrintingTool::print(const xAOD::MuonContainer& muons) const
     std::ostringstream sout;
     sout << "Muon Container Size :" << muons.size() << std::endl;
 
-    for (auto m : muons) { sout << print(*m); }
+    for (const auto *m : muons) { sout << print(*m); }
     return sout.str();
 }
