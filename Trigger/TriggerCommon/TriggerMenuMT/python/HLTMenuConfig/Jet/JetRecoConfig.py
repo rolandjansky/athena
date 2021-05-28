@@ -19,8 +19,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from ..CommonSequences.FullScanDefs import fs_cells
 from JetRecConfig import JetRecConfig
 from JetRecConfig import JetInputConfig
-from JetRecConfig import JetGroomConfig
-from JetRecConfig import ConstModHelpers
+from JetRecConfig.DependencyHelper import solveDependencies, solveGroomingDependencies
+
 from JetRecTools import OnlineMon
 from JetRec import JetOnlineMon
 import copy
@@ -102,16 +102,25 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
             prefix=_jetNamePrefix,
         )
 
+    # Sort and filter
+    jetDef.modifiers += [
+        "Sort",
+        "Filter:{}".format(getFilterCut(jetRecoDict["recoAlg"])),
+        "ConstitFourMom_copy",
+    ]
+    if jetRecoDict["recoAlg"] == "a4":
+        jetDef.modifiers += ["CaloEnergies"]  # needed for GSC
+        
     jetsOut = recordable(jetDef.fullname())
-    JetRecConfig.instantiateAliases(jetDef)
+    jetDef = solveDependencies(jetDef)
 
     if not (
         jetRecoDict["constitMod"] == ""
         and jetRecoDict["constitType"] == "tc"
         and jetRecoDict["clusterCalib"] == "lcw"
     ):
-        alg = ConstModHelpers.getConstitModAlg(
-            jetDef.inputdef,
+        alg = JetRecConfig.getConstitModAlg(
+            jetDef, jetDef.inputdef,
             monTool=OnlineMon.getMonTool_Algorithm(f"HLTJets/{jetsOut}/"),
         )
         # getConstitModAlg will return None if there's nothing for it to do
@@ -137,22 +146,6 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
         acc.addEventAlgo(merge_alg)
     jetDef._internalAtt["finalPJContainer"] = pj_name
 
-    # Sort and filter
-    jetDef.modifiers += [
-        "Sort",
-        "Filter:{}".format(getFilterCut(jetRecoDict["recoAlg"])),
-        "ConstitFourMom_copy",
-    ]
-    if jetRecoDict["recoAlg"] == "a4":
-        jetDef.modifiers += ["CaloEnergies"]  # needed for GSC
-
-    # Reinstantiate the aliases now that we've updated the modifiers
-    JetRecConfig.instantiateAliases(jetDef)
-
-    # make sure all our JetModifier have their track inputs set up according to trkopt
-    from JetRecConfig.JetModConfig import jetModWithAlternateTrk
-
-    jetModWithAlternateTrk(jetDef, jetRecoDict["trkopt"])
 
     acc.addEventAlgo(
         JetRecConfig.getJetRecAlg(
@@ -222,6 +215,8 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
             f"Cleaning:{jetRecoDict['cleaning']}",
         ]
 
+    # make sure all modifiers info is ready before passing jetDef to JetRecConfig helpers
+    jetDef = solveDependencies(jetDef) 
     # This algorithm creates the shallow copy and then also applies the calibration as part of the
     # modifiers list
     acc.addEventAlgo(
@@ -282,9 +277,9 @@ def GroomedJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDi
         "Filter:{}".format(getFilterCut(jetRecoDict["recoAlg"])),
     ]
 
-    JetGroomConfig.instantiateGroomingAliases(groomDef)
+    groomDef = solveGroomingDependencies(groomDef)
     acc.addEventAlgo(
-        JetGroomConfig.getJetGroomAlg(
+        JetRecConfig.getJetGroomAlg(
             groomDef,
             JetOnlineMon.getMonTool_TrigJetAlgorithm(f"HLTJets/{jetsOut}/"),
         )
