@@ -346,12 +346,12 @@ StatusCode ISF::PunchThroughTool::finalize()
  *  ==> see headerfile
  *=======================================================================*/
 
-const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParticles(const ISF::ISFParticle &isfp) const
+const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticles(const ISF::ISFParticle &isfp) const
 {
   ATH_MSG_DEBUG( "[ punchthrough ] starting punch-through simulation");
 
   // reset the output particle collection
-  m_isfpCont = new ISF::ISFParticleContainer();
+  m_isfpCont = new ISF::ISFParticleVector();
 
   // reset the parent GenEvent
   m_parentGenEvt = 0;
@@ -508,7 +508,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
 int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
 {
   // first check if the ISF particle vector already exists
-  if (!m_isfpCont)    m_isfpCont = new ISFParticleContainer();
+  if (!m_isfpCont)    m_isfpCont = new ISFParticleVector();
 
   // get the current particle
   PunchThroughParticle *p = m_particles[pdg];
@@ -1006,6 +1006,7 @@ ISF::ISFParticle* ISF::PunchThroughTool::createExitPs( int pdg,
 
   ISF::ISFParticle* finalPar = new ISF::ISFParticle (pos, mom, mass, charge, pdg, pTime, *m_initPs, m_secBC);
   finalPar->setNextGeoID( AtlasDetDescr::fAtlasMS);
+
   // return the punch-through particle
   return finalPar;
 }

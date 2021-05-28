@@ -86,6 +86,8 @@ namespace ISF {
     bool m_doPunchThrough;
     ToolHandle< IPunchThroughTool >     m_punchThroughTool;
     ServiceHandle<ISF::IParticleBroker> m_particleBroker;
+    ServiceHandle<ISF::ITruthSvc>       m_truthRecordSvc;        //!< Truth Svc for truth tree
+
 
   };
 

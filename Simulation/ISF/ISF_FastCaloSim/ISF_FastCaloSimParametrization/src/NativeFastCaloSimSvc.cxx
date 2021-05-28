@@ -47,7 +47,7 @@ ISF::NativeFastCaloSimSvc::NativeFastCaloSimSvc(const std::string& name,ISvcLoca
   m_theContainer(0),
   m_particleBroker ("ISF_ParticleBroker",name)
 {
-  // where to go 
+  // where to go
   declareProperty("OwnPolicy",                         m_ownPolicy) ;
   declareProperty("CaloCellMakerTools_setup"   ,       m_caloCellMakerTools_setup) ;
   declareProperty("CaloCellMakerTools_simulate",       m_caloCellMakerTools_simulate) ;
@@ -67,7 +67,7 @@ ISF::NativeFastCaloSimSvc::NativeFastCaloSimSvc(const std::string& name,ISvcLoca
                   "Run the FastShowerCellBuilders on the McTruth at the end of the event" );
 }
 
-ISF::NativeFastCaloSimSvc::~NativeFastCaloSimSvc() 
+ISF::NativeFastCaloSimSvc::~NativeFastCaloSimSvc()
 {}
 
 /** framework methods */
@@ -76,19 +76,19 @@ StatusCode ISF::NativeFastCaloSimSvc::initialize()
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing ...");
 
    // access tools and store them
-   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() ) 
+   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() )
         return StatusCode::FAILURE;
-   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_simulate).isFailure() ) 
+   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_simulate).isFailure() )
         return StatusCode::FAILURE;
-   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() ) 
+   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() )
         return StatusCode::FAILURE;
 
-   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() ) 
+   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() )
    {
      ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
      return StatusCode::FAILURE;
-   } 
- 
+   }
+
    ATH_MSG_DEBUG( m_screenOutputPrefix << " Output CaloCellContainer Name " << m_caloCellsOutputName );
    if (m_ownPolicy==SG::OWN_ELEMENTS){
        ATH_MSG_INFO( m_screenOutputPrefix << "...will OWN its cells." );
@@ -118,16 +118,16 @@ StatusCode ISF::NativeFastCaloSimSvc::finalize()
 }
 
 StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
-{ 
+{
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "setup Event");
-  
+
   if (!m_caloCellHack) {
-    
+
     m_theContainer = new CaloCellContainer(static_cast<SG::OwnershipPolicy>(m_ownPolicy));
 
     StatusCode sc=StatusCode::SUCCESS;
     sc=evtStore()->record(m_theContainer,m_caloCellsOutputName);
-     
+
     if (sc.isFailure())  {
       ATH_MSG_FATAL( m_screenOutputPrefix << "cannot record CaloCellContainer " << m_caloCellsOutputName );
       return StatusCode::FAILURE;
@@ -145,7 +145,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
   else {
     // take CaloCellContainer from input and cast away constness
     const CaloCellContainer * theConstContainer ;
-    
+
     StatusCode sc=StatusCode::SUCCESS;
     sc=evtStore()->retrieve(theConstContainer,m_caloCellsOutputName);
     if (sc.isFailure() || theConstContainer==0)
@@ -160,9 +160,9 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_setup.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_setup.end();
   for (;itrTool!=endTool;++itrTool){
-    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
     std::string chronoName=this->name()+"_"+ itrTool->name();
-    
+
     if (m_chrono) m_chrono -> chronoStart( chronoName);
     StatusCode sc = (*itrTool)->process(m_theContainer);
     if (m_chrono) {
@@ -172,7 +172,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
 
     if (sc.isFailure()) {
       ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
-    } 
+    }
   }
 
   /*
@@ -185,7 +185,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
       if(fcs->setupEvent().isFailure()) {
         ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() << " in setupEvent");
         return StatusCode::FAILURE;
-      }  
+      }
     }
   }
   */
@@ -194,7 +194,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
 }
 
 StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
-{ 
+{
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event");
 
   // the return value
@@ -206,7 +206,7 @@ StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
   if ( m_batchProcessMcTruth) {
     // -> run the FastShowerCellBuilder tools
     //        (in Python they should be configured to pick up the modified truth collection)
-    
+
     //ZH commented out these to avoid warnings at the moment
     //ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_simulate.begin();
     //ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_simulate.end();
@@ -214,14 +214,14 @@ StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
     for (;itrTool!=endTool;++itrTool) {
       FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
       if(!fcs) {
-        ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );   
+        ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );
         continue;
       }
-      
-      ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+
+      ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
 
       if( fcs->process(m_theContainer).isFailure()) {
-        ATH_MSG_WARNING( m_screenOutputPrefix << "batch simulation of FastCaloSim particles failed" );   
+        ATH_MSG_WARNING( m_screenOutputPrefix << "batch simulation of FastCaloSim particles failed" );
         sc = StatusCode::FAILURE;
       }
     }
@@ -243,15 +243,15 @@ StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
     }
   }
   */
-  
+
   // (3.) run release tools in a loop
   //
   itrTool=m_caloCellMakerTools_release.begin();
   endTool=m_caloCellMakerTools_release.end();
   for (;itrTool!=endTool;++itrTool){
-    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
     std::string chronoName=this->name()+"_"+ itrTool->name();
-    
+
     if (m_chrono) m_chrono -> chronoStart( chronoName);
     sc = (*itrTool)->process(m_theContainer);
     if (m_chrono) {
@@ -264,7 +264,7 @@ StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
     }
   }
 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 
@@ -280,14 +280,12 @@ StatusCode ISF::NativeFastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   if (m_doPunchThrough) {
     // call punch-through simulation
-    const ISF::ISFParticleContainer* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
+    const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
 
     // add punch-through particles to the ISF particle broker
     if (isfpVec) {
-      ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
-      ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
-      for ( ; partIt!=partItEnd; ++partIt) {
-        m_particleBroker->push( *partIt, &isfp);
+      for (ISF::ISFParticle *particle : *isfpVec) {
+        m_particleBroker->push( particle, &isfp);
       }
     }
   }
@@ -321,13 +319,13 @@ StatusCode ISF::NativeFastCaloSimSvc::processOneParticle( const ISF::ISFParticle
   for (;itrTool!=endTool;++itrTool) {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
     if(!fcs) {
-      ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );   
+      ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );
       continue;
     }
-    
-    ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+
+    ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
     std::string chronoName=this->name()+"_"+ itrTool->name();
-    
+
     if (m_chrono) m_chrono->chronoStart( chronoName);
 
     HepMC::FourVector momentum(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(), sqrt( isfp.mass()*isfp.mass() + isfp.momentum().mag2()) );
@@ -338,7 +336,7 @@ StatusCode ISF::NativeFastCaloSimSvc::processOneParticle( const ISF::ISFParticle
 
     //sc = (*itrTool)->process(m_theContainer);
     if(fcs->process_particle(m_theContainer,part,0).isFailure()) {
-      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );   
+      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );
       sc = StatusCode::FAILURE;
     }
 
@@ -350,4 +348,3 @@ StatusCode ISF::NativeFastCaloSimSvc::processOneParticle( const ISF::ISFParticle
   //  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "kill the particle in the end");
   return sc;
 }
-
