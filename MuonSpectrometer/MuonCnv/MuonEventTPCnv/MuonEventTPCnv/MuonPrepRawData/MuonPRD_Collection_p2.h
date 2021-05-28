@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPRD_COLLECTION_P2_H
@@ -32,7 +32,8 @@ public:
     friend class CscPrepDataContainerCnv_p2;
     friend class CscStripPrepDataContainerCnv_p2;
     friend class RpcPrepDataContainerCnv_p2;
-    friend class TgcPrepDataContainerCnv_p4;
+    friend class TgcPrepDataContainerCnv_p2;
+    friend class TgcPrepDataContainerCnv_p3;
     friend class MdtPrepDataContainerCnv_p2;
     //}@
 

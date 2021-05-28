@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPRD_CONTAINER_p2_H
@@ -13,7 +13,6 @@
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepData_p3.h"
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepData_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepData_p3.h"
-#include "MuonEventTPCnv/MuonPrepRawData/TgcPrepData_p4.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepData_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepData_p1.h"
 
@@ -36,7 +35,6 @@ typedef MuonPRD_Container_p2<CscPrepData_p2> CscPrepDataContainer_p2;
 typedef MuonPRD_Container_p2<RpcPrepData_p3> RpcPrepDataContainer_p3;
 typedef MuonPRD_Container_p2<TgcPrepData_p2> TgcPrepDataContainer_p2;
 typedef MuonPRD_Container_p2<TgcPrepData_p3> TgcPrepDataContainer_p3;
-typedef MuonPRD_Container_p2<TgcPrepData_p4> TgcPrepDataContainer_p4;
 typedef MuonPRD_Container_p2<MMPrepData_p1>  MMPrepDataContainer_p1;
 typedef MuonPRD_Container_p2<sTgcPrepData_p1>  sTgcPrepDataContainer_p1;
 } 

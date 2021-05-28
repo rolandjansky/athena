@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -39,14 +39,6 @@
 #include "MuonEventAthenaPool/TgcRawData_p3.h"
 #include "MuonEventAthenaPool/TgcRdo_p3.h"
 #include "MuonEventAthenaPool/TgcRdoContainer_p3.h"
-
-#include "MuonEventAthenaPool/TgcRawData_p4.h"
-#include "MuonEventAthenaPool/TgcRdo_p4.h"
-#include "MuonEventAthenaPool/TgcRdoContainer_p4.h"
-
-#include "MuonEventAthenaPool/TgcL1RawData_p1.h"
-#include "MuonEventAthenaPool/TgcL1Rdo_p1.h"
-#include "MuonEventAthenaPool/TgcL1RdoContainer_p1.h"
 
 #include "MuonEventAthenaPool/RpcFiredChannel_p1.h"
 #include "MuonEventAthenaPool/RpcCoinMatrix_p1.h"
