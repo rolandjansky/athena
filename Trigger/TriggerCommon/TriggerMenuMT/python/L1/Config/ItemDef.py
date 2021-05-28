@@ -634,7 +634,7 @@ class ItemDef:
         MenuItem('L1_3jJ35p0ETA23' ).setLogic( d.jJ350ETA23.x(3) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_3jJ50' ).setLogic( d.jJ50.x(3) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_4jJ15' ).setLogic( d.jJ15.x(4) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_4jJ15p0ETA25' ).setLogic( d.jJ150ETA25.x(3) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_4jJ15p0ETA25' ).setLogic( d.jJ150ETA25.x(4) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ25p0ETA23_2jJ15p31ETA49' ).setLogic( d.jJ250ETA23 & d.jJ1531ETA49.x(2) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ40p0ETA25_2jJ25_jJ20p31ETA49' ).setLogic( d.jJ400ETA25 & d.jJ25.x(2) & d.jJ2031ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ85_3jJ30' ).setLogic( d.jJ85 & d.jJ30.x(3) & physcond).setTriggerType(TT.calo)
