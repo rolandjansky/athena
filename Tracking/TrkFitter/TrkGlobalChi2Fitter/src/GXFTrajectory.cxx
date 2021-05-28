@@ -340,7 +340,7 @@ namespace Trk {
           m_nupstreambrems++;
         }
 
-        it2++;
+        ++it2;
       }
     }
   }
