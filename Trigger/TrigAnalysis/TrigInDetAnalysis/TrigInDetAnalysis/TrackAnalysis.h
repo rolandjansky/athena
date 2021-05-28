@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Sun 18 Jan 2009 19:53:18 GMT 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -112,11 +112,11 @@ public:
 
   TIDA::FeatureStore& store() { return m_store; }
 
-  TIDA::Event*    event() const         { return m_event; }
-  void         setevent(TIDA::Event* e) { m_event=e; }
+  const TIDA::Event* event() const         { return m_event; }
+  void            setevent(TIDA::Event* e) { m_event=e; }
 
-  TIDARoiDescriptor*  roi() const               { return m_roi; }
-  void             setroi(TIDARoiDescriptor* r) { m_roi=r; }
+  const TIDARoiDescriptor* roi() const               { return m_roi; }
+  void                  setroi(TIDARoiDescriptor* r) { m_roi=r; }
 
 protected:
  
