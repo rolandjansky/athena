@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include <ctime>
+#include <time.h>
 #include <sstream>
 
 #include "TAxis.h"
@@ -681,10 +681,11 @@ StatusCode OverviewMon::fillHistograms()
       const EventInfo *evtInfo = 0;
       StatusCode sc = evtStore()->retrieve(evtInfo);
       if (sc.isSuccess()) {
-        time_t timeStamp = evtInfo->event_ID()->time_stamp();
-        std::tm *local = localtime(&timeStamp);
+        const time_t timeStamp = evtInfo->event_ID()->time_stamp();
+        struct tm local;
+        localtime_r(&timeStamp, &local);
         int itime =
-            local->tm_hour * 10000 + local->tm_min * 100 + local->tm_sec;
+            local.tm_hour * 10000 + local.tm_min * 100 + local.tm_sec;
         if (itime == 0)
           itime = 1;
         double time = itime / 10000.;
