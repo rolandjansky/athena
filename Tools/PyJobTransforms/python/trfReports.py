@@ -14,7 +14,6 @@ import pickle as pickle
 import json
 import os.path
 import platform
-import distro
 import pprint
 import sys
 
@@ -579,13 +578,6 @@ class machineReport(object):
         for attr in attrs:
             try:
                 machine[attr] = getattr(platform, attr).__call__()
-            except AttributeError as e:
-                msg.warning('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
-
-        attrs = ['linux_distribution']
-        for attr in attrs:
-            try:
-                machine[attr] = getattr(distro, attr).__call__()
             except AttributeError as e:
                 msg.warning('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
 
