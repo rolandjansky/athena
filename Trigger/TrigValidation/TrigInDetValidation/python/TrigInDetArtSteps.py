@@ -8,6 +8,7 @@ The main common check steps are defined in the TrigValSteering.CheckSteps module
 '''
 
 import os
+import subprocess
 import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
@@ -133,10 +134,7 @@ class TrigInDetReco(ExecStep):
                 if ( DVERSION is None ) :
                     AVERSION = "22.0.20"
                 else:
-                    BASE=DVERSION[:5]
-                    SUB=int(DVERSION[5:])
-                    SUB -= 1
-                    AVERSION=BASE+str(SUB)
+                    AVERSION=str(subprocess.Popen(["getrelease.sh",DVERSION],stdout=subprocess.PIPE).communicate()[0],'utf-8')
             else:
                 AVERSION = self.release
             self.args += ' --asetup "RAWtoESD:Athena,'+AVERSION+'" "ESDtoAOD:Athena,'+AVERSION+'" '
