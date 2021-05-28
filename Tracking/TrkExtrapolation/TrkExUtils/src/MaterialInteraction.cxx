@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
                                           const Trk::Material* mat,
                                           Trk::ParticleHypothesis particle,
                                           double& sigma,
-                                          double& kazL) 
+                                          double& kazL)
 {
 
   //
@@ -103,7 +103,7 @@ double
 Trk::MaterialInteraction::dEdl_radiation(double p,
                                          const Trk::Material* mat,
                                          Trk::ParticleHypothesis particle,
-                                         double& sigma) 
+                                         double& sigma)
 {
   sigma = 0.;
   if (mat->x0() == 0.)

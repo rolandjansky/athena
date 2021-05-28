@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,85 +12,96 @@
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <iomanip>
-#include "GaudiKernel/MsgStream.h"
 #include "TrkExUtils/TransportJacobian.h"
+#include "GaudiKernel/MsgStream.h"
+#include <iomanip>
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////
 // Constructors
 ///////////////////////////////////////////////////////////////////
 
-Trk::TransportJacobian::TransportJacobian(const double* J) : 
-  AmgMatrix(5,5)()
+Trk::TransportJacobian::TransportJacobian(const double* J)
+  : AmgMatrix(5, 5)()
 {
-  (*this)(0,0)=J[ 0]; (*this)(0,1)=J[ 1]; (*this)(0,2)=J[ 2]; (*this)(0,3)=J[ 3];
-  (*this)(0,4)=J[ 4];
-  (*this)(1,0)=J[ 5]; (*this)(1,1)=J[ 6]; (*this)(1,2)=J[ 7]; (*this)(1,3)=J[ 8];
-  (*this)(1,4)=J[ 9];
-  (*this)(2,0)=J[10]; (*this)(2,1)=J[11]; (*this)(2,2)=J[12]; (*this)(2,3)=J[13];
-  (*this)(2,4)=J[14];
-  (*this)(3,0)=J[15]; (*this)(3,1)=J[16]; (*this)(3,2)=J[17]; (*this)(3,3)=J[18];
-  (*this)(3,4)=J[19];
-  (*this)(4,0)=J[20]; (*this)(4,1)=J[21]; (*this)(4,2)=J[22]; (*this)(4,3)=J[23];
-  (*this)(4,4)=J[24];
+  (*this)(0, 0) = J[0];
+  (*this)(0, 1) = J[1];
+  (*this)(0, 2) = J[2];
+  (*this)(0, 3) = J[3];
+  (*this)(0, 4) = J[4];
+  (*this)(1, 0) = J[5];
+  (*this)(1, 1) = J[6];
+  (*this)(1, 2) = J[7];
+  (*this)(1, 3) = J[8];
+  (*this)(1, 4) = J[9];
+  (*this)(2, 0) = J[10];
+  (*this)(2, 1) = J[11];
+  (*this)(2, 2) = J[12];
+  (*this)(2, 3) = J[13];
+  (*this)(2, 4) = J[14];
+  (*this)(3, 0) = J[15];
+  (*this)(3, 1) = J[16];
+  (*this)(3, 2) = J[17];
+  (*this)(3, 3) = J[18];
+  (*this)(3, 4) = J[19];
+  (*this)(4, 0) = J[20];
+  (*this)(4, 1) = J[21];
+  (*this)(4, 2) = J[22];
+  (*this)(4, 3) = J[23];
+  (*this)(4, 4) = J[24];
 }
 
-Trk::TransportJacobian::TransportJacobian(const AmgMatrix(5,5)& J) : AmgMatrix(5,5)(J)
-{
-}
+Trk::TransportJacobian::TransportJacobian(const AmgMatrix(5, 5) & J)
+  : AmgMatrix(5, 5)(J)
+{}
 
 ///////////////////////////////////////////////////////////////////
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& Trk::operator << (MsgStream& sl, const Trk::TransportJacobian& J)
+MsgStream&
+Trk::operator<<(MsgStream& sl, const Trk::TransportJacobian& J)
 {
-  sl<<"|-------------|-------------|-------------|-------------|-------------|-------------|"
-    <<std::endl;
-  sl<<"| Jacobian(A) | Old   /dL1  |       /dL2  |      /dPhi  |      /dThe  |       /dCM  |"
-    <<std::endl;
-  sl<<"|-------------|-------------|-------------|-------------|-------------|-------------|"
-    <<std::endl;
-  
- sl<<"|  New  dL1 / |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,4)<<" |"
-   <<std::endl;
- sl<<"|       dL2 / |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,4)<<" |"
-   <<std::endl;
- sl<<"|       dPhi/ |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,4)<<" |"
-   <<std::endl;
- sl<<"|       dThe/ |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,4)<<" |"
-   <<std::endl;
- sl<<"|       dCM / |"
+  sl << "|-------------|-------------|-------------|-------------|-------------"
+        "|-------------|"
+     << std::endl;
+  sl << "| Jacobian(A) | Old   /dL1  |       /dL2  |      /dPhi  |      /dThe  "
+        "|       /dCM  |"
+     << std::endl;
+  sl << "|-------------|-------------|-------------|-------------|-------------"
+        "|-------------|"
+     << std::endl;
 
-   <<std::setw(12)<<std::setprecision(5)<<J(4,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,4)<<" |"
-   <<std::endl;
-  sl<<"|-------------|-------------|-------------|-------------|-------------|-------------|"
-    <<std::endl;
+  sl << "|  New  dL1 / |" << std::setw(12) << std::setprecision(5) << J(0, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(0, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(0, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(0, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(0, 4) << " |" << std::endl;
+  sl << "|       dL2 / |" << std::setw(12) << std::setprecision(5) << J(1, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(1, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(1, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(1, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(1, 4) << " |" << std::endl;
+  sl << "|       dPhi/ |" << std::setw(12) << std::setprecision(5) << J(2, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(2, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(2, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(2, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(2, 4) << " |" << std::endl;
+  sl << "|       dThe/ |" << std::setw(12) << std::setprecision(5) << J(3, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(3, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(3, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(3, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(3, 4) << " |" << std::endl;
+  sl << "|       dCM / |"
+
+     << std::setw(12) << std::setprecision(5) << J(4, 0) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 4) << " |" << std::endl;
+  sl << "|-------------|-------------|-------------|-------------|-------------"
+        "|-------------|"
+     << std::endl;
   return sl;
 }
 
@@ -98,53 +109,49 @@ MsgStream& Trk::operator << (MsgStream& sl, const Trk::TransportJacobian& J)
 // Dumps relevant information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& Trk::operator << (std::ostream& sl, const Trk::TransportJacobian& J)
-{  
-  sl<<"|-------------|-------------|-------------|-------------|-------------|-------------|"
-    <<std::endl;
-  sl<<"| Jacobian(A) | Old   /dL1  |       /dL2  |      /dPhi  |      /dThe  |       /dCM  |"
-    <<std::endl;
-  sl<<"|-------------|-------------|-------------|-------------|-------------|-------------|"
-    <<std::endl;
-  
- sl<<"|  New  dL1 / |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(0,4)<<" |"
-   <<std::endl;
- sl<<"|       dL2 / |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(1,4)<<" |"
-   <<std::endl;
- sl<<"|       dPhi/ |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(2,4)<<" |"
-   <<std::endl;
- sl<<"|       dThe/ |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(3,4)<<" |"
-   <<std::endl;
- sl<<"|       dCM / |"
+std::ostream&
+Trk::operator<<(std::ostream& sl, const Trk::TransportJacobian& J)
+{
+  sl << "|-------------|-------------|-------------|-------------|-------------"
+        "|-------------|"
+     << std::endl;
+  sl << "| Jacobian(A) | Old   /dL1  |       /dL2  |      /dPhi  |      /dThe  "
+        "|       /dCM  |"
+     << std::endl;
+  sl << "|-------------|-------------|-------------|-------------|-------------"
+        "|-------------|"
+     << std::endl;
 
-   <<std::setw(12)<<std::setprecision(5)<<J(4,0)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,1)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,2)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,3)<<" |"
-   <<std::setw(12)<<std::setprecision(5)<<J(4,4)<<" |"
-   <<std::endl;
-  sl<<"|-------------|-------------|-------------|-------------|-------------|-------------|"
-    <<std::endl;
-  return sl;   
+  sl << "|  New  dL1 / |" << std::setw(12) << std::setprecision(5) << J(0, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(0, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(0, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(0, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(0, 4) << " |" << std::endl;
+  sl << "|       dL2 / |" << std::setw(12) << std::setprecision(5) << J(1, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(1, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(1, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(1, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(1, 4) << " |" << std::endl;
+  sl << "|       dPhi/ |" << std::setw(12) << std::setprecision(5) << J(2, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(2, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(2, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(2, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(2, 4) << " |" << std::endl;
+  sl << "|       dThe/ |" << std::setw(12) << std::setprecision(5) << J(3, 0)
+     << " |" << std::setw(12) << std::setprecision(5) << J(3, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(3, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(3, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(3, 4) << " |" << std::endl;
+  sl << "|       dCM / |"
+
+     << std::setw(12) << std::setprecision(5) << J(4, 0) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 1) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 2) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 3) << " |"
+     << std::setw(12) << std::setprecision(5) << J(4, 4) << " |" << std::endl;
+  sl << "|-------------|-------------|-------------|-------------|-------------"
+        "|-------------|"
+     << std::endl;
+  return sl;
 }
 
