@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
 */
@@ -77,8 +77,7 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
     m_strHelper(nullptr),
-    m_LArOnlineIDHelper(nullptr),
-    m_badChannelMask("BadLArRawChannelMask")
+    m_LArOnlineIDHelper(nullptr)
 {
   /** FEBs to be monitored. If empty, all FEBs will be monitored*/
   std::vector<std::string> empty_vector(0);
@@ -93,7 +92,6 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
 
    /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
-  declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
   declareProperty("IsOnline",            m_IsOnline=false);
 
@@ -153,10 +151,9 @@ LArNoiseCorrelationMon::initialize()
 
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if (m_ignoreKnownBadChannels) {
-    ATH_CHECK(m_badChannelMask.retrieve());
-  }
-  
+  ATH_CHECK( m_bcContKey.initialize(m_ignoreKnownBadChannels));
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
   /** Retrieve pedestals container*/
   ATH_CHECK(m_keyPedestal.initialize());
 
@@ -283,6 +280,12 @@ LArNoiseCorrelationMon::fillHistograms()
   const LArDigitContainer* pLArDigitContainer=nullptr;
   ATH_CHECK(evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey));
   
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_ignoreKnownBadChannels ) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+    bcCont=*bcContHdl;
+  }
+  
   
   ATH_MSG_DEBUG ( " LArDigitContainer size "<<pLArDigitContainer->size()<<" for key "<<m_LArDigitContainerKey); 
   /** Define iterators to loop over Digits containers*/
@@ -299,7 +302,7 @@ LArNoiseCorrelationMon::fillHistograms()
     CaloGain::CaloGain gain = pLArDigit->gain();
     float pedestal = pedestals->pedestal(id,gain);    
 
-    if(!isGoodChannel(id,pedestal,cabling))
+    if(!isGoodChannel(id,pedestal,cabling,bcCont))
 	continue;
     
     /** Retrieve samples*/
@@ -328,7 +331,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	CaloGain::CaloGain gain2 = pLArDigit2->gain();
 	float pedestal2 = pedestals->pedestal(id2,gain2);
 
-	if(!isGoodChannel(id2,pedestal2,cabling))  continue;
+	if(!isGoodChannel(id2,pedestal2,cabling,bcCont))  continue;
 
 	/** get the channel number */
 	m_ch2 = m_LArOnlineIDHelper->channel(id2);
@@ -347,7 +350,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	  }
 
 	/** Loop over the samples and compute average and sum of squares*/
-	for(int i=0;i<Nsam;i++,iterSam++,iterSam2++)
+	for(int i=0;i<Nsam;++i,++iterSam,++iterSam2)
 	  {
 	    if(!av_set) { /** fill the mean only once per ch1. This code is here to avoid one additional loop over samples before the second loop. */
 	      m_histos.second.second->Fill(m_ch1,(*iterSam-pedestal));
@@ -390,11 +393,14 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
 
 /*---------------------------------------------------------*/
 /** check if channel is ok for monitoring */
- bool LArNoiseCorrelationMon::isGoodChannel(const HWIdentifier ID,const float ped, const LArOnOffIdMapping *cabling) const
+bool LArNoiseCorrelationMon::isGoodChannel(const HWIdentifier ID,const float ped, const LArOnOffIdMapping *cabling, const LArBadChannelCont* bcCont) const
  {
     /** Remove problematic channels*/
-   if (m_ignoreKnownBadChannels && m_badChannelMask->cellShouldBeMasked(ID))
-     return false;
+    if (m_ignoreKnownBadChannels ) {
+      if ( m_bcMask.cellShouldBeMasked(bcCont,ID)) {
+	return false;
+      }
+    }
 
     /**skip cells with no pedestals reference in db.*/
     if(ped <= (1.0+LArElecCalib::ERRORCODE))

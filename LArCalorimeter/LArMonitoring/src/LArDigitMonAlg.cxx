@@ -46,14 +46,11 @@
 /*---------------------------------------------------------*/
 LArDigitMonAlg::LArDigitMonAlg(const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name, pSvcLocator),
-    m_badChannelMask("BadLArRawChannelMask",this),
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
     m_Samplenbr(-1)
-{	
-  declareProperty("LArBadChannelMask",m_badChannelMask);
-  
-}
+{}	
+
 
 /*---------------------------------------------------------*/
 LArDigitMonAlg::~LArDigitMonAlg()
@@ -102,15 +99,9 @@ LArDigitMonAlg::initialize()
   
 
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if (m_ignoreKnownBadChannels) { 
-    StatusCode sc=m_badChannelMask.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
-      return StatusCode::FAILURE;
-    }
-  } else {
-    m_badChannelMask.disable();
-  }
+  ATH_CHECK(m_bcContKey.initialize(m_ignoreKnownBadChannels));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
 
   m_histoGroups.reserve(m_SubDetNames.size());
   for (unsigned i=0; i<m_SubDetNames.size(); ++i) {
@@ -194,6 +185,12 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling=*cablingHdl;
 
+  //retrieve BadChannel info:
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_ignoreKnownBadChannels) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+    bcCont=(*bcContHdl);
+  }
 
   SG::ReadHandle<LArDigitContainer> pLArDigitContainer{m_digitContainerKey,ctx};
   
@@ -285,7 +282,7 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
     if (m_ignoreKnownBadChannels ) {
       HWIdentifier id = pLArDigit->hardwareID();
       //CaloGain::CaloGain gain = pLArDigit->gain();
-      if ( m_badChannelMask->cellShouldBeMasked(id)) {
+      if ( m_bcMask.cellShouldBeMasked(bcCont,id)) {
 	continue;
       }
     }

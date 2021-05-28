@@ -60,7 +60,7 @@ namespace MuonCombined {
                             TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
         /** find the best candidate for a given set of segments */
-        std::pair<std::unique_ptr<const Muon::MuonCandidate>, Trk::Track*> findBestCandidate(
+        std::pair<std::unique_ptr<const Muon::MuonCandidate>, std::unique_ptr<Trk::Track>> findBestCandidate(const EventContext& ctx,
             const xAOD::TrackParticle& indetTrackParticle, const std::vector<Muon::MuonLayerRecoData>& allLayers) const;
 
     private:
@@ -71,7 +71,7 @@ namespace MuonCombined {
 
         /** add muon candidate to indet candidate */
         void addTag(const EventContext& ctx, const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap,
-                    const Muon::MuonCandidate& candidate, Trk::Track* selectedTrack, TrackCollection* combTracks, TrackCollection* meTracks,
+                    const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack, TrackCollection* combTracks, TrackCollection* meTracks,
                     Trk::SegmentCollection* segments) const;
 
         /** access data in layer */

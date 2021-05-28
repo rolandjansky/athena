@@ -1029,7 +1029,7 @@ namespace Muon {
         if (layIds.size() == 2 * nGasGaps) return holes;
 
         // create layer matrix
-        using LayerMatrix = std::vector<std::pair<int, int> >;
+        using LayerMatrix = std::vector<std::pair<int, int>>;
         LayerMatrix layerMatrix(nGasGaps, std::make_pair(0, 0));
 
         // loop over layer identifiers and fill
@@ -1118,7 +1118,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->mdtIdHelper().get_module_hash(chId, hash_id);
 
-        const auto *collptr = mdtPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = mdtPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId) << "  not found in container ");
         }
@@ -1138,7 +1138,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->cscIdHelper().get_geo_module_hash(detElId, hash_id);
 
-        const auto *collptr = cscPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = cscPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" CscPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1158,7 +1158,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->tgcIdHelper().get_module_hash(detElId, hash_id);
 
-        const auto *collptr = tgcPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = tgcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1178,7 +1178,7 @@ namespace Muon {
         if (!rpcPrdContainer || rpcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->rpcIdHelper().get_module_hash(detElId, hash_id);
-        const auto *collptr = rpcPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = rpcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1199,7 +1199,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->stgcIdHelper().get_module_hash(detElId, hash_id);
 
-        const auto *collptr = stgcPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = stgcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" StgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1219,7 +1219,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->mmIdHelper().get_module_hash(detElId, hash_id);
 
-        const auto *collptr = mmPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = mmPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" MmPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }

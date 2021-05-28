@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JpsiExample.cxx
@@ -148,9 +148,8 @@ StatusCode JpsiExample::execute() {
 
   ++m_eventCntr;     // Increment event counter
 
-  // Extract information from the Jpsi candidates 
-  for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; vxcItr++ ) {
-    const xAOD::Vertex* jpsiCandidate = (*vxcItr);
+  // Extract information from the Jpsi candidates
+  for (const xAOD::Vertex* jpsiCandidate : *jpsiContainer) {
     //ATH_MSG_INFO("Cov. matrix " << jpsiCandidate->covariance().size());
 
     // refitted track parameters

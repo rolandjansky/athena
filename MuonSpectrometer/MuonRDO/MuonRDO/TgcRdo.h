@@ -3,7 +3,7 @@
 */
 
 #ifndef MUONRDO_TGCRDO_H
-#define MUONRDO_TGCRDO_H 1
+#define MUONRDO_TGCRDO_H
 
 #include <inttypes.h>
 #include "MuonRDO/TgcRawData.h"

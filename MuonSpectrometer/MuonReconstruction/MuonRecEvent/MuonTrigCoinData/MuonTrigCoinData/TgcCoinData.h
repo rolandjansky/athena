@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@ namespace Muon
   class TgcCoinDataContainerCnv_p1;
   class TgcCoinDataContainerCnv_p2;
   class TgcCoinDataContainerCnv_p3;
+  class TgcCoinDataContainerCnv_p4;
 
   class TgcCoinData {
 
@@ -45,6 +46,7 @@ namespace Muon
     friend class Muon::TgcCoinDataContainerCnv_p1;
     friend class Muon::TgcCoinDataContainerCnv_p2;
     friend class Muon::TgcCoinDataContainerCnv_p3;
+    friend class Muon::TgcCoinDataContainerCnv_p4;
 
     typedef enum {
       TYPE_TRACKLET,

@@ -16,30 +16,20 @@ def _buildJetAlgForInput(suffix, tools ):
     )
     return jetalg
 
-def buildJetSelectedTracks( parentjetdef, inputspec ):
-    from JetRecTools import JetRecToolsConfig
-    # Jet track selection
-    t = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True,
-                                          cutLevel="NoCut", minPt=500) 
-    return _buildJetAlgForInput("JetSelectedTrack",
-                                tools = [ t ]
-                                )
-
 def buildJetTrackUsedInFitDeco( parentjetdef, inputspec ):
     from JetRecTools import JetRecToolsConfig
     # Jet track used-in-fit decoration
     return _buildJetAlgForInput("JetUsedInFitDeco",
-                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool() ]
+                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool(parentjetdef.context) ]
     )
 
 def buildJetTrackVertexAssoc( parentjetdef, inputspec ):
     from JetRecTools import JetRecToolsConfig
     # Jet track TTVA
     return _buildJetAlgForInput("JetTVA",
-                                tools = [ JetRecToolsConfig.getTrackVertexAssocTool() ]
+                                tools = [ JetRecToolsConfig.getTrackVertexAssocTool(parentjetdef.context) ]
     )
     
-
 
     
 def buildJetInputTruth(parentjetdef, truthmod):
@@ -59,13 +49,20 @@ def buildLabelledTruth(parentjetdef, truthmod):
 
 
 ########################################################################
+def getEventShapeName( parentjetdef, inputspec):
+    """ Get the name of the event shape container for a given event shape alg """
+    nameprefix = inputspec or ""
+    label = parentjetdef.inputdef.label
+    return nameprefix+"Kt4"+label+"EventShape"
+
+
 def buildEventShapeAlg( parentjetdef, inputspec ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
     
+    rhokey = getEventShapeName(parentjetdef, inputspec)
     nameprefix = inputspec or ""
     label = parentjetdef.inputdef.label
-    rhokey = nameprefix+"Kt4"+label+"EventShape"
     rhotoolname = "EventDensity_"+nameprefix+"Kt4"+label
     
     rhotool = CompFactory.EventDensityTool(rhotoolname)

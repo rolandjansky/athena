@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -505,8 +505,8 @@ namespace Analysis {
         std::vector<const xAOD::TrackParticle*>::const_iterator innerItr;
         
         if(TracksIn.size()>=2){
-            for(outerItr=TracksIn.begin();outerItr<TracksIn.end();outerItr++){
-                for(innerItr=(outerItr+1);innerItr!=TracksIn.end();innerItr++){
+            for(outerItr=TracksIn.begin();outerItr<TracksIn.end();++outerItr){
+                for(innerItr=(outerItr+1);innerItr!=TracksIn.end();++innerItr){
                     pair.trackParticle1 = *innerItr;
                     pair.trackParticle2 = *outerItr;
                     pair.pairType = TRKTRK;
@@ -532,8 +532,8 @@ namespace Analysis {
         std::vector<const xAOD::Muon*>::const_iterator innerItr;
         
         if(muonsIn.size()>=2){
-            for(outerItr=muonsIn.begin();outerItr<muonsIn.end();outerItr++){
-                for(innerItr=(outerItr+1);innerItr!=muonsIn.end();innerItr++){
+            for(outerItr=muonsIn.begin();outerItr<muonsIn.end();++outerItr){
+                for(innerItr=(outerItr+1);innerItr!=muonsIn.end();++innerItr){
                     pair.muon1 = *innerItr;
                     pair.muon2 = *outerItr;
                     pair.pairType = MUMU;
@@ -560,34 +560,32 @@ namespace Analysis {
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
-        std::vector<const xAOD::TrackParticle*>::const_iterator trkItr;
-        std::vector<const xAOD::Muon*>::const_iterator muItr;
         
         // Unless user is running in tag and probe mode, remove tracks which are also identified as muons
         std::vector<const xAOD::TrackParticle*> tracksToKeep;
         if (!tagAndProbe) {
             if(tracks.size()>=1 && muons.size()>=1){
-                for(trkItr=tracks.begin();trkItr<tracks.end();trkItr++){
+                for (const xAOD::TrackParticle* trk : tracks) {
                     bool trackIsMuon(false);
-                    for(muItr=muons.begin();muItr<muons.end();muItr++){
-                      auto& link = ( *muItr )->inDetTrackParticleLink();
-                      if ( link.isValid() &&  *link == (*trkItr) ) {
+                    for (const xAOD::Muon* mu : muons) {
+                      auto& link = mu->inDetTrackParticleLink();
+                      if ( link.isValid() &&  *link == trk ) {
                           trackIsMuon=true; 
                           break;
                         }
                     }
-                    if (!trackIsMuon) tracksToKeep.push_back(*trkItr);
+                    if (!trackIsMuon) tracksToKeep.push_back(trk);
                 }
             }
         } else {tracksToKeep = tracks;}
         
         if(tracksToKeep.size()>=1 && muons.size()>=1){
-            for(trkItr=tracksToKeep.begin();trkItr<tracksToKeep.end();trkItr++){
-                for(muItr=muons.begin();muItr<muons.end();muItr++){
-                    pair.muon1 = *muItr;
+            for (const xAOD::TrackParticle* trk : tracksToKeep) {
+                for (const xAOD::Muon* mu : muons) {
+                    pair.muon1 = mu;
                     // Muon track 1st
-                    pair.trackParticle1 = (*muItr)->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
-                    pair.trackParticle2 = *trkItr;
+                    pair.trackParticle1 = mu->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
+                    pair.trackParticle2 = trk;
                     pair.pairType = MUTRK;
                     myPairs.push_back(pair);
                 }

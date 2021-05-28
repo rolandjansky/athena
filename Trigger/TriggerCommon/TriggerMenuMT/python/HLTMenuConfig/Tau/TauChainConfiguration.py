@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -45,6 +45,9 @@ def getTrackTwoEFCfg(flags):
 
 def getTrackTwoMVACfg(flags):
     return tauTrackTwoMVASeq()
+
+def getTrackTwoLLPCfg(flags):
+    return tauTrackTwoLLPSeq()
 
 def getPreSelCfg(flags):
     return tauPreSelSeq()
@@ -84,6 +87,7 @@ class TauChainConfiguration(ChainConfigurationBase):
             "tracktwoEF"    :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "tracktwoLLP":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoLLP' ],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -186,6 +190,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getTrackTwoMVA(self):
         stepName = "TrkTwoMVA_tau"
         return self.getStep(6,stepName,[getTrackTwoMVACfg])
+
+    # --------------------                                                                                                      
+    def getTrackTwoLLP(self):
+        stepName = "TrkTwoLLP_tau"
+        return self.getStep(6,stepName,[getTrackTwoLLPCfg])
 
     # --------------------                                                                                                                                   
     def getIDEmpty(self):

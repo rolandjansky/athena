@@ -110,6 +110,14 @@ StatusCode TrigCostAnalysis::start() {
     }
   }
 
+  // Save identifiers for additional HLTJobOptions map
+  if (not m_additionalHashList.empty()){
+    for (const std::string& entry : m_additionalHashList){
+      HLT::Identifier(std::string(entry));
+      TrigConf::HLTUtils::string2hash(entry, "ALG");
+      }
+  }
+
   // As an initial guess, 25 should be a good uper maximum for the number of expected View instances.
   ATH_CHECK( checkUpdateMaxView(60) );
   return StatusCode::SUCCESS;

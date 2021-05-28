@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -1182,7 +1182,7 @@ LArFEBMon::plotMaskedFEB(){
 
 /*---------------------------------------------------------*/
 void 
-LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName)
+LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,const std::string& summName)
 {
   ATH_MSG_DEBUG( "In fillFebInError" );
   

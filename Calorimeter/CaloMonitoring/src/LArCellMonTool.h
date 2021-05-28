@@ -13,7 +13,7 @@
 #include "CaloMonToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 #include "CaloConditions/CaloNoise.h"
 
 #include "LArIdentifier/LArOnlineID.h"
@@ -171,7 +171,9 @@ private:
   std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};
  
   // bad channel mask  
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+  
   bool m_maskKnownBadChannels;
   bool m_maskNoCondChannels;
 

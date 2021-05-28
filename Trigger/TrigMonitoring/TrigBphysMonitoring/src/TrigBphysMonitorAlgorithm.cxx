@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBphysMonitorAlgorithm.h"
@@ -71,7 +71,9 @@ StatusCode TrigBphysMonitorAlgorithm::fillContainerHists(const EventContext& ctx
 }
 
 
-void TrigBphysMonitorAlgorithm::fillContainer(const xAOD::TrigBphys* bphysObject, SG::ReadHandleKey<xAOD::TrigBphysContainer> trigBphysContainerKey) const {
+void TrigBphysMonitorAlgorithm::fillContainer(const xAOD::TrigBphys* bphysObject,
+                                              const SG::ReadHandleKey<xAOD::TrigBphysContainer>& trigBphysContainerKey) const
+{
   auto mass = Monitored::Scalar<float>(std::string("dimu_mass_Container_"+trigBphysContainerKey.key()).c_str(),-999.);
   
   mass = bphysObject->fitmass() / GeV;

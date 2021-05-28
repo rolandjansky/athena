@@ -1,13 +1,12 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//Dear emacs, this is -*-c++-*-
 
 template<class CONDITIONSCONTAINER>
 LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
-  m_maskingTool("LArBadChannelMaskingTool"),
   m_useCorrChannel(true),
   m_patchAllMissing(false),
   m_onlineHelper(0),
@@ -24,8 +23,6 @@ LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string
 		  "Method to patch conditions for channels with broken calibration line");
   declareProperty("NewContainerKey",m_newContainerKey="",
 		  "If the corrections go in a separate container put SG key here");
-  declareProperty("MaskingTool",m_maskingTool,
-		  "Masking tool to define channels that should be set to zero");
   declareProperty("UseCorrChannels",m_useCorrChannel,
 		  "True: Use separate correction COOL channel, False: Correction + data in the same channel");
   declareProperty("PatchAllMissing",m_patchAllMissing,
@@ -88,7 +85,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
   ATH_CHECK( detStore()->retrieve(m_fcalId, "LArFCAL_ID") );
   ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 
-  ATH_CHECK( m_maskingTool.retrieve() );
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToPatch,msg()));
   SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
   const LArBadChannelCont *bcCont {*readHandle};
   if(!bcCont) {
@@ -132,7 +129,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
     for (;it!=it_e;it++) {
       const HWIdentifier chid = it.channelId();
       if (!cabling->isOnlineConnected(chid)) continue; //Don't care about disconnected channels
-      if (m_maskingTool->cellShouldBeMasked(chid)) {
+      if (m_bcMask.cellShouldBeMasked(bcCont,chid)) {
 	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
                        <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." );
 	if (patch(chid,igain, bcCont, cabling)) {

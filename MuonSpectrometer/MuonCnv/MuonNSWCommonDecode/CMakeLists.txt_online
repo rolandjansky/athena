@@ -1,17 +1,21 @@
+cmake_minimum_required(VERSION 3.14.0)
 
-tdaq_package()
+tdaq_package ()
+
+# Package libraries
 
 tdaq_add_library (MuonNSWCommonDecode 
 		    src/NSWCommonDecoder.cxx 
-		    src/NSWElink.cxx)
+		    src/NSWElink.cxx
+		  LINK_LIBRARIES
+		    tdaq-common::DataReader
+		    tdaq-common::EventStorage
+		    tdaq-common::eformat
+		    tdaq-common::ers)
+
+# Test application
 
 tdaq_add_executable (test_nsw_common_decoder
 		     src/test/test_nsw_common_decoder.cxx
 		     LINK_LIBRARIES
-		       MuonNSWCommonDecode
-		       tdaq-common::DataReader
-		       tdaq-common::EventStorage
-		       tdaq-common::eformat
-		       tdaq-common::ers)
-
-
+		       MuonNSWCommonDecode)

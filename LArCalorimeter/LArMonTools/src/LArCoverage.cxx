@@ -45,7 +45,6 @@ LArCoverage::LArCoverage(const std::string& type,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
     m_larCablingService("LArCablingLegacyService"),
-    m_badChannelMask("BadLArRawChannelMask"),
     m_hCoverageEMBA(),
     m_hCoverageEMBC(),
     m_hCoverageEMECA(),
@@ -66,7 +65,6 @@ LArCoverage::LArCoverage(const std::string& type,
     m_hCaloNoiseHEC(),
     m_hCaloNoiseFCAL()
 {
-  declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("Nevents",m_nevents = 50);
 
   m_eventsCounter = 0;
@@ -102,7 +100,7 @@ LArCoverage::initialize()
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
-  ATH_CHECK( m_badChannelMask.retrieve() );
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
   ATH_CHECK( m_larCablingService.retrieve() );
    
   // LArOnlineIDStrHelper
@@ -561,6 +559,10 @@ LArCoverage::fillHistograms()
     return StatusCode::FAILURE;
    }
 
+  
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
+  const LArBadChannelCont* bcCont{*bch};
+
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
   const CaloNoise* noiseCDO=*noiseHdl;
 
@@ -647,7 +649,7 @@ LArCoverage::fillHistograms()
     // provenance&0x1000 == 0x1000 : raw channels from DSP. If no constant loaded in DSP, energy==0
     if ( (provenanceChan&0x00ff) == 0x00a5 || (provenanceChan&0x1000) == 0x1000 ){
 
-      if(m_badChannelMask->cellShouldBeMasked(id)) cellContent=2;
+      if(m_bcMask.cellShouldBeMasked(bcCont,id)) cellContent=2;
       else if(energyChan != 0) cellContent=3;
 
     }

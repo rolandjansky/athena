@@ -11,7 +11,7 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODBase/ObjectType.h"
 
-#include "PFlowUtils/FEHelpers.h"
+#include "xAODPFlow/FEHelpers.h"
 
 #include <cstdio>
 #include <iterator>

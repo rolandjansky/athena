@@ -7,27 +7,21 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-namespace Rec{
-  class TrackParticleContainer;
-} 
+namespace Rec {
+    class TrackParticleContainer;
+}
 
 class MuTagContainer;
 
 static const InterfaceID IID_IMuTagIMOTool("IMuTagIMOTool", 1, 0);
 
-class IMuTagIMOTool : virtual public IAlgTool{
-  
- public:
-  static const InterfaceID& interfaceID();
+class IMuTagIMOTool : virtual public IAlgTool {
+public:
+    static const InterfaceID& interfaceID();
 
-  virtual MuTagContainer* tag( const Rec::TrackParticleContainer* trackParticles,  const Trk::SegmentCollection* segments ) const = 0;
-
+    virtual MuTagContainer* tag(const Rec::TrackParticleContainer* trackParticles, const Trk::SegmentCollection* segments) const = 0;
 };
 
+inline const InterfaceID& IMuTagIMOTool::interfaceID() { return IID_IMuTagIMOTool; }
 
-inline const InterfaceID& IMuTagIMOTool::interfaceID()
-{
-  return IID_IMuTagIMOTool;
-}
-
-#endif // IMuTagIMOTool_H
+#endif  // IMuTagIMOTool_H

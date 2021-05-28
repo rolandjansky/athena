@@ -42,7 +42,7 @@ int EMErrorDetail::intParameter(egammaParameters::ParamDef key) const {
   int result = (int)egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parametersInt.begin();
  
-  for (;p !=m_parametersInt.end(); p++) {
+  for (;p !=m_parametersInt.end(); ++p) {
     if ( (*p).first == key ){
       result = (*p).second;
       break;
@@ -63,7 +63,7 @@ double EMErrorDetail::parameter(egammaParameters::ParamDef key) const {
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) {
       result = (*p).second;
       break;
@@ -80,7 +80,7 @@ void EMErrorDetail::set_parameterInt(egammaParameters::ParamDef key, int value, 
 
   std::vector<elParams>::iterator p = m_parametersInt.begin();
  
-  for (;p !=m_parametersInt.end(); p++) {
+  for (;p !=m_parametersInt.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -107,7 +107,7 @@ void EMErrorDetail::set_parameter(egammaParameters::ParamDef key, double value, 
   using elParams = std::pair<egammaParameters::ParamDef, double>;
   std::vector<elParams>::iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 

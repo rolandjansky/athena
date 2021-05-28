@@ -47,7 +47,6 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
   : ManagedMonitorToolBase(type, name, parent), 
     m_rootStore(nullptr),
     m_larCablingService("LArCablingLegacyService"),
-    m_badChannelMask("BadLArRawChannelMask"),
     m_newrun(true)
 {
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
@@ -55,7 +54,6 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
   declareProperty("muonADCthreshold_EM_endcap", m_muonADCthreshold_EM_endcap = 40);
   declareProperty("muonADCthreshold_HEC", m_muonADCthreshold_HEC = 40);
   declareProperty("muonADCthreshold_FCAL", m_muonADCthreshold_FCAL = 40);
-  declareProperty("LArBadChannelMask",m_badChannelMask);
   
   m_eventsCounter = 0;
   
@@ -107,7 +105,10 @@ LArCosmicsMonTool::initialize()
   m_LArFCAL_IDHelper = m_caloIdMgr->getFCAL_ID();
   
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
-  ATH_CHECK( m_badChannelMask.retrieve() );
+  
+  ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
   ATH_CHECK( m_larCablingService.retrieve() );
   ATH_CHECK( this->initMonInfo() );
   ATH_CHECK( m_larPedestalKey.initialize() );
@@ -240,7 +241,11 @@ LArCosmicsMonTool::fillHistograms() {
   
   // Retrieve pedestals container
   SG::ReadCondHandle<ILArPedestal> pedestals (m_larPedestalKey, ctx);
-  
+
+  //retrieve BadChannel info:
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+  const LArBadChannelCont* bcCont{*bcContHdl};
+
   // loop over LArDigits
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
   LArDigitContainer::const_iterator itDig_e= pLArDigitContainer->end(); 
@@ -272,8 +277,7 @@ LArCosmicsMonTool::fillHistograms() {
     if(pedestal <= (1.0+LArElecCalib::ERRORCODE)) continue;      
     
     // Remove problematic channels
-    if (m_badChannelMask->cellShouldBeMasked(id)) continue;
-    
+    if (m_bcMask.cellShouldBeMasked(bcCont,id)) continue;
     //
     // HEC 
     //

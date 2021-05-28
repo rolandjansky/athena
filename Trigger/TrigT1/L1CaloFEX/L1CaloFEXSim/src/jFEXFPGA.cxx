@@ -123,15 +123,15 @@ StatusCode jFEXFPGA::execute() {
             m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
             m_jFEXsumETAlgoTool->buildFWDSumET();
             //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
-            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3))); 
-                
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
+            
             //-----------------jFEXmetAlgo-----------------    
             ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
             ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
             ATH_CHECK( m_jFEXmetAlgoTool->reset());             
             m_jFEXmetAlgoTool->setup(m_jTowersIDs_Wide);
             m_jFEXmetAlgoTool->buildFWDmet();
-            m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));              
+            m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));
         }
         else if(m_jfexid == 5){
             //-----------------jFEXsumETAlgo-----------------
@@ -141,8 +141,8 @@ StatusCode jFEXFPGA::execute() {
             m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
             m_jFEXsumETAlgoTool->buildFWDSumET();
             //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
-            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3))); 
-                
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
+              
             //-----------------jFEXmetAlgo-----------------    
             ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
             ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
@@ -584,7 +584,6 @@ uint32_t jFEXFPGA::formSumETTOB(int ETlow, int EThigh )
 
   //create basic tobword with 32 bits
   tobWord = tobWord + (etlow << 17) + (satlow << 16) + (ethigh << 1) + sathigh ;
-  
   ATH_MSG_DEBUG("tobword SumET with ETlow, Satlow, EThigh and Sathigh : " << std::bitset<32>(tobWord) );
 
   return tobWord;
@@ -603,28 +602,29 @@ std::vector <uint32_t> jFEXFPGA::getSumEtTOBs()
 uint32_t jFEXFPGA::formMetTOB(int METX, int METY )
 {
   uint32_t tobWord = 0;
-  const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+  const float_t jFEXETResolution = 200.0; //LSB is 200MeV
 
   int sat = 0;
   int res = 0; 
 
-  unsigned int metX = METX/jFEXETResolution;
-  if (metX > 0x7fff) { //0x7fff is 15 bits
+  int metX = METX/jFEXETResolution;
+  
+  //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383) the MSB is the sign
+  if (abs(metX) > 0x3fff) { 
     ATH_MSG_DEBUG("sumEtlow saturated: " << metX );
     metX = 0x7fff;
     sat=1;
   }
 
-  unsigned int metY = METY/jFEXETResolution;
-  if (metY > 0x7fff) { //0x7fff is 15 bits
+  int metY = METY/jFEXETResolution;
+  if (abs(metY) > 0x3fff) { //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383)
     ATH_MSG_DEBUG("sumEthigh saturated: " << metY );
     metY = 0x7fff;
     sat=1;
   }
-
-  //create basic tobword with 32 bits
-  tobWord = tobWord + (metX << 17) + (sat << 16) + (metY << 1) + res ;
   
+  //create basic tobword with 32 bits
+  tobWord = tobWord + ((metX & 0x7fff) << 17) + (sat << 16) + ((metY & 0x7fff) << 1) + res ;
   ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
 
   return tobWord;
