@@ -38,15 +38,14 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
  declareProperty("IsKeepTRTElect"    , m_IsKeepTRTElect   = false);  //
  declareProperty("McEventCollection" , m_mcEventCollection  = "TruthEvent");
  declareProperty("PileupPartPDGID"   , m_PileupPartPDGID    = 999);  //Geantino
- declareProperty("UseTRTHits"        , m_UseTRTHits   = true);  //
- declareProperty("UseCSCHits"        , m_UseCSCHits   = true);  // If symmetric RUN3, CSCs are turned off, otherwise default to on
- declareProperty("UseSTGCHits"       , m_UseSTGCHits   = false);  // Both NSW technologies are turned off by default. They are turned automatically if RUN3 geometry is used.
- declareProperty("UseMMHits"         , m_UseMMHits   = false);  //
+ declareProperty("UseTRTHits"        , m_useTRTHits   = true);  //
+ declareProperty("UseCSCHits"        , m_useCSCHits   = true);  // If symmetric RUN3, CSCs are turned off, otherwise default to on
+ declareProperty("UseSTGCHits"       , m_useSTGCHits   = false);  // Both NSW technologies are turned off by default. They are turned automatically if RUN3 geometry is used.
+ declareProperty("UseMMHits"         , m_useMMHits   = false);  //
  declareProperty("UseBCMHits"        , m_useBCMHits = true); // for Upgrade may not be present
-
+ declareProperty("UseHGTDHits"       , m_useHGTDHits = false); // Phase-II upgrade, not present before
  m_RefBarcode=0;
 }
-
 
 //-----------------------------------------------------
 McEventCollectionFilter::~McEventCollectionFilter(){
@@ -68,7 +67,7 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_MSG_DEBUG( " execute..... " );
 
   //... to find  electron barcodes linked to TRT hists
-  if(m_IsKeepTRTElect&&m_UseTRTHits) {
+  if(m_IsKeepTRTElect && m_useTRTHits) {
     ATH_CHECK( FindTRTElectronHits() );
   }
 
@@ -79,7 +78,7 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_CHECK( SiHitsTruthRelink() );
 
   //.......to relink all TRT hits to the new particle
-  if(m_UseTRTHits) {
+  if(m_useTRTHits) {
     ATH_CHECK( TRTHitsTruthRelink() );
   }
 
@@ -87,7 +86,7 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_CHECK( MDTHitsTruthRelink() );
 
   //.......to relink all CSC hits to the new particle
-  if(m_UseCSCHits) {
+  if(m_useCSCHits) {
     ATH_CHECK( CSCHitsTruthRelink() );
   }
 
@@ -98,12 +97,12 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_CHECK( TGCHitsTruthRelink() );
 
   //.......to relink all STGC hits to the new particle
-  if(m_UseSTGCHits) {
+  if(m_useSTGCHits) {
     ATH_CHECK( STGC_HitsTruthRelink() );
   }
 
   //.......to relink all MM hits to the new particle
-  if(m_UseMMHits) {
+  if(m_useMMHits) {
     ATH_CHECK( MM_HitsTruthRelink() );
   }
 
@@ -127,7 +126,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 //.......to reduce McEventCollection for pileup  particles
 //----------------------------------------------------------------
 //
-  // ....... Retrieve MC truht collection
+  // ....... Retrieve MC truth collection
   const McEventCollection* pMcEvtColl=0;
   ATH_CHECK( evtStore()->retrieve(pMcEvtColl,m_mcEventCollection) );
 
@@ -233,6 +232,7 @@ StatusCode McEventCollectionFilter::SiHitsTruthRelink(){
   m_HitContainer.push_back("PixelHits");
   m_HitContainer.push_back("SCT_Hits");
   if(m_useBCMHits) m_HitContainer.push_back("BCMHits");
+  if(m_useHGTDHits) m_HitContainer.push_back("HGTD_Hits");
 
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++){
 

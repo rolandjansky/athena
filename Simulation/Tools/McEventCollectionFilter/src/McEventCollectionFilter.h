@@ -38,11 +38,12 @@ public:
    bool m_IsKeepTRTElect;
    std::string   m_mcEventCollection;
    int m_PileupPartPDGID;
-   bool m_UseTRTHits;
-   bool m_UseCSCHits;
-   bool m_UseSTGCHits;
-   bool m_UseMMHits;
+   bool m_useTRTHits;
+   bool m_useCSCHits;
+   bool m_useSTGCHits;
+   bool m_useMMHits;
    bool m_useBCMHits;
+   bool m_useHGTDHits;
    //---------------------
    std::string   m_HitName;
    int m_RefBarcode;
