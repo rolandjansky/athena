@@ -219,6 +219,7 @@ namespace InDet{
       Trk::TrackStateOnSurface* trackStateOnSurface(bool,bool,bool,int);
       Trk::TrackStateOnSurface* trackSimpleStateOnSurface(bool,bool,int);
       Trk::TrackStateOnSurface* trackPerigeeStateOnSurface();
+      Trk::MeasurementBase* simpleMeasurement(const InDet::SiCluster*);
 
       ///////////////////////////////////////////////////////////////////
       // TrackParameters production  
@@ -235,6 +236,7 @@ namespace InDet{
       bool initiateState(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
       bool initiateStatePrecise(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
       bool initiateStateWithCorrection(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      void precisePosCov(Trk::PatternTrackParameters&);
 
       ///////////////////////////////////////////////////////////////////
       // Last detector elements with clusters
@@ -371,7 +373,6 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       void patternCovariances(const InDet::SiCluster*,Amg::MatrixX&);
-      void patternCovariances(const InDet::SiCluster*,double&,double&,double&);
     };
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -620,18 +621,13 @@ namespace InDet{
   inline bool SiTrajectoryElement_xk::addCluster(Trk::PatternTrackParameters& Ta,
                                                  Trk::PatternTrackParameters& Tb,
                                                  double& Xi2) {
-    int N; 
-    if(!m_stereo) {
-      patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));
-      if(m_ndf==1) {
-        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
-      }
-      else {
-        return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
-      }
-    } else {
-      return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);      
-    }
+    int N;
+    patternCovariances(m_cluster,m_covariance);
+
+    if(m_ndf==1) {
+      return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+    } 
+    else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
   }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -640,16 +636,13 @@ namespace InDet{
 
   inline bool SiTrajectoryElement_xk::addCluster(Trk::PatternTrackParameters& Ta,
                                                  Trk::PatternTrackParameters& Tb) {
-    if(!m_stereo) {
-      patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));   
-      if(m_ndf==1) {
-        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb);
-      } else {
-        return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb);
-      }
-    } else {
-      return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+
+    patternCovariances(m_cluster,m_covariance);
+    
+    if(m_ndf==1) {
+      return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb);
     }
+    else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb);
   }
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -696,7 +689,10 @@ namespace InDet{
   inline bool SiTrajectoryElement_xk::initiateState
     (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
     {
-      return Tb.initiate(Ta,m_cluster->localPosition(),m_cluster->localCovariance());
+      // using pattern covariance for all clusters
+      Amg::MatrixX cov; 
+      patternCovariances(m_cluster,cov);
+      return Tb.initiate(Ta,m_cluster->localPosition(),cov);
     }
   
   ///////////////////////////////////////////////////////////////////
@@ -721,23 +717,23 @@ namespace InDet{
       
       covp(0,0) = c->width().phiR(); 
       covp(0,0)*=(covp(0,0)*s_oneOverTwelve);
+
+      if(not m_tools->useFastTracking()) {
+        if(covp(0,0) < (c->localCovariance())(0,0)) {
+          covp(0,0)=(c->localCovariance())(0,0);
+        }
+        covp(0,1) = 0.;
+        covp(1,0) = 0.;
+      }
       
       if(m_ndf==2) {
         covp(1,1)=c->width().z(); 
         covp(1,1)*=(covp(1,1)*s_oneOverTwelve);
-      }
-    }
-    
-    
-  inline void  SiTrajectoryElement_xk::patternCovariances
-    (const InDet::SiCluster* c,double& covX,double& covXY,double& covY)
-    {
-      const Amg::MatrixX& v = c->localCovariance();
-      covX  = c->width().phiR(); covX*=(covX*s_oneOverTwelve); if(covX < v(0,0)) covX=v(0,0);
-      covXY = 0.;
-      if(m_ndf==1) {covY=v(1,1);}
-      else         {
-        covY=c->width().z(); covY*=(covY*s_oneOverTwelve); if(covY < v(1,1)) covY=v(1,1);
+        if(not m_tools->useFastTracking()) {
+          if(covp(1,1) < (c->localCovariance())(1,1)) {
+            covp(1,1)=(c->localCovariance())(1,1);
+          }
+        }
       }
     }
 
@@ -770,6 +766,39 @@ namespace InDet{
     {
       m_noisemodel = 2;
     }
+    
+  ///////////////////////////////////////////////////////////////////
+  // Initiate state with cluster correction
+  ///////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::initiateStateWithCorrection(Trk::PatternTrackParameters& Tc,
+								  Trk::PatternTrackParameters& Ta,
+								  Trk::PatternTrackParameters& Tb)
+  {
+    precisePosCov(Tc); 
+    return Tb.initiate(Ta,m_position,m_covariance); 
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+  // using precise error
+  /////////////////////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::addClusterPreciseWithCorrection(Trk::PatternTrackParameters& Tc,
+								      Trk::PatternTrackParameters& Ta,
+								      Trk::PatternTrackParameters& Tb,
+								      double& Xi2)  
+  {
+    int N; 
+    precisePosCov(Tc); 
+
+    if(m_ndf==1) {
+      return m_updatorTool->addToStateOneDimension(Ta,m_position,m_covariance,Tb,Xi2,N);
+    }
+    else         {
+      return m_updatorTool->addToState(Ta,m_position,m_covariance,Tb,Xi2,N);
+    }
+  }
 
 } // end of name space
 

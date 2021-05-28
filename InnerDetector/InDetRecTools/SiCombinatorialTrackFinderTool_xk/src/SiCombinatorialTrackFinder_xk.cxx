@@ -779,10 +779,9 @@ int InDet::SiCombinatorialTrackFinder_xk::findTrack
     if(!m_trajectory.forwardExtension (false,itmax)) return 3;
     if(!m_trajectory.backwardSmoother (false)      ) return 3;
     if(!m_trajectory.backwardExtension(itmax)      ) return 3;
-
-    if (m_doFastTracking) {
-      if(m_trajectory.nclusters() < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
-    } else {
+    if(m_trajectory.nclusters() < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    
+    if(!m_doFastTracking) {      
       if(m_trajectory.difference() > 0) {
         if(!m_trajectory.forwardFilter()          ) return 3;
         if(!m_trajectory.backwardSmoother (false) ) return 3;
