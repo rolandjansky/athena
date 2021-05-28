@@ -11,7 +11,8 @@ def mkGetOpenLoopsJob(options):
 
     # check availability of OL libs in /cvmfs and warn user
     if not options.OLskipcvmfs:
-        cvmfsInstalledOpenLoopsLibs = glob.glob("/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/proclib/*.so")
+        olpath = str(os.environ['OPENLOOPSPATH'])
+        cvmfsInstalledOpenLoopsLibs = glob.glob(olpath + "/proclib/*.so")
         if not any(not any(x in fil for fil in cvmfsInstalledOpenLoopsLibs) for x in options.Sherpa_i.OpenLoopsLibs):
             print("You requested the inclusion of OpenLoops libs in the tarball (genSeq.Sherpa_i.OpenLoopsLibs), but all of them are available centrally in /cvmfs. Will continue without including them in the tarball, and you can remove the genSeq.Sherpa_i.OpenLoopsLibs line from your JO.")
             return None
@@ -170,14 +171,26 @@ def mkIntegrateJob(options, ecm, prevJob):
         if not (re.split(r'\W',s)[0] in ignoreopt):
             job.cmds += [r"sed '/.*\}(run).*/i\ \ "+s+"' -i Run.dat"]
 
-    if not options.sherpaInstallPath:
-        options.sherpaInstallPath = "/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/sherpa/${SHERPAVER}.openmpi3/x86_64-centos7-gcc62-opt"
+    olpath = str(os.environ['OPENLOOPSPATH'])
+    lcglayer = olpath[olpath.find("LCG_"):olpath.find("/MCGenerators")]
+    sftlayer = "/cvmfs/sft.cern.ch/lcg/releases/" + lcglayer
+    lcgbase = "_".join(lcglayer.split('_')[:2]) # without postfix
+    sftbase = "/cvmfs/sft.cern.ch/lcg/releases/" + lcgbase
+    gccver = "8.3.0"
+    with open(sftlayer + "/LCG_externals_" + (os.environ['LCG_PLATFORM']) + '.txt') as f:
+      for line in f:
+        if line.startswith('COMPILER'):
+          gccver = line.strip().split(';')[-1]
+          break
 
-    job.cmds += ["source /cvmfs/sft.cern.ch/lcg/releases/LCG_88/gcc/6.2.0/x86_64-centos7/setup.sh"]
-    job.cmds += ["export PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-centos7-gcc62-opt/bin:$PATH"]
+    if not options.sherpaInstallPath:
+        options.sherpaInstallPath = sftlayer+"/MCGenerators/sherpa/${SHERPAVER}.openmpi3/${LCG_PLATFORM}"
+
+    job.cmds += ["source /cvmfs/sft.cern.ch/lcg/releases/gcc/"+gccver+"/x86_64-centos7/setup.sh" ]
+    job.cmds += ["export PATH="+sftbase+"/openmpi/*/${LCG_PLATFORM}/bin:$PATH"]
     job.cmds += ["export LHAPATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current:/cvmfs/atlas.cern.ch/repo/sw/Generators/lhapdfsets/current/"]
-    job.cmds += ["export OPAL_PREFIX=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-centos7-gcc62-opt"]
-    job.cmds += ["export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/sqlite/3110100/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/HepMC/2.06.11/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/lhapdf/6.2.3/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/fastjet/3.2.0/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/proclib:"+options.sherpaInstallPath+"/lib/SHERPA-MC:$LD_LIBRARY_PATH"]
+    job.cmds += ["export OPAL_PREFIX="+sftbase+"/openmpi/*/${LCG_PLATFORM}"]
+    job.cmds += ["export LD_LIBRARY_PATH="+sftbase+"/openmpi/*/${LCG_PLATFORM}/lib:"+sftbase+"/sqlite/*/${LCG_PLATFORM}/lib:"+sftbase+"/HepMC/*/${LCG_PLATFORM}/lib:"+sftlayer+"/MCGenerators/lhapdf/*/${LCG_PLATFORM}/lib:"+sftlayer+"/fastjet/*/${LCG_PLATFORM}/lib:"+olpath+"/lib:"+olpath+"/proclib:"+options.sherpaInstallPath+"/lib/SHERPA-MC:$LD_LIBRARY_PATH"]
 
     job.cmds += ["mpirun -n {0} ".format(str(targetCores))+options.sherpaInstallPath+"/bin/Sherpa EVENTS=0 FRAGMENTATION=Off MI_HANDLER=None BEAM_ENERGY_1="+str(ecm/2.*1000)+" BEAM_ENERGY_2="+str(ecm/2.*1000)]
 
@@ -244,7 +257,7 @@ def mkEvntGenTestJob(options, ecm, jodir, prevJob):
     job.cmds += ["for i in 1 2 5 10 20 50 100 200 500 1000 2000 5000 10000; do if test $nPer12h -gt $i; then finalEventsPerJob=$i; fi; done"]
     job.cmds += ["echo \"Possible number of events per 12h: ${nPer12h} -> ${finalEventsPerJob} \""]
     job.cmds += ["if grep -q evgenConfig.nEventsPerJob "+jodir+"/mc.*.py; then"]
-    job.cmds += [r"  sed -e \"s/evgenConfig.nEventsPerJob.*=.*\([0-9]*\)/evgenConfig.nEventsPerJob = ${finalEventsPerJob}/g\" -i "+jodir+"/mc.*.py"]
+    job.cmds += [r'  sed -e "s/evgenConfig.nEventsPerJob.*=.*\([0-9]*\)/evgenConfig.nEventsPerJob = ${finalEventsPerJob}/g" -i '+jodir+"/mc.*.py"]
     job.cmds += ["else"]
     job.cmds += ["  echo \"evgenConfig.nEventsPerJob = ${finalEventsPerJob}\" >> "+jodir+"/mc.*.py"]
     job.cmds += ["fi"]
