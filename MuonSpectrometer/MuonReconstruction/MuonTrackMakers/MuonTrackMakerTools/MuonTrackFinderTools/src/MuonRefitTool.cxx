@@ -142,11 +142,7 @@ namespace Muon {
                      << "Failed Extrapolation to Muon Entry      " << scaleRefit * m_failedExtrapolationMuonEntry);
         return StatusCode::SUCCESS;
     }
-
-    std::unique_ptr<Trk::Track> MuonRefitTool::refit(const Trk::Track* track, const IMuonRefitTool::Settings* set) const {
-        return refit(track, Gaudi::Hive::currentContext(), set);
-    }
-    std::unique_ptr<Trk::Track> MuonRefitTool::refit(const Trk::Track* track, const EventContext& ctx,
+    std::unique_ptr<Trk::Track> MuonRefitTool::refit(const Trk::Track& track, const EventContext& ctx,
                                                      const IMuonRefitTool::Settings* set) const {
         const IMuonRefitTool::Settings& settings = set ? *set : m_defaultSettings;
 
@@ -158,19 +154,19 @@ namespace Muon {
             if (!cleanedTrack) {
                 ATH_MSG_DEBUG("Track lost during outlier removal");
                 ++m_failedOutlierRemoval;
-                return std::make_unique<Trk::Track>(*track);
+                return std::make_unique<Trk::Track>(track);
             }
-            if (cleanedTrack->perigeeParameters() != track->perigeeParameters()) {
+            if (cleanedTrack->perigeeParameters() != track.perigeeParameters()) {
                 ATH_MSG_DEBUG("Outlier removal removed hits from track");
             }
             newTrack.swap(cleanedTrack);
         } else
-            newTrack = std::make_unique<Trk::Track>(*track);
+            newTrack = std::make_unique<Trk::Track>(track);
 
         if (settings.updateErrors) {
             ATH_MSG_DEBUG("track hits before error updating: " << m_printer->printMeasurements(*newTrack));
             std::unique_ptr<Trk::Track> updateErrorTrack =
-                m_alignmentErrors ? updateAlignmentErrors(newTrack.get(), ctx, settings) : updateErrors(newTrack.get(), ctx, settings);
+                m_alignmentErrors ? updateAlignmentErrors(*newTrack, ctx, settings) : updateErrors(*newTrack, ctx, settings);
             if (!updateErrorTrack) {
                 ATH_MSG_WARNING("Failed to update errors");
                 ++m_failedErrorUpdate;
@@ -180,18 +176,18 @@ namespace Muon {
         }
 
         if (settings.refit) {
-            ATH_MSG_DEBUG("Original track" << m_printer->print(*track));
+            ATH_MSG_DEBUG("Original track" << m_printer->print(track));
 
             // do not put AEOTs on extremely bad chi2 tracks and do not refit them
 
             std::unique_ptr<Trk::Track> refittedTrack;
-            if (track->fitQuality() && track->fitQuality()->chiSquared() < 10000 * track->fitQuality()->numberDoF())
+            if (track.fitQuality() && track.fitQuality()->chiSquared() < 10000 * track.fitQuality()->numberDoF())
                 refittedTrack = std::unique_ptr<Trk::Track>(m_trackFitter->fit(ctx, *newTrack, false, Trk::muon));
             if (!refittedTrack) {
                 ATH_MSG_DEBUG("Failed to refit track");
                 ++m_failedRefit;
                 // BUG fix Peter
-                return std::make_unique<Trk::Track>(*track);
+                return std::make_unique<Trk::Track>(track);
             }
             ATH_MSG_DEBUG("Refitted track" << m_printer->print(*refittedTrack));
             ATH_MSG_DEBUG("Refitted track" << m_printer->printMeasurements(*refittedTrack));
@@ -212,43 +208,38 @@ namespace Muon {
 
         return newTrack;
     }
-
-    std::vector<std::unique_ptr<Trk::Track>> MuonRefitTool::refit(const std::vector<Trk::Track*>& tracks,
-                                                                  const IMuonRefitTool::Settings* set) const {
-        return refit(tracks, Gaudi::Hive::currentContext(), set);
-    }
     std::vector<std::unique_ptr<Trk::Track>> MuonRefitTool::refit(const std::vector<Trk::Track*>& tracks, const EventContext& ctx,
                                                                   const IMuonRefitTool::Settings* set) const {
         std::vector<std::unique_ptr<Trk::Track>> refittedTracks;
         refittedTracks.reserve(tracks.size());
-        for (Trk::Track* it : tracks) { refittedTracks.emplace_back(refit(it, ctx, set)); }
+        for (const Trk::Track* it : tracks) { refittedTracks.emplace_back(refit(*it, ctx, set)); }
 
         return refittedTracks;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::updateAlignmentErrors(const Trk::Track* track, const EventContext& ctx,
+    std::unique_ptr<Trk::Track> MuonRefitTool::updateAlignmentErrors(const Trk::Track& track, const EventContext& ctx,
                                                                      const IMuonRefitTool::Settings& settings) const {
         // first scale the Mdt errors
 
         std::unique_ptr<Trk::Track> updatedTrack = updateMdtErrors(track, ctx, settings);
 
-        std::unique_ptr<Trk::Track> updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(updatedTrack.get()) : makeAEOTs(updatedTrack.get());
+        std::unique_ptr<Trk::Track> updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(*updatedTrack) : makeAEOTs(*updatedTrack);
 
         return updatedAEOTsTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::makeAEOTs(const Trk::Track* track) const {
+    std::unique_ptr<Trk::Track> MuonRefitTool::makeAEOTs(const Trk::Track& track) const {
         //
         // use the new AlignmentEffectsOnTrack class and alignmentErrorTool
         //
-        if (m_alignErrorTool.empty()) { return std::make_unique<Trk::Track>(*track); }
+        if (m_alignErrorTool.empty()) { return std::make_unique<Trk::Track>(track); }
         //
         // Use the alignmentErrorTool and store a list of hits with error on position and angle
         //
         std::map<std::vector<Identifier>, std::pair<double, double>> alignerrmap;
 
         std::vector<Trk::AlignmentDeviation*> align_deviations;
-        m_alignErrorTool->makeAlignmentDeviations(*track, align_deviations);
+        m_alignErrorTool->makeAlignmentDeviations(track, align_deviations);
 
         int iok = 0;
         bool isSmallChamber = false;
@@ -390,7 +381,7 @@ namespace Muon {
         for (auto *it : align_deviations) delete it;
         align_deviations.clear();
 
-        const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -468,7 +459,7 @@ namespace Muon {
         if (indexAEOTs.empty() && stationIds.size() > 1) ATH_MSG_WARNING(" Track without AEOT ");
 
         std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
 
         ATH_MSG_DEBUG(m_printer->print(*newTrack));
         ATH_MSG_DEBUG(m_printer->printMeasurements(*newTrack));
@@ -476,10 +467,10 @@ namespace Muon {
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::makeSimpleAEOTs(const Trk::Track* track) const {
+    std::unique_ptr<Trk::Track> MuonRefitTool::makeSimpleAEOTs(const Trk::Track& track) const {
         // use the new AlignmentEffectsOnTrack class
 
-        const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -555,7 +546,7 @@ namespace Muon {
 
         if (indicesOfAffectedTSOS.empty() && indicesOfAffectedTSOSInner.empty()) {
             std::unique_ptr<Trk::Track> newTrack =
-                std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+                std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
             return newTrack;
         }
 
@@ -603,20 +594,18 @@ namespace Muon {
             }
             trackStateOnSurfacesAEOT->push_back(tsit);
         }
-
         std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track->info(), trackStateOnSurfacesAEOT, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
-
+            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfacesAEOT, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         ATH_MSG_DEBUG(m_printer->print(*newTrack));
         ATH_MSG_DEBUG(m_printer->printMeasurements(*newTrack));
 
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::updateErrors(const Trk::Track* track, const EventContext& ctx,
+    std::unique_ptr<Trk::Track> MuonRefitTool::updateErrors(const Trk::Track& track, const EventContext& ctx,
                                                             const IMuonRefitTool::Settings& settings) const {
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -666,11 +655,11 @@ namespace Muon {
         }
 
         if (!startPars) {
-            if (!track->trackParameters() || track->trackParameters()->empty()) {
+            if (!track.trackParameters() || track.trackParameters()->empty()) {
                 ATH_MSG_WARNING("Track without parameters, cannot update errors");
                 return nullptr;
             }
-            startPars = track->trackParameters()->front();
+            startPars = track.trackParameters()->front();
             ATH_MSG_VERBOSE("Did not find fit starting parameters, using first parameters " << m_printer->print(*startPars));
         }
 
@@ -972,18 +961,18 @@ namespace Muon {
             trackStateOnSurfaces->push_back(nit->first ? nit->second : nit->second->clone());
         }
         std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
+            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         ATH_MSG_DEBUG("new track measurements: " << m_printer->printMeasurements(*newTrack));
 
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::updateMdtErrors(const Trk::Track* track, const EventContext& ctx,
+    std::unique_ptr<Trk::Track> MuonRefitTool::updateMdtErrors(const Trk::Track& track, const EventContext& ctx,
                                                                const IMuonRefitTool::Settings& settings) const {
         // uses the muonErrorStrategy
 
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -1029,11 +1018,11 @@ namespace Muon {
         }
 
         if (!startPars) {
-            if (!track->trackParameters() || track->trackParameters()->empty()) {
+            if (!track.trackParameters() || track.trackParameters()->empty()) {
                 ATH_MSG_WARNING("Track without parameters, cannot update errors");
                 return nullptr;
             }
-            startPars = track->trackParameters()->front();
+            startPars = track.trackParameters()->front();
             ATH_MSG_VERBOSE("Did not find fit starting parameters, using first parameters " << m_printer->print(*startPars));
         }
 
@@ -1203,14 +1192,13 @@ namespace Muon {
             trackStateOnSurfaces->push_back(nit->first ? nit->second : nit->second->clone());
         }
         std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
-
+            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MuonRefitTool::removeOutliers(const Trk::Track* track, const IMuonRefitTool::Settings& settings) const {
+    std::unique_ptr<Trk::Track> MuonRefitTool::removeOutliers(const Trk::Track& track, const IMuonRefitTool::Settings& settings) const {
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* states = track->trackStateOnSurfaces();
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -1285,7 +1273,7 @@ namespace Muon {
 
         if (removedIdentifiers.empty()) {
             ATH_MSG_DEBUG("No hits remove, returning original track");
-            return std::make_unique<Trk::Track>(*track);
+            return std::make_unique<Trk::Track>(track);
         }
 
         // states were added, create a new track
@@ -1294,28 +1282,25 @@ namespace Muon {
 
         ATH_MSG_DEBUG("Removing nhits: " << removedIdentifiers.size());
 
-        tsit = states->begin();
-        tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
+        for (const Trk::TrackStateOnSurface* tsos : *states) {
             if (!*tsit) continue;  // sanity check
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
             if (meas) {
                 Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 
                 if (removedIdentifiers.count(id)) {
-                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::cloneTSOS(**tsit, Trk::TrackStateOnSurface::Outlier);
-                    trackStateOnSurfaces->push_back(tsos);
+                    Trk::TrackStateOnSurface* new_tsos = MuonTSOSHelper::cloneTSOS(*tsos, Trk::TrackStateOnSurface::Outlier);
+                    trackStateOnSurfaces->push_back(new_tsos);
                     continue;
                 }
             }
-            trackStateOnSurfaces->push_back((*tsit)->clone());
+            trackStateOnSurfaces->push_back(tsos->clone());
         }
 
         std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces, track->fitQuality() ? track->fitQuality()->clone() : nullptr);
-
+            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 

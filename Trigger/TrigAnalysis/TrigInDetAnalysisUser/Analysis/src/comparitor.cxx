@@ -1338,9 +1338,10 @@ int main(int argc, char** argv) {
       double xpos  = 0.18;
       double ypos  = 0.91;
       
-      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.17;
+      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.19;
 
-      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.15;
+      ///  leave this code commented here for the time being ...
+      ///      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.19;
       
       if ( atlasstyle ) { 
 	xpos  = 0.18;
@@ -1380,14 +1381,12 @@ int main(int argc, char** argv) {
       if ( ALLRANGEMAP || (RANGEMAP && xaxis.find("p_{T}")!=std::string::npos && ccolours.size() ) ) 
 	Nrows = ( Nrows < ccolours.size() ? Nrows : ccolours.size() );
       
-      std::cout << "\n\n\tNrows " << Nrows << std::endl;
-
       int Nlines = Nrows + taglabels.size();
       
       std::vector<double> ypositions;
       
       double deltay = (Nrows*0.055-0.005)/Nrows;
-      
+
       double ylo = ypos;
       double yhi = ypos;
       
@@ -1402,7 +1401,7 @@ int main(int argc, char** argv) {
       
       /// legends ....
 
-      Legend legend( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
+      Legend legend(     xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
       Legend legend_eff( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
             
       
@@ -2372,7 +2371,7 @@ int main(int argc, char** argv) {
 	/// actually draw the plot here ...
       
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
+	
 	plots.Draw( legend );
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;

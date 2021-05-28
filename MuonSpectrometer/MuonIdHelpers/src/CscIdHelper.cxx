@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/CscIdHelper.h"
@@ -15,13 +15,19 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   int status = 0;
 
+  MsgStream log (m_msgSvc, m_logName);
+
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    }
     return (0);
   }
   else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    }
   }
 
   /// init base object
@@ -34,9 +40,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   m_dict = dict_mgr.find_dictionary ("MuonSpectrometer"); 
   if (!m_dict)
     {
-      (*m_Log) << MSG::ERROR 
-	       << " initialize_from_dict - cannot access MuonSpectrometer dictionary "
-	       << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR 
+            << " initialize_from_dict - cannot access MuonSpectrometer dictionary "
+            << endmsg;
+      }
       return 1;
     }
 
@@ -46,7 +54,9 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   int index = technologyIndex("CSC");
   if (index == -1) {
-    (*m_Log) << MSG::DEBUG << "initLevelsFromDict - there are no CSC entries in the dictionary! "  << endmsg;
+    if (m_msgSvc) {
+      log << MSG::DEBUG << "initLevelsFromDict - there are no CSC entries in the dictionary! "  << endmsg;
+    }
     return 0;
   }
 
@@ -57,9 +67,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     }
   else
     {
-      (*m_Log) << MSG::ERROR
-	       << "initLevelsFromDict - unable to find 'chamberLayer' field " 	
-	       << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "initLevelsFromDict - unable to find 'chamberLayer' field " 	
+            << endmsg;
+      }
       status = 1;
     }
 
@@ -70,9 +82,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     }
   else
     {
-      (*m_Log) << MSG::ERROR
-	       << "initLevelsFromDict - unable to find 'wireLayer' field " 	
-	       << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "initLevelsFromDict - unable to find 'wireLayer' field " 	
+            << endmsg;
+      }
       status = 1;
     }
 
@@ -83,9 +97,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     }
   else
     {
-      (*m_Log) << MSG::ERROR
-	       << "initLevelsFromDict - unable to find 'cscMeasuresPhi' field " 	
-	       << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "initLevelsFromDict - unable to find 'cscMeasuresPhi' field " 	
+            << endmsg;
+      }
       status = 1;
     }
 
@@ -96,9 +112,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     }
   else
     {
-      (*m_Log) << MSG::ERROR
-	       << "initLevelsFromDict - unable to find 'cscStrip' field " 	
-	       << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "initLevelsFromDict - unable to find 'cscStrip' field " 	
+            << endmsg;
+      }
       status = 1;
     }
 
@@ -110,7 +128,9 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   IdDictGroup* cscGroup =  m_dict->find_group("csc");
   if(!cscGroup)
     {
-      (*m_Log) << MSG::ERROR << "Cannot find csc group" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "Cannot find csc group" << endmsg;
+      }
     }
   else
     {
@@ -126,16 +146,18 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   m_mea_impl  = region.m_implementation[m_MEASURESPHI_INDEX]; 
   m_str_impl  = region.m_implementation[m_CHANNEL_INDEX]; 
 
-  (*m_Log) << MSG::DEBUG << " CSC decode index and bit fields for each level: "  << endmsg;
-  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
-  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " cham layer  "  << m_cla_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " layer       "  << m_lay_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_mea_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " strip       "  << m_str_impl.show_to_string()  << endmsg; 
+  if (m_msgSvc) {
+    log << MSG::DEBUG << " CSC decode index and bit fields for each level: "  << endmsg;
+    log << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " cham layer  "  << m_cla_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " layer       "  << m_lay_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " phi         "  << m_mea_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " strip       "  << m_str_impl.show_to_string()  << endmsg;
+  }
 
   /**
    * Build multirange for the valid set of identifiers
@@ -147,10 +169,12 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   const IdDictDictionary* atlasDict = dict_mgr.find_dictionary ("ATLAS"); 
   if (atlasDict->get_label_value("subdet", "MuonSpectrometer", muonField))
     {
-      (*m_Log) << MSG::ERROR
-	       << "Could not get value for label 'MuonSpectrometer' of field "
-	       << "'subdet' in dictionary " << atlasDict->m_name
-	       << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "Could not get value for label 'MuonSpectrometer' of field "
+            << "'subdet' in dictionary " << atlasDict->m_name
+            << endmsg;
+      }
       return (1);
     }
 
@@ -164,12 +188,16 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 						     "technology");
   if (muon_range.size() > 0 )
     {
-      (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " 
-	       << "MultiRange size is " << muon_range.size() << endmsg;
+      if (m_msgSvc) {
+        log << MSG::INFO << "MultiRange built successfully to Technology: " 
+            << "MultiRange size is " << muon_range.size() << endmsg;
+      }
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon MultiRange is empty for modules" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "Muon MultiRange is empty for modules" << endmsg;
+      }
     }
 
   // Build MultiRange down to "detector element" for all mdt regions
@@ -181,12 +209,16 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 								     detectorElement_prefix, "chamberLayer");
   if (muon_detectorElement_range.size() > 0 )
     {
-      (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: "
-	       << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+      if (m_msgSvc) {
+        log << MSG::INFO << "MultiRange built successfully to detector element: "
+            << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+      }
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon CSC detector element MultiRange is empty" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "Muon CSC detector element MultiRange is empty" << endmsg;
+      }
     }
 
   /// Build MultiRange down to "cscStrip" for all CSC regions
@@ -199,12 +231,16 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 							     "cscStrip");
   if (muon_channel_range.size() > 0 )
     {
-      (*m_Log) << MSG::INFO << "MultiRange built successfully to cscStrip: " 
-	       << "MultiRange size is " << muon_channel_range.size() << endmsg;
+      if (m_msgSvc) {
+        log << MSG::INFO << "MultiRange built successfully to cscStrip: " 
+            << "MultiRange size is " << muon_channel_range.size() << endmsg;
+      }
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon MultiRange is empty for channels" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "Muon MultiRange is empty for channels" << endmsg;
+      }
     }
 
   /**
@@ -226,9 +262,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	  if ( field.match( (ExpandedIdentifier::element_type) cscField ) )
             {
 	      m_full_module_range.add(range);
-	      if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
-						       << "field size is " << (int) range.cardinality() 
-						       << " field index = " << i << endmsg;
+              if (m_msgSvc) {
+                log << MSG::DEBUG
+                    << "field size is " << (int) range.cardinality() 
+                    << " field index = " << i << endmsg;
+              }
             }
         }
     }
@@ -242,9 +280,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	  if ( field.match( (ExpandedIdentifier::element_type) cscField ) )
             {
 	      m_full_detectorElement_range.add(range);
-	      if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
-						       << "detector element field size is " << (int) range.cardinality()
-						       << " field index = " << j << endmsg;
+              if (m_msgSvc) {
+                log << MSG::DEBUG
+                    << "detector element field size is " << (int) range.cardinality()
+                    << " field index = " << j << endmsg;
+              }
             }
         }
     }
@@ -257,9 +297,11 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	if ( field.match( (ExpandedIdentifier::element_type) cscField ) )
 	  {
 	    m_full_channel_range.add(range);
-	    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
-						     << "channel field size is " << (int) range.cardinality() 
-						     << " field index = " << j << endmsg;
+            if (m_msgSvc) {
+              log << MSG::DEBUG
+                  << "channel field size is " << (int) range.cardinality() 
+                  << " field index = " << j << endmsg;
+            }
 	  }
       }
     }
@@ -268,8 +310,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_module_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR
-	       << "CSC MultiRange ID is empty for modules" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "CSC MultiRange ID is empty for modules" << endmsg;
+      }
       status = 1;
     }
 
@@ -277,7 +321,9 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_detectorElement_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR << "CSC MultiRange ID is empty for detector elements" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "CSC MultiRange ID is empty for detector elements" << endmsg;
+      }
       status = 1;
     }
 
@@ -285,8 +331,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_channel_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR
-	       << "CSC MultiRange ID is empty for channels" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "CSC MultiRange ID is empty for channels" << endmsg;
+      }
       status = 1;
     }
 
@@ -305,8 +353,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   /// Setup the hash tables for CSC
 
-  (*m_Log) << MSG::INFO
-	   << "Initializing CSC hash indices ... " << endmsg;
+  if (m_msgSvc) {
+    log << MSG::INFO
+        << "Initializing CSC hash indices ... " << endmsg;
+  }
   status = init_hashes();
   status = init_detectorElement_hashes(); // for chamber layer - a chamber
   status = init_channel_hashes();
@@ -315,8 +365,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   /// Setup hash tables for finding neighbors
 
-  (*m_Log) << MSG::INFO
-	   << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
+  if (m_msgSvc) {
+    log << MSG::INFO
+        << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
+  }
   status = init_neighbors();
 
   // now we have to set the stripMax values (for the stripMax(id) function)
@@ -330,8 +382,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   IdContext strip_context = channel_context();
   for (const auto &id : m_channel_vec) {
     if (get_expanded_id(id, expId, &strip_context)) {
-      (*m_Log) << MSG::ERROR
-      << "Failed to retrieve ExpandedIdentifier from Identifier " << id.get_compact() << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR
+            << "Failed to retrieve ExpandedIdentifier from Identifier " << id.get_compact() << endmsg;
+      }
       return 1;
     }
     bool measuresPhi = this->measuresPhi(id);
@@ -340,21 +394,27 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       if (range.match(expId)) {
         const Range::field& phi_field = range[m_CHANNEL_INDEX];
         if (!phi_field.has_maximum()) {
-          (*m_Log) << MSG::ERROR
-          << "Range::field for phi at position " << i << " does not have a maximum" << endmsg;
+          if (m_msgSvc) {
+            log << MSG::ERROR
+                << "Range::field for phi at position " << i << " does not have a maximum" << endmsg;
+          }
           return 1;
         }
         unsigned int max = phi_field.get_maximum();
         if (measuresPhi) {
           if (m_stripMaxPhi!=UINT_MAX && m_stripMaxPhi!=max) {
-            (*m_Log) << MSG::ERROR
-            << "Maximum of Range::field for phi (" << max << ") is not equal to m_stripMaxPhi=" << m_stripMaxPhi << endmsg;
+            if (m_msgSvc) {
+              log << MSG::ERROR
+                  << "Maximum of Range::field for phi (" << max << ") is not equal to m_stripMaxPhi=" << m_stripMaxPhi << endmsg;
+            }
             return 1;
           } else m_stripMaxPhi = max;
         } else {
           if (m_stripMaxEta!=UINT_MAX && m_stripMaxEta!=max) {
-            (*m_Log) << MSG::ERROR
-            << "Maximum of Range::field for phi (" << max << ") is not equal to m_stripMaxEta=" << m_stripMaxEta << endmsg;
+            if (m_msgSvc) {
+              log << MSG::ERROR
+                  << "Maximum of Range::field for phi (" << max << ") is not equal to m_stripMaxEta=" << m_stripMaxEta << endmsg;
+            }
             return 1;
           } else m_stripMaxEta = max;
         }
@@ -818,11 +878,14 @@ bool CscIdHelper::valid(const Identifier& id) const
   if ((cLayer < chamberLayerMin(id)) ||
       (cLayer > chamberLayerMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid chamberLayer=" << cLayer
-	       << " chamberLayerMin=" << chamberLayerMin(id)
-	       << " chamberLayerMax=" << chamberLayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid chamberLayer=" << cLayer
+            << " chamberLayerMin=" << chamberLayerMin(id)
+            << " chamberLayerMax=" << chamberLayerMax(id)
+            << endmsg;
+      }
       return false;
     }
 
@@ -830,11 +893,14 @@ bool CscIdHelper::valid(const Identifier& id) const
   if ((wLayer < wireLayerMin(id)) ||
       (wLayer > wireLayerMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid wireLayer=" << wLayer
-	       << " wireLayerMin=" << wireLayerMin(id)
-	       << " wireLayerMax=" << wireLayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid wireLayer=" << wLayer
+            << " wireLayerMin=" << wireLayerMin(id)
+            << " wireLayerMax=" << wireLayerMax(id)
+            << endmsg;
+      }
       return false;
     }
 
@@ -842,11 +908,14 @@ bool CscIdHelper::valid(const Identifier& id) const
   if ((mPhi < measuresPhiMin(id)) ||
       (mPhi > measuresPhiMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid measuresPhi=" << mPhi
-	       << " measuresPhiMin=" << measuresPhiMin(id)
-	       << " measuresPhiMax=" << measuresPhiMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid measuresPhi=" << mPhi
+            << " measuresPhiMin=" << measuresPhiMin(id)
+            << " measuresPhiMax=" << measuresPhiMax(id)
+            << endmsg;
+      }
       return false;
     }
 
@@ -854,11 +923,14 @@ bool CscIdHelper::valid(const Identifier& id) const
   if ((channel > stripMax(id)) ||
       (channel < stripMin(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid strip=" << channel
-	       << " stripMin=" << stripMin(id)
-	       << " stripMax=" << stripMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid strip=" << channel
+            << " stripMin=" << stripMin(id)
+            << " stripMax=" << stripMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;
@@ -871,9 +943,12 @@ bool CscIdHelper::validElement(const Identifier& id) const
   std::string name = stationNameString(station);
   if ('C' != name[0])
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationName=" << name
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationName=" << name
+            << endmsg;
+      }
       return false;
     }
 
@@ -882,12 +957,15 @@ bool CscIdHelper::validElement(const Identifier& id) const
       (eta > stationEtaMax(id)) ||
       (0 == eta)                 )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationEta=" << eta
-	       << " for stationName=" << name
-	       << " stationEtaMin=" << stationEtaMin(id)
-	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationEta=" << eta
+            << " for stationName=" << name
+            << " stationEtaMin=" << stationEtaMin(id)
+            << " stationEtaMax=" << stationEtaMax(id)
+            << endmsg;
+      }
       return false;
     }
 
@@ -895,12 +973,15 @@ bool CscIdHelper::validElement(const Identifier& id) const
   if ((phi < stationPhiMin(id)) ||
       (phi > stationPhiMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationPhi=" << phi
-	       << " for stationName=" << name
-	       << " stationPhiMin=" << stationPhiMin(id)
-	       << " stationPhiMax=" << stationPhiMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName); 
+        log << MSG::WARNING
+            << "Invalid stationPhi=" << phi
+            << " for stationName=" << name
+            << " stationPhiMin=" << stationPhiMin(id)
+            << " stationPhiMax=" << stationPhiMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;
@@ -916,34 +997,42 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName,
 
   if ('C' != name[0])
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationName=" << name
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationName=" << name
+            << endmsg;
+      }
       return false;
     }
   if ((stationEta < stationEtaMin(id)) ||
       (stationEta > stationEtaMax(id)) ||
       (0 == stationEta)                 )
     {
-      static std::once_flag flag ATLAS_THREAD_SAFE;
+      static std::once_flag flag;
       std::call_once(flag, [&](){
-        (*m_Log) << MSG::WARNING
-         << "Invalid stationEta=" << stationEta
-         << " for stationName=" << name
-         << " stationEtaMin=" << stationEtaMin(id)
-         << " stationEtaMax=" << stationEtaMax(id)
-         << endmsg; });
+        if (m_msgSvc) {
+          MsgStream log (m_msgSvc, m_logName);
+          log << MSG::WARNING
+              << "Invalid stationEta=" << stationEta
+              << " for stationName=" << name
+              << " stationEtaMin=" << stationEtaMin(id)
+              << " stationEtaMax=" << stationEtaMax(id)
+              << endmsg; }});
       return false;
     }
   if ((stationPhi < stationPhiMin(id)) ||
       (stationPhi > stationPhiMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationPhi=" << stationPhi
-	       << " for stationName=" << name
-	       << " stationPhiMin=" << stationPhiMin(id)
-	       << " stationPhiMax=" << stationPhiMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationPhi=" << stationPhi
+            << " for stationName=" << name
+            << " stationPhiMin=" << stationPhiMin(id)
+            << " stationPhiMax=" << stationPhiMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;
@@ -958,41 +1047,53 @@ bool CscIdHelper::validChannel(const Identifier& id, int stationName, int statio
   if ((chamberLayer < chamberLayerMin(id)) ||
       (chamberLayer > chamberLayerMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid chamberLayer=" << chamberLayer
-	       << " chamberLayerMin=" << chamberLayerMin(id)
-	       << " chamberLayerMax=" << chamberLayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid chamberLayer=" << chamberLayer
+            << " chamberLayerMin=" << chamberLayerMin(id)
+            << " chamberLayerMax=" << chamberLayerMax(id)
+            << endmsg;
+      }
       return false;
     }
   if ((wireLayer < wireLayerMin(id)) ||
       (wireLayer > wireLayerMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid wireLayer=" << wireLayer
-	       << " wireLayerMin=" << wireLayerMin(id)
-	       << " wireLayerMax=" << wireLayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid wireLayer=" << wireLayer
+            << " wireLayerMin=" << wireLayerMin(id)
+            << " wireLayerMax=" << wireLayerMax(id)
+            << endmsg;
+      }
       return false;
     }
   if ((measuresPhi < measuresPhiMin(id)) ||
       (measuresPhi > measuresPhiMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid measuresPhi=" << measuresPhi
-	       << " measuresPhiMin=" << measuresPhiMin(id)
-	       << " measuresPhiMax=" << measuresPhiMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid measuresPhi=" << measuresPhi
+            << " measuresPhiMin=" << measuresPhiMin(id)
+            << " measuresPhiMax=" << measuresPhiMax(id)
+            << endmsg;
+      }
       return false;
     }
   if ((strip > stripMax(id)) ||
       (strip < stripMin(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid strip=" << strip
-	       << " stripMin=" << stripMin(id)
-	       << " stripMax=" << stripMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid strip=" << strip
+            << " stripMin=" << stripMin(id)
+            << " stripMax=" << stripMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;

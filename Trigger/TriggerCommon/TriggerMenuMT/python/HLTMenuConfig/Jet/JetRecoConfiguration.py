@@ -32,7 +32,7 @@ def interpretJetCalibDefault(recoDict):
 recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel','cleaning']
 
 cleaningDict = {
-    'cleanLB': 'LooseBad',
+    'CLEANlb': 'LooseBad',
 }
 
 def extractCleaningsFromPrefilters(prefilters_list):

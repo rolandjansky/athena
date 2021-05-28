@@ -30,9 +30,9 @@ def fastPhotonSequenceCfg( flags ):
 
     return fastPhotonMenuSequence()
 
-def TLAPhotonSequenceCfg( flags ):
+def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     photonsIn = "HLT_egamma_Photons"
-    return TLAPhotonMenuSequence(flags, photonsIn)
+    return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
@@ -64,6 +64,7 @@ def diphotonDPhiHypoToolFromDict(chainDict):
 
 def diphotonDPhiMassHypoToolFromDict(chainDict):
     return _diPhotonComboHypoToolFromDict(chainDict,lowermass=80000,uppermass=-999,dphi=1.5,applymass=True,applydphi=True)
+
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -147,7 +148,14 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
     def getTLAPhoton(self):
         stepName = "TLAPhoton"
-        return self.getStep(5, stepName, [ TLAPhotonSequenceCfg])
+        HLT_threshold = 0
+       
+        for cPart in self.dict['chainParts']:
+            if 'Photon' in cPart['signature']:
+                HLT_threshold = float(cPart['threshold'])
+            
+        print("MARCOLOG ", HLT_threshold)    
+        return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
@@ -164,3 +172,4 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         else:
             stepName = "precision_photon"
             return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
+    

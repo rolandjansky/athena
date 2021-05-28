@@ -79,10 +79,7 @@ namespace Muon {
 
         return StatusCode::SUCCESS;
     }
-    Trk::Track* MuonChamberHoleRecoveryTool::recover(const Trk::Track& track) const {
-        return recover(track, Gaudi::Hive::currentContext());
-    }
-    Trk::Track* MuonChamberHoleRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
+    std::unique_ptr<Trk::Track> MuonChamberHoleRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
         std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack;
 
         // loop over track and calculate residuals
@@ -179,7 +176,8 @@ namespace Muon {
         trackStateOnSurfaces->reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces->push_back(nit.release()); }
-        Trk::Track* newTrack = new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> newTrack =
+            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 

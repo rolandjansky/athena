@@ -323,6 +323,7 @@ namespace Muon {
 
     TrackCollection* MuonTrackSteering::findTracks(SegColVec& chamberSegments, SegColVec& stationSegments,
                                                    GarbageContainer& trash_bin) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // Very basic : output all of the segments we are starting with
         ATH_MSG_DEBUG("List of all strategies: " << m_strategies.size());
         for (unsigned int i = 0; i < m_strategies.size(); ++i) ATH_MSG_DEBUG((*(m_strategies[i])));
@@ -518,7 +519,7 @@ namespace Muon {
                     std::unique_ptr<Trk::Track> segmentTrack(m_segmentFitter->fit(*sit->segment));
                     if (segmentTrack) {
                         // Try to recover hits on the track
-                        std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecoverTool->recover(*segmentTrack));
+                        std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecoverTool->recover(*segmentTrack, ctx));
                         if (recoveredTrack) segmentTrack.swap(recoveredTrack);
 
                         // generate a track summary for this track

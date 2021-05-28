@@ -9,7 +9,7 @@
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-
+#include "TrkTrack/Track.h"
 namespace Muon {
 
     MuonCandidateTrackBuilderTool::MuonCandidateTrackBuilderTool(const std::string& type, const std::string& name,
@@ -29,6 +29,7 @@ namespace Muon {
     }
 
     Trk::Track* MuonCandidateTrackBuilderTool::buildCombinedTrack(const Trk::Track& idTrack, const MuonCandidate& candidate) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         ATH_MSG_DEBUG("Building track from candidate with " << candidate.layerIntersections.size() << " layers ");
         // copy and sort layerIntersections according to their distance to the IP
         std::vector<MuonLayerIntersection> layerIntersections = candidate.layerIntersections;
@@ -122,10 +123,10 @@ namespace Muon {
         ATH_MSG_VERBOSE("final measurement list: " << m_printer->print(measurements));
 
         ATH_MSG_DEBUG("Extracted hits from candidate: " << measurements.size());
-        Trk::Track* refittedTrack = m_trackFitter->indetExtension(idTrack, measurements);
+        std::unique_ptr<Trk::Track> refittedTrack{m_trackFitter->indetExtension(idTrack, measurements, ctx)};
         if (refittedTrack) {
             ATH_MSG_DEBUG("got Track: " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
         }
-        return refittedTrack;
+        return refittedTrack.release();
     }
 }  // namespace Muon

@@ -30,7 +30,11 @@ PixelReadoutScheme::PixelReadoutScheme(const int circuitsPerColumn,
   m_rowsPerCircuit(cellRowsPerCircuit),
   m_columns(circuitsPerRow*diodeColumnsPerCircuit),
   m_rows(circuitsPerColumn*diodeRowsPerCircuit)
-{}
+{
+  // protect against 0 columns or rows
+  if (!m_columns) throw std::runtime_error("PixelReadoutScheme: Number of columns is 0");
+  if (!m_rows) throw std::runtime_error("PixelReadoutScheme: Number of columns is 0");
+}
 
 
 

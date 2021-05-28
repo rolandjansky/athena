@@ -107,7 +107,7 @@ namespace Muon {
         Identifier segmentChamberId;  // ID of the MDT/CSC chamber of the segment
         const Trk::Track* track{};
         const MuonSegment* segment{};
-        Reason reason;             // reason for acceptance or failure
+        Reason reason;               // reason for acceptance or failure
         bool havePosX{};             // have X position difference available
         bool havePosY{};             // have Y position difference available
         bool havePosXError{};        // have total error on X position difference available

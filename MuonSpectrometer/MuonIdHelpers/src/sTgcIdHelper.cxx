@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/sTgcIdHelper.h"
@@ -17,12 +17,18 @@ sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper"),
 int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   int status = 0;
   
+  MsgStream log (m_msgSvc, m_logName);
+
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    }
     return (0);
   } else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize " << endmsg;
+    if (m_msgSvc) {
+      log << MSG::DEBUG << "(Re)initialize " << endmsg;
+    }
   }
 
   // init base object
@@ -34,7 +40,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
   m_dict = dict_mgr.find_dictionary ("MuonSpectrometer"); 
   if(!m_dict) {
-    (*m_Log) << MSG::ERROR << " initialize_from_dict - cannot access MuonSpectrometer dictionary " << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << " initialize_from_dict - cannot access MuonSpectrometer dictionary " << endmsg;
+    }
     return 1;
   }
 
@@ -43,7 +51,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
   int index = technologyIndex("STGC");
   if (index == -1) {
-    (*m_Log) << MSG::DEBUG << "initLevelsFromDict - there are no sTGC entries in the dictionary! "  << endmsg;
+    if (m_msgSvc) {
+      log << MSG::DEBUG << "initLevelsFromDict - there are no sTGC entries in the dictionary! "  << endmsg;
+    }
     return 0;
   }
 
@@ -51,7 +61,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_DETECTORELEMENT_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcMultilayer' field "  << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcMultilayer' field "  << endmsg;
+    }
     status = 1;
   }
  
@@ -59,7 +71,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_GASGAP_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcGasGap' field " << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcGasGap' field " << endmsg;
+    }
     status = 1;
   }
 
@@ -67,7 +81,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_CHANNELTYPE_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'channelType' field " 	<< endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find 'channelType' field " 	<< endmsg;
+    }
     status = 1;
   }
 
@@ -75,7 +91,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_CHANNEL_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'channel' field " << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find 'channel' field " << endmsg;
+    }
     status = 1;
   }
 
@@ -85,7 +103,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   // save an index to the first region of tgc
   IdDictGroup* stgcGroup =  m_dict->find_group ("stgc");
   if(!stgcGroup) {
-    (*m_Log) << MSG::ERROR << "Cannot find stgc group" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Cannot find stgc group" << endmsg;
+    }
   } else {
     m_GROUP_INDEX =  stgcGroup->regions()[0]->m_index;
   }
@@ -99,16 +119,18 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   m_typ_impl   = region.m_implementation[m_CHANNELTYPE_INDEX]; 
   m_cha_impl   = region.m_implementation[m_CHANNEL_INDEX]; 
 
-  (*m_Log) << MSG::DEBUG << " sTGC decode index and bit fields for each level: "  << endmsg;
-  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
-  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()   << endmsg;
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()   << endmsg; 
-  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()   << endmsg; 
-  (*m_Log) << MSG::DEBUG << " multilayer   "  << m_mplet_impl.show_to_string() << endmsg; 
-  (*m_Log) << MSG::DEBUG << " gasgap      "  << m_gap_impl.show_to_string()   << endmsg;
-  (*m_Log) << MSG::DEBUG << " channelType "  << m_typ_impl.show_to_string()   << endmsg;  
-  (*m_Log) << MSG::DEBUG << " channel     "  << m_cha_impl.show_to_string()   << endmsg; 
+  if (m_msgSvc) {
+    log << MSG::DEBUG << " sTGC decode index and bit fields for each level: "  << endmsg;
+    log << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()   << endmsg;
+    log << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()   << endmsg; 
+    log << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()   << endmsg; 
+    log << MSG::DEBUG << " multilayer   "  << m_mplet_impl.show_to_string() << endmsg; 
+    log << MSG::DEBUG << " gasgap      "  << m_gap_impl.show_to_string()   << endmsg;
+    log << MSG::DEBUG << " channelType "  << m_typ_impl.show_to_string()   << endmsg;  
+    log << MSG::DEBUG << " channel     "  << m_cha_impl.show_to_string()   << endmsg;
+  }
  
   //
   // Build multirange for the valid set of identifiers
@@ -118,7 +140,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   int muonField = -1;
   const IdDictDictionary* atlasDict = dict_mgr.find_dictionary ("ATLAS"); 
   if (atlasDict->get_label_value("subdet", "MuonSpectrometer", muonField)) {
-    (*m_Log) << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " << atlasDict->m_name << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " << atlasDict->m_name << endmsg;
+    }
     return (1);
   }
 
@@ -128,9 +152,13 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   Range prefix;
   MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
   if (muon_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " << "MultiRange size is " << muon_range.size() << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "MultiRange built successfully to Technology: " << "MultiRange size is " << muon_range.size() << endmsg;
+    }
   } else {
-    (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endmsg;
+    }
   }
  
   // Build MultiRange down to "detector element" for all sTGC regions
@@ -139,9 +167,13 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   Range detectorElement_prefix;
   MultiRange muon_detectorElement_range = m_dict->build_multirange(detectorElement_region, detectorElement_prefix, "stgcMultilayer");
   if (muon_detectorElement_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "MultiRange built successfully to detector element: " << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+    }
   } else {
-    (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endmsg;
+    }
   }
 
 
@@ -151,9 +183,13 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   Range stgc_prefix;
   MultiRange muon_channel_range = m_dict->build_multirange(stgc_region, stgc_prefix, "stgcChannel");
   if (muon_channel_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to channel: " << "MultiRange size is " << muon_channel_range.size() << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "MultiRange built successfully to channel: " << "MultiRange size is " << muon_channel_range.size() << endmsg;
+    }
   } else {
-    (*m_Log) << MSG::ERROR << "Muon sTGC detector MultiRange is empty for channels" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Muon sTGC detector MultiRange is empty for channels" << endmsg;
+    }
   }
 
   // build sTGC module ranges
@@ -167,7 +203,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
 	m_full_module_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "field size is " << (int) range.cardinality() << " field index = " << i << endmsg;
+        if (m_msgSvc) {
+          log << MSG::DEBUG << "field size is " << (int) range.cardinality() << " field index = " << i << endmsg;
+        }
       }
     }
   }
@@ -178,7 +216,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
 	m_full_detectorElement_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "detector element field size is " << (int) range.cardinality() << " field index = " << j << endmsg;
+        if (m_msgSvc) {
+          log << MSG::DEBUG << "detector element field size is " << (int) range.cardinality() << " field index = " << j << endmsg;
+        }
       }
     }
   }
@@ -189,31 +229,41 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
 	m_full_channel_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "channel field size is " << (int) range.cardinality() << " field index = " << j << endmsg;
+        if (m_msgSvc) {
+          log << MSG::DEBUG << "channel field size is " << (int) range.cardinality() << " field index = " << j << endmsg;
+        }
       }
     }
   }
 
   // test to see that the multi range is not empty
   if (m_full_module_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for modules" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "sTGC MultiRange ID is empty for modules" << endmsg;
+    }
     status = 1;
   }
 
   // test to see that the detector element multi range is not empty
   if (m_full_detectorElement_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for detector elements" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "sTGC MultiRange ID is empty for detector elements" << endmsg;
+    }
     status = 1;
   }
 
   // test to see that the multi range is not empty
   if (m_full_channel_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for channels" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "sTGC MultiRange ID is empty for channels" << endmsg;
+    }
     status = 1;
   }
 
   // Setup the hash tables for sTGC
-  (*m_Log) << MSG::INFO << "Initializing sTGC hash indices ... " << endmsg;
+  if (m_msgSvc) {
+    log << MSG::INFO << "Initializing sTGC hash indices ... " << endmsg;
+  }
   status = init_hashes();
   status = init_detectorElement_hashes(); // same as module hash
   status = init_id_to_hashes();
@@ -233,7 +283,9 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   */
 
   // Setup hash tables for finding neighbors
-  (*m_Log) << MSG::INFO << "Initializing sTGC hash indices for finding neighbors ... " << endmsg;
+  if (m_msgSvc) {
+    log << MSG::INFO << "Initializing sTGC hash indices for finding neighbors ... " << endmsg;
+  }
   status = init_neighbors();
 
   m_init = true;
@@ -650,42 +702,54 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
   if ((mplet < multilayerMin(id)) ||
       (mplet > multilayerMax(id))    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid multilayer=" << mplet
-	       << " multilayerMin=" << multilayerMin(id)
-	       << " multilayerMax=" << multilayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid multilayer=" << mplet
+            << " multilayerMin=" << multilayerMin(id)
+            << " multilayerMax=" << multilayerMax(id)
+            << endmsg;
+      }
       return false;
     }
 
   int gasG = gasGap(id);
   if (gasG  < gasGapMin(id) || gasG  > gasGapMax(id)) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid gasGap=" << gasG
-	     << " gasGapMin=" << gasGapMin(id)
-	     << " gasGapMax=" << gasGapMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid gasGap=" << gasG
+          << " gasGapMin=" << gasGapMin(id)
+          << " gasGapMax=" << gasGapMax(id)
+          << endmsg;
+    }
     return false;
   }
 
   int channeltype = channelType(id);
   if (channeltype < channelTypeMin(id) ||
       channeltype > channelTypeMax(id)    ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid channelType=" << channeltype
-	     << " channelTypeMin=" << channelTypeMin(id)
-	     << " channelTypeMax=" << channelTypeMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid channelType=" << channeltype
+          << " channelTypeMin=" << channelTypeMin(id)
+          << " channelTypeMax=" << channelTypeMax(id)
+          << endmsg;
+    }
     return false;
   }
 
   int element = channel(id);
   if (element < channelMin(id) || element > channelMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid channel=" << element
-	     << " channelMin=" << channelMin(id)
-	     << " channelMax=" << channelMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid channel=" << element
+          << " channelMin=" << channelMin(id)
+          << " channelMax=" << channelMax(id)
+          << endmsg;
+    }
     return false;
   }
   
@@ -693,19 +757,25 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
     int PadEta = padEta(id);
     int PadPhi = padPhi(id);
     if (PadEta < PadEtaMin || PadEta > PadEtaMax) {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid padEta=" << PadEta
-	       << " padEtaMin=" << PadEtaMin
-	       << " padEtaMax=" << PadEtaMax
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid padEta=" << PadEta
+            << " padEtaMin=" << PadEtaMin
+            << " padEtaMax=" << PadEtaMax
+            << endmsg;
+      }
       return false;
     }
     if (PadPhi < PadPhiMin || PadPhi > PadPhiMax) {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid padEPhi" << PadPhi
-	       << " padPhiMin=" << PadPhiMin
-	       << " padPhiMax=" << PadPhiMax
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid padEPhi" << PadPhi
+            << " padPhiMin=" << PadPhiMin
+            << " padPhiMax=" << PadPhiMax
+            << endmsg;
+      }
       return false;
     }
   }
@@ -718,33 +788,42 @@ bool sTgcIdHelper::validElement(const Identifier& id) const {
   std::string name = stationNameString(station);
 
   if ( ('S' != name[0]) && ('T' != name[1]) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid stationName=" << name
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid stationName=" << name
+          << endmsg;
+    }
     return false;
   }
 
   int eta = stationEta(id);
   if (eta < stationEtaMin(id) || eta > stationEtaMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid stationEta=" << eta
-	     << " for stationName=" << name
-	     << " stationIndex=" << station
-	     << " stationEtaMin=" << stationEtaMin(id)
-	     << " stationEtaMax=" << stationEtaMax(id)
-	     << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationEta=" << eta
+            << " for stationName=" << name
+            << " stationIndex=" << station
+            << " stationEtaMin=" << stationEtaMin(id)
+            << " stationEtaMax=" << stationEtaMax(id)
+            << endmsg;
+      }
     return false;
   }
   
   int phi = stationPhi(id);
   if (phi < stationPhiMin(id) || phi > stationPhiMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid stationPhi=" << phi
-	     << " for stationName=" << name
-	     << " stationIndex=" << station
-	     << " stationPhiMin=" << stationPhiMin(id)
-	     << " stationPhiMax=" << stationPhiMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid stationPhi=" << phi
+          << " for stationName=" << name
+          << " stationIndex=" << station
+          << " stationPhiMin=" << stationPhiMin(id)
+          << " stationPhiMax=" << stationPhiMax(id)
+          << endmsg;
+    }
     return false;
   }
   return true;
@@ -756,29 +835,38 @@ bool sTgcIdHelper::validElement(const Identifier& id, int stationName, int stati
   std::string name = stationNameString(stationName);
 
   if ( ('S' != name[0]) && ('T' != name[1]) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid stationName=" << name
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid stationName=" << name
+          << endmsg;
+    }
     return false;
   }
   if (stationEta < stationEtaMin(id) || stationEta > stationEtaMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid stationEta=" << stationEta
-	     << " for stationName=" << name
-	     << " stationIndex=" << stationName
-	     << " stationEtaMin=" << stationEtaMin(id)
-	     << " stationEtaMax=" << stationEtaMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid stationEta=" << stationEta
+          << " for stationName=" << name
+          << " stationIndex=" << stationName
+          << " stationEtaMin=" << stationEtaMin(id)
+          << " stationEtaMax=" << stationEtaMax(id)
+          << endmsg;
+    }
     return false;
   }
   if (stationPhi < stationPhiMin(id) || stationPhi > stationPhiMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid stationPhi=" << stationPhi
-	     << " for stationName=" << name
-	     << " stationIndex=" << stationName
-	     << " stationPhiMin=" << stationPhiMin(id)
-	     << " stationPhiMax=" << stationPhiMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid stationPhi=" << stationPhi
+          << " for stationName=" << name
+          << " stationIndex=" << stationName
+          << " stationPhiMin=" << stationPhiMin(id)
+          << " stationPhiMax=" << stationPhiMax(id)
+          << endmsg;
+    }
     return false;
   }
   return true;
@@ -790,56 +878,74 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 
   if ( (multilayer < multilayerMin(id)) || (multilayer > multilayerMax(id)) )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid multilayer=" << multilayer
-	       << " multilayerMin=" << multilayerMin(id)
-	       << " multilayerMax=" << multilayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid multilayer=" << multilayer
+            << " multilayerMin=" << multilayerMin(id)
+            << " multilayerMax=" << multilayerMax(id)
+            << endmsg;
+      }
       return false;
     }
 
 
   if (gasGap  < gasGapMin(id) || gasGap  > gasGapMax(id)) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid gasGap=" << gasGap
-	     << " gasGapMin=" << gasGapMin(id)
-	     << " gasGapMax=" << gasGapMax(id) 
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid gasGap=" << gasGap
+          << " gasGapMin=" << gasGapMin(id)
+          << " gasGapMax=" << gasGapMax(id) 
+          << endmsg;
+    }
     return false;
   }
   if (channelType < channelTypeMin(id) || channelType > channelTypeMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid channelType=" << channelType
-	     << " channelTypeMin=" << channelTypeMin(id)
-	     << " channelTypeMax=" << channelTypeMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid channelType=" << channelType
+          << " channelTypeMin=" << channelTypeMin(id)
+          << " channelTypeMax=" << channelTypeMax(id)
+          << endmsg;
+    }
     return false;
   }
   if (channel < channelMin(id) || channel > channelMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid channel=" << channel
-	     << " channelMin=" << channelMin(id)
-	     << " channelMax=" << channelMax(id)
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid channel=" << channel
+          << " channelMin=" << channelMin(id)
+          << " channelMax=" << channelMax(id)
+          << endmsg;
+    }
     return false;
   }
   if (channelType == Pad) {
     int PadEta = padEta(id);
     int PadPhi = padPhi(id);
     if (PadEta < PadEtaMin || PadEta > PadEtaMax) {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid padEta=" << PadEta
-	       << " padEtaMin=" << PadEtaMin
-	       << " padEtaMax=" << PadEtaMax
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid padEta=" << PadEta
+            << " padEtaMin=" << PadEtaMin
+            << " padEtaMax=" << PadEtaMax
+            << endmsg;
+      }
       return false;
     }
     if (PadPhi < PadPhiMin || PadPhi > PadPhiMax) {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid padEPhi" << PadPhi
-	       << " padPhiMin=" << PadPhiMin
-	       << " padPhiMax=" << PadPhiMax
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid padEPhi" << PadPhi
+            << " padPhiMin=" << PadPhiMin
+            << " padPhiMax=" << PadPhiMax
+            << endmsg;
+      }
       return false;
     }
   }
@@ -852,56 +958,74 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 
   if ( (multilayer < multilayerMin(id)) || (multilayer > multilayerMax(id)) )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid multilayer=" << multilayer
-	       << " multilayerMin=" << multilayerMin(id)
-	       << " multilayerMax=" << multilayerMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid multilayer=" << multilayer
+            << " multilayerMin=" << multilayerMin(id)
+            << " multilayerMax=" << multilayerMax(id)
+            << endmsg;
+      }
       return false;
     }
 
 
   if (gasGap  < gasGapMin(id) || gasGap  > gasGapMax(id)) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid gasGap=" << gasGap
-	     << " gasGapMin=" << gasGapMin(id)
-	     << " gasGapMax=" << gasGapMax(id) 
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid gasGap=" << gasGap
+          << " gasGapMin=" << gasGapMin(id)
+          << " gasGapMax=" << gasGapMax(id) 
+          << endmsg;
+    }
     return false;
   }
   if (channelType != Pad ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid channelType=" << channelType
-	     << " channelType must be " << Pad
-	     << " when specifying padEta and padPhi"
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid channelType=" << channelType
+          << " channelType must be " << Pad
+          << " when specifying padEta and padPhi"
+          << endmsg;
+    }
     return false;
   }
   int channel = (padPhi - 1) * PadEtaMax + padEta;
   if (channel < channelMin(id) || channel > channelMax(id) ) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid channel=" << channel
-	     << " channelMin=" << channelMin(id)
-	     << " channelMax=" << channelMax(id)
-	     << " for given padEta=" << padEta
-	     << " and padPhi=" << padPhi
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid channel=" << channel
+          << " channelMin=" << channelMin(id)
+          << " channelMax=" << channelMax(id)
+          << " for given padEta=" << padEta
+          << " and padPhi=" << padPhi
+          << endmsg;
+    }
     return false;
   }
   if (padEta < PadEtaMin || padEta > PadEtaMax) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid padEta=" << padEta
-	     << " padEtaMin=" << PadEtaMin
-	     << " padEtaMax=" << PadEtaMax
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid padEta=" << padEta
+          << " padEtaMin=" << PadEtaMin
+          << " padEtaMax=" << PadEtaMax
+          << endmsg;
+    }
     return false;
   }
   if (padPhi < PadPhiMin || padPhi > PadPhiMax) {
-    (*m_Log) << MSG::WARNING
-	     << "Invalid padEPhi" << padPhi
-	     << " padPhiMin=" << PadPhiMin
-	     << " padPhiMax=" << PadPhiMax
-	     << endmsg;
+    if (m_msgSvc) {
+      MsgStream log (m_msgSvc, m_logName);
+      log << MSG::WARNING
+          << "Invalid padEPhi" << padPhi
+          << " padPhiMin=" << PadPhiMin
+          << " padPhiMax=" << PadPhiMax
+          << endmsg;
+    }
     return false;
   }
   return true;

@@ -89,13 +89,11 @@ namespace Rec {
     }
 
     /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                                              const Trk::Track& spectrometerTrack) const {
-        return combinedFit(indetTrack, extrapolatedTrack, spectrometerTrack, Gaudi::Hive::currentContext());
-    }
 
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::Track& /*extrapolatedTrack*/,
-                                                              const Trk::Track& spectrometerTrack, const EventContext& ctx) const {
+    std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack,
+                                                                              const Trk::Track& /*extrapolatedTrack*/,
+                                                                              const Trk::Track& spectrometerTrack,
+                                                                              const EventContext& ctx) const {
         ATH_MSG_VERBOSE("combinedFit:: ");
 
         std::unique_ptr<Trk::Track> combinedTrack = fit(indetTrack, spectrometerTrack, ctx, m_cleanCombined, Trk::muon);
@@ -104,22 +102,15 @@ namespace Rec {
 
         if (combinedTrack) m_trackSummary->updateTrack(*combinedTrack);
 
-        return combinedTrack.release();
+        return combinedTrack;
     }
 
-    /** ICombinedMuonTrackBuilder interface:
-        build and fit indet track extended to include MS Measurement set.
-        Adds material effects as appropriate plus calo energy-loss treatment */
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                                                                 const Trk::TrackParameters* /*innerParameters*/,
-                                                                 const Trk::TrackParameters* /*middleParameters*/,
-                                                                 const Trk::TrackParameters* /*outerParameters*/) const {
-        return indetExtension(indetTrack, spectrometerMeas, Gaudi::Hive::currentContext(), nullptr, nullptr, nullptr);
-    }
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                                                                 const EventContext& ctx, const Trk::TrackParameters* /*innerParameters*/,
-                                                                 const Trk::TrackParameters* /*middleParameters*/,
-                                                                 const Trk::TrackParameters* /*outerParameters*/) const {
+    std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::indetExtension(const Trk::Track& indetTrack,
+                                                                                 const Trk::MeasurementSet& spectrometerMeas,
+                                                                                 const EventContext& ctx,
+                                                                                 const Trk::TrackParameters* /*innerParameters*/,
+                                                                                 const Trk::TrackParameters* /*middleParameters*/,
+                                                                                 const Trk::TrackParameters* /*outerParameters*/) const {
         ATH_MSG_VERBOSE("indetExtension fit::");
 
         DataVector<const Trk::TrackStateOnSurface>* trajectory = new DataVector<const Trk::TrackStateOnSurface>;
@@ -138,29 +129,17 @@ namespace Rec {
         Trk::Track inputtrack2(trackInfo, trajectory, nullptr);
         std::unique_ptr<Trk::Track> track{fit(indetTrack, inputtrack2, ctx, m_cleanCombined, Trk::muon)};
 
-        return track.release();
+        return track;
     }
 
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::standaloneFit(const Trk::Track& /*spectrometerTrack*/, const Trk::Vertex* /*vertex*/,
-                                                                float /*bs_x*/, float /*bs_y*/, float /*bs_z*/) const {
-        return nullptr;
-    }
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::standaloneFit(const Trk::Track& /*spectrometerTrack*/, const EventContext&,
-                                                                const Trk::Vertex* /*vertex*/, float /*bs_x*/, float /*bs_y*/,
-                                                                float /*bs_z*/) const {
+    std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::standaloneFit(const Trk::Track& /*spectrometerTrack*/,
+                                                                                const EventContext&, const Trk::Vertex* /*vertex*/,
+                                                                                float /*bs_x*/, float /*bs_y*/, float /*bs_z*/) const {
         return nullptr;
     }
 
-    /** ICombinedMuonTrackBuilder interface:
-        refit a track removing any indet measurements with optional addition of
-        pseudoMeasurements according to original extrapolation */
-
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y,
-                                                                  float bs_z) const {
-        return standaloneRefit(combinedTrack, Gaudi::Hive::currentContext(), bs_x, bs_y, bs_z);
-    }
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x,
-                                                                  float bs_y, float bs_z) const {
+    std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx,
+                                                                                  float bs_x, float bs_y, float bs_z) const {
         ATH_MSG_DEBUG(" start OutwardsCombinedMuonTrackBuilder standaloneRefit");
 
         ATH_MSG_DEBUG(" beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z);
@@ -289,11 +268,10 @@ namespace Rec {
 
         ATH_MSG_DEBUG(" trackStateOnSurfaces found " << trackStateOnSurfaces->size() << " from total " << itsos);
 
-        Trk::Track* standaloneTrack = new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, nullptr);
+        std::unique_ptr<Trk::Track> standaloneTrack = std::make_unique<Trk::Track>(combinedTrack.info(), trackStateOnSurfaces, nullptr);
         standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
 
-        Trk::Track* refittedTrack = fit(*standaloneTrack, ctx, false, Trk::muon);
-        delete standaloneTrack;
+        std::unique_ptr<Trk::Track> refittedTrack = fit(*standaloneTrack, ctx, false, Trk::muon);
 
         if (!refittedTrack) {
             ATH_MSG_DEBUG(" OutwardsCombinedMuonTrackBuilder standaloneRefit FAILED ");
@@ -307,8 +285,9 @@ namespace Rec {
     }
 
     /** refit a track */
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
-                                                      const Trk::ParticleHypothesis particleHypothesis) const {
+    std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx,
+                                                                      const Trk::RunOutlierRemoval runOutlier,
+                                                                      const Trk::ParticleHypothesis particleHypothesis) const {
         // check valid particleHypothesis
         if (particleHypothesis != Trk::muon && particleHypothesis != Trk::nonInteracting) {
             ATH_MSG_WARNING(" invalid particle hypothesis " << particleHypothesis
@@ -326,14 +305,14 @@ namespace Rec {
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization before cleaning ");
 
-                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack.get());
+                std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack, ctx);
                 if (optimizedTrack) { fittedTrack.swap(optimizedTrack); }
             }
 
             // muon cleaner
             ATH_MSG_VERBOSE(" perform track cleaning... ");
 
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
             if (!cleanTrack) {
                 ATH_MSG_DEBUG(" cleaner veto ");
 
@@ -349,17 +328,7 @@ namespace Rec {
             ATH_MSG_VERBOSE(" finished cleaning");
         }
 
-        return fittedTrack.release();
-    }
-
-    /** ITrackFitter interface:
-        fit a set of MeasurementBase objects with starting value for
-        perigeeParameters */
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& /*measurementSet*/,
-                                                      const Trk::TrackParameters& /*perigeeStartValue*/,
-                                                      const Trk::RunOutlierRemoval /*runOutlier*/,
-                                                      const Trk::ParticleHypothesis /*particleHypothesis*/) const {
-        return nullptr;
+        return fittedTrack;
     }
 
     std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
@@ -387,7 +356,7 @@ namespace Rec {
             // fit with optimized spectrometer errors
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization before cleaning ");
-                std::unique_ptr<Trk::Track> optimizedTrack{m_muonErrorOptimizer->optimiseErrors(fittedTrack.get())};
+                std::unique_ptr<Trk::Track> optimizedTrack{m_muonErrorOptimizer->optimiseErrors(*fittedTrack, ctx)};
                 if (optimizedTrack) {
                     // until code is updated to use unique_ptr or removed
                     fittedTrack.swap(optimizedTrack);
@@ -395,7 +364,7 @@ namespace Rec {
             }
             // muon cleaner
             ATH_MSG_VERBOSE(" perform track cleaning... ");
-            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+            std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
             if (!cleanTrack) {
                 ATH_MSG_DEBUG(" cleaner veto ");
                 if (m_allowCleanerVeto) { fittedTrack.reset(); }
@@ -476,7 +445,7 @@ namespace Rec {
         if (!m_muonErrorOptimizer.empty() && fittedTrack && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
 
-            std::unique_ptr<Trk::Track> optimizedTrack{m_muonErrorOptimizer->optimiseErrors(fittedTrack.get())};
+            std::unique_ptr<Trk::Track> optimizedTrack{m_muonErrorOptimizer->optimiseErrors(*fittedTrack, ctx)};
             if (optimizedTrack) {
                 // until the code uses unique ptrs (or is removed since it's deprecated)
                 fittedTrack.swap(optimizedTrack);
@@ -674,8 +643,4 @@ namespace Rec {
 
         return new Trk::PseudoMeasurementOnTrack(localParameters, covarianceMatrix, surface);
     }
-    Trk::Track* OutwardsCombinedMuonTrackBuilder::fit(Trk::Track&, const Trk::RunOutlierRemoval, const Trk::ParticleHypothesis) const {
-        return nullptr;
-    }
-
 }  // namespace Rec

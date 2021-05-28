@@ -221,7 +221,7 @@ def setupMenu():
      
         # PhotonDS chains for TLA
         ChainProp(name='HLT_g35_loose_PhotonDS_L1EM22VHI',stream=['PhotonDS'], groups=SinglePhotonGroup),
-
+       # ChainProp(name='HLT_2g5_tight_PhotonDS_L12EM15VHI', stream=['PhotonDS'], groups=MultiPhotonGroup),
      
         # Primary photon chains
         ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SinglePhotonGroup),
@@ -283,7 +283,7 @@ def setupMenu():
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ChainProp(name='HLT_j85_L1J20', groups=[SingleJetGroup]),
-        ChainProp(name='HLT_j85_CLEANLB_L1J20', groups=[SingleJetGroup]),
+        ChainProp(name='HLT_j85_CLEANlb_L1J20', groups=[SingleJetGroup]),
         ChainProp(name='HLT_j45_L1J15', groups=['PS:Online']+SingleJetGroup),
         ChainProp(name='HLT_j45_subjesgsc_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
@@ -381,13 +381,14 @@ def setupMenu():
         ChainProp(name='HLT_j165_LArPEBHLT_L1J100',			stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
 
         # TLA test chains, ATR-20395
-        ChainProp(name='HLT_JetDS_j20_L1J100', stream=['JetDS'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1J100', stream=['JetDS'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
         # TLA test HT chains, ATR-21594
-        ChainProp(name='HLT_JetDS_j20_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=SingleJetGroup),
+        # Piggybacking on HH4b, exact thresholds for preselections to be determined later - this is for rate and cost
+        ChainProp(name='HLT_j60_j45_2j20_JetDS_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*3, stream=['JetDS'], groups=MultiJetGroup),
 
        
-
-
         # ATR-22096
         ChainProp(name='HLT_j420_ftf_L1J100',             groups=SingleJetGroup+ PrimaryLegGroup),
         ChainProp(name='HLT_j420_pf_ftf_L1J100',          groups=SingleJetGroup+ PrimaryLegGroup),

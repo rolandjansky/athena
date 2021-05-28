@@ -54,7 +54,7 @@ if __name__=='__main__':
                 "xAOD::TrigCompositeContainer#HLTNav_Summary", "xAOD::TrigCompositeAuxContainer#HLTNav_SummaryAux."]
     outputCfg = OutputStreamCfg(ConfigFlags, outputType, ItemList=toRecord, disableEventTag=True)
     streamAlg = outputCfg.getEventAlgo("OutputStream"+outputType)
-    # need to expand possble options for the OutputStreamCfg to be able to pass also the metadata containers
+    # need to expand possible options for the OutputStreamCfg to be able to pass also the metadata containers
     streamAlg.MetadataItemList += ["xAOD::TriggerMenuContainer#TriggerMenu", "xAOD::TriggerMenuAuxContainer#TriggerMenuAux."]
     streamAlg.TakeItemsFromInput = True
     cfg.addPublicTool(CompFactory.xAODMaker.TriggerMenuMetaDataTool("TriggerMenuMetaDataTool"))

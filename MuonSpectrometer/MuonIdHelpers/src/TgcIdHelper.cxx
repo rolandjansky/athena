@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/TgcIdHelper.h"
@@ -12,14 +12,20 @@ TgcIdHelper::TgcIdHelper() : MuonIdHelper("TgcIdHelper"), m_GASGAP_INDEX(0),
 int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   int status = 0;
-  
+
+  MsgStream log (m_msgSvc, m_logName);
+
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    }
     return (0);
   }
   else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    }
   }
 
   // init base object
@@ -31,9 +37,11 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   m_dict = dict_mgr.find_dictionary ("MuonSpectrometer"); 
   if(!m_dict) {
-    (*m_Log) << MSG::ERROR 
-	     << " initialize_from_dict - cannot access MuonSpectrometer dictionary "
-	     << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR 
+          << " initialize_from_dict - cannot access MuonSpectrometer dictionary "
+          << endmsg;
+    }
     return 1;
   }
 
@@ -45,8 +53,10 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_GASGAP_INDEX = field->m_index;
   }
   else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'tgcGasGap' field " 	
-	     << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find 'tgcGasGap' field " 	
+          << endmsg;
+    }
     status = 1;
   }
 
@@ -55,8 +65,10 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_ISSTRIP_INDEX = field->m_index;
   }
   else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'isStrip' field " 	
-	     << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find 'isStrip' field " 	
+          << endmsg;
+    }
     status = 1;
   }
 
@@ -65,8 +77,10 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_CHANNEL_INDEX = field->m_index;
   }
   else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find channel' field " 	
-	     << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "initLevelsFromDict - unable to find channel' field " 	
+          << endmsg;
+    }
     status = 1;
   }
 
@@ -76,7 +90,9 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   // save an index to the first region of tgc
   IdDictGroup* tgcGroup =  m_dict->find_group ("tgc");
   if(!tgcGroup) {
-    (*m_Log) << MSG::ERROR << "Cannot find tgc group" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Cannot find tgc group" << endmsg;
+    }
   } else {
     m_GROUP_INDEX =  tgcGroup->regions()[0]->m_index;
   }
@@ -89,15 +105,17 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   m_ist_impl  = region.m_implementation[m_ISSTRIP_INDEX]; 
   m_cha_impl  = region.m_implementation[m_CHANNEL_INDEX]; 
 
-  (*m_Log) << MSG::DEBUG << " TGC decode index and bit fields for each level: "  << endmsg;
-  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
-  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " gas gap     "  << m_gap_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " is strip    "  << m_ist_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " channel     "  << m_cha_impl.show_to_string()  << endmsg; 
+  if (m_msgSvc) {
+    log << MSG::DEBUG << " TGC decode index and bit fields for each level: "  << endmsg;
+    log << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " gas gap     "  << m_gap_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " is strip    "  << m_ist_impl.show_to_string()  << endmsg; 
+    log << MSG::DEBUG << " channel     "  << m_cha_impl.show_to_string()  << endmsg;
+  }
 
   //
   // Build multirange for the valid set of identifiers
@@ -107,9 +125,11 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   int muonField = -1;
   const IdDictDictionary* atlasDict = dict_mgr.find_dictionary ("ATLAS"); 
   if (atlasDict->get_label_value("subdet", "MuonSpectrometer", muonField)) {
-    (*m_Log) << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " 
-	     << atlasDict->m_name
-	     << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " 
+          << atlasDict->m_name
+          << endmsg;
+    }
     return (1);
   }
 
@@ -119,10 +139,14 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   Range prefix;
   MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
   if (muon_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " 
-	     << "MultiRange size is " << muon_range.size() << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "MultiRange built successfully to Technology: " 
+          << "MultiRange size is " << muon_range.size() << endmsg;
+    }
   } else {
-    (*m_Log) << MSG::ERROR << "Muon MultiRange is empty" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Muon MultiRange is empty" << endmsg;
+    }
   }
 
   // Build MultiRange down to "detector element" for all mdt regions
@@ -133,12 +157,16 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   MultiRange muon_detectorElement_range = m_dict->build_multirange(detectorElement_region, detectorElement_prefix, "technology");
   if (muon_detectorElement_range.size() > 0 )
     {
-      (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: "
-	       << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+      if (m_msgSvc) {
+        log << MSG::INFO << "MultiRange built successfully to detector element: "
+            << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+      }
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon TGC detector element MultiRange is empty" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "Muon TGC detector element MultiRange is empty" << endmsg;
+      }
     }
 
   // Build MultiRange down to "channel" for all TGC regions
@@ -147,10 +175,14 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   Range tgc_prefix;
   MultiRange muon_channel_range = m_dict->build_multirange(tgc_region, tgc_prefix, "channel");
   if (muon_channel_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to channel: " 
-	     << "MultiRange size is " << muon_channel_range.size() << endmsg;
+    if (m_msgSvc) {
+      log << MSG::INFO << "MultiRange built successfully to channel: " 
+          << "MultiRange size is " << muon_channel_range.size() << endmsg;
+    }
   } else {
-    (*m_Log) << MSG::ERROR << "Muon MultiRange is empty for channels" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "Muon MultiRange is empty for channels" << endmsg;
+    }
   }
 
   // build TGC module ranges
@@ -164,8 +196,10 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) tgcField ) ) {
 	m_full_module_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "field size is " << (int) range.cardinality() 
-						<< " field index = " << i << endmsg;
+        if (m_msgSvc) {
+          log << MSG::DEBUG << "field size is " << (int) range.cardinality() 
+              << " field index = " << i << endmsg;
+        }
       }
     }
   }
@@ -179,9 +213,11 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
           if ( field.match( (ExpandedIdentifier::element_type) tgcField ) )
 	    {
               m_full_detectorElement_range.add(range);
-              if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG
-						      << "detector element field size is " << (int) range.cardinality()
-						      << " field index = " << j << endmsg;
+              if (m_msgSvc) {
+                log << MSG::DEBUG
+                    << "detector element field size is " << (int) range.cardinality()
+                    << " field index = " << j << endmsg;
+              }
 	    }
 	}
     }
@@ -193,15 +229,19 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) tgcField ) ) {
 	m_full_channel_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "channel field size is " << (int) range.cardinality() 
-						<< " field index = " << j << endmsg;
+        if (m_msgSvc) {
+          log << MSG::DEBUG << "channel field size is " << (int) range.cardinality() 
+              << " field index = " << j << endmsg;
+        }
       }
     }
   }
 
   // test to see that the multi range is not empty
   if (m_full_module_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "TGC MultiRange ID is empty for modules" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "TGC MultiRange ID is empty for modules" << endmsg;
+    }
     status = 1;
   }
 
@@ -209,24 +249,32 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_detectorElement_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR << "TGC MultiRange ID is empty for detector elements" << endmsg;
+      if (m_msgSvc) {
+        log << MSG::ERROR << "TGC MultiRange ID is empty for detector elements" << endmsg;
+      }
       status = 1;
     }
 
   // test to see that the multi range is not empty
   if (m_full_channel_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "TGC MultiRange ID is empty for channels" << endmsg;
+    if (m_msgSvc) {
+      log << MSG::ERROR << "TGC MultiRange ID is empty for channels" << endmsg;
+    }
     status = 1;
   }
 
   // Setup the hash tables for TGC
-  (*m_Log) << MSG::INFO << "Initializing TGC hash indices ... " << endmsg;
+  if (m_msgSvc) {
+    log << MSG::INFO << "Initializing TGC hash indices ... " << endmsg;
+  }
   status = init_hashes();
   status = init_detectorElement_hashes(); // same as module hash
   status = init_id_to_hashes();
 
   // Setup hash tables for finding neighbors
-  (*m_Log) << MSG::INFO << "Initializing TGC hash indices for finding neighbors ... " << endmsg;
+  if (m_msgSvc) {
+    log << MSG::INFO << "Initializing TGC hash indices for finding neighbors ... " << endmsg;
+  }
   status = init_neighbors();
 
   m_init = true;
@@ -515,11 +563,14 @@ bool TgcIdHelper::valid(const Identifier& id) const {
   if (gasG  < gasGapMin() || 
       gasG  > gasGapMax(tripletChamber(station)))
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid gasGap=" << gasG
-	       << " gasGapMin=" << gasGapMin(id)
-	       << " gasGapMax=" << gasGapMax(tripletChamber(station))
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+                 << "Invalid gasGap=" << gasG
+                 << " gasGapMin=" << gasGapMin(id)
+                 << " gasGapMax=" << gasGapMax(tripletChamber(station))
+                 << endmsg;
+      }
       return false;
     }
 
@@ -527,11 +578,14 @@ bool TgcIdHelper::valid(const Identifier& id) const {
   if (isstrip < isStripMin(id) ||
       isstrip > isStripMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid isStrip=" << isstrip
-	       << " isStripMin=" << isStripMin(id)
-	       << " isStripMax=" << isStripMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid isStrip=" << isstrip
+            << " isStripMin=" << isStripMin(id)
+            << " isStripMax=" << isStripMax(id)
+            << endmsg;
+      }
       return false;
     }
 
@@ -539,11 +593,14 @@ bool TgcIdHelper::valid(const Identifier& id) const {
   if (element < channelMin(id) ||
       element > channelMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid channel=" << element
-	       << " channelMin=" << channelMin(id)
-	       << " channelMax=" << channelMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid channel=" << element
+            << " channelMin=" << channelMin(id)
+            << " channelMax=" << channelMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;
@@ -556,9 +613,12 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
 
   if ('T' != name[0])
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationName=" << name
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationName=" << name
+            << endmsg;
+      }
       return false;
     }
 
@@ -566,13 +626,16 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
   if (eta < stationEtaMin(id) ||
       eta > stationEtaMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationEta=" << eta
-	       << " for stationName=" << name
-	       << " stationIndex=" << station
-	       << " stationEtaMin=" << stationEtaMin(id)
-	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationEta=" << eta
+            << " for stationName=" << name
+            << " stationIndex=" << station
+            << " stationEtaMin=" << stationEtaMin(id)
+            << " stationEtaMax=" << stationEtaMax(id)
+            << endmsg;
+      }
       return false;
     }
 
@@ -580,13 +643,16 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
   if (phi < stationPhiMin(id) || 
       phi > stationPhiMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationPhi=" << phi
-	       << " for stationName=" << name
-	       << " stationIndex=" << station
-	       << " stationPhiMin=" << stationPhiMin(id)
-	       << " stationPhiMax=" << stationPhiMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationPhi=" << phi
+            << " for stationName=" << name
+            << " stationIndex=" << station
+            << " stationPhiMin=" << stationPhiMin(id)
+            << " stationPhiMax=" << stationPhiMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;
@@ -603,33 +669,42 @@ bool TgcIdHelper::validElement(const Identifier& id, int stationName,
 
   if ('T' != name[0])
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationName=" << name
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationName=" << name
+            << endmsg;
+      }
       return false;
     }
   if (stationEta < stationEtaMin(id) ||
       stationEta > stationEtaMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationEta=" << stationEta
-	       << " for stationName=" << name
-	       << " stationIndex=" << stationName
-	       << " stationEtaMin=" << stationEtaMin(id)
-	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationEta=" << stationEta
+            << " for stationName=" << name
+            << " stationIndex=" << stationName
+            << " stationEtaMin=" << stationEtaMin(id)
+            << " stationEtaMax=" << stationEtaMax(id)
+            << endmsg;
+      }
       return false;
     }
   if (stationPhi < stationPhiMin(id) || 
       stationPhi > stationPhiMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationPhi=" << stationPhi
-	       << " for stationName=" << name
-	       << " stationIndex=" << stationName
-	       << " stationPhiMin=" << stationPhiMin(id)
-	       << " stationPhiMax=" << stationPhiMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid stationPhi=" << stationPhi
+            << " for stationName=" << name
+            << " stationIndex=" << stationName
+            << " stationPhiMin=" << stationPhiMin(id)
+            << " stationPhiMax=" << stationPhiMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;
@@ -646,31 +721,40 @@ bool TgcIdHelper::validChannel(const Identifier& id, int stationName,
   if (gasGap  < gasGapMin() || 
       gasGap  > gasGapMax(tripletChamber(stationName)))
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid gasGap=" << gasGap
-	       << " gasGapMin=" << gasGapMin(id)
-	       << " gasGapMax=" << gasGapMax(tripletChamber(stationName))
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid gasGap=" << gasGap
+            << " gasGapMin=" << gasGapMin(id)
+            << " gasGapMax=" << gasGapMax(tripletChamber(stationName))
+            << endmsg;
+      }
       return false;
     }
   if (isStrip < isStripMin(id) ||
       isStrip > isStripMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid isStrip=" << isStrip
-	       << " isStripMin=" << isStripMin(id)
-	       << " isStripMax=" << isStripMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid isStrip=" << isStrip
+            << " isStripMin=" << isStripMin(id)
+            << " isStripMax=" << isStripMax(id)
+            << endmsg;
+      }
       return false;
     }
   if (channel < channelMin(id) ||
       channel > channelMax(id)    )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid channel=" << channel
-	       << " channelMin=" << channelMin(id)
-	       << " channelMax=" << channelMax(id)
-	       << endmsg;
+      if (m_msgSvc) {
+        MsgStream log (m_msgSvc, m_logName);
+        log << MSG::WARNING
+            << "Invalid channel=" << channel
+            << " channelMin=" << channelMin(id)
+            << " channelMax=" << channelMax(id)
+            << endmsg;
+      }
       return false;
     }
   return true;

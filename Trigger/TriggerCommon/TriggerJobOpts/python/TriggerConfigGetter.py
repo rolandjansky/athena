@@ -369,7 +369,8 @@ class TriggerConfigGetter(Configured):
         writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
-            if ConfigFlags.Trigger.doEDMVersionConversion:
+            if ConfigFlags.Trigger.doConfigVersionConversion:
+                log.info("Configuring Run2 to Run3 configuration metadata conversion")
                 # also save the menu in JSON format
                 from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
                 dbKeys = fetchRun3ConfigFiles(isMC=self.readMC, run=GetRunNumber(), lb=GetLBNumber())
@@ -396,6 +397,7 @@ class TriggerConfigGetter(Configured):
                 menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
                 writeMenuJSON = True
                 topAlgs += menuwriter
+
             else:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )

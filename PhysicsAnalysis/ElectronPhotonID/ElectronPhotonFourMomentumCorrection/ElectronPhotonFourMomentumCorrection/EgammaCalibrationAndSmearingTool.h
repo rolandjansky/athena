@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -187,7 +187,7 @@ private:
 		return AbsEtaCaloPredicateFactory(edges.first, edges.second);
 	}
 
-	const std::vector<EgammaPredicate> AbsEtaCaloPredicatesFactory(const std::vector<std::pair<double, double>> edges) const
+	const std::vector<EgammaPredicate> AbsEtaCaloPredicatesFactory(const std::vector<std::pair<double, double>>& edges) const
 	{
 		std::vector<EgammaPredicate> result;
 		result.reserve(edges.size());
@@ -197,7 +197,7 @@ private:
 		return result;
 	}
 
-	const std::vector<EgammaPredicate> AbsEtaCaloPredicatesFactory(const std::vector<double> edges) const
+	const std::vector<EgammaPredicate> AbsEtaCaloPredicatesFactory(const std::vector<double>& edges) const
 	{
 		std::vector<EgammaPredicate> result;
 		result.reserve(edges.size() - 1);

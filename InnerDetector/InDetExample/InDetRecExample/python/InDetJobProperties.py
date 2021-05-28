@@ -1448,7 +1448,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
        self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
        self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
-       self.checkTHenSet(self.useActsPriVertexing    , False)
+       self.checkThenSet(self.useActsPriVertexing    , False)
        self.checkThenSet(self.doV0Finder             , False)
        self.checkThenSet(self.doSimpleV0Finder       , False)      
        self.checkThenSet(self.doConversions          , False )        

@@ -33,6 +33,8 @@ chains = [
               l1SeedThresholds=['FSNOSEED'],groups=MultiJetGroup),
     
     ChainProp(name='HLT_j85_050momemfrac100_L1J20', groups=SingleJetGroup),
+    
+    ChainProp(name='HLT_j80_CLEANlb_L1J15', groups=SingleJetGroup),
 
     ChainProp(name='HLT_j420_subresjesgscIS_ftf_L1J100',groups=SingleJetGroup),
 

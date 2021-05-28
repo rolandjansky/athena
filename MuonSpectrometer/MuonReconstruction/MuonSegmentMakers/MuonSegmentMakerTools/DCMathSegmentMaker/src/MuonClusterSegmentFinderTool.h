@@ -38,8 +38,7 @@ namespace Muon {
 
         static const InterfaceID& interfaceID();
 
-        virtual StatusCode initialize(void) override;
-        virtual StatusCode finalize(void) override;
+        virtual StatusCode initialize() override;
 
     private:
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
