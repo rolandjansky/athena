@@ -123,10 +123,9 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
-
-        if (self.release == 'current'):
-            print( "Using current release for offline Reco steps  " )
-        else:
+        
+        AVERSION = ""
+        if (self.release != 'current'):
             # get the current atlas base release, and the previous base release
             import os
             DVERSION=os.getenv('Athena_VERSION')
@@ -135,10 +134,18 @@ class TrigInDetReco(ExecStep):
                     AVERSION = "22.0.20"
                 else:
                     AVERSION=str(subprocess.Popen(["getrelease.sh",DVERSION],stdout=subprocess.PIPE).communicate()[0],'utf-8')
+                    if AVERSION == "":
+                        print( "cannot get last stable release - will use current release" )
             else:
                 AVERSION = self.release
+
+        # would use AVERSION is not None, but the return from a shell function with no printout 
+        # gets set as an empty string rather than None        
+        if AVERSION != "":
             self.args += ' --asetup "RAWtoESD:Athena,'+AVERSION+'" "ESDtoAOD:Athena,'+AVERSION+'" '
             print( "remapping athena base release version for offline Reco steps: ", DVERSION, " -> ", AVERSION )
+        else:
+            print( "Using current release for offline Reco steps  " )
 
 
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
