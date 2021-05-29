@@ -265,7 +265,7 @@ namespace top {
                       "CategoryJES_FullJER_FullJMS");
     registerParameter("LargeRJetUncertainties_JMR_NPModel",
                       "Full (10 NP; aimed at the most precise jet-dependent measurements), Simple (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
-                      "FullJMR");
+                      "FullJMR_COMB");
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Winter2021");

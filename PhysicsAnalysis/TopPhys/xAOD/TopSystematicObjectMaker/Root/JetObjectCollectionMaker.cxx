@@ -556,6 +556,10 @@ namespace top {
       const SG::AuxElement::Accessor< char > accRange("passedRangeCheck_" + fullName);
       const std::string sfNameNominal =  sfNames.at(fullName);
       const SG::AuxElement::Accessor< float > accSF(sfNameNominal);
+      // accessor to retrieve nominal efficiency decoration from BoostedJetTaggers
+      std::string taggerName = sfNameNominal;
+      taggerName.erase(taggerName.length()-3);
+      const SG::AuxElement::Accessor<float> accEff(taggerName + "_efficiency");
       
       for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[fullName]) {
 
@@ -579,6 +583,13 @@ namespace top {
 	    top::check(tool->applyCorrection(*shallowJet), "Failed to applyCorrection");
 	    float sf = accSF.isAvailable(*shallowJet) ? accSF(*shallowJet) : -999.;
 	    jet->auxdecor<float>(sfNameShifted.c_str()) = sf;
+
+            // decorate efficiencies for inefficiency SF variations
+            if (sys.name().find("TagEffUnc") != std::string::npos) {
+              if (accEff.isAvailable(*shallowJet)) {
+                jet->auxdecor<float>(fullName + "_" + sys.name() + "_efficiency") = accEff(*shallowJet);
+              }
+            }
 	  }
 	}
       }
