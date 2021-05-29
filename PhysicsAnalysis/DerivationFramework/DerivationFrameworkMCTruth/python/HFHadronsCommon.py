@@ -247,6 +247,8 @@ DSIDList=[
   700166,
   700164,
   700167,
+  600791,
+  600792,
   ]
 
 import PyUtils.AthFile as af
