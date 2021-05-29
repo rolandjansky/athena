@@ -36,7 +36,9 @@ namespace top {
       int tau_decay1_isHadronic;
       int tau_decay2_isHadronic;
       TLorentzVector tau_decay1_p4;
-      TLorentzVector tau_decay2_p4;     
+      TLorentzVector tau_decay2_p4;
+      TLorentzVector tauvis_decay1_p4;
+      TLorentzVector tauvis_decay2_p4;    
 
       
       TLorentzVector decay1_from_decay1_p4;
@@ -57,6 +59,11 @@ namespace top {
       TLorentzVector tau_decay2_from_decay1_p4;
       TLorentzVector tau_decay1_from_decay2_p4;
       TLorentzVector tau_decay2_from_decay2_p4;
+
+      TLorentzVector tauvis_decay1_from_decay1_p4;
+      TLorentzVector tauvis_decay2_from_decay1_p4;
+      TLorentzVector tauvis_decay1_from_decay2_p4;
+      TLorentzVector tauvis_decay2_from_decay2_p4;
 
 
       
