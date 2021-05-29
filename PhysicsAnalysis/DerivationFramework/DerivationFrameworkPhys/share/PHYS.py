@@ -269,11 +269,8 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
-
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-
-FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYS)
-
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
+FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],SeqPHYS)
 
 #====================================================================
 # TC-LVT Vertices 
@@ -298,6 +295,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track", 
                                        "MET_Baseline_AntiKt4EMTopo",
                                        "MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",
