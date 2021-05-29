@@ -10,4 +10,6 @@ AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20JetsCPContent = [
 "AntiKt10TrackCaloClusterJets",
 "AntiKt10TrackCaloClusterJetsAux.GhostAntiKt2TrackJet.GhostVR30Rmax4Rmin02TrackJet.NumTrkPt500",
 "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
+"AntiKt10TruthJets.pt.eta.phi.m.Split12.Split23.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
+"AntiKt10TruthWZJetsAux.pt.eta.phi.m.Split12.Split23.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
 ]
