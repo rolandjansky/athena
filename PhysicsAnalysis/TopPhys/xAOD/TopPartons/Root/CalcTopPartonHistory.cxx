@@ -183,7 +183,7 @@ namespace top {
                                    TLorentzVector& W_p4,
                                    TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4,
                                    int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId,
-                                   TLorentzVector& tau_decay_from_W_p4, int& tau_decay_from_W_isHadronic) {
+                                   TLorentzVector& tau_decay_from_W_p4, int& tau_decay_from_W_isHadronic,  TLorentzVector& tauvis_decay_from_W_p4) {
     bool hasT = false;
     bool hasW = false;
     bool hasB = false;
@@ -221,7 +221,11 @@ namespace top {
 	      if (std::abs(WChildren->pdgId()) == 11 || std::abs(WChildren->pdgId()) == 13 || std::abs(WChildren->pdgId()) == 15){
 		Wdecay1_p4 = WChildren->p4();                                  
                 Wdecay1_pdgId = WChildren->pdgId();
-		tau_decay_from_W_isHadronic = PartonHistoryUtils::TauIsHadronic(WChildren, tau_decay_from_W_p4);
+		const xAOD::TruthParticle* WChildrenAfterFSR = PartonHistoryUtils::findAfterFSR(WChildren);
+		tau_decay_from_W_isHadronic = PartonHistoryUtils::TauIsHadronic(WChildren, tauvis_decay_from_W_p4);
+		if (std::abs(Wdecay1_pdgId) == 15){
+		  tau_decay_from_W_p4 = WChildrenAfterFSR->p4();
+		}
                 hasWdecayProd1 = true;
 	      }
 	      if (std::abs(WChildren->pdgId()) == 12 || std::abs(WChildren->pdgId()) == 14 || std::abs(WChildren->pdgId()) == 16){
@@ -277,7 +281,8 @@ namespace top {
                                    int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId) {
     TLorentzVector tau_decay_from_W_p4;
     int tau_decay_from_W_isHadronic = -9999;
-    return topWb(truthParticles, start, t_beforeFSR_p4, t_afterFSR_p4, W_p4, b_p4, Wdecay1_p4,Wdecay1_pdgId, Wdecay2_p4, Wdecay2_pdgId, tau_decay_from_W_p4, tau_decay_from_W_isHadronic);
+    TLorentzVector tauvis_decay_from_W_p4;
+    return topWb(truthParticles, start, t_beforeFSR_p4, t_afterFSR_p4, W_p4, b_p4, Wdecay1_p4,Wdecay1_pdgId, Wdecay2_p4, Wdecay2_pdgId, tau_decay_from_W_p4, tau_decay_from_W_isHadronic, tauvis_decay_from_W_p4);
 
     return false;
   }

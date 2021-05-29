@@ -27,6 +27,9 @@ namespace PartonHistoryUtils {
     TLorentzVector tau_decay1_vector;
     TLorentzVector tau_decay2_vector;
 
+    TLorentzVector tauvis_decay1_vector;
+    TLorentzVector tauvis_decay2_vector;
+
     /// subsequent decays of W/Z
     TLorentzVector decay1_from_decay1_vector;
     int decay1_from_decay1_pdgId;
@@ -45,6 +48,11 @@ namespace PartonHistoryUtils {
     TLorentzVector tau_decay2_from_decay1_vector;
     TLorentzVector tau_decay1_from_decay2_vector;
     TLorentzVector tau_decay2_from_decay2_vector;
+
+    TLorentzVector tauvis_decay1_from_decay1_vector;
+    TLorentzVector tauvis_decay2_from_decay1_vector;
+    TLorentzVector tauvis_decay1_from_decay2_vector;
+    TLorentzVector tauvis_decay2_from_decay2_vector;
 
     
   };
