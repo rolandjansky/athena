@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -54,10 +54,13 @@ namespace Trk {
 class Track;
 class VxCandidate;
 
-class TrackParticleCreatorTool : public extends<AthAlgTool, ITrackParticleCreatorTool>
+class TrackParticleCreatorTool final
+  : public extends<AthAlgTool, ITrackParticleCreatorTool>
 {
 public:
-  TrackParticleCreatorTool(const std::string&, const std::string&, const IInterface*);
+  TrackParticleCreatorTool(const std::string&,
+                           const std::string&,
+                           const IInterface*);
 
   virtual ~TrackParticleCreatorTool() = default;
 
@@ -167,19 +170,24 @@ public:
     const std::vector<const Trk::TrackParameters*>& parameters,
     const std::vector<xAOD::ParameterPosition>& positions) const;
 
-  void setTilt(xAOD::TrackParticle& tp, float tiltx, float tilty) const;
+  static void setTilt(xAOD::TrackParticle& tp, float tiltx, float tilty);
 
-  void setHitPattern(xAOD::TrackParticle& tp, unsigned long hitpattern) const;
+  static void setHitPattern(xAOD::TrackParticle& tp, unsigned long hitpattern);
 
-  void setNumberOfUsedHits(xAOD::TrackParticle& tp, int hits) const;
+  static void setNumberOfUsedHits(xAOD::TrackParticle& tp, int hits);
 
-  void setNumberOfOverflowHits(xAOD::TrackParticle& tp, int overflows) const;
+  static void setNumberOfOverflowHits(xAOD::TrackParticle& tp, int overflows);
 
   /** Get the name used for the decoration of the track particle with the number
    * of used hits for TRT dE/dx computation.*/
-  static const std::string& trtdEdxUsedHitsAuxName() { return s_trtdEdxUsedHitsDecorationName; }
+  static const std::string& trtdEdxUsedHitsAuxName()
+  {
+    return s_trtdEdxUsedHitsDecorationName;
+  }
+
 private:
-  void compare(const Rec::TrackParticle& tp, const xAOD::TrackParticle& tpx) const;
+  void compare(const Rec::TrackParticle& tp,
+               const xAOD::TrackParticle& tpx) const;
   void compare(const TrackParameters& tp1, const TrackParameters& tp2) const;
   /**atlas id helper*/
   const AtlasDetectorID* m_detID;
@@ -192,12 +200,16 @@ private:
     "Trk::TrackSummaryTool/AtlasTrackSummaryTool"
   };
 
-  ToolHandle<Reco::ITrackToVertex> m_trackToVertex{ this,
-                                                    "TrackToVertex",
-                                                    "Reco::TrackToVertex/TrackToVertex" };
-  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{ this,
-                                                          "MuonSummaryTool",
-                                                          "Muon::MuonHitSummaryTool/MuonHitSummaryTool" };
+  ToolHandle<Reco::ITrackToVertex> m_trackToVertex{
+    this,
+    "TrackToVertex",
+    "Reco::TrackToVertex/TrackToVertex"
+  };
+  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{
+    this,
+    "MuonSummaryTool",
+    "Muon::MuonHitSummaryTool/MuonHitSummaryTool"
+  };
 
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
 
@@ -217,8 +229,10 @@ private:
 
   /** The pairs if enums  of an eProbability which is added as a decoration to
    * the track particle and the name of the decoration.*/
-  std::vector<std::pair<SG::AuxElement::Accessor<float>, Trk::eProbabilityType>> m_decorateEProbabilities;
-  std::vector<std::pair<SG::AuxElement::Accessor<uint8_t>, Trk::SummaryType>> m_decorateSummaryTypes;
+  std::vector<std::pair<SG::AuxElement::Accessor<float>, Trk::eProbabilityType>>
+    m_decorateEProbabilities;
+  std::vector<std::pair<SG::AuxElement::Accessor<uint8_t>, Trk::SummaryType>>
+    m_decorateSummaryTypes;
 
   /** Name used for the decoration of the track particle with TRT dE/dx .*/
   static const std::string s_trtdEdxUsedHitsDecorationName;
@@ -242,7 +256,10 @@ private:
   int m_badclusterID;
 
   std::string m_perigeeExpression;
-  std::vector<std::string> m_perigeeOptions{ "BeamLine", "BeamSpot", "Vertex", "Origin" };
+  std::vector<std::string> m_perigeeOptions{ "BeamLine",
+                                             "BeamSpot",
+                                             "Vertex",
+                                             "Origin" };
 
   bool m_checkConversion;
   int m_minSiHits;

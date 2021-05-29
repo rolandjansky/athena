@@ -170,7 +170,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
     return FitterStatusCode::BadInput;
   }
   if (allowRecalibrate) m_utility->identifyMeasurements(trajectory);
-  Trk::Trajectory::iterator it = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator it = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   std::unique_ptr< std::pair<AmgVector(5),AmgSymMatrix(5)> >updatedDifference;        // delete & remake during filter
   ATH_MSG_DEBUG ("-F- entering FwFilter with matEff="<<controlledMatEffects.particleType()<<
                  ", "<<(allowRecalibrate?"recalibrate:yes":"recalibrate:no")<<
@@ -361,7 +361,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
     jacobian = it->jacobian();
   }
 
-  int testNumber = m_utility->rankedNumberOfMeasurements(trajectory);
+  int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only " << testNumber
                    << " and thus too few fittable measurements!");
@@ -387,7 +387,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
  bool  createReferenceTrajectory) const {
 
 
-  Trk::Trajectory::iterator ffs = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator ffs = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
 
   if (createReferenceTrajectory && ffs->jacobian()) {
     ATH_MSG_WARNING ("internal mistake: reference parameters should be recreated only on"<<
@@ -480,7 +480,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
     auto lastPropagatedPar =
       CREATE_PARAMETERS((*inputParAtStartSurface),
                         inputParAtStartSurface->parameters(), std::nullopt); // remove covariance
-    for (auto it=m_utility->firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
+    for (auto it=Trk::ProtoTrajectoryUtility::firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
       if (!it->referenceParameters()) {
         //gives up ownership by default, ProtoTrackStateOnSurface takes care of deletion
         it->checkinReferenceParameters (lastPropagatedPar.release());

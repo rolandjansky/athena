@@ -339,7 +339,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 {
   const Trk::TrackParameters* predPar = nullptr;
   const Trk::TrackParameters* updPar  = nullptr;
-  Trk::Trajectory::iterator  start = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator  start = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   return this->filterTrajectoryPiece(trajectory, start, updPar, predPar,
                                      trajectory.size(), particleType);
 }
@@ -529,7 +529,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   }
   delete updatedPar;
 
-  FitQuality  currForwardFQ = m_utility->forwardFilterQuality(m_trajPiece);
+  FitQuality  currForwardFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(m_trajPiece);
   m_chi2DuringAnnealing[0] = currForwardFQ.numberDoF()>0 ?
     currForwardFQ.chiSquared()/currForwardFQ.numberDoF() : 0.0;
 
@@ -537,14 +537,14 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   // === step 2: enter annealing loop acting on pairs of forward-backward filters
   //////////////////////////////////////////////////////////////////////////////
   FitQuality* newFitQuality  = nullptr;
-  FitQuality  savedForwardFQ = m_utility->forwardFilterQuality(m_trajPiece);
+  FitQuality  savedForwardFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(m_trajPiece);
   for (unsigned int annealer=0; annealer < m_option_annealingScheme.size(); ++annealer) {
 
     // skip 1st annealing iteration, since that is done 'manually' in step 1 to get CompROTs made
     if (annealer>0) {
       // re-set trajectory and possibly advance seed pars from main trajectory
-      Trk::Trajectory::iterator ffs = m_utility->firstFittableState(m_trajPiece);
-      m_utility->clearFitResultsAfterOutlier(m_trajPiece,newFitQuality,ffs->positionOnTrajectory()+1);
+      Trk::Trajectory::iterator ffs = Trk::ProtoTrajectoryUtility::firstFittableState(m_trajPiece);
+      Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajPiece,newFitQuality,ffs->positionOnTrajectory()+1);
       if (!ffs->forwardTrackParameters() && !ffs->parametersDifference()) {
         ATH_MSG_WARNING ("Programming error - lost seed");
         m_utility->dumpTrajectory(m_trajPiece, name());
@@ -559,7 +559,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
                                                         *start->forwardTrackParameters(), // no check needed: void in refKF
 							false /*no runOutlier*/, dafMec,
 							false, 1);
-      FitQuality  currForwardFQ = m_utility->forwardFilterQuality(m_trajPiece);
+      FitQuality  currForwardFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(m_trajPiece);
       m_chi2DuringAnnealing[annealer] = currForwardFQ.numberDoF()>0 ?
 	currForwardFQ.chiSquared()/currForwardFQ.numberDoF() : 0.0;
 
@@ -750,7 +750,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	itForKF->checkinDNA_MaterialEffects(it->checkoutDNA_MaterialEffects());
     // }
   }
-  if (m_utility->numberOfNewOutliers(m_trajPiece) > 0.7*m_trajPiece.size()) {
+  if (Trk::ProtoTrajectoryUtility::numberOfNewOutliers(m_trajPiece) > 0.7*m_trajPiece.size()) {
     ATH_MSG_INFO ("Too many outliers in piecewise annealing!" );
     m_trajPiece.clear(); return Trk::FitterStatusCode::OutlierLogicFailure;
   }
@@ -760,8 +760,8 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   // step 4: boost filter to first state after annealed trajectory piece.
   //////////////////////////////////////////////////////////////////////////////
   ATH_MSG_DEBUG ("now stepping the main trajectory iterators ahead." );
-  Trajectory::iterator lastStateOnPiece= m_utility->lastFittableState(m_trajPiece);
-  Trajectory::iterator resumeKfState   = m_utility->nextFittableState(trajectory,fittableState);
+  Trajectory::iterator lastStateOnPiece= Trk::ProtoTrajectoryUtility::lastFittableState(m_trajPiece);
+  Trajectory::iterator resumeKfState   = Trk::ProtoTrajectoryUtility::nextFittableState(trajectory,fittableState);
 
   if (resumeKfState == trajectory.end()) { // ## case 1: DAF on full trajectory
    /* resumeKfState = fittableState;

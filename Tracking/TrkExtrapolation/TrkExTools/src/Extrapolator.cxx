@@ -6,14 +6,57 @@
 // Extrapolator.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// Trk inlcude
+#include "TrkExTools/Extrapolator.h"
 #include "TrkExTools/ObjContainer.h"
 #include "TrkExToolsStringUtility.h"
+//
 #include "TrkParameters/TrackParameters.h"
+//
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkTrack/Track.h"
+//
+#include "TrkDetDescrUtils/GeometrySignature.h"
+#include "TrkDetDescrUtils/SharedObject.h"
+//
+#include "TrkEventUtils/TrkParametersComparisonFunction.h"
+//
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+//
+#include "TrkExUtils/ExtrapolationCache.h"
+#include "TrkExUtils/IntersectionSolution.h"
+//
+#include "TrkGeometry/CompoundLayer.h"
+#include "TrkGeometry/AlignableTrackingVolume.h"
+#include "TrkGeometry/CylinderLayer.h"
+#include "TrkGeometry/DetachedTrackingVolume.h"
+#include "TrkGeometry/Layer.h"
+#include "TrkGeometry/SubtractedCylinderLayer.h"
+#include "TrkGeometry/TrackingGeometry.h"
+//
+#include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkMaterialOnTrack/ScatteringAngles.h"
+//
+#include "TrkSurfaces/CylinderSurface.h"
+#include "TrkSurfaces/DiscBounds.h"
+#include "TrkSurfaces/PerigeeSurface.h"
+#include "TrkSurfaces/StraightLineSurface.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+#include "TrkSurfaces/PlaneSurface.h"
+//
+#include "TrkVolumes/BoundarySurface.h"
+#include "TrkVolumes/BoundarySurfaceFace.h"
+#include "TrkVolumes/Volume.h"
+// 
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+// 
+#include <memory>
+#include <utility>
+#include <cstdint>
 
-// for debugging could implement these methods to instrument input track parameters with
-// e.g. constructor and destructor monitoring
+// for debugging could implement these methods to instrument input track
+// parameters with e.g. constructor and destructor monitoring
 inline const Trk::TrackParameters*
 replaceTrkParm(const Trk::TrackParameters* base_parm)
 {
@@ -39,8 +82,8 @@ replaceManagedPtr<const Trk::TrackParameters>(const Trk::TrackParameters* p_ptr)
   return p_ptr;
 }
 
-// need specialisation of cloneObj used by ObjContainer to properly clones all kinds of
-// TrackParameters:
+// need specialisation of cloneObj used by ObjContainer to properly clones all
+// kinds of TrackParameters:
 template<>
 inline const Trk::TrackParameters*
 cloneObj<const Trk::TrackParameters>(const Trk::TrackParameters* p_ptr)
@@ -55,46 +98,45 @@ cloneObj<Trk::TrackParameters>(const Trk::TrackParameters* p_ptr)
   return (p_ptr ? p_ptr->clone() : nullptr);
 }
 
-#include "TrkDetDescrUtils/GeometrySignature.h"
-#include "TrkDetDescrUtils/SharedObject.h"
-#include "TrkEventUtils/TrkParametersComparisonFunction.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
-#include "TrkExTools/Extrapolator.h"
-#include "TrkExUtils/ExtrapolationCache.h"
-#include "TrkExUtils/IntersectionSolution.h"
-#include "TrkGeometry/AlignableTrackingVolume.h"
-#include "TrkGeometry/CompoundLayer.h"
-#include "TrkGeometry/CylinderLayer.h"
-#include "TrkGeometry/DetachedTrackingVolume.h"
-#include "TrkGeometry/Layer.h"
-#include "TrkGeometry/SubtractedCylinderLayer.h"
-#include "TrkGeometry/TrackingGeometry.h"
-#include "TrkMaterialOnTrack/EnergyLoss.h"
-#include "TrkMaterialOnTrack/ScatteringAngles.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkSurfaces/CylinderSurface.h"
-#include "TrkSurfaces/DiscBounds.h"
-#include "TrkSurfaces/PerigeeSurface.h"
-#include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkSurfaces/SurfaceBounds.h"
-#include "TrkTrack/Track.h"
-#include "TrkVolumes/BoundarySurface.h"
-#include "TrkVolumes/BoundarySurfaceFace.h"
-#include "TrkVolumes/Volume.h"
-// for the comparison with a pointer
-#include <cstdint>
-// Amg
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-// Trk
-#include "TrkSurfaces/PlaneSurface.h"
-#include <memory>
-#include <utility>
 
 namespace {
 constexpr double s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
+
+/** RadialDirection helper method
+  - inbound : -1
+  - outbound:  1  */
+int
+radialDirection(const Trk::TrackParameters& pars, Trk::PropDirection dir)
+{
+  // safe inbound/outbound estimation
+  double prePositionR = pars.position().perp();
+
+  return (prePositionR > (pars.position() + dir * 0.5 * prePositionR *
+                                              pars.momentum().normalized())
+                           .perp())
+           ? -1
+           : 1;
 }
+std::string
+layerRZoutput(const Trk::Layer& lay)
+{
+  std::stringstream outStream;
+
+  outStream << "[r,z] = [ " << lay.surfaceRepresentation().bounds().r() << ", "
+            << lay.surfaceRepresentation().center().z() << " ] - Index ";
+  outStream << lay.layerIndex().value();
+  return outStream.str();
+}
+std::string
+momentumOutput(const Amg::Vector3D& mom)
+{
+  std::stringstream outStream;
+
+  outStream << "[eta,phi] = [ " << mom.eta() << ", " << mom.phi() << " ]";
+  return outStream.str();
+}
+
+} // end of anonymous namespace
 
 Trk::Extrapolator::Cache::AtomicMax Trk::Extrapolator::Cache::s_navigSurfsMax{};
 Trk::Extrapolator::Cache::AtomicMax Trk::Extrapolator::Cache::s_navigVolsMax{};
@@ -4266,12 +4308,6 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
   }
 }
 
-unsigned int
-Trk::Extrapolator::propagatorType(const Trk::TrackingVolume& tvol) const
-{
-  return tvol.geometrySignature();
-}
-
 // ----------------------- The Initialization --------------------------
 Trk::PropDirection
 Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
@@ -4466,18 +4502,6 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
   return navigationDirection;
 }
 
-int
-Trk::Extrapolator::radialDirection(const Trk::TrackParameters& pars, PropDirection dir) const
-{
-  // safe inbound/outbound estimation
-  double prePositionR = pars.position().perp();
-
-  return (prePositionR >
-          (pars.position() + dir * 0.5 * prePositionR * pars.momentum().normalized()).perp())
-           ? -1
-           : 1;
-}
-
 bool
 Trk::Extrapolator::radialDirectionCheck(const EventContext& ctx,
                                         const IPropagator& prop,
@@ -4526,17 +4550,6 @@ Trk::Extrapolator::radialDirectionCheck(const EventContext& ctx,
 }
 
 std::string
-Trk::Extrapolator::layerRZoutput(const Trk::Layer& lay) const
-{
-  std::stringstream outStream;
-
-  outStream << "[r,z] = [ " << lay.surfaceRepresentation().bounds().r() << ", "
-            << lay.surfaceRepresentation().center().z() << " ] - Index ";
-  outStream << lay.layerIndex().value();
-  return outStream.str();
-}
-
-std::string
 Trk::Extrapolator::positionOutput(const Amg::Vector3D& pos) const
 {
   std::stringstream outStream;
@@ -4546,15 +4559,6 @@ Trk::Extrapolator::positionOutput(const Amg::Vector3D& pos) const
   } else {
     outStream << "[xyz] = [ " << pos.x() << ", " << pos.y() << ", " << pos.z() << " ]";
   }
-  return outStream.str();
-}
-
-std::string
-Trk::Extrapolator::momentumOutput(const Amg::Vector3D& mom) const
-{
-  std::stringstream outStream;
-
-  outStream << "[eta,phi] = [ " << mom.eta() << ", " << mom.phi() << " ]";
   return outStream.str();
 }
 

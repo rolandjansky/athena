@@ -125,7 +125,7 @@ namespace Trk
   }
 
   int
-  iPatGlobalFitter::iterationsOfLastFit(const FitState& fitState) const
+  iPatGlobalFitter::iterationsOfLastFit(const FitState& fitState) 
   {return fitState.iterations;}
 
 

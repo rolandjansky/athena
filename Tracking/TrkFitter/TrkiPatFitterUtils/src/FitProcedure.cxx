@@ -81,7 +81,7 @@ FitProcedure::constructTrack(
   const std::vector<FitMeasurement*>& measurements,
   FitParameters& parameters,
   const TrackInfo& trackInfo,
-  const DataVector<const TrackStateOnSurface>* leadingTSOS) const
+  const DataVector<const TrackStateOnSurface>* leadingTSOS) 
 {
   // debug
   if (cache.debug) {
@@ -704,7 +704,7 @@ FitProcedure::execute(FitProcedure::Cache& cache,
 }
 
 Amg::MatrixX*
-FitProcedure::fullCovariance() const
+FitProcedure::fullCovariance() 
 {
   // note const_cast - ughhh
   // return const_cast<Amg::MatrixX*>(cache.fitMatrices->fullCovariance());
@@ -880,7 +880,7 @@ FitProcedure::chooseIntersector(std::vector<FitMeasurement*>& measurements,
 void
 FitProcedure::reportQuality(FitProcedure::Cache& cache,
                             const std::vector<FitMeasurement*>& measurements,
-                            const FitParameters& parameters) const
+                            const FitParameters& parameters) 
 {
   if (!cache.fitQuality)
     return;

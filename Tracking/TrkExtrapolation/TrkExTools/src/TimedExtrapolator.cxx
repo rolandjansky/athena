@@ -1295,7 +1295,7 @@ Trk::TimedExtrapolator::positionOutput(const Amg::Vector3D &pos) const {
 }
 
 std::string
-Trk::TimedExtrapolator::momentumOutput(const Amg::Vector3D &mom) const {
+Trk::TimedExtrapolator::momentumOutput(const Amg::Vector3D &mom) {
   std::stringstream outStream;
 
   outStream << "[eta,phi] = [ " << mom.eta() << ", " << mom.phi() << " ]";

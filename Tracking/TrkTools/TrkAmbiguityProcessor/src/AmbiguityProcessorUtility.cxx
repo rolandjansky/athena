@@ -23,7 +23,7 @@ namespace AmbiguityProcessor{
   float 
   calculateFitQuality(const Trk::Track & track){
     float result{0.0};
-    if  (const auto quality=track.fitQuality(); quality and quality->numberDoF()>0 ){ 
+    if  (const auto *const quality=track.fitQuality(); quality and quality->numberDoF()>0 ){ 
       result = quality->chiSquared()/quality->numberDoF();
     }
     return result; 

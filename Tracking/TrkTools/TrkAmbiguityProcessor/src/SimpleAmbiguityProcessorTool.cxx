@@ -230,7 +230,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
       // don't forget to drop track from map
       // track can be kept as is, but is not yet fitted
       ATH_MSG_DEBUG ("Good track, but need to fit this track first, score, add it into map again and retry !");
-      auto pRefittedTrack = refitTrack(atrack.track(), prdToTrackMap, stat);
+      auto *pRefittedTrack = refitTrack(atrack.track(), prdToTrackMap, stat);
       if(pRefittedTrack) {
          addTrack( pRefittedTrack, true , trackScoreTrackMap, prdToTrackMap, trackDustbin, stat);
       }

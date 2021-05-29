@@ -19,6 +19,31 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
 
+namespace{
+
+bool
+isTrapped(const double distance,
+          double& previousDistance,
+          unsigned long long& stepsUntilTrapped)
+{
+  // catch loopers
+  if (distance > previousDistance) {
+    return true;
+  }
+
+  if (stepsUntilTrapped <= 0) {
+    return true;
+  }
+
+  --stepsUntilTrapped;
+
+  // store previous value to check steps are converging (with 10% safety factor)
+  previousDistance = 1.1 * distance;
+
+  return false;
+}
+
+}//end anonymous namespace
 namespace Trk
 {
 
@@ -749,36 +774,6 @@ RungeKuttaIntersector::debugFailure (std::unique_ptr<TrackSurfaceIntersection> i
 	    << endmsg;
     }
     log << MSG::DEBUG << endmsg;
-}
-
-bool
-RungeKuttaIntersector::isTrapped (const double distance,
-                                  double& previousDistance,
-                                  unsigned long long& stepsUntilTrapped) const
-{
-    // catch loopers
-    if (distance > previousDistance)
-    {
-	// 	    ATH_MSG_INFO( 0.001/m_qOverP << " trapped: distance,previous  "
-	// 			  << distance << "  " << previousDistance );
-	return true;
-    }
-
-    if (stepsUntilTrapped <= 0)
-    {
-      // 	ATH_MSG_INFO( 0.001/m_qOverP << " trapped after " << m_stepsUntilTrapped
-// 		  << " steps : step,distance  "
-// 		  << m_stepLength << "  " << previousDistance
-// 		  << "  position,direction " << m_position << " " << m_direction );
-	return true;
-    }
-
-    --stepsUntilTrapped;
-
-    // store previous value to check steps are converging (with 10% safety factor)
-    previousDistance = 1.1*distance;
-
-    return false;
 }
 
 void
