@@ -229,7 +229,7 @@ namespace Rec {
                           << std::setprecision(3) << caloEnergy->sigmaDeltaE() / Units::GeV << ") GeV,  CaloEnergy::Type " << eLossType);
         }
 
-        return new const Trk::TrackStateOnSurface(nullptr, &middleParameters, nullptr, materialEffects, pattern);
+        return new const Trk::TrackStateOnSurface(nullptr, middleParameters.clone(), nullptr, materialEffects, pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
