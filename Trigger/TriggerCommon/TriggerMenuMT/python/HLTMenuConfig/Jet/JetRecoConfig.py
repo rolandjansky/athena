@@ -103,13 +103,15 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
         )
 
     # Sort and filter
-    jetDef.modifiers += [
+    jetDef.modifiers = [
         "Sort",
         "Filter:{}".format(getFilterCut(jetRecoDict["recoAlg"])),
         "ConstitFourMom_copy",
     ]
     if jetRecoDict["recoAlg"] == "a4":
         jetDef.modifiers += ["CaloEnergies"]  # needed for GSC
+    if use_tracking:
+        jetDef.modifiers += defineTrackMods(jetRecoDict["trkopt"])
         
     jetsOut = recordable(jetDef.fullname())
     jetDef = solveDependencies(jetDef)
@@ -131,9 +133,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     pj_name = pj_alg.OutputContainer
     acc.addEventAlgo(pj_alg)
 
-    jetDef.modifiers = []
     if use_tracking:
-        jetDef.modifiers += defineTrackMods(jetRecoDict["trkopt"])
 
         # Make sure that the jets are constructed with the ghost tracks included
         merge_alg = CompFactory.PseudoJetMerger(
@@ -187,7 +187,6 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
     else:
         rhoKey = "auto"
 
-    jetDef.modifiers = defineCalibMods(jetRecoDict, dataSource, rhoKey)
 
     # If we need JVT rerun the JVT modifier
     use_tracking = jetRecoDict["trkopt"] != "notrk"
@@ -195,10 +194,12 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
 
     decorList = getDecorList(use_tracking, is_pflow)
     decorList += ["Jvt"]
-
+    
+    jetDef.modifiers = defineCalibMods(jetRecoDict, dataSource, rhoKey)
     if use_tracking:
         jetDef.modifiers += [f"JVT:{jetRecoDict['trkopt']}"]
 
+    
     if jetRecoDict["cleaning"] != "noCleaning":
         # Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
         if is_pflow:
