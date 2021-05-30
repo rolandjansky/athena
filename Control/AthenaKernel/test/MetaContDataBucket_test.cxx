@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/test/MetaContDataBucket_test.cxx
@@ -48,7 +48,7 @@ public:
                                        bool,
                                        bool) override { std::abort(); }
 
-  virtual SG::SourceID sourceID() const override { return source; }
+  virtual SG::SourceID sourceID(const std::string& ="") const override { return source; }
   std::string source;
 };
 
