@@ -47,7 +47,6 @@
 
 MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_condSvc{"CondSvc", name},
   m_rtFolder("/MDT/RTBLOB"),
   m_tubeFolder("/MDT/T0BLOB"),
   m_newFormat2020(false),
@@ -60,7 +59,6 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_rtShift(0.),
   m_rtScale(1.),
   m_prop_beta(1.0),
-  m_AthRNGSvc ("AthRNGSvc", name),
   m_RNGWrapper (nullptr),
   m_readKeyRt("/MDT/RTBLOB"),
   m_readKeyTube("/MDT/T0BLOB"),
@@ -106,7 +104,6 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("CreateSlewingFunctions", m_createSlewingFunction = false,
 		  "If set to true, the slewing correction functions are initialized for each rt-relation that is loaded.");
 
-  declareProperty("AthRNGSvc", m_AthRNGSvc);
   declareProperty("RandomStream", m_randomStream = "MDTCALIBDBALG");
 
 
@@ -169,7 +166,6 @@ StatusCode MdtCalibDbAlg::initialize(){
   ATH_CHECK(m_writeKeyRt.initialize());
   ATH_CHECK(m_writeKeyTube.initialize());
   ATH_CHECK(m_writeKeyCor.initialize());
-  ATH_CHECK(m_muDetMgrKey.initialize());
 
   if(m_condSvc->regHandle(this, m_writeKeyRt).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyRt.fullKey() << " with CondSvc");
@@ -184,25 +180,14 @@ StatusCode MdtCalibDbAlg::initialize(){
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(detStore()->retrieve(m_detMgr));
   return StatusCode::SUCCESS;
 }
 
 StatusCode MdtCalibDbAlg::execute(){
-  
   ATH_MSG_DEBUG( "execute " << name() );
-
-  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
-  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
-
-  if ( loadRt(muDetMgr).isFailure() ) {
-    ATH_MSG_FATAL("loadRt().isFailure()");
-    return StatusCode::FAILURE;
-  }
-
-  if ( loadTube(muDetMgr).isFailure() ) {
-    ATH_MSG_FATAL("loadTube().isFailure()");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(loadRt());
+  ATH_CHECK(loadTube());
   return StatusCode::SUCCESS;
 }
 
@@ -348,7 +333,7 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
 }
 
 
-StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
+StatusCode MdtCalibDbAlg::loadRt(){
   ATH_MSG_DEBUG( "loadRt " << name() );
 
   SG::WriteCondHandle<MdtRtRelationCollection> writeHandleRt{m_writeKeyRt};
@@ -372,10 +357,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
   //tr-relation creators
   MuonCalib::RtFromPoints rt_fromPoints;
 
-  if ( defaultRt(writeCdoRt).isFailure() ){
-    ATH_MSG_FATAL("defaultRt(writeCdoRt).isFailure()");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(defaultRt(writeCdoRt));
   
   //Read Cond Handle  
   SG::ReadCondHandle<CondAttrListCollection> readHandleRt{ m_readKeyRt };
@@ -536,7 +518,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     float multilayer_tmax_diff(-9e9);
 
     double innerTubeRadius = -9999.;
-    const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
     if( !detEl ){
       static std::atomic<bool> rtWarningPrinted = false;
       if (!rtWarningPrinted) {
@@ -730,7 +712,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
 
 
 // build the transient structure and load some defaults for T0s
-StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube, const MuonGM::MuonDetectorManager* muDetMgr) {
+StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube) {
 
   if ( writeCdoTube == nullptr ) {
     ATH_MSG_ERROR("writeCdoTube == nullptr");
@@ -752,7 +734,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
   for(; it!=it_end;++it ) {
     MuonCalib::MdtTubeCalibContainer *tubes=0;
     //create an MdtTubeContainer
-    tubes = buildMdtTubeCalibContainer(*it, muDetMgr);
+    tubes = buildMdtTubeCalibContainer(*it);
 
     // is tubes ever 0?  how could that happen?
     if(tubes) {
@@ -807,7 +789,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
 }  //end MdtCalibDbAlg::defaultT0s
 
 
-StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
+StatusCode MdtCalibDbAlg::loadTube(){
   ATH_MSG_DEBUG( "loadTube " << name() );
 
   SG::WriteCondHandle<MdtTubeCalibContainerCollection> writeHandleTube{m_writeKeyTube};
@@ -821,10 +803,7 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
   //m_tubeData is writeCdoTube here
   //atrc is readCdoTube here
 
-  if ( defaultT0s(writeCdoTube, muDetMgr).isFailure() ) {
-    ATH_MSG_FATAL("defaultT0s().isFailure()");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(defaultT0s(writeCdoTube));
   
   //Read Cond Handle  
   SG::ReadCondHandle<CondAttrListCollection> readHandleTube{ m_readKeyTube };
@@ -1090,13 +1069,13 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
 
 
 // Build a MuonCalib::MdtTubeCalibContainer for a given Identifier
-MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(const Identifier &id, const MuonGM::MuonDetectorManager* muDetMgr) {    
-  MuonCalib::MdtTubeCalibContainer *tubes = 0;
+MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(const Identifier &id) {    
+  MuonCalib::MdtTubeCalibContainer *tubes = nullptr;
 
-  const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(id,1,1,1) );
-  const MuonGM::MdtReadoutElement *detEl2 = 0;
+  const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(id,1,1,1) );
+  const MuonGM::MdtReadoutElement *detEl2 = nullptr;
   if (m_idHelperSvc->mdtIdHelper().numberOfMultilayers(id) == 2){
-    detEl2 = muDetMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(id,2,1,1) );
+    detEl2 = m_detMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(id,2,1,1) );
   } else {
     ATH_MSG_VERBOSE( "A single multilayer for this station " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id))<<","<< m_idHelperSvc->mdtIdHelper().stationPhi(id) <<","<< m_idHelperSvc->mdtIdHelper().stationEta(id) );
   }

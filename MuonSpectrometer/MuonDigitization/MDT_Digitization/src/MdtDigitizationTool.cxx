@@ -58,6 +58,7 @@
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 namespace{
+    // what about this? does this also need to be 1/m_signalSpeed ?
     static constexpr double s_inv_c_light(1./Gaudi::Units::c_light);
 }
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
@@ -74,7 +75,6 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "MdtCalibrationDbTool    " << m_calibrationDbTool  );
   ATH_MSG_INFO ( "UseDeadChamberSvc      " << m_UseDeadChamberSvc   );
   if (!m_UseDeadChamberSvc) ATH_MSG_INFO ( "MaskedStations         " << m_maskedStations      );
-  ATH_MSG_INFO ( "GetT0FromDB            " << m_t0_from_DB          );
   ATH_MSG_INFO ( "OffsetTDC              " << m_offsetTDC           );
   ATH_MSG_INFO ( "ns2TDCAMT              " << m_ns2TDCAMT           );
   ATH_MSG_INFO ( "ns2TDCHPTDC            " << m_ns2TDCHPTDC         );
@@ -148,12 +148,7 @@ StatusCode MdtDigitizationTool::initialize() {
 
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  if ( m_t0_from_DB ) {
-    ATH_CHECK(m_calibrationDbTool.retrieve());
-  }
-  else {
-    m_calibrationDbTool.disable();
-  }
+  ATH_CHECK(m_calibrationDbTool.retrieve());
 
   //Gather masked stations
   for (unsigned int i=0;i<m_maskedStations.size();i++) {
@@ -366,6 +361,10 @@ StatusCode MdtDigitizationTool::doDigitization(const EventContext& ctx, MdtDigit
   if ( m_UseDeadChamberSvc ) { 
     SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey, ctx};
     const MdtCondDbData* readCdo{*readHandle};
+    if (!readHandle.isValid() || !readCdo) {
+      ATH_MSG_WARNING(readHandle.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
     m_IdentifiersToMask.clear();
     int size_id = readCdo->getDeadStationsId().size();
     ATH_MSG_DEBUG ( "Number of dead/missing stations retrieved from CondService= "<< size_id );	
@@ -859,8 +858,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
     if( insideMatch || insideMask ) {
       // get calibration constants from DbTool
       double t0 = m_offsetTDC;
-      if ( m_t0_from_DB ) {
-	MuonCalib::MdtFullCalibData data = m_calibrationDbTool->getCalibration( geo->collectionHash(), geo->detectorElementHash() );
+	const MuonCalib::MdtFullCalibData data = m_calibrationDbTool->getCalibration( geo->collectionHash(), geo->detectorElementHash() );
 	if ( data.tubeCalib ) {
 	  int ml    = m_idHelperSvc->mdtIdHelper().multilayer(idDigit)-1;
 	  int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(idDigit)-1;
@@ -872,8 +870,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
 	      t0 = singleTubeData->t0;
 	    }
 	  }
-	}
-      }
+	} else {
+    ATH_MSG_WARNING("No calibration data found, using t0="<<m_offsetTDC);
+  }
       bool isHPTDC = m_idHelperSvc->hasHPTDC(idDigit);
       int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC, rndmEngine);
       int adc = digitizeTime(it->adc, isHPTDC, rndmEngine);
@@ -972,9 +971,8 @@ double MdtDigitizationTool::minimumTof(Identifier DigitId, const MuonGM::MuonDet
   else {
     distanceToVertex = element->tubePos(DigitId).mag(); 
   }
-  
+  // what about this? does this also need to be 1/m_signalSpeed ?
   ATH_MSG_DEBUG( "minimumTof calculated " << distanceToVertex*s_inv_c_light);
-  
   return distanceToVertex*s_inv_c_light;
 }
 

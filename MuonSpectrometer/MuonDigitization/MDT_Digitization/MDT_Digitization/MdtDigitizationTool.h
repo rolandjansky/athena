@@ -161,8 +161,8 @@ class MdtDigitizationTool : public PileUpToolBase {
   std::list<MDTSimHitCollection*> m_MDTHitCollList;
 
   //TDC ELECTRONICS
-  Gaudi::Property<double> m_offsetTDC{this, "OffsetTDC", 800., "TDC offset"};
-  Gaudi::Property<double> m_signalSpeed{this, "SignalSpeed",Gaudi::Units::c_light, "Light speed" };
+  Gaudi::Property<double> m_offsetTDC{this, "OffsetTDC", 800., "TDC offset used if no calibration data is found"};
+  Gaudi::Property<double> m_signalSpeed{this, "SignalSpeed",0.85*Gaudi::Units::c_light};
   Gaudi::Property<double> m_ns2TDCAMT{this, "ns2TDCAMT", 0.78125, "Conversion factor TDC/ns for AMT chips"};
   Gaudi::Property<double> m_ns2TDCHPTDC{this, "ns2TDCHPTDC", 0.1953125, "Conversion factor TDC/ns for HPTDC chips"};
   Gaudi::Property<double> m_resTDC{this, "ResolutionTDC", 0.5, "TDC resolution"};
@@ -196,8 +196,6 @@ class MdtDigitizationTool : public PileUpToolBase {
 
   //Conditions Database
   Gaudi::Property<bool> m_UseDeadChamberSvc{this, "UseDeadChamberSvc",   false, ""};
-  Gaudi::Property<bool> m_t0_from_DB{this, "GetT0FromBD", false, ""};
-
   //B-lines
   Gaudi::Property<bool> m_useDeformations{this, "UseDeformations", false, ""};
 

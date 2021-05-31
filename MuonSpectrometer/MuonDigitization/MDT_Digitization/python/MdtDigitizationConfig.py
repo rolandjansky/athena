@@ -21,6 +21,7 @@ def MDT_LastXing():
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    import MuonCondAlg.MdtCondDbAlgConfig # noqa: F401 MT-safe conditions access 
    from MuonCnvExample import MuonCalibConfig
+   MuonCalibConfig.setupMdtCondDB() # add MdtCalibDbAlg for MdtCalibrationDbTool
 
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
