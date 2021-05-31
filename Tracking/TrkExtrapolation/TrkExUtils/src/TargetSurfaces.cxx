@@ -138,7 +138,7 @@ Trk::TargetSurfaces::initFrameVolume(const Amg::Vector3D& pos,
   std::vector<Trk::TargetSurface>::iterator is = m_baseSurfaces.begin();
   while (is != m_baseSurfaces.end() &&
          (*is).sfType == Trk::SurfNavigType::Target)
-    is++;
+    ++is;
   if (is != m_baseSurfaces.end())
     m_baseSurfaces.erase(is, m_baseSurfaces.end());
   m_tempSurfaces.clear();
@@ -147,7 +147,7 @@ Trk::TargetSurfaces::initFrameVolume(const Amg::Vector3D& pos,
   const std::vector<
     Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume>>>&
     bounds = fVol->boundarySurfaces();
-  for (unsigned int ib = 0; ib < bounds.size(); ib++) {
+  for (unsigned int ib = 0; ib < bounds.size(); ++ib) {
     const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
     Trk::TargetSurface bb(&surf,
                           true,
@@ -184,9 +184,9 @@ Trk::TargetSurfaces::initFrameVolume(const Amg::Vector3D& pos,
           }
         }
       }
-      index++;
+      ++index;
     }
-    is++;
+    ++is;
   }
 
   // if (m_debugMode) {
@@ -394,7 +394,7 @@ Trk::TargetSurfaces::orderIntersections() const
     return tsOrd;
 
   std::vector<unsigned int> sols(m_baseSurfaces.size());
-  for (unsigned int i = 0; i < m_baseSurfaces.size(); i++) {
+  for (unsigned int i = 0; i < m_baseSurfaces.size(); ++i) {
     sols[i] = i;
   }
 
@@ -407,10 +407,10 @@ Trk::TargetSurfaces::orderIntersections() const
       sols[itest] = iex;
       itest = 1;
     } else
-      itest++;
+      ++itest;
   }
 
-  for (unsigned int i = 0; i < m_baseSurfaces.size(); i++)
+  for (unsigned int i = 0; i < m_baseSurfaces.size(); ++i)
     tsOrd.push_back(m_baseSurfaces[sols[i]]);
 
   return tsOrd;
@@ -447,14 +447,14 @@ Trk::TargetSurfaces::findNext()
         m_distanceToNext = dd;
       }
     }
-    index++;
-    is++;
+    ++index;
+    ++is;
   }
-  for (unsigned it = 0; it < m_tempSurfaces.size(); it++) {
+  for (unsigned it = 0; it < m_tempSurfaces.size(); ++it) {
     is = m_tempSurfaces[it].begin();
     while (is != m_tempSurfaces[it].end()) {
       if ((*is).status != -1 && (*is).distanceAlongPath > m_tolerance) {
-        m_numAlongPath++;
+        ++m_numAlongPath;
         double dd = (*is).distanceAlongPath;
         if (dd > m_tolerance && dd < (*is).distance)
           dd = (*is).distance;
@@ -463,8 +463,8 @@ Trk::TargetSurfaces::findNext()
           m_distanceToNext = dd;
         }
       }
-      index++;
-      is++;
+      ++index;
+      ++is;
     }
   }
 }
@@ -523,7 +523,7 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
                 << std::endl;
     if ((*is).status != -1 || (*is).distanceAlongPath > m_tolerance) {
       if ((*is).distanceAlongPath > -m_tolerance) {
-        m_numAlongPath++;
+        ++m_numAlongPath;
         double dd = (*is).distanceAlongPath;
         if (dd > m_tolerance && dd < (*is).distance)
           dd = (*is).distance;
@@ -534,8 +534,8 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
       }
     }
 
-    index++;
-    is++;
+    ++index;
+    ++is;
   }
 
   m_absDist = false;
@@ -553,7 +553,7 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
       updateDistance(index, (*is), pos, dir);
       if ((*is).status != -1 || (*is).distance > m_tolerance) {
         if ((*is).distance > -m_tolerance) {
-          m_numAlongPath++;
+          ++m_numAlongPath;
           double dd = (*is).distance;
           if (dd < m_distanceToNext) {
             nextSfCandidate = index;
@@ -561,8 +561,8 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
           }
         }
       }
-      index++;
-      is++;
+      ++index;
+      ++is;
     }
     if (m_debugMode)
       std::cout << "DEBUG:closest frame estimate based on absolute distance:"
@@ -572,7 +572,7 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
     m_absDist = true;
   }
 
-  for (unsigned it = 0; it < m_tempSurfaces.size(); it++) {
+  for (unsigned it = 0; it < m_tempSurfaces.size(); ++it) {
     is = m_tempSurfaces[it].begin();
 
     while (is != m_tempSurfaces[it].end()) {
@@ -586,7 +586,7 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
 
       if ((*is).status != -1 || (*is).distanceAlongPath > m_tolerance) {
         if ((*is).distanceAlongPath > -m_tolerance) {
-          m_numAlongPath++;
+          ++m_numAlongPath;
           double dd = (*is).distanceAlongPath;
           if (dd > m_tolerance && dd < (*is).distance)
             dd = (*is).distance;
@@ -597,8 +597,8 @@ Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos,
         }
       }
 
-      index++;
-      is++;
+      ++index;
+      ++is;
     }
   }
 
@@ -669,11 +669,11 @@ Trk::TargetSurfaces::fillSolutions(int hitSf,
       }
     }
 
-    index++;
-    is++;
+    ++index;
+    ++is;
   }
 
-  for (unsigned it = 0; it < m_tempSurfaces.size(); it++) {
+  for (unsigned it = 0; it < m_tempSurfaces.size(); ++it) {
     is = m_tempSurfaces[it].begin();
 
     while (is != m_tempSurfaces[it].end()) {
@@ -690,8 +690,8 @@ Trk::TargetSurfaces::fillSolutions(int hitSf,
         }
       }
 
-      index++;
-      is++;
+      ++index;
+      ++is;
     }
   }
 }
