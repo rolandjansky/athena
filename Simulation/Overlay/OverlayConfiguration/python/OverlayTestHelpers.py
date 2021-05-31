@@ -5,6 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
+from AthenaCommon.Debugging import DbgStage
 
 from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 
@@ -33,6 +34,9 @@ def CommonTestArgumentParser(prog):
                         help="Output RDO file")
     parser.add_argument("-s", "--outputSig", default='', type=str,
                         help="Output RDO_SGNL file")
+    parser.add_argument("--debug", default='', type=str,
+                        choices=DbgStage.allowed_values,
+                        help="Debugging flag: " + ','.join (DbgStage.allowed_values))
     return parser
 
 
@@ -105,6 +109,9 @@ def printAndRun(accessor, configFlags, args):
     if args.verboseStoreGate:
         accessor.getService("StoreGateSvc").Dump = True
     configFlags.dump()
+
+    if args.debug:
+        accessor.setDebugStage (args.debug)
 
     # Execute and finish
     sc = accessor.run(maxEvents=args.maxEvents)
