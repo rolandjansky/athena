@@ -199,6 +199,10 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
+
+    if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Input.isMC:  # this is to allow the simulation of cosmics triggers in MC
+        ctp.ForceBunchGroupPattern = False
+
     # muon input
     if not isMUCTPIOutputProvided:
         ctp.MuctpiInput = ""
