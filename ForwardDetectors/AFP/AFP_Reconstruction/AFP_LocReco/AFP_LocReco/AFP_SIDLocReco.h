@@ -18,6 +18,9 @@
 #include "AthenaKernel/errorcheck.h" // CHECK( )
 #include "AthenaBaseComps/AthMsgStreamMacros.h" 
 
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 #include "AFP_Geometry/AFP_GeometryTool.h"
 #include "CLHEP/Geometry/Point3D.h"
 
@@ -47,6 +50,7 @@ class AFP_SIDLocReco : public AthReentrantAlgorithm
 	private:
 		AFP_CONFIGURATION m_Config;
 		ToolHandle<AFP_GeometryTool> m_pGeometry {this, "AFP_Geometry", "AFP_GeometryTool", "Tool that provides AFP geometry"};
+		ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "Monitoring tool"};
 
 		SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "name of EventInfo container" };
 		SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_AFPSiHitContainerKey { this, "AFPSiHitsContainerName", "AFPSiHitContainer", "name of AFPSiHit container" };

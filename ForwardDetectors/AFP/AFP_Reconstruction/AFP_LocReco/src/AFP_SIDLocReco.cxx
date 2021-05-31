@@ -21,6 +21,12 @@ StatusCode AFP_SIDLocReco::initialize()
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::initialize()");
   CHECK( AthReentrantAlgorithm::initialize() );
 
+  // check mon tool
+  if (!(m_monTool.name().empty())) {
+    CHECK( m_monTool.retrieve() );
+    ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
+  }
+
   // initialize keys
   CHECK( m_eventInfoKey.initialize() );
   CHECK( m_AFPSiHitContainerKey.initialize() );
@@ -67,6 +73,13 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
   // get list of hits SID hits from the container
   std::list<SIDHIT> ListSIDHits = AFPCollectionReading(siHitContainer, eventInfo);
   // n.b. even empty list is needed (ListSIDHits.size()==0), as we need to write "nothing" in the container for this event
+  
+  auto hitsSize = Monitored::Scalar( "HitsSize"   , -1.0 );
+  hitsSize = ListSIDHits.size();
+  ATH_MSG_DEBUG("AFP_SIDLocReco:: Hits size "<<hitsSize);
+
+  auto monitorIt    = Monitored::Group( m_monTool, hitsSize);
+
   std::string strAlgoSID;
   for(unsigned int i=0; i<m_vecListAlgoSID.size(); i++)
   {
@@ -81,6 +94,8 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
       return StatusCode::SUCCESS;
     }
   }
+
+  Monitored::fill(m_monTool,hitsSize);
 
   ATH_MSG_DEBUG("end AFP_SIDLocReco::execute()");
   return StatusCode::SUCCESS;
@@ -216,6 +231,31 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
           track->setNHoles(iter->nHoles);
           track->setChi2(iter->fChi2);
 
+	  auto trkStationID = Monitored::Scalar("TrkStationID", -999.0);
+	  auto trkXLocal = Monitored::Scalar("TrkXLocal", -999.0);
+	  auto trkYLocal = Monitored::Scalar("TrkYLocal", -999.0);
+	  auto trkZLocal = Monitored::Scalar("TrkZLocal", -999.0);
+	  auto trkXSlope = Monitored::Scalar("TrkXSlope", -999.0);
+	  auto trkYSlope = Monitored::Scalar("TrkYSlope", -999.0);
+	  auto trkNHoles = Monitored::Scalar("TrkNHoles", -999.0);
+	  auto trkChi2 = Monitored::Scalar("TrkChi2", -999.0);
+
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk XLocal "<<trkXLocal);
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk ZLocal "<<trkZLocal);
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::NHoles "<<trkNHoles);
+	  
+	  trkStationID = track->stationID();
+	  trkXLocal = track->xLocal();
+	  trkYLocal = track->yLocal();
+	  trkZLocal = track->zLocal();
+	  trkXSlope = track->xSlope();
+	  trkYSlope = track->ySlope();
+	  trkNHoles = track->nHoles();
+	  trkChi2 = track->chi2();
+
+	  auto monitorItTrkProp = Monitored::Group(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNHoles, trkChi2);
+	  Monitored::fill(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNHoles, trkChi2);
+
           ATH_MSG_DEBUG("Track reconstructed with "<<iter->ListHitID.size()<<" hits.");
           
           // look for hits that forms the track
@@ -260,6 +300,11 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
   } // case of track reco algorithms
 
   ATH_MSG_DEBUG("There are "<<afpTrkContainer->size()<<" / "<<afpTrkAuxContainer->size()<<" entries in the track container / aux");
+
+  auto trkSize = Monitored::Scalar( "TrksSize"   , -1.0 );
+  trkSize = afpTrkContainer->size();
+  auto monitorItTrkSize = Monitored::Group( m_monTool, trkSize); 
+  Monitored::fill(m_monTool,trkSize);
 
   // write it down
   SG::WriteHandle<xAOD::AFPTrackContainer> trackContainer(m_AFPTrackContainerKey, ctx);

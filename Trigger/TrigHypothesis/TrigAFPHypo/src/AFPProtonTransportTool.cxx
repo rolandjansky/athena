@@ -8,61 +8,26 @@
 #include <fstream>
 #include <math.h>
 
+AFPProtonTransportTool::AFPProtonTransportTool(const std::string & type, const std::string & name, const IInterface* parent) : AthAlgTool(type, name, parent) { 
+ 
+  declareInterface<IAFPProtonTransportTool>(this);
 
-AFPProtonTransportTool::AFPProtonTransportTool(std::string filename) {
-  m_x_position = nullptr;
-  m_y_position = nullptr;
-  m_x_slope = nullptr;
-  m_y_slope = nullptr;
-  m_xPositionInitIP = 0;
-  m_yPositionInitIP = 0;
-  m_zPositionInitIP = 0;
-  m_xSlopeInitIP = 0;
-  m_ySlopeInitIP = 0;
-  m_energy = 0;
-  m_parametrisationPosition = 0;
-  if (load(filename) == 1) {
-    AFPProtonTransportPolynomial* pol[4][8];
-    // faild load set everything to 0
-    for (int iEqu = 0; iEqu < 4; iEqu++) {
-      for (int iPoly = 0; iPoly < 8; iPoly++) {
-        pol[iEqu][iPoly] = new AFPProtonTransportPolynomial(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      }
-    }
-
-    m_x_position = new AFPProtonTransportParam(m_energy, pol[0]);
-    m_y_position = new AFPProtonTransportParam(m_energy, pol[1]);
-    m_x_slope = new AFPProtonTransportParam(m_energy, pol[2]);
-    m_y_slope = new AFPProtonTransportParam(m_energy, pol[3]);
-  }
 }
 
-AFPProtonTransportTool::~AFPProtonTransportTool () {
-  if (m_x_position) {
-    delete m_x_position;
-    m_x_position = nullptr;
-  }
+StatusCode AFPProtonTransportTool::initialize(){
 
-  if (m_y_position) {
-    delete m_y_position;
-    m_y_position = nullptr;
-  }
+  ATH_MSG_INFO("AFPProtonTransportTool::initialize Initializing transport tool");
 
-  if (m_x_slope) {
-    delete m_x_slope;
-    m_x_slope = nullptr;
-  }
-
-  if (m_y_slope) {
-    delete m_y_slope;
-    m_y_slope = nullptr;
-  }
+  return StatusCode::SUCCESS;
 }
 
-int AFPProtonTransportTool::load(std::string filename) {
+AFPProtonTransportTool::~AFPProtonTransportTool () { }
+
+StatusCode AFPProtonTransportTool::load() {
   std::ifstream file;
-  file.open(filename.c_str());
-  if (!file.is_open()) return 1;
+  file.open(m_filename);
+  ATH_MSG_INFO("AFPProtonTransportTool::load "<<m_filename);
+  if (!file.is_open()) return StatusCode::FAILURE;
 
   AFPProtonTransportPolynomial* pol[4][8];
 
@@ -135,5 +100,5 @@ int AFPProtonTransportTool::load(std::string filename) {
   m_x_slope = new AFPProtonTransportParam(m_energy, pol[2]);
   m_y_slope = new AFPProtonTransportParam(m_energy, pol[3]);
 
-  return 0;
+  return StatusCode::SUCCESS;
 }
