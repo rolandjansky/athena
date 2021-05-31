@@ -88,22 +88,41 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
     fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec);
   }else{
     fillEfficiency( "L1Calo"  , "L1Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "L2Calo"  , "L2Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "L2"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "EFCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
+    fillEfficiency( "FastCalo"  , "L2Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
+    fillEfficiency( "PrecisionCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec , accept_vec);
 
+    if( info.trigType == "electron" ){
+        fillEfficiency( "FastElectron"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
+        fillEfficiency( "PrecisionElectron"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec); 
+    }
+    else if( info.trigType == "photon" ){
+        fillEfficiency( "FastPhoton"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
+        fillEfficiency( "PrecisionPhoton"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
+    }
     if( m_detailedHists ){
-      
-      for( const auto& pid : m_isemname ){
-        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-      }
 
-      for( const auto& pid : m_lhname ){
-        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-      }
+        if( info.trigType == "electron" ){
+            for( const auto& pid : m_isemname ){
+                fillEfficiency( "PrecisionElectron" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
+                fillEfficiency( "PrecisionElectron" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+            for( const auto& pid : m_lhname ){
+                fillEfficiency( "PrecisionElectron" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
+                fillEfficiency( "PrecisionElectron" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+        }
+        else if( info.trigType == "photon" ){
+            for( const auto& pid : m_isemname ){
+                fillEfficiency( "PrecisionPhoton" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
+                fillEfficiency( "PrecisionPhoton" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+
+            for( const auto& pid : m_lhname ){
+                fillEfficiency( "PrecisionPhoton" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
+                fillEfficiency( "PrecisionPhoton" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+        }
+
     } 
 
   }
