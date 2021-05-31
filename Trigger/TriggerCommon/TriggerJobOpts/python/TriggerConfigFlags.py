@@ -123,7 +123,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_noalg_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
-    flags.addFlag('Trigger.CostMonitoring.monitorROBs', False)
+    flags.addFlag('Trigger.CostMonitoring.monitorROBs', True)
 
     # enable muon inputs simulation
     flags.addFlag('Trigger.L1.doMuons', True)
