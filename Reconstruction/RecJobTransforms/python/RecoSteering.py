@@ -37,6 +37,13 @@ def RecoSteering(flags):
     acc.merge(MuonReconstructionCfg(flags))
     log.info("---------- Configured muon tracking")
 
+    #Caching of CaloExtension for downstream Combined Performance algorithms.
+    #The algorithms that use these cached CaloExtension only run in the reco step that produces ESD.
+    if flags.Output.doESD:
+      from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+      acc.merge(CaloExtensionBuilderAlgCfg(flags))
+      log.info("---------- Configured track calorimeter extension builder")
+
     # physics objects
     # egamma
     # jets
