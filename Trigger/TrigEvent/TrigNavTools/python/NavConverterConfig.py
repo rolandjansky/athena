@@ -11,6 +11,9 @@ def createNavConverterAlg():
     cnvAlg.Rois = ["forID","forID1","forID2","forMS","forSA","forTB","forMT","forCB"]
     cnvAlg.Chains = ["HLT_mu4"] #TODO expand or replace with wildcard covering all chains
     cnvAlg.Collections = [ x.split("#")[0] for x in getTriggerEDMList("AODCONV", 2) if "Aux" not in x]
+    # to read navigation from TDT rather directly from xAOD::TrigNavigation
+    cnvAlg.TrigDecisionTool = "TrigDecisionTool"
+    cnvAlg.TrigNavReadKey = ""
 
     cnvAlg.TrigNavWriteKey = "HLTNav_R2ToR3"
     cnvAlg.TrigSummaryWriteKey = "HLTNav_R2ToR3Summary"
