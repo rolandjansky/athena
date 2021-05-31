@@ -34,7 +34,7 @@ atlas_add_library( LArCafJobsLib
                    PUBLIC_HEADERS LArCafJobs
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisToolsLib AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloIdentifier CaloInterfaceLib GaudiKernel Identifier LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions StoreGateLib TrigAnalysisInterfaces TrigConfInterfaces TrigDecisionToolLib egammaEvent LumiBlockData
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisToolsLib AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloIdentifier CaloInterfaceLib CaloUtilsLib GaudiKernel Identifier LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions StoreGateLib TrigAnalysisInterfaces TrigConfInterfaces TrigDecisionToolLib egammaEvent LumiBlockData
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaPoolUtilities CaloEvent CaloGeoHelpers LArRecEvent NavFourMom TrigSteeringEvent TrigT1Result xAODEventInfo )
 
 atlas_add_component( LArCafJobs
@@ -59,4 +59,4 @@ atlas_add_executable( LArSamplesMerge
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
-atlas_install_scripts( share/LArHistMerge_trf.py share/LArCAF_tf.py share/LArNoiseBursts_tf.py share/LArNoiseBursts_fromraw_tf.py )
+atlas_install_scripts( share/LArHistMerge_trf.py share/LArCAF_tf.py share/LArNoiseBursts_tf.py share/LArNoiseBursts_fromraw_tf.py share/LArPulseShape_tf.py )
