@@ -208,6 +208,25 @@ def CscClusterBuildCfg(flags, name= "CscThresholdClusterBuilder"):
 
     return acc
 
+def MuonRDOtoPRDConvertorsCfg(flags):
+    # Schedule RDO conversion 
+    acc = ComponentAccumulator()
+
+    rpcdecodingAcc  = RpcRDODecodeCfg( flags )
+    acc.merge(rpcdecodingAcc)
+
+    tgcdecodingAcc = TgcRDODecodeCfg( flags )
+    acc.merge(tgcdecodingAcc)
+
+    mdtdecodingAcc = MdtRDODecodeCfg( flags )
+    acc.merge(mdtdecodingAcc)
+
+    cscdecodingAcc = CscRDODecodeCfg( flags )
+    acc.merge(cscdecodingAcc)
+
+    cscbuildingAcc = CscClusterBuildCfg( flags )
+    acc.merge(cscbuildingAcc)
+    return acc
 
 # This function runs the decoding on a data file
 def muonRdoDecodeTestData( forTrigger = False ):
@@ -232,9 +251,6 @@ def muonRdoDecodeTestData( forTrigger = False ):
     
     cfg=ComponentAccumulator()
 
-    # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
 
     # Add the MuonCache to ComponentAccumulator for trigger/RoI testing mode
     if forTrigger:
@@ -242,39 +258,11 @@ def muonRdoDecodeTestData( forTrigger = False ):
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
         cfg.merge( MuonCacheCfg() )
 
-    # Schedule Rpc bytestream data decoding 
-    from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
-    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags ) 
-    cfg.merge( rpcdecodingAcc )
+    if ConfigFlags.Input.Format == 'BS':
+        from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
+        cfg.merge( MuonByteStreamDecodersCfg( ConfigFlags) )
 
-    # Schedule Mdt bytestream data decoding 
-    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
-    tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags ) 
-    cfg.merge( tgcdecodingAcc )
-
-    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc = MdtBytestreamDecodeCfg(ConfigFlags )
-    cfg.merge( mdtdecodingAcc )
-
-    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags) 
-    cfg.merge( cscdecodingAcc )
-
-    # Schedule RDO conversion 
-    rpcdecodingAcc  = RpcRDODecodeCfg( ConfigFlags )
-    cfg.merge(rpcdecodingAcc)
-
-    tgcdecodingAcc = TgcRDODecodeCfg( ConfigFlags )
-    cfg.merge(tgcdecodingAcc)
-
-    mdtdecodingAcc = MdtRDODecodeCfg( ConfigFlags )
-    cfg.merge(mdtdecodingAcc)
-
-    cscdecodingAcc = CscRDODecodeCfg( ConfigFlags )
-    cfg.merge(cscdecodingAcc)
-
-    cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
-    cfg.merge(cscbuildingAcc)
+    cfg.merge( MuonRDOtoPRDConvertorsCfg( ConfigFlags) )
 
     # Need to add POOL converter  - may be a better way of doing this?
     cfg.addService( CompFactory.AthenaPoolCnvSvc() )
@@ -318,24 +306,7 @@ def muonRdoDecodeTestMC():
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Schedule RDO conversion 
-    # RPC decoding
-    rpcdecodingAcc = RpcRDODecodeCfg( ConfigFlags )
-    cfg.merge(rpcdecodingAcc)
-
-    # TGC decoding
-    tgcdecodingAcc  = TgcRDODecodeCfg( ConfigFlags )
-    cfg.merge(tgcdecodingAcc)
-
-    # MDT decoding
-    mdtdecodingAcc = MdtRDODecodeCfg( ConfigFlags )
-    cfg.merge(mdtdecodingAcc)
-
-    # CSC decoding
-    cscdecodingAcc = CscRDODecodeCfg( ConfigFlags )
-    cfg.merge(cscdecodingAcc)
-
-    cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
-    cfg.merge(cscbuildingAcc)
+    cfg.merge( MuonRDOtoPRDConvertorsCfg( ConfigFlags) )
 
     log.info('Print Config')
     cfg.printConfig(withDetails=True)
