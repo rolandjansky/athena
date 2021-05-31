@@ -119,7 +119,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "":[['getmuFast', 'getmuMSEmpty' if doMSonly else 'getmuComb'], ['getmuEFSA'] if doMSonly else ['getmuEFSA', 'getmuEFCB']],
             "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
             "l2mt":[['getmuFastl2mt', 'getmuCombl2mt'], ['getmuEFSA', 'getmuEFCB']],
-            "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
+            "noL2Comb" : [['getmuFast', 'getmuMSEmpty'], ['getmuEFSA', 'getmuEFCB']],
             "noL1":[[],['getFSmuEFSA'] if doMSonly else ['getFSmuEFSA', 'getFSmuEFCB']],
             "iso":[['getmuFast', 'getmuMSEmpty' if doMSonly else 'getmuComb'], ['getmuEFSA', 'getEFCBEmpty', 'getmuEFMSIso'] if doMSonly else ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],

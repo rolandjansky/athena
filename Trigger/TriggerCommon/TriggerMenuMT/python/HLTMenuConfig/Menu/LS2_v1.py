@@ -21,7 +21,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, 
                                                                 SingleTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
                                                                 MuonJetGroup, MuonMETGroup, EgammaJetGroup,
                                                                 JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup, PrimaryL1MuGroup,
-                                                                BphysElectronGroup)
+                                                                 BphysElectronGroup, SupportLegGroup)
 
 def setupMenu():
 
@@ -193,6 +193,7 @@ def setupMenu():
         #ATR-22749
         ChainProp(name='HLT_2e5_lhvloose_bBeeM6000_L12EM3', l1SeedThresholds=['EM3'], groups=BphysElectronGroup),
 
+
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),
@@ -243,6 +244,11 @@ def setupMenu():
         #ATR-21882
         ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
         ChainProp(name='HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
+
+        #Support photon chains ATR-23425
+        ChainProp(name='HLT_2g15_loose_dPhi15_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=SupportLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g20_loose_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup),
+       
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -739,13 +745,6 @@ def setupMenu():
         #LLP
         ChainProp(name='HLT_g15_loose_2mu10_msonly_L12MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaMuonGroup),
 
-        # Primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
-        # test
-        ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], stream=[PhysicsStream], groups=MultiElectronGroup),
-        # primaries
-        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
-        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup), # unsure about l1SeedThresholds
-
         # Test chains for muon + jet/MET merging/aligning
         ChainProp(name='HLT_mu6_xe30_mht_L1XE30', l1SeedThresholds=['MU6','XE30'], stream=[PhysicsStream], groups=MuonMETGroup),
         ChainProp(name='HLT_mu6_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], stream=[PhysicsStream], groups=MuonJetGroup),
@@ -795,6 +794,11 @@ def setupMenu():
         ChainProp(name='HLT_g25_medium_tau25_kaonpi2_tracktwoMVA_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=PrimaryLegGroup+['RATE:TauGamma', 'BW:Tau', 'BW:Egamma']),
         ChainProp(name='HLT_g25_medium_tau25_singlepion_tracktwoMVA_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=PrimaryLegGroup+['RATE:TauGamma', 'BW:Tau', 'BW:Egamma']),
         ChainProp(name='HLT_g35_medium_tau25_dipion3_tracktwoMVA_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU8'], stream=[PhysicsStream], groups=PrimaryLegGroup+['RATE:TauGamma', 'BW:Tau', 'BW:Egamma']),
+
+        #Combined BPhys
+        #ATR-22749 Added on May 25
+        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu6_noL2Comb_L1BPH-0M9-EM7-EM5_MU6', l1SeedThresholds=['EM7','EM5','MU6'], groups=BphysElectronGroup),
+        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_2mu4_noL2Comb_L1BPH-0M9-EM7-EM5_2MU4', l1SeedThresholds=['EM7','EM5','MU4'], groups=BphysElectronGroup),
 
         # Tests of potential TLA chains for cost/rate
         # ATR-19317 - dijet+ISR 
