@@ -442,8 +442,8 @@ HLT_4j20_pf_ftf_boffperf_L1HT190-J15s5pETA21:
     2: 3
   stepFeatures:
     0: 20
-    1: 17
-    2: 17
+    1: 16
+    2: 16
 HLT_4j35_ftf_bmv2c1077_split_L1J20:
   eventCount: 0
   stepCounts:
@@ -1800,7 +1800,7 @@ HLT_j15_pf_ftf_L1RD0_FILLED:
     1: 18
   stepFeatures:
     0: 20
-    1: 74
+    1: 75
 HLT_j165_LArPEBHLT_L1J100:
   eventCount: 0
 HLT_j175_a10sd_cssk_pf_jes_ftf_L1J50:
@@ -1857,8 +1857,8 @@ HLT_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21:
     2: 15
   stepFeatures:
     0: 20
-    1: 40
-    2: 40
+    1: 39
+    2: 39
 HLT_j20_pf_ftf_boffperf_L1J15:
   eventCount: 7
   stepCounts:
@@ -1867,8 +1867,8 @@ HLT_j20_pf_ftf_boffperf_L1J15:
     2: 7
   stepFeatures:
     0: 7
-    1: 25
-    2: 25
+    1: 24
+    2: 24
 HLT_j225_subjesgscIS_ftf_bmv2c1040_split_L1J100:
   eventCount: 0
 HLT_j25_pf_ftf_L1RD0_FILLED:
@@ -4294,21 +4294,21 @@ HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30:
     0: 20
     1: 2
 HLT_xe30_pfopufit_L1XE30:
-  eventCount: 3
+  eventCount: 2
   stepCounts:
     0: 20
-    1: 3
+    1: 2
   stepFeatures:
     0: 20
-    1: 3
+    1: 2
 HLT_xe30_pfsum_L1XE30:
-  eventCount: 5
+  eventCount: 7
   stepCounts:
     0: 20
-    1: 5
+    1: 7
   stepFeatures:
     0: 20
-    1: 5
+    1: 7
 HLT_xe30_pfsum_cssk_L1XE30:
   eventCount: 3
   stepCounts:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for el_zee_nopid_pu40
+# art-description: art job for el_zee_withpid_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-input: mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191
@@ -34,7 +34,7 @@ Slots   = 8
 Input   = 'Zee_pu40'    # defined in TrigValTools/share/TrigValInputs.json
 Release = "current"
 GridFiles = True
-preinclude_file = "TrigInDetValidation/TIDAnopid.py"
+preinclude_file = "TrigInDetValidation/TIDAwithpid.py"
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root -p 11" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
