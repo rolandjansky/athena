@@ -362,7 +362,7 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
 bool
 SolenoidalIntersector::extrapolateToZ(TrackSurfaceIntersection& isect,
                                       Constants&   com,
-                                      const double endZ) const
+                                      const double endZ) 
 {
     Amg::Vector3D& pos = isect.position();
     Amg::Vector3D& dir = isect.direction();
@@ -426,7 +426,7 @@ std::unique_ptr<TrackSurfaceIntersection>
 SolenoidalIntersector::newIntersection (const TrackSurfaceIntersection& isect,
                                         const SolenoidParametrization& solpar,
                                         const double qOverP,
-                                        Constants*& com) const
+                                        Constants*& com) 
 {
   const TrackSurfaceIntersection::IIntersectionCache* oldCache = isect.cache();
   std::unique_ptr<Constants> cache;

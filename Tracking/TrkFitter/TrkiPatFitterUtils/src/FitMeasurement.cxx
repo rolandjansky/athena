@@ -970,7 +970,7 @@ FitMeasurement::intersection (ExtrapolationType type,
 
 
 void
-FitMeasurement::printHeading (MsgStream& log) const
+FitMeasurement::printHeading (MsgStream& log) 
 {
     log << "                 residual 1........2         r      phi         z"
 	<< "      sigma 1.......2      energy  energyLoss scatteringAngle  integral X0" << std::endl;

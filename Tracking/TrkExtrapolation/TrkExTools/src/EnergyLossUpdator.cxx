@@ -29,7 +29,90 @@ constexpr double s_fwhmToSigma = 0.424; //   1./(2.*sqrt(2.*log(2.)));
 constexpr double s_mpv_p0 = 4.57270e-02;
 constexpr double s_mpv_p1 = 8.11761e-03;
 constexpr double s_mpv_p2 = -4.85133e-01;
+
+double
+dEdXBetheBloch(const Trk::MaterialProperties& mat,
+               double& transKaz,
+               double& transTmax,
+               double beta,
+               double gamma,
+               Trk::ParticleHypothesis particle)
+{
+  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
+    return 0.;
+  }
+
+  if (mat.averageZ() == 0. || mat.zOverAtimesRho() == 0.) {
+    return 0.;
+  }
+
+  // 16 eV * Z**0.9 - bring to MeV
+  double iPot = 16.e-6 * std::pow(mat.averageZ(), 0.9);
+  // and the electron mass in MeV
+  double me = s_particleMasses.mass[Trk::electron];
+  double m = s_particleMasses.mass[particle];
+  double eta2 = beta * gamma;
+
+  // K/A*Z = 0.5 * 30.7075MeV/(g/mm2) * Z/A * rho[g/mm3]  / scale to mm by this
+  double kaz = 0.5 * s_ka_BetheBloch * mat.zOverAtimesRho();
+
+  if (particle != Trk::electron) {
+    // density effect, only valid for high energies (gamma > 10 -> p > 1GeV for
+    // muons)
+    double delta = 0.;
+
+    /* ST replace with STEP-like coding
+       // high energy density effect --- will be ramped up linearly
+       double eplasma = 28.816e-6 * sqrt(1000.*0.5);
+       delta = 2.*log(eplasma/iPot) + log(eta2) - 0.5;
+       if (eta2 < 100.){
+       delta *= (eta2-3.)/97.;
+       }
+     */
+
+    eta2 *= eta2;
+
+    if (gamma > 10.) {
+      double eplasma = 28.816e-6 * sqrt(1000. * mat.zOverAtimesRho());
+      delta = 2. * log(eplasma / iPot) + log(eta2) - 1.;
+    }
+
+    // mass fraction
+    double mfrac = me / m;
+    // tmax - cut off energy
+    double tMax = 2. * eta2 * me / (1. + 2. * gamma * mfrac + mfrac * mfrac);
+    // divide by beta^2 for non-electrons
+    kaz /= beta * beta;
+    // store the transport variables
+    transKaz = kaz;
+    transTmax = tMax;
+    // return
+    return kaz * (log(2. * me * eta2 * tMax / (iPot * iPot)) -
+                  2. * (beta * beta) - delta);
+  }
+  transKaz = kaz;
+  // for electrons use slightly different BetheBloch adaption
+  // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm. 79
+  // (1994), 157-164
+  return kaz * (2. * log(2. * me / iPot) + 3. * log(gamma) - 1.95);
 }
+
+double
+dEdXBetheHeitler(const Trk::MaterialProperties& mat,
+                 double initialE,
+                 Trk::ParticleHypothesis particle)
+{
+  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
+    return 0.;
+  }
+
+  double mfrac =
+    (s_particleMasses.mass[Trk::electron] / s_particleMasses.mass[particle]);
+  mfrac *= mfrac;
+
+  return initialE / mat.x0() * mfrac;
+}
+} // end of anonymous namespace
 
 // constructor
 Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string& t,
@@ -127,10 +210,10 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   double sigIoni = 0.;
   double sigRad = 0.;
   double kazL = 0.;
-  double meanIoni =
-    Trk::MaterialInteraction::dEdl_ionization(p, &(mat.material()), particle, sigIoni, kazL);
-  double meanRad =
-    Trk::MaterialInteraction::dEdl_radiation(p, &(mat.material()), particle, sigRad);
+  double meanIoni = Trk::MaterialInteraction::dEdl_ionization(
+    p, &(mat.material()), particle, sigIoni, kazL);
+  double meanRad = Trk::MaterialInteraction::dEdl_radiation(
+    p, &(mat.material()), particle, sigRad);
 
   meanIoni = sign * pathLength * meanIoni;
   meanRad = sign * pathLength * meanRad;
@@ -301,92 +384,6 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
                              sigmaDeltaE_rad,
                              pathLength)
             : new EnergyLoss(deltaE, sigmaDeltaE));
-}
-
-double
-Trk::EnergyLossUpdator::dEdXBetheBloch(const MaterialProperties& mat,
-                                       double& transKaz,
-                                       double& transTmax,
-                                       double beta,
-                                       double gamma,
-                                       ParticleHypothesis particle) const
-{
-  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
-    return 0.;
-  }
-
-  if (mat.averageZ() == 0. || mat.zOverAtimesRho() == 0.) {
-    ATH_MSG_ERROR(
-      "empty material properties pass to the EnergyLossUpdator:Z,zOAtr:"
-      << mat.averageZ() << "," << mat.zOverAtimesRho());
-    return 0.;
-  }
-
-  // 16 eV * Z**0.9 - bring to MeV
-  double iPot = 16.e-6 * std::pow(mat.averageZ(), 0.9);
-  // and the electron mass in MeV
-  double me = s_particleMasses.mass[Trk::electron];
-  double m = s_particleMasses.mass[particle];
-  double eta2 = beta * gamma;
-
-  // K/A*Z = 0.5 * 30.7075MeV/(g/mm2) * Z/A * rho[g/mm3]  / scale to mm by this
-  double kaz = 0.5 * s_ka_BetheBloch * mat.zOverAtimesRho();
-
-  if (particle != Trk::electron) {
-    // density effect, only valid for high energies (gamma > 10 -> p > 1GeV for
-    // muons)
-    double delta = 0.;
-
-    /* ST replace with STEP-like coding
-       // high energy density effect --- will be ramped up linearly
-       double eplasma = 28.816e-6 * sqrt(1000.*0.5);
-       delta = 2.*log(eplasma/iPot) + log(eta2) - 0.5;
-       if (eta2 < 100.){
-       delta *= (eta2-3.)/97.;
-       }
-     */
-
-    eta2 *= eta2;
-
-    if (gamma > 10.) {
-      double eplasma = 28.816e-6 * sqrt(1000. * mat.zOverAtimesRho());
-      delta = 2. * log(eplasma / iPot) + log(eta2) - 1.;
-    }
-
-    // mass fraction
-    double mfrac = me / m;
-    // tmax - cut off energy
-    double tMax = 2. * eta2 * me / (1. + 2. * gamma * mfrac + mfrac * mfrac);
-    // divide by beta^2 for non-electrons
-    kaz /= beta * beta;
-    // store the transport variables
-    transKaz = kaz;
-    transTmax = tMax;
-    // return
-    return kaz * (log(2. * me * eta2 * tMax / (iPot * iPot)) -
-                  2. * (beta * beta) - delta);
-  }
-  transKaz = kaz;
-  // for electrons use slightly different BetheBloch adaption
-  // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm. 79
-  // (1994), 157-164
-  return kaz * (2. * log(2. * me / iPot) + 3. * log(gamma) - 1.95);
-}
-
-double
-Trk::EnergyLossUpdator::dEdXBetheHeitler(const MaterialProperties& mat,
-                                         double initialE,
-                                         ParticleHypothesis particle) const
-{
-  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
-    return 0.;
-  }
-
-  double mfrac =
-    (s_particleMasses.mass[Trk::electron] / s_particleMasses.mass[particle]);
-  mfrac *= mfrac;
-
-  return initialE / mat.x0() * mfrac;
 }
 
 // public interface method

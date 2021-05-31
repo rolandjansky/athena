@@ -31,7 +31,7 @@ Trk::ProtoTrajectoryUtility::ProtoTrajectoryUtility(const AtlasDetectorID*& id) 
 }
 
 Trk::Trajectory::iterator
-Trk::ProtoTrajectoryUtility::firstFittableState(Trk::Trajectory& T) const
+Trk::ProtoTrajectoryUtility::firstFittableState(Trk::Trajectory& T) 
 {
   Trk::Trajectory::iterator it=T.begin();
   while ( (it->isOutlier() || !it->measurement()) && it!=(T.end()-1)) ++it;
@@ -39,7 +39,7 @@ Trk::ProtoTrajectoryUtility::firstFittableState(Trk::Trajectory& T) const
 }
 
 Trk::Trajectory::iterator
-Trk::ProtoTrajectoryUtility::lastFittableState(Trk::Trajectory& T) const
+Trk::ProtoTrajectoryUtility::lastFittableState(Trk::Trajectory& T) 
 {
   Trk::Trajectory::iterator it=T.end()-1;
   while ((it->isOutlier() || !it->measurement()) && it!=T.begin()) --it;
@@ -48,7 +48,7 @@ Trk::ProtoTrajectoryUtility::lastFittableState(Trk::Trajectory& T) const
 
 Trk::Trajectory::iterator
 Trk::ProtoTrajectoryUtility::previousFittableState(const Trk::Trajectory& T,
-                                                   Trk::Trajectory::iterator givenState) const
+                                                   Trk::Trajectory::iterator givenState) 
 {
   Trk::Trajectory& T2 = const_cast<Trk::Trajectory&>(T); // forces STL code to compile
 
@@ -66,7 +66,7 @@ Trk::ProtoTrajectoryUtility::previousFittableState(const Trk::Trajectory& T,
 // reverse_iterator.base()-1 would give the correct normal iterator.
 Trk::Trajectory::reverse_iterator
 Trk::ProtoTrajectoryUtility::previousFittableState(const Trk::Trajectory& T,
-                                                   Trk::Trajectory::reverse_iterator givenState) const
+                                                   Trk::Trajectory::reverse_iterator givenState) 
 {
   // force STL. Otherwise T.end() is a const_iterator, doesn't compile.
   // T2 is not modified.
@@ -85,7 +85,7 @@ Trk::ProtoTrajectoryUtility::previousFittableState(const Trk::Trajectory& T,
 
 Trk::Trajectory::iterator
 Trk::ProtoTrajectoryUtility::nextFittableState(const Trk::Trajectory& T,
-                                               Trk::Trajectory::iterator givenState) const
+                                               Trk::Trajectory::iterator givenState) 
 {
   Trk::Trajectory& T2 = const_cast<Trk::Trajectory&>(T); // forces STL code to compile
 
@@ -100,7 +100,7 @@ Trk::ProtoTrajectoryUtility::nextFittableState(const Trk::Trajectory& T,
 
 Trk::Trajectory::reverse_iterator
 Trk::ProtoTrajectoryUtility::nextFittableState(const Trk::Trajectory& T,
-                                               Trk::Trajectory::reverse_iterator givenState) const
+                                               Trk::Trajectory::reverse_iterator givenState) 
 {
   Trk::Trajectory& T2 = const_cast<Trk::Trajectory&>(T); // forces STL code to compile
   if (++givenState == T2.rend()) return T2.rend(); // signal error condition
@@ -112,7 +112,7 @@ Trk::ProtoTrajectoryUtility::nextFittableState(const Trk::Trajectory& T,
   }
 }
 
-int Trk::ProtoTrajectoryUtility::numberOfMeasurements(const Trk::Trajectory& T, int i) const
+int Trk::ProtoTrajectoryUtility::numberOfMeasurements(const Trk::Trajectory& T, int i) 
 {
   if ( (i<=0) || (i> (int)T.size()) ) i = (int)T.size();
   int number=0;
@@ -121,7 +121,7 @@ int Trk::ProtoTrajectoryUtility::numberOfMeasurements(const Trk::Trajectory& T, 
   return number;
 }
 
-int Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(const Trk::Trajectory& T) const
+int Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(const Trk::Trajectory& T) 
 {
   int number=0;
   for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++)
@@ -134,7 +134,7 @@ int Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(const Trk::Trajector
   return number;
 }
 
-int Trk::ProtoTrajectoryUtility::numberOfOutliers(const Trk::Trajectory& T, int i) const
+int Trk::ProtoTrajectoryUtility::numberOfOutliers(const Trk::Trajectory& T, int i) 
 {
   if ( (i<=0) || (i> (int)T.size()) ) i = (int)T.size();
   int number=0;
@@ -143,7 +143,7 @@ int Trk::ProtoTrajectoryUtility::numberOfOutliers(const Trk::Trajectory& T, int 
   return number;
 }
 
-int Trk::ProtoTrajectoryUtility::numberOfNewOutliers(const Trk::Trajectory& T, int i) const
+int Trk::ProtoTrajectoryUtility::numberOfNewOutliers(const Trk::Trajectory& T, int i) 
 {
   if ( (i<=0) || (i> (int)T.size()) ) i = (int)T.size();
   int number=0;
@@ -156,7 +156,7 @@ int Trk::ProtoTrajectoryUtility::numberOfSpecificStates
 (const Trk::Trajectory& T,
  const Trk::TrackState::MeasurementType& mtype,
  const Trk::TrackState::TrackStateType& ttype,
- const int& iterationNumber) const
+ const int& iterationNumber) 
 {
   using namespace Trk::TrackState;
   int number=0;
@@ -182,7 +182,7 @@ int Trk::ProtoTrajectoryUtility::numberOfSpecificStates
   return number;
 }
 
-bool Trk::ProtoTrajectoryUtility::trajectoryHasMefot(const Trk::Trajectory& T) const
+bool Trk::ProtoTrajectoryUtility::trajectoryHasMefot(const Trk::Trajectory& T) 
 {
   Trk::Trajectory::const_iterator it=T.begin();
   while (it!=T.end()) {
@@ -199,7 +199,7 @@ bool Trk::ProtoTrajectoryUtility::trajectoryHasMefot(const Trk::Trajectory& T) c
 
 void Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(Trk::Trajectory& T,
                                                               Trk::FitQuality*& oldFitQuality,
-                                                              int firststate) const
+                                                              int firststate) 
 {
   int c=1;
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); ++it, ++c) {
@@ -228,7 +228,7 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(Trk::Trajectory& T
 
 void Trk::ProtoTrajectoryUtility::clearFitResultsAndReference(Trk::Trajectory& T,
                                                               Trk::FitQuality*& oldFitQuality,
-                                                              int firststate) const
+                                                              int firststate) 
 {
   int c=1;
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); ++it, ++c) {
@@ -259,7 +259,7 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAndReference(Trk::Trajectory& T
 
 
 void Trk::ProtoTrajectoryUtility::defineMeasurementsExceptThis(Trk::Trajectory& T,
-                                                               int outlierState) const
+                                                               int outlierState) 
 {
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); it++) {
     if (it->isNewOutlier() && it->positionOnTrajectory()!=outlierState) it->isOutlier(false);
@@ -269,7 +269,7 @@ void Trk::ProtoTrajectoryUtility::defineMeasurementsExceptThis(Trk::Trajectory& 
 
 Trk::FitQuality
 Trk::ProtoTrajectoryUtility::forwardFilterQuality(const Trk::Trajectory& T,
-                                                  Trk::TrackState::MeasurementType select) const
+                                                  Trk::TrackState::MeasurementType select) 
 {
   double chisquared=0.0;
   double ndof = 0.0;

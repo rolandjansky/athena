@@ -426,7 +426,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
 //
 Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
 (const Trk::Track& inputTrk, const Trk::MeasurementSet& inputMbs,
- const SortInputFlag doSorting, const bool reintegrateOutliers) const
+ const SortInputFlag doSorting, const bool reintegrateOutliers) 
 {
 
   // FIXME do i need this?
@@ -477,7 +477,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
 //
 Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
 (const Trk::Track& inputTrk, const Trk::MeasurementSet& inputMbs,
- const SortInputFlag /*doSorting*/, const bool /*reintegrateOutliers*/) const
+ const SortInputFlag /*doSorting*/, const bool /*reintegrateOutliers*/) 
 {
   // FIXME do sorting and outlier treatment
 
@@ -499,7 +499,7 @@ Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
 //
 Trk::PrepRawDataSet Trk::TrackFitInputPreparator::stripPrepRawData
 (const Trk::Track& inputTrk, const Trk::PrepRawDataSet& inputPrds,
- const SortInputFlag doSorting, const bool reintegrateOutliers) const
+ const SortInputFlag doSorting, const bool reintegrateOutliers) 
 {
   // apped PRDs to end of track. For pre-pend make a parameter
   PrepRawDataSet newPrdSet;

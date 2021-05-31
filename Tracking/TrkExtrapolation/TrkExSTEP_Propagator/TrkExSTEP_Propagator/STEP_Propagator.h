@@ -322,7 +322,6 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Private methods:
     /////////////////////////////////////////////////////////////////////////////////
-  private:
 
 
     struct Cache {
@@ -379,6 +378,7 @@ namespace Trk {
       }
     };
 
+  private:
     /////////////////////////////////////////////////////////////////////////////////
     // Main functions for propagation
     /////////////////////////////////////////////////////////////////////////////////
@@ -461,16 +461,6 @@ namespace Trk {
                           double* ATH_RESTRICT BG) const;
 
     /////////////////////////////////////////////////////////////////////////////////
-    // Distance to surface
-    /////////////////////////////////////////////////////////////////////////////////
-    double
-      distance (Trk::SurfaceType surfaceType,
-                double*     targetSurface,
-                const double*     P,
-                bool&       distanceSuccessful) const;
-
-
-    /////////////////////////////////////////////////////////////////////////////////
     // dg/dlambda for non-electrons (g=dEdX and lambda=q/p).
     /////////////////////////////////////////////////////////////////////////////////
     double
@@ -512,15 +502,6 @@ namespace Trk {
 
     void updateMaterialEffects( Cache& cache, double p, double sinTh, double path) const;
 
-
-    /////////////////////////////////////////////////////////////////////////////////
-    // Create straight line in case q/p = 0
-    /////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<Trk::TrackParameters>
-      createStraightLine( const Trk::TrackParameters*  inputTrackParameters) const;
-
-    void clearCache(Cache& cache) const;
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Calculate energy loss in MeV/mm. The radiative effects are scaled by m_radiationScale (1=mean, 0.5=mean(log10), 0.1=mpv)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -535,16 +516,6 @@ namespace Trk {
     // Bremstrahlung (simulation mode)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void sampleBrem( Cache& cache,double mom) const;
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // propagation of neutrals (simulation mode)
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<Trk::TrackParameters>   propagateNeutral(const Trk::TrackParameters&   parm,
-                                                  std::vector<DestSurf>&        targetSurfaces,
-                                                  Trk::PropDirection            propagationDirection,
-                                                  std::vector<unsigned int>&    solutions,
-                                                  double&                  path,
-                                                  bool                     usePathLimit,
-                                                  bool                     returnCurv=false) const;
 
     void getField(Cache& cache, const double*, double*) const;
     void getFieldGradient(Cache& cache, const double*, double*, double*) const;

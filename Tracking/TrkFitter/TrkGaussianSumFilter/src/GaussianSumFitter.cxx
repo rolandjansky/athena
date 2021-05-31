@@ -557,7 +557,7 @@ Trk::GaussianSumFitter::fit(
     m_sortingReferencePoint[2]);
 
   TrackFitInputPreparator inputPreparator(referencePosition);
-  PrepRawDataSet orderedPRDColl = inputPreparator.stripPrepRawData(
+  PrepRawDataSet orderedPRDColl = Trk::TrackFitInputPreparator::stripPrepRawData(
     intrk, addPrdColl, m_doHitSorting, true /* do not lose outliers! */);
 
   return fit(

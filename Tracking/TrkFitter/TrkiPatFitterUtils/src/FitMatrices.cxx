@@ -94,7 +94,7 @@ FitMatrices::checkPointers(MsgStream& log) const
 }
 
 double
-FitMatrices::chiSquaredChange(void) const
+FitMatrices::chiSquaredChange(void) 
 {
   ////
   std::cout << " unexpected :chiSquaredChange  " << std::endl;

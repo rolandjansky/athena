@@ -659,7 +659,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 }
 
 
-void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) const 
+void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) 
 {
   /**** 5x5 matrix inversion by Gaussian elimination ****/
   int i,j,k,l;
@@ -859,7 +859,7 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
   return pTSS;
 }
 
-Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState* pTS) const
+Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState* pTS) 
 {
 
 

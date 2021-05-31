@@ -347,7 +347,7 @@ StatusCode Trk::ExtrapolationEngineTest::runTest() {
 StatusCode Trk::ExtrapolationEngineTest::runScan() {
   ATH_MSG_VERBOSE("Running the ExtrapolationEngineTest Test in scanning mode");
 
-  if (m_phiScans.size() == 0) {
+  if (m_phiScans.empty()) {
     ATH_MSG_VERBOSE("Running in scan mode: Phi scans not given. Automatically calculated.");
     m_currentPhi = m_phiMin + double(m_currentPhiStep + 1) * (m_phiMax - m_phiMin) / double(m_stepsPhi);
   } else {
@@ -357,7 +357,7 @@ StatusCode Trk::ExtrapolationEngineTest::runScan() {
   }
   m_currentPhiStep++;
 
-  if (m_etaScans.size() == 0) {
+  if (m_etaScans.empty()) {
     ATH_MSG_ERROR("Running in scan mode without specified eta values");
     return StatusCode::FAILURE;
   }
