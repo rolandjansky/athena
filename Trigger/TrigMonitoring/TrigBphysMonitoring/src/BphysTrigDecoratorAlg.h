@@ -19,7 +19,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/VertexContainer.h"
 
-#include "TrigBphysMonitoring/IBphysTrigDiMuDecoratorTool.h"
+#include "IBphysTrigDiMuDecoratorTool.h"
 
 class BphysTrigDecoratorAlg
   : public ::AthAlgorithm
