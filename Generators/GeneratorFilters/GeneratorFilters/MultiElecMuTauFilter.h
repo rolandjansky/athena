@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_MULTIELECMUTAUFILTER_H
@@ -26,7 +26,7 @@ private:
   double m_minVisPtHadTau;
   int    m_NLeptons;
   bool   m_incHadTau;
-
+  bool   m_TwoSameSignLightLeptonsOneHadTau;
 };
 
 #endif
