@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigSteerMonitor_TimeDivider_h
@@ -35,7 +35,7 @@ public:
    * @param interval is interval in which we are now
    * @return true if one needs to switch to new interval
    */
-  bool isPassed(time_t time, unsigned int& newinterval, unsigned int& oldinterval ) const;
+  bool isPassed(time_t time, unsigned int& newinterval, unsigned int& oldinterval );
 
   /** 
    * @brief method 
@@ -50,8 +50,8 @@ private:
   unsigned int m_intervals;
   unsigned int m_duration;
   unit m_unit;
-  mutable unsigned int m_current_interval;
-  mutable time_t m_beginning;
+  unsigned int m_current_interval;
+  time_t m_beginning;
 };
 
 
