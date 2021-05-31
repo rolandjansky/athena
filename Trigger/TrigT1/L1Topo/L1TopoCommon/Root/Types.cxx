@@ -10,6 +10,7 @@ std::string
 TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   if(type == TCS::CLUSTER) return "Clusters";
   else if(type == TCS::TAU) return "Taus";
+  else if(type == TCS::EEM) return "eEms";
   else if(type == TCS::JET) return "Jets";
   else if(type == TCS::JJET) return "jJets";
   else if(type == TCS::MET) return "MET";
@@ -27,7 +28,7 @@ TCS::inputType(const std::string& input) {
       return TCS::CLUSTER;
 
    if ( input == "eEM" || input == "eEMTobArray" || input == "eEmTobs" )
-      return TCS::CLUSTER;
+      return TCS::EEM;
 
    if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
       return TCS::CLUSTER;
