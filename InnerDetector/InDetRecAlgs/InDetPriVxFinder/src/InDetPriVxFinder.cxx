@@ -74,8 +74,6 @@ InDetPriVxFinder::InDetPriVxFinder
     ATH_CHECK(m_trkTracksName.initialize(!m_useTrackParticles));
     ATH_CHECK(m_tracksName.initialize(m_useTrackParticles));
     ATH_CHECK(m_vxCandidatesOutputName.initialize());
-
-    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -88,64 +86,59 @@ InDetPriVxFinder::InDetPriVxFinder
     xAOD::VertexContainer*    vertexContainer = nullptr;
     xAOD::VertexAuxContainer* vertexAuxContainer = nullptr;
     std::pair< xAOD::VertexContainer*, xAOD::VertexAuxContainer* > vertexContainerPair
-	= std::make_pair( vertexContainer, vertexAuxContainer );
+  = std::make_pair( vertexContainer, vertexAuxContainer );
 
     if(m_useTrackParticles){
       SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName, ctx);
       if(trackParticleCollection.isValid()){
 
-	 vertexContainerPair = m_VertexFinderTool->findVertex ( trackParticleCollection.cptr() );
+   vertexContainerPair = m_VertexFinderTool->findVertex ( trackParticleCollection.cptr() );
       }
       else{
-	ATH_MSG_ERROR("No TrackParticle Collection with key "<<m_tracksName.key()<<" exists in StoreGate. No Vertexing Possible");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("No TrackParticle Collection with key "<<m_tracksName.key()<<" exists in StoreGate. No Vertexing Possible");
+        return StatusCode::FAILURE;
       }
-    }
-    else{
+    } else {
       SG::ReadHandle<TrackCollection> trackCollection(m_trkTracksName, ctx);
       if(trackCollection.isValid()){
-	vertexContainerPair = m_VertexFinderTool->findVertex ( trackCollection.cptr() );
+        vertexContainerPair = m_VertexFinderTool->findVertex ( trackCollection.cptr() );
+      } else {
+        ATH_MSG_ERROR("No Trk::Track Collection with key "<<m_trkTracksName.key()<<" exists in StoreGate. No Vertexing Possible");
+        return StatusCode::FAILURE;
       }
-      else{
-	ATH_MSG_ERROR("No Trk::Track Collection with key "<<m_trkTracksName.key()<<" exists in StoreGate. No Vertexing Possible");
-	return StatusCode::FAILURE;
-      }
-
     }
 
     // now  re-merge and resort the vertex container and store to SG
-    xAOD::VertexContainer* myVertexContainer = nullptr;
-    xAOD::VertexAuxContainer* myVertexAuxContainer = nullptr;
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*  > myVertexContainerPair
-      = std::make_pair( myVertexContainer, myVertexAuxContainer );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*  > 
+      myVertexContainerPair{nullptr, nullptr};
+    auto deletePair = [](std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*  > &p){
+      delete p.first; p.first = nullptr;
+      delete p.second; p.second = nullptr;
+    };
         
     if (vertexContainerPair.first) {
       //sort xAOD::Vertex container
-      
       if(m_doVertexMerging && vertexContainerPair.first->size() > 1) {
         myVertexContainerPair = m_VertexMergingTool->mergeVertexContainer( *vertexContainerPair.first );
-        delete vertexContainerPair.first; //also cleans up the aux store
-        delete vertexContainerPair.second; 
-       	vertexContainerPair = myVertexContainerPair;
+        deletePair(vertexContainerPair); //also cleans up the aux store
+        vertexContainerPair = myVertexContainerPair;
       }
       
-      if (m_doVertexSorting && vertexContainerPair.first->size() > 1) {	
-	myVertexContainerPair = m_VertexCollectionSortingTool->sortVertexContainer(*vertexContainerPair.first);
-	delete vertexContainerPair.first; //also cleans up the aux store
-        delete vertexContainerPair.second; 
+      if (m_doVertexSorting && vertexContainerPair.first->size() > 1) { 
+        myVertexContainerPair = m_VertexCollectionSortingTool->sortVertexContainer(*vertexContainerPair.first);
+        deletePair(vertexContainerPair); 
       } else {
-	myVertexContainerPair.first = vertexContainerPair.first;
-	myVertexContainerPair.second = vertexContainerPair.second;
+        myVertexContainerPair = vertexContainerPair;
       }
       
-      if (myVertexContainerPair.first == 0) {
-	ATH_MSG_ERROR("Vertex container has no associated store.");
-	return StatusCode::FAILURE;
+      if (myVertexContainerPair.first == nullptr) {
+        ATH_MSG_ERROR("Vertex container has no associated store.");
+        return StatusCode::FAILURE;
       }
       
       if (not myVertexContainerPair.first->hasStore()) {
-	ATH_MSG_ERROR("Vertex container has no associated store.");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Vertex container has no associated store.");
+        return StatusCode::FAILURE;
       }
       
       ATH_MSG_DEBUG("Successfully reconstructed " << myVertexContainerPair.first->size()-1 << " vertices (excluding dummy)");
