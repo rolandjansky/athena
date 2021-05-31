@@ -1,5 +1,5 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file is really -*- C++ -*-.
@@ -10,12 +10,12 @@
 #include <list>
 #include <string>
 
-#include "TrigT1MuctpiPhase1/Configuration.h"
-#include "TrigT1MuctpiPhase1/L1TopoLUT.h"
+#include "Configuration.h"
+#include "L1TopoLUT.h"
+#include "MuonSectorProcessor.h"
+#include "TriggerProcessor.h"
 
-namespace LVL1MUONIF {
-  class Lvl1MuCTPIInputPhase1;
-}
+#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 namespace LVL1
 {
@@ -24,15 +24,14 @@ namespace LVL1
 
 namespace LVL1MUCTPIPHASE1 {
 
-  class MuonSectorProcessor;
-  class TriggerProcessor;
   class SimController
   {
     
   public:
-    
-    SimController();
-    ~SimController();
+    typedef std::array<MuonSectorProcessor,
+                       LVL1MUONIF::Lvl1MuCTPIInputPhase1::NumberOfMuonSubSystem> MuonSectorProcessors;
+
+    SimController() = default;
 
     std::vector<std::string> configureTopo(const std::string& barrelFileName,
 					   const std::string& ecfFileName,
@@ -42,10 +41,10 @@ namespace LVL1MUCTPIPHASE1 {
     std::string processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
     void setConfiguration( const Configuration& conf );
 
-    LVL1::MuCTPIL1Topo getL1TopoData(int bcid);
+    LVL1::MuCTPIL1Topo getL1TopoData(int bcid) const;
 
-    TriggerProcessor* getTriggerProcessor();
-    std::vector<MuonSectorProcessor*>& getMuonSectorProcessors();
+    TriggerProcessor& getTriggerProcessor() { return m_triggerProcessor; }
+    MuonSectorProcessors& getMuonSectorProcessors() { return m_muonSectorProcessors; }
 
   private:
 
@@ -60,9 +59,10 @@ namespace LVL1MUCTPIPHASE1 {
 
     L1TopoLUT m_l1topoLUT;
 
-    TriggerProcessor* m_triggerProcessor;
-    std::vector<MuonSectorProcessor*> m_muonSectorProcessors;
-
+    TriggerProcessor m_triggerProcessor;
+    MuonSectorProcessors m_muonSectorProcessors{
+      MuonSectorProcessor(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA()),
+      MuonSectorProcessor(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC())};
   };
 
 }
