@@ -176,7 +176,7 @@ namespace Rec {
 
         ATH_MSG_VERBOSE(" trackStateOnSurface::Scatterer with radiationThickness " << thickness);
 
-        return new const Trk::TrackStateOnSurface(nullptr, trackParameters, nullptr, materialEffects, pattern);
+        return new const Trk::TrackStateOnSurface(nullptr, trackParameters->clone(), nullptr, materialEffects, pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
