@@ -1,7 +1,7 @@
 // This file is really -*- C++ -*-.
 
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1MUCTPIPHASE1_MUONSECTORPROCESSOR_H
@@ -12,6 +12,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 namespace LVL1MUONIF {
   class Lvl1MuCTPIInputPhase1;
@@ -33,9 +34,10 @@ namespace LVL1MUCTPIPHASE1 {
   {
     
   public:
-    
     MuonSectorProcessor(bool side /*1=A,0=C*/);
     ~MuonSectorProcessor();
+    MuonSectorProcessor(MuonSectorProcessor &&o);
+    MuonSectorProcessor(const MuonSectorProcessor &) = delete;
 
     void setMenu(const TrigConf::L1Menu* l1menu);
     void setL1TopoLUT(const L1TopoLUT* l1topoLUT) {m_l1topoLUT=l1topoLUT;}
@@ -44,14 +46,15 @@ namespace LVL1MUCTPIPHASE1 {
     void setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input);
     void runOverlapRemoval(int bcid);
     std::string makeL1TopoData(int bcid);
-    LVL1::MuCTPIL1Topo* getL1TopoData(int bcid);
-    LVL1MUONIF::Lvl1MuCTPIInputPhase1* getOutput();
+    const LVL1::MuCTPIL1Topo* getL1TopoData(int bcid) const;
+    const LVL1MUONIF::Lvl1MuCTPIInputPhase1* getOutput() const;
+    bool getSide() const { return m_side; };
 
   private:
     
-    LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
-    std::unordered_map<int, LVL1::MuCTPIL1Topo*> m_bcid_to_l1topo;
-    OverlapHelper* m_overlapHelper;
+    const LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
+    std::unordered_map<int, std::unique_ptr<LVL1::MuCTPIL1Topo>> m_bcid_to_l1topo;
+    std::unique_ptr<OverlapHelper> m_overlapHelper;
     const TrigConf::L1Menu* m_l1menu;
     const L1TopoLUT* m_l1topoLUT;
     bool m_side;

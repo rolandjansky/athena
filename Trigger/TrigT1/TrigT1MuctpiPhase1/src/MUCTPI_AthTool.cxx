@@ -1,14 +1,14 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/MUCTPI_AthTool.h"
-#include "TrigT1MuctpiPhase1/SimController.h"
-#include "TrigT1MuctpiPhase1/TriggerProcessor.h"
-#include "TrigT1MuctpiPhase1/MuonSectorProcessor.h"
-#include "TrigT1MuctpiPhase1/Configuration.h"
-#include "TrigT1MuctpiPhase1/TrigThresholdDecisionTool.h"
+#include "MUCTPI_AthTool.h"
+#include "SimController.h"
+#include "TriggerProcessor.h"
+#include "MuonSectorProcessor.h"
+#include "Configuration.h"
+#include "TrigThresholdDecisionTool.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
@@ -175,9 +175,9 @@ namespace LVL1MUCTPIPHASE1 {
       const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
 
-      for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
+      for (MuonSectorProcessor& msp : m_theMuctpi->getMuonSectorProcessors())
       {
-        m_theMuctpi->getMuonSectorProcessors()[i]->configureOverlapRemoval(fullFileName);
+        msp.configureOverlapRemoval(fullFileName);
       }
 
     } else {
@@ -223,15 +223,15 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_MSG_INFO( "initialize(): use L1 trigger menu from detector store" );
     const TrigConf::L1Menu * l1menu = nullptr;
     ATH_CHECK( m_detStore->retrieve(l1menu) ); 
-    m_theMuctpi->getTriggerProcessor()->setTrigTool(*m_trigThresholdDecisionTool);
-    m_theMuctpi->getTriggerProcessor()->setMenu(l1menu);
-    for (unsigned i=0;i<m_theMuctpi->getMuonSectorProcessors().size();i++)
+    m_theMuctpi->getTriggerProcessor().setTrigTool(*m_trigThresholdDecisionTool);
+    m_theMuctpi->getTriggerProcessor().setMenu(l1menu);
+    for (MuonSectorProcessor& msp : m_theMuctpi->getMuonSectorProcessors())
     {
-      m_theMuctpi->getMuonSectorProcessors()[i]->setMenu(l1menu);
-      if (!m_theMuctpi->getMuonSectorProcessors()[i]->configurePtEncoding())
+      msp.setMenu(l1menu);
+      if (!msp.configurePtEncoding())
       {
         REPORT_ERROR( StatusCode::FAILURE )
-          << "Couldn't configure pt encoding in MuonSectorProcessor " << i;
+          << "Couldn't configure pt encoding in MuonSectorProcessor " << msp.getSide();
         return StatusCode::FAILURE;
       }
     }
@@ -429,7 +429,7 @@ namespace LVL1MUCTPIPHASE1 {
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {
       // store CTP result in interface object and put to StoreGate
-      const std::vector<unsigned int>& ctpData = m_theMuctpi->getTriggerProcessor()->getCTPData();
+      const std::vector<unsigned int>& ctpData = m_theMuctpi->getTriggerProcessor().getCTPData();
 
       LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
       SG::WriteHandle<LVL1::MuCTPICTP> wh_muctpi_ctp(m_MuCTPICTPWriteKey);
@@ -446,7 +446,7 @@ namespace LVL1MUCTPIPHASE1 {
       }
 
       // create MuCTPI RDO
-      const std::vector<DAQData>& daqData = m_theMuctpi->getTriggerProcessor()->getDAQData();
+      const std::vector<DAQData>& daqData = m_theMuctpi->getTriggerProcessor().getDAQData();
 
       // create MuCTPI xAOD
       auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);

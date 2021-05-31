@@ -3,8 +3,8 @@
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/MuonSectorProcessor.h"
-#include "TrigT1MuctpiPhase1/L1TopoLUT.h"
+#include "MuonSectorProcessor.h"
+#include "L1TopoLUT.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
@@ -226,19 +226,21 @@ namespace LVL1MUCTPIPHASE1 {
   MuonSectorProcessor::MuonSectorProcessor(bool side)
     :
     m_muctpiInput(nullptr),
-    m_overlapHelper(new OverlapHelper),
+    m_overlapHelper(std::make_unique<OverlapHelper>()),
     m_l1menu(nullptr),
     m_l1topoLUT(nullptr),
     m_side(side)
   {
-    
-  }
-  
-  MuonSectorProcessor::~MuonSectorProcessor()
-  {
-    delete m_overlapHelper;
   }
 
+  MuonSectorProcessor::~MuonSectorProcessor()
+  {
+  }
+
+  MuonSectorProcessor::MuonSectorProcessor(MuonSectorProcessor &&o)
+    : m_overlapHelper(std::move(o.m_overlapHelper))
+  {
+  }
 
   void MuonSectorProcessor::setMenu(const TrigConf::L1Menu* l1menu)
   {
@@ -364,8 +366,7 @@ namespace LVL1MUCTPIPHASE1 {
   
   std::string MuonSectorProcessor::makeL1TopoData(int bcid)
   {
-    if (m_bcid_to_l1topo[bcid]) delete m_bcid_to_l1topo[bcid];
-    m_bcid_to_l1topo[bcid] = new LVL1::MuCTPIL1Topo();
+    m_bcid_to_l1topo[bcid] = std::make_unique<LVL1::MuCTPIL1Topo>();
     // Barrel + EC + Fwd
     for (unsigned short isys=0;isys<LVL1MUONIF::Lvl1MuCTPIInputPhase1::numberOfSystems();isys++)
     {
@@ -488,13 +489,14 @@ namespace LVL1MUCTPIPHASE1 {
     return "";
   }
 
-  LVL1MUONIF::Lvl1MuCTPIInputPhase1* MuonSectorProcessor::getOutput()
+  const LVL1MUONIF::Lvl1MuCTPIInputPhase1* MuonSectorProcessor::getOutput() const
   {
     return m_muctpiInput;
   }
 
-  LVL1::MuCTPIL1Topo* MuonSectorProcessor::getL1TopoData(int bcid)
+  const LVL1::MuCTPIL1Topo* MuonSectorProcessor::getL1TopoData(int bcid) const
   {
-    return m_bcid_to_l1topo[bcid];
+    const auto& itr = m_bcid_to_l1topo.find(bcid);
+    return itr!=m_bcid_to_l1topo.end() ? itr->second.get() : nullptr;
   }
 }

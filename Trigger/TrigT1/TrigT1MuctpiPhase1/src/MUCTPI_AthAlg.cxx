@@ -3,7 +3,7 @@
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/MUCTPI_AthAlg.h"
+#include "MUCTPI_AthAlg.h"
 #include "TrigT1Interfaces/IMuctpiSimTool.h"
 
 namespace LVL1MUCTPIPHASE1 {
