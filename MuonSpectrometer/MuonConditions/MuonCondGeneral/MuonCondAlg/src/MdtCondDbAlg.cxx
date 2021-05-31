@@ -3,6 +3,7 @@
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
+
 #include "AthenaKernel/IOVInfiniteRange.h"
 
 using readOutPair = CondAttrListCollection::ChanAttrListPair;
@@ -102,12 +103,12 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << wh.getRange());
 
     std::vector<Identifier> cachedDeadMultiLayersId_standby;
-    for ( const readOutPair & itr : *readCdo) {
+    for (const readOutPair& itr : *readCdo) {
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
         const std::string hv_payload = readCdo->chanName(chanNum);
         std::string hv_name;
-      
+
         if (atr.size() == 1) {
             hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
             std::string delimiter = " ";
@@ -179,13 +180,12 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
 
     // V0 iteration
     CondAttrListCollection::const_iterator itr_v0;
-    for ( const readOutPair & itr_v0 : *readCdo_v0) {
+    for (const readOutPair& itr_v0 : *readCdo_v0) {
         const unsigned int chanNum = itr_v0.first;
         const coral::AttributeList& atr_v0 = itr_v0.second;
         std::string setPointsV0_payload = readCdo_v0->chanName(chanNum);
         float setPointsV0_name{0.};
 
-     
         if (atr_v0.size() == 1) {
             setPointsV0_name = *(static_cast<const float*>((atr_v0["readBackSettings_v0"]).addressOfData()));
             std::string delimiter2 = "_";
@@ -209,7 +209,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
         const coral::AttributeList& atr_v1 = itr_v1.second;
         const std::string setPointsV1_payload = readCdo_v1->chanName(chanNum);
         float setPointsV1_name{0.};
-       
+
         if (atr_v1.size() == 1) {
             setPointsV1_name = *(static_cast<const float*>((atr_v1["readBackSettings_v1"]).addressOfData()));
 
@@ -229,8 +229,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
 
     // check for chamber standby the correct value of Setpoint V0 vs SetpointV1
     // for chamber StandBy --> V0==V1 to be on
-    for (const Identifier& MultilayerId_ch  :  cachedDeadMultiLayersId_standby) {
-
+    for (const Identifier& MultilayerId_ch : cachedDeadMultiLayersId_standby) {
         if (chamberML_V1.find(MultilayerId_ch)->second == chamberML_V0.find(MultilayerId_ch)->second) {
             ATH_MSG_DEBUG("Chamber has  correct Voltage V1 = " << chamberML_V1.find(MultilayerId_ch)->second
                                                                << " V0=   " << chamberML_V0.find(MultilayerId_ch)->second);
@@ -264,23 +263,22 @@ StatusCode MdtCondDbAlg::loadDataPsLv(writeHandle_t& wh, MdtCondDbData* writeCdo
         const coral::AttributeList& atr = itr.second;
         std::string hv_payload = readCdo->chanName(chanNum);
         std::string hv_name;
-       
 
-        if (!atr.size()) { continue;}
-            hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-            std::string delimiter = " ";
-            std::vector<std::string> tokens;
-            MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
-            std::string delimiter2 = "_";
-            std::vector<std::string> tokens2;
-            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
+        if (!atr.size()) { continue; }
+        hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
+        std::string delimiter = " ";
+        std::vector<std::string> tokens;
+        MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
+        std::string delimiter2 = "_";
+        std::vector<std::string> tokens2;
+        MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
 
-            if (tokens[0] != "ON") {
-                std::string chamber_name = tokens2[2];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
-            }
-     }
+        if (tokens[0] != "ON") {
+            std::string chamber_name = tokens2[2];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
+        }
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -306,79 +304,79 @@ StatusCode MdtCondDbAlg::loadDataHv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
         std::string hv_payload = readCdo->chanName(chanNum);
         std::string hv_name_ml1, hv_name_ml2;
         float hv_v0_ml1{0.}, hv_v0_ml2{0.}, hv_v1_ml1{0.}, hv_v1_ml2{0.};
-       
-        if (!atr.size()) { continue;}
-            hv_name_ml1 = *(static_cast<const std::string*>((atr["fsmCurrentState_ML1"]).addressOfData()));
-            hv_name_ml2 = *(static_cast<const std::string*>((atr["fsmCurrentState_ML2"]).addressOfData()));
-            hv_v0_ml1 = *(static_cast<const float*>((atr["v0set_ML1"]).addressOfData()));
-            hv_v1_ml1 = *(static_cast<const float*>((atr["v1set_ML1"]).addressOfData()));
-            hv_v0_ml2 = *(static_cast<const float*>((atr["v0set_ML2"]).addressOfData()));
-            hv_v1_ml2 = *(static_cast<const float*>((atr["v1set_ML2"]).addressOfData()));
 
-            std::string thename;
-            std::string delimiter2 = "_";
-            std::vector<std::string> tokens2;
-            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
+        if (!atr.size()) { continue; }
+        hv_name_ml1 = *(static_cast<const std::string*>((atr["fsmCurrentState_ML1"]).addressOfData()));
+        hv_name_ml2 = *(static_cast<const std::string*>((atr["fsmCurrentState_ML2"]).addressOfData()));
+        hv_v0_ml1 = *(static_cast<const float*>((atr["v0set_ML1"]).addressOfData()));
+        hv_v1_ml1 = *(static_cast<const float*>((atr["v1set_ML1"]).addressOfData()));
+        hv_v0_ml2 = *(static_cast<const float*>((atr["v0set_ML2"]).addressOfData()));
+        hv_v1_ml2 = *(static_cast<const float*>((atr["v1set_ML2"]).addressOfData()));
 
-            if (hv_name_ml1 != "ON" && hv_name_ml1 != "STANDBY" && hv_name_ml1 != "UNKNOWN") {
-                int multilayer = 1;
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) {
-                    Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
-                    thename = chamber_name + "_multilayer1";
-                    writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                    writeCdo->setDeadChamber(ChamberId);
-                }
-            }
+        std::string thename;
+        std::string delimiter2 = "_";
+        std::vector<std::string> tokens2;
+        MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
 
-            if (hv_name_ml1 == "STANDBY" && hv_v0_ml1 != hv_v1_ml1) {
-                int multilayer = 1;
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) {
-                    Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
-                    thename = chamber_name + "_multilayer1";
-                    writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                    writeCdo->setDeadChamber(ChamberId);
-                }
+        if (hv_name_ml1 != "ON" && hv_name_ml1 != "STANDBY" && hv_name_ml1 != "UNKNOWN") {
+            int multilayer = 1;
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) {
+                Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name + "_multilayer1";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber(ChamberId);
             }
+        }
 
-            if (hv_name_ml2 != "ON" && hv_name_ml2 != "STANDBY" && hv_name_ml2 != "UNKNOWN") {
-                int multilayer = 2;
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) {
-                    Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
-                    thename = chamber_name + "_multilayer2";
-                    writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                    writeCdo->setDeadChamber(ChamberId);
-                }
+        if (hv_name_ml1 == "STANDBY" && hv_v0_ml1 != hv_v1_ml1) {
+            int multilayer = 1;
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) {
+                Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name + "_multilayer1";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber(ChamberId);
             }
+        }
 
-            if (hv_name_ml2 == "STANDBY" && hv_v0_ml2 != hv_v1_ml2) {
-                int multilayer = 2;
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) {
-                    Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
-                    thename = chamber_name + "_multilayer2";
-                    writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                    writeCdo->setDeadChamber(ChamberId);
-                }
+        if (hv_name_ml2 != "ON" && hv_name_ml2 != "STANDBY" && hv_name_ml2 != "UNKNOWN") {
+            int multilayer = 2;
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) {
+                Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name + "_multilayer2";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber(ChamberId);
             }
+        }
 
-            if (hv_name_ml2 != "ON" && hv_name_ml2 != "STANDBY" && hv_name_ml2 != "UNKNOWN" && hv_name_ml1 != "ON" &&
-                hv_name_ml1 != "STANDBY" && hv_name_ml1 != "UNKNOWN") {
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
+        if (hv_name_ml2 == "STANDBY" && hv_v0_ml2 != hv_v1_ml2) {
+            int multilayer = 2;
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) {
+                Identifier MultiLayerId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name + "_multilayer2";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber(ChamberId);
             }
-            if (hv_name_ml2 == "STANDBY" && hv_v0_ml2 != hv_v1_ml2 && hv_name_ml1 == "STANDBY" && hv_v0_ml1 != hv_v1_ml1) {
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
-            }
+        }
+
+        if (hv_name_ml2 != "ON" && hv_name_ml2 != "STANDBY" && hv_name_ml2 != "UNKNOWN" && hv_name_ml1 != "ON" &&
+            hv_name_ml1 != "STANDBY" && hv_name_ml1 != "UNKNOWN") {
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
+        }
+        if (hv_name_ml2 == "STANDBY" && hv_v0_ml2 != hv_v1_ml2 && hv_name_ml1 == "STANDBY" && hv_v0_ml1 != hv_v1_ml1) {
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
+        }
     }
     return StatusCode::SUCCESS;
 }
@@ -396,27 +394,26 @@ StatusCode MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << wh.getRange());
 
-    for (const readOutPair& itr : * readCdo) {
+    for (const readOutPair& itr : *readCdo) {
         unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
         std::string hv_name;
         std::string hv_payload = readCdo->chanName(chanNum);
 
-       
-        if (!atr.size()) { continue;}
-            hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
-            std::string delimiter = " ";
-            std::vector<std::string> tokens;
-            MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
-            std::string delimiter2 = "_";
-            std::vector<std::string> tokens2;
-            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
+        if (!atr.size()) { continue; }
+        hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
+        std::string delimiter = " ";
+        std::vector<std::string> tokens;
+        MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
+        std::string delimiter2 = "_";
+        std::vector<std::string> tokens2;
+        MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
 
-            if (tokens[0] != "ON") {
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
-                if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
-            }
+        if (tokens[0] != "ON") {
+            std::string chamber_name = tokens2[0];
+            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+            if (ChamberId.is_valid()) { writeCdo->setDeadStation(chamber_name, ChamberId); }
+        }
     }
 
     return StatusCode::SUCCESS;
@@ -435,7 +432,7 @@ StatusCode MdtCondDbAlg::loadDroppedChambers(writeHandle_t& wh, MdtCondDbData* w
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << wh.getRange());
 
-    for (const readOutPair& itr  : * readCdo) {
+    for (const readOutPair& itr : *readCdo) {
         const coral::AttributeList& atr = itr.second;
         std::string chamber_dropped;
         chamber_dropped = *(static_cast<const std::string*>((atr["Chambers_disabled"]).addressOfData()));
@@ -467,7 +464,7 @@ StatusCode MdtCondDbAlg::loadMcDeadElements(writeHandle_t& wh, MdtCondDbData* wr
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << wh.getRange());
 
-    for (const readOutPair& itr : * readCdo) {
+    for (const readOutPair& itr : *readCdo) {
         const coral::AttributeList& atr = itr.second;
         std::string chamber_name, list_mlayer, list_layer, list_tube;
 
@@ -536,7 +533,7 @@ StatusCode MdtCondDbAlg::loadMcDeadTubes(writeHandle_t& wh, MdtCondDbData* write
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << wh.getRange());
 
-    for (const readOutPair& itr : * readCdo) {
+    for (const readOutPair& itr : *readCdo) {
         const coral::AttributeList& atr = itr.second;
 
         std::string chamber_name;
