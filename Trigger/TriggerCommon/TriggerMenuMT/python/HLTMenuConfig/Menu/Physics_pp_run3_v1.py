@@ -165,7 +165,14 @@ def setupMenu():
         ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup), 
         
         #------------ 3g
-        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH',l1SeedThresholds=['EM20','EM7'], groups=PrimaryLegGroup+MultiPhotonGroup), 
+        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH',l1SeedThresholds=['EM20VH','EM7'], groups=PrimaryLegGroup+MultiPhotonGroup),
+
+        #------- e+g
+        # Primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
+        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup), # unsure about l1SeedThresholds
+
+
     ]
 
     TriggerFlags.METSlice.signatures = [
@@ -248,7 +255,28 @@ def setupMenu():
         ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100", groups=PrimaryLegGroup+SingleTauGroup), 
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100", groups=SupportLegGroup+SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100", groups=PrimaryLegGroup+SingleTauGroup),
+
+        # ATR-21797
+        ChainProp(name="HLT_tau80_medium1_tracktwo_tau60_medium1_tracktwo_03dRAB_L1TAU60_2TAU40",                        l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU60_2TAU40",            l1SeedThresholds=['TAU60','TAU40'],     groups=PrimaryLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau80_medium1_tracktwo_tau35_medium1_tracktwo_03dRAB30_L1TAU60_DR-TAU20ITAU12I",             l1SeedThresholds=['TAU60','TAU12IM'],   groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I",       l1SeedThresholds=['TAU60','TAU12IM'],   groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB30_L1TAU60_DR-TAU20ITAU12I", l1SeedThresholds=['TAU60','TAU12IM'],   groups=PrimaryLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dRAB30_L1DR-TAU20ITAU12I-J25",               l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB30_L1DR-TAU20ITAU12I-J25",         l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25",   l1SeedThresholds=['TAU20IM','TAU12IM'], groups=PrimaryLegGroup+MultiTauGroup),
+        
+        # ATR-20450 
+        ChainProp(name="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25",          l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25",    l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25", l1SeedThresholds=['TAU20IM','TAU12IM'], groups=PrimaryLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau40_medium1_tracktwo_tau35_medium1_tracktwo_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20",            l1SeedThresholds=['TAU25IM','TAU20IM'], groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20",      l1SeedThresholds=['TAU25IM','TAU20IM'], groups=SupportLegGroup+MultiTauGroup),
+        ChainProp(name="HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20",   l1SeedThresholds=['TAU25IM','TAU20IM'], groups=PrimaryLegGroup+MultiTauGroup),
+
     ]
+    
     TriggerFlags.BphysicsSlice.signatures = [
         #ATR-20049
         ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10', groups=PrimaryL1MuGroup+BphysicsGroup),
@@ -261,26 +289,8 @@ def setupMenu():
         ChainProp(name='HLT_mu11_mu6_bPhi_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
         ChainProp(name='HLT_mu11_mu6_bTau_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
     ]
+    
     TriggerFlags.CombinedSlice.signatures = [
-
-         # ATR-21797
-        ChainProp(name="HLT_tau80_medium1_tracktwo_tau60_medium1_tracktwo_03dRAB_L1TAU60_2TAU40",                        l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU60_2TAU40",            l1SeedThresholds=['TAU60','TAU40'],     groups=PrimaryLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau80_medium1_tracktwo_tau35_medium1_tracktwo_03dRAB30_L1TAU60_DR-TAU20ITAU12I",             l1SeedThresholds=['TAU60','TAU12IM'],   groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I",       l1SeedThresholds=['TAU60','TAU12IM'],   groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB30_L1TAU60_DR-TAU20ITAU12I", l1SeedThresholds=['TAU60','TAU12IM'],   groups=PrimaryLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dRAB30_L1DR-TAU20ITAU12I-J25",               l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB30_L1DR-TAU20ITAU12I-J25",         l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25",   l1SeedThresholds=['TAU20IM','TAU12IM'], groups=PrimaryLegGroup+MultiTauGroup),
- 
-        # ATR-20450 
-        ChainProp(name="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25",          l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25",    l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25", l1SeedThresholds=['TAU20IM','TAU12IM'], groups=PrimaryLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau40_medium1_tracktwo_tau35_medium1_tracktwo_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20",            l1SeedThresholds=['TAU25IM','TAU20IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20",      l1SeedThresholds=['TAU25IM','TAU20IM'], groups=SupportLegGroup+MultiTauGroup),
-        ChainProp(name="HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20",   l1SeedThresholds=['TAU25IM','TAU20IM'], groups=PrimaryLegGroup+MultiTauGroup),
 
         # tau + muon triggers
         ChainProp(name='HLT_mu20_ivarloose_tau20_medium1_tracktwo_03dRAB_L1MU20', l1SeedThresholds=['MU20','TAU8'], stream=[PhysicsStream], groups=SupportLegGroup+MuonTauGroup),
