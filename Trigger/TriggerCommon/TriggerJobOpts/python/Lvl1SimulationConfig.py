@@ -86,8 +86,8 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
             from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
             from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
             l1CaloSimSeq += [
-              LVL1__TrigT1MBTS(),
-              LVL1__TrigT1ZDC()
+              LVL1__TrigT1MBTS(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON),
+              LVL1__TrigT1ZDC(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON)
             ]
 
     if ConfigFlags.Trigger.enableL1CaloPhase1:
