@@ -5,7 +5,7 @@
 #ifndef MCEVENTCOLLECTIONFILTER_H
 #define MCEVENTCOLLECTIONFILTER_H
 
-// Base class include 
+// Base class include
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // std library includes
@@ -21,10 +21,11 @@ public:
    virtual StatusCode initialize();
    virtual StatusCode execute();
    virtual StatusCode finalize();
- 
+
   private:
 
    StatusCode ReduceMCEventCollection();
+   StatusCode decoratePileUpTruth();
    StatusCode FindTRTElectronHits();
    StatusCode SiHistsTruthRelink();
    StatusCode TRTHistsTruthRelink();
@@ -33,16 +34,20 @@ public:
    StatusCode RPCHistsTruthRelink();
    StatusCode TGCHistsTruthRelink();
 
-   bool m_IsKeepTRTElect;
-   std::string   m_mcEventCollection;
-   int m_PileupPartPDGID;
-   bool m_UseTRTHits;
+   bool m_IsKeepTRTElect{false};
+   std::string   m_mcEventCollection{"TruthEvent"};
+   int m_PileupPartPDGID{999};  //Geantino
+   bool m_UseTRTHits{true};
+   bool m_decoratePileUpTruth{true};
+   bool m_decorateTruthParticles{true};
+   bool m_decorateAntiKt4TruthJets{true};
+   bool m_decorateAntiKt6TruthJets{true};
    //---------------------
-   std::string   m_HitName;
-   int m_RefBarcode;
+   int m_RefBarcode{0};
+   float m_RefPVtxZ{0.0};
    std::vector<int> m_elecBarcode;
 
 
- 
-}; 
+
+};
 #endif

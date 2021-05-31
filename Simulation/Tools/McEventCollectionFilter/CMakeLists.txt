@@ -9,6 +9,8 @@ atlas_subdir( McEventCollectionFilter )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           DetectorDescription/GeoPrimitives
+                          Event/xAOD/xAODJet
+                          Event/xAOD/xAODTruth
                           GaudiKernel
                           Generators/GeneratorObjects
                           InnerDetector/InDetSimEvent
@@ -26,7 +28,7 @@ atlas_add_library( McEventCollectionFilterLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel GeneratorObjects InDetSimEvent MuonSimEvent )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel GeneratorObjects InDetSimEvent MuonSimEvent xAODJet xAODTruth)
 
 atlas_add_component( McEventCollectionFilter
                      src/components/*.cxx
