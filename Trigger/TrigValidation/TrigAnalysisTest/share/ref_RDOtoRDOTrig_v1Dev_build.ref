@@ -4524,6 +4524,14 @@ HLT_larnoiseburst_L1XE60:
     0: 6
   stepFeatures:
     0: 6
+HLT_mb_afprec_2j20_L1RD0_FILLED:
+  eventCount: 20
+  stepCounts:
+    0: 20
+    1: 20
+  stepFeatures:
+    0: 202
+    1: 20
 HLT_mb_alfaperf_L1RD0_EMPTY:
   eventCount: 0
 HLT_mb_alfaperf_L1RD0_FILLED:
