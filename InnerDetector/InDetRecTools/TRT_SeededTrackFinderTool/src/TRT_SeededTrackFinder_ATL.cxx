@@ -1228,7 +1228,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
     const DataVector<const Trk::TrackStateOnSurface>* newtsos = (*it)->trackStateOnSurfaces();
     if(!newtsos) continue;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator itp, itpe=newtsos->end();
-    for(itp=newtsos->begin(); itp!=itpe; itp++){
+    for(itp=newtsos->begin(); itp!=itpe; ++itp){
       ///Concentrate on the Si component of the track
       const InDet::SiClusterOnTrack* clus = dynamic_cast<const InDet::SiClusterOnTrack*>((*itp)->measurementOnTrack());
       if(clus && ((*itp)->type(Trk::TrackStateOnSurface::Measurement))){  //Count the number of hits used in the track
