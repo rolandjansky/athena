@@ -27,14 +27,25 @@ genSeq.Sherpa_i.ExtraFiles = [ "libSherpaFastjetMAXHTPTV.so" ]
 
 # Starting the input tarball creation
 * Create the `mc.*.py` JO in a fresh working directory:
-```
-$ ls myExampleSetup/
-mc.Sh_Example.py
-```
+  ```
+  $ ls myExampleSetup/
+  mc.Sh_Example.py
+  ```
 * Optional: Copy or link additional needed files into the working directory, like "libSherpaFastjetMAXHTPTV.so" (these files have to be listed in "genSeq.Sherpa_i.ExtraFiles" in the JO in order to end up in the tarball)
-* `asetup 21.6.xy,AthGeneration`
-* Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster: `sherpaTarCreator.py myExampleSetup -d`
-* Start sherpaTarCreator and submit jobs to the cluster: `sherpaTarCreator.py myExampleSetup`
+* Setup environment
+  ```
+  asetup 21.6.xy,AthGeneration
+  ```
+* Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster:
+  ```
+  sherpaTarCreator.py myExampleSetup -d
+  ```
+* Start sherpaTarCreator and submit jobs to the cluster:
+  ```
+  sherpaTarCreator.py myExampleSetup
+  ```
+
+You can learn about various options using `sherpaTarCreator.py --help`. An important one is the `--ecm 13.0` default, which you would have to change if you want to generate tarballs for other sqrt(s).
 
 # Monitoring the progress
 
