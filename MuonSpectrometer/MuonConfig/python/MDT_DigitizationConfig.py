@@ -59,11 +59,8 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
-    if "GetT0FromBD" in kwargs and kwargs["GetT0FromBD"]:
-        calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
-        kwargs.setdefault("CalibrationDbTool", calibDbTool)
-    else:
-        kwargs.setdefault("CalibrationDbTool", '')
+    calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+    kwargs.setdefault("CalibrationDbTool", calibDbTool)
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
