@@ -3,11 +3,10 @@
 */
 
 #include "MuonCondAlg/MdtCalibDbAlg.h"
-
+#include "AthenaKernel/RNGWrapper.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
-#include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MdtCalibData/CalibFunc.h"
@@ -29,7 +28,6 @@
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
-#include "AthenaKernel/RNGWrapper.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/BFieldCorFunc.h"
@@ -47,66 +45,7 @@
 
 MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rtFolder("/MDT/RTBLOB"),
-  m_tubeFolder("/MDT/T0BLOB"),
-  m_newFormat2020(false),
-  m_TimeSlewingCorrection(false),
-  m_UseMLRt(true),
-  m_TsCorrectionT0(0.),
-  m_defaultT0(40.),
-  m_t0Shift(0.),
-  m_t0Spread(0.),
-  m_rtShift(0.),
-  m_rtScale(1.),
-  m_prop_beta(1.0),
-  m_RNGWrapper (nullptr),
-  m_readKeyRt("/MDT/RTBLOB"),
-  m_readKeyTube("/MDT/T0BLOB"),
-  m_regionIdThreshold(2500)
-{
-
-  //Db Folders
-  declareProperty("TubeFolder",m_tubeFolder,"DB folder containing the tube constants");
-  declareProperty("RtFolder",m_rtFolder,"DB folder containing the RT calibrations");
-  declareProperty("ReadKeyTube",m_readKeyTube);
-  declareProperty("ReadKeyRt",m_readKeyRt);
-
-  //new folder format 2020
-  declareProperty("NewFormat2020",m_newFormat2020);
-  
-  //Properties to deform the t0 and rt relationship
-  declareProperty("T0Shift",m_t0Shift,"for simulation: common shift of all T0s, in ns");
-  declareProperty("T0Spread",m_t0Spread,"for simulation: sigma for random smeraing of T0s, in ns");
-  declareProperty("RTShift",m_rtShift,"for simulations: maximum RT distortion, in mm");
-  declareProperty("RTScale",m_rtScale,"for simulations: a muliplicitive scale to the drift r");
-
-  //is this the simplest way to initialize a list?
-  std::ostringstream myse;
-  std::vector<std::string> myord;
-  myse << "DC2_rt_default.dat";
-  myord.push_back(myse.str());
-
-  declareProperty("RT_InputFiles",m_RTfileNames=myord,"single input ascii file for default RT to be applied in absence of DB information");
-
-  //defaultT0, used for tubes not found in DB
-  declareProperty("defaultT0",m_defaultT0,"default T0 value to be used in absence of DB information");
-  declareProperty("TimeSlewingCorrection", m_TimeSlewingCorrection);
-  declareProperty("MeanCorrectionVsR", m_MeanCorrectionVsR);
-  declareProperty("UseMLRt", m_UseMLRt,"Enable use of ML-RTs from COOL");
-  declareProperty("PropagationSpeedBeta", m_prop_beta);
-
-  //like MdtCalibrationDbSvc
-  //for corData in loadRt
-  declareProperty("CreateBFieldFunctions", m_create_b_field_function = false,
-		  "If set to true, the B-field correction functions are initialized for each rt-relation that is loaded.");
-  declareProperty("CreateWireSagFunctions", m_createWireSagFunction = false,
-		  "If set to true, the wire sag correction functions are initialized for each rt-relation that is loaded.");
-  declareProperty("CreateSlewingFunctions", m_createSlewingFunction = false,
-		  "If set to true, the slewing correction functions are initialized for each rt-relation that is loaded.");
-
-  declareProperty("RandomStream", m_randomStream = "MDTCALIBDBALG");
-
-
+  m_RNGWrapper{nullptr},  m_regionIdThreshold(2500) {
 }
 
 StatusCode MdtCalibDbAlg::initialize(){
@@ -131,7 +70,7 @@ StatusCode MdtCalibDbAlg::initialize(){
   // if COOL RT folder is called /MDT/RTUNIQUE then only read one RT from COOL and use for all chambers
   // Not sure this option has ever been used, perhaps could be used for simulated data.
   // Job option RtFolder would need to be set to "/MDT/RTUNIQUE" to make this work.
-  if(m_rtFolder == "/MDT/RTUNIQUE") {
+  if(m_readKeyRt.key() == "/MDT/RTUNIQUE") {
     m_regionSvc->remapRtRegions("OneRt"); 
   } else if( m_UseMLRt ) {
     m_regionSvc->remapRtRegions("OnePerMultilayer");

@@ -12,7 +12,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "CoralUtilities/blobaccess.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -27,7 +26,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
+#include "CoralBase/Blob.h"
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MdtCalibData/RtResolutionLookUp.h"
@@ -66,19 +65,23 @@ class MdtCalibDbAlg: public AthAlgorithm {
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool {this, "IdToFixedIdTool", "MuonCalib::IdToFixedIdTool"};
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc {this, "MdtCalibrationRegionSvc", "MdtCalibrationRegionSvc"};
 
-  const MuonGM::MuonDetectorManager* m_detMgr; // only needed to retrieve information on number of tubes etc. (no alignment needed)
+  const MuonGM::MuonDetectorManager* m_detMgr{nullptr}; // only needed to retrieve information on number of tubes etc. (no alignment needed)
 
-  std::string m_rtFolder;
-  std::string m_tubeFolder;
-
-  //new conditions format 2020
-  bool m_newFormat2020;
-
+ //new conditions format 2020
+  Gaudi::Property<bool> m_newFormat2020{this, "NewFormat2020", false, "Use the new calibration data format " };
+  
   //like MdtCalibrationDbSvc
   //for corData in loadRt
-  bool m_create_b_field_function;
-  bool m_createWireSagFunction;
-  bool m_createSlewingFunction;
+  Gaudi::Property<bool> m_create_b_field_function{this, "CreateBFieldFunctions", false,
+		  "If set to true, the B-field correction functions are initialized for each rt-relation that is loaded."};
+  
+
+  Gaudi::Property<bool>m_createWireSagFunction{this,"CreateWireSagFunctions",  false,
+		  "If set to true, the wire sag correction functions are initialized for each rt-relation that is loaded."};
+  Gaudi::Property<bool> m_createSlewingFunction {this,"CreateSlewingFunctions",  false,
+		  "If set to true, the slewing correction functions are initialized for each rt-relation that is loaded."};
+
+
   void initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet, const MuonCalib::MdtRtRelation *rt);
   void initializeSagCorrection(MuonCalib::MdtCorFuncSet *funcSet);
 
@@ -91,28 +94,37 @@ class MdtCalibDbAlg: public AthAlgorithm {
   //have TS-correction. In the default reco-jobs however, this is
   //configured by one muonRecFlag, that will be used to set this job-option.
   
-  bool   m_TimeSlewingCorrection;
-  bool   m_UseMLRt;
-  std::vector<float> m_MeanCorrectionVsR;
-  float  m_TsCorrectionT0;
-  double m_defaultT0;
-  double m_t0Shift;
-  double m_t0Spread;
-  double m_rtShift;
-  double m_rtScale;
-  double m_prop_beta;
+  
+  Gaudi::Property<bool> m_TimeSlewingCorrection{this, "TimeSlewingCorrection", false};
+  Gaudi::Property<bool> m_UseMLRt{this, "UseMLRt", false,"Enable use of ML-RTs from COOL"};
+ 
+
+  Gaudi::Property<std::vector<float>> m_MeanCorrectionVsR{this,"MeanCorrectionVsR", {} };
+ 
+
+  Gaudi::Property<double>  m_TsCorrectionT0{this, "TimeSlewCorrectionT0", 0.};
+  
+  Gaudi::Property<double> m_defaultT0{this, "defaultT0",40.,"default T0 value to be used in absence of DB information"};
+  Gaudi::Property<double> m_t0Shift{this, "T0Shift",0.,"for simulation: common shift of all T0s, in ns"};
+  Gaudi::Property<double> m_t0Spread{this, "T0Spread",0.,"for simulation: sigma for random smeraing of T0s, in ns"};
+  
+  Gaudi::Property<double> m_rtShift{this, "RTShift",m_rtShift,"for simulations: maximum RT distortion, in mm"};
+  Gaudi::Property<double> m_rtScale{this, "RTScale",1.,"for simulations: a muliplicitive scale to the drift r"};
+  Gaudi::Property<double> m_prop_beta{this,"PropagationSpeedBeta", 1.,""};
+
 
   ServiceHandle<IAthRNGSvc> m_AthRNGSvc{this,"AthRNGSvc","AthRNGSvc"};
-  std::string m_randomStream;
+  StringProperty m_randomStream{this, "RandomStream", "MDTCALIBDBALG"};
   ATHRNG::RNGWrapper* m_RNGWrapper;
 
-  StringArrayProperty m_RTfileNames; //temporary!!!
+  StringArrayProperty m_RTfileNames{this, "RT_InputFiles", {"DC2_rt_default.dat"}, "single input ascii file for default RT to be applied in absence of DB information"}; //temporary!!!
   
   inline MuonCalib::RtResolutionLookUp* getRtResolutionInterpolation(const std::vector<MuonCalib::SamplePoint> &sample_points);
   inline StatusCode extractString(std::string& input, std::string& output, std::string separator);  
 
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyRt;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyTube;
+ 
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyRt{this, "ReadKeyRt", "/MDT/RTBLOB", "DB folder containing the RT calibrations"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyTube{this, "ReadKeyTube","/MDT/T0BLOB", "DB folder containing the tube constants" };
   SG::WriteCondHandleKey<MdtRtRelationCollection> m_writeKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::WriteCondHandleKey<MdtTubeCalibContainerCollection> m_writeKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};
   SG::WriteCondHandleKey<MdtCorFuncSetCollection> m_writeKeyCor{this,"MdtCorFuncSetCollection","MdtCorFuncSetCollection","MDT cor Funcs"};
