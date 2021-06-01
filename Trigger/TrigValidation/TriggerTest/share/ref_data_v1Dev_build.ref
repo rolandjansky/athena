@@ -4483,6 +4483,22 @@ HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50:
   stepFeatures:
     0: 1
     1: 1
+HLT_xe80_tcpufit_unconvtrk25_dedx_medium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk50_dedx_medium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50:
   eventCount: 0
   stepFeatures:

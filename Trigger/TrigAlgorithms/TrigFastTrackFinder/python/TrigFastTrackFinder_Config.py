@@ -18,7 +18,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.addTrackHistograms(type)
         if doResMon:
             self.addResidualHistograms()
-        if type=='fullScanUTT':
+        if type=='jet':
             self.addUTTHistograms()
 
     def addSPHistograms(self, type):
@@ -53,8 +53,8 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
-            if type=='fullScanUTT':
-                self.defineHistogram('TIME_JseedHitDV',       path='EXPERT',type='TH1F',title="Jet-seeded Hit DV (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
+            if type=='jet':
+                # self.defineHistogram('TIME_JseedHitDV',       path='EXPERT',type='TH1F',title="Jet-seeded Hit DV (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
                 self.defineHistogram('TIME_dEdxTrk',          path='EXPERT',type='TH1F',title="Large dEdx search (ms)",      xbins = 200, xmin=0.0, xmax=20.0)
         elif type=='fullScanLRT':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=500.0)
@@ -211,7 +211,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         if slice_name == "fullScanUTT" :
             self.doJseedHitDV = True
-            self.dodEdxTrk    = True
 
 
         #Global keys/names for collections
@@ -291,6 +290,13 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
+
+        self.dodEdxTrk = config.dodEdxTrk
+        if config.dodEdxTrk:
+            print("UTT: setting dEdxTrk output collection names...")
+            self.dEdxTrk = "HLT_dEdxTrk"
+            self.dEdxHit = "HLT_dEdxHit"
+
 
         ## SCT and Pixel detector elements road builder
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
@@ -413,10 +419,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if config.name == 'fullScanUTT' :
               self.RecJetRoI      = "HLT_RecJETRoIs"
               self.HitDVSeed      = "HLT_HitDVSeed"
-              self.HitDVTrk       = "HLT_HitDVTrk"
-              self.HitDVSP        = "HLT_HitDVSP"
-              self.dEdxTrk        = "HLT_dEdxTrk"
-              self.dEdxHit        = "HLT_dEdxHit"
 
 
 

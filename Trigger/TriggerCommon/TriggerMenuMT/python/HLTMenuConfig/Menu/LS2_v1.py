@@ -891,4 +891,8 @@ def setupMenu():
 
         ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+
+        # dEdx triggers
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk25_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk50_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
     ]
