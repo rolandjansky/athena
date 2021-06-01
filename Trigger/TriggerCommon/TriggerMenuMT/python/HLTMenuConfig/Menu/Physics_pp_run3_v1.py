@@ -235,7 +235,7 @@ def setupMenu():
         ChainProp(name='HLT_2j60_L1J15', groups=['PS:Online']+MultiJetGroup),
         ChainProp(name='HLT_j80_j60_L1J15', l1SeedThresholds=2*['FSNOSEED'], groups=MultiJetGroup),
         # FP: workaround tmp for l1SeedThresholds
-        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*3, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_DJMASS700j80x0eta240_L1J20', l1SeedThresholds=['FSNOSEED']*3, groups=MultiJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = [
