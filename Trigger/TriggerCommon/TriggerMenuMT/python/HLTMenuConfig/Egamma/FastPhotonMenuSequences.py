@@ -23,7 +23,7 @@ def fastPhotonMenuSequence():
                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
 
 
-    from TrigEgammaFastRec.TrigEgammaFastPhotonConfig import TrigEgammaFastPhoton_ReFastAlgo 
+    from TrigEgammaRec.TrigEgammaFastPhotonConfig import TrigEgammaFastPhoton_ReFastAlgo 
     thePhotonFex = TrigEgammaFastPhoton_ReFastAlgo ()
     thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")

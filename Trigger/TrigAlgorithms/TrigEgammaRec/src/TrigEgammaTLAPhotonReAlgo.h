@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef TRIG_TrigEgammaTLAPhoton_Fex_H
-#define TRIG_TrigEgammaTLAPhoton_Fex_H
+#ifndef TrigEgammaTLAPhotonReAlgo_h
+#define TrigEgammaTLAPhotonReAlgo_h
 
 
 #include "Gaudi/Property.h"
@@ -24,10 +24,10 @@
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 
 
-class TrigEgammaTLAPhotonFex : public AthAlgorithm {
+class TrigEgammaTLAPhotonReAlgo : public AthAlgorithm {
 
   public:
-    TrigEgammaTLAPhotonFex(const std::string & name, ISvcLocator* pSvcLocator);
+    TrigEgammaTLAPhotonReAlgo(const std::string & name, ISvcLocator* pSvcLocator);
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
