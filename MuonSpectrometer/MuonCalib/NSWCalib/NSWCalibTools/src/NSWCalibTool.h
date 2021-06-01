@@ -66,6 +66,8 @@ namespace Muon {
     float m_ionUncertainty;
     double m_peakTime;
 
+    bool localStripPosition(const Identifier& id, Amg::Vector2D &locPos) const;
+
     std::string m_gasMixture;
   };
 

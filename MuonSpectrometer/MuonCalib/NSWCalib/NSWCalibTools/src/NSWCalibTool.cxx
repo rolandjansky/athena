@@ -130,10 +130,11 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
 
   /// loop over prepData strips
   for (unsigned int i = 0; i < prepData->stripNumbers().size(); i++){
+    Identifier id = prepData->rdoList().at(i);
     double time = prepData->stripTimes().at(i);
     double charge = prepData->stripCharges().at(i);
     NSWCalib::CalibratedStrip calibStrip;
-    ATH_CHECK(calibrateStrip(time, charge, lorentzAngle, calibStrip));
+    ATH_CHECK(calibrateStrip(id,time, charge, lorentzAngle, calibStrip));
     calibClus.push_back(calibStrip);
   }
   return StatusCode::SUCCESS;
@@ -141,7 +142,16 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
 
 
 
-StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
+StatusCode Muon::NSWCalibTool::calibrateStrip(const Identifier id, const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
+  //get local positon
+  Amg::Vector2D locPos;
+  if(!localStripPosition(id,locPos)) {
+    ATH_MSG_WARNING("Failed to retrieve local strip position");
+    return StatusCode::FAILURE;
+  }
+  
+  calibStrip.identifier = id;
+
   calibStrip.charge = charge;
   calibStrip.time = time;
 
@@ -153,6 +163,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double ch
   calibStrip.resLongDistDrift = std::pow(m_ionUncertainty * vDriftCorrected, 2)
     + std::pow(m_longDiff * calibStrip.distDrift, 2);
   calibStrip.dx = std::sin(lorentzAngle) * calibStrip.time * m_vDrift;
+  calibStrip.locPos = Amg::Vector2D(locPos.x() + calibStrip.dx, locPos.y()); 
   return StatusCode::SUCCESS;
 }
 
@@ -170,6 +181,16 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData,
   const MuonGM::MMReadoutElement* detEl = muDetMgr->getMMReadoutElement(rdoId);
   detEl->stripGlobalPosition(rdoId,globalPos);
 
+  //get local postion
+  Amg::Vector2D locPos;
+  if(!localStripPosition(rdoId,locPos)) {
+    ATH_MSG_WARNING("Failed to retrieve local strip position");
+    return StatusCode::FAILURE;
+  }
+
+  //get stripWidth
+  detEl->getDesign(rdoId)->channelWidth(locPos); // positon is not used for strip width 
+
   calibStrip.charge = mmRawData->charge();
   calibStrip.time = mmRawData->time() - globalPos.norm() * reciprocalSpeedOfLight - m_peakTime;
   calibStrip.identifier = mmRawData->identify();
@@ -178,6 +199,8 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData,
   calibStrip.resTransDistDrift = pitchErr + std::pow(m_transDiff * calibStrip.distDrift, 2);
   calibStrip.resLongDistDrift = std::pow(m_ionUncertainty * m_vDrift, 2)
     + std::pow(m_longDiff * calibStrip.distDrift, 2);
+
+  calibStrip.locPos = locPos;
 
   return StatusCode::SUCCESS;
 }
@@ -194,10 +217,18 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::STGC_RawData* sTGCRawD
   Amg::Vector3D globalPos;
   const MuonGM::sTgcReadoutElement* detEl = muDetMgr->getsTgcReadoutElement(rdoId);
   detEl->stripGlobalPosition(rdoId,globalPos);
+  
+  //get local postion
+  Amg::Vector2D locPos;
+  if(!localStripPosition(rdoId,locPos)) {
+    ATH_MSG_WARNING("Failed to retrieve local strip position");
+    return StatusCode::FAILURE;
+  }
 
   calibStrip.charge =sTGCRawData->charge();
   calibStrip.time = sTGCRawData->time() - globalPos.norm() * reciprocalSpeedOfLight - m_peakTime;
   calibStrip.identifier = sTGCRawData->identify();
+  calibStrip.locPos = locPos;
 
   return StatusCode::SUCCESS;
 }
@@ -246,4 +277,20 @@ StatusCode Muon::NSWCalibTool::mmGasProperties(float &vDrift, float &longDiff, f
   interactionDensitySigma = m_interactionDensitySigma;
   lorentzAngleFunction = m_lorentzAngleFunction;
   return StatusCode::SUCCESS;
+}
+
+
+bool Muon::NSWCalibTool::localStripPosition(const Identifier& id, Amg::Vector2D &locPos) const {
+  if(m_idHelperSvc->isMM(id)){
+    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(id);
+    return detEl->stripPosition(id,locPos);
+
+  } else if(m_idHelperSvc->issTgc(id)){
+    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(id);
+    return detEl->stripPosition(id,locPos);
+
+  } else {
+    return false;
+  }
+  
 }
