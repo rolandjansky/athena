@@ -259,6 +259,9 @@ private: // properties
    StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:0"};
    /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
    IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",-1};
+
+   /// Property for DataHeaderCnv input DHForm cache size
+   IntegerProperty  m_DHFormCacheSize { this, "maxDHFormCacheSize", 100 };
 };
 
 #endif

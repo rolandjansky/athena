@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAHEADERCNV_H
@@ -55,6 +55,9 @@ public:
    /// Incident service handle listening for EndInputFile.
    virtual void handle(const Incident& incident) override;
 
+   /// Delete cached DHForms for a given input file GUID
+   void clearInputDHFormCache( const std::string& dbGuid );
+
    /// query if a new DHForm was written in the last createPersistent()
    bool         wroteNewDHForm()    { return m_wroteDHForm; }
   
@@ -66,6 +69,13 @@ protected:
 
    /// DHForm cache indexed by filename or reference for writing
    std::map<std::string,  std::unique_ptr<DataHeaderForm_p6> >    m_persFormMap;
+   /// DHForm cache indexed by its parent DataHeader reference (for  readinh)
+   std::map<std::string,  std::unique_ptr<DataHeaderForm_p6> >  m_inputDHForms;
+
+   /// How many DHForms for an input file are in the cache
+   std::map<std::string,  unsigned>                             m_inDHFormCount;
+   /// Max DHForms to cache per input file
+   unsigned                                                     m_inDHFMapMaxsize;
 
    /// true if the last writing of the DataHeader had to write a new DHForm
    bool                 m_wroteDHForm {false};
