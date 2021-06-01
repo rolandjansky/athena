@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_MDT_SORTEDHITVECTOR_H
 #define MDT_DIGITIZATION_MDT_SORTEDHITVECTOR_H
-
+#include "MuonSimEvent/MDTSimHit.h"
 class mdt_hit_info {
 public:
     mdt_hit_info(Identifier i, double t, double a, double r, const TimedHitPtr<MDTSimHit>* aHit) :
