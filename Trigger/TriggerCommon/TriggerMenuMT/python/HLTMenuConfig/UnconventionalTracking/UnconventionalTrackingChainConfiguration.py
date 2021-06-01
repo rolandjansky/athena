@@ -62,7 +62,8 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
             "isohpttrack" : [['getIsoHPtTrackEmtpy'],['getFTFTrackReco'],['getIsoHPtTrackTrigger']],
-            "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']]
+            "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']],
+            "dedx" : [['getdEdxEmpty'], ['getFTFTrackReco'],['getdEdxTrigger']]
         }
 
         return stepDictionary
@@ -84,7 +85,11 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
     def getFSLRTEmpty(self):
         return self.getEmptyStep(1, 'FSLRTEmptyStep')
 
+    def getdEdxTrigger(self):
+        return self.getStep(7,'dEdxTriggerCfg',[dEdxTriggerCfg])
 
+    def getdEdxEmpty(self):
+        return self.getEmptyStep(1, 'dEdxEmptyStep')
 
 
 def IsoHPtTrackTriggerCfg(flags):
@@ -97,3 +102,7 @@ def FTFRecoOnlyCfg(flags):
 def FSLRTTriggerCfg(flags):
     from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.FullScanLRTTrackingConfiguration import FullScanLRTTriggerMenuSequence
     return FullScanLRTTriggerMenuSequence()
+
+def dEdxTriggerCfg(flags):
+    from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.dEdxTriggerConfiguration import dEdxTriggerHypoSequence
+    return dEdxTriggerHypoSequence()
