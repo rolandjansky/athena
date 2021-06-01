@@ -26,9 +26,9 @@ def TLAPhotonSequence(flags, photonsIn):
     ViewVerify.DataObjects = [( 'xAOD::PhotonContainer' , 'StoreGateSvc+HLT_egamma_Photons')]
     
 
-    from TrigEgammaHypo import TrigEgammaTLAPhotonFexConfig
+    from TrigEgammaRec.TrigEgammaTLAPhotonConfig import getConfiguredTLAPhotonSelector
     # this has yet to be written, should be similar to the jet tla
-    TLAPhotonAlg = TrigEgammaTLAPhotonFexConfig.getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
+    TLAPhotonAlg = getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
 
     # The OR makes sure that TLAPhotonAlg can access the data dependencies specified by ViewVerify
     photonInViewAlgs = parOR("tlaPhotonInViewAlgs", [ViewVerify, TLAPhotonAlg])
@@ -38,8 +38,8 @@ def TLAPhotonSequence(flags, photonsIn):
 
     return ( recoSeq, sequenceOut )
 
+
 def TLAPhotonAthSequence(flags, photonsIn):
-    
     
     tlaPhotonViewsMakerAlg = EventViewCreatorAlgorithm("IM_TLAPhotons")
     tlaPhotonViewsMakerAlg.RoIsLink = "initialRoI"
@@ -53,16 +53,13 @@ def TLAPhotonAthSequence(flags, photonsIn):
 
     tlaPhotonViewsMakerAlg.ViewNodeName = "tlaPhotonInViewAlgs"
 
-    
-
-    
-    
-
     (tlaPhotonSequence, sequenceOut) = RecoFragmentsPool.retrieve( TLAPhotonSequence, flags, photonsIn=photonsIn )
     # the TLAPhoton sequence is now tlaPhotonViewsMakerAlg --> TrigEgammaTLAPhotonFex
     tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence_"+photonsIn, [tlaPhotonViewsMakerAlg, tlaPhotonSequence] )
     
     return (tlaPhotonAthSequence, tlaPhotonViewsMakerAlg, sequenceOut)
+
+
 
 def TLAPhotonMenuSequence(flags, photonsIn):
 

@@ -33,7 +33,7 @@ def fastElectronSequence(ConfigFlags):
             TrackParticlesName = viewAlg.TrackParticlesName
       
 
-    from TrigEgammaFastRec.TrigEgammaFastElectronConfig import TrigEgammaFastElectron_ReFastAlgo_Clean
+    from TrigEgammaRec.TrigEgammaFastElectronConfig import TrigEgammaFastElectron_ReFastAlgo_Clean
     theElectronFex = TrigEgammaFastElectron_ReFastAlgo_Clean("EgammaFastElectronFex_Clean_gen")
 
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters

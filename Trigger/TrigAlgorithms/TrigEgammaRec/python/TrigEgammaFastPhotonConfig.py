@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigEgammaFastRec.TrigEgammaFastRecConf import TrigEgammaFastPhotonReAlgo
+from TrigEgammaRec.TrigEgammaRecConf import TrigEgammaFastPhotonReAlgo
 
 # basic cut
 class TrigEgammaFastPhoton_ReFastAlgo (TrigEgammaFastPhotonReAlgo):
