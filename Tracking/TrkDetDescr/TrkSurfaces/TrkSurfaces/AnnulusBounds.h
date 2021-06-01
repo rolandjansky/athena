@@ -160,27 +160,27 @@ private:
 
   /** isAbove() method for checking whether a point lies above or under a straight line */
 
-  bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) const;
+  static bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) ;
 
-  bool isRight(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) const;
+  static bool isRight(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) ;
 
-  bool isLeft(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) const;
+  static bool isLeft(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) ;
 
   // check whether an ellipse intersects a line
-  bool EllipseIntersectLine(const Amg::Vector2D& locpo, double h, double k, double x1, double y1, double x2, double y2)
-    const;
+  static bool EllipseIntersectLine(const Amg::Vector2D& locpo, double h, double k, double x1, double y1, double x2, double y2)
+    ;
 
   /** Distance to line */
-  double distanceToLine(const Amg::Vector2D& locpo, std::vector<TDD_real_t> P1, std::vector<TDD_real_t> P2) const;
+  static double distanceToLine(const Amg::Vector2D& locpo, std::vector<TDD_real_t> P1, std::vector<TDD_real_t> P2) ;
 
   /** Distance to arc */
-  double distanceToArc(const Amg::Vector2D& locpo,
+  static double distanceToArc(const Amg::Vector2D& locpo,
                        double R,
                        std::vector<TDD_real_t> sL,
-                       std::vector<TDD_real_t> sR) const;
+                       std::vector<TDD_real_t> sR) ;
 
   /** Circle and line intersection **/
-  std::vector<double> circleLineIntersection(double R, double k, double d) const;
+  static std::vector<double> circleLineIntersection(double R, double k, double d) ;
 
   std::vector<TDD_real_t> m_boundValues;
 
