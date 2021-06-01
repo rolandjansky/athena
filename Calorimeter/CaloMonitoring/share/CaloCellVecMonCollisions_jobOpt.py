@@ -161,9 +161,8 @@ TileCalCellMon=TileCalCellMonTool("TileCalCellMon",
 
 
 if DQMonFlags.monManEnvironment == 'online':
-   LArCellMon.isOnline=True
    LArCellMon.useLArNoisyAlg=False
-   LArCellMon.ProcessNEvents = 100
+   LArCellMon.ProcessNEvents = 1000
 else:
    #Offline processing:
    LArCellMon.useLArNoisyAlg=True
