@@ -1567,19 +1567,17 @@ HLT_e26_lhloose_L1EM22VHI:
     3: 4
     4: 4
 HLT_e26_lhloose_lrtloose_L1EM22VHI:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 5
     1: 2
     2: 2
     3: 2
-    4: 1
   stepFeatures:
     0: 5
-    1: 2
+    1: 3
     2: 2
     3: 2
-    4: 1
 HLT_e26_lhmedium_L1EM15VH:
   eventCount: 4
   stepCounts:
@@ -1609,19 +1607,17 @@ HLT_e26_lhmedium_L1EM22VHI:
     3: 4
     4: 4
 HLT_e26_lhmedium_lrtloose_L1EM22VHI:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 5
     1: 2
     2: 2
     3: 2
-    4: 1
   stepFeatures:
     0: 5
-    1: 2
+    1: 3
     2: 2
     3: 2
-    4: 1
 HLT_e26_lhmedium_mu8noL1_L1EM22VHI:
   eventCount: 2
   stepCounts:
@@ -2085,19 +2081,17 @@ HLT_e26_lhtight_ivartight_L1EM22VHI:
     3: 4
     4: 3
 HLT_e26_lhtight_lrtloose_L1EM22VHI:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 5
     1: 2
     2: 2
     3: 2
-    4: 1
   stepFeatures:
     0: 5
-    1: 2
+    1: 3
     2: 2
     3: 2
-    4: 1
 HLT_e26_lhtight_nod0_L1EM22VHI:
   eventCount: 4
   stepCounts:
@@ -2287,19 +2281,17 @@ HLT_e5_lhloose_L1EM3:
     3: 23
     4: 5
 HLT_e5_lhloose_lrtloose_L1EM3:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 18
-    1: 14
-    2: 11
-    3: 11
-    4: 1
+    1: 16
+    2: 12
+    3: 12
   stepFeatures:
     0: 63
-    1: 185
-    2: 14
-    3: 13
-    4: 1
+    1: 267
+    2: 22
+    3: 21
 HLT_e5_lhloose_noringer_L1EM3:
   eventCount: 5
   stepCounts:
@@ -2329,19 +2321,17 @@ HLT_e5_lhmedium_L1EM3:
     3: 22
     4: 4
 HLT_e5_lhmedium_lrtmedium_L1EM3:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 18
-    1: 14
-    2: 11
-    3: 11
-    4: 1
+    1: 16
+    2: 12
+    3: 12
   stepFeatures:
     0: 60
-    1: 160
-    2: 14
-    3: 13
-    4: 1
+    1: 241
+    2: 21
+    3: 20
 HLT_e5_lhmedium_noringer_L1EM3:
   eventCount: 4
   stepCounts:
@@ -2409,19 +2399,17 @@ HLT_e5_lhtight_gsf_L1EM3:
     3: 22
     4: 4
 HLT_e5_lhtight_lrttight_L1EM3:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 18
-    1: 14
-    2: 11
-    3: 11
-    4: 1
+    1: 16
+    2: 12
+    3: 12
   stepFeatures:
     0: 59
-    1: 145
-    2: 14
-    3: 13
-    4: 1
+    1: 226
+    2: 21
+    3: 20
 HLT_e5_lhtight_nod0_L1EM3:
   eventCount: 4
   stepCounts:
