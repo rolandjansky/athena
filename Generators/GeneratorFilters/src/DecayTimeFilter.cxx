@@ -28,7 +28,7 @@ double calcmag(const HepMC::FourVector& vect){
     return std::sqrt(vect.x() * vect.x() + vect.y() * vect.y() + vect.z() * vect.z());
 }
 
-double DecayTimeFilter::tau(const HepMC::GenParticle* ptr) const {
+double DecayTimeFilter::tau(HepMC::ConstGenParticlePtr ptr) const {
     auto startpos = ptr->production_vertex()->position ();
     auto endpos = ptr->end_vertex() ->position ();
     HepMC::FourVector diff(endpos.x() - startpos.x(), endpos.y() - startpos.y(), endpos.z() - startpos.z(), endpos.t() - startpos.t());
