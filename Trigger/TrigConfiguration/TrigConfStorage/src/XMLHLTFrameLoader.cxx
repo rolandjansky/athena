@@ -205,8 +205,9 @@ int TrigConf::XMLHLTFrameLoader::stringToId( const string& theTE ) {
    // create unique string for TE
 
    // search if TE already in list (don't fill TE twice !)
-   for (std::vector<std::pair<int,string> >::iterator p = m_idstrTable.begin(); p != m_idstrTable.end(); p++)
-      if (theTE == p->second) return p->first;
+   for (const auto& p : m_idstrTable) {
+      if (theTE == p.second) return p.first;
+   }
 
    // not found: attribute identifier and add to list
    int id = -1;
@@ -227,8 +228,9 @@ string TrigConf::XMLHLTFrameLoader::stringFromId( int theID ) {
    // create unique string for TE
 
    // search if TE already in list (don't fill TE twice !)
-   for (std::vector<std::pair<int,string> >::iterator p = m_idstrTable.begin(); p != m_idstrTable.end(); p++)
-      if (theID == p->first) return p->second;
+   for (const auto& p : m_idstrTable) {
+      if (theID == p.first) return p.second;
+   }
 
    return "";
 }

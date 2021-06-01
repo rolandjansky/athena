@@ -180,7 +180,7 @@ TrigConf::TrigConfCoolWriter::createSchema(int schemaVersion) {
    bool needToOpen = !dbIsOpen();
    if(needToOpen) {
       try {
-         if(needToOpen) openDb(false);
+         openDb(false);
       }
       catch(cool::DatabaseDoesNotExist& e) {
          m_ostream << "*** : " << e.what() << endl;
@@ -760,17 +760,16 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
          rangeInfo("LVL1 thresholds", vr.since(), vr.until());
          // first, parse the threshold list and write to threshold folder
          const std::vector<TrigConf::TriggerThreshold*> & lvl1Thrs = lvl1Menu.thresholdConfig().thresholdVector();
-         std::vector<TrigConf::TriggerThreshold*>::const_iterator thrIt = lvl1Thrs.begin();
          // use buffer to speed up COOL writing
 
          lvl1ThresholdFolder->setupStorageBuffer();
 
          // go through the thresholds, channels assigned in the order (0..#thr-1)
          cool::ChannelId thrChannel = 0;
-         for(;thrIt != lvl1Thrs.end(); thrIt++) {
-            Record payloadThr = TrigConfCoolL1PayloadConverters::createLvl1ThresholdPayload( lvl1ThresholdFolder, **thrIt );
-            m_ostream << "Writing (to buffer) LVL1 threshold " << (*thrIt)->name() 
-                      << " (version " << (*thrIt)->version() << ") to channel "
+         for (TrigConf::TriggerThreshold* thr : lvl1Thrs) {
+            Record payloadThr = TrigConfCoolL1PayloadConverters::createLvl1ThresholdPayload( lvl1ThresholdFolder, *thr );
+            m_ostream << "Writing (to buffer) LVL1 threshold " << thr->name() 
+                      << " (version " << thr->version() << ") to channel "
                       << thrChannel << endl;
             lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadThr, thrChannel++);
          }
@@ -1226,7 +1225,7 @@ TrigConf::TrigConfCoolWriter::writeL1PrescalePayload( cool::ValidityKey since,
          lvl1PsConfFolder->setupStorageBuffer();
 
          m_ostream << "Writing (to buffer) LVL1 prescales [(value/channel)]:" << endl;
-         for(int channel=0; psIt != prescaleV.end(); channel++, psIt++) {
+         for(int channel=0; psIt != prescaleV.end(); channel++, ++psIt) {
             Record payload =
                TrigConfCoolL1PayloadConverters::createLvl1PrescalesPayload(lvl1PsConfFolder, *psIt);
             lvl1PsConfFolder->storeObject(since, until, payload, channel);
