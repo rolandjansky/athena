@@ -662,6 +662,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigT2MbtsBitsContainer#HLT_MbtsBitsContainer',                 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::TrigT2MbtsBitsAuxContainer#HLT_MbtsBitsContainerAux.',          'BS ESD AODFULL', 'MinBias'),
 
+    ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight', 'BS ESD AODFULL', 'MinBias'),
 
     # Cosmic
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_FTF',                 'BS ESD AODFULL', 'Cosmic'),

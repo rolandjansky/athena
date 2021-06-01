@@ -66,7 +66,8 @@ auto floatAccessors = initAccessors<float>(
   "trk_eta", "trk_phi", "trk_pt", "trk_n_hits_inner", "trk_n_hits_innermost", "trk_n_hits_pix", "trk_n_hits_sct",
   "hit_dedx", "hit_tot", "hit_trkchi2", "hit_trkndof", "trk_dedx",
   "btagIp_d0", "btagIp_d0Uncertainty", "btagIp_z0SinTheta", "btagIp_z0SinThetaUncertainty",
-  "EOverP", "RErr", "etConeCore", "muonScore", "ptCone20", "trackIso", "trkPtFraction");
+  "EOverP", "RErr", "etConeCore", "muonScore", "ptCone20", "trackIso", "trkPtFraction", 
+  "zfinder_vtx_z", "zfinder_vtx_weight");
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
 
