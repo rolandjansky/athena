@@ -46,7 +46,11 @@ namespace Muon
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
 	 		   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)const override ;
 
-  private:
+    StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, 
+					    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
+
+
+  private: 
 
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -72,7 +76,8 @@ namespace Muon
 
     StatusCode transformParameters(double alpha, double d, double dRMS, double& slope, double& intercept, double& interceptRMS)const;
     StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut)const;
-    StatusCode finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
+    //StatusCode finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
+    StatusCode finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX> driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
   };
 
 
