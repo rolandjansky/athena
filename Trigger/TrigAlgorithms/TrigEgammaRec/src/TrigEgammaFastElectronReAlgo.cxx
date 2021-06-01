@@ -156,16 +156,17 @@ StatusCode TrigEgammaFastElectronReAlgo::execute(const EventContext& ctx) const
 
 
   // loop over tracks
-  unsigned int track_index=0;
-  for(const auto trkIter:(*tracks))
+  for(unsigned int track_index = 0; track_index < tracks->size(); track_index++)
   {
+    const xAOD::TrackParticle_v1* trkIter = (*tracks)[track_index];
     ATH_MSG_DEBUG("Track loop starts");
     ATH_MSG_VERBOSE("AlgoId = " << (trkIter)->patternRecoInfo());
     ATH_MSG_VERBOSE("At perigee:");
     ATH_MSG_DEBUG(" Pt  = " << std::abs((trkIter)->pt())); 
     ATH_MSG_DEBUG(" phi = " << std::abs((trkIter)->phi0()));
     ATH_MSG_DEBUG(" eta = " << std::abs((trkIter)->eta())); 
-    ATH_MSG_DEBUG(" z0  = " << std::abs((trkIter)->z0()));  
+    ATH_MSG_DEBUG(" z0  = " << std::abs((trkIter)->z0()));
+    ATH_MSG_DEBUG(" d0  = " << std::abs((trkIter)->d0()));  
     // ============================================= //
     // Pt cut
     float trkPt = std::abs((trkIter)->pt());
@@ -193,7 +194,8 @@ StatusCode TrigEgammaFastElectronReAlgo::execute(const EventContext& ctx) const
         calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
       }
     }else {
-      ATH_MSG_DEBUG("Apply cuts");
+
+      ATH_MSG_DEBUG("Apply cuts on track with index: "<<track_index);
       if(trkPt < m_trackPtthr){
         ATH_MSG_DEBUG("Failed track pt cut " << trkPt);
         continue;
@@ -247,7 +249,8 @@ StatusCode TrigEgammaFastElectronReAlgo::execute(const EventContext& ctx) const
         (probably a safe assumption for large pT) and that track parameters
         at perigee give better estimates of angular quantities */
       ElementLink<xAOD::TrackParticleContainer> trackEL = ElementLink<xAOD::TrackParticleContainer> (*tracks, track_index);
-      
+      ATH_MSG_DEBUG("pT of trackEL: "<<(*trackEL)->pt());     
+
       ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster index = " << clusEL.index() <<
                 " track = "     << trkIter << " eta = " <<  etaAtCalo << " phi = " << phiAtCalo << 
                 " deta = " << dEtaCalo << "dphi = " << dPhiCalo);
@@ -266,9 +269,9 @@ StatusCode TrigEgammaFastElectronReAlgo::execute(const EventContext& ctx) const
                 << " phiAtCalo = " << phiAtCalo << " phiAtCalo = " << trigElec->trkPhiAtCalo()
                 );
       calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
+     
     }
     
-    track_index++;
   }
 
 
