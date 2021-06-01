@@ -871,7 +871,10 @@ namespace Muon {
             ATH_MSG_WARNING(" Measurement is a phi measurement! " << m_idHelperSvc->toString(id));
             return 0;
         }
-        double length = 1e9;  // initialize to large value
+
+        // distinguishing left-right just to treat the asymmetry of the active region in MM chambers
+        double halfLengthL = 1e9;  // initialize to large value
+        double halfLengthR = 1e9; 
 
         // the MDT and CSC hits are ROTs
         const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
@@ -901,7 +904,7 @@ namespace Muon {
             detEl = mdtDetEl;
             int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
             int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-            length = mdtDetEl->getActiveTubeLength(layer, tube);
+            halfLengthL = halfLengthR = 0.5*mdtDetEl->getActiveTubeLength(layer, tube);
         } else if (m_idHelperSvc->isCsc(id)) {
             const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
             if (!cscDetEl) {
@@ -909,7 +912,7 @@ namespace Muon {
                 return 0;
             }
             detEl = cscDetEl;
-            length = cscDetEl->stripLength(id);
+            halfLengthL = halfLengthR = 0.5*cscDetEl->stripLength(id);
         } else if (m_idHelperSvc->isRpc(id)) {
             const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
             if (!rpcDetEl) {
@@ -917,7 +920,7 @@ namespace Muon {
                 return 0;
             }
             detEl = rpcDetEl;
-            length = rpcDetEl->StripLength(false);  // eta-strip
+            halfLengthL = halfLengthR = 0.5*rpcDetEl->StripLength(false);  // eta-strip
         } else if (m_idHelperSvc->isTgc(id)) {
             const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
             if (!tgcDetEl) {
@@ -925,7 +928,7 @@ namespace Muon {
                 return 0;
             }
             detEl = tgcDetEl;
-            length = tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
+            halfLengthL = halfLengthR = 0.5*tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
         } else if (m_idHelperSvc->issTgc(id)) {
             const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
             if (!stgcDetEl || !stgcDetEl->getDesign(id)) {
@@ -934,16 +937,16 @@ namespace Muon {
             }
             detEl = stgcDetEl;
             const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
-            length = design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id));
+            halfLengthL = halfLengthR = 0.5*design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id));
         } else if (m_idHelperSvc->isMM(id)) {
             const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
             if (!mmDetEl || !mmDetEl->getDesign(id)) {
-                ATH_MSG_WARNING(" STGC without sTgcReadoutElement! ");
+                ATH_MSG_WARNING(" MM without MMReadoutElement! ");
                 return 0;
             }
             detEl = mmDetEl;
-            const MuonGM::MuonChannelDesign* design = mmDetEl->getDesign(id);
-            length = design->channelLength(m_idHelperSvc->mmIdHelper().channel(id));
+            halfLengthL = mmDetEl->stripActiveLengthLeft(id);
+            halfLengthR = mmDetEl->stripActiveLengthRight(id);
         }
 
         // we need the detEl and channel length
@@ -985,10 +988,11 @@ namespace Muon {
             ATH_MSG_WARNING(" no local position, cannot make fake phi hit ");
             return 0;
         }
-        double ly = (*lpos)[Trk::locY];
 
-        bool shiftedPos = false;
-        double halfLength = 0.5 * length;
+        double ly = (*lpos)[Trk::locY];
+        double halfLength = ly < 0 ? halfLengthL : halfLengthR;
+        bool   shiftedPos = false;
+
         if (std::abs(ly) > halfLength) {
             double lyold = ly;
             ly = ly < 0 ? -halfLength : halfLength;
@@ -1014,7 +1018,7 @@ namespace Muon {
             if (!loverlapPos) {
                 ATH_MSG_DEBUG(" globalToLocal failed for overlap position: " << surf.transform() * (*overlapPos));
                 // calculate position fake
-                double lyfake = 0.5 * length - 50.;
+                double lyfake = halfLength - 50.;
 
                 Amg::Vector2D locpos_plus(0., lyfake);
                 const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(locpos_plus);
@@ -1030,14 +1034,13 @@ namespace Muon {
 
                 ly = lyfake;
                 errPos = 50. / sqrt(12);
-                ATH_MSG_VERBOSE(" fake lpos " << lyfake << " ch half length " << 0.5 * length << " phi+ " << phi_plus << " phi- " << phi_min
+                ATH_MSG_VERBOSE(" fake lpos " << lyfake << " ch half length " << halfLength << " phi+ " << phi_plus << " phi- " << phi_min
                                               << " phi overlap " << phi_overlap << " err " << errPos);
             } else {
                 ly = (*loverlapPos)[Trk::locY];
-
-                halfLength = 0.5 * length;
+                halfLength = ly < 0 ? halfLengthL : halfLengthR; // safer to redo since ly changed
                 if (std::abs(ly) > halfLength) { ly = ly < 0 ? -halfLength : halfLength; }
-                ATH_MSG_VERBOSE(" fake from overlap: lpos " << ly << " ch half length " << 0.5 * length << " overlapPos " << *overlapPos);
+                ATH_MSG_VERBOSE(" fake from overlap: lpos " << ly << " ch half length " << halfLength << " overlapPos " << *overlapPos);
             }
         }
 
@@ -1219,47 +1222,53 @@ namespace Muon {
             Identifier id = rot->identify();
             const Trk::Surface& surf = meas.associatedSurface();
             double x = rot->localParameters()[Trk::locX];
-            double halfLength = 0.;
 
+            // distinguishing left-right just to treat the asymmetry of the active region in MM chambers
+            double halfLengthL = 0.;
+            double halfLengthR = 0.; 
+                  
             if (m_idHelperSvc->isMdt(id)) {
                 const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(rot->detectorElement());
                 if (mdtDetEl) {
                     int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
                     int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-                    halfLength = 0.5 * mdtDetEl->getActiveTubeLength(layer, tube);
+                    halfLengthL = halfLengthR = 0.5 * mdtDetEl->getActiveTubeLength(layer, tube);
                 }
             } else if (m_idHelperSvc->isCsc(id)) {
                 const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
-                if (cscDetEl) { halfLength = 0.5 * cscDetEl->stripLength(id); }
+                if (cscDetEl) { 
+                    halfLengthL = halfLengthR = 0.5 * cscDetEl->stripLength(id); 
+                }
             } else if (m_idHelperSvc->isRpc(id)) {
                 const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
                 if (rpcDetEl) {
-                    halfLength = 0.5 * rpcDetEl->StripLength(false);  // eta-strip
+                    halfLengthL = halfLengthR = 0.5 * rpcDetEl->StripLength(false);  // eta-strip
                 }
             } else if (m_idHelperSvc->isTgc(id)) {
                 const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
                 if (tgcDetEl) {
-                    halfLength =
+                    halfLengthL = halfLengthR =
                         0.5 * tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
                 }
             } else if (m_idHelperSvc->issTgc(id)) {
                 const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
                 if (stgcDetEl) {
                     const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
-                    if (design) { halfLength = 0.5 * design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id)); }
+                    if (design) { halfLengthL = halfLengthR = 0.5 * design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id)); }
                 }
             } else if (m_idHelperSvc->isMM(id)) {
                 const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
                 if (mmDetEl) {
-                    const MuonGM::MuonChannelDesign* design = mmDetEl->getDesign(id);
-                    if (design) { halfLength = 0.5 * design->channelLength(m_idHelperSvc->mmIdHelper().channel(id)); }
+                  halfLengthL = mmDetEl->stripActiveLengthLeft(id);
+                  halfLengthR = mmDetEl->stripActiveLengthRight(id);
                 }
             }
-            Amg::Vector2D lpLeft(x, -halfLength);
+            
+            Amg::Vector2D lpLeft(x, -halfLengthL);
             const Amg::Vector3D gposLeft = surf.localToGlobal(lpLeft);
             double phiLeft = gposLeft.phi();
 
-            Amg::Vector2D lpRight(x, halfLength);
+            Amg::Vector2D lpRight(x, halfLengthR);
             const Amg::Vector3D gposRight = surf.localToGlobal(lpRight);
             double phiRight = gposRight.phi();
 

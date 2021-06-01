@@ -50,9 +50,16 @@ namespace MuonGM {
     virtual bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const override final;
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
 
+    /** strip length
+    Wrappers to MuonChannelDesign::channelLength() taking into account the passivated width */
     double stripLength( const Identifier& id) const;
-    double stripLengthLeft( const Identifier& id) const;
-    double stripLengthRight( const Identifier& id) const;
+    double stripActiveLength( const Identifier& id) const;
+    double stripActiveLengthLeft( const Identifier& id) const;
+    double stripActiveLengthRight( const Identifier& id) const;
+
+    /** boundary check
+    Wrapper Trk::PlaneSurface::insideBounds() taking into account the passivated width */
+    bool insideActiveBounds(const Identifier& id, const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const;
 
     /** number of layers in phi/eta projection */
     virtual int numberOfLayers( bool ) const override;
@@ -193,7 +200,6 @@ namespace MuonGM {
     return surfaceHash(manager()->mmIdHelper()->gasGap(id),0);
   }
 
-
   inline int MMReadoutElement::surfaceHash( int gasGap, int /*measPhi*/ ) const {
     return gasGap-1;      // measPhi not used
   }
@@ -240,24 +246,34 @@ namespace MuonGM {
   inline double MMReadoutElement::stripLength( const Identifier& id) const {
     const MuonChannelDesign* design = getDesign(id);
     if(!design) return -1;
-    //return design->channelLength(manager()->mmIdHelper()->channel(id));
-
-    // temporary way to pass MM correction for passivation
-    return std::max(0., design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection());
+    return design->channelLength(manager()->mmIdHelper()->channel(id));
   }
 
-  inline double MMReadoutElement::stripLengthLeft( const Identifier& id) const {
-    const MuonChannelDesign* design = getDesign(id);
-    if(!design) return -1;
-    // temporary way to pass MM correction for passivation
-    return std::max(0., 0.5*(design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection()));
+  inline double MMReadoutElement::stripActiveLength( const Identifier& id) const {
+    double l = stripLength(id);
+    if(l < 0) return -1;
+    return std::max(0., l - manager()->getMMPassivationCorrection());     // temporary way to pass MM correction for passivation
   }
 
-  inline double MMReadoutElement::stripLengthRight( const Identifier& id) const {
-    const MuonChannelDesign* design = getDesign(id);
-    if(!design) return -1;
-    // temporary way to pass MM correction for passivation
-    return std::max(0., 0.5*(design->channelLength(manager()->mmIdHelper()->channel(id)) - manager()->getMMPassivationCorrection()));
+  inline double MMReadoutElement::stripActiveLengthLeft( const Identifier& id) const {
+    double l = stripLength(id);
+    if(l < 0) return -1;
+    return 0.5*std::max(0., l - manager()->getMMPassivationCorrection()); // temporary way to pass MM correction for passivation
+  }
+
+  inline double MMReadoutElement::stripActiveLengthRight( const Identifier& id) const {
+    double l = stripLength(id);
+    if(l < 0) return -1;
+    return 0.5*std::max(0., l - manager()->getMMPassivationCorrection()); // temporary way to pass MM correction for passivation
+  }
+
+  inline bool MMReadoutElement::insideActiveBounds(const Identifier& id, const Amg::Vector2D& locpos, double tol1, double tol2) const {
+    // TODO: when the full passivation info is available (left/right), we should check here 
+    // on which side locpos is (sign of locpos.y()) to get the correct passivated width.
+    int    stripNo  = stripNumber(locpos, id);
+    if (stripNo < 0) return false;
+    double passiveW = manager()->getMMPassivationCorrection();
+    return bounds(id).inside(locpos, tol1, tol2-passiveW);
   }
 
   inline bool MMReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
