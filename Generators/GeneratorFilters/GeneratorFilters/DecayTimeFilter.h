@@ -16,7 +16,7 @@ public:
   virtual StatusCode filterEvent();
 
 private:
-   double tau(const HepMC::GenParticle* ptr) const;
+   double tau(HepMC::ConstGenParticlePtr ptr) const;
    float m_lifetimeLow;
    float m_lifetimeHigh;
    std::vector<int> m_particleID;

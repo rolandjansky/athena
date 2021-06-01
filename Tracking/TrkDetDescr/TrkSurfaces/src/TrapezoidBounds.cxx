@@ -116,7 +116,7 @@ Trk::TrapezoidBounds::insideExclude(const Amg::Vector2D& locpo, double tol1, dou
 
 // checking if local point lies above a line
 bool
-Trk::TrapezoidBounds::isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) const
+Trk::TrapezoidBounds::isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) 
 {
   // the most tolerant approach for tol1 and tol2
   double sign = k > 0. ? -1. : +1.;

@@ -110,11 +110,11 @@ namespace Trk {
                                                                                       PropDirection pDir = Trk::alongMomentum,
                                                                                       const BoundaryCheck& bchk = true) const;
       /** check position at volume boundary */
-      bool atVolumeBoundary(const Amg::Vector3D& gp, const TrackingVolume* vol, double tol) const;
+      static bool atVolumeBoundary(const Amg::Vector3D& gp, const TrackingVolume* vol, double tol) ;
       
       /** check position at volume boundary + navigation link */
-      bool atVolumeBoundary(const Amg::Vector3D& gp, const Amg::Vector3D& mom, const TrackingVolume* vol, 
-			                const TrackingVolume*& nextVol, Trk::PropDirection dir, double tol) const;
+      static bool atVolumeBoundary(const Amg::Vector3D& gp, const Amg::Vector3D& mom, const TrackingVolume* vol, 
+			                const TrackingVolume*& nextVol, Trk::PropDirection dir, double tol) ;
       
       /** Return the unique BoundarySurfaces with MaterialInformation */
      const std::map<const Layer*,int>& boundaryLayers() const;

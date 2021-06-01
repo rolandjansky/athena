@@ -2,7 +2,7 @@
  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TrigEgammaTLAPhotonFex.h"
+#include "TrigEgammaTLAPhotonReAlgo.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
@@ -32,13 +32,13 @@ struct HasPtAboveThreshold {
  };
  
 
-TrigEgammaTLAPhotonFex::TrigEgammaTLAPhotonFex(const std::string & name, ISvcLocator* pSvcLocator)
+TrigEgammaTLAPhotonReAlgo::TrigEgammaTLAPhotonReAlgo(const std::string & name, ISvcLocator* pSvcLocator)
  : AthAlgorithm (name, pSvcLocator)
  {
 
  }
 
-StatusCode TrigEgammaTLAPhotonFex::initialize()
+StatusCode TrigEgammaTLAPhotonReAlgo::initialize()
 {
 
   // here we simply check that the class properties have been correctly initialized at the config stage
@@ -60,7 +60,7 @@ StatusCode TrigEgammaTLAPhotonFex::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaTLAPhotonFex::execute()
+StatusCode TrigEgammaTLAPhotonReAlgo::execute()
 {
   using namespace xAOD;
 

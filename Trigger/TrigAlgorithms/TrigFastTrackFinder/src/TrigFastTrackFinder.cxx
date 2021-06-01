@@ -197,7 +197,7 @@ StatusCode TrigFastTrackFinder::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
 
-  // Run3 monitoring
+  // monitoring
   if ( !m_monTool.empty() ) {
      ATH_CHECK(m_monTool.retrieve() );
   }
@@ -381,7 +381,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   ATH_MSG_DEBUG("Input RoI " << roi);
 
-  // Run3 monitoring ---------->
   auto mnt_roi_nTracks = Monitored::Scalar<int>("roi_nTracks", 0);
   auto mnt_roi_nSPs    = Monitored::Scalar<int>("roi_nSPs",    0);
   auto mnt_roi_nSPsPIX = Monitored::Scalar<int>("roi_nSPsPIX", 0);
@@ -403,11 +402,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   auto mnt_roi_lastStageExecuted = Monitored::Scalar<int>("roi_lastStageExecuted", 0);
   auto monDataError              = Monitored::Group(m_monTool, mnt_roi_lastStageExecuted);
 
-  mnt_timer_Total.start(); // Run3 monitoring
-  mnt_timer_SpacePointConversion.start(); // Run3 monitoring
+  mnt_timer_Total.start();
+  mnt_timer_SpacePointConversion.start();
 
 
-  mnt_roi_lastStageExecuted = 1; // Run3 monitoring
+  mnt_roi_lastStageExecuted = 1;
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
@@ -443,7 +442,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     return StatusCode::SUCCESS;
   }
 
-  mnt_roi_lastStageExecuted = 2; // Run3 monitoring
+  mnt_roi_lastStageExecuted = 2;
 
 
   /// this uses move semantics so doesn't do a deep copy, so ...
@@ -483,7 +482,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       ATH_MSG_DEBUG("REGTEST / tmpRoi: " << *tmpRoi);
     }
 
-    mnt_timer_ZFinder.stop(); // Run3 monitoring
+    mnt_timer_ZFinder.stop();
 
     if (  m_doZFinderOnly ) {
       /// write vertex collection ...
@@ -616,17 +615,30 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   ATH_MSG_DEBUG("After clone removal "<<initialTracks.size()<<" tracks left");
 
 
-  mnt_timer_CombTracking.stop(); // Run3 monitoring
-  mnt_timer_PatternReco.stop();  // Run3 monitoring
+  mnt_timer_CombTracking.stop();
+  mnt_timer_PatternReco.stop();
 
-  mnt_roi_lastStageExecuted = 5; // Run3 monitoring
+  mnt_roi_lastStageExecuted = 5;
 
-  mnt_timer_TrackFitter.start(); // Run3 monitoring
+  mnt_timer_TrackFitter.start();
 
-  m_trigInDetTrackFitter->fit(initialTracks, outputTracks, ctx, m_particleHypothesis, m_dodEdxTrk); // add TP to TSoS for dEdx
+  if( ! m_dodEdxTrk ) {
+     m_trigInDetTrackFitter->fit(initialTracks, outputTracks, ctx, m_particleHypothesis);
+  }
+  else {
+     TrackCollection outputTrackswTP;
+     m_trigInDetTrackFitter->fit(initialTracks, outputTracks, outputTrackswTP, ctx, m_particleHypothesis, true); // add TP to TSoS for dEdx
+
+     // large dEdx finding
+     mnt_timer_dEdxTrk.start();
+     for(auto t=outputTrackswTP.begin(); t!=outputTrackswTP.end();t++) { m_trackSummaryTool->updateTrack(**t); }
+     ATH_CHECK(finddEdxTrk(ctx,outputTrackswTP));
+  }
+
+  if( m_dodEdxTrk ) mnt_timer_dEdxTrk.stop(); // to include timing to destroy TrackCollection object
 
   if( outputTracks.empty() ) {
-    ATH_MSG_DEBUG("REGTEST / No tracks fitted");
+     ATH_MSG_DEBUG("REGTEST / No tracks fitted");
   }
 
   size_t counter(1);
@@ -657,27 +669,19 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     counter++; fittedTrack++;
   }
 
-  mnt_timer_TrackFitter.stop(); // Run3 monitoring
-  mnt_timer_Total.stop(); // Run3 monitoring
+  mnt_timer_TrackFitter.stop();
+  mnt_timer_Total.stop();
 
   if( outputTracks.empty() ) {
     ATH_MSG_DEBUG("REGTEST / No tracks reconstructed");
   }
-  mnt_roi_lastStageExecuted = 6; // Run3 monitoring
+  mnt_roi_lastStageExecuted = 6;
 
-  //
   // find L1 J seeded Hit-based displaced vertex
   if( m_doJseedHitDV ) {
      mnt_timer_JseedHitDV.start();
      ATH_CHECK(findJseedHitDV(ctx,convertedSpacePoints,outputTracks));
      mnt_timer_JseedHitDV.stop();
-  }
-
-  // large dEdx finding
-  if( m_dodEdxTrk ) {
-     mnt_timer_dEdxTrk.start();
-     ATH_CHECK(finddEdxTrk(ctx,outputTracks));
-     mnt_timer_dEdxTrk.stop();
   }
 
   //monitor Z-vertexing
@@ -690,7 +694,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   ///////////// fill vectors of quantities to be monitored
   fillMon(outputTracks, *vertices, roi, ctx);
 
-  mnt_roi_lastStageExecuted = 7; // Run3 monitoring
+  mnt_roi_lastStageExecuted = 7;
 
   return StatusCode::SUCCESS;
 }
@@ -911,7 +915,6 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
     float phi0 = trackPars->parameters()[Trk::phi0];
     float theta = trackPars->parameters()[Trk::theta];
     float eta = -log(tan(0.5*theta));
-    // Run3 monitoring ---------->
     mnt_trk_a0.push_back(a0);
     mnt_trk_z0.push_back(z0);
     mnt_trk_phi0.push_back(phi0);
@@ -921,7 +924,6 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
        mnt_trk_dPhi0.push_back(CxxUtils::wrapToPi(phi0 - (roi.at(i))->phi()));
        mnt_trk_dEta.push_back(eta - (roi.at(i))->eta());
     }
-    // <---------- Run3 monitoring
 
     float qOverP = trackPars->parameters()[Trk::qOverP];
     if (qOverP==0) {
@@ -957,7 +959,6 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
     mnt_trk_nPIXHits.push_back(nPix);
     mnt_trk_nSCTHits.push_back(nSct/2);
     mnt_trk_nSiHits.push_back(nPix + nSct/2);
-    // <---------- Run3 monitoring
 
     ATH_MSG_DEBUG("REGTEST / track npix/nsct/phi0/pt/eta/d0/z0/chi2: " <<
         nPix   << " / "  <<
@@ -978,7 +979,6 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
 
 void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const EventContext& ctx) const {
 
-  // Run3 monitoring ---------->
   std::vector<float> mnt_layer_IBL;
   std::vector<float> mnt_layer_PixB;
   std::vector<float> mnt_layer_PixE;
@@ -1073,7 +1073,6 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
   auto mon_hit_SCTEndcapL9PhiResidual = Monitored::Collection("hit_SCTEndcapL9PhiResidual",mnt_hit_SCTEndcapL9PhiResidual);
 
   auto monRes = Monitored::Group(m_monTool, mon_layer_IBL, mon_layer_PixB, mon_layer_PixE, mon_layer_SCTB, mon_layer_SCTE, mon_hit_IBLPhiResidual, mon_hit_IBLEtaResidual, mon_hit_IBLPhiPull, mon_hit_IBLEtaPull, mon_hit_PIXBarrelPhiResidual, mon_hit_PIXBarrelEtaResidual, mon_hit_PIXBarrelPhiPull, mon_hit_PIXBarrelEtaPull, mon_hit_SCTBarrelResidual, mon_hit_SCTBarrelPull, mon_hit_PIXEndcapPhiResidual, mon_hit_PIXEndcapEtaResidual, mon_hit_PIXEndcapPhiPull, mon_hit_PIXEndcapEtaPull, mon_hit_SCTEndcapResidual, mon_hit_SCTEndcapPull, mon_hit_PIXBarrelL1PhiResidual, mon_hit_PIXBarrelL1EtaResidual, mon_hit_PIXBarrelL2PhiResidual, mon_hit_PIXBarrelL2EtaResidual, mon_hit_PIXBarrelL3PhiResidual, mon_hit_PIXBarrelL3EtaResidual, mon_hit_PIXEndcapL1PhiResidual, mon_hit_PIXEndcapL1EtaResidual, mon_hit_PIXEndcapL2PhiResidual, mon_hit_PIXEndcapL2EtaResidual, mon_hit_PIXEndcapL3PhiResidual, mon_hit_PIXEndcapL3EtaResidual, mon_hit_SCTBarrelL1PhiResidual, mon_hit_SCTBarrelL2PhiResidual, mon_hit_SCTBarrelL3PhiResidual, mon_hit_SCTBarrelL4PhiResidual, mon_hit_SCTEndcapL1PhiResidual, mon_hit_SCTEndcapL2PhiResidual, mon_hit_SCTEndcapL3PhiResidual, mon_hit_SCTEndcapL4PhiResidual, mon_hit_SCTEndcapL5PhiResidual, mon_hit_SCTEndcapL6PhiResidual, mon_hit_SCTEndcapL7PhiResidual, mon_hit_SCTEndcapL8PhiResidual, mon_hit_SCTEndcapL9PhiResidual);
-  // <---------- Run3 monitoring
 
   std::vector<TrigL2HitResidual> vResid;
   vResid.clear();
@@ -1086,7 +1085,6 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
 
     switch(it->regionId()) {
       case Region::PixBarrel :
-        // Run3 monitoring ---------->
         mnt_layer_PixB.push_back(pixlayer);
         mnt_hit_PIXBarrelPhiResidual.push_back(it->phiResidual());
         mnt_hit_PIXBarrelPhiPull.push_back(it->phiPull());
@@ -1104,11 +1102,9 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
           mnt_hit_PIXBarrelL3PhiResidual.push_back(it->phiResidual());
           mnt_hit_PIXBarrelL3EtaResidual.push_back(it->etaResidual());
         }
-        // <---------- Run3 monitoring
         break;
       case Region::PixEndcap :
         ATH_MSG_DEBUG("Pixel Endcap "  );
-        // Run3 monitoring ---------->
         mnt_layer_PixE.push_back(pixlayer);
         mnt_hit_PIXEndcapPhiResidual.push_back(it->phiResidual());
         mnt_hit_PIXEndcapPhiPull.push_back(it->phiPull());
@@ -1128,7 +1124,6 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
         }
         break;
       case Region::SctBarrel :
-        // Run3 monitoring ---------->
         mnt_layer_SCTB.push_back(sctlayer);
         mnt_hit_SCTBarrelResidual.push_back(it->phiResidual());
         mnt_hit_SCTBarrelPull.push_back(it->phiPull());
@@ -1144,11 +1139,9 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
         if (sctlayer == 3) {
           mnt_hit_SCTBarrelL4PhiResidual.push_back(it->phiResidual());
         }
-        // <---------- Run3 monitoring
         break;
       case Region::SctEndcap :
         ATH_MSG_DEBUG("SCT Endcap"  );
-        // Run3 monitoring ---------->
         mnt_layer_SCTE.push_back(sctlayer);
         mnt_hit_SCTEndcapResidual.push_back(it->phiResidual());
         mnt_hit_SCTEndcapPull.push_back(it->phiPull());
@@ -1179,10 +1172,8 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
         if (sctlayer == 8) {
           mnt_hit_SCTEndcapL9PhiResidual.push_back(it->phiResidual());
         }
-        // <---------- Run3 monitoring
         break;
       case Region::IBL :
-        // Run3 monitoring ---------->
         mnt_layer_IBL.push_back(pixlayer);
         if (m_tcs.m_maxSiliconLayer==32) {
           mnt_hit_IBLPhiResidual.push_back(it->phiResidual());
@@ -1491,28 +1482,31 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
    const int    TRKCUT_N_HITS_PIX   = 2; 
    const int    TRKCUT_N_HITS       = 4;
 
-   const float  TRKCUT_PT_LOOSE     =  3.0;
-   const float  TRKCUT_PT_TIGHT     = 10.0;
+   const float  TRKCUT_PTGEV_LOOSE  =  3.0;
+   const float  TRKCUT_PTGEV_TIGHT  = 10.0;
    const float  TRKCUT_DEDX_LOOSE   =  1.25;
    const float  TRKCUT_DEDX_TIGHT   =  1.55;
 
    for (auto track : outputTracks) {
 
+      ATH_MSG_DEBUG("UTT: +++++++ i_track: " << i_track << " +++++++");
+
       i_track++;
       if ( ! track->perigeeParameters() ) continue; 
-      if ( ! track->trackSummary() )      continue; 
-      int n_hits_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
-      int n_hits_next_to_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
-      int n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
-      int n_hits_pix = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
-      int n_hits_sct = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
+      if ( ! track->trackSummary() )      continue;
+      float n_hits_innermost = 0;  float n_hits_next_to_innermost = 0; float n_hits_inner = 0; float n_hits_pix = 0; float n_hits_sct = 0;
+      n_hits_innermost = (float)track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
+      n_hits_next_to_innermost = (float)track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
+      n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
+      n_hits_pix = (float)track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
+      n_hits_sct = (float)track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
       if( n_hits_inner < TRKCUT_N_HITS_INNER )      continue;
       if( n_hits_pix < TRKCUT_N_HITS_PIX )          continue;
       if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS ) continue;
       float theta = track->perigeeParameters()->parameters()[Trk::theta]; 
       float pt    = std::abs(1./track->perigeeParameters()->parameters()[Trk::qOverP]) * sin(theta);
-      pt /= 1000.0;
-      if( pt < TRKCUT_PT_LOOSE ) continue;
+      float ptgev = pt / 1000.0;
+      if( ptgev < TRKCUT_PTGEV_LOOSE ) continue;
       float a0   = track->perigeeParameters()->parameters()[Trk::d0]; 
       float phi0 = track->perigeeParameters()->parameters()[Trk::phi0]; 
       float shift_x = 0; float shift_y = 0;
@@ -1520,7 +1514,6 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       float a0beam = a0 + shift_x*sin(phi0)-shift_y*cos(phi0);
       if( std::abs(a0beam) > TRKCUT_A0BEAM ) continue;
 
-      ATH_MSG_DEBUG("UTT: +++++++ i_track: " << i_track << " +++++++");
       ATH_MSG_DEBUG("UTT: calculate dEdx -->");
       int pixelhits=0; int n_usedhits=0;
       std::vector<float> v_pixhit_dedx; std::vector<float> v_pixhit_tot; std::vector<float> v_pixhit_trkchi2; std::vector<float> v_pixhit_trkndof;
@@ -1529,42 +1522,41 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
 			v_pixhit_iblovfl,v_pixhit_loc,v_pixhit_layer);
       ATH_MSG_DEBUG("UTT: --> dedx = " << dedx);
 
-      if( pt >= TRKCUT_PT_LOOSE ) {
-	 mnt_dedx.push_back(dedx);
-	 mnt_dedx_nusedhits.push_back(n_usedhits);
-      }
+      mnt_dedx.push_back(dedx);
+      mnt_dedx_nusedhits.push_back(n_usedhits);
 
-      bool hpt = (pt >= TRKCUT_PT_TIGHT && dedx >= TRKCUT_DEDX_LOOSE);
-      bool lpt = (pt >= TRKCUT_PT_LOOSE && dedx >= TRKCUT_DEDX_TIGHT);
+      bool hpt = (ptgev >= TRKCUT_PTGEV_TIGHT && dedx >= TRKCUT_DEDX_LOOSE);
+      bool lpt = (ptgev >= TRKCUT_PTGEV_LOOSE && dedx >= TRKCUT_DEDX_TIGHT);
       if( ! hpt && ! lpt ) continue;
 
       xAOD::TrigComposite *dEdxTrk = new xAOD::TrigComposite();
       dEdxTrk->makePrivateStore();
-      dEdxTrk->setDetail("trk_id", i_track);
-      dEdxTrk->setDetail("trk_pt", pt);
-      float eta = -log(tan(0.5*theta));
-      dEdxTrk->setDetail("trk_eta",  eta);
-      dEdxTrk->setDetail("trk_dedx", dedx);
-      dEdxTrk->setDetail("trk_dedx_n_usedhits", n_usedhits);
-      dEdxTrk->setDetail("trk_n_hits_innermost", n_hits_innermost);
-      dEdxTrk->setDetail("trk_n_hits_inner", n_hits_inner);
-      dEdxTrk->setDetail("trk_n_hits_pix", n_hits_pix);
-      dEdxTrk->setDetail("trk_n_hits_sct", n_hits_sct);
-      dEdxTrk->setDetail("trk_a0beam", a0beam);
       dEdxTrkContainer->push_back(dEdxTrk);
+      dEdxTrk->setDetail<int>  ("trk_id",   i_track);
+      dEdxTrk->setDetail<float>("trk_pt",   pt);
+      float eta = -log(tan(0.5*theta));
+      dEdxTrk->setDetail<float>("trk_eta",  eta);
+      dEdxTrk->setDetail<float>("trk_phi",  phi0);
+      dEdxTrk->setDetail<float>("trk_dedx", dedx);
+      dEdxTrk->setDetail<int>  ("trk_dedx_n_usedhits",  n_usedhits);
+      dEdxTrk->setDetail<float>("trk_a0beam",           a0beam);
+      dEdxTrk->setDetail<float>("trk_n_hits_innermost", n_hits_innermost);
+      dEdxTrk->setDetail<float>("trk_n_hits_inner",     n_hits_inner);
+      dEdxTrk->setDetail<float>("trk_n_hits_pix",       n_hits_pix);
+      dEdxTrk->setDetail<float>("trk_n_hits_sct",       n_hits_sct);
 
       for(unsigned int i=0; i<v_pixhit_dedx.size(); i++) {
 	 xAOD::TrigComposite *dEdxHit = new xAOD::TrigComposite();
 	 dEdxHit->makePrivateStore();
-	 dEdxHit->setDetail("hit_trkid",   i_track);
-	 dEdxHit->setDetail("hit_dedx",    v_pixhit_dedx[i]);
-	 dEdxHit->setDetail("hit_tot",     v_pixhit_tot[i]);
-	 dEdxHit->setDetail("hit_trkchi2", v_pixhit_trkchi2[i]);
-	 dEdxHit->setDetail("hit_trkndof", v_pixhit_trkndof[i]);
-	 dEdxHit->setDetail("hit_iblovfl", v_pixhit_iblovfl[i]);
-	 dEdxHit->setDetail("hit_loc",     v_pixhit_loc[i]);
-	 dEdxHit->setDetail("hit_layer",   v_pixhit_layer[i]);
 	 dEdxHitContainer->push_back(dEdxHit);
+	 dEdxHit->setDetail<int>  ("hit_trkid",   i_track);
+	 dEdxHit->setDetail<float>("hit_dedx",    v_pixhit_dedx[i]);
+	 dEdxHit->setDetail<float>("hit_tot",     v_pixhit_tot[i]);
+	 dEdxHit->setDetail<float>("hit_trkchi2", v_pixhit_trkchi2[i]);
+	 dEdxHit->setDetail<float>("hit_trkndof", v_pixhit_trkndof[i]);
+	 dEdxHit->setDetail<int>  ("hit_iblovfl", v_pixhit_iblovfl[i]);
+	 dEdxHit->setDetail<int>  ("hit_loc",     v_pixhit_loc[i]);
+	 dEdxHit->setDetail<int>  ("hit_layer",   v_pixhit_layer[i]);
       }
    }
 

@@ -31,10 +31,11 @@
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDQstatus.h"
-#include "TileConditions/TileCondToolPulseShape.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
-#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCalibData.h"
+#include "TileConditions/TilePulse.h"
+#include "TileConditions/TileSampleNoise.h"
+#include "TileConditions/TileEMScale.h"
+#include "TileConditions/TileBadChannels.h"
 #include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
@@ -90,13 +91,16 @@ class TileDigitsMaker: public AthReentrantAlgorithm {
                                        std::vector<std::vector<double>>& drawerBufferLo,
                                        std::vector<std::vector<double>>& drawerBufferHi,
                                        std::vector<int>& igain, int ros, int drawer, int drawerIdx,
-                                       std::vector<int>& over_gain, const EventContext &ctx) const;
+                                       std::vector<int>& over_gain, const TileEMScale* emScale,
+                                       const TileSampleNoise& sampleNoise, const TileDQstatus* dqStatus,
+                                       const TileBadChannels* badChannels) const;
 
     StatusCode fillDigitCollection(const TileHitCollection* hitCollection,
                                    std::vector<std::vector<double>>& drawerBufferLo,
                                    std::vector<std::vector<double>>& drawerBufferHi,
                                    std::vector<int>& igain, std::vector<int>& overgain, std::vector<double>& ech_int,
-                                   std::vector<bool> &signal_in_channel, const EventContext &ctx) const;
+                                   std::vector<bool> &signal_in_channel, const TileEMScale* emScale,
+                                   const TilePulse& pulse) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,
          "TileHitContainer", "TileHitCnt", "input Tile hit container key"};
@@ -132,7 +136,7 @@ class TileDigitsMaker: public AthReentrantAlgorithm {
          "IntegerDigits", true, "Round digits to integer"};
 
     Gaudi::Property<bool> m_calibRun{this,
-         "CalibrationRun", false, "If true then bad channels are masked"};
+         "CalibrationRun", false, "If true -> both high and low gain saved"};
 
     Gaudi::Property<bool> m_rndmEvtOverlay{this,
          "RndmEvtOverlay", false, "Pileup and/or noise added by overlaying random events (default=false)"};
@@ -195,17 +199,29 @@ class TileDigitsMaker: public AthReentrantAlgorithm {
     /// Random Stream Name
     Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Tile_DigitsMaker", ""};
 
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
-        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+    /**
+     * @brief Name of TileSampleNoise in condition store
+     */
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_sampleNoiseKey{this,
+        "TileSampleNoise", "TileSampleNoise", "Input Tile sample noise"};
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
-        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+    /**
+     * @brief Name of TileEMScale in condition store
+     */
+    SG::ReadCondHandleKey<TileEMScale> m_emScaleKey{this,
+        "TileEMScale", "TileEMScale", "Input Tile EMS calibration constants"};
 
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
-        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
+    /**
+     * @brief Name of TilePulseShape in condition store
+     */
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_pulseShapeKey{this,
+        "TilePulseShape", "TilePulseShape", "Input Tile pulse shape"};
 
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
-        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+    /**
+     * @brief Name of TileBadChannels in condition store
+     */
+    SG::ReadCondHandleKey<TileBadChannels> m_badChannelsKey{this,
+        "TileBadChannels", "TileBadChannels", "Input Tile bad channel status"};
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey {this,
         "TileDQstatus", "", "Input TileDQstatus key" };

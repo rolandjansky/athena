@@ -53,6 +53,7 @@ class _ConfigSettingsBase() :
       self._minNSiHits_vtx      = None
       self._vertex_jet          = None
       self._adaptiveVertex_jet  = False
+      self._dodEdxTrk           = False
       
    def tracks_FTF(self):
       if not self._suffix:
@@ -259,6 +260,9 @@ class _ConfigSettingsBase() :
    def TracksMaxZinterval(self):
       return self._TracksMaxZinterval
 
+   @property
+   def dodEdxTrk(self):
+       return self._dodEdxTrk
 
    def printout(self):
       from AthenaCommon.Logging import logging

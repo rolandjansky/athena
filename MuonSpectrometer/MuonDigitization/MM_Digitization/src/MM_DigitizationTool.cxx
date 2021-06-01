@@ -803,8 +803,8 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 	continue;
       }
       
-      // Perform Bound Check
-      if( !surf.insideBounds(positionOnSurface) ){
+      // Perform Bound Check (making the call from the detector element to consider edge passivation)
+      if( !detectorReadoutElement->insideActiveBounds(layerID, positionOnSurface) ) {
 	m_exitcode = 1;
 	if(m_writeOutputFile) m_ntuple->Fill();
 	ATH_MSG_DEBUG( "m_exitcode = 1 : shiftTimeOffset = "

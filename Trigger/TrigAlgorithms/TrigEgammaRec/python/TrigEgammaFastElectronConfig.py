@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigEgammaFastRec.TrigEgammaFastRecConf import TrigEgammaFastElectronReAlgo
+from TrigEgammaRec.TrigEgammaRecConf import TrigEgammaFastElectronReAlgo
 from AthenaCommon.SystemOfUnits import GeV, mm
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool

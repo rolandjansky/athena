@@ -26,7 +26,7 @@ def precisionTrackSequence_LRT(ConfigFlags):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
     
     # calling precision tracking
-    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackSequences_LRT import precisionTracking_LRT
+    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackingSequences_LRT import precisionTracking_LRT
     precisionTrackInViewSequence, trackparticles = precisionTracking_LRT(InViewRoIs, precisionCaloMenuDefs_LRT.precisionCaloClusters)
     
     precisionTrackInViewAlgs = parOR("precisionTrackInViewAlgs_LRT", [precisionTrackInViewSequence])

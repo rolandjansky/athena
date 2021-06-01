@@ -9,8 +9,7 @@ def getConfiguredTLAPhotonSelector(photonPtThreshold=10000, maxNPhotons=-1, inpu
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-
-    TrigEgammaTLAPhotonFex = conf2toConfigurable(CompFactory.TrigEgammaTLAPhotonFex() )
+    TrigEgammaTLAPhotonFex = conf2toConfigurable(CompFactory.TrigEgammaTLAPhotonReAlgo() )
 
     TrigEgammaTLAPhotonFex.photonPtThreshold = photonPtThreshold
     TrigEgammaTLAPhotonFex.maxNPhotons = maxNPhotons

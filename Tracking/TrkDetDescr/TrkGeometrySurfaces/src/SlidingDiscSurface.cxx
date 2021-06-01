@@ -70,7 +70,7 @@ Trk::SlidingDiscSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::V
 bool
 Trk::SlidingDiscSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D&, Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D loc3D0 = glopos; // used to retrieve localEta bin
+  const Amg::Vector3D& loc3D0 = glopos; // used to retrieve localEta bin
   Amg::Vector3D loc3Dframe(Trk::Surface::transform().inverse() * glopos);
   locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi());
   return (std::abs(loc3Dframe.z() - m_depth[m_etaBin.bin(loc3D0)]) <= s_onSurfaceTolerance);
@@ -82,7 +82,7 @@ Trk::SlidingDiscSurface::isOnSurface(const Amg::Vector3D& glopo,
                                      double tol1,
                                      double tol2) const
 {
-  Amg::Vector3D loc3D0 = glopo; // used to retrieve localEta bin
+  const Amg::Vector3D& loc3D0 = glopo; // used to retrieve localEta bin
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
   float offset = m_depth[m_etaBin.bin(loc3D0)];
   if (std::abs(loc3Dframe.z() - offset) > (s_onSurfaceTolerance + tol1)){
@@ -98,7 +98,7 @@ Trk::SlidingDiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, 
   double tol = 0.001;
 
   // retrieve localEta bin using current position
-  Amg::Vector3D loc3D0 = pos; // used to retrieve localEta bin
+  const Amg::Vector3D& loc3D0 = pos; // used to retrieve localEta bin
   float offset = m_depth[m_etaBin.bin(loc3D0)];
 
   // slide surface

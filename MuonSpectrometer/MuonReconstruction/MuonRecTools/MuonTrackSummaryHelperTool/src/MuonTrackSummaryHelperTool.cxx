@@ -12,6 +12,7 @@
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -246,11 +247,18 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&
             double tol1 = 100.;
             double tol2 = 2 * tol1;
             if (!pseudo && m_idHelperSvc->isMdt(id)) tol1 = 5.;
+
             // we need a special bound check for MDTs so we cast to SL surface
             const Trk::StraightLineSurface* slSurf = dynamic_cast<const Trk::StraightLineSurface*>(&meas->associatedSurface());
+            // we need a special bound check also for MMs to consider edge passivation
+            const MMClusterOnTrack* mmClusterOnTrack = dynamic_cast<const MMClusterOnTrack*>(meas);
+
             if (slSurf) {
                 // perform bound check only for second coordinate
                 inBounds = slSurf->bounds().insideLoc2(locPos, tol2);
+            } else if (mmClusterOnTrack) {
+                // for MM, perform the bound check from the detector element
+                inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, locPos, tol1, tol2);
             } else {
                 inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
             }

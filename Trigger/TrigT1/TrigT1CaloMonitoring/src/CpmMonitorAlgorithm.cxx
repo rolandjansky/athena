@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CpmMonitorAlgorithm.h"
@@ -215,7 +215,7 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     }
     if (isolation) {
       // fill isolation bits
-      int * isolbits=getIsolationBits(isolation, m_isolBits, 1);
+      std::vector<bool> isolbits=getIsolationBits(isolation, m_isolBits, 1);
       for (int thr = 0; thr < m_isolBits; ++thr) {
 	if (isolbits[thr]){
 	  if(type==0) {
@@ -741,21 +741,17 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 }
 
 
-int* CpmMonitorAlgorithm::getIsolationBits(int val, int nThresh, int nBits, int offset) const
+std::vector<bool> CpmMonitorAlgorithm::getIsolationBits(int val, int nThresh, int nBits) const
 {
-  // return array of threshold bits
-  // 
-  static int nthres[20]={0};
-  for (int thr = 0; thr < 20; ++thr) {
-    nthres[thr]=0;
-  }
+  // return vector of threshold bits
+  //
+  std::vector<bool> nthres(nThresh, false);
+
   if (val) {
     const int mask = (1 << nBits) - 1;
     for (int thr = 0; thr < nThresh; ++thr) {
       const int hit = (val >> (nBits*thr)) & mask;
-      if (hit) {
-	nthres[thr+offset]=hit;
-      }  
+      nthres[thr] = bool(hit);
     }
   } else {
     ATH_MSG_WARNING("getIsolationBits: no input word supplied" ); 
