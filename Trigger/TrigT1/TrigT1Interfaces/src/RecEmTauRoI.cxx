@@ -69,7 +69,10 @@ RecEmTauRoI::RecEmTauRoI( const RecEmTauRoI &obj ) {
 }
 
 // written assignment operator
-RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &obj ) { 
+RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &/*obj*/ ) {
+   // WARNING: I commented out the above argument to silence warnings
+   // in 21.2, but I am not sure if this is the intended behavior.
+   // This change should not be swept to any other branches.
    return *this;
 }
 

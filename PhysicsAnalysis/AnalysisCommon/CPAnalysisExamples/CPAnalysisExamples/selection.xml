@@ -1,5 +1,5 @@
 
 <lcgdict>
-   <class name="MetadataToolExample" />
-   <class name="IMetadataToolExample" />
+   <class name="CP::MetadataToolExample" />
+   <class name="CP::IMetadataToolExample" />
 </lcgdict>

@@ -13,6 +13,12 @@
 // Wolfgang Liebig <http://consult.cern.ch/xwho/people/54608>
 ///////////////////////////////////////////////////////////////////
 
+// WARNING: This specifically disables warnings in 21.2 that we do not
+// intend to fix anymore.  It should not be swept to any other
+// branches.
+#pragma GCC diagnostic ignored "-Waddress"
+#pragma GCC diagnostic ignored "-Wnonnull-compare"
+
 #include "TrkMeasurementUpdator/KalmanUpdator.h"
 
 #include "TrkParameters/TrackParameters.h"
