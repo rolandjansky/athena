@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Trigger BS->RDO_TRIG athena test of the MC_pp_run3_v1 menu
+# art-description: Trigger BS->RDO_TRIG athena test of the Dev_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
@@ -25,7 +25,9 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 1
-ex.args = '-c "setMenu=\'MC_pp_run3_v1\';doL1Sim=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.max_events = 2000
+# LS2_v1 soon to be renamed to Dev_pp_run3_v1
+ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=False;doL1Sim=False;doWriteRDOTrigger=True;doRuntimeNaviVal=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'
