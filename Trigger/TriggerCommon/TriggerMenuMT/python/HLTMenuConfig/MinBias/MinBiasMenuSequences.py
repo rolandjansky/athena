@@ -97,8 +97,8 @@ def MinBiasZVertexFinderSequence():
     vdv = CfgMgr.AthViews__ViewDataVerifier( "VDVZFinderInputs" )
     vdv.DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), ( 'PixelID' , 'DetectorStore+PixelID' ) ]
 
-    from IDScanZFinder.IDScanZFinderConf import  TrigZFinderAlg
-    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, TrigZFinderAlg() ])
+    from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderAlg
+    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, MinBiasZFinderAlg ])
     
     #idTrigConfig = getInDetTrigConfig('InDetSetup')
     ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
