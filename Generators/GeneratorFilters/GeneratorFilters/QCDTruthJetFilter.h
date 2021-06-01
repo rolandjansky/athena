@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_QCDTRUTHJETFILTER_H
@@ -26,8 +26,6 @@ private:
   double m_MinEta; //!< Min eta for the truth jets
   double m_MaxEta; //!< Max eta for the truth jets
   double m_StartMinEta; //!< Default start value for min eta
-  double m_MinPhi;  //!< Min phi for the lead truth jet
-  double m_MaxPhi;
   bool   m_SymEta; //!< Use symmetric cut for min eta? (Default false for p-Pb run filters)
   
   std::string m_TruthJetContainerName;  //!< Name of the truth jet container

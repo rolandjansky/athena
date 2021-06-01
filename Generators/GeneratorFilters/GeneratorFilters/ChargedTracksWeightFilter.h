@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_CHARGEDTRACKSWEIGHTFILTER_H
@@ -71,18 +71,11 @@ private:
 
   Spline m_spline;
 
-  /// Minimum number of tracks for weighting
-  int m_wrange_nchmin;
-
-  /// Maximum number of tracks for weighting
-  int m_wrange_nchmax;
-
   /// Spline points
   std::vector<double> m_weight_fun_x;
   std::vector<double> m_weight_fun_y;
 
   double m_min_weight = 0;
-  double m_norm = 0;
 
   /// Number of events passing selection (weighted, orig weight)
   double m_nevents_selected = 0;
