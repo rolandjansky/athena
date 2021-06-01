@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Test running on ALFACalib data with ALFA ROB Monitor enabled
+# art-description: Trigger athenaHLT test of the Cosmic_run3_v1 menu on physics_Main stream from a cosmic run
 # art-type: build
 # art-include: master/Athena
 
@@ -10,10 +10,9 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'data_ALFACalib'
-ex.args = '-c "enableALFAMon=True;"'
-# This test should ultimately run just ALFA chains, but until this is available we use full PhysicsP1 menu
-ex.args += ' -c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+ex.input = 'data_cos'
+ex.max_events = 100
+ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=False;forceEnableAllChains=True;"'
 
 test = Test.Test()
 test.art_type = 'build'
