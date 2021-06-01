@@ -78,7 +78,7 @@ namespace InDet {
     // Register the IdentifiableContainer into StoreGate
     SG::WriteHandle<SCT_ClusterContainer> clusterContainer{m_clusterContainerKey, ctx};
     if (m_clusterContainerCacheKey.key().empty()) {
-      ATH_CHECK(clusterContainer.record(std::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max())));
+      ATH_CHECK(clusterContainer.record(std::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max(), EventContainers::Mode::OfflineFast)));
     } else {
       SG::UpdateHandle<SCT_ClusterContainerCache> clusterContainercache{m_clusterContainerCacheKey, ctx};
       ATH_CHECK(clusterContainer.record(std::make_unique<SCT_ClusterContainer>(clusterContainercache.ptr())));
@@ -148,11 +148,9 @@ namespace InDet {
               unsigned int nFiredStrips{0};
               for (const SCT_RDORawData* rdo: *rd) nFiredStrips += rdo->getGroupSize();
               if (nFiredStrips > m_maxFiredStrips.value()) {
-                if (flaggedCondMap.count(rd->identifyHash())==0) {
-                  flaggedCondMap[rd->identifyHash()]  = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
-                } else {
-                  flaggedCondMap[rd->identifyHash()] |= (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
-                }
+                //This should work in the case of a new code or existing, since the default init is 0
+                constexpr int value = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                auto [pPair, inserted] = flaggedCondMap.insert({rd->identifyHash(),value}); if (not inserted){ pPair->second |= value; }
                 continue;
               }
             }
@@ -198,11 +196,9 @@ namespace InDet {
 		unsigned int nFiredStrips{0};
 		for (const SCT_RDORawData* rdo: *RDO_Collection) nFiredStrips += rdo->getGroupSize();
 		if (nFiredStrips > m_maxFiredStrips.value()) {
-                  if (flaggedCondMap.count(id)==0) {
-                    flaggedCondMap[id]  = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
-                  } else {
-                    flaggedCondMap[id] |= (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
-                  }
+                  //This should work in the case of a new code or existing, since the default init is 0
+                  constexpr int value = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                  auto [pPair, inserted] = flaggedCondMap.insert({id,value}); if (not inserted){ pPair->second |= value; }
                   continue;
 		}
 	      }
