@@ -47,7 +47,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
 
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
-    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-03')
+    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')
 
     # Enable Inner Detector
     flags.addFlag('Trigger.doID', True)
