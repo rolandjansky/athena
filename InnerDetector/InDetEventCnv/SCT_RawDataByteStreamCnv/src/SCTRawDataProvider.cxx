@@ -101,6 +101,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey, ctx};
     ATH_CHECK(roiCollection.isValid());
     TrigRoiDescriptor superRoI; // Add all RoIs to a super-RoI
+    superRoI.reserve(roiCollection->size());
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
     for (const TrigRoiDescriptor* roi : *roiCollection) {
