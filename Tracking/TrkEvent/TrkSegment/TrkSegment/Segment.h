@@ -11,16 +11,12 @@
 
 // Trk
 #include "TrkMeasurementBase/MeasurementBase.h"
-// Identifier
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-#include <ostream>
-#include <vector>
-
 #include "AthContainers/DataVector.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include <atomic>
-class MsgStream;
+#include <string>
+#include <memory>
+#include <vector>
 class SegmentCnv_p1;
 
 namespace Trk{
@@ -38,7 +34,7 @@ class FitQuality;
     Trk::LocalParameters, an Trk::ErrorMatrix and a number of fitted 
     RIOs are the commonalities of all track segments, the derived classes
     can overwrite the base class definitions of Trk::RIO_OnTrack, Trk::PrepRawData
-    and Trk::Surface with derived classes for interanal use and to avoid extensive RTTI.
+    and Trk::Surface with derived classes for internal use and to avoid extensive RTTI.
     
     The Surface is chosen not to be a private member of
     the base class, such that dedicated Segments can save specific Surface types and overwrite
@@ -96,6 +92,11 @@ class FitQuality;
   
       /** Pseudo-constructor:  needed to avoid excessive RTTI*/
       virtual Segment* clone() const override = 0;
+      
+      /** NVI uniqueClone method **/
+      std::unique_ptr<Segment> uniqueClone() const {
+        return std::unique_ptr<Segment>(clone());
+      }
       
       /** Extended method checking the type*/
       virtual bool type(MeasurementBaseType::Type type) const override final

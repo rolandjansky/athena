@@ -17,10 +17,12 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 // Identifier
 #include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-#include <ostream>
-#include <atomic>
 
+#include <iosfwd>
+#include <atomic>
+#include <memory>
+
+class IdentifierHash;
 class MsgStream;
 class RIO_OnTrackCnv_p1;
 class RIO_OnTrackCnv_p2;
@@ -84,6 +86,11 @@ namespace Trk {
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
       virtual RIO_OnTrack* clone() const override = 0;
+      
+      /** NVI clone returning unique_ptr*/
+      std::unique_ptr<RIO_OnTrack> uniqueClone() const{
+        return std::unique_ptr<RIO_OnTrack>(clone());
+      };
                 
      /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
