@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/MultiElecMuTauFilter.h"
@@ -9,16 +9,25 @@
 MultiElecMuTauFilter::MultiElecMuTauFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator)
 {
-  declareProperty("MinPt",            m_minPt          = 5000. );
-  declareProperty("MaxEta",           m_maxEta         = 10.0  );
-  declareProperty("MinVisPtHadTau",   m_minVisPtHadTau = 10000.);
-  declareProperty("NLeptons",         m_NLeptons       = 4     );
-  declareProperty("IncludeHadTaus",   m_incHadTau      = true  );
+declareProperty("MinPt",                             m_minPt                            = 5000. );
+declareProperty("MaxEta",                            m_maxEta                           = 10.0  );
+declareProperty("MinVisPtHadTau",                    m_minVisPtHadTau                   = 10000.);
+declareProperty("NLeptons",                          m_NLeptons                         = 4     );
+declareProperty("IncludeHadTaus",                    m_incHadTau                        = true  );
+declareProperty("TwoSameSignLightLeptonsOneHadTau",  m_TwoSameSignLightLeptonsOneHadTau = false );
 }
 
 
 StatusCode MultiElecMuTauFilter::filterEvent() {
   int numLeptons = 0;
+  int numLightLeptons = 0;
+  int numHadTaus = 0;
+  if (m_TwoSameSignLightLeptonsOneHadTau) {
+    if (m_NLeptons!=3) ATH_MSG_ERROR("TwoSameSignLightLeptonsOneHadTau request possible only for NLeptons = 3. Check your jobOptions.");
+  }
+  int charge1 = 0; 
+  int charge2 = 0; 
+
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
@@ -31,6 +40,10 @@ StatusCode MultiElecMuTauFilter::filterEvent() {
                         << ", pt = "     <<  pitr->momentum().perp()
                         << ", eta = "    <<  pitr->momentum().pseudoRapidity());
           numLeptons++;
+          numLightLeptons++;
+          if (numLightLeptons==1) { if (pitr->pdg_id() < 0) { charge1 = -1; } else { charge1 = 1; } } 
+          if (numLightLeptons==2) { if (pitr->pdg_id() < 0) { charge2 = -1; } else { charge2 = 1; } } 
+
         }
         continue;
       }
@@ -66,7 +79,7 @@ StatusCode MultiElecMuTauFilter::filterEvent() {
           }
         }
 
-        if (tau && taunu) {
+        if (tau) {
           // Good hadronic decay
           CLHEP::HepLorentzVector tauVisMom = CLHEP::HepLorentzVector(tau->momentum().px() - taunu->momentum().px(),
                                                         tau->momentum().py() - taunu->momentum().py(),
@@ -78,13 +91,25 @@ StatusCode MultiElecMuTauFilter::filterEvent() {
                           << ", vis pt = " << tauVisMom.perp()
                           << ", eta = " <<  tauVisMom.pseudoRapidity());
             numLeptons++;
+            numHadTaus++;
           }
         }
       }
+ }
 
+ bool passed_event = false;
+  if (m_TwoSameSignLightLeptonsOneHadTau) {
+    if ( ((numLightLeptons+numHadTaus)==numLeptons) && numLightLeptons == 2 && numHadTaus == 1 && charge1==charge2 ) {
+      ATH_MSG_INFO("Found " << numLeptons << " Leptons: two same sign ligh leptons + one hadronic tau! Event passed.");
+      passed_event = true;
+    }
+  } else {
+    if ( numLeptons >= m_NLeptons ) {
+      ATH_MSG_INFO("Found " << numLeptons << "Leptons. Event passed.");
+      passed_event = true;
+    }
   }
+  setFilterPassed(passed_event);
 
-  ATH_MSG_INFO("Found " << numLeptons << "Leptons");
-  setFilterPassed(numLeptons >= m_NLeptons);
   return StatusCode::SUCCESS;
 }
