@@ -12,11 +12,11 @@ LArStraightElectrodes* LArStraightElectrodes::s_instance=nullptr;
 
 PhysicalVolumeAccessor* LArStraightElectrodes::s_theElectrodes=nullptr;
 
+std::once_flag LArStraightElectrodes::s_flag;
+
 LArStraightElectrodes*  LArStraightElectrodes::GetInstance(const std::string& strDetector)
 {
-  if (s_instance==nullptr) {
-    s_instance = new LArStraightElectrodes(strDetector);
-  }
+  std::call_once( s_flag, [&](){ s_instance = new LArStraightElectrodes(strDetector); } );
   return s_instance;
 }
 

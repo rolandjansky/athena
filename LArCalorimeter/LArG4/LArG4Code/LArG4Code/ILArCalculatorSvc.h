@@ -31,6 +31,9 @@ public:
 
   virtual ~ILArCalculatorSvc() {};
 
+  // A deferred initialisation method to be called once geometry available
+  virtual void initializeForSDCreation() = 0;
+
   // "OOTcut" the time cut (ns) after which an energy deposit is
   // considered to be out-of-time w.r.t. the event.
   virtual G4float OOTcut() const = 0;

@@ -126,17 +126,22 @@ namespace LArG4 {
       // Initialize r-phi reference map
       this->GetRphi();
 
-      // get pointers to access G4 geometry
-      m_electrode = LArStraightElectrodes::GetInstance(m_detectorName);
-      m_absorber  = LArStraightAbsorbers::GetInstance(m_detectorName);
-      m_coudeelec = LArCoudeElectrodes::GetInstance(m_detectorName);
-      m_coudeabs  = LArCoudeAbsorbers::GetInstance(m_detectorName);
-
       if (m_detectorName.empty()) m_ecamName  = "LAr::EMB::ECAM";
       else                        m_ecamName  = m_detectorName+"::LAr::EMB::ECAM";
 
 
       return StatusCode::SUCCESS;
+    }
+
+    // ====================================================================================
+
+    void Geometry::initializeForSDCreation()
+    {
+      // get pointers to access G4 geometry
+      m_electrode = LArStraightElectrodes::GetInstance(m_detectorName);
+      m_absorber  = LArStraightAbsorbers::GetInstance(m_detectorName);
+      m_coudeelec = LArCoudeElectrodes::GetInstance(m_detectorName);
+      m_coudeabs  = LArCoudeAbsorbers::GetInstance(m_detectorName);
     }
 
     // ====================================================================================

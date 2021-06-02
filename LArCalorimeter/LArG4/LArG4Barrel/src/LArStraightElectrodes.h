@@ -7,6 +7,7 @@
 
 #include "PhysicalVolumeAccessor.h"
 #include <string>
+#include <mutex>
 
 class LArStraightElectrodes {
 private:
@@ -19,6 +20,7 @@ private:
   bool m_filled;
   static LArStraightElectrodes* s_instance;
   int m_parity;
+  static std::once_flag s_flag;
 public:
   static LArStraightElectrodes* GetInstance(const std::string& strDetector="") ;
   double XCentEle(int stackid, int cellid) const;
