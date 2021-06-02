@@ -1,6 +1,6 @@
 #!/bin/bash
 # art-description: Generation test Powheg+Pythia8 W->enu 
-# art-include: 21.6/AthGeneration
+# art-include: master/AthGeneration
 # art-type: build
 # art-output: *.root
 # art-output: log.generate

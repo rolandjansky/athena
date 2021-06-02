@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: Generation test Powheg LHE-only ZZ
 # art-type: build
-# art-include: 21.6/AthGeneration
+# art-include: master/AthGeneration
 # art-output: *.root
 # art-output: log.generate
 
