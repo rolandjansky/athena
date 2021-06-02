@@ -62,8 +62,8 @@ namespace Rec {
         const Trk::TrackStateOnSurface* innerTSOS(const Trk::TrackParameters& parameters) const override;
         const Trk::TrackStateOnSurface* outerTSOS(const Trk::TrackParameters& parameters) const override;
 
-        std::unique_ptr<const Trk::TrackStateOnSurface> innerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const;
-        std::unique_ptr<const Trk::TrackStateOnSurface> outerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const;
+        std::unique_ptr< Trk::TrackStateOnSurface> innerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const;
+        std::unique_ptr< Trk::TrackStateOnSurface> outerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const;
 
         /**IMuidCaloTrackStateOnSurface interface:
            to get the energy deposit TSOS representing the calorimeter.
@@ -73,7 +73,7 @@ namespace Rec {
         const Trk::TrackStateOnSurface* middleTSOS(const Trk::TrackParameters& middleParameters,
                                                    const Trk::TrackParameters* innerParameters,
                                                    const Trk::TrackParameters* outerParameters) const override;
-        std::unique_ptr<const Trk::TrackStateOnSurface> middleTSOS(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
+        std::unique_ptr< Trk::TrackStateOnSurface> middleTSOS(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
                                                                    const Trk::TrackParameters* innerParameters,
                                                                    const Trk::TrackParameters* outerParameters) const;
 

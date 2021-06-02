@@ -54,7 +54,7 @@ namespace Rec {
 
         /**IMuidCaloMaterialParam interface:
            TrackStateOnSurface for parameters at a scattering surface */
-        const Trk::TrackStateOnSurface* trackStateOnSurface(const Trk::TrackParameters* parameters) const override;
+        std::unique_ptr<Trk::TrackStateOnSurface> trackStateOnSurface(const Trk::TrackParameters& parameters) const override;
 
     private:
         // private methods
