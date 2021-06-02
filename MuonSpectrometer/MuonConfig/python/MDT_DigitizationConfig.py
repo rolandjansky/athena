@@ -98,7 +98,6 @@ def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MDT_SDO")
-    kwargs.setdefault("GetT0FromBD", flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Input.isMC)
     return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 
