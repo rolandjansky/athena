@@ -160,12 +160,172 @@ private:
     TH1* m_vx_z_asym_merged;
     TH1* m_vx_z_asym_split;
     TH1* m_vx_z_asym_fake;
+    TH1* m_vx_track_weight_matched;
+    TH1* m_vx_track_weight_merged;
+    TH1* m_vx_track_weight_split;
+    TH1* m_vx_track_weight_fake;
+    TH1* m_vx_track_weight_HS_matched;
+    TH1* m_vx_track_weight_HS_merged;
+    TH1* m_vx_track_weight_HS_split;
+    TH1* m_vx_track_weight_HS_fake;
     TH1* m_vx_z_asym_HS_matched;
     TH1* m_vx_z_asym_HS_merged;
     TH1* m_vx_z_asym_HS_split;
     TH1* m_vx_z_asym_HS_fake;
+    
+    TH1* m_vx_normalised_track_weight_matched;
+    TH1* m_vx_normalised_track_weight_merged;
+    TH1* m_vx_normalised_track_weight_split;
+    TH1* m_vx_normalised_track_weight_fake;
+    TH1* m_vx_normalised_track_weight_HS_matched;
+    TH1* m_vx_normalised_track_weight_HS_merged;
+    TH1* m_vx_normalised_track_weight_HS_split;
+    TH1* m_vx_normalised_track_weight_HS_fake;
+
+    TH1* m_vx_d_asym_matched;
+    TH1* m_vx_d_asym_merged;
+    TH1* m_vx_d_asym_split;
+    TH1* m_vx_d_asym_fake;
+    TH1* m_vx_d_asym_HS_matched;
+    TH1* m_vx_d_asym_HS_merged;
+    TH1* m_vx_d_asym_HS_split;
+    TH1* m_vx_d_asym_HS_fake;
+
+    TH1* m_vx_chi2Over_ndf_matched;
+    TH1* m_vx_chi2Over_ndf_merged;
+    TH1* m_vx_chi2Over_ndf_split;
+    TH1* m_vx_chi2Over_ndf_fake;
+    TH1* m_vx_chi2Over_ndf_HS_matched;
+    TH1* m_vx_chi2Over_ndf_HS_merged;
+    TH1* m_vx_chi2Over_ndf_HS_split;
+    TH1* m_vx_chi2Over_ndf_HS_fake;
+
+// histo to get skewness and kurtosis of z0 of tracks around vertex
+   
+    TH1* m_vx_z0_skewness_HS_matched;
+    TH1* m_vx_z0_kurtosis_HS_matched;
+    TH1* m_vx_z0_skewness_matched;
+    TH1* m_vx_z0_kurtosis_matched;
+    TH1* m_vx_z0_skewness_HS_merged;
+    TH1* m_vx_z0_kurtosis_HS_merged;
+    TH1* m_vx_z0_skewness_merged;
+    TH1* m_vx_z0_kurtosis_merged;
+    TH1* m_vx_z0_skewness_HS_split;
+    TH1* m_vx_z0_kurtosis_HS_split;
+    TH1* m_vx_z0_skewness_split;
+    TH1* m_vx_z0_kurtosis_split;
+    TH1* m_vx_z0_skewness_HS_fake;
+    TH1* m_vx_z0_kurtosis_HS_fake;
+    TH1* m_vx_z0_skewness_fake;
+    TH1* m_vx_z0_kurtosis_fake;
+
+    TH1* m_vx_d0_skewness_HS_matched;
+    TH1* m_vx_d0_skewness_HS_merged;
+    TH1* m_vx_d0_skewness_HS_split;
+    TH1* m_vx_d0_skewness_HS_fake;
+    TH1* m_vx_d0_skewness_matched;
+    TH1* m_vx_d0_skewness_merged;
+    TH1* m_vx_d0_skewness_split;
+    TH1* m_vx_d0_skewness_fake;
+    TH1* m_vx_d0_kurtosis_HS_matched;
+    TH1* m_vx_d0_kurtosis_HS_merged;
+    TH1* m_vx_d0_kurtosis_HS_split;
+    TH1* m_vx_d0_kurtosis_HS_fake;
+    TH1* m_vx_d0_kurtosis_matched;
+    TH1* m_vx_d0_kurtosis_merged;
+    TH1* m_vx_d0_kurtosis_split;
+    TH1* m_vx_d0_kurtosis_fake;
 
 
+    TH1* m_vx_pt_skewness_matched;
+    TH1* m_vx_pt_skewness_merged;
+    TH1* m_vx_pt_skewness_split;
+    TH1* m_vx_pt_skewness_fake;
+    TH1* m_vx_pt_skewness_HS_matched;
+    TH1* m_vx_pt_skewness_HS_merged;
+    TH1* m_vx_pt_skewness_HS_split;
+    TH1* m_vx_pt_skewness_HS_fake;
+    TH1* m_vx_pt_kurtosis_matched;
+    TH1* m_vx_pt_kurtosis_merged;
+    TH1* m_vx_pt_kurtosis_split;
+    TH1* m_vx_pt_kurtosis_fake;
+    TH1* m_vx_pt_kurtosis_HS_matched;
+    TH1* m_vx_pt_kurtosis_HS_merged;
+    TH1* m_vx_pt_kurtosis_HS_split;
+    TH1* m_vx_pt_kurtosis_HS_fake;
+    // ALL Vertices
+    TH1* m_vx_sumpT_ALL_matched;
+    TH1* m_vx_sumpT_ALL_merged;
+    TH1* m_vx_sumpT_ALL_split;
+    TH1* m_vx_sumpT_ALL_fake;
+    
+    TH1* m_vx_sumCharge_ALL_matched;
+    TH1* m_vx_sumCharge_ALL_merged;
+    TH1* m_vx_sumCharge_ALL_split;
+    TH1* m_vx_sumCharge_ALL_fake;
+    TH1* m_vx_sumCharge_N_trk_ALL_matched;
+    TH1* m_vx_sumCharge_N_trk_ALL_merged;
+    TH1* m_vx_sumCharge_N_trk_ALL_split;
+    TH1* m_vx_sumCharge_N_trk_ALL_fake;
+    TH1* m_vx_z_asym_ALL_matched;
+    TH1* m_vx_z_asym_ALL_merged;
+    TH1* m_vx_z_asym_ALL_split;
+    TH1* m_vx_z_asym_ALL_fake;
+    TH1* m_vx_track_weight_ALL_matched;
+    TH1* m_vx_track_weight_ALL_merged;
+    TH1* m_vx_track_weight_ALL_split;
+    TH1* m_vx_track_weight_ALL_fake;
+    TH1* m_vx_normalised_track_weight_ALL_matched;
+    TH1* m_vx_normalised_track_weight_ALL_merged;
+    TH1* m_vx_normalised_track_weight_ALL_split;
+    TH1* m_vx_normalised_track_weight_ALL_fake;
+    TH1* m_vx_d_asym_ALL_matched;
+    TH1* m_vx_d_asym_ALL_merged;
+    TH1* m_vx_d_asym_ALL_split;
+    TH1* m_vx_d_asym_ALL_fake;
+
+    TH1* m_vx_chi2Over_ndf_ALL_matched;
+    TH1* m_vx_chi2Over_ndf_ALL_merged;
+    TH1* m_vx_chi2Over_ndf_ALL_split;
+    TH1* m_vx_chi2Over_ndf_ALL_fake;
+
+// histo to get skewness and kurtosis of z0 of tracks around vertex
+   
+    TH1* m_vx_z0_skewness_ALL_matched;
+    TH1* m_vx_z0_kurtosis_ALL_matched;
+    TH1* m_vx_z0_skewness_ALL_merged;
+    TH1* m_vx_z0_kurtosis_ALL_merged;
+    TH1* m_vx_z0_skewness_ALL_split;
+    TH1* m_vx_z0_kurtosis_ALL_split;
+    TH1* m_vx_z0_skewness_ALL_fake;
+    TH1* m_vx_z0_kurtosis_ALL_fake;
+
+    TH1* m_vx_d0_skewness_ALL_matched;
+    TH1* m_vx_d0_skewness_ALL_merged;
+    TH1* m_vx_d0_skewness_ALL_split;
+    TH1* m_vx_d0_skewness_ALL_fake;
+    TH1* m_vx_d0_kurtosis_ALL_matched;
+    TH1* m_vx_d0_kurtosis_ALL_merged;
+    TH1* m_vx_d0_kurtosis_ALL_split;
+    TH1* m_vx_d0_kurtosis_ALL_fake;
+
+    TH1* m_vx_pt_skewness_ALL_matched;
+    TH1* m_vx_pt_skewness_ALL_merged;
+    TH1* m_vx_pt_skewness_ALL_split;
+    TH1* m_vx_pt_skewness_ALL_fake;
+    TH1* m_vx_pt_kurtosis_ALL_matched;
+    TH1* m_vx_pt_kurtosis_ALL_merged;
+    TH1* m_vx_pt_kurtosis_ALL_split;
+    TH1* m_vx_pt_kurtosis_ALL_fake;
+    TH1* m_vx_nVertices_ALL_matched;
+    TH1* m_vx_nVertices_ALL_merged;
+    TH1* m_vx_nVertices_ALL_split;
+    TH1* m_vx_nVertices_HS_matched;
+    TH1* m_vx_nVertices_HS_merged;
+    TH1* m_vx_nVertices_HS_split;
+    TH1* m_vx_nVertices_matched;
+    TH1* m_vx_nVertices_merged;
+    TH1* m_vx_nVertices_split;
 
 
     ///@}

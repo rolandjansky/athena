@@ -10,9 +10,10 @@
 #include "InDetPerfPlot_VertexTruthMatching.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-// 2 new includes HRM
+// 3 new includes HRM
 #include "InDetPerfPlot_Vertex.h"
 #include "InDetPerfPlot_nTracks.h"
+//#include "VxVertex/VxTrackAtVertex.h"
 
 using namespace IDPVM;
 
@@ -117,7 +118,169 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_z_asym_HS_matched(nullptr),
     m_vx_z_asym_HS_merged(nullptr),
     m_vx_z_asym_HS_split(nullptr),
-    m_vx_z_asym_HS_fake(nullptr)
+    m_vx_z_asym_HS_fake(nullptr),
+
+    m_vx_track_weight_matched(nullptr),
+    m_vx_track_weight_merged(nullptr),
+    m_vx_track_weight_split(nullptr),
+    m_vx_track_weight_fake(nullptr),
+    m_vx_track_weight_HS_matched(nullptr),
+    m_vx_track_weight_HS_merged(nullptr),
+    m_vx_track_weight_HS_split(nullptr),
+    m_vx_track_weight_HS_fake(nullptr),
+    
+    m_vx_normalised_track_weight_matched(nullptr),
+    m_vx_normalised_track_weight_merged(nullptr),
+    m_vx_normalised_track_weight_split(nullptr),
+    m_vx_normalised_track_weight_fake(nullptr),
+    m_vx_normalised_track_weight_HS_matched(nullptr),
+    m_vx_normalised_track_weight_HS_merged(nullptr),
+    m_vx_normalised_track_weight_HS_split(nullptr),
+    m_vx_normalised_track_weight_HS_fake(nullptr),
+
+    m_vx_d_asym_matched(nullptr),
+    m_vx_d_asym_merged(nullptr),
+    m_vx_d_asym_split(nullptr),
+    m_vx_d_asym_fake(nullptr),
+    m_vx_d_asym_HS_matched(nullptr),
+    m_vx_d_asym_HS_merged(nullptr),
+    m_vx_d_asym_HS_split(nullptr),
+    m_vx_d_asym_HS_fake(nullptr),
+    
+    m_vx_chi2Over_ndf_matched(nullptr),
+    m_vx_chi2Over_ndf_merged(nullptr),
+    m_vx_chi2Over_ndf_split(nullptr),
+    m_vx_chi2Over_ndf_fake(nullptr),
+    m_vx_chi2Over_ndf_HS_matched(nullptr),
+    m_vx_chi2Over_ndf_HS_merged(nullptr),
+    m_vx_chi2Over_ndf_HS_split(nullptr),
+    m_vx_chi2Over_ndf_HS_fake(nullptr),
+
+    m_vx_z0_skewness_matched(nullptr),
+    m_vx_z0_skewness_merged(nullptr),
+    m_vx_z0_skewness_split(nullptr),
+    m_vx_z0_skewness_fake(nullptr),
+    m_vx_z0_skewness_HS_matched(nullptr),
+    m_vx_z0_skewness_HS_merged(nullptr),
+    m_vx_z0_skewness_HS_split(nullptr),
+    m_vx_z0_skewness_HS_fake(nullptr),
+
+    m_vx_z0_kurtosis_matched(nullptr),
+    m_vx_z0_kurtosis_merged(nullptr),
+    m_vx_z0_kurtosis_split(nullptr),
+    m_vx_z0_kurtosis_fake(nullptr),
+    m_vx_z0_kurtosis_HS_matched(nullptr),
+    m_vx_z0_kurtosis_HS_merged(nullptr),
+    m_vx_z0_kurtosis_HS_split(nullptr),
+    m_vx_z0_kurtosis_HS_fake(nullptr),
+
+    m_vx_d0_skewness_matched(nullptr),
+    m_vx_d0_skewness_merged(nullptr),
+    m_vx_d0_skewness_split(nullptr),
+    m_vx_d0_skewness_fake(nullptr),
+    m_vx_d0_skewness_HS_matched(nullptr),
+    m_vx_d0_skewness_HS_merged(nullptr),
+    m_vx_d0_skewness_HS_split(nullptr),
+    m_vx_d0_skewness_HS_fake(nullptr),
+    m_vx_d0_kurtosis_matched(nullptr),
+    m_vx_d0_kurtosis_merged(nullptr),
+    m_vx_d0_kurtosis_split(nullptr),
+    m_vx_d0_kurtosis_fake(nullptr),
+    m_vx_d0_kurtosis_HS_matched(nullptr),
+    m_vx_d0_kurtosis_HS_merged(nullptr),
+    m_vx_d0_kurtosis_HS_split(nullptr),
+    m_vx_d0_kurtosis_HS_fake(nullptr),
+    m_vx_pt_skewness_matched(nullptr),
+    m_vx_pt_skewness_merged(nullptr),
+    m_vx_pt_skewness_split(nullptr),
+    m_vx_pt_skewness_fake(nullptr),
+    m_vx_pt_skewness_HS_matched(nullptr),
+    m_vx_pt_skewness_HS_merged(nullptr),
+    m_vx_pt_skewness_HS_split(nullptr),
+    m_vx_pt_skewness_HS_fake(nullptr),
+    m_vx_pt_kurtosis_matched(nullptr),
+    m_vx_pt_kurtosis_merged(nullptr),
+    m_vx_pt_kurtosis_split(nullptr),
+    m_vx_pt_kurtosis_fake(nullptr),
+    m_vx_pt_kurtosis_HS_matched(nullptr),
+    m_vx_pt_kurtosis_HS_merged(nullptr),
+    m_vx_pt_kurtosis_HS_split(nullptr),
+    m_vx_pt_kurtosis_HS_fake(nullptr),
+
+    m_vx_sumpT_ALL_matched(nullptr),
+    m_vx_sumpT_ALL_merged(nullptr),
+    m_vx_sumpT_ALL_split(nullptr),
+    m_vx_sumpT_ALL_fake(nullptr),
+    m_vx_sumCharge_ALL_matched(nullptr),
+    m_vx_sumCharge_ALL_merged(nullptr),
+    m_vx_sumCharge_ALL_split(nullptr),
+    m_vx_sumCharge_ALL_fake(nullptr),
+    m_vx_sumCharge_N_trk_ALL_matched(nullptr),
+    m_vx_sumCharge_N_trk_ALL_merged(nullptr),
+    m_vx_sumCharge_N_trk_ALL_split(nullptr),
+    m_vx_sumCharge_N_trk_ALL_fake(nullptr),
+    m_vx_z_asym_ALL_matched(nullptr),
+    m_vx_z_asym_ALL_merged(nullptr),
+    m_vx_z_asym_ALL_split(nullptr),
+    m_vx_z_asym_ALL_fake(nullptr),
+    m_vx_d_asym_ALL_matched(nullptr),
+    m_vx_d_asym_ALL_merged(nullptr),
+    m_vx_d_asym_ALL_split(nullptr),
+    m_vx_d_asym_ALL_fake(nullptr),
+    
+    m_vx_track_weight_ALL_matched(nullptr),
+    m_vx_track_weight_ALL_merged(nullptr),
+    m_vx_track_weight_ALL_split(nullptr),
+    m_vx_track_weight_ALL_fake(nullptr),
+
+    m_vx_normalised_track_weight_ALL_matched(nullptr),
+    m_vx_normalised_track_weight_ALL_merged(nullptr),
+    m_vx_normalised_track_weight_ALL_split(nullptr),
+    m_vx_normalised_track_weight_ALL_fake(nullptr),
+
+    m_vx_chi2Over_ndf_ALL_matched(nullptr),
+    m_vx_chi2Over_ndf_ALL_merged(nullptr),
+    m_vx_chi2Over_ndf_ALL_split(nullptr),
+    m_vx_chi2Over_ndf_ALL_fake(nullptr),
+
+    m_vx_z0_skewness_ALL_matched(nullptr),
+    m_vx_z0_skewness_ALL_merged(nullptr),
+    m_vx_z0_skewness_ALL_split(nullptr),
+    m_vx_z0_skewness_ALL_fake(nullptr),
+
+    m_vx_z0_kurtosis_ALL_matched(nullptr),
+    m_vx_z0_kurtosis_ALL_merged(nullptr),
+    m_vx_z0_kurtosis_ALL_split(nullptr),
+    m_vx_z0_kurtosis_ALL_fake(nullptr),
+
+    m_vx_d0_skewness_ALL_matched(nullptr),
+    m_vx_d0_skewness_ALL_merged(nullptr),
+    m_vx_d0_skewness_ALL_split(nullptr),
+    m_vx_d0_skewness_ALL_fake(nullptr),
+    m_vx_d0_kurtosis_ALL_matched(nullptr),
+    m_vx_d0_kurtosis_ALL_merged(nullptr),
+    m_vx_d0_kurtosis_ALL_split(nullptr),
+    m_vx_d0_kurtosis_ALL_fake(nullptr),
+    m_vx_pt_skewness_ALL_matched(nullptr),
+    m_vx_pt_skewness_ALL_merged(nullptr),
+    m_vx_pt_skewness_ALL_split(nullptr),
+    m_vx_pt_skewness_ALL_fake(nullptr),
+    m_vx_pt_kurtosis_ALL_matched(nullptr),
+    m_vx_pt_kurtosis_ALL_merged(nullptr),
+    m_vx_pt_kurtosis_ALL_split(nullptr),
+    m_vx_pt_kurtosis_ALL_fake(nullptr),
+    m_vx_nVertices_ALL_matched(nullptr),
+    m_vx_nVertices_ALL_merged(nullptr),
+    m_vx_nVertices_ALL_split(nullptr),
+    m_vx_nVertices_HS_matched(nullptr),
+    m_vx_nVertices_HS_merged(nullptr),
+    m_vx_nVertices_HS_split(nullptr),
+    m_vx_nVertices_matched(nullptr),
+    m_vx_nVertices_merged(nullptr),
+    m_vx_nVertices_split(nullptr)
+
+
+
 
 {
   // nop
@@ -233,10 +396,169 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_z_asym_HS_merged,"vx_z_asym_HS_merged");
         book(m_vx_z_asym_HS_split,"vx_z_asym_HS_split");
         book(m_vx_z_asym_HS_fake,"vx_z_asym_HS_fake");
+        book(m_vx_track_weight_matched, "vx_track_weight_matched");
+        book(m_vx_track_weight_merged, "vx_track_weight_merged");
+        book(m_vx_track_weight_split, "vx_track_weight_split");
+        book(m_vx_track_weight_fake, "vx_track_weight_fake");
+        book(m_vx_track_weight_HS_matched, "vx_track_weight_HS_matched");
+        book(m_vx_track_weight_HS_merged, "vx_track_weight_HS_merged");
+        book(m_vx_track_weight_HS_split, "vx_track_weight_HS_split");
+        book(m_vx_track_weight_HS_fake, "vx_track_weight_HS_fake");
+
+
+        book(m_vx_normalised_track_weight_matched, "vx_normalised_track_weight_matched");
+        book(m_vx_normalised_track_weight_merged, "vx_normalised_track_weight_merged");
+        book(m_vx_normalised_track_weight_split, "vx_normalised_track_weight_split");
+        book(m_vx_normalised_track_weight_fake, "vx_normalised_track_weight_fake");
+        book(m_vx_normalised_track_weight_HS_matched, "vx_normalised_track_weight_HS_matched");
+        book(m_vx_normalised_track_weight_HS_merged, "vx_normalised_track_weight_HS_merged");
+        book(m_vx_normalised_track_weight_HS_split, "vx_normalised_track_weight_HS_split");
+        book(m_vx_normalised_track_weight_HS_fake, "vx_normalised_track_weight_HS_fake");
+
+        book(m_vx_d_asym_matched,"vx_d_asym_matched");
+        book(m_vx_d_asym_merged,"vx_d_asym_merged");
+        book(m_vx_d_asym_split,"vx_d_asym_split");
+        book(m_vx_d_asym_fake,"vx_d_asym_fake");
+        book(m_vx_d_asym_HS_matched,"vx_d_asym_HS_matched");
+        book(m_vx_d_asym_HS_merged,"vx_d_asym_HS_merged");
+        book(m_vx_d_asym_HS_split,"vx_d_asym_HS_split");
+        book(m_vx_d_asym_HS_fake,"vx_d_asym_HS_fake");
  
+        book(m_vx_chi2Over_ndf_matched,"vx_chi2Over_ndf_matched");
+        book(m_vx_chi2Over_ndf_merged,"vx_chi2Over_ndf_merged");
+        book(m_vx_chi2Over_ndf_split,"vx_chi2Over_ndf_split");
+        book(m_vx_chi2Over_ndf_fake,"vx_chi2Over_ndf_fake");
+        book(m_vx_chi2Over_ndf_HS_matched,"vx_chi2Over_ndf_HS_matched");
+        book(m_vx_chi2Over_ndf_HS_merged,"vx_chi2Over_ndf_HS_merged");
+        book(m_vx_chi2Over_ndf_HS_split,"vx_chi2Over_ndf_HS_split");
+        book(m_vx_chi2Over_ndf_HS_fake,"vx_chi2Over_ndf_HS_fake");
+        
+        book(m_vx_z0_skewness_matched, "vx_z0_skewness_matched");
+        book(m_vx_z0_skewness_merged, "vx_z0_skewness_merged");
+        book(m_vx_z0_skewness_split, "vx_z0_skewness_split");
+        book(m_vx_z0_skewness_fake, "vx_z0_skewness_fake");
+        book(m_vx_z0_skewness_HS_matched, "vx_z0_skewness_HS_matched");
+        book(m_vx_z0_skewness_HS_merged, "vx_z0_skewness_HS_merged");
+        book(m_vx_z0_skewness_HS_split, "vx_z0_skewness_HS_split");
+        book(m_vx_z0_skewness_HS_fake, "vx_z0_skewness_HS_fake");
+        book(m_vx_z0_kurtosis_matched,"vx_z0_kurtosis_matched");
+        book(m_vx_z0_kurtosis_merged,"vx_z0_kurtosis_merged");
+        book(m_vx_z0_kurtosis_split,"vx_z0_kurtosis_split");
+        book(m_vx_z0_kurtosis_fake,"vx_z0_kurtosis_fake");
+        book(m_vx_z0_kurtosis_HS_matched,"vx_z0_kurtosis_HS_matched");
+        book(m_vx_z0_kurtosis_HS_merged,"vx_z0_kurtosis_HS_merged");
+        book(m_vx_z0_kurtosis_HS_split,"vx_z0_kurtosis_HS_split");
+        book(m_vx_z0_kurtosis_HS_fake,"vx_z0_kurtosis_HS_fake");
 
+        book(m_vx_d0_skewness_matched,"vx_d0_skewness_matched");
+        book(m_vx_d0_skewness_merged,"vx_d0_skewness_merged");
+        book(m_vx_d0_skewness_split,"vx_d0_skewness_split");
+        book(m_vx_d0_skewness_fake,"vx_d0_skewness_fake");
+        book(m_vx_d0_skewness_HS_matched,"vx_d0_skewness_HS_matched");
+        book(m_vx_d0_skewness_HS_merged,"vx_d0_skewness_HS_merged");
+        book(m_vx_d0_skewness_HS_split,"vx_d0_skewness_HS_split");
+        book(m_vx_d0_skewness_HS_fake,"vx_d0_skewness_HS_fake");
+        book(m_vx_d0_kurtosis_matched,"vx_d0_kurtosis_matched");
+        book(m_vx_d0_kurtosis_merged,"vx_d0_kurtosis_merged");
+        book(m_vx_d0_kurtosis_split,"vx_d0_kurtosis_split");
+        book(m_vx_d0_kurtosis_fake,"vx_d0_kurtosis_fake");
+        book(m_vx_d0_kurtosis_HS_matched,"vx_d0_kurtosis_HS_matched");
+        book(m_vx_d0_kurtosis_HS_merged,"vx_d0_kurtosis_HS_merged");
+        book(m_vx_d0_kurtosis_HS_split,"vx_d0_kurtosis_HS_split");
+        book(m_vx_d0_kurtosis_HS_fake,"vx_d0_kurtosis_HS_fake");
 
+        
+        book(m_vx_pt_skewness_matched,"vx_pt_skewness_matched");
+        book(m_vx_pt_skewness_merged,"vx_pt_skewness_merged");
+        book(m_vx_pt_skewness_split,"vx_pt_skewness_split");
+        book(m_vx_pt_skewness_fake,"vx_pt_skewness_fake");
+        book(m_vx_pt_skewness_HS_matched,"vx_pt_skewness_HS_matched");
+        book(m_vx_pt_skewness_HS_merged,"vx_pt_skewness_HS_merged");
+        book(m_vx_pt_skewness_HS_split,"vx_pt_skewness_HS_split");
+        book(m_vx_pt_skewness_HS_fake,"vx_pt_skewness_HS_fake");
+        book(m_vx_pt_kurtosis_matched,"vx_pt_kurtosis_matched");
+        book(m_vx_pt_kurtosis_merged,"vx_pt_kurtosis_merged");
+        book(m_vx_pt_kurtosis_split,"vx_pt_kurtosis_split");
+        book(m_vx_pt_kurtosis_fake,"vx_pt_kurtosis_fake");
+        book(m_vx_pt_kurtosis_HS_matched,"vx_pt_kurtosis_HS_matched");
+        book(m_vx_pt_kurtosis_HS_merged,"vx_pt_kurtosis_HS_merged");
+        book(m_vx_pt_kurtosis_HS_split,"vx_pt_kurtosis_HS_split");
+        book(m_vx_pt_kurtosis_HS_fake,"vx_pt_kurtosis_HS_fake");
+        // Histograms with all vertices
+        book(m_vx_sumpT_ALL_matched,"vx_sumpT_ALL_matched");
+        book(m_vx_sumpT_ALL_merged,"vx_sumpT_ALL_merged");
+        book(m_vx_sumpT_ALL_split,"vx_sumpT_ALL_split");
+        book( m_vx_sumpT_ALL_fake,"vx_sumpT_ALL_fake");
+        
+        book(m_vx_sumCharge_ALL_matched,"vx_sumCharge_ALL_matched");
+        book(m_vx_sumCharge_ALL_merged,"vx_sumCharge_ALL_merged");
+        book(m_vx_sumCharge_ALL_split,"vx_sumCharge_ALL_split");
+        book(m_vx_sumCharge_ALL_fake,"vx_sumCharge_ALL_fake");
+        book(m_vx_sumCharge_N_trk_ALL_matched, "vx_sumCharge_N_trk_ALL_matched");
+        book(m_vx_sumCharge_N_trk_ALL_merged, "vx_sumCharge_N_trk_ALL_merged");
+        book(m_vx_sumCharge_N_trk_ALL_split, "vx_sumCharge_N_trk_ALL_split");
+        book(m_vx_sumCharge_N_trk_ALL_fake, "vx_sumCharge_N_trk_ALL_fake");
+ 
+        book(m_vx_z_asym_ALL_matched,"vx_z_asym_ALL_matched");
+        book(m_vx_z_asym_ALL_merged,"vx_z_asym_ALL_merged");
+        book(m_vx_z_asym_ALL_split,"vx_z_asym_ALL_split");
+        book(m_vx_z_asym_ALL_fake,"vx_z_asym_ALL_fake");
+        
+        book(m_vx_track_weight_ALL_matched, "vx_track_weight_ALL_matched");
+        book(m_vx_track_weight_ALL_merged, "vx_track_weight_ALL_merged");
+        book(m_vx_track_weight_ALL_split, "vx_track_weight_ALL_split");
+        book(m_vx_track_weight_ALL_fake, "vx_track_weight_ALL_fake");
+        
+        book(m_vx_normalised_track_weight_ALL_matched, "vx_normalised_track_weight_ALL_matched");
+        book(m_vx_normalised_track_weight_ALL_merged, "vx_normalised_track_weight_ALL_merged");
+        book(m_vx_normalised_track_weight_ALL_split, "vx_normalised_track_weight_ALL_split");
+        book(m_vx_normalised_track_weight_ALL_fake, "vx_normalised_track_weight_ALL_fake");
+        
+        book(m_vx_d_asym_ALL_matched,"vx_d_asym_ALL_matched");
+        book(m_vx_d_asym_ALL_merged,"vx_d_asym_ALL_merged");
+        book(m_vx_d_asym_ALL_split,"vx_d_asym_ALL_split");
+        book(m_vx_d_asym_ALL_fake,"vx_d_asym_ALL_fake");
+        book(m_vx_chi2Over_ndf_ALL_matched,"vx_chi2Over_ndf_ALL_matched");
+        book(m_vx_chi2Over_ndf_ALL_merged,"vx_chi2Over_ndf_ALL_merged");
+        book(m_vx_chi2Over_ndf_ALL_split,"vx_chi2Over_ndf_ALL_split");
+        book(m_vx_chi2Over_ndf_ALL_fake,"vx_chi2Over_ndf_ALL_fake");
+        
+        book(m_vx_z0_skewness_ALL_matched, "vx_z0_skewness_ALL_matched");
+        book(m_vx_z0_skewness_ALL_merged, "vx_z0_skewness_ALL_merged");
+        book(m_vx_z0_skewness_ALL_split, "vx_z0_skewness_ALL_split");
+        book(m_vx_z0_skewness_ALL_fake, "vx_z0_skewness_ALL_fake");
+        book(m_vx_z0_kurtosis_ALL_matched,"vx_z0_kurtosis_ALL_matched");
+        book(m_vx_z0_kurtosis_ALL_merged,"vx_z0_kurtosis_ALL_merged");
+        book(m_vx_z0_kurtosis_ALL_split,"vx_z0_kurtosis_ALL_split");
+        book(m_vx_z0_kurtosis_ALL_fake,"vx_z0_kurtosis_ALL_fake");
 
+        book(m_vx_d0_skewness_ALL_matched,"vx_d0_skewness_ALL_matched");
+        book(m_vx_d0_skewness_ALL_merged,"vx_d0_skewness_ALL_merged");
+        book(m_vx_d0_skewness_ALL_split,"vx_d0_skewness_ALL_split");
+        book(m_vx_d0_skewness_ALL_fake,"vx_d0_skewness_ALL_fake");
+        book(m_vx_d0_kurtosis_ALL_matched,"vx_d0_kurtosis_ALL_matched");
+        book(m_vx_d0_kurtosis_ALL_merged,"vx_d0_kurtosis_ALL_merged");
+        book(m_vx_d0_kurtosis_ALL_split,"vx_d0_kurtosis_ALL_split");
+        book(m_vx_d0_kurtosis_ALL_fake,"vx_d0_kurtosis_ALL_fake");
+
+        book(m_vx_pt_skewness_ALL_matched,"vx_pt_skewness_ALL_matched");
+        book(m_vx_pt_skewness_ALL_merged,"vx_pt_skewness_ALL_merged");
+        book(m_vx_pt_skewness_ALL_split,"vx_pt_skewness_ALL_split");
+        book(m_vx_pt_skewness_ALL_fake,"vx_pt_skewness_ALL_fake");
+        book(m_vx_pt_kurtosis_ALL_matched,"vx_pt_kurtosis_ALL_matched");
+        book(m_vx_pt_kurtosis_ALL_merged,"vx_pt_kurtosis_ALL_merged");
+        book(m_vx_pt_kurtosis_ALL_split,"vx_pt_kurtosis_ALL_split");
+        book(m_vx_pt_kurtosis_ALL_fake,"vx_pt_kurtosis_ALL_fake");
+        
+        book(m_vx_nVertices_ALL_matched,"vx_nVertices_ALL_matched");
+        book(m_vx_nVertices_ALL_merged,"vx_nVertices_ALL_merged");
+        book(m_vx_nVertices_ALL_split,"vx_nVertices_ALL_split");
+        book(m_vx_nVertices_HS_matched,"vx_nVertices_HS_matched");
+        book(m_vx_nVertices_HS_merged,"vx_nVertices_HS_merged");
+        book(m_vx_nVertices_HS_split,"vx_nVertices_HS_split");
+        book(m_vx_nVertices_matched,"vx_nVertices_matched");
+        book(m_vx_nVertices_merged,"vx_nVertices_merged");
+        book(m_vx_nVertices_split, "vx_nVertices_split");
     }
 
 }
@@ -481,7 +803,22 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         else {
             ATH_MSG_WARNING("Size of truth HS vertex vector is 0 -- assuming truth HS vertex to NOT be reconstructed.");
         }
+         
 
+        // add variables here so that they are in correct scope (outside loop over vertices)
+        float number_matched = 0;
+        float number_merged = 0;
+        float number_split = 0;
+        float number_matched_HS = 0;
+        float number_merged_HS = 0;
+        float number_split_HS = 0;
+        float number_matched_PU = 0;
+        float number_merged_PU = 0;
+        float number_split_PU = 0;
+      
+   //   std::cout << "declaring vertex number variables helenmaguire";
+
+ 
         // Iterate over vertices:
         InDetVertexTruthMatchUtils::VertexMatchType matchType;
         for (const auto& vertex : vertexContainer.stdcont()) {
@@ -541,33 +878,131 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
             fillHisto(m_vx_all_truth_x_pull_vs_nTrk, vertex->nTrackParticles(), residual_x/vtxerr_y);
             fillHisto(m_vx_all_truth_y_pull_vs_nTrk, vertex->nTrackParticles(), residual_y/vtxerr_x);
 
+
+
+
 // Helen OTP - get sumpt for each vertex (not just for HS vertex)
 // For each vertex, loop over all tracks and get sumpt and sum of charges
 // also use this to get the z asymmetry around the vertex.
    
-
+        
          const xAOD::TrackParticle* trackTmp = nullptr;
          float sumPt =0;
+         float sum_dD =0;
+
          // get the charge associated with each track
          double sumCharge = 0;
          float z_asym = 0;
+         float d_asym = 0;
          float sumDZ = 0;
          float deltaZ =0;
+         float deltaD =0;
          float modsumDZ =0;
-         
- 
+         float modsumDD =0;
+
+         // make vector
+         std::vector<float> track_deltaZ;
+         track_deltaZ.clear();
+         std::vector<float> track_deltaD;
+         track_deltaD.clear();
+         std::vector<float> track_deltaPt;
+         track_deltaPt.clear();
+
+            // loop over tracks 
             for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
                 trackTmp = vertex->trackParticle(i);
                 deltaZ = trackTmp->z0() - vertex->z();
+                deltaD = trackTmp->d0();
+
+             //  std::cout << "loop over tracks helenmaguire";
+
+
                 if (trackTmp) {
                     sumPt = sumPt + trackTmp->pt();
                     sumCharge = sumCharge + trackTmp->charge();
+                    track_deltaZ.push_back(deltaZ);
+                    track_deltaD.push_back(deltaD);
+                    track_deltaPt.push_back(trackTmp->pt());
                     // sum of delta z
                     sumDZ = sumDZ + deltaZ; 
                     modsumDZ = modsumDZ + sqrt(deltaZ * deltaZ);
-                    z_asym = modsumDZ/sumDZ;
-                }
+                    sum_dD = sum_dD + trackTmp->d0();
+                    modsumDD = modsumDD + sqrt(deltaD * deltaD);
+               }
+
+            } // end loop over tracks
+            if  (modsumDZ >0) {
+                z_asym = sumDZ/modsumDZ;
             }
+            if  (modsumDD >0) {
+                d_asym = sum_dD/modsumDD;
+            }
+
+
+          
+            double av_sumPt =0;
+            double mean_Dz =0;
+            mean_Dz=sumDZ/track_deltaZ.size(); //calculate average
+            sum_dD=sum_dD/track_deltaD.size(); //calculate average
+            av_sumPt=sumPt/track_deltaPt.size(); //calculate average
+            double n=0;
+            n = track_deltaZ.size(); // get number of tracks 
+
+            double z_sd = 0; //  standard deviation
+            double z_skew = 0;
+            double z_kurt = 0;
+            double z_var=0;
+            double d_sd = 0;
+            double d_var = 0;
+            double d_kurt =0;
+            double d_skew =0;
+            double pt_sd = 0;
+            double pt_var = 0;
+            double pt_kurt =0;
+            double pt_skew =0;
+
+            for ( size_t i = 0; i < track_deltaZ.size(); i++) {
+
+               z_var =(z_var + (track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz ));
+               z_skew =(z_skew + (track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz ));
+               z_kurt =(z_kurt + (track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz ));
+
+           } 
+               z_var = z_var/(n-1);
+               z_sd = sqrt(z_var);
+               z_skew = z_skew/((n-1)*z_sd*z_sd*z_sd);
+               z_kurt = z_kurt/((n-1)*z_sd*z_sd*z_sd*z_sd);
+
+            for ( size_t i = 0; i < track_deltaD.size(); i++) {
+
+               d_var =(d_var + (track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD ));
+               d_skew =(d_skew + (track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD ));
+               d_kurt =(d_kurt + (track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD ));
+
+           } 
+               d_var = d_var/(n-1);
+               d_sd = sqrt(d_var);
+               d_skew = d_skew/((n-1)*d_sd*d_sd*d_sd);
+               d_kurt = d_kurt/((n-1)*d_sd*d_sd*d_sd*d_sd);
+
+
+           for ( size_t i = 0; i < track_deltaPt.size(); i++) {
+
+               pt_var =(pt_var + (track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt ));
+               pt_skew =(pt_skew + (track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt ));
+               pt_kurt =(pt_kurt + (track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt ));
+
+          }
+               pt_var = pt_var/(n-1);
+               pt_sd = sqrt(pt_var);
+               pt_skew = pt_skew/((n-1)*pt_sd*pt_sd*pt_sd);
+               pt_kurt = pt_kurt/((n-1)*pt_sd*pt_sd*pt_sd*pt_sd);
+
+          float ndf = vertex->numberDoF();
+          if (ndf != 0) {
+
+
+
            if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               if (vertex == bestRecoHSVtx_truth) {
 	
@@ -575,6 +1010,21 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_HS_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_matched, z_asym);
+                 fillHisto(m_vx_d_asym_HS_matched, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_HS_matched, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_HS_matched, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_HS_matched, z_kurt);
+                 fillHisto(m_vx_d0_skewness_HS_matched, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_HS_matched, d_kurt);
+                 fillHisto(m_vx_pt_skewness_HS_matched, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_HS_matched, pt_kurt);
+       
+
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_HS_matched, weight);
+                     fillHisto(m_vx_normalised_track_weight_HS_matched, weight/n);
+                 }
 
               }	
 	      else { 
@@ -583,8 +1033,46 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_matched, z_asym);
-              }
-           }
+                 fillHisto(m_vx_d_asym_matched, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_matched, vertex->chiSquared()/ndf);
+              
+                 fillHisto(m_vx_z0_skewness_matched, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_matched, z_kurt);
+                 fillHisto(m_vx_d0_skewness_matched, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_matched, d_kurt);
+                 fillHisto(m_vx_pt_skewness_matched, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_matched, pt_kurt);
+
+
+
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_matched, weight);
+                     fillHisto(m_vx_normalised_track_weight_matched, weight/n);
+                 }
+             }
+// fill some histograms that contain both HS and PU above a min pt - say 20GeV
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_matched,sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_ALL_matched,sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_ALL_matched, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_ALL_matched, z_asym);
+                 fillHisto(m_vx_d_asym_ALL_matched, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_matched, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_ALL_matched, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_ALL_matched, z_kurt);
+                 fillHisto(m_vx_d0_skewness_ALL_matched, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_ALL_matched, d_kurt);
+                 fillHisto(m_vx_pt_skewness_ALL_matched, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_ALL_matched, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_ALL_matched, weight);
+                     fillHisto(m_vx_normalised_track_weight_ALL_matched, weight/n);
+                 }
+
+            }
+           }  // end of if matched vertices
 
            if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
@@ -593,53 +1081,243 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_HS_merged, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_merged, z_asym);
+                 fillHisto(m_vx_d_asym_HS_merged, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_HS_merged, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_HS_merged, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_HS_merged, z_kurt);
+                 fillHisto(m_vx_d0_skewness_HS_merged, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_HS_merged, d_kurt);
+                 fillHisto(m_vx_pt_skewness_HS_merged, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_HS_merged, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_HS_merged, weight);
+                     fillHisto(m_vx_normalised_track_weight_HS_merged, weight/n);
+                 }
+
+
+
               }
               else {
                  fillHisto(m_vx_sumpT_merged, sumPt / Gaudi::Units::GeV);
                  fillHisto(m_vx_sumCharge_merged, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_merged, z_asym);
+                 fillHisto(m_vx_d_asym_merged, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_merged, vertex->chiSquared()/ndf);
+             
+                 fillHisto(m_vx_z0_skewness_merged, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_merged, z_kurt);
+                 fillHisto(m_vx_d0_skewness_merged, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_merged, d_kurt);
+                 fillHisto(m_vx_pt_skewness_merged, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_merged, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_merged, weight);
+                     fillHisto(m_vx_normalised_track_weight_merged, weight/n);
+                 }
+
               }
-           }
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_merged,sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_ALL_merged,sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_ALL_merged, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_ALL_merged, z_asym);
+                 fillHisto(m_vx_d_asym_ALL_merged, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_merged, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_ALL_merged, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_ALL_merged, z_kurt);
+                 fillHisto(m_vx_d0_skewness_ALL_merged, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_ALL_merged, d_kurt);
+                 fillHisto(m_vx_pt_skewness_ALL_merged, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_ALL_merged, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_ALL_merged, weight);
+                     fillHisto(m_vx_normalised_track_weight_ALL_merged, weight/n);
+                 }
+
+             }
+           }   //end of if merged vertices
 
            if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
-                  fillHisto(m_vx_sumpT_HS_split, sumPt / Gaudi::Units::GeV);
-                  fillHisto(m_vx_sumCharge_HS_split, sumCharge);
-                  fillHisto(m_vx_sumCharge_N_trk_HS_split, sumCharge/vertex->nTrackParticles());
-                  fillHisto(m_vx_z_asym_HS_split, z_asym);
+                 fillHisto(m_vx_sumpT_HS_split, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_HS_split, sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_HS_split, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_HS_split, z_asym);
+                 fillHisto(m_vx_d_asym_HS_split, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_HS_split, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_HS_split, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_HS_split, z_kurt);
+                 fillHisto(m_vx_d0_skewness_HS_split, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_HS_split, d_kurt);
+                 fillHisto(m_vx_pt_skewness_HS_split, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_HS_split, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_HS_split, weight);
+                     fillHisto(m_vx_normalised_track_weight_HS_split, weight/n);
+                 }
+
+
               }
               else {
-                  fillHisto(m_vx_sumpT_split, sumPt / Gaudi::Units::GeV);
-                  fillHisto(m_vx_sumCharge_split, sumCharge);
-                  fillHisto(m_vx_sumCharge_N_trk_split, sumCharge/vertex->nTrackParticles());
-                  fillHisto(m_vx_z_asym_split, z_asym);
+                 fillHisto(m_vx_sumpT_split, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_split, sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_split, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_split, z_asym);
+                 fillHisto(m_vx_d_asym_split, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_split, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_split, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_split, z_kurt);
+                 fillHisto(m_vx_d0_skewness_split, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_split, d_kurt);
+                 fillHisto(m_vx_pt_skewness_split, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_split, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_split, weight);
+                     fillHisto(m_vx_normalised_track_weight_split, weight/n);
+                 }
+
+
               }
-	   }
+// fill some histograms that contain both HS and PU above a min pt - say 20GeV
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_split,sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_ALL_split,sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_ALL_split, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_ALL_split, z_asym);
+                 fillHisto(m_vx_d_asym_ALL_split, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_split, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_ALL_split, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_ALL_split, z_kurt);
+                 fillHisto(m_vx_d0_skewness_ALL_split, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_ALL_split, d_kurt);
+                 fillHisto(m_vx_pt_skewness_ALL_split, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_ALL_split, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_ALL_split, weight);
+                     fillHisto(m_vx_normalised_track_weight_ALL_split, weight/n);
+                 }
+              }
+
+	   }   // end of if split vertices
+
+
            if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {
               if (vertex == bestRecoHSVtx_truth) {
-                  fillHisto(m_vx_sumpT_HS_fake, sumPt / Gaudi::Units::GeV);
-                  fillHisto(m_vx_sumCharge_HS_fake, sumCharge);
-                  fillHisto(m_vx_sumCharge_N_trk_HS_fake, sumCharge/vertex->nTrackParticles());
-                  fillHisto(m_vx_z_asym_HS_fake, z_asym);
+                 fillHisto(m_vx_sumpT_HS_fake, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_HS_fake, sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_HS_fake, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_HS_fake, z_asym);
+                 fillHisto(m_vx_d_asym_HS_fake, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_HS_fake, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_HS_fake, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_HS_fake, z_kurt);
+                 fillHisto(m_vx_d0_skewness_HS_fake, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_HS_fake, d_kurt);
+                 fillHisto(m_vx_pt_skewness_HS_fake, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_HS_fake, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_HS_fake, weight);
+                 }
               }
 
               else {
 
-                  fillHisto(m_vx_sumpT_fake, sumPt / Gaudi::Units::GeV);
-                  fillHisto(m_vx_sumCharge_fake, sumCharge);
-                  fillHisto(m_vx_sumCharge_N_trk_fake, sumCharge/vertex->nTrackParticles());
-                  fillHisto(m_vx_z_asym_fake, z_asym);
-             }
-           }
+                 fillHisto(m_vx_sumpT_fake, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_fake, sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_fake, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_fake, z_asym);
+                 fillHisto(m_vx_d_asym_fake, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_fake, vertex->chiSquared()/ndf);
 
-         //end of sumPt;   // can't return here as its a void function
+                 fillHisto(m_vx_z0_skewness_fake, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_fake, z_kurt);
+                 fillHisto(m_vx_d0_skewness_fake, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_fake, d_kurt);
+                 fillHisto(m_vx_pt_skewness_fake, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_fake, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_fake, weight);
+                 }
+             }
+// fill some histograms that contain both HS and PU above a min pt - say 20GeV
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_fake,sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumCharge_ALL_fake,sumCharge);
+                 fillHisto(m_vx_sumCharge_N_trk_ALL_fake, sumCharge/vertex->nTrackParticles());
+                 fillHisto(m_vx_z_asym_ALL_fake, z_asym);
+                 fillHisto(m_vx_d_asym_ALL_fake, d_asym);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_fake, vertex->chiSquared()/ndf);
+
+                 fillHisto(m_vx_z0_skewness_ALL_fake, z_skew);
+                 fillHisto(m_vx_z0_kurtosis_ALL_fake, z_kurt);
+                 fillHisto(m_vx_d0_skewness_ALL_fake, d_skew);
+                 fillHisto(m_vx_d0_kurtosis_ALL_fake, d_kurt);
+                 fillHisto(m_vx_pt_skewness_ALL_fake, pt_skew);
+                 fillHisto(m_vx_pt_kurtosis_ALL_fake, pt_kurt);
+                 for (const float& weight : vertex->trackWeights()) {
+                     fillHisto(m_vx_track_weight_ALL_fake, weight);
+                 }
+
+             }
+           }   // end of fake vertices
+// Helen OTP count the number of vertices for each type per event
+         
+
+         if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+              if (vertex == bestRecoHSVtx_truth) {
+                 number_matched_HS++;
+              }
+              else {
+                 number_matched_PU++;         
+              }
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                  number_matched++;
+             }
+        }
+
+         if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+              if (vertex == bestRecoHSVtx_truth) {
+                 number_merged_HS++;
+              }
+              else {
+                 number_merged_PU++;         
+              }
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                  number_merged++;
+             }
+        }
+
+         if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+              if (vertex == bestRecoHSVtx_truth) {
+                 number_split_HS++;
+              }
+              else {
+                 number_split_PU++;         
+              }
+              double minpt = 20 ; // GeV
+              if (sumPt/Gaudi::Units::GeV > minpt) {
+                  number_split++;    
+             }
+         }
+
+        } // end of if (ndf != 0)
  
 
 
 // Add new histos to check for number of tracks for each vertex type Helen OTP  
-//
-
+        for (const auto& vertex : vertexContainer.stdcont()) {
            if (vertex == bestRecoHSVtx_truth) {
 
          
@@ -684,8 +1362,21 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
            }
        
    
-
+       } 
+     //     std::cout << " End loop over vertices  helenmaguire";
         } // end loop over vertices
+
+// Helen OTP - add new histos to count number of vertices per event
+        fillHisto(m_vx_nVertices_ALL_matched, number_matched);
+        fillHisto(m_vx_nVertices_ALL_merged, number_merged);
+        fillHisto(m_vx_nVertices_ALL_split, number_split);
+        fillHisto(m_vx_nVertices_HS_matched, number_matched_HS);
+        fillHisto(m_vx_nVertices_HS_merged, number_merged_HS);
+        fillHisto(m_vx_nVertices_HS_split, number_split_HS);
+        fillHisto(m_vx_nVertices_matched, number_matched_PU);
+        fillHisto(m_vx_nVertices_merged, number_merged_PU);
+        fillHisto(m_vx_nVertices_split, number_split_PU);
+
 
         // Now fill plots relating to the reconstruction of our truth HS vertex (efficiency and resolutions)
         if (truthHSVertices.size() != 0) {
@@ -779,6 +1470,9 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
 void InDetPerfPlot_VertexTruthMatching::finalizePlots() {
 
     if (m_iDetailLevel >= 200) {
+        
+//        std::cout << " finalizePlots helenmaguire    !!!*";
+
         fillResoHist(m_vx_hs_truth_long_reso, m_vx_hs_truth_long_reso_vs_PU);
         fillResoHist(m_vx_hs_truth_trans_reso, m_vx_hs_truth_trans_reso_vs_PU);
     }
