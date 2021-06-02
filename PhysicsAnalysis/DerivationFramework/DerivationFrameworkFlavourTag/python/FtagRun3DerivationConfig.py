@@ -20,7 +20,7 @@ def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
-    taggerlist = ['IP2D', 'IP3D', 'SV1', 'SoftMu']
+    taggerlist = ['IP2D', 'IP3D', 'SV1']
 
     setupCondDb(cfgFlags, taggerlist)
 
