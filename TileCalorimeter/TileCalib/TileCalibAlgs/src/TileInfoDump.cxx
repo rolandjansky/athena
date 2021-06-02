@@ -615,9 +615,8 @@ void TileInfoDump::printBadChannels() {
     sSum << "Bad channels/ADC in EBC         : " << bchn[3] << "/" << badc[3] << std::endl;
     sSum << std::endl;
 
-    std::vector<std::string>::iterator iter;
-    for (iter = vmod.begin(); iter != vmod.end(); iter++)
-      sSum << (*iter) << std::endl;
+    for (const std::string& s : vmod)
+      sSum << s << std::endl;
   }
 
   ATH_MSG_INFO( sSum.str() );
