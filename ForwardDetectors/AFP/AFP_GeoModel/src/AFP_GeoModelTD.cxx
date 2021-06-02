@@ -60,8 +60,6 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
 {
 	int i,j,nPixelID;
 	double fXShift,fYShift,fZShift;
-	AFPTOF_LBARDIMENSIONS LQBarDims;
-       HepGeom::Transform3D TotTransform;
 
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
     const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
@@ -227,8 +225,9 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 		for(j=0;j<TofCfg.nX2PixCnt;j++)
 		{
 			nPixelID=10*(i+1)+(j+1);
-			fX1Pos=-(0.0+i)*TofCfg.fPixelX1Dim;//-(0.5+i)*m_TofCfg.fPixelX1Dim
-			fX2Pos=(0.0+j)*TofCfg.fPixelX2Dim;//(0.5+j)*m_TofCfg.fPixelX2Dim;
+// 			fX1Pos=-(0.0+i)*TofCfg.fPixelX1Dim;//-(0.5+i)*m_TofCfg.fPixelX1Dim
+// 			fX2Pos=(0.0+j)*TofCfg.fPixelX2Dim;//(0.5+j)*m_TofCfg.fPixelX2Dim;
+            m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos,&fX2Pos);
 
 
 //			sprintf(szlabel,"%s_Q%i_LogTDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);

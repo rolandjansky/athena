@@ -34,12 +34,13 @@ AFP_SensitiveDetector::AFP_SensitiveDetector(const std::string& name, const std:
   , m_nEventNumber(0)
   , m_nNumberOfTDSimHits(0)
   , m_nNumberOfSIDSimHits(0)
-  , m_delta_pixel_x(0.050)
-  , m_delta_pixel_y(0.250)
   , m_pTDSimHitCollection(TDhitCollectionName)
   , m_pSIDSimHitCollection(SIDhitCollectionName)
 {
   AFP_CONSTANTS AfpConstants;
+  
+  m_delta_pixel_x = AfpConstants.SiT_Pixel_length_x;
+  m_delta_pixel_y = AfpConstants.SiT_Pixel_length_y;
 
   for( int i=0; i < 4; i++){
     m_nNOfSIDSimHits[i] = 0;

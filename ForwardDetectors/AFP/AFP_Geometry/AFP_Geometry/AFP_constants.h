@@ -57,7 +57,7 @@ struct AFP_CONSTANTS {
 	const double SiT_Pixel_amount_y=80;
 	const double SiT_Pixel_length_x=0.050*CLHEP::mm;
 	const double SiT_Pixel_length_y=0.250*CLHEP::mm;
-	const double SiT_Pixel_thickness=0.7*CLHEP::mm;
+	const double SiT_Pixel_thickness=0.23*CLHEP::mm;
 	const double SiT_Pixel_length_totx=SiT_Pixel_amount_x*SiT_Pixel_length_x;
 	const double SiT_Pixel_length_toty=SiT_Pixel_amount_y*SiT_Pixel_length_y;
 
