@@ -194,7 +194,7 @@ class ExecStep(Step):
         # Transform case
         if self.type.endswith('_tf'):
             new_cmd = '--preExec {:s} "{:s}"'.format(old_cmd, precommand)
-            self.args = self.args.replace(match.group(0), new_cmd)
+            self.args = self.args.replace(opt_match, new_cmd)
             return
 
         # athena(HLT) case
