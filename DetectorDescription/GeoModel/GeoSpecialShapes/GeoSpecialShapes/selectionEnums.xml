@@ -1,7 +1,13 @@
 <lcgdict>
+  
+  <!-- WARNING: This file has been specifically modified to remove
+       patterns not present in 21.2 that lead to warnings.  It should
+       not be swept to any other branches. -->
 
  <enum pattern="LArG4::*"/>
+ <!--
  <variable pattern="LArG4::*"/>
+ -->
  <class name="LArG4::ROOT6_NamespaceAutoloadHook_WheelCalc" />
 
 </lcgdict>
