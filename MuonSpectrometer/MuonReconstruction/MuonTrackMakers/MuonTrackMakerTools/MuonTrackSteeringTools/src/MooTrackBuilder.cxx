@@ -13,6 +13,7 @@
 #include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
@@ -1315,7 +1316,15 @@ namespace Muon {
                                     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  range " << halfTubeLen;
                                 }
                             }
-                            inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
+
+                            // for MM, perform the bound check from the detector element to take into account edge passivation
+                            const MMClusterOnTrack* mmClusterOnTrack = dynamic_cast<const MMClusterOnTrack*>(meas);
+                            if (mmClusterOnTrack) {
+                              inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, locPos, tol1, tol2);
+                            } else {
+                              inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
+                            }
+                            
                             if (msgLvl(MSG::VERBOSE)) {
                                 if (inBounds)
                                     msg(MSG::VERBOSE) << " inBounds ";

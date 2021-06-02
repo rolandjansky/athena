@@ -304,7 +304,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
   auto buff_navigationDistanceIncreaseBreaks =
     m_navigationDistanceIncreaseBreaks.buffer();
 
-  while (currentVolume && currentVolume != destinationVolume && currentState) {
+  while (currentVolume && currentVolume != destinationVolume) {
     // Configure propagator based on the current tracking volume
     currentPropagator =
       m_propagatorStickyConfiguration

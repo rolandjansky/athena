@@ -448,8 +448,7 @@ namespace Muon {
             if (!tpVec || tpVec->empty() || !tpVec->front()) continue;
             const Trk::TrackParameters& startPars = *tpVec->front();
 
-            const std::vector<const MuonClusterOnTrack*>& MCOTs =
-                const_cast<const std::vector<const MuonClusterOnTrack*>&>(theEvent->resolvedhits()[i]);
+            const std::vector<const MuonClusterOnTrack*>& MCOTs = theEvent->resolvedhits()[i];
             if (MCOTs.empty()) continue;
 
             const Identifier& id = MCOTs.front()->identify();

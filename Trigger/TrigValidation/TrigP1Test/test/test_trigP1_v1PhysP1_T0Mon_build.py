@@ -17,7 +17,7 @@ hlt.threads = 4
 hlt.concurrent_events = 4
 hlt.input = 'data'
 hlt.max_events = 50
-hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';doL1Sim=True;rewriteLVL1=True;"'
 hlt.args += ' -o output'
 
 # Extract the physics_Main stream out of the BS file with many streams

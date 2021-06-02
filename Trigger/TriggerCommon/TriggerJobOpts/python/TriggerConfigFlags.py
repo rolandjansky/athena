@@ -47,7 +47,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
 
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
-    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-03')
+    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')
 
     # Enable Inner Detector
     flags.addFlag('Trigger.doID', True)
@@ -123,7 +123,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_noalg_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
-    flags.addFlag('Trigger.CostMonitoring.monitorROBs', False)
+    flags.addFlag('Trigger.CostMonitoring.monitorROBs', True)
 
     # enable muon inputs simulation
     flags.addFlag('Trigger.L1.doMuons', True)

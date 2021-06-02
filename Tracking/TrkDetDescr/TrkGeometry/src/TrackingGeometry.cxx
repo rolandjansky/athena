@@ -211,7 +211,7 @@ void Trk::TrackingGeometry::indexStaticLayers ATLAS_NOT_THREAD_SAFE(
 
 bool Trk::TrackingGeometry::atVolumeBoundary(const Amg::Vector3D& gp,
                                              const Trk::TrackingVolume* vol,
-                                             double tol) const {
+                                             double tol) {
   bool isAtBoundary = false;
   if (!vol) return isAtBoundary;
   const std::vector<SharedObject<const BoundarySurface<TrackingVolume> > >&
@@ -229,7 +229,7 @@ bool Trk::TrackingGeometry::atVolumeBoundary(const Amg::Vector3D& gp,
                                              const TrackingVolume* vol,
                                              const TrackingVolume*& nextVol,
                                              Trk::PropDirection dir,
-                                             double tol) const {
+                                             double tol) {
   bool isAtBoundary = false;
   nextVol = nullptr;
   if (!vol) return isAtBoundary;

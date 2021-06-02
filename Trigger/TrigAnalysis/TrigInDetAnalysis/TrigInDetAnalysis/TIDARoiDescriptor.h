@@ -266,8 +266,8 @@ protected:
 
 protected: 
 
-  static double maxRadius; //! don't save 
-  static double maxZed;    //! don't save 
+  static const double maxRadius; //! don't save
+  static const double maxZed;    //! don't save
 
 protected:
 

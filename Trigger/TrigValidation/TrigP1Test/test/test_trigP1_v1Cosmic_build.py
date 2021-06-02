@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger athenaHLT test of the Cosmic_run3_v1 menu on physics_Main stream from a cosmic run
 # art-type: build
@@ -12,7 +12,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_cos'
 ex.max_events = 100
-ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;"'
+ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

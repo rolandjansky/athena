@@ -415,8 +415,9 @@ StatusCode MM_FastDigitizer::execute() {
       continue;
     }
 
-    // perform bound check
-    if( !surf.insideBounds(posOnSurf) ){
+    // perform bound check (making the call from the detector element to consider edge passivation)
+    //if( !surf.insideBounds(posOnSurf) ){
+    if( !detEl->insideActiveBounds(layid, posOnSurf) ) {
       m_exitcode = 1;
       m_ntuple->Fill();
       continue;

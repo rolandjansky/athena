@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu, with forks=2, threads=2, concurrent_events=2
 # art-type: build                                                                  
@@ -14,7 +14,7 @@ ex.input = 'data'
 ex.forks = 2
 ex.threads = 2
 ex.concurrent_events = 2
-ex.args = '-c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 
 test = Test.Test()
 test.art_type = 'build'

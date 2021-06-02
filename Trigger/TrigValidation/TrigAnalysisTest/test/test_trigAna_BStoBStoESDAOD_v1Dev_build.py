@@ -19,9 +19,9 @@ BStoBS.input = 'data'
 BStoBS.threads = 1
 BStoBSPreExec = ''.join([
   'setMenu=\'{:s}\';'.format(menu_name),
+  'doL1Sim=True;',  # Run L1 simulation
   'rewriteLVL1=True;',  # Write L1 result to BS
   'doWriteBS=True;',    # Write HLT result to BS
-  'forceEnableAllChains=True;',  # Ignore L1 decisions in seeding chains
 ])
 BStoBS.args = ' -c "{:s}"'.format(BStoBSPreExec)
 
