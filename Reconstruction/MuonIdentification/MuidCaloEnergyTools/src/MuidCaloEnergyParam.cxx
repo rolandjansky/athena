@@ -41,7 +41,7 @@ namespace Rec {
         declareProperty("SmoothingFraction", m_smoothingFraction);
     }
 
-    MuidCaloEnergyParam::~MuidCaloEnergyParam() =default;
+    MuidCaloEnergyParam::~MuidCaloEnergyParam() = default;
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 

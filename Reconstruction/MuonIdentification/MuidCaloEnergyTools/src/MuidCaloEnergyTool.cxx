@@ -69,7 +69,7 @@ namespace Rec {
         declareProperty("MinMuonPt", m_minMuonPt);
     }
 
-    MuidCaloEnergyTool::~MuidCaloEnergyTool() = default; 
+    MuidCaloEnergyTool::~MuidCaloEnergyTool() = default;
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
@@ -156,9 +156,9 @@ namespace Rec {
         return caloEnergy;
     }
     std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloEnergyTool::trackStateOnSurface(const EventContext& ctx,
-                                                                            const Trk::TrackParameters& middleParameters,
-                                                                            const Trk::TrackParameters* innerParameters,
-                                                                            const Trk::TrackParameters* outerParameters) const {
+                                                                                      const Trk::TrackParameters& middleParameters,
+                                                                                      const Trk::TrackParameters* innerParameters,
+                                                                                      const Trk::TrackParameters* outerParameters) const {
         ATH_MSG_VERBOSE("Muon with : p = " << middleParameters.momentum().mag() / Units::GeV << " Phi = "
                                            << middleParameters.position().phi() << " Eta =  " << middleParameters.position().eta());
 
@@ -168,9 +168,9 @@ namespace Rec {
             const double eta = middleParameters.position().eta();
             const double phi = middleParameters.position().phi();
             const double etaEM = innerParameters ? innerParameters->position().eta() : eta;
-            const double phiEM = innerParameters ?innerParameters->position().phi() : phi;
+            const double phiEM = innerParameters ? innerParameters->position().phi() : phi;
             const double etaHad = outerParameters ? outerParameters->position().eta() : eta;
-            const double phiHad = outerParameters ?outerParameters->position().phi(): phi;            
+            const double phiHad = outerParameters ? outerParameters->position().phi() : phi;
             std::unique_ptr<CaloMeas> caloMeas{m_caloMeasTool->energyMeasurement(ctx, etaEM, phiEM, etaHad, phiHad)};
             if (caloMeas) { caloEnergy = measurement(ctx, middleParameters.momentum().mag(), eta, phi, *caloMeas); }
         }
@@ -408,8 +408,7 @@ namespace Rec {
             //  tail offset from high-statistics Z->mumu MC (measured by Peter K 09/12/2011),
             //  but next we try to separate any FSR contribution from the Landau tail
             double F1 = 0.;
-            if (caloMeas.LArEM_EnergyMeasured() > m_emEtCut)
-                F1 = caloMeas.LArEM_FirstCompartmentEnergy() / caloMeas.LArEM_EnergyMeasured();
+            if (caloMeas.LArEM_EnergyMeasured() > m_emEtCut) F1 = caloMeas.LArEM_FirstCompartmentEnergy() / caloMeas.LArEM_EnergyMeasured();
             ATH_MSG_VERBOSE(" start Tail and FSR treatment: Et in e.m. " << EmEnergy * sinTheta / Units::GeV << "  F1 ratio " << F1);
             if (!m_FSRtreatment || EmEnergy * sinTheta < m_emEtCut || F1 < m_emF1Cut) {
                 ++m_countMeasurement;

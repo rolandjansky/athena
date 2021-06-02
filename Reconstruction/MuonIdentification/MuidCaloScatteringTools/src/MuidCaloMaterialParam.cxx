@@ -163,10 +163,11 @@ namespace Rec {
         return m_radiationThickness[0];
     }
 
-    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloMaterialParam::trackStateOnSurface(const Trk::TrackParameters& trackParameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloMaterialParam::trackStateOnSurface(
+        const Trk::TrackParameters& trackParameters) const {
         // find radiationThickness corresponding to surface
         // FIXME: use Surface* look-up method for execution speed
-        
+
         std::unique_ptr<const Trk::TrackParameters> param_clone = trackParameters.uniqueClone();
         double thickness = radiationThickness(trackParameters.position().eta());
         const Trk::MaterialEffectsBase* materialEffects =

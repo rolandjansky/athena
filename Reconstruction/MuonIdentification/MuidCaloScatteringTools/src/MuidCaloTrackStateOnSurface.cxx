@@ -241,7 +241,7 @@ namespace Rec {
                                     ATH_MSG_WARNING(" caloTSOS: unexpected TrackParameters type ");
                                 }
                             }
-                            if (params && middleTS) {innerTS = innerTSOS(ctx, *params);}
+                            if (params && middleTS) { innerTS = innerTSOS(ctx, *params); }
                         }
                     } else {
                         ATH_MSG_VERBOSE(" fail tracking inwards: no intersect at inner surface");
@@ -279,8 +279,8 @@ namespace Rec {
     const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::innerTSOS(const Trk::TrackParameters& parameters) const {
         return innerTSOS(Gaudi::Hive::currentContext(), parameters).release();
     }
-    std::unique_ptr< Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::innerTSOS(const EventContext& ctx,
-                                                                                           const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::innerTSOS(const EventContext& ctx,
+                                                                                     const Trk::TrackParameters& parameters) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, parameters, SurfaceLayer::Inner);
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" innerTSOS:  extrapolation fails ");
@@ -292,8 +292,8 @@ namespace Rec {
         return outerTSOS(Gaudi::Hive::currentContext(), parameters).release();
     }
 
-    std::unique_ptr< Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::outerTSOS(const EventContext& ctx,
-                                                                                           const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::outerTSOS(const EventContext& ctx,
+                                                                                     const Trk::TrackParameters& parameters) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, parameters, SurfaceLayer::Outer);
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" outerTSOS:  extrapolation fails ");
@@ -307,10 +307,10 @@ namespace Rec {
                                                                             const Trk::TrackParameters* outerParams) const {
         return middleTSOS(Gaudi::Hive::currentContext(), middleParams, innerParams, outerParams).release();
     }
-    std::unique_ptr< Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::middleTSOS(const EventContext& ctx,
-                                                                                            const Trk::TrackParameters& middleParams,
-                                                                                            const Trk::TrackParameters* innerParams,
-                                                                                            const Trk::TrackParameters* outerParams) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::middleTSOS(const EventContext& ctx,
+                                                                                      const Trk::TrackParameters& middleParams,
+                                                                                      const Trk::TrackParameters* innerParams,
+                                                                                      const Trk::TrackParameters* outerParams) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, middleParams, SurfaceLayer::Middle);
 
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
@@ -417,15 +417,15 @@ namespace Rec {
                     return nullptr;
                 }
                 if (restart) {
-                    ATH_MSG_DEBUG( surf_layer_str<<" Parameters:  oscillating => arbitrary solution chosen");
+                    ATH_MSG_DEBUG(surf_layer_str << " Parameters:  oscillating => arbitrary solution chosen");
                     ++m_countArbitrarySolution;
                     extrapolation = std::move(oldParameters);
-                    reset_surface.reset (extrapolation->associatedSurface().clone());
+                    reset_surface.reset(extrapolation->associatedSurface().clone());
                     extrapolatedSurface = reset_surface.get();
                     surface = extrapolatedSurface;
                     restart = false;
                 } else {
-                    ATH_MSG_VERBOSE( surf_layer_str<<" Parameters:  restart extrap after " << extrapolations << " extrapolations");
+                    ATH_MSG_VERBOSE(surf_layer_str << " Parameters:  restart extrap after " << extrapolations << " extrapolations");
                     restart = true;
                     extrapolations -= 2;
                     extrapolation = parameters.uniqueClone();
@@ -433,7 +433,7 @@ namespace Rec {
                 }
             } else {
                 // update surface
-                ATH_MSG_DEBUG(surf_layer_str<<" Parameters: Extrapolation succeeded go to next iteration");
+                ATH_MSG_DEBUG(surf_layer_str << " Parameters: Extrapolation succeeded go to next iteration");
                 oldSurface = surface;
                 surface = extrapolatedSurface;
                 extrapolatedSurface = getCaloSurface(extrapolation->position().eta(), layer);
@@ -442,14 +442,15 @@ namespace Rec {
 
         // final check for phi flip
         deltaPhi = xAOD::P4Helpers::deltaPhi(extrapolation->position().phi(), startingPhi);
-        if (std::abs(deltaPhi) >  M_PI_2 ) { return nullptr; }
+        if (std::abs(deltaPhi) > M_PI_2) { return nullptr; }
 
-        ATH_MSG_VERBOSE(surf_layer_str<<" Parameters:  success after "
-                        << extrapolations << " extrapolation step(s). " << std::setiosflags(std::ios::fixed)
-                        << "  Intersection at: r,phi,z " << std::setw(7) << std::setprecision(1) << extrapolation->position().perp()
-                        << std::setw(7) << std::setprecision(3) << extrapolation->position().phi() << std::setw(8) << std::setprecision(1)
-                        << extrapolation->position().z() << "  Direction: eta,phi " << std::setw(7) << std::setprecision(3)
-                        << extrapolation->momentum().eta() << std::setw(7) << std::setprecision(3) << extrapolation->momentum().phi());
+        ATH_MSG_VERBOSE(surf_layer_str << " Parameters:  success after " << extrapolations << " extrapolation step(s). "
+                                       << std::setiosflags(std::ios::fixed) << "  Intersection at: r,phi,z " << std::setw(7)
+                                       << std::setprecision(1) << extrapolation->position().perp() << std::setw(7) << std::setprecision(3)
+                                       << extrapolation->position().phi() << std::setw(8) << std::setprecision(1)
+                                       << extrapolation->position().z() << "  Direction: eta,phi " << std::setw(7) << std::setprecision(3)
+                                       << extrapolation->momentum().eta() << std::setw(7) << std::setprecision(3)
+                                       << extrapolation->momentum().phi());
 
         return extrapolation;
     }
