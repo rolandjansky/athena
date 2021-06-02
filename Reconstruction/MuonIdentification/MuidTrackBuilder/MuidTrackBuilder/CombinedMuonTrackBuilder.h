@@ -107,7 +107,7 @@ namespace Rec {
                                         const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
         bool optimizeErrors(const EventContext& ctx, Trk::Track* track) const;
-        std::unique_ptr<Trk::Track> addIDMSerrors(Trk::Track* track) const;
+        std::unique_ptr<Trk::Track> addIDMSerrors(const Trk::Track* track) const;
 
         void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
