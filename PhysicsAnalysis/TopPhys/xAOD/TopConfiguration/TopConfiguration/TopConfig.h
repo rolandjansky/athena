@@ -339,6 +339,23 @@ namespace top {
       }
     }
 
+    // electron in jet subtraction configuration:
+    // detla pT cut and bias values
+    inline virtual void elInJetPtcut(const float cut) {
+      if (!m_configFixed) {
+        m_elInJet_Ptcut = cut;
+      }
+    }
+
+    inline virtual void elInJetPtbias(const float bias) {
+      if (!m_configFixed) {
+        m_elInJet_Ptbias = bias;
+      }
+    }
+
+    inline virtual float elInJetPtcut() const {return m_elInJet_Ptcut;}
+    inline virtual float elInJetPtbias() const {return m_elInJet_Ptbias;}
+
     // Dump truth block info
     inline bool doTruthBlockInfo() const {return m_doTruthBlockInfo;}
     inline void setTruthBlockInfo() {
@@ -2299,6 +2316,8 @@ namespace top {
     // Apply Electron In Jet subtraction
     // For boosted analysis
     bool m_applyElectronInJetSubtraction;
+    float m_elInJet_Ptcut;
+    float m_elInJet_Ptbias;
 
     // Write Truth block info
     bool m_doTruthBlockInfo;

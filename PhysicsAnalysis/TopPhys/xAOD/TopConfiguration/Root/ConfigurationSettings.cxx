@@ -481,6 +481,10 @@ namespace top {
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
+    registerParameter("ElectronInJetSubtractionCut",
+                      "pT ratio cut used in the ElectronInJetSubtraction method. Default 0.37", "0.37");
+    registerParameter("ElectronInJetSubtractionBias",
+                      "pT ratio bias used in the ElectronInJetSubtraction method. Default 20.0", "20.0");
     registerParameter("TopPartonHistory", "Topology to be assumed when reconstructing parton-level history.", "False",
                       {"ttbar", "ttbarlight", "tb", "Wtb", "tchannel", "ttz", "ttgamma", "tHq", "tZq", "tttt", "False"});
     registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");

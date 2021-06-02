@@ -15,6 +15,7 @@ namespace top {
   }
 
   void ElectronInJetSubtractionAlgorithm::apply(xAOD::ElectronContainer* electrons, xAOD::JetContainer* jets,
+                                                float elinjet_ptcut, float elinjet_ptbias,
                                                 const bool useLooseElectrons) {
     std::string leptonDef;
     if (!useLooseElectrons) {
@@ -32,7 +33,7 @@ namespace top {
     }
 
     m_o.Load(jets, electrons, leptonDef);
-    m_o.AnalyzeEvent(leptonDef);
+    m_o.AnalyzeEvent(elinjet_ptcut, elinjet_ptbias, leptonDef);
 
     unsigned int passedElectrons(0);
     for (auto e : *electrons) {

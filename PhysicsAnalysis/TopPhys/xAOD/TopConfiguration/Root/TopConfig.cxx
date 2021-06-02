@@ -114,6 +114,9 @@ namespace top {
     m_applyTightSFsInLooseTree(false),
     // For boosted analysis
     m_applyElectronInJetSubtraction(false),
+    // Configure electron in jet subtraction method
+    m_elInJet_Ptcut(0.37),
+    m_elInJet_Ptbias(20.),
     // Write Truth block info
     m_doTruthBlockInfo(false),
     // Write Truth PDF info
@@ -1516,6 +1519,9 @@ namespace top {
 
     // Apply Electron In Jet Subtraction - boosted analysis
     if (settings->value("ApplyElectronInJetSubtraction") == "True") this->setApplyElectronInJetSubtraction();
+    // Configure the cut and bias values of the electron-in-jet subtraction method
+    this->elInJetPtcut(std::stof(settings->value("ElectronInJetSubtractionCut")));
+    this->elInJetPtbias(std::stof(settings->value("ElectronInJetSubtractionBias")));
 
     // Set Number of events to run on (for testing)
     this->numberOfEventsToRun(std::stoi(settings->value("NEvents")));
