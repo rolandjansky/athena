@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <typeinfo>
 
 namespace CLIDdetail {
   /// @name allowed class id range
