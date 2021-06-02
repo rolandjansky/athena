@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <atomic>
 #include "TrigCompositeUtils/IPartCombItr.h"
 #include "TrigCompositeUtils/Combinations.h"
 #include "xAODTrigger/TrigComposite.h"
 #include "AthLinks/ElementLink.h"
 #include "xAODBase/IParticleContainer.h"
 #include "TestTools/expect.h"
-#include "CxxUtils/checker_macros.h"
-
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 
 using namespace TrigCompositeUtils;
@@ -23,7 +21,7 @@ namespace
   /// Create a unique LinkInfo
   LinkInfo<xAOD::IParticleContainer> createLinkInfo(std::vector<std::unique_ptr<Decision>> &owning)
   {
-    static std::size_t idxBase = 0;
+    static std::atomic<std::size_t> idxBase = 0;
     // Make a new decision object
     owning.push_back(std::make_unique<Decision>());
     std::size_t key = idxBase++;
