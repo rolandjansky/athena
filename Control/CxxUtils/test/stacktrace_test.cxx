@@ -57,8 +57,10 @@ void filter (char* buf)
     }
 
     else if (buf[0] == '/') {
-      if (sl)
+      if (sl) {
+        if (*sl == '[') ++sl;
         buf = snip (sl, buf);
+      }
       sl = buf;
       ++buf;
     }
@@ -66,6 +68,16 @@ void filter (char* buf)
     else if (buf[0] == ' ') {
       ++buf;
       sl = 0;
+    }
+
+    else if (buf[0] == '[') {
+      sl = buf;
+      ++buf;
+    }
+
+    else if (buf[0] == ']') {
+      ++buf;
+      sl = nullptr;
     }
 
     else if (buf[0] == '.' && buf[1] == '.') {
@@ -276,6 +288,11 @@ std::string accumtrace (FILE* fp)
       continue;
     if (strstr (buf, "DebugAids::stacktrace") != nullptr)
       continue;
+    // These entries can differ depending on libc version.
+    if (strstr (buf, "funlockfile") != nullptr)
+      continue;
+    if (strstr (buf, "__restore_rt") != nullptr)
+      continue;
     filter (buf);
     s += std::string (buf);
   }
@@ -312,7 +329,6 @@ void testhandle(int)
 
   const char* exp = " 0xX CxxUtils::backtraceByUnwind(void (*)(int, unsigned long), int) + 0xX [/libCxxUtils.so D[0xX]]\n\
  0xX testhandle(int) + 0xX [/stacktrace_test.exe D[0xX]]\n\
- 0xX __restore_rt sigaction.c:? + 0xX [/libpthread.so.0 D[0xX]]\n\
  0xX <unknown function>\n\
  0xX crashMe(Foo const*) + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX testbad + 0xX [/stacktrace_test.exe D[0xX]]\n\
