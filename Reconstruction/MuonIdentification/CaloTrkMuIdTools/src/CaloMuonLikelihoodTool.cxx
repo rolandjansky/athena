@@ -86,9 +86,15 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
         // --- Retrieving individual histograms ---
         for (int iHist = 0; iHist < listOfKeys->GetSize(); iHist++) {
             const std::string histName = listOfKeys->At(iHist)->GetName();
-            TH1F* hist = (TH1F*)(rootFile->Get(histName.c_str()));
+            TH1F* hist = nullptr;
+            rootFile->GetObject(histName.c_str(),hist);
+            if (!hist) { 
+                ATH_MSG_ERROR("cannot retrieve hist " << histName); 
+                return StatusCode::FAILURE;
+            }            
+            hist->SetDirectory(nullptr);
+            std::unique_ptr<TH1F> unique_hist{hist};
             bool isSignal = false;
-            if (!hist) { ATH_MSG_ERROR("cannot retrieve hist " << histName); }
             size_t endOfKey = histName.find("_signal", 0);
             if (endOfKey != std::string::npos) {
                 isSignal = true;
@@ -103,11 +109,11 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
             ATH_MSG_DEBUG("Found histogram for " << (isSignal ? "signal" : "background") << " with key " << key);
             if (isSignal) {
                 m_TH1F_key[iFile][numKeysSignal] = key;
-                m_TH1F_sig[iFile][numKeysSignal] = hist;
+                m_TH1F_sig[iFile][numKeysSignal] = std::move(unique_hist);
                 ATH_MSG_VERBOSE(m_TH1F_sig[iFile][numKeysSignal]->GetNbinsX());
                 numKeysSignal++;
             } else {
-                m_TH1F_bkg[iFile][numKeysBkg] = hist;
+                m_TH1F_bkg[iFile][numKeysBkg] = std::move(unique_hist);
                 numKeysBkg++;
             }
         }
