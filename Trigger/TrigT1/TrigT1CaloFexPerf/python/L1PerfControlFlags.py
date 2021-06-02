@@ -83,6 +83,12 @@ class ComputeEFexClusters(JobProperty):
     StoredValue = False
 _caloflags.append(ComputeEFexClusters)
 
+class ComputeFFexElectrons(JobProperty): 
+    """ Compute FFex Electrons"""
+    statusOn = False 
+    allowedType = ['bool']
+    StoredValue = False 
+_caloflags.append(ComputeFFexElectrons)
 
 class ApplySCQual(JobProperty):
     """ ? """
