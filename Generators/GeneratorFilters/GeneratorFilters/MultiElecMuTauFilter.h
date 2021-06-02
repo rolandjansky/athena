@@ -26,6 +26,7 @@ private:
   double m_minVisPtHadTau;
   int    m_NLeptons;
   bool   m_incHadTau;
+  bool   m_TwoSameSignLightLeptonsOneHadTau;
 };
 
 #endif
