@@ -120,6 +120,8 @@ public:
     return s7;
   }
 
+  void initializeForSDCreation() override {};
+
   Gaudi::StateMachine::State FSMState() const
   {
     return Gaudi::StateMachine::State(0);

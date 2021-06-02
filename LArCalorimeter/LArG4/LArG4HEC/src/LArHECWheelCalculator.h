@@ -40,6 +40,7 @@ public:
   ~LArHECWheelCalculator();
   /////////////////////////////////////////////
 
+  virtual void initializeForSDCreation() override final;
   virtual G4float OOTcut() const override final { return m_OOTcut; }
 
   virtual G4bool Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const override final;

@@ -75,6 +75,12 @@ StatusCode LArHECWheelCalculator::initialize ATLAS_NOT_THREAD_SAFE ()
   return StatusCode::SUCCESS;
 }
 
+// Implement this here (rather than header) since geometry class is forward-declared
+void LArHECWheelCalculator::initializeForSDCreation()
+{
+  m_Geometry->initializeForSDCreation();
+}
+
 G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const
 {
 
