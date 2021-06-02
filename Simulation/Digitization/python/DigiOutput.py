@@ -106,7 +106,7 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["AFP_SiDigiCollection#*"]
             StreamRDO_ItemList+=["AFP_TDDigiCollection#*"]
             StreamRDO_ItemList+=["xAOD::AFPSiHitContainer#*"]
-            StreamRDO_ItemList+=["xAOD::AFPTofHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPToFHitContainer#*"]
             StreamRDO_ItemList+=["xAOD::AFPSiHitAuxContainer#*"]
             StreamRDO_ItemList+=["xAOD::AFPToFHitAuxContainer#*"]
     # Inner Detector Output

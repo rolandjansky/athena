@@ -140,7 +140,7 @@ class AFP_PileUpTool: public PileUpToolBase {
      
   double m_QuantumEff_PMT[7];
 
-  TH1F  m_Signal[4][32][2];
+  TH1F  m_Signal[4][49][2];
   
   float m_deposited_charge[645120]; // = 4 x 6 x 336 x 80
   float m_deposited_energy[645120];
