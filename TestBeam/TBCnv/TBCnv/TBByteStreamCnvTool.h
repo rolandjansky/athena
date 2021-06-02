@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTBEAM_BYTESTREAMTOOL_H
@@ -61,17 +61,17 @@ public:
 
   StatusCode WriteFragment();
   StatusCode ReadFragment(int unrec_code);
-  StatusCode ReadFragment(TBTDC*& tdc,std::string key);
-  StatusCode ReadFragment(TBTDCRawCont*& tdcrawCont,std::string key);
-  StatusCode ReadFragment(TBADCRawCont*& adcrawCont,std::string key);
-  StatusCode ReadFragment(TBBPCRawCont*& bpcrawCont,std::string key);
-  StatusCode ReadFragment(TBMWPCRawCont*& mwpcrawCont,std::string key);
-  StatusCode ReadFragment(TBTriggerPatternUnit*& trigpat,std::string key);
-  StatusCode ReadFragment(TBScintillatorRawCont*& scintrawCont,std::string key);
-  StatusCode ReadFragment(TBTailCatcherRaw*& tailcatchraw,std::string key); 
-  StatusCode ReadFragment(TBEventInfo*& tbeventinfo,std::string key); 
-  StatusCode ReadFragment(TBLArDigitContainer*& tblardigitcont,std::string key); 
-  StatusCode ReadFragment(TBLArCalibDigitContainer*& tblarcalibdigitcont,std::string key); 
+  StatusCode ReadFragment(TBTDC*& tdc,const std::string& key);
+  StatusCode ReadFragment(TBTDCRawCont*& tdcrawCont,const std::string& key);
+  StatusCode ReadFragment(TBADCRawCont*& adcrawCont,const std::string& key);
+  StatusCode ReadFragment(TBBPCRawCont*& bpcrawCont,const std::string& key);
+  StatusCode ReadFragment(TBMWPCRawCont*& mwpcrawCont,const std::string& key);
+  StatusCode ReadFragment(TBTriggerPatternUnit*& trigpat,const std::string& key);
+  StatusCode ReadFragment(TBScintillatorRawCont*& scintrawCont,const std::string& key);
+  StatusCode ReadFragment(TBTailCatcherRaw*& tailcatchraw,const std::string& key); 
+  StatusCode ReadFragment(TBEventInfo*& tbeventinfo,const std::string& key); 
+  StatusCode ReadFragment(TBLArDigitContainer*& tblardigitcont,const std::string& key); 
+  StatusCode ReadFragment(TBLArCalibDigitContainer*& tblarcalibdigitcont,const std::string& key); 
 
   StatusCode BuildRODBlock(std::vector<uint32_t>* theRODBlock); 
   StatusCode GetRODBlock(eformat::SubDetector subdet_id, 
