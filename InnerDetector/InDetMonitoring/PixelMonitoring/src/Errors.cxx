@@ -56,9 +56,9 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
       std::make_pair("ROD_Trunc_HT_Limit_errors", "ROD H/T Limit Trunc Errors"),
       std::make_pair("ROD_Trunc_ROD_OF_errors", "ROD Overflow Trunc Errors"),
       std::make_pair("Optical_Errors", "Preamble/Header Errors"),
-      std::make_pair("SEU_Hit_Parity", "SEU Hit Parity Errors"),
-      std::make_pair("SEU_Register_Parity", "SEU Register Parity Errors"),
       std::make_pair("SEU_Hamming", "SEU Hamming Code Errors"),
+      std::make_pair("SEU_Register_Parity", "SEU Register Parity Errors"),
+      std::make_pair("SEU_Hit_Parity", "SEU Hit Parity Errors"),
       std::make_pair("ROD_Timeout", "ROD Formatter Timeout Errors"),
       std::make_pair("FE_Warning", "FE Warning Errors"),
   }};
@@ -67,7 +67,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
       std::make_pair("ROD_BCID_errors", "ROD BCID synchronization errors"),
       std::make_pair("ROD_LVL1ID_errors", "ROD LVL1ID synchronization errors"),
       std::make_pair("SR_BCID_counter_errors", "SR BCID counter errors"),
-      std::make_pair("SR_L1_Trigger_ID_errors", "SR L1 trigger ID errors"),
+      std::make_pair("SR_L1_in_counter_errors", "SR L1 in counter errors"),
       std::make_pair("SR_L1_request_counter_errors", "SR L1 request counter errors"),
       std::make_pair("SR_L1_register_errors", "SR L1 register errors"),
       std::make_pair("SR_L1_Trigger_ID_errors", "SR L1 trigger ID errors"),
@@ -95,7 +95,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
 
   const char* errorBitsPIX[kNumErrorBits] = {
     "ROD Overflow Trunc",        "ROD H/T Limit Trunc",       "2",                     "3",
-    "FE/MCC EoC Trunc",          "SEU Hit Parity",            "SEU Register Parity",   "SEU Hamming Code",
+    "FE/MCC EoC Trunc",          "SEU Hamming Code",          "SEU Register Parity",   "SEU Hit Parity",
     "FE Warning (Bit Flip)",     "9",                         "10",                    "11",
     "FE/MCC Hit Overflow Trunc", "FE/MCC EoE Overflow Trunc", "FE/MCC BCID1 Sync",     "FE/MCC BCID2 Sync",
     "FE/MCC LVL1ID Sync",        "17",                        "18",                    "19",
@@ -279,11 +279,11 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   }
 
   hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
-  htitles = makeHisttitle("ServiceRecord Unweighted, IBL", ";SR;Count", false);
+  htitles = makeHisttitle("IBL ServiceRecord Unweighted", ";SR;Count", false);
   sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_unweighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 40, -0.5, 39.5));
 
   hname = makeHistname("ServiceRecord_Weighted_IBL", false);
-  htitles = makeHisttitle("ServiceRecord Weighted, IBL", ";SR;Count", false);
+  htitles = makeHisttitle("IBL ServiceRecord Weighted with Payload", ";SR;Count", false);
   sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_weighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 40, -0.5, 39.5));
 
   hname = makeHistname("ServiceRecord_Count_IBL", false);
@@ -490,7 +490,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
             // FE Error word contains 'bit', so take appropriate actions.
             if (is_fei4 && bit > 7) continue; // For FE-I4 we are interested only in trailer errors, which are the first 8 bits, service records are treated below
-
+	    if (!is_fei4 && !(bit >=4 && bit <=16)) continue; //avoid double-counting of ROD header errors
+	    if (!is_fei4) has_femcc_errbits = true;
             num_errors[kLayer]++;
             num_errors_per_bit[kLayer][bit]++;
 
@@ -500,7 +501,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
             if (!is_fei4) {
               if (bit == 14 || bit == 15 || bit == 16) error_type = 1; // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
               if (bit == 4  || bit == 12 || bit == 13) error_type = 3; // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
-              if (bit >= 5  && bit <= 7)               error_type = 6; // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
+              if (bit >= 5  && bit <= 7)               error_type = 6; // SEU (single event upset) errors (5,6,7: hammingcode, register parity, hit parity)
             } else {
               if (bit == 3 || bit == 4)                error_type = 2;  // synchronization error   (3:LVL1ID, 4:BCID)
               if (bit == 0 || bit == 1)                error_type = 4;  // ROD truncation error    (0:Row/Column error, 1:Limit error)
@@ -598,26 +599,26 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
                 if (m_errors) m_errors->fill(error_type, WaferID, m_pixelid);
 
                 if (m_doLumiBlock && m_errors_LB) {
-                  m_errors_LB->fill(WaferID, m_pixelid);
+                  m_errors_LB->fill(WaferID, m_pixelid, payload+1);
                 }
 
                 // Should this stay the same? This counts '1' for errors,
                 // regardless of how many FEs have that error type.
                 if (!has_err_type[error_type - 1]) {
                   if (m_errhist_errtype_map[error_type - 1] && !m_doOnline) {
-                    m_errhist_errtype_map[error_type - 1]->fill(WaferID, m_pixelid, payload+1);
+                    m_errhist_errtype_map[error_type - 1]->fill(WaferID, m_pixelid);
                   }
-                  num_errormodules_per_type[kLayer][error_type - 1] += (payload+1);
-                  if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type - 1] += (payload+1);
+                  num_errormodules_per_type[kLayer][error_type - 1]++;
+                  if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type - 1]++;
                   has_err_type[error_type - 1] = true;
                 }
                 if (!has_err_cat[error_cat]) {
                   if (m_errhist_errcat_map[error_cat] && !m_doOnline) {
-                    m_errhist_errcat_map[error_cat]->fill(WaferID, m_pixelid, payload+1);
+                    m_errhist_errcat_map[error_cat]->fill(WaferID, m_pixelid);
                   }
-                  num_errormodules_per_cat[kLayer][error_cat] += (payload+1);
+                  num_errormodules_per_cat[kLayer][error_cat]++;
                   if (kLayerIBL != 99) {
-                    num_errormodules_per_cat[kLayerIBL][error_cat] += (payload+1);
+                    num_errormodules_per_cat[kLayerIBL][error_cat]++;
                   }
                   has_err_cat[error_cat] = true;
                 }

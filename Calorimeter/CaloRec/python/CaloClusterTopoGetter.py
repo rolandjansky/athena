@@ -371,6 +371,9 @@ class CaloClusterTopoGetter ( Configured )  :
         #timing
         TopoMaker.SeedCutsInT = jobproperties.CaloTopoClusterFlags.doTimeCut()
         TopoMaker.CutOOTseed = jobproperties.CaloTopoClusterFlags.extendTimeCut() and jobproperties.CaloTopoClusterFlags.doTimeCut()
+        TopoMaker.UseTimeCutUpperLimit = jobproperties.CaloTopoClusterFlags.useUpperLimitForTimeCut()
+        TopoMaker.TimeCutUpperLimit = 20.0
+
 
 
         # note E or AbsE 

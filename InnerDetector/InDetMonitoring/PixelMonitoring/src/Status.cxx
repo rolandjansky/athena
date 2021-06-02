@@ -44,7 +44,7 @@ StatusCode PixelMainMon::bookStatusMon(void) {
   sc = m_status->regHist(statusHistos);
   m_status->setMaxValue(2.0);
 
-  m_status_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+  m_status_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Map_Of_Modules_Status_Mon", ("Modules Status Reset (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
   sc = m_status_mon->regHist(statusHistos);
   m_status_mon->setMaxValue(2.0);
 
@@ -67,20 +67,20 @@ StatusCode PixelMainMon::bookStatusMon(void) {
     for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
       tmp = makeHistname(("BadModules_per_lumi_" + modlabel[i]), false);
       tmp2 = makeHisttitle(("Number of bad modules (bad+active) per event per LB, " + modlabel[i]), (atext_LB + atext_nmod), false);
-      sc = statusHistos.regHist(m_badModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt + atext_LB + atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+      sc = statusHistos.regHist(m_badModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), nbins_LB, min_LB, max_LB));
       
       tmp = makeHistname(("DisabledModules_per_lumi_" + modlabel[i]), false);
       tmp2 = makeHisttitle(("Number of disabled modules per event per LB, " + modlabel[i]), (atext_LB + atext_nmod), false);
-      sc = statusHistos.regHist(m_disabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt + atext_LB + atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+      sc = statusHistos.regHist(m_disabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), nbins_LB, min_LB, max_LB));
       
       tmp = makeHistname(("BadDisabledModules_per_lumi_" + modlabel[i]), false);
       tmp2 = makeHisttitle(("Number of disabled & bad modules per event per LB, " + modlabel[i]), (atext_LB + atext_nmod), false);
-      sc = statusHistos.regHist(m_baddisabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt + atext_LB + atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+      sc = statusHistos.regHist(m_baddisabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), nbins_LB, min_LB, max_LB));
     }
     
     tmp = makeHistname("DisabledModules_per_lumi_PIX", false);
     tmp2 = makeHisttitle("Number of disabled modules per event per LB for Pixel barrel", (atext_LB + atext_nmod), false);
-    sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt + atext_LB + atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+    sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), nbins_LB, min_LB, max_LB));
   }
 
   if (sc.isFailure()) {

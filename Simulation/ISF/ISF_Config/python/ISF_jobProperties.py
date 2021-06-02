@@ -172,6 +172,11 @@ class GeoIDService(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'NONE'
 
+class Resimulation(JobProperty):
+    """Using Resimulation workflow"""
+    statusOn     = False
+    allowedTypes = ['str']
+    StoredValue  = 'NONE'
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -211,7 +216,7 @@ jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainID)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainCalo)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainMS)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainCavern)
-
+jobproperties.ISF_jobProperties.add_JobProperty(Resimulation)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

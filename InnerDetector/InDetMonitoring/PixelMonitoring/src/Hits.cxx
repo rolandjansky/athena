@@ -87,7 +87,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   StatusCode sc;
 
   hname = makeHistname("Hits_per_lumi", false);
-  htitles = makeHisttitle("Average number of pixel hits per event", (atext_LB + atext_hit), false);
+  htitles = makeHisttitle("Average number of pixel hits per event per LB", (atext_LB + atext_hit), false);
   sc = rdoShift.regHist(m_hits_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
   hname = makeHistname("AvgOcc_per_lumi", false);
@@ -96,7 +96,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
 
   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {  // not include IBL2D and IBL3D
     hname = makeHistname(("Hits_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-    htitles = makeHisttitle(("Average number of pixel hits per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_hit), false);
+    htitles = makeHisttitle(("Average number of pixel hits per event per LB, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_hit), false);
     sc = rdoExpert.regHist(m_hits_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
     if (m_doOnline) { 
@@ -136,7 +136,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     hname = makeHistname(("AvgOcc_active_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-    htitles = makeHisttitle(("Average pixel occupancy for active per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_occ), false);
+    htitles = makeHisttitle(("Average pixel occupancy for active modules per event per LB, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_occ), false);
     sc = rdoExpert.regHist(m_avgocc_active_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
     hname = makeHistname(("MaxOcc_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);

@@ -12,6 +12,7 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -84,6 +85,14 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          return(StatusCode::FAILURE);
       }
    }
+   // Register this service for 'I/O' events
+   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+   ATH_CHECK(iomgr.retrieve());
+   if (!iomgr->io_register(this).isSuccess()) {
+     ATH_MSG_FATAL("Could not register myself with the IoComponentMgr !");
+     return(StatusCode::FAILURE);
+   }
+
    // Extracting MaxFileSizes for global default and map by Database name.
    for (std::vector<std::string>::const_iterator iter = m_maxFileSizes.value().begin(),
 	   last = m_maxFileSizes.value().end(); iter != last; iter++) {
@@ -127,6 +136,13 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::io_reinit() {
+   ATH_MSG_DEBUG("I/O reinitialization...");
+   // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
+   extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
+   return(StatusCode::SUCCESS);
+}
+//______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::finalize() {
    // Release AthenaSerializeSvc
    if (!m_serializeSvc.empty()) {
@@ -162,6 +178,11 @@ StatusCode AthenaPoolCnvSvc::finalize() {
    m_cnvs.clear();
    m_cnvs.shrink_to_fit();
    return(::AthCnvSvc::finalize());
+}
+//______________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::io_finalize() {
+   ATH_MSG_DEBUG("I/O finalization...");
+   return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 StatusCode AthenaPoolCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {

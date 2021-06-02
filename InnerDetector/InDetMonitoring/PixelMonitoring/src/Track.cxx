@@ -63,10 +63,10 @@ StatusCode PixelMainMon::bookTrackMon(void) {
   double min_LB = -0.5;
   double max_LB = min_LB + (1.0 * nbins_LB);
 
-  sc = trackHistos.regHist(m_track_res_phi = TH1F_LW::create("Track_res_phi", ("Pixel Residual LocX(phi)" + m_histTitleExt).c_str(), 100, -0.1, 0.1));
-  sc = trackHistos.regHist(m_track_res_eta = TH1F_LW::create("Track_res_eta", ("Pixel Residual LocY(eta)" + m_histTitleExt).c_str(), 100, -0.3, 0.3));
-  sc = trackHistos.regHist(m_track_pull_phi = TH1F_LW::create("Track_pull_phi", ("Pixel pull LocX(phi)" + m_histTitleExt).c_str(), 100, -1.2, 1.2));
-  sc = trackHistos.regHist(m_track_pull_eta = TH1F_LW::create("Track_pull_eta", ("Pixel pull LocY(eta)" + m_histTitleExt).c_str(), 100, -2.0, 2.0));
+  sc = trackHistos.regHist(m_track_res_phi = TH1F_LW::create("Track_res_phi", ("Pixel Residual LocX(phi)" + m_histTitleExt + ";Residual LocX(phi);# measurements on track").c_str(), 100, -0.1, 0.1));
+  sc = trackHistos.regHist(m_track_res_eta = TH1F_LW::create("Track_res_eta", ("Pixel Residual LocY(eta)" + m_histTitleExt + ";Residual LocY(eta);# measurements on track").c_str(), 100, -0.3, 0.3));
+  sc = trackHistos.regHist(m_track_pull_phi = TH1F_LW::create("Track_pull_phi", ("Pixel pull LocX(phi)" + m_histTitleExt + ";Pull LocX(phi);# measurements on track").c_str(), 100, -1.2, 1.2));
+  sc = trackHistos.regHist(m_track_pull_eta = TH1F_LW::create("Track_pull_eta", ("Pixel pull LocY(eta)" + m_histTitleExt + ";Pull LocY(eta);# measurements on track").c_str(), 100, -2.0, 2.0));
   sc = trackHistos.regHist(m_track_chi2 = TH1F_LW::create("Track_chi2", ("chi2 of rec. track" + m_histTitleExt + ";#chi^{2}/DoF;#tracks").c_str(), 50, -0., 10.));
   sc = trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(), nbins_LB, min_LB, max_LB));
 
@@ -103,7 +103,7 @@ StatusCode PixelMainMon::bookTrackMon(void) {
   }
 
   hname = makeHistname("NPixhits_per_track_lumi", false);
-  htitles = makeHisttitle("Number of pixhits per track", ";lumi block;number of hits", false);
+  htitles = makeHisttitle("Number of pixhits per track per LB", ";lumi block;number of hits", false);
   sc = trackHistos.regHist(m_npixhits_per_track_lumi = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 10, -0.5, 9.5));
   if (m_doOnline) {
     hname = makeHistname("NPixhits_per_track_last100lb", false);

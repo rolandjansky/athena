@@ -23,7 +23,7 @@ namespace egammaMonitoring {
     using ParticleHistograms::ParticleHistograms;
     using ParticleHistograms::initializePlots;
     
-    StatusCode initializePlots();
+    StatusCode initializePlots(bool reducedHistSet);
 
     using ParticleHistograms::fill;
     
@@ -31,6 +31,7 @@ namespace egammaMonitoring {
 
   private:    
 
+    bool m_reducedHistSet;
 
   };
 

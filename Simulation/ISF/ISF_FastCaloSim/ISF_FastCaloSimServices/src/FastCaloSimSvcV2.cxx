@@ -28,6 +28,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "ISF_Interfaces/IParticleBroker.h"
+#include "ISF_Interfaces/ITruthSvc.h"
+#include "ISF_Event/ISFTruthIncident.h"
 
 
 #include "CaloEvent/CaloCellContainer.h"
@@ -52,6 +54,7 @@ ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* sv
   , m_doPunchThrough(false)
   , m_punchThroughTool("")
   , m_particleBroker ("ISF_ParticleBroker",name)
+  , m_truthRecordSvc("ISF_TruthRecordSvc", name)
 
 {
   declareProperty("ParamSvc"                       ,       m_paramSvc);
@@ -64,6 +67,8 @@ ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* sv
   declareProperty("RandomStream"                   ,       m_randomEngineName         );
   declareProperty("FastCaloSimCaloExtrapolation"   ,       m_FastCaloSimCaloExtrapolation );
   declareProperty("ParticleBroker"                 ,       m_particleBroker, "ISF ParticleBroker Svc" );
+  declareProperty("ParticleTruthSvc"               ,       m_truthRecordSvc, "ISF Particle Truth Svc" );
+
 }
 
 /** framework methods */
@@ -79,11 +84,16 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() ) 
+  if (m_truthRecordSvc.retrieve().isFailure()){
+    ATH_MSG_FATAL( "Could not retrieve " << m_truthRecordSvc );
+    return StatusCode::FAILURE;
+  }
+
+  if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() )
   {
     ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
     return StatusCode::FAILURE;
-  } 
+  }
 
   ATH_CHECK(m_paramSvc.retrieve());
 
@@ -166,14 +176,27 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
 
   if (m_doPunchThrough) {
+
+     Barcode::PhysicsProcessCode process = 201;
+
      // call punch-through simulation
-     const ISF::ISFParticleContainer* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
+     const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
 
      // add punch-through particles to the ISF particle broker
      if (isfpVec) {
+
+       //Record truth incident for created punch through particles
+       ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isfp),
+                                    *isfpVec,
+                                    process,
+                                    isfp.nextGeoID(),  // inherits from the parent
+                                    ISF::fKillsPrimary);
+       m_truthRecordSvc->registerTruthIncident( truth, true );
+
        for (ISF::ISFParticle *particle : *isfpVec) {
          m_particleBroker->push( particle, &isfp);
        }
+
      }
    }
 
@@ -206,18 +229,25 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 
   ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
 
-  ATH_CHECK(m_paramSvc->simulate(simulstate, &truth, &extrapol));
+  //only simulate if extrapolation to calo surface sucdeeded
+  if(extrapol.CaloSurface_eta() != -999){
 
-  ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
-  ATH_MSG_VERBOSE("Energy fraction for layer: ");
-  for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-  ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
+    ATH_CHECK(m_paramSvc->simulate(simulstate, &truth, &extrapol));
 
-  //Now deposit all cell energies into the CaloCellContainer
-  for(const auto& iter : simulstate.cells()) {
-    CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
-    theCell->addEnergy(iter.second);
+    ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
+    ATH_MSG_VERBOSE("Energy fraction for layer: ");
+    for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
+    ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
+
+    //Now deposit all cell energies into the CaloCellContainer
+    for(const auto& iter : simulstate.cells()) {
+      CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
+      theCell->addEnergy(iter.second);
+    }
   }
+  else ATH_MSG_DEBUG("Skipping simulation as extrapolation to ID-Calo boundary failed.");
+
+  simulstate.DoAuxInfoCleanup();
 
   return StatusCode::SUCCESS;
 }

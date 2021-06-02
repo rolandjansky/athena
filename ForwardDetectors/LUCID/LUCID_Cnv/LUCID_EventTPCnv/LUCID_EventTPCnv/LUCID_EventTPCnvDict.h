@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LUCID_EVENTTPCNV_H
-#define LUCID_EVENTTPCNV_H
+#ifndef LUCID_EVENTTPCNVDICT_H
+#define LUCID_EVENTTPCNVDICT_H
 
 #include "LUCID_EventTPCnv/LUCID_SimHit_p1.h"
 #include "LUCID_EventTPCnv/LUCID_Digit_p1.h"
@@ -15,6 +15,8 @@
 #include "LUCID_EventTPCnv/LUCID_DigitContainer_p2.h"
 
 #include "LUCID_EventTPCnv/LUCID_SimHit_p2.h"
+#include "LUCID_EventTPCnv/LUCID_SimHitCollection_p1.h"
+#include "LUCID_EventTPCnv/LUCID_SimHitCollection_p2.h"
 
 namespace LUCID_EventTPCnv_Dict {
 

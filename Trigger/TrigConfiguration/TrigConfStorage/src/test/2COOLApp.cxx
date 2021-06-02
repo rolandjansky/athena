@@ -763,9 +763,9 @@ int main( int argc, char* argv[] ) {
          }
       
          try {
-            std::unique_ptr< TrigConf::IStorageMgr > sm = 
-               std::unique_ptr< TrigConf::IStorageMgr >(new TrigConf::StorageMgr(csv[0],user,passwd,log));
-
+            std::unique_ptr< TrigConf::StorageMgr > sm =
+               std::unique_ptr< TrigConf::StorageMgr >(new TrigConf::StorageMgr(csv[0],user,passwd,log));
+            sm->setUseFrontier(gConfig.UseFrontier());
             // setup the coolWriter
             TrigConf::TrigConfCoolWriter coolWriter(gConfig.CoolConnection(),log);
             std::vector<std::string>::const_iterator wfIt = gConfig.ListOfWriteFolders().begin();

@@ -93,17 +93,20 @@ TrigConf::SessionMgr::createSession() {
 
    
    if(csc.replicaSortingAlgorithm() == nullptr) { // likely to be standalone, create our own
-      TRG_MSG_INFO("Create own ReplicaSortingAlgorithm");
+      TRG_MSG_INFO("Create own ReplicaSortingAlgorithm with useFrontier=" << (m_useFrontier ? "true" : "false") << " and useSQLite=" << ( m_useSQLite ? "true" : "false"));
       m_replicaSorter = new TrigConf::ReplicaSorter();
+      m_replicaSorter->setUseFrontier(m_useFrontier);
+      m_replicaSorter->setUseSQLite(m_useSQLite);
       csc.setReplicaSortingAlgorithm(*m_replicaSorter);
    }
 
    buildConnectionString();
    TRG_MSG_INFO("Connecting to " << m_connectionString);
    m_sessionproxy = connSvc.connect(m_connectionString, coral::AccessMode::ReadOnly);
+
    TRG_MSG_INFO("Opening session " << m_connectionString << " with " << m_retrialPeriod << "/" << m_retrialTimeout << "/" << m_connectionTimeout);
 
-   return *m_sessionproxy;   
+   return *m_sessionproxy;
 }
 
 

@@ -17,35 +17,69 @@
 
 using namespace std;
 
-TrigConf::ReplicaSorter::ReplicaSorter() :
-   m_frontiergen(false) 
+TrigConf::ReplicaSorter::ReplicaSorter()
 {
-   std::cout << "ReplicaSorter constructor" << std::endl;
    readConfig();
 }
 
 void
 TrigConf::ReplicaSorter::sort(std::vector<const coral::IDatabaseServiceDescription*>& replicaSet) {
+   // if only one replica offered, return immediately
+   // this helps for online, where explicit configuration file is given
+   // that does not match any of the standard dbreplica.config entries
+   if (replicaSet.size()<=1) return;
+
    // loop through all the offered replicas
    std::map<int,const coral::IDatabaseServiceDescription*> primap;
-   for (std::vector<const coral::IDatabaseServiceDescription*>::const_iterator 
-           itr=replicaSet.begin();itr!=replicaSet.end();++itr) {
-      const std::string conn=(**itr).connectionString();
+
+   for( const coral::IDatabaseServiceDescription* dbSrv : replicaSet) {
+      const std::string & conn = dbSrv->connectionString();
       // do not use SQLite files
-      if (conn.find("sqlite_file")==std::string::npos) {
+      if (conn.find("sqlite_file")!=std::string::npos) {
+         // include SQLite files unless they are vetoed
+         // COOL SQLIte files recognised by ALLP in connection string
+         // vetoed if use-SQlite flag not set, or pattern is found in
+         // SQLite filename
+         // Geometry SQLite files recognised by geomDB in connection string
+         if (! (( (m_useSQLite==false) && conn.find("ALLP")!=std::string::npos)))
+            {
+               // local sqlite files get -9999, DB release ones
+               // (identified with path starting / or containing DBRelease)
+               // get -999, so local one will be tried first if present
+               if (conn.find("sqlite_file:/")!=std::string::npos ||
+                   conn.find("DBRelease")!=std::string::npos) {
+                  primap[-999]=dbSrv;
+               } else {
+                  primap[-9999]=dbSrv;
+               }
+            }
+      } else {
+
+         // define priority for technologies with this server (lower = better)
+         bool veto=false;
+         int spri=5; // default for Oracle
+         if (conn.find("frontier:")!=std::string::npos) {
+            spri=3; // use frontier before oracle
+            // dont use frontier servers if disabled, or generic Frontier server
+            // is specified (via '()' in server definition) and FRONTIER_SERVER
+            // env variable is not set
+            if (!m_useFrontier ||
+                (conn.find("()")!=std::string::npos && m_useFrontierGen==false))
+               veto=true;
+         }
          // extract the server name (assuming URLs "techno://server/schema")
          // example of current conn naming scheme:  coral://127.0.0.1:3320/&oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_REPR
          std::string::size_type ipos0=conn.find("&");
          std::string::size_type ipos1=conn.find("://",ipos0+1);
          std::string::size_type ipos2=conn.find("/",ipos1+3);
-         if (ipos1!=std::string::npos && ipos2!=std::string::npos) {
+         if (ipos1!=std::string::npos && ipos2!=std::string::npos && !veto) {
             const std::string server=conn.substr(ipos1+3,ipos2-ipos1-3);
             // check if this server is on list of replicas to use for domain
             // if so, add it with its associated priority
             for (ServerMap::const_iterator sitr=m_servermap.begin();
                  sitr!=m_servermap.end();++sitr) {
                if (sitr->first==server) 
-                  primap[sitr->second]=*itr;
+                  primap[sitr->second+spri]=dbSrv;
             }
          }
       }
@@ -86,7 +120,7 @@ TrigConf::ReplicaSorter::readConfig() {
    if (cfrontier && strcmp(cfrontier,"")!=0) {
       std::cout << "Frontier server at " << cfrontier << " will be considered"
                 << std::endl;
-      m_frontiergen=true;
+      m_useFrontierGen=true;
    }
  
    // try to locate configuration file using pathresolver
@@ -128,7 +162,7 @@ TrigConf::ReplicaSorter::readConfig() {
                   // token is a server name
                   // only add Frontier ATLF server if FRONTIER_CLIENT set
                   if(atCERN && token=="ATONR_CONF") atCERN = false;
-                  if (token!="ATLF" || m_frontiergen) servers.push_back(token);
+                  if (token!="ATLF" || m_useFrontierGen) servers.push_back(token);
                }
             }
             iofs1=iofs2+1;
@@ -159,16 +193,13 @@ TrigConf::ReplicaSorter::readConfig() {
             }
          }
          if (useit) {
-            if(atCERN) {
-               servers.push_back("ATONR_COOL");
-               servers.push_back("ATONR_CONF");
-            }
             // assign these servers, priority based on position in list
             // and length of match of domain name
             for (unsigned int i=0;i<servers.size();++i) {
                int priority=i-100*bestlen;
                m_servermap.push_back(ServerPair(servers[i],priority));
             }
+            break;
          }
       }
    }
