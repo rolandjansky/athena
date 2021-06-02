@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Test running on ALFACalib data with ALFA ROB Monitor enabled, 2 forks, 3 slots, 6 threads
+# art-description: Test running on ALFACalib data with ALFA ROB Monitor chains, 2 forks, 3 slots, 6 threads
 # art-type: build
 # art-include: master/Athena
 
@@ -15,9 +15,12 @@ ex.forks = 2
 ex.threads = 6
 ex.concurrent_events = 3
 ex.max_events = 300
-ex.args = '-c "enableALFAMon=True;"'
-# This test should ultimately run just ALFA chains, but until this is available we use full PhysicsP1 menu
-ex.args += ' -c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+precommand = ''.join([
+  "setMenu='PhysicsP1_pp_run3_v1';",
+  "doL1Sim=True;",
+  "selectChains=['HLT_mb_alfaperf_L1RD0_FILLED','HLT_mb_alfaperf_L1RD0_EMPTY'];",
+])
+ex.args = '-c "{:s}"'.format(precommand)
 
 test = Test.Test()
 test.art_type = 'build'

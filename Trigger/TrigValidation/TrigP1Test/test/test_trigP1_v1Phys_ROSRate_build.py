@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger athenaHLT test for ROS rates estimate with the Physics_pp_run3_v1 menu
 # art-type: build
@@ -12,7 +12,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.max_events = 200
-ex.args = '-c "setMenu=\'Physics_pp_run3_v1\';"'
+ex.args = '-c "setMenu=\'Physics_pp_run3_v1\';doL1Sim=True;"'
 ex.args += ' --ros2rob /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py'
 
 ros2json = CheckSteps.InputDependentStep("RosRateToJson")

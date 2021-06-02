@@ -25,7 +25,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args = '-c "setMenu=\'LS2_v1\';doL1Sim=False;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 
 test = Test.Test()
 test.art_type = 'grid'
