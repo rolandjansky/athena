@@ -63,7 +63,10 @@ namespace top {
 
       // Apply the Electron In Jet Subtraction
       // The actual calculation is performed in another package
-      m_subtractionAlgorithm.apply(shallow_electrons.first, shallow_jets.first);
+      // Retrieve the threshold and offset values from the config file (defauls values are 0.37 and 20 GeV, respectively)
+      const float elinjet_ptcut_value = m_config->elInJetPtcut();
+      const float elinjet_ptbias_value = m_config->elInJetPtbias();
+      m_subtractionAlgorithm.apply(shallow_electrons.first, shallow_jets.first, elinjet_ptcut_value, elinjet_ptbias_value);
 
       // Save the modified electrons to TStore
       std::string outputElectronsSGKey = m_config->sgKeyElectrons(currentSystematic);
@@ -97,7 +100,7 @@ namespace top {
 
         // Apply the Electron In Jet Subtraction
         // The actual calculation is performed in another package
-        m_subtractionAlgorithm.apply(shallow_electrons.first, shallow_jetsLoose.first, m_doLooseCuts);
+        m_subtractionAlgorithm.apply(shallow_electrons.first, shallow_jetsLoose.first, elinjet_ptcut_value, elinjet_ptbias_value, m_doLooseCuts);
 
         // Save the modified jets to TStore
         std::string outputJetsLooseSGKey = m_config->sgKeyJets(currentSystematic, m_doLooseCuts);

@@ -20,7 +20,7 @@ namespace top {
     ElectronInJetSubtractionAlgorithm(ElectronInJetSubtractionAlgorithm&& rhs) = delete;
     ElectronInJetSubtractionAlgorithm& operator = (const ElectronInJetSubtractionAlgorithm& rhs) = delete;
 
-    void apply(xAOD::ElectronContainer* electrons, xAOD::JetContainer* jets, const bool useLooseElectrons = false);
+    void apply(xAOD::ElectronContainer* electrons, xAOD::JetContainer* jets, float elinjet_ptcut, float elinjet_ptbias, const bool useLooseElectrons = false);
   private:
     bool m_doLooseCuts;
     // Pass selection strings

@@ -472,27 +472,34 @@ namespace top {
         for (auto jetPtr : *jets) {
           bool decoration = m_jetSelection->passSelection(*jetPtr);
 
-	  //Forward jets always get JVT=1, Central jets always get fJVT=1 
-	  bool passedJVT_and_fJVT = true;
-	  if (jetPtr->isAvailable<char>("passJVT")) {
-	    if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
-	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
-	    }
-	    else {
-	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
-	    } 
-	  }
-	  else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
-	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
-	  }
+          //Forward jets always get JVT=1, Central jets always get fJVT=1
+          bool passedJVT_and_fJVT = true;
+          if (jetPtr->isAvailable<char>("passJVT")) {
+            if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+              passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+            }
+            else {
+              passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+            }
+          }
+          else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+            passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+          }
+          // set it flase while using ElectronInJetSubtraction method
+          if (m_doLooseCuts && m_config->applyElectronInJetSubtraction()) {
+            if (jetPtr->isAvailable<char>("passesFancyOR")) {
+              if (!jetPtr->auxdecor<char>("passesFancyOR")) decoration = false;
+            }
+          }
+
 
           // if JVT or fJVT cut enabled: jets that pass (f)JVT get passPreORSelection*2, jets which fail get the same as passPreORSelection
           // if no JVT cut and central jet, or no fJVT cut and forward jet, jet gets: passPreORSelection * 2
           jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
           jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
 
-	  jetPtr->auxdecor<char>(m_ORToolDecoration) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
-	  jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);;
+          jetPtr->auxdecor<char>(m_ORToolDecoration) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
+          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
 
           //decorate with b-tagging flags
           std::vector<std::string> availableWPs = m_config->bTagWP_available();
