@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -66,14 +66,14 @@ class TilePaterMonTool: public ManagedMonitorToolBase
 
 protected:
 /// Implicit version of book1D 
-  TH1D* book1D(std::string nam, std::string tit, 
+  TH1D* book1D(const std::string& nam, const std::string& tit, 
                int nx, double xmin, double xmax) 
   { 
     return book1D(m_path, nam, tit, nx, xmin, xmax); 
   }
 
 /// Implicit version of book2D 
-  TH2D* book2D(std::string nam, std::string tit, 
+  TH2D* book2D(const std::string& nam, const std::string& tit, 
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax)
  {
@@ -205,12 +205,12 @@ protected:
   using ManagedMonitorToolBase::regGraph;
 
   template <typename T>
-  void regHist(const std::string subDir, T* hist, 
+  void regHist(const std::string& subDir, T* hist, 
                Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED, 
                std::string trigChain = "", std::string mergeAlgo = "" );
 
   template <typename T>
-  void regGraph(const std::string subDir, T* graph, 
+  void regGraph(const std::string& subDir, T* graph, 
                 Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED, 
                 std::string trigChain = "", std::string mergeAlgo = "" );
   

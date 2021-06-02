@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************//
@@ -98,7 +98,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("LVL1ConfigSvc", m_lvl1ConfigSvc, "LVL1 Config Service");
   declareProperty("readTrigger", m_readTrigger = true); // Switch for CTP config
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
-  declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
+  declareProperty("UseTrigger", m_useTriggerTileMon = true); // Switch for using trigger information
   declareProperty("FillHistogramsPerMBTS", m_fillHistogramsPerMBTS = true); // Switch for using per MBTS histograms
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("TileInfoName", m_infoName = "TileInfo");
@@ -286,7 +286,7 @@ StatusCode TileMBTSMonTool::bookHistograms() {
     for (int counter = 0; counter < 32; ++counter) {
       if (m_counterExist[counter]) {
         // Trigger
-        if (m_useTrigger) {
+        if (m_useTriggerTileMon) {
           m_h_bcidPIT[counter] = book1S("Trigger", "DeltaBcidPIT_" + m_counterNames[counter], "MBTS BCID difference of PIT signal", 20, -9, 10);
           m_h_bcidPIT[counter]->GetXaxis()->SetTitle("Bunch crossings between PIT fire and L1Accept");
 
@@ -357,7 +357,7 @@ StatusCode TileMBTSMonTool::bookHistograms() {
   
 
   // Trigger
-  if (m_useTrigger) {
+  if (m_useTriggerTileMon) {
     m_h_ctpPIT = book1S("Trigger", "PITs_Fired", "MBTS Trigger Inputs fired", 32, 0, 32);
     setBinLabels(m_h_ctpPIT, 1);
 
@@ -560,7 +560,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
   
   unsigned int l1aBCID(0);
 
-  if (m_useTrigger) {
+  if (m_useTriggerTileMon) {
 
     uint32_t numberBC(0);
     CTP_Decoder ctp;
@@ -571,7 +571,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
       numberBC = theCTP_RDO->getNumberOfBunches();
     } else {
       ATH_MSG_WARNING("No CTP_RDO is available! No trigger specific information will be used!");
-      m_useTrigger = false;
+      m_useTriggerTileMon = false;
     }
  
     if (numberBC > 0) {
@@ -822,7 +822,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
         if (m_fillHistogramsPerMBTS) {
           m_h_time[counter]->Fill(time[counter], 1.0);
           
-          if (m_useTrigger) {
+          if (m_useTriggerTileMon) {
             if (m_hasTBP[counter]) m_h_efficiency[counter]->Fill(energy[counter], 1.);
             else m_h_efficiency[counter]->Fill(energy[counter], 0.);
           }
@@ -854,7 +854,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
   if (tHitsA > 0) m_h_timeA->Fill(timeA / tHitsA);
   if (tHitsC > 0) m_h_timeC->Fill(timeC / tHitsC);
 
-  if (m_useTrigger) {
+  if (m_useTriggerTileMon) {
     m_h_bcidEnergyA->Fill(l1aBCID, bcidEnergyA);
     m_h_bcidEnergyC->Fill(l1aBCID, bcidEnergyC);
   }
@@ -873,7 +873,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
   TileDigitsContainer::const_iterator collItr = theDigitsContainer->begin();
   TileDigitsContainer::const_iterator lastColl = theDigitsContainer->end();
 
-  for (; collItr != lastColl; collItr++) {  // Loop over TileModules
+  for (; collItr != lastColl; ++collItr) {  // Loop over TileModules
 
     TileDigitsCollection::const_iterator digitsItr = (*collItr)->begin();
     TileDigitsCollection::const_iterator lastDigits = (*collItr)->end();
@@ -886,7 +886,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
         int MBTSchannel = m_MBTSchannels[ros - 3][drawer];
 
         if (MBTSchannel >= 0) {
-          for (; digitsItr != lastDigits; digitsItr++) {  // Loop over TileChannels
+          for (; digitsItr != lastDigits; ++digitsItr) {  // Loop over TileChannels
             HWIdentifier adc_id = (*digitsItr)->adc_HWID();
             int channel = m_tileHWID->channel(adc_id);
             if (channel == MBTSchannel) {  // MBTS channel found

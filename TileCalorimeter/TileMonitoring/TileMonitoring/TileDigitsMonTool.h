@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -45,7 +45,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     virtual StatusCode checkHists(bool fromFinalize) override;
 
     void bookHists(int ros, int drawer);
-    void drawHists(int ros, int drawer, std::string moduleName);
+    void drawHists(int ros, int drawer, const std::string& moduleName);
 
     virtual const uint8_t* stuckBitProb (int ros, int module, int channel, int gain) const override;
     virtual void saveStuckBitsProbabilities(TTree* tree) override;
@@ -122,7 +122,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     const uint32_t* m_cispar;
 
     bool m_bigain;
-    int m_nEvents;
+    int m_nEventsTileMon;
     int m_nSamples;
     // Factor these out to avoid triggering the ubsan sanity checks.
     struct Data {

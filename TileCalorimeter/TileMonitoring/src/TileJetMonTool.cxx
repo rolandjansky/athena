@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -579,7 +579,7 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
               Now really fill the histograms time vs lumiblock and 1dim time
             */
             char sLumiBlock[10];
-            sprintf(sLumiBlock, "%d", LumiBlock);
+            sprintf(sLumiBlock, "%u", LumiBlock);
             
             // first channel
             if (is_good1 && (ene1 > m_energyChanMin) && (ene1 < m_energyChanMax)) {
