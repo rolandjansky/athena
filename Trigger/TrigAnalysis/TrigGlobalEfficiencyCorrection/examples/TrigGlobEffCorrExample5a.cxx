@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
             int t = photon->auxdata<int>("truthType");
             if(t!=14) continue;
             /// photon must be above trigger threshold:
-            if(pt < (runNumber>=302919? 23e3f : 21e3f)) continue;
+            if(pt < (runNumber>=302919? 27e3f : 25e3f)) continue;
             myTriggeringPhotons.push_back(photon);
         }
 
