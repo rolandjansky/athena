@@ -591,10 +591,13 @@ namespace Rec {
         }
 
         //  adds uncertainties and removes AEOTs
-        std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(combinedTrack.get())};
-
+        //  We will either have nullptr or a new Track.
+        //  What we pass stays untouched.
+        std::unique_ptr<Trk::Track> newTrack = addIDMSerrors(combinedTrack.get());
         // recollect eloss for combined track and refit
-        if (newTrack && newTrack.get() != combinedTrack.get()) {
+        // newTrack will not be used after this block, either
+        // we updated the combined or kept the combined as it was
+        if (newTrack) {
             if (msgLevel(MSG::DEBUG)) countAEOTs(newTrack.get(), " combinedTrack after addIDMSerrors ");
             // Don't run the outliers anymore at this stage
             dumpCaloEloss(newTrack.get(), "CB input TSOS after refine IDMS ");
@@ -603,11 +606,11 @@ namespace Rec {
             if (refittedTrack) dumpCaloEloss(refittedTrack.get(), "CB refit after refine IDMS ");
             /// This should only happen if adding the ID/MS errors fails or the property is disabled
             if (refittedTrack && refittedTrack->fitQuality() && checkTrack("combinedFit", refittedTrack.get(), combinedTrack.get())) {
+                //Make the combined point to the refitted 
                 combinedTrack.swap(refittedTrack);
             }
-        } else if (newTrack.get() == combinedTrack.get())
-            newTrack.release();
-
+        }
+        
         /// Final check to avoid FPEs later on
         if (!checkTrack("addIDMS failed", combinedTrack.get(), combinedTrack.get())) {
             ATH_MSG_DEBUG("addIDMS errors failed and original track does not pass checkTrack");
@@ -1352,9 +1355,12 @@ namespace Rec {
         }
 
         //  adds uncertainties
-        std::unique_ptr<Trk::Track> newTrack{addIDMSerrors(track.get())};
-
-        if (newTrack && track.get() != newTrack.get()) {
+        //  We will either have nullptr or a new Track.
+        //  What we pass stays untouched.
+        std::unique_ptr<Trk::Track> newTrack = addIDMSerrors(track.get());
+        // newTrack will not be used after this block, either
+        // we updated the track  or kept the track as it was
+        if (newTrack) {
             if (msgLevel(MSG::DEBUG)) countAEOTs(newTrack.get(), " SA track after addIDMSerrors ");
             dumpCaloEloss(newTrack.get(), "SA input TSOS after refine IDMS ");
 
@@ -1362,14 +1368,13 @@ namespace Rec {
             std::unique_ptr<Trk::Track> refittedTrack(fit(*newTrack, ctx, false, Trk::muon));
             if (msgLevel(MSG::DEBUG)) { countAEOTs(refittedTrack.get(), " SA track after refit "); }
             dumpCaloEloss(refittedTrack.get(), " SA refit after refine IDMS ");
-
             if (refittedTrack && refittedTrack->fitQuality() && checkTrack("standaloneFit", refittedTrack.get(), track.get())) {
+                //Here we swap
                 track.swap(refittedTrack);
             } else {
                 ++improvementsFailed;
             }
         } else {
-            newTrack.release();
             ++improvementsFailed;
         }
 
@@ -2336,14 +2341,14 @@ namespace Rec {
         return optimize > 0;
     }
 
-    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const {
+    std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::addIDMSerrors(const Trk::Track* track) const {
         //
         // take track and correct the two scattering planes in the Calorimeter
         // to take into account m_IDMS_rzSigma and m_IDMS_xySigma
         //
-        // returns a new Track
+        // returns a new Track or nullptr does not modify the input in any way 
         //
-        if (!m_addIDMSerrors) { return std::unique_ptr<Trk::Track>{track}; }
+        if (!m_addIDMSerrors) { return nullptr;}
 
         ATH_MSG_DEBUG(" CombinedMuonTrackBuilder addIDMSerrors to track ");
 
@@ -2357,7 +2362,7 @@ namespace Rec {
         /// it can happen that no Calorimeter Scatterers are found.
         if (!calo_entrance || !calo_exit || !ms_entrance) {
             ATH_MSG_DEBUG(" addIDMSerrors keep original track ");
-            return std::unique_ptr<Trk::Track>{track};
+            return nullptr;
         }
 
         std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> trackStateOnSurfaces =
@@ -2385,9 +2390,7 @@ namespace Rec {
                 float sigmaDeltaPhi = std::hypot(scat->sigmaDeltaPhi(), m_alignUncertTool_phi->get_uncertainty(track));
                 float sigmaDeltaTheta = std::hypot(scat->sigmaDeltaTheta(), m_alignUncertTool_theta->get_uncertainty(track));
                 float X0 = trk_srf->materialEffectsOnTrack()->thicknessInX0();
-
                 //
-
                 const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
                 const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
