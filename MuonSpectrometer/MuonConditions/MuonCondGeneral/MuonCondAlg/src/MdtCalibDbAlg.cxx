@@ -391,12 +391,12 @@ StatusCode MdtCalibDbAlg::loadRt(){
     ATH_MSG_VERBOSE( "Read header:" << header << " payload:" << payload << " trailer:" << trailer );
 
     // the header contains the muonfixedid rather than the hash
-    char *parameters = new char [header.size()+1];
-    strncpy(parameters, header.c_str(), header.size()+1);
+    std::unique_ptr<char[]> parameters { new char [header.size()+1]};
+    strncpy(parameters.get(), header.c_str(), header.size()+1);
     parameters[header.size()]='\0';
     unsigned int regionId, npoints(0);
     Identifier  athenaId; 
-    char *pch = strtok(parameters," _,");
+    char *pch = strtok(parameters.get()," _,");
     regionId = atoi(pch);
     //Long ago the hash was put in the RT file header, but now (2016)
     //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
@@ -446,9 +446,8 @@ StatusCode MdtCalibDbAlg::loadRt(){
       continue;
     }
     // extract npoints in RT function
-    pch = strtok (NULL, "_,");
+    pch = strtok (nullptr, "_,");
     npoints = atoi(pch);
-    delete [] parameters;
     MuonCalib::CalibFunc::ParVec rtPars;
     MuonCalib::CalibFunc::ParVec resoPars;
 
@@ -469,13 +468,13 @@ StatusCode MdtCalibDbAlg::loadRt(){
       innerTubeRadius = detEl->innerTubeRadius();
     }
 
-    char *RTPar= new char [payload.size()+1];
-    strncpy(RTPar, payload.c_str(), payload.size()+1);
+    std::unique_ptr<char[] >RTPar { new char [payload.size()+1]};
+    strncpy(RTPar.get(), payload.c_str(), payload.size()+1);
     RTPar[payload.size()]='\0';   //terminate string (not sure this is really needed because payload.c_str() should be terminated in \0)
-    char *pch1 = strtok (RTPar,",");
+    char *pch1 = strtok (RTPar.get(),",");
     unsigned int n=0;
     //loop over RT function payload (triplets of radius,time,sigma(=resolution) )
-    for( int k=1; pch1!=NULL && n<=npoints; pch1=strtok(NULL,", "), k++ ) {
+    for( int k=1; pch1!=nullptr && n<=npoints; pch1=strtok(nullptr,", "), k++ ) {
       if(k==1) {    //radius point
 	float radius = atof(pch1);       
 	if( m_rtShift != 0. ) {
@@ -513,8 +512,7 @@ StatusCode MdtCalibDbAlg::loadRt(){
 	k=0;
       }
     }   //end loop over RT function payload (triplets of radius,time,resolution)
-    delete [] RTPar;
-
+ 
     //Must have at least 3 points to have a valid RT
     if(ts_points.size()<3) {
       ATH_MSG_FATAL( "Rt relation broken!");
@@ -848,15 +846,15 @@ StatusCode MdtCalibDbAlg::loadTube(){
 
     // parameters for the MdtTubeContainer
     // header filename,version,region,tubes
-    char *parameters = new char [header.size()+1];
-    strncpy(parameters, header.c_str(), header.size()+1);
+    std::unique_ptr<char []>parameters { new char [header.size()+1]};
+    strncpy(parameters.get(), header.c_str(), header.size()+1);
     parameters[header.size()] = '\0';      //terminate string
-    char *pch = strtok(parameters," _,");  //split using delimiters "_" and ","
+    char *pch = strtok(parameters.get()," _,");  //split using delimiters "_" and ","
     std::string name(pch,2,3);             //extract 3-character station to "name" (e.g. BIL) 
 
     // Split header line and extract phi, eta, region, ntubes
-    pch = strtok (NULL, "_,");
-    for( int i=1; pch!=NULL; pch=strtok(NULL,"_,"), i++ ) {
+    pch = strtok (nullptr, "_,");
+    for( int i=1; pch!=nullptr; pch=strtok(nullptr,"_,"), i++ ) {
       std::istringstream is(pch);
       if(i==1) {
 	is >> iphi; 
@@ -868,8 +866,7 @@ StatusCode MdtCalibDbAlg::loadTube(){
 	is >> ntubes; 
       }
     }
-    delete [] parameters;
-
+ 
     // need to check validity of Identifier since database contains all Run 2 MDT chambers, e.g. also EI chambers which are
     // potentially replaced by NSW
     bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
@@ -883,7 +880,7 @@ StatusCode MdtCalibDbAlg::loadTube(){
       continue;
     }
  
-    MuonCalib::MdtTubeCalibContainer *tubes = NULL;
+    MuonCalib::MdtTubeCalibContainer *tubes = nullptr;
 
     // get chamber hash
     IdentifierHash hash;
@@ -920,7 +917,7 @@ StatusCode MdtCalibDbAlg::loadTube(){
     // retrieve the existing one (created by defaultt0() )
     tubes = (*writeCdoTube)[hash];
 
-    if(tubes==NULL) {
+    if(tubes==nullptr) {
       ATH_MSG_INFO( "Illegal station (2)! (" << name << "," << iphi << "," << ieta << ")" );
       continue;
     }
@@ -937,14 +934,14 @@ StatusCode MdtCalibDbAlg::loadTube(){
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
     MuonCalib::MdtTubeCalibContainer::SingleTubeCalib datatube;
-    char *TubePar= new char [payload.size()+1];
-    strncpy(TubePar, payload.c_str(), payload.size()+1);
+    std::unique_ptr<char []>TubePar { new char [payload.size()+1]};
+    strncpy(TubePar.get(), payload.c_str(), payload.size()+1);
     TubePar[payload.size()]='\0';
     
     //Loop over payload 
-    char *pch1=strtok(TubePar,",");
+    char *pch1=strtok(TubePar.get(),",");
     int ml=1, l=1, t=1;
-    for( int k=1; pch1!=NULL; pch1=strtok(NULL,", "), k++) { 
+    for( int k=1; pch1!=nullptr; pch1=strtok(nullptr,", "), k++) { 
       if(k==1) {
 	double tzero = atof(pch1);
 	if( m_t0Shift != 0. ){
@@ -984,7 +981,6 @@ StatusCode MdtCalibDbAlg::loadTube(){
         }
       }
     }
-    delete [] TubePar;
   }//end loop over readCdoTube
 
   //finally record writeCdo
@@ -1065,14 +1061,14 @@ inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolatio
   ///////////////
   // VARIABLES //
   ///////////////
-  Double_t *x = new Double_t[sample_points.size()];
-  Double_t *y = new Double_t[sample_points.size()];
+  std::unique_ptr<Double_t[]> x { new Double_t[sample_points.size()]};
+  std::unique_ptr<Double_t[]> y { new Double_t[sample_points.size()]};
 	
   for (unsigned int i=0; i<sample_points.size(); i++) {
     x[i] = sample_points[i].x1();
     y[i] = sample_points[i].x2();
   }
-  TSpline3 sp("Rt Res Tmp", x, y, sample_points.size());
+  TSpline3 sp("Rt Res Tmp", x.get(), y.get(), sample_points.size());
   ///////////////////////////////////////////////////////////////////
   // CREATE AN RtRelationLookUp OBJECT WITH THE CORRECT PARAMETERS //
   ///////////////////////////////////////////////////////////////////
@@ -1091,8 +1087,6 @@ inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolatio
       exit(99);
     }
   }
-  delete [] x;
-  delete [] y;
   return new MuonCalib::RtResolutionLookUp(res_param);
 }
 
@@ -1116,8 +1110,8 @@ inline StatusCode MdtCalibDbAlg::extractString(std::string &input, std::string &
 //for corData in loadRt
 void MdtCalibDbAlg::initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet,
                                                   const MuonCalib::MdtRtRelation *rt_rel) {
-  if (rt_rel==NULL) {
-    funcSet->setBField(NULL);
+  if (rt_rel==nullptr) {
+    funcSet->setBField(nullptr);
     return;
   }
   ATH_MSG_VERBOSE( "initialize_B_correction..." );
