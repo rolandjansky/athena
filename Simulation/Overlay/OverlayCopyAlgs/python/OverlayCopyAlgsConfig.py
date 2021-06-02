@@ -31,7 +31,7 @@ def CopyCaloCalibrationHitContainerAlgCfg(flags, collectionName, name="CopyCaloC
     return acc
 
 
-def CopyInTimeJetTruthInfoCfg(flags, name="CopyInTimeJetTruthInfo", **kwargs):
+def CopyInTimeAntiKt4JetTruthInfoCfg(flags, name="CopyInTimeAntiKt4JetTruthInfo", **kwargs):
     """Return a ComponentAccumulator for the in-time pile-up jets copying"""
     acc = ComponentAccumulator()
 
@@ -47,7 +47,7 @@ def CopyInTimeJetTruthInfoCfg(flags, name="CopyInTimeJetTruthInfo", **kwargs):
     return acc
 
 
-def CopyOutOfTimeJetTruthInfoCfg(flags, name="CopyOutOfTimeJetTruthInfo", **kwargs):
+def CopyOutOfTimeAntiKt4JetTruthInfoCfg(flags, name="CopyOutOfTimeAntiKt4JetTruthInfo", **kwargs):
     """Return a ComponentAccumulator for the out-of-time pile-up jets copying"""
     acc = ComponentAccumulator()
 
@@ -63,12 +63,46 @@ def CopyOutOfTimeJetTruthInfoCfg(flags, name="CopyOutOfTimeJetTruthInfo", **kwar
     return acc
 
 
+def CopyInTimeAntiKt6JetTruthInfoCfg(flags, name="CopyInTimeAntiKt6JetTruthInfo", **kwargs):
+    """Return a ComponentAccumulator for the in-time pile-up jets copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("BkgInputKey",
+                      flags.Overlay.BkgPrefix + "InTimeAntiKt6TruthJets")
+    kwargs.setdefault("OutputKey", "InTimeAntiKt6TruthJets")
+
+    # Copy jets
+    CopyJetTruthInfo = CompFactory.CopyJetTruthInfo
+    alg = CopyJetTruthInfo(name, **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+
+def CopyOutOfTimeAntiKt6JetTruthInfoCfg(flags, name="CopyOutOfTimeAntiKt6JetTruthInfo", **kwargs):
+    """Return a ComponentAccumulator for the out-of-time pile-up jets copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("BkgInputKey",
+                      flags.Overlay.BkgPrefix + "OutOfTimeAntiKt6TruthJets")
+    kwargs.setdefault("OutputKey", "OutOfTimeAntiKt6TruthJets")
+
+    # Copy jets
+    CopyJetTruthInfo = CompFactory.CopyJetTruthInfo
+    alg = CopyJetTruthInfo(name, **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+
 def CopyJetTruthInfoAlgsCfg(flags, **kwargs):
     """Return a ComponentAccumulator for the CopyJetTruthInfo algorithms"""
     acc = ComponentAccumulator()
     allowedContainers = [
         flags.Overlay.BkgPrefix + "InTimeAntiKt4TruthJets",
-        flags.Overlay.BkgPrefix + "OutOfTimeAntiKt4TruthJets"
+        flags.Overlay.BkgPrefix + "OutOfTimeAntiKt4TruthJets",
+        flags.Overlay.BkgPrefix + "InTimeAntiKt6TruthJets",
+        flags.Overlay.BkgPrefix + "OutOfTimeAntiKt6TruthJets"
     ]
     availableContainers = []
 
@@ -77,9 +111,13 @@ def CopyJetTruthInfoAlgsCfg(flags, **kwargs):
         if not flags.Overlay.DataOverlay and container in flags.Input.Collections: #SecondaryCollections
             availableContainers.append(container)
     if allowedContainers[0] in availableContainers:
-        acc.merge(CopyInTimeJetTruthInfoCfg(flags, **kwargs))
+        acc.merge(CopyInTimeAntiKt4JetTruthInfoCfg(flags, **kwargs))
     if allowedContainers[1] in availableContainers:
-        acc.merge(CopyOutOfTimeJetTruthInfoCfg(flags, **kwargs))
+        acc.merge(CopyOutOfTimeAntiKt4JetTruthInfoCfg(flags, **kwargs))
+    if allowedContainers[2] in availableContainers:
+        acc.merge(CopyInTimeAntiKt6JetTruthInfoCfg(flags, **kwargs))
+    if allowedContainers[3] in availableContainers:
+        acc.merge(CopyOutOfTimeAntiKt6JetTruthInfoCfg(flags, **kwargs))
     return acc
 
 
@@ -217,7 +255,11 @@ def CopyJetTruthInfoOutputCfg(flags, **kwargs):
             "xAOD::JetContainer#InTimeAntiKt4TruthJets",
             "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.",
             "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets",
-            "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux."
+            "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.",
+            "xAOD::JetContainer#InTimeAntiKt6TruthJets",
+            "xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux.",
+            "xAOD::JetContainer#OutOfTimeAntiKt6TruthJets",
+            "xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux."
         ]))
     return acc
 

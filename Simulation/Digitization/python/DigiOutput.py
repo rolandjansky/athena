@@ -81,11 +81,16 @@ def getStreamRDO_ItemList(log):
     if DetFlags.writeRDOPool.Truth_on():
         StreamRDO_ItemList+=["McEventCollection#*"]
         StreamRDO_ItemList+=["TrackRecordCollection#*"]
-        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
             StreamRDO_ItemList+=["xAOD::JetContainer#*InTimeAntiKt4TruthJets"]
             StreamRDO_ItemList+=["xAOD::JetAuxContainer#*InTimeAntiKt4TruthJetsAux."]
             StreamRDO_ItemList+=["xAOD::JetContainer#*OutOfTimeAntiKt4TruthJets"]
             StreamRDO_ItemList+=["xAOD::JetAuxContainer#*OutOfTimeAntiKt4TruthJetsAux."]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=["xAOD::JetContainer#*InTimeAntiKt6TruthJets"]
+            StreamRDO_ItemList+=["xAOD::JetAuxContainer#*InTimeAntiKt6TruthJetsAux."]
+            StreamRDO_ItemList+=["xAOD::JetContainer#*OutOfTimeAntiKt6TruthJets"]
+            StreamRDO_ItemList+=["xAOD::JetAuxContainer#*OutOfTimeAntiKt6TruthJetsAux."]
         if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
             StreamRDO_ItemList+=["xAOD::TruthParticleContainer#*"]
             StreamRDO_ItemList+=["xAOD::TruthParticleAuxContainer#*"]
