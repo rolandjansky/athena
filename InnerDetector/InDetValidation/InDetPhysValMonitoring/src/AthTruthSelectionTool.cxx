@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,9 +32,12 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
   // declare interface from base class
   declareInterface<IAthSelectionTool>(this);
   // declareProperty( "Property", m_nProperty ); set defaults
+  declareProperty("minEta", m_minEta = -1);
   declareProperty("maxEta", m_maxEta = 2.5);
   declareProperty("minPt", m_minPt = 400);
   declareProperty("maxPt", m_maxPt = -1);
+  declareProperty("maxD0", m_maxD0 = -1);
+  declareProperty("maxZ0", m_maxZ0 = -1);
   declareProperty("maxBarcode", m_maxBarcode = 200e3);
   declareProperty("requireCharged", m_requireCharged = true);
   declareProperty("requireStatus1", m_requireStatus1 = true);
@@ -82,6 +85,21 @@ AthTruthSelectionTool::initialize() {
     m_cutFlow.add(Accept_t([this](const P_t& p) {
       return(p.pt() < m_maxPt);
     }, "max_pt"));
+  }
+  if (m_minEta > 0) {
+    m_cutFlow.add(Accept_t([this](const P_t& p) {
+      return((p.pt() > 0.1) ? (std::abs(p.eta()) > m_minEta) : false);
+    }, "min_eta"));
+  }
+  if (m_maxD0 > 0) {
+    m_cutFlow.add(Accept_t([this](const P_t& p) {
+      return(p.isAvailable<float>("d0") && std::fabs(p.auxdata<float>("d0")) < m_maxD0);
+    }, "max_d0"));
+  }
+  if (m_maxZ0 > 0) {
+    m_cutFlow.add(Accept_t([this](const P_t& p) {
+      return(p.isAvailable<float>("z0") && std::fabs(p.auxdata<float>("z0")) < m_maxZ0);
+    }, "max_z0"));
   }
   if (m_maxBarcode > -1) {
     m_cutFlow.add(Accept_t([this](const P_t& p) {

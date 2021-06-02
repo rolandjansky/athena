@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_ATHTRUTHSELECTIONTOOL_H
@@ -42,8 +42,11 @@ public:
 private:
   CutFlow<xAOD::TruthParticle> m_cutFlow;
   // Cut values;
+  float m_minEta;
   float m_maxEta;
   float m_maxPt;
+  float m_maxD0;
+  float m_maxZ0;
   float m_minPt;
   int m_maxBarcode;
   bool m_requireCharged;
