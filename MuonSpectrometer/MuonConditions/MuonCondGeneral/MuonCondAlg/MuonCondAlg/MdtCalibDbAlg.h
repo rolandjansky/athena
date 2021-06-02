@@ -93,11 +93,8 @@ class MdtCalibDbAlg: public AthAlgorithm {
   //MdtDriftCircleOnTrackCreator could decide individually if it wants to
   //have TS-correction. In the default reco-jobs however, this is
   //configured by one muonRecFlag, that will be used to set this job-option.
-  
-  
   Gaudi::Property<bool> m_TimeSlewingCorrection{this, "TimeSlewingCorrection", false};
-  Gaudi::Property<bool> m_UseMLRt{this, "UseMLRt", false,"Enable use of ML-RTs from COOL"};
- 
+  Gaudi::Property<bool> m_UseMLRt{this, "UseMLRt", true,"Enable use of ML-RTs from COOL"}; 
 
   Gaudi::Property<std::vector<float>> m_MeanCorrectionVsR{this,"MeanCorrectionVsR", {} };
  
@@ -108,9 +105,9 @@ class MdtCalibDbAlg: public AthAlgorithm {
   Gaudi::Property<double> m_t0Shift{this, "T0Shift",0.,"for simulation: common shift of all T0s, in ns"};
   Gaudi::Property<double> m_t0Spread{this, "T0Spread",0.,"for simulation: sigma for random smeraing of T0s, in ns"};
   
-  Gaudi::Property<double> m_rtShift{this, "RTShift",m_rtShift,"for simulations: maximum RT distortion, in mm"};
+  Gaudi::Property<double> m_rtShift{this, "RTShift",0.,"for simulations: maximum RT distortion, in mm"};
   Gaudi::Property<double> m_rtScale{this, "RTScale",1.,"for simulations: a muliplicitive scale to the drift r"};
-  Gaudi::Property<double> m_prop_beta{this,"PropagationSpeedBeta", 1.,""};
+  Gaudi::Property<double> m_prop_beta{this,"PropagationSpeedBeta", 1.,"Speed of the signal propagation"};
 
 
   ServiceHandle<IAthRNGSvc> m_AthRNGSvc{this,"AthRNGSvc","AthRNGSvc"};

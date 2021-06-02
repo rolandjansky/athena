@@ -162,13 +162,9 @@ def setupMdtCondDB():
         condSequence += MdtCalibDbAlg("MdtCalibDbAlg")
 
     if conddb.isOnline and not conddb.isMC:
-        condSequence.MdtCalibDbAlg.TubeFolder = "/MDT/T0"
-        condSequence.MdtCalibDbAlg.RtFolder = "/MDT/RT"
         condSequence.MdtCalibDbAlg.ReadKeyTube = "/MDT/T0"
         condSequence.MdtCalibDbAlg.ReadKeyRt = "/MDT/RT"
     else:
-        condSequence.MdtCalibDbAlg.TubeFolder = "/MDT/T0" + mdt_folder_name_appendix
-        condSequence.MdtCalibDbAlg.RtFolder = "/MDT/RT" + mdt_folder_name_appendix
         condSequence.MdtCalibDbAlg.ReadKeyTube = "/MDT/T0" + mdt_folder_name_appendix
         condSequence.MdtCalibDbAlg.ReadKeyRt = "/MDT/RT" + mdt_folder_name_appendix
     condSequence.MdtCalibDbAlg.RT_InputFiles = ["Muon_RT_default.data"]
