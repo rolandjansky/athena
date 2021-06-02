@@ -928,9 +928,9 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
                ATH_MSG_INFO("Resolved path (via DATAPATH) is " << file);
                ctlg->addReadCatalog("file:" + file);
             } else {
-               ATH_MSG_WARNING("Unable to locate catalog for "
+               ATH_MSG_INFO("Unable find catalog "
 	               << catalog
-	               << " check your ATLAS_POOLCOND_PATH and DATAPATH variables");
+	               << " in $ATLAS_POOLCOND_PATH and $DATAPATH");
             }
          }
       } else {
