@@ -1133,9 +1133,16 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
 void EventSelectorAthenaPool::handle(const Incident& inc)
 {
    SG::SourceID fid;
-   if ( Atlas::hasExtendedEventContext(inc.context()) ) {
-     fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+   if (inc.type() == IncidentType::BeginProcessing) {
+     if ( Atlas::hasExtendedEventContext(inc.context()) ) {
+       fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+     }
+     *m_sourceID.get(inc.context()) = fid;
    }
+   else {
+     fid = *m_sourceID.get(inc.context());
+   }
+
    if( fid.empty() ) {
       ATH_MSG_WARNING("could not read event source ID from incident event context");
       return;
@@ -1148,6 +1155,7 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
    } else if( inc.type() == IncidentType::EndProcessing ) {
       m_activeEventsPerSource[fid]--;
       disconnectIfFinished( fid );
+      *m_sourceID.get(inc.context()) = "";
    }
    if( msgLvl(MSG::DEBUG) ) {
       for( auto& source: m_activeEventsPerSource )

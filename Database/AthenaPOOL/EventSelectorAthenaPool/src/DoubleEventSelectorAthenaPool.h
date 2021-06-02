@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DOUBLEEVENTSELECTORATHENAPOOL_H
@@ -17,6 +17,7 @@
 #include "EventSelectorAthenaPool.h"
 
 #include "AthenaKernel/ISecondaryEventSelector.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 
 /**
  * @class DoubleEventSelectorAthenaPool
@@ -70,6 +71,9 @@ private:
 
   // Caches for file transitions
   mutable bool m_primaryFileTransition{}; // protected by a mutex, used in one place
+
+  SG::SlotSpecificObj<SG::SourceID> m_sourceID1;
+  SG::SlotSpecificObj<SG::SourceID> m_sourceID2;
 };
 
 #endif
