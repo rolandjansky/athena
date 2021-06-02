@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/errorcheck.h"
@@ -16,7 +15,7 @@ using namespace SG;
 __thread HiveEventSlot* s_current(0);
 
 HiveMgrSvc::HiveMgrSvc(const std::string& name, 
-                       ISvcLocator* svc) : Service(name, svc),
+                       ISvcLocator* svc) : base_class(name, svc),
                                            m_hiveStore(StoreID::storeName(StoreID::EVENT_STORE), name),
                                            m_nSlots(1)
 {
@@ -183,14 +182,6 @@ StatusCode HiveMgrSvc::initialize() {
   //use hiveStore default impl store as prototype
   Service* child(0);
   SGImplSvc* pSG(0);
-  ServiceHandle<IIncidentSvc> pincSvc("IncidentSvc",name());
-  if(!(pincSvc.retrieve().isSuccess())){
-    error()<<"Failed to retrieve incident Svc"<<endmsg;
-    return StatusCode::FAILURE;
-  }
-  const int PRIORITY=100;
-  pincSvc->addListener(this, "EndEvent",PRIORITY);
-  pincSvc->addListener(this, "BeginEvent", PRIORITY);
 
   for( size_t i = 0; i< m_nSlots; ++i) {
     std::ostringstream oss;
@@ -213,10 +204,6 @@ StatusCode HiveMgrSvc::initialize() {
   return selectStore(0);
 }
 
-void HiveMgrSvc::handle(const Incident &inc) {
-  m_slots.at(inc.context().slot()).pEvtStore->handle(inc);
-}
-
 StatusCode HiveMgrSvc::finalize() {
   info() <<  "Finalizing " << name() << endmsg;
 
@@ -230,14 +217,3 @@ StatusCode HiveMgrSvc::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HiveMgrSvc::queryInterface( const InterfaceID& riid, void** ppvInterface ) {
-  if ( IHiveWhiteBoard::interfaceID().versionMatch(riid) )    {
-    *ppvInterface = (IHiveWhiteBoard*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
