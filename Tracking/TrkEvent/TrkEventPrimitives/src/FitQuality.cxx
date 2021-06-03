@@ -9,6 +9,7 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "GaudiKernel/MsgStream.h"
 #include <string>
+#include <ostream>
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::FitQuality& fq)
