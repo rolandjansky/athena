@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Run2ToRun3TrigNavConverter.h"
@@ -561,7 +561,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::TrigNavStruct
       ElementLinkVector<xAOD::TrackParticleContainer> tracks = decisionPtr->objectCollectionLinks<xAOD::TrackParticleContainer>("TEMP_TRACKS");
 
       decisionPtr->removeObjectCollectionLinks("TEMP_TRACKS");
-      for (const ElementLink<xAOD::TrackParticleContainer> &track : tracks)
+      for (ElementLink<xAOD::TrackParticleContainer> track : tracks)
       {
         if (track.isValid())
         {
