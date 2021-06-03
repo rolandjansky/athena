@@ -13,20 +13,10 @@ namespace LVL1MUCTPIPHASE1 {
   {
   }
   
-  MUCTPI_AthAlg::~MUCTPI_AthAlg()
-  {
-    
-  }
-
-
-
   /// Regular Gaudi algorithm initialization function
   StatusCode MUCTPI_AthAlg::initialize()
   {
-    // Init message
-    ATH_MSG_INFO( "=======================================" );
     ATH_MSG_INFO( "Initialisation for MUCTPI_AthAlg"  );
-    ATH_MSG_INFO( "=======================================" );
 
     ATH_MSG_DEBUG("retrieving " << m_muctpiTool);
     CHECK( m_muctpiTool.retrieve() );
@@ -34,22 +24,10 @@ namespace LVL1MUCTPIPHASE1 {
     return StatusCode::SUCCESS;
   }
 
-  /// Regular Gaudi algorithm finalization function
-  StatusCode MUCTPI_AthAlg::finalize()
-  {
-    ATH_MSG_DEBUG( "===============================" );
-    ATH_MSG_DEBUG( "Finalizing MUCTPI_AthAlg" );
-    ATH_MSG_DEBUG( "===============================" );
-
-    return StatusCode::SUCCESS;
-  }
-
   /// Regular Gaudi algorithm execute function
   StatusCode MUCTPI_AthAlg::execute(const EventContext& /*eventContext*/) const
   {
-    ATH_MSG_DEBUG( "===============================" );
     ATH_MSG_DEBUG( "Executing MUCTPI_AthAlg" );
-    ATH_MSG_DEBUG( "===============================" );
 
     CHECK( m_muctpiTool->execute() );
 
