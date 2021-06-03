@@ -9,7 +9,9 @@
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
 #include <string>
+
 
 Trk::EstimatedBremOnTrack::EstimatedBremOnTrack() :
   Trk::MaterialEffectsBase(),

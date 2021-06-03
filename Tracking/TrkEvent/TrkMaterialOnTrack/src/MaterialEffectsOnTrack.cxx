@@ -7,6 +7,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkSurfaces/Surface.h"
+#include <ostream>
 #include <cassert>
 #include <string>
 

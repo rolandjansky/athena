@@ -9,6 +9,7 @@
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
 #include <string>
 
 Trk::MaterialEffectsBase::MaterialEffectsBase() :
