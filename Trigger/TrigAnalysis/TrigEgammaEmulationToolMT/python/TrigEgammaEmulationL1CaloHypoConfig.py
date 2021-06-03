@@ -7,8 +7,8 @@
 # Configure legacy L1
 #
 def createL1Calo( name , info, OutputLevel=0 ):
-
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationToolMTConf import Trig__TrigEgammaEmulationL1CaloHypoTool
+    
+    from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaCommon.SystemOfUnits import GeV
     import re
 
@@ -26,7 +26,7 @@ def createL1Calo( name , info, OutputLevel=0 ):
     EmIsolSlope            = [ 1/8.  ,  1/8. ,  1/8. ,  1/8. ]
 
     # Configure L1
-    L1CaloTool = Trig__TrigEgammaEmulationL1CaloHypoTool(
+    L1CaloTool = CompFactory.Trig.TrigEgammaEmulationL1CaloHypoTool(
                                 name                   = name,
                                 L1Item                 = L1Item,
                                 L1Thr                  = L1thr * GeV,

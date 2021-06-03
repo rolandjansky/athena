@@ -16,10 +16,32 @@ TrigEgammaEmulationPrecisionCaloHypoTool::TrigEgammaEmulationPrecisionCaloHypoTo
 //!==========================================================================
 
 
-bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &input,
-                                                          bool &pass ) const
+bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(const Trig::TrigData &input,
+                                                      bool &pass) const
 {
   pass=false;
+
+  if( !input.roi )  return false;
+
+  if( input.clusters.empty() )  return false;
+
+  for ( const auto &cl : input.clusters )
+  {
+    if( decide( input, cl ) ){
+      pass=true;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+
+
+bool TrigEgammaEmulationPrecisionCaloHypoTool::decide(   const Trig::TrigData &input,
+                                                         const xAOD::CaloCluster *pClus ) const
+{
   unsigned PassedCuts=0;
   
   if(!input.roi){
@@ -35,8 +57,7 @@ bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &
 
   if ( std::abs( roiDescriptor->eta() ) > 2.6 ) {
       ATH_MSG_DEBUG( "REJECT The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );
-      pass=false; // special case       
-      return true;
+      return false;
   } 
 
   ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
@@ -47,9 +68,7 @@ bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &
   double etaRef = roiDescriptor->eta();
   double phiRef = roiDescriptor->phi();
   // correct phi the to right range ( probably not needed anymore )   
-  if ( fabs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
-
-  auto pClus = input.cluster;
+  if ( std::abs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
   
   float absEta = std::abs( pClus->eta() );
 
@@ -67,7 +86,7 @@ bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &
   
   if ( std::abs( pClus->eta() - etaRef ) > m_detacluster ) {
     ATH_MSG_DEBUG("REJECT Cluster dEta cut failed");
-    return true;
+    return false;
   }
   PassedCuts = PassedCuts + 1; //Deta
   
@@ -78,7 +97,7 @@ bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &
   
   if( dPhi > m_dphicluster ) {
     ATH_MSG_DEBUG("REJECT Clsuter dPhi cut failed");
-    return true;
+    return false;
   }
   PassedCuts = PassedCuts + 1; //DPhi
 
@@ -87,7 +106,7 @@ bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &
   // eta range
   if ( cutIndex == -1 ) {  // VD
     ATH_MSG_DEBUG( "Cluster eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] );
-    return pass;
+    return false;
   } else { 
     ATH_MSG_DEBUG( "eta bin used for cuts " << cutIndex );
   }
@@ -97,16 +116,14 @@ bool TrigEgammaEmulationPrecisionCaloHypoTool::emulate(   const Trig::TrigData &
   ATH_MSG_DEBUG( "CaloCluster: ET_em=" << eT_Cluster << " cut: >"  << m_eTthr[cutIndex] );
   if ( eT_Cluster < m_eTthr[cutIndex] ) {
     ATH_MSG_DEBUG("REJECT et cut failed");
-    return pass;
+    return false;
   }
   PassedCuts = PassedCuts + 1; // ET_em
 
   
   // got this far => passed!
-  pass = true;
-
   // Reach this point successfully  
-  ATH_MSG_DEBUG( "pass = " << pass );
+  ATH_MSG_DEBUG( "pass!" );
 
   return true;
  
