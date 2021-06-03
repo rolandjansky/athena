@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,6 +34,7 @@
 #include "CollectionUtilities/QueryInfo.h"
 #include "CollectionUtilities/CatalogInfo.h"
 #include "CollectionUtilities/MaxEventsInfo.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <iostream>
 #include <iomanip>
@@ -42,6 +43,8 @@
 
 // ------   copied the whole class here for quick adaptation.  MN
 #include <set>
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 using namespace pool;
 using namespace std;

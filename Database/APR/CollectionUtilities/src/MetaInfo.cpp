@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/ICollection.h"
@@ -233,7 +233,8 @@ MetaInfo::checkMetadata( std::vector<pool::ICollection*> inputs,
 
 
 
-void MetaInfo::addMetaEntry(ICollMetaHandler::MetaKey key,
+void MetaInfo::addMetaEntry ATLAS_NOT_THREAD_SAFE
+                           (ICollMetaHandler::MetaKey key,
                             ICollMetaHandler::MetaKey val,
                             ICollMetaHandler::ProvNode srcCollection)
 {
@@ -254,7 +255,7 @@ void MetaInfo::addMetaEntry(ICollMetaHandler::MetaKey key,
 
 
 void
-MetaInfo::readMetadata( std::vector<pool::ICollection*> inputs )
+MetaInfo::readMetadata ATLAS_NOT_THREAD_SAFE ( std::vector<pool::ICollection*> inputs )
 {
    for( vector<ICollection*>::const_iterator input = inputs.begin(),
 	   end = inputs.end(); input != end; ++input )
@@ -292,7 +293,7 @@ MetaInfo::readMetadata( std::vector<pool::ICollection*> inputs )
 
 
 void
-MetaInfo::writeMetadata(std::vector<pool::ICollection*> outputs)
+MetaInfo::writeMetadata ATLAS_NOT_THREAD_SAFE (std::vector<pool::ICollection*> outputs)
 {
    // write all metadata
    for( vector<ICollection*>::const_iterator output = outputs.begin(),
