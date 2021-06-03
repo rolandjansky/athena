@@ -375,12 +375,18 @@ public:
     /// ha ! don't actually create the legend until we want to draw it, 
     /// then we can determine the size etc automatically
 
-    double y0 = m_y[0];
+    double y0 = 0;
 
-    m_y[1] = y0 + m_entries.size()*0.05;
-
+    if ( m_y[0]>0.5 ) { 
+      y0 = m_y[1] - m_entries.size()*0.05;
+    }
+    else { 
+      y0 = m_y[0];
+      m_y[1] = y0 + m_entries.size()*0.05;
+    }
+      
     m_leg = new TLegend( m_x[0], y0, m_x[1], m_y[1] );
-
+     
     m_leg->SetBorderSize(0);
     m_leg->SetTextFont(42);
     m_leg->SetTextSize(0.04);
