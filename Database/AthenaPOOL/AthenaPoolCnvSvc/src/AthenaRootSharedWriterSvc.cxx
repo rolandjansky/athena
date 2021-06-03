@@ -241,8 +241,8 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
                   message->ReadInt(clientId);
                   message->ReadTString(filename);
                   message->ReadLong64(length);
-                  if (rootClientSet.find(clientId) == rootClientSet.end()) {
-                     rootClientSet.insert(clientId);
+                  if (rootClientSet.insert(clientId).second) {
+                    // new client
                      workerCount[filename]++;
                      if (workerCount[filename] > workerCounter) workerCounter = workerCount[filename];
                   }
