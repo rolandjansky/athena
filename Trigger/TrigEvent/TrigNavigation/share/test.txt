@@ -21,9 +21,7 @@ MessageSvc.useColors        = false;
 //EventPersistencySvc.CnvServices += { "TrigSerializeCnvSvc" }
 
 // 
-//Navigation.ReferenceAllClasses = 1
 //ApplicationMgr.Dlls += { "TrigCaloEvent" };
-ToolSvc.Navigation.ReferenceAllClasses = 1;
 ToolSvc.Navigation.ClassesToPreregister = {"TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#","TrigNavTest::TestBContainer#BContainer1", "TrigNavTest::TestBContainer#BContainer2", "TestDContainer#DContainer1"};
 //ToolSvc.Navigation.AuxClasses = {"TestAuxA#EverEmptyButPresent", "TrigNavTest::TestAuxB#BContainer2"};
 

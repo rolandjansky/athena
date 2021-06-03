@@ -18,6 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "xAODCore/AuxSelection.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
 
@@ -103,13 +104,9 @@ namespace HLT {
     friend class ::TrigBStoxAODTool;
   public:
     /**
-     * @brief constructor gets as an argument the TriggerElementFactory
-     *
-     * Will revise this Factory concept since it is probably better
-     * to have templated factory ... to instantiate RoIDescriptors this way as well
+     * @brief constructor with external MsgStream for printing
      */
-
-    NavigationCore();
+    NavigationCore(MsgStream& log);
     virtual ~NavigationCore();
 
     /**
@@ -323,15 +320,7 @@ namespace HLT {
     /**
      * @brief attemtps to merge two trees
      */
-
     bool merge(const NavigationCore& l2);
-
-
-    void tweakMsgLvl(int newOffset);
-
-    void testMsgService() const; //!< test Message Svc
-
-    void testStaticMaps();
 
     /**
      * @brief convert strin g to hash.
@@ -356,12 +345,6 @@ namespace HLT {
     AccessProxy* getAccessProxy() const{
       return m_storeGate;
     }
-
-    /**
-     * @brief  changes the default collections prefix (HLT) to another
-     **/
-    void setObjKeyPrefix(const std::string& k);
-
 
     template<class T> HLTNavDetails::Holder<T>* getHolder ( uint16_t subTypeIndex );                             //!< as above but does not create holder on demand (return 0 if not found)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -393,7 +376,6 @@ namespace HLT {
                      unsigned int maxResults = 1000, bool onlyActive = 1);
 
 
-    MsgStream*                             m_log;                                //!< log stream
     IConversionSvc*                        m_serializerSvc;
     StoreGateSvc*                          m_storeGate;
     std::string                            m_objectsKeyPrefix;      //!< property setting prefix which is to be given to all trigger EDM objects
@@ -424,10 +406,6 @@ namespace HLT {
     std::vector<std::string> m_classesToPreregisterProperty;             //!< as above but for preregistration
     std::vector<CSPair> m_classesToPreregister;   //!< classes mentioned here will be put to SG irrespectively of thier presence in event
 
-    bool m_referenceAllClasses;
-    inline bool toBeReferenced(CLID /*c*/) { return m_referenceAllClasses; }
-    bool toBePutToPayload(const HLTNavDetails::IHolder*) const;
-
     uint16_t nextSubTypeIndex(CLID clid, const std::string&label);
 
     bool extractBlob(const std::vector<uint32_t>& input,
@@ -435,6 +413,13 @@ namespace HLT {
 		     std::vector<uint32_t>& blob) const ;
 
   private:
+    MsgStream& m_log;
+
+    // Adapters so we can use ATH_MSG macros
+    MsgStream& msg() const { return m_log; }
+    MsgStream& msg(const MSG::Level lvl) const { return msg() << lvl; }
+    bool msgLvl(const MSG::Level lvl) const { return m_log.level() <= lvl; }
+
     HLTNavDetails::IHolder* prepareOneHolder(CLID clid, const std::string& label);
 
     bool serializeWithHolderSection(const std::vector<uint32_t>& holderdata, const std::vector<unsigned int>& holderblobsizes,
