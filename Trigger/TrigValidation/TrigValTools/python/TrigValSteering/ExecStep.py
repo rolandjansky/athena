@@ -191,11 +191,14 @@ class ExecStep(Step):
             self.misconfig_abort('Failed to add precommand ' + precommand + ' to step ' + self.name)
         old_cmd = old_cmd_match.group(0)
 
+
+
         # Transform case
         if self.type.endswith('_tf'):
-            new_cmd = '--preExec {:s} "{:s}"'.format(old_cmd, precommand)
+            new_cmd = '--preExec {:s} "{:s}" '.format(old_cmd, precommand)
             self.args = self.args.replace(opt_match, new_cmd)
             return
+
 
         # athena(HLT) case
         old_cmd = old_cmd[1:-1]
