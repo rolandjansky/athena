@@ -21,7 +21,7 @@
 *  @author Damien Prieur <damien.prieur@cern.ch>
 */
 
-class L1CaloRxGain {
+class L1CaloRxGain final {
 	friend std::ostream& operator<<(std::ostream& output, const L1CaloRxGain& r);
 public:
 
@@ -33,7 +33,7 @@ public:
     L1CaloRxGain( const L1CaloRxCoolChannelId& channelId, int gain, const std::string& comment );
 
 
-	virtual ~L1CaloRxGain() {};
+	~L1CaloRxGain() =default;
 
 	// getters
 	inline L1CaloRxCoolChannelId channelId(void) const { return m_channelId; };

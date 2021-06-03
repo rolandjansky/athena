@@ -15,7 +15,7 @@
  * @author Peter Faulkner
  */
 
-class L1CaloRxLayers
+class L1CaloRxLayers final
 {
  public:
 
@@ -27,7 +27,7 @@ class L1CaloRxLayers
                       const std::vector<int>& names,
 		      const std::vector<int>& ncells);
     
-    virtual ~L1CaloRxLayers() {}
+    ~L1CaloRxLayers() = default;
 
     const L1CaloRxCoolChannelId& channelId() const { return m_channelId; }
     const std::vector<int>& names()          const { return m_names; }
