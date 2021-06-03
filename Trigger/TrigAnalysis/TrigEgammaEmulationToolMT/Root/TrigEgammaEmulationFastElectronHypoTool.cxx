@@ -42,15 +42,11 @@ bool TrigEgammaEmulationFastElectronHypoTool::emulate(const Trig::TrigData &inpu
 bool TrigEgammaEmulationFastElectronHypoTool::decide( const Trig::TrigData &/*input*/ ,
                                                       const xAOD::TrigElectron* electron ) const 
 {
-  bool pass=false;
-
 
   if ( m_acceptAll ) {
-    pass = true;
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
-    return pass;
+    return true;
    } else {
-     pass = false;
      ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
    }
 
@@ -59,8 +55,7 @@ bool TrigEgammaEmulationFastElectronHypoTool::decide( const Trig::TrigData &/*in
 
   const xAOD::TrackParticle* trkIter = electron-> trackParticle();
   if ( trkIter == 0 ){  // disconsider candidates without track
-     pass = false;
-     return pass;
+     return false;
   }
   cutCounter++;
 
@@ -75,45 +70,34 @@ bool TrigEgammaEmulationFastElectronHypoTool::decide( const Trig::TrigData &/*in
 
   if ( ptCalo < m_trackPt ){ 
     ATH_MSG_DEBUG( "Fails pt cut" << ptCalo << " < " << m_trackPt );
-    pass = false;
-    return  pass;
+    return false;
   }
   cutCounter++;
 
   if ( dEtaCalo > m_caloTrackDEta ) {
     ATH_MSG_DEBUG( "Fails dEta cut " << dEtaCalo << " < " << m_caloTrackDEta );
-    
-    pass = false;
-    return  pass;
+    return false;
   }
   cutCounter++;
   if ( dPhiCalo > m_caloTrackDPhi ) {
     ATH_MSG_DEBUG( "Fails dPhi cut " << dPhiCalo << " < " << m_caloTrackDPhi );
-    
-    pass = false;
-    return  pass;
+    return false;
   }
 
   cutCounter++;
   if( eToverPt <  m_caloTrackdEoverPLow ) {
     ATH_MSG_DEBUG( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow );
-
-    pass = false;
-    return  pass;
+    return false;
   }
   cutCounter++;
   if ( eToverPt > m_caloTrackdEoverPHigh ) {
     ATH_MSG_DEBUG( "Fails eoverp high cut " << eToverPt << " < " << m_caloTrackdEoverPHigh );
-
-    pass = false;
-    return  pass;
+    return false;
   }
   cutCounter++;
   if ( TRTHitRatio < m_trtRatio ){
     ATH_MSG_DEBUG( "Fails TRT cut " << TRTHitRatio << " < " << m_trtRatio );
-
-    pass = false;
-    return  pass;
+    return false;
   }
   cutCounter++;
 
@@ -124,15 +108,13 @@ bool TrigEgammaEmulationFastElectronHypoTool::decide( const Trig::TrigData &/*in
    float trk_d0 = std::fabs(trkIter->d0());
    if(trk_d0 < m_trkd0){
      ATH_MSG_DEBUG( "Fails d0 cut " <<trk_d0<< " < " <<m_trkd0 );
-     pass = false;
-     return pass;
+     return false;
    }
   }
 
 
   ATH_MSG_DEBUG( "Passed selection" );
-  pass = true;
-  return  pass;
+  return true;
 
 }
 

@@ -4,6 +4,7 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def same( val , tool):
@@ -36,8 +37,7 @@ class TrigEgammaEmulationPrecisionPhotonHypoToolConfig:
     self.__sel        = sel
     self.__isoinfo    = isoinfo
 
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationToolMTConf import Trig__TrigEgammaEmulationPrecisionPhotonHypoTool
-    tool = Trig__TrigEgammaEmulationPrecisionPhotonHypoTool( name ) 
+    tool = CompFactory.Trig.TrigEgammaEmulationPrecisionPhotonHypoTool( name ) 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( float(threshold) , tool)
     tool.dETACLUSTERthr = 0.1
@@ -108,19 +108,34 @@ class TrigEgammaEmulationPrecisionPhotonHypoToolConfig:
       self.nominal()
 
  
-#
-# Create and compile the photon hypo tool
-#
-def createPrecisionPhoton( name, info ):
-
-    cpart = info['chainParts'][0]
-    sel = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-    etthr = int(cpart['threshold'])
-    isoinfo = cpart['isoInfo']
-    chain = info['chainName']
 
 
-    hypo = TrigEgammaEmulationPrecisionPhotonHypoToolConfig( name, chain, etthr, sel, isoinfo)
-    hypo.compile()
-    return hypo.tool()
+
+def _IncTool( name, chain, threshold, sel, iso ):
+    config = TrigEgammaEmulationPrecisionPhotonHypoToolConfig(name, chain, threshold, sel, iso)
+    config.compile()
+    return config.tool()
+
+ 
+
+def TrigEgammaPrecisionPhotonHypoToolFromDict( name, d ):
+    """ Use menu decoded chain dictionary to configure the tool """
+    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
+
+    def __th(cpart):
+        return cpart['threshold']
     
+    def __sel(cpart):
+        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+   
+    def __iso(cpart):
+        return cpart['isoInfo']
+
+    
+    chain = d['chainName']
+        
+    return _IncTool( name,chain, __th( cparts[0]),  __sel( cparts[0] ), __iso( cparts[0])  )
+                   
+    
+
+
