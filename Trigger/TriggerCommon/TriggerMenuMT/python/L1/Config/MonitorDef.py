@@ -73,7 +73,8 @@ class MonitorDef:
         counters = []
 
         cThr = {}
-        cThr[1] = [ 'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_NSA', 'AFP_NSC',
+        cThr[1] = [ 'AFP_NSA', 'AFP_NSC', 'AFP_FSA', 'AFP_FSC', 'AFP_FSA_TOF_T0', 'AFP_FSC_TOF_T0',
+                    'AFP_FSA_TOF_T1', 'AFP_FSC_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSC_TOF_T2', 'AFP_FSA_TOF_T3', 'AFP_FSC_TOF_T3',
                     'BPTX0', 'BPTX1', 'LUCID_C', 'J20', 'MU4', 'TE50', 'XE35', 'XE60',
                     'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
                     'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',

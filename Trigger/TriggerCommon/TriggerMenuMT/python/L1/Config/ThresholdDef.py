@@ -268,15 +268,19 @@ class ThresholdDef:
         NimThreshold('LUCID_05', 'LUCID')
         NimThreshold('LUCID_06', 'LUCID')
 
-        ## AFP
-        NimThreshold('AFP_NSC', 'NIM', mapping=2)        
-        NimThreshold('AFP_NSA', 'NIM', mapping=3)        
-        NimThreshold('AFP_FSA_SIT', 'NIM', mapping=4)        
-        NimThreshold('AFP_FSA_TOF', 'NIM', mapping=5)  
-        NimThreshold('AFP_FSA_LOG', 'NIM', mapping=6)        
-        NimThreshold('AFP_FSC_SIT', 'NIM', mapping=7)        
-        NimThreshold('AFP_FSC_LOG', 'NIM', mapping=8)        
-        NimThreshold('AFP_FSC_TOF', 'NIM', mapping=9)  
+        ## AFP (ATR-23476)
+        NimThreshold('AFP_NSA', 'NIM', mapping=2)        
+        NimThreshold('AFP_FSA', 'NIM', mapping=3)        
+        NimThreshold('AFP_FSA_TOF_T0', 'NIM', mapping=4)        
+        NimThreshold('AFP_FSA_TOF_T1', 'NIM', mapping=5)  
+        NimThreshold('AFP_FSA_TOF_T2', 'NIM', mapping=6)        
+        NimThreshold('AFP_FSA_TOF_T3', 'NIM', mapping=7)        
+        NimThreshold('AFP_NSC', 'NIM', mapping=15)        
+        NimThreshold('AFP_FSC', 'NIM', mapping=16)        
+        NimThreshold('AFP_FSC_TOF_T0', 'NIM', mapping=17)     
+        NimThreshold('AFP_FSC_TOF_T1', 'NIM', mapping=18)
+        NimThreshold('AFP_FSC_TOF_T2', 'NIM', mapping=19)     
+        NimThreshold('AFP_FSC_TOF_T3', 'NIM', mapping=20)
 
 
         ## BPTX
