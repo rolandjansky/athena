@@ -172,12 +172,14 @@ namespace Muon {
         ATH_MSG_DEBUG(" track has stations: " << stations.size() << "   original states " << states.size() << " new states "
                                               << newStates.size());
         // states were added, create a new track
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
         trackStateOnSurfaces->reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces->push_back(nit.release()); }
-        std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
+          track.info(),
+          std::move(trackStateOnSurfaces),
+          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 

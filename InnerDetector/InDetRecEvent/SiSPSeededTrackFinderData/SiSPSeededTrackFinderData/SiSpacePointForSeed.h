@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ namespace InDet {
     void setPt(const float&);
     void setScorePenalty(const float& par) {m_scorePenalty=par;}
 
-    const Trk::SpacePoint* spacepoint; 
+    const Trk::SpacePoint* spacepoint{}; 
     const float&          x() const {return m_x;}
     const float&          y() const {return m_y;}
     const float&          z() const {return m_z;}
@@ -72,21 +72,21 @@ namespace InDet {
 
   private:
     
-    float m_x   ; // x-coordinate in beam system coordinates  
-    float m_y   ; // y-coordinate in beam system coordinates
-    float m_z   ; // z-coordinate in beam system coordinetes
-    float m_r   ; // radius       in beam system coordinates
-    float m_covr; //
-    float m_covz; //
+    float m_x{}   ; // x-coordinate in beam system coordinates  
+    float m_y{}   ; // y-coordinate in beam system coordinates
+    float m_z{}   ; // z-coordinate in beam system coordinetes
+    float m_r{}   ; // radius       in beam system coordinates
+    float m_covr{}; //
+    float m_covz{}; //
     float m_d0 = 0.f;
     float m_eta = 0.f;
     float m_dzdr = 0.f;
     float m_pt = 0.f;
-    float m_param;  /// impact parameter
+    float m_param{};  /// impact parameter
     float m_scorePenalty=0.f; /// penalty term in the seed score
-    float m_q;   /// quality of the best seed this candidate was seen on
-    const Trk::Surface* m_su;
-    const Trk::Surface* m_sn;
+    float m_q{};   /// quality of the best seed this candidate was seen on
+    const Trk::Surface* m_su{};
+    const Trk::Surface* m_sn{};
   };
  
 } // end of name space

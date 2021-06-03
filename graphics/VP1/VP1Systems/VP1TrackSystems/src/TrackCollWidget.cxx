@@ -33,12 +33,12 @@ public:
   }
 };
 
-TrackCollWidget * TrackCollWidget::Imp::theclass = 0;
+TrackCollWidget * TrackCollWidget::Imp::theclass = nullptr;
 
 //____________________________________________________________________
 void TrackCollWidget::sortSections(QList<QString>& sections)
 {
   Imp::theclass = this;//I guess this is not really threadsafe...
   qSort(sections.begin(),sections.end(),Imp::sectionSorting);
-  Imp::theclass = 0;
+  Imp::theclass = nullptr;
 }

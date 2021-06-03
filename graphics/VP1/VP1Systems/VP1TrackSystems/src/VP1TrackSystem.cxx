@@ -155,12 +155,12 @@ VP1TrackSystem::VP1TrackSystem(QString name)
            "Edward.Moyse@cern.ch, Thomas.Kittelmann@cern.ch"), m_d(new Imp)
 {
   m_d->theclass = this;
-  m_d->sel_tracks = 0;
-  m_d->common = 0;
-  m_d->totmomsep = 0;
-  m_d->totmomline = 0;
+  m_d->sel_tracks = nullptr;
+  m_d->common = nullptr;
+  m_d->totmomsep = nullptr;
+  m_d->totmomline = nullptr;
   m_d->totmomgev = Amg::Vector3D(0,0,0);
-  m_d->ascObjSelManager = 0;
+  m_d->ascObjSelManager = nullptr;
   m_d->selMode = TrackCommonFlags::SINGLEOBJECT;
   m_d->lastEmittedUsedIDProjections = InDetProjFlags::NoDet;
   const unsigned n_chamber_t0_sources=2;
@@ -194,13 +194,13 @@ void VP1TrackSystem::systemuncreate()
   messageVerbose("systemuncreate");
   if (m_d->totmomsep) {
     m_d->totmomsep->unref();
-    m_d->totmomsep=0;
+    m_d->totmomsep=nullptr;
   }
   if (m_d->totmomline) {
     m_d->totmomline->unref();
-    m_d->totmomline = 0;
+    m_d->totmomline = nullptr;
   }
-  delete m_d->common; m_d->common = 0;
+  delete m_d->common; m_d->common = nullptr;
 }
 
 //____________________________________________________________________
@@ -249,7 +249,7 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   m_d->common->trackLODManager()->setAttachNode(m_d->ascObjSelManager->getAscObjAttachSep());
 
 // reset last selected trk
-  m_d->common->setLastSelectedTrack(0);
+  m_d->common->setLastSelectedTrack(nullptr);
   updateSelectionMode();
   
   if (!m_d->common->m_textSep) {
@@ -299,7 +299,7 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   for (unsigned int i=0; i<m_d->chamberT0s.size(); i++){
     assert(i<key.size());
     m_d->chamberT0s.at(i).clear();
-    const Muon::ChamberT0s* chamberT0s(0);
+    const Muon::ChamberT0s* chamberT0s(nullptr);
     const MuonGM::MuonDetectorManager * muonDetManager = VP1DetInfo::muonDetMgr();
 
     bool isThere = sg->contains<Muon::ChamberT0s>(key[i]);
@@ -369,7 +369,7 @@ void VP1TrackSystem::systemerase()
   if (m_d->sel_tracks) {
     unregisterSelectionNode(m_d->sel_tracks);
     m_d->sel_tracks->unref();
-    m_d->sel_tracks=0;
+    m_d->sel_tracks=nullptr;
   }
 
   if (m_d->totmomsep)
@@ -564,7 +564,7 @@ void VP1TrackSystem::userPickedNode(SoNode* pickedNode, SoPath* /*pickedPath*/)
 void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* node, SoPath* pickedPath )
 {
   messageVerbose("userSelectedSingleNode");
-  AssociatedObjectHandleBase* pickedHandle(0);
+  AssociatedObjectHandleBase* pickedHandle(nullptr);
   if (!m_d->ascObjSelManager->handleUserSelectedSingleNode(sel,node,pickedPath,pickedHandle)) {
     if (sel==m_d->sel_tracks) {
   //Hack to get selections working when representing tracks with tubes:
@@ -641,7 +641,7 @@ void VP1TrackSystem::userClickedOnBgd()
   messageVerbose("userClickedOnBgd");
   if (m_d->ascObjSelManager)
     m_d->ascObjSelManager->userClickedOnBgd();
-  m_d->common->setLastSelectedTrack(0);
+  m_d->common->setLastSelectedTrack(nullptr);
   QList<const Trk::PrepRawData*> prdSet;
   setSelectedPRDs(prdSet ); // pass in empty collection. FIXME - this should depend on mode?
 }
@@ -664,7 +664,7 @@ unsigned VP1TrackSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& 
   double totenergy(0);
   for (int i = 0; i < sel_tracks->getList()->getLength(); ++i) {
     SoFullPath *fPath = static_cast<SoFullPath *>((*(sel_tracks->getList()))[i]);
-    TrackHandleBase * handle = common->trackHandle(fPath?fPath->getTail():0);
+    TrackHandleBase * handle = common->trackHandle(fPath?fPath->getTail():nullptr);
     if (!handle)
       continue;
     Amg::Vector3D mom = handle->momentum();
@@ -949,7 +949,7 @@ void VP1TrackSystem::updateAlignment(){
   messageVerbose("4="+QString::number(values[4]));
   messageVerbose("5="+QString::number(values[5]));
   
-  const Trk::TrkDetElementBase* detEl = 0;  
+  const Trk::TrkDetElementBase* detEl = nullptr;  
   
   // Try to find last selected TSOS
   if (!m_d->ascObjSelManager) {
@@ -1020,7 +1020,7 @@ SoMaterial* VP1TrackSystem::materialFromVertex(const TrackHandleBase* trk) const
     }
   }
   messageVerbose("VP1TrackSystem::materialFromVertex. No matching track handle for handle with pointer="+QString::number((uintptr_t)trk));
-  return 0;
+  return nullptr;
 }
 
 

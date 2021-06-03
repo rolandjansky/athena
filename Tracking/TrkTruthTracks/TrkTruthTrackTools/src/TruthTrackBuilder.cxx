@@ -174,7 +174,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     
    const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,per,nullptr,nullptr,typePattern);
-   DataVector<const Trk::TrackStateOnSurface>* traj = new DataVector<const Trk::TrackStateOnSurface>;
+   auto traj = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
    traj->push_back(pertsos);
    
    
@@ -220,10 +220,15 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    }
    // this is the reference trajectory to be refitted  
    Trk::TrackInfo info;
-   Trk::Track track(info,traj,nullptr);
-   if (/* ndof<0 */ (track.measurementsOnTrack()->size()<m_minSiHits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
-       ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
-       return nullptr;
+   Trk::Track track(info, std::move(traj), nullptr);
+   if (/* ndof<0 */ (track.measurementsOnTrack()->size() < m_minSiHits &&
+                     fabs(genPart->momentum().eta()) <= m_forwardBoundary) ||
+       (track.measurementsOnTrack()->size() < m_minSiHitsForward &&
+        fabs(genPart->momentum().eta()) > m_forwardBoundary) ||
+       (m_onlyPrimaries && barcode >= m_primaryBarcodeCutOff)) {
+     ATH_MSG_VERBOSE(
+       "Track does not fulfill requirements for refitting. Skipping it.");
+     return nullptr;
    }
    // choose the material effects
    //!< @todo : if we need a dedicated electron fitter is has to go in here !
@@ -254,13 +259,13 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
      if (prevpar!=refittedtrack->trackParameters()->back() )delete prevpar;
      refittedtrack2=m_trackFitter->fit(*refittedtrack,measset,false,materialInteractions);
      if (!refittedtrack2){
-       DataVector<const Trk::TrackStateOnSurface>* traj2 = new DataVector<const Trk::TrackStateOnSurface>;
+       auto traj2 = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
        for (int j=0;j<(int)refittedtrack->trackStateOnSurfaces()->size();j++) traj2->push_back(new Trk::TrackStateOnSurface(*(*refittedtrack->trackStateOnSurfaces())[j]));
        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern2;
        typePattern2.set(Trk::TrackStateOnSurface::Outlier);
    
        for (int j=0;j<(int)measset.size();j++) traj2->push_back(new Trk::TrackStateOnSurface( measset[j],nullptr,nullptr,nullptr,typePattern2));
-       refittedtrack2=new Trk::Track(refittedtrack->info(),traj2,refittedtrack->fitQuality()->clone());
+       refittedtrack2=new Trk::Track(refittedtrack->info(),std::move(traj2),refittedtrack->fitQuality()->clone());
      }
      else for (int j=0;j<(int)measset.size();j++) delete measset[j];
    } else if(!refittedtrack){

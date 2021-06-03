@@ -433,60 +433,71 @@ TRTTrackHoleSearchTool::find_last_hit_before_trt(const DataVector<const Trk::Tra
 	return track_state;
 }
 
-
 //____________________________________________________________________________
-const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& track,
-                                                          const DataVector<const Trk::TrackStateOnSurface>* holes) const {
-	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::addHolesToTrack" );
-	/*
-	  This method was basically coppied from here:
-	  http://alxr.usatlas.bnl.gov/lxr-stb4/source/atlas/InnerDetector/InDetRecTools/InDetTrackHoleSearch/src/InDetTrackHoleSearchTool.cxx#931
-	*/
+const Trk::Track*
+TRTTrackHoleSearchTool::addHolesToTrack(
+  const Trk::Track& track,
+  const DataVector<const Trk::TrackStateOnSurface>* holes) const
+{
+  ATH_MSG_DEBUG("TRTTrackHoleSearchTool::addHolesToTrack");
+  /*
+    This method was basically coppied from here:
+    http://alxr.usatlas.bnl.gov/lxr-stb4/source/atlas/InnerDetector/InDetRecTools/InDetTrackHoleSearch/src/InDetTrackHoleSearchTool.cxx#931
+  */
 
-	// get states from track
-	DataVector<const Trk::TrackStateOnSurface>* tsos = new DataVector<const Trk::TrackStateOnSurface>;
-	for(DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track.trackStateOnSurfaces()->begin();
-	    it != track.trackStateOnSurfaces()->end(); ++it) {
-		// veto old holes
-		if ( !(*it)->type(Trk::TrackStateOnSurface::Hole) ) {
-			tsos->push_back(new Trk::TrackStateOnSurface(**it));
-		}
-	}
+  // get states from track
+  auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it =
+         track.trackStateOnSurfaces()->begin();
+       it != track.trackStateOnSurfaces()->end();
+       ++it) {
+    // veto old holes
+    if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) {
+      tsos->push_back(new Trk::TrackStateOnSurface(**it));
+    }
+  }
 
-	// if we have no holes on the old track and no holes found by search, then we just copy the track
-	if(track.trackStateOnSurfaces()->size() == tsos->size() && holes->empty()) {
-		// create copy of track
-		const Trk::Track* new_track = new Trk::Track(track.info(), tsos, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
-		return new_track;
-	}
+  // if we have no holes on the old track and no holes found by search, then we
+  // just copy the track
+  if (track.trackStateOnSurfaces()->size() == tsos->size() && holes->empty()) {
+    // create copy of track
+    const Trk::Track* new_track = new Trk::Track(
+      track.info(),
+      std::move(tsos),
+      track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+    return new_track;
+  }
 
-	// add new holes
-        tsos->insert (tsos->end(), holes->begin(), holes->end());
+  // add new holes
+  tsos->insert(tsos->end(), holes->begin(), holes->end());
 
-	// sort
-	const Trk::TrackParameters* perigee = track.perigeeParameters();
-	if (!perigee) perigee = (*(track.trackStateOnSurfaces()->begin()))->trackParameters();
+  // sort
+  const Trk::TrackParameters* perigee = track.perigeeParameters();
+  if (!perigee)
+    perigee = (*(track.trackStateOnSurfaces()->begin()))->trackParameters();
 
-	if (perigee) {
-		Trk::TrackStateOnSurfaceComparisonFunction CompFunc( perigee->momentum() );
+  if (perigee) {
+    Trk::TrackStateOnSurfaceComparisonFunction CompFunc(perigee->momentum());
 
-		if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
-			/* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
-			   not 100% transitive comparison functor. */
-			if (msgLvl(MSG::DEBUG)) {
-				msg() << "sorting vector with stable_sort" << endmsg;
-			}
-			std::stable_sort( tsos->begin(), tsos->end(), CompFunc );
-		} else {
-			tsos->sort( CompFunc ); // respects DV object ownership
-		}
+    if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
+      /* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
+         not 100% transitive comparison functor. */
+      if (msgLvl(MSG::DEBUG)) {
+        msg() << "sorting vector with stable_sort" << endmsg;
+      }
+      std::stable_sort(tsos->begin(), tsos->end(), CompFunc);
+    } else {
+      tsos->sort(CompFunc); // respects DV object ownership
+    }
+  }
 
-	}
+  // create copy of track
+  const Trk::Track* new_track =
+    new Trk::Track(track.info(),
+                   std::move(tsos),
+                   track.fitQuality() ? track.fitQuality()->clone() : nullptr);
 
-	// create copy of track
-	const Trk::Track* new_track = new Trk::Track( track.info(),tsos,track.fitQuality() ? track.fitQuality()->clone() : nullptr);
-
-	return new_track;
+  return new_track;
 }
 
 // EOF

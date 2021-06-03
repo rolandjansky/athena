@@ -36,9 +36,9 @@ Trk::Track::Track()
 
 Trk::Track::Track(
   const TrackInfo& info,
-  DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces,
+  std::unique_ptr<TrackStates> trackStateOnSurfaces,
   const FitQuality* fitQuality)
-  : m_trackStateVector(trackStateOnSurfaces)
+  : m_trackStateVector(std::move(trackStateOnSurfaces))
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
@@ -140,12 +140,13 @@ Trk::Track::Track(Trk::Track&& rhs) noexcept = default;
 Trk::Track&
 Trk::Track::operator=(Trk::Track&& rhs) noexcept = default;
 
-Trk::Track::~Track()
-{
-#ifndef NDEBUG
+#ifndef NDEBUG //When DEBUG we need to count down instantiations.
+Trk::Track::~Track(){
   s_numberOfInstantiations--; // delete Track, so decrement total count
-#endif
 }
+#else
+Trk::Track::~Track() = default;
+#endif
 
 const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() const
 {

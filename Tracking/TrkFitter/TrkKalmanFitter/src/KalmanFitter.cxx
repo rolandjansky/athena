@@ -1322,7 +1322,7 @@ Trk::KalmanFitter::makeTrack(
     m_fitStatus = Trk::FitterStatusCode::FewFittableMeasurements;
     return nullptr;
   }
-    SmoothedTrajectory* finalTrajectory = new SmoothedTrajectory();
+    auto finalTrajectory = std::make_unique<SmoothedTrajectory>();
 
     // add new TSoS with parameters on reference surface (e.g. physics Perigee)
     if (m_option_PerigeeAtOrigin) {
@@ -1334,7 +1334,7 @@ Trk::KalmanFitter::makeTrack(
         ATH_MSG_DEBUG ("********** perigee making failed, drop track");
         if (msgLvl(MSG::DEBUG)) monitorTrackFits( Trk::KalmanFitter::PerigeeMakingFailure, this_eta );
         m_fitStatus = Trk::FitterStatusCode::PerigeeMakingFailure;
-        delete finalTrajectory;  return nullptr;
+        return nullptr;
       }
     } else {
       const TrackStateOnSurface* refState = makeReferenceState(
@@ -1369,7 +1369,7 @@ Trk::KalmanFitter::makeTrack(
       info.setTrackProperties (TrackInfo::BremFitSuccessful);
       if (msgLvl(MSG::INFO)) monitorTrackFits( DNAFoundBrem, this_eta );
     }
-    Trk::Track* fittedTrack = new Track(info, finalTrajectory,FQ );
+    Trk::Track* fittedTrack = new Track(info, std::move(finalTrajectory),FQ );
     if (!fittedTrack) {
       ATH_MSG_WARNING ("Trk::Track constructor failed!");
       m_fitStatus = Trk::FitterStatusCode::PerigeeMakingFailure;
@@ -1379,17 +1379,17 @@ Trk::KalmanFitter::makeTrack(
     if (testParam && testParam->covariance()) {
       const AmgSymMatrix(5)& cov = *testParam->covariance();
       if (cov(0,4) == 0.0 && cov(1,4)==0.0 && cov(2,4)==0.0 && cov(3,4)==0) {
-	ATH_MSG_VERBOSE ("Detected straight-line track.");
-	fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack);
-	if (msgLvl(MSG::INFO)) monitorTrackFits( Trk::KalmanFitter::StraightTrackModel, this_eta );
+        ATH_MSG_VERBOSE ("Detected straight-line track.");
+        fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack);
+        if (msgLvl(MSG::INFO)) monitorTrackFits( Trk::KalmanFitter::StraightTrackModel, this_eta );
       }
     }
     // we made it !
-    ATH_MSG_DEBUG ("\n********** done, track made with Chi2 = " << FQ->chiSquared()
+    ATH_MSG_DEBUG ("\n********** done, track made with Chi2 = " << fittedTrack->fitQuality()->chiSquared()
 		   << " / " << FQ->numberDoF() << " **********\n");
     if (msgLvl(MSG::DEBUG)) {
       monitorTrackFits( Trk::KalmanFitter::Success, this_eta );
-      updateChi2Asymmetry( m_fitStatistics[Trk::KalmanFitter::Success], *FQ, this_eta);
+      updateChi2Asymmetry( m_fitStatistics[Trk::KalmanFitter::Success], *(fittedTrack->fitQuality()), this_eta);
     }
     m_fitStatus = Trk::FitterStatusCode::Success;
     return fittedTrack;

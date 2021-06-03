@@ -242,7 +242,7 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
       const CaloCell* cell = (*iCell) ;
       if(! m_tileID->is_tile(cell->ID()) ) continue;
       const TileCell* tilecell = dynamic_cast<const TileCell*> (cell);
-      if (tilecell!=0) {
+      if (tilecell!=nullptr) {
 	Identifier id  = cell->ID();
 	float e  = cell->energy() ; 
 	if (e < cellEnergyThreshold ) continue ;
@@ -465,7 +465,7 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
     for( ; iCell != lastCell; ++iCell) {
       Identifier id;
       const TileCell* mbtsCell = *iCell;   // pointer to cell object
-      if (mbtsCell != 0)  {
+      if (mbtsCell != nullptr)  {
 	id = mbtsCell->ID();
  
 	// Calculate MBTS counter from "side", "tower" and "module"

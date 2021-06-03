@@ -94,8 +94,8 @@ FitProcedure::constructTrack(
 
   // create vector of TSOS - reserve upper limit for size (+1 as starts with
   // perigee)
-  DataVector<const TrackStateOnSurface>* trackStateOnSurfaces =
-    new DataVector<const TrackStateOnSurface>;
+  auto trackStateOnSurfaces =
+    std::make_unique<DataVector<const TrackStateOnSurface>>();
   unsigned size = measurements.size() + 1;
   if (leadingTSOS)
     size += leadingTSOS->size();
@@ -165,7 +165,6 @@ FitProcedure::constructTrack(
               << MSG::WARNING
               << " fail track with incomplete return TSOS: no trackParameters"
               << endmsg;
-            delete trackStateOnSurfaces;
             return nullptr;
           }
           typePattern.set(TrackStateOnSurface::Parameter);
@@ -207,7 +206,6 @@ FitProcedure::constructTrack(
             << MSG::WARNING
             << " fail track with incomplete return TSOS: no trackParameters"
             << endmsg;
-          delete trackStateOnSurfaces;
           return nullptr;
         }
         typePattern.set(TrackStateOnSurface::Parameter);
@@ -339,7 +337,6 @@ FitProcedure::constructTrack(
     *cache.log << MSG::WARNING
                << " fail track with incomplete return TSOS: no trackParameters"
                << endmsg;
-    delete trackStateOnSurfaces;
     return nullptr;
   }
   typePattern.set(TrackStateOnSurface::Parameter);
@@ -354,7 +351,7 @@ FitProcedure::constructTrack(
   // construct track
   double chiSquared = cache.chiSq * static_cast<double>(cache.numberDoF);
   Track* track = new Track(trackInfo,
-                           trackStateOnSurfaces,
+                           std::move(trackStateOnSurfaces),
                            new FitQuality(chiSquared, cache.numberDoF));
 
   if (cache.verbose)

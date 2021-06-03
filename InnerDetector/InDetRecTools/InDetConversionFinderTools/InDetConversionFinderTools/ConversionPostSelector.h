@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETCONVERSIONFINDERTOOLS_CONVERSIONPOSTSELECTOR_H
@@ -47,12 +47,12 @@ namespace InDet {
                                int&) const;
 
     /** Decorate vertices with values used in post selector **/
-    void decorateVertex(xAOD::Vertex& vertex,
+    static void decorateVertex(xAOD::Vertex& vertex,
                         float inv_mass,
                         float pt1,
                         float pt2,
                         float fR,
-                        float deltaPhiVtxTrk) const;
+                        float deltaPhiVtxTrk) ;
 
   private:
     /** Properties for track selection:

@@ -7312,7 +7312,7 @@ namespace Trk {
       info.setTrackProperties(TrackInfo::StraightTrack);
     }
 
-    std::unique_ptr<Track> rv = std::make_unique<Track>(info, trajectory.release(), qual.release());
+    std::unique_ptr<Track> rv = std::make_unique<Track>(info, std::move(trajectory), qual.release());
 
     /*
      * Here, we create a track summary and attach it to our newly created

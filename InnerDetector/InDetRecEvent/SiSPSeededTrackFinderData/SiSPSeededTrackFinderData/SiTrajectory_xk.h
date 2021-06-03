@@ -108,14 +108,26 @@ namespace InDet{
       Trk::TrackParameters* firstTrackParameters();
       void getClusters(std::list<const InDet::SiCluster*>&);
 
-      DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface();
-      DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface(int);
-      DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurfaceWithNewDirection();
-      DataVector<const Trk::TrackStateOnSurface>* convertToNextTrackStateOnSurface();
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>
+      convertToTrackStateOnSurface();
 
-      DataVector<const Trk::TrackStateOnSurface>* convertToSimpleTrackStateOnSurface();
-      DataVector<const Trk::TrackStateOnSurface>* convertToSimpleTrackStateOnSurface(int);
-      DataVector<const Trk::TrackStateOnSurface>* convertToSimpleTrackStateOnSurfaceWithNewDirection();
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>
+      convertToTrackStateOnSurface(int);
+
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>
+      convertToTrackStateOnSurfaceWithNewDirection();
+
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> 
+      convertToNextTrackStateOnSurface();
+
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>
+      convertToSimpleTrackStateOnSurface();
+
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>
+      convertToSimpleTrackStateOnSurface(int);
+
+      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> 
+      convertToSimpleTrackStateOnSurfaceWithNewDirection();
 
       Trk::FitQuality* convertToFitQuality();
 

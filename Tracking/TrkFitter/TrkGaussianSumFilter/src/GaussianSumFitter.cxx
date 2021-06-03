@@ -374,7 +374,7 @@ Trk::GaussianSumFitter::fit(
     info.setTrackProperties(TrackInfo::BremFitSuccessful);
     ++m_fitSuccess;
     return std::make_unique<Track>(
-      info, slimmedSmoothedTrajectory.release(), fitQuality.release());
+      info, std::move(slimmedSmoothedTrajectory), fitQuality.release());
   }
 
   // Create new track
@@ -383,7 +383,7 @@ Trk::GaussianSumFitter::fit(
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
   ++m_fitSuccess;
   return std::make_unique<Track>(
-    info, smoothedTrajectory.release(), fitQuality.release());
+    info, std::move(smoothedTrajectory), fitQuality.release());
 }
 
 /*
@@ -511,7 +511,7 @@ Trk::GaussianSumFitter::fit(
     info.setTrackProperties(TrackInfo::BremFitSuccessful);
     ++m_fitSuccess;
     return std::make_unique<Track>(
-      info, slimmedSmoothedTrajectory.release(), fitQuality.release());
+      info, std::move(slimmedSmoothedTrajectory), fitQuality.release());
   }
 
   // Create new track
@@ -520,7 +520,7 @@ Trk::GaussianSumFitter::fit(
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
   ++m_fitSuccess;
   return std::make_unique<Track>(
-    info, smoothedTrajectory.release(), fitQuality.release());
+    info, std::move(smoothedTrajectory), fitQuality.release());
 }
 
 std::unique_ptr<Trk::Track>

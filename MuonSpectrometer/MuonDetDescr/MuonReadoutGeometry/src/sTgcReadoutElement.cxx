@@ -44,7 +44,7 @@ namespace MuonGM {
 					 int zi, int fi, int mL, bool is_mirrored,
 					 MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
-      m_BLinePar(0)
+      m_BLinePar(nullptr)
   {
     m_rots = 0.;
     m_rotz = 0.;
