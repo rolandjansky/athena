@@ -13,6 +13,8 @@
 #include "HGTD_ReadoutGeometry/HGTD_DetectorElement.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorElementCollection.h"
 
+#include "ReadoutGeometryBase/SiCommonItems.h"
+
 #include "HGTD_Identifier/HGTD_ID.h"
 
 // Message Stream Member
@@ -76,6 +78,9 @@ public:
     /** Update all caches */
     virtual void updateAll() const;
 
+    /** Set SiCommonItems */
+    void setCommonItems(std::unique_ptr<const SiCommonItems>&& commonItems);
+
     /** Declaring the Message method for further use */
     MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
 
@@ -94,6 +99,8 @@ private:
     std::vector<PVLink>              m_volume;
     HGTD_DetectorElementCollection   m_elementCollection;
     const HGTD_ID*                   m_idHelper;
+
+    std::unique_ptr<const SiCommonItems> m_commonItems;
 
     //Declaring private message stream member.
     mutable Athena::MsgStreamMember  m_msg;

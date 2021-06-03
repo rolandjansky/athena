@@ -125,3 +125,8 @@ void HGTD_DetectorManager::updateAll() const
         }
     }
 }
+
+void HGTD_DetectorManager::setCommonItems(std::unique_ptr<const SiCommonItems>&& commonItems)
+{
+    m_commonItems = std::move(commonItems);
+}
