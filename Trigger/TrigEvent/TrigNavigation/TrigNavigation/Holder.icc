@@ -43,8 +43,10 @@ HLTNavDetails::Holder<STORED>::Holder(const std::string& prefix, const std::stri
 
 
 /////////////////////////////////////////////////////////////////////////////
+namespace HLTNavDetails {
 template<class STORED>
-HLTNavDetails::Holder<STORED>::~Holder() {
+Holder<STORED>::~Holder() {
+}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -101,12 +103,14 @@ HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp(const std::string& prefix
 }
 
 /////////////////////////////////////////////////////////////////////////////
+namespace HLTNavDetails {
 template<class STORED, class CONTAINER>
-HLTNavDetails::HolderImp<STORED, CONTAINER>::~HolderImp() {  
+HolderImp<STORED, CONTAINER>::~HolderImp() {  
   //typedef Holder<STORED> H;
   // Don't touch m_log here --- if we're running global dtors, then
   // it may have already been deleted.
   m_memMgr.clear();
+}
 }
 
 
