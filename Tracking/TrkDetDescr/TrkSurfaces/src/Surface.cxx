@@ -97,14 +97,13 @@ __attribute__ ((flatten))
 #endif
 // copy constructor - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 Trk::Surface::Surface(const Surface& sf)
-  : m_transforms(nullptr)
+  : m_transforms(std::make_unique<Transforms>(sf.transform()))
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(sf.m_associatedLayer)
   , m_materialLayer(sf.m_materialLayer)
   , m_owner(Trk::noOwn)
 {
-  m_transforms = std::make_unique<Transforms>(sf.transform());
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element

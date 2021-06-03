@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 namespace Trk {
 inline DiscBounds*
@@ -182,6 +182,7 @@ DiscBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
   EllipseCollisionTest test(4);
   // convert to cartesian coordinates
   AmgMatrix(2, 2) covRotMatrix;
+  // cppcheck-suppress constStatement
   covRotMatrix << scResult.cosC, -locpo(0, 0) * scResult.sinC, scResult.sinC,
     locpo(0, 0) * scResult.cosC;
   AmgMatrix(2, 2) lCovarianceCar =
