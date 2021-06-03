@@ -9,9 +9,11 @@
 #ifndef TRKMATERIALONTRACK_EstimatedBremOnTrack_H
 #define TRKMATERIALONTRACK_EstimatedBremOnTrack_H
 
-#include <iostream>
+
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include <iosfwd>
+#include <memory>
 
 class MsgStream;
 
@@ -55,6 +57,11 @@ class EstimatedBremOnTrack : public MaterialEffectsBase
   
   //! Virtual constructor 
   virtual EstimatedBremOnTrack* clone() const;
+  
+  //! NVI uniqueClone
+  std::unique_ptr<EstimatedBremOnTrack> uniqueClone() const{
+    return std::unique_ptr<EstimatedBremOnTrack>(clone());
+  }
     
   //! returns @f$ z @f$ 
   double retainedEnFraction() const;

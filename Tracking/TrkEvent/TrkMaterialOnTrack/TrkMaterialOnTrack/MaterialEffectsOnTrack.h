@@ -5,8 +5,9 @@
 #ifndef TRKMATERIALEFFECTSONTRACK_MATERIALEFFECTSONTRACK_H
 #define TRKMATERIALEFFECTSONTRACK_MATERIALEFFECTSONTRACK_H
 
-#include <iostream>
+#include <iosfwd>
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
+#include <memory>
 
 class MsgStream;
 class TrackCollectionCnv;
@@ -103,6 +104,11 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
 	
    //! Virtual constructor 
    virtual MaterialEffectsOnTrack* clone() const;
+   
+   //! NVI uniqueClone
+   std::unique_ptr<MaterialEffectsOnTrack> uniqueClone() const {
+     return std::unique_ptr<MaterialEffectsOnTrack>(clone());
+   }
 
    //! Interface method for output, implemented in child class
    virtual MsgStream&    dump( MsgStream& sl ) const;
