@@ -54,14 +54,14 @@ namespace Rec {
 
         /**IMuidCaloEnergy interface:
            TrackStateOnSurface for parameters and energyLoss at the calorimeter mid-surface */
-        const Trk::TrackStateOnSurface* trackStateOnSurface(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
-                                                            const Trk::TrackParameters* innerParameters,
-                                                            const Trk::TrackParameters* outerParameters) const override;
+        std::unique_ptr<Trk::TrackStateOnSurface> trackStateOnSurface(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
+                                                                      const Trk::TrackParameters* innerParameters,
+                                                                      const Trk::TrackParameters* outerParameters) const override;
 
     private:
         // private methods
         std::unique_ptr<CaloEnergy> measurement(const EventContext& ctx, double trackMomentum, double eta, double phi,
-                                                CaloMeas* caloMeas) const;
+                                                const CaloMeas& caloMeas) const;
         double muSpecResolParam(double trackMomentum, double eta) const;
         double paramCorrection(double trackMomentum, double eta, double MopLoss, double MopSigma) const;
         double landau(double x, double mpv, double sigma, bool norm) const;

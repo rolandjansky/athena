@@ -112,7 +112,7 @@ namespace Rec {
         double m_emMopFraction[26]{};
         // double			m_em1MopFraction[26];
         // ==================== Material map =========================== //
-        double m_etaGranularity;    // Granularity in eta of material map
+        double m_etaGranularity;      // Granularity in eta of material map
         double m_dead_eta[277]{};     // eta of bin
         double m_dead_x01[277]{};     // material in front of the e/m calorimeter
         double m_dead_x02[277]{};     // material in front of hadronic calorimeter
