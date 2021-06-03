@@ -90,7 +90,7 @@ simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
 from glob import glob
 # Default position: look in cvmfs for job options
 cvmfs_mc15 = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/'
-JO = glob(cvmfs_mc15+'/share/DSID'+str(runNumber/1000)+'xxx/MC15.'+str(runNumber)+'*.py')
+JO = glob(cvmfs_mc15+'/share/DSID'+str(int(runNumber/1000))+'xxx/MC15.'+str(runNumber)+'*.py')
 if len(JO)>0:
     JO = JO[0]
 else:
