@@ -773,7 +773,7 @@ namespace Rec {
         typeP.set(Trk::TrackStateOnSurface::Measurement);
         typeP.set(Trk::TrackStateOnSurface::Parameter);
 
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         trackStateOnSurfaces->reserve(spectrometerMeasurements.size());
 
@@ -800,7 +800,7 @@ namespace Rec {
 
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
 
-        Trk::Track muonTrack(trackInfo, trackStateOnSurfaces, nullptr);
+        Trk::Track muonTrack(trackInfo, std::move(trackStateOnSurfaces), nullptr);
         if (msgLevel(MSG::DEBUG)) countAEOTs(&muonTrack, " in detExtension muonTrack ");
 
         // perform combined fit
@@ -1206,7 +1206,7 @@ namespace Rec {
                 ATH_MSG_DEBUG(" bad fitQuality: retry with vertex ");
                 std::unique_ptr<Trk::Track> badfit(std::move(extrapolated));
 
-                DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+                auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
                 trackStateOnSurfaces->reserve(badfit->trackStateOnSurfaces()->size() + 1);
 
@@ -1226,8 +1226,11 @@ namespace Rec {
                     trackStateOnSurfaces->push_back((**s).clone());
                 }
 
-                std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(spectrometerTrack.info(), trackStateOnSurfaces, nullptr);
-                extrapolated = fit(*track, ctx, m_cleanStandalone, particleHypothesis);
+                std::unique_ptr<Trk::Track> track =
+                  std::make_unique<Trk::Track>(
+                    spectrometerTrack.info(), std::move(trackStateOnSurfaces), nullptr);
+                extrapolated =
+                  fit(*track, ctx, m_cleanStandalone, particleHypothesis);
             }
 
             // restart from prefit without cleaning
@@ -1854,7 +1857,7 @@ namespace Rec {
 
         // create track for refit
         std::unique_ptr<Trk::Track> standaloneTrack =
-            std::make_unique<Trk::Track>(combinedTrack.info(), trackStateOnSurfaces.release(), nullptr);
+            std::make_unique<Trk::Track>(combinedTrack.info(), std::move(trackStateOnSurfaces), nullptr);
         standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
         if (m_trackQuery->isCombined(*standaloneTrack, ctx)) { ATH_MSG_WARNING(" This should not happen standalone Track has ID hits "); }
 
@@ -1933,7 +1936,7 @@ namespace Rec {
             // about to add the TSOS's describing calorimeter association to a combined muon;
             m_messageHelper->printWarning(30);
 
-            DataVector<const Trk::TrackStateOnSurface>* combinedTSOS = new DataVector<const Trk::TrackStateOnSurface>;
+            auto combinedTSOS = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
             combinedTSOS->reserve(track.trackStateOnSurfaces()->size() + 3);
             bool caloAssociated = false;
@@ -1974,7 +1977,8 @@ namespace Rec {
                 }
             }
 
-            std::unique_ptr<Trk::Track> combinedTrack = std::make_unique<Trk::Track>(track.info(), combinedTSOS, nullptr);
+            std::unique_ptr<Trk::Track> combinedTrack =
+              std::make_unique<Trk::Track>(track.info(), std::move(combinedTSOS), nullptr);
 
             if (msgLevel(MSG::DEBUG)) countAEOTs(combinedTrack.get(), " combinedTrack track before fit ");
 
@@ -2428,7 +2432,8 @@ namespace Rec {
         ATH_MSG_DEBUG(" trackStateOnSurfaces on input track " << track->trackStateOnSurfaces()->size() << " trackStateOnSurfaces found "
                                                               << trackStateOnSurfaces->size());
 
-        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track->info(), trackStateOnSurfaces.release(), nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
+          track->info(), std::move(trackStateOnSurfaces), nullptr);
         return newTrack;
     }
 
@@ -2778,7 +2783,7 @@ namespace Rec {
         if (caloTSOS) { size += caloTSOS->size(); }
         if (leadingTSOS) { size += leadingTSOS->size(); }
 
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         trackStateOnSurfaces->reserve(size);
 
@@ -2849,7 +2854,8 @@ namespace Rec {
         }
 
         // create track
-        std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(spectrometerTrack.info(), trackStateOnSurfaces, nullptr);
+        std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(
+          spectrometerTrack.info(), std::move(trackStateOnSurfaces), nullptr);
 
         dumpCaloEloss(track.get(), " createExtrapolatedTrack ");
         if (msgLevel(MSG::DEBUG)) countAEOTs(track.get(), " createExtrapolatedTrack before fit ");
@@ -2895,7 +2901,7 @@ namespace Rec {
         const Trk::TrackInfo& info, DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
         DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const {
         // create indet track TSOS vector
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         // set end iterator to be the first TSOS after the indet
         unsigned size = 1;
@@ -2917,7 +2923,7 @@ namespace Rec {
         // then append selected TSOS
         appendSelectedTSOS(*trackStateOnSurfaces, begin, end);
 
-        return std::make_unique<Trk::Track>(info, trackStateOnSurfaces, nullptr);
+        return std::make_unique<Trk::Track>(info, std::move(trackStateOnSurfaces), nullptr);
     }
 
     std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::createMuonTrack(const EventContext& ctx, const Trk::Track& muonTrack,
@@ -2940,7 +2946,7 @@ namespace Rec {
         }
 
         // create muon track TSOS vector
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         // redo calo association from inside if requested
         bool redoCaloAssoc = false;
@@ -2973,7 +2979,6 @@ namespace Rec {
 
                     delete caloTSOS;
                 }
-                delete trackStateOnSurfaces;
                 return nullptr;
             }
 
@@ -3064,7 +3069,8 @@ namespace Rec {
         // then append selected TSOS from the extrapolated or spectrometer track
         appendSelectedTSOS(*trackStateOnSurfaces, s, end);
 
-        std::unique_ptr<Trk::Track> newMuonTrack = std::make_unique<Trk::Track>(muonTrack.info(), trackStateOnSurfaces, nullptr);
+        std::unique_ptr<Trk::Track> newMuonTrack = std::make_unique<Trk::Track>(
+          muonTrack.info(), std::move(trackStateOnSurfaces), nullptr);
 
         // Updates the calo TSOS with the ones from TG+corrections (if needed)
         if (m_updateWithCaloTG && !m_useCaloTG && redoCaloAssoc) {
@@ -3703,7 +3709,7 @@ namespace Rec {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultType;
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type = defaultType;
 
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         trackStateOnSurfaces->reserve(track->trackStateOnSurfaces()->size());
 
@@ -3821,7 +3827,7 @@ namespace Rec {
         Trk::FitQuality* fitQuality = nullptr;
         if (track->fitQuality()) { fitQuality = new Trk::FitQuality(*track->fitQuality()); }
 
-        track = std::make_unique<Trk::Track>(trackInfo, trackStateOnSurfaces, fitQuality);
+        track = std::make_unique<Trk::Track>(trackInfo, std::move(trackStateOnSurfaces), fitQuality);
     }
 
     Trk::PseudoMeasurementOnTrack* CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters& parameters,

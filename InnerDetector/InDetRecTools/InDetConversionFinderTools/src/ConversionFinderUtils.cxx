@@ -55,7 +55,7 @@ namespace InDet {
   ConversionFinderUtils::countHits(
     const DataVector<const Trk::MeasurementBase>* mb,
     int& ntrt,
-    int& nclus) const
+    int& nclus) 
   {
 
     DataVector<const Trk::MeasurementBase>::const_iterator its,
@@ -90,7 +90,7 @@ namespace InDet {
    */
   double
   ConversionFinderUtils::trRatio(
-    const DataVector<const Trk::MeasurementBase>* mb) const
+    const DataVector<const Trk::MeasurementBase>* mb) 
   {
 
     DataVector<const Trk::MeasurementBase>::const_iterator itp=mb->begin(), itpe=mb->end();
@@ -118,7 +118,7 @@ namespace InDet {
    */
   double
   ConversionFinderUtils::momFraction(const Trk::TrackParameters* per1,
-                                     const Trk::TrackParameters* per2) const
+                                     const Trk::TrackParameters* per2) 
   {
 
     const Amg::Vector3D& mom_pos = per1->momentum();
@@ -196,7 +196,7 @@ namespace InDet {
    * return first track parameters
    */
   const Trk::TrackParameters*
-  ConversionFinderUtils::getTrkParameters(const Trk::Track* track) const
+  ConversionFinderUtils::getTrkParameters(const Trk::Track* track) 
   {
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) return nullptr;
@@ -219,7 +219,7 @@ namespace InDet {
    */
   const Trk::TrackParameters*
   ConversionFinderUtils::getTrkParticleParameters(
-    const Trk::TrackParticleBase* track) const
+    const Trk::TrackParticleBase* track) 
   {
 
     std::vector<const Trk::TrackParameters*>::const_iterator vpb = track->trackParameters().begin();
@@ -231,7 +231,7 @@ namespace InDet {
   /* add recalculated perigees to the track*/
   const Trk::Track*
   ConversionFinderUtils::addNewPerigeeToTrack(const Trk::Track* track,
-                                              const Trk::Perigee* mp) const
+                                              const Trk::Perigee* mp) 
   {
 
     // fitQuality from track
@@ -239,9 +239,9 @@ namespace InDet {
     if(!fq) return nullptr;
 
     // output datavector of TSOS
-    DataVector<const Trk::TrackStateOnSurface>*	    ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+    auto	    ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
-    if(!tsos) {delete ntsos; return nullptr;}
+    if(!tsos) {return nullptr;}
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
     for(its=tsos->begin();its!=itse;++its) {
 
@@ -256,13 +256,13 @@ namespace InDet {
 
     //Construct the new track
     Trk::TrackInfo info;
-    Trk::Track* newTrk = new Trk::Track(info, ntsos, fq);
+    Trk::Track* newTrk = new Trk::Track(info, std::move(ntsos), fq);
     return newTrk;
   }
 
   xAOD::Vertex*
   ConversionFinderUtils::correctVxCandidate(xAOD::Vertex* initVxCandidate,
-                                            Amg::Vector3D guessVertex) const
+                                            Amg::Vector3D guessVertex) 
   {
     Amg::Vector3D correctVertex(initVxCandidate->position().x()+guessVertex.x(),
 			     initVxCandidate->position().y()+guessVertex.y(),

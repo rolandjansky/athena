@@ -380,7 +380,7 @@ namespace Muon {
 
         // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
         const DataVector<const Trk::TrackStateOnSurface> *oldTSOT = track.trackStateOnSurfaces();
-        DataVector<const Trk::TrackStateOnSurface> *trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
         unsigned int newSize = oldTSOT->size();
         trackStateOnSurfaces->reserve(newSize + 11);
 
@@ -612,7 +612,10 @@ namespace Muon {
         }
 
         // create new track
-        return std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        return std::make_unique<Trk::Track>(
+          track.info(),
+          std::move(trackStateOnSurfaces),
+          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     }
 
     std::unique_ptr<TrackCollection> MuonTrackExtrapolationTool::extrapolate(const TrackCollection &tracks, const EventContext &ctx) const {

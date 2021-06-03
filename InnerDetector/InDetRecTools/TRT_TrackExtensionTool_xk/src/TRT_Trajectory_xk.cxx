@@ -927,8 +927,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   // Fill new track information
   //
-  DataVector<const Trk::TrackStateOnSurface>*
-    tsosn = new DataVector<const Trk::TrackStateOnSurface>;
+  auto tsosn = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
   tsosn->push_back(new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
 
@@ -967,7 +966,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     m_ndf+= fqo->numberDoF ();
   }
   Trk::FitQuality* fq = new Trk::FitQuality(m_xi2,m_ndf);
-  return new Trk::Track (Tr.info(),tsosn,fq);
+  return new Trk::Track (Tr.info(),std::move(tsosn),fq);
 }
 
 ///////////////////////////////////////////////////////////////////

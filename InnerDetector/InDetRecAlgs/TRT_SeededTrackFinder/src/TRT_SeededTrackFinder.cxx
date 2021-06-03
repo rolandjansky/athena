@@ -669,7 +669,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 	///Construct the new track
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-        std::unique_ptr<Trk::Track> newTrack(std::make_unique<Trk::Track>(info, ntsos.release(), fq));
+        std::unique_ptr<Trk::Track> newTrack(std::make_unique<Trk::Track>(info, std::move(ntsos), fq));
 
 	//Careful refitting at the end
 	if (m_doRefit) {
@@ -745,7 +745,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const 
 
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, ntsos.release(), nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, std::move(ntsos), nullptr);
 
 	// Careful refitting of the TRT stand alone track
 	if (m_doRefit) {
@@ -802,7 +802,7 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
 
   Trk::TrackInfo info;
   info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-  std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, ntsos.release(), fq) );
+  std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, std::move(ntsos), fq) );
 
   //Careful refitting at the end
   if (m_doRefit) {

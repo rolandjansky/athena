@@ -353,7 +353,7 @@ StatusCode AthenaPoolTestDataReader::execute()
     // Read PileupEventInfo
 
     // Normal EventInfo
-    const EventInfo * evt = 0;
+    const EventInfo * evt = nullptr;
     ATH_CHECK( evtStore()->retrieve( evt, "McEventInfo" ) );
     ATH_MSG_DEBUG( "Normal EventInfo" );
     ATH_MSG_DEBUG( "Event ID: ["
@@ -389,7 +389,7 @@ StatusCode AthenaPoolTestDataReader::execute()
     
 
     // PileupEventInfo as itself
-    const PileUpEventInfo* pevt = 0;
+    const PileUpEventInfo* pevt = nullptr;
     ATH_CHECK( evtStore()->retrieve( pevt, "OverlayEvent" ) );
     ATH_MSG_DEBUG( "PileUpEventInfo" );
     ATH_MSG_DEBUG( "Event ID: ["

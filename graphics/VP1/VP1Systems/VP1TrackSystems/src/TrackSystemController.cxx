@@ -254,10 +254,10 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   m_d->lastUpdatedAvailableFitters = QStringList("<dummy>");//special.
 
   //Stuff with tools waits until ::initTools() is called:
-  m_d->toolaccesshelper = 0;
-  m_d->toolhelper_extrapolators = 0;
-  m_d->toolhelper_fitters = 0;
-  m_d->matmixer = 0;
+  m_d->toolaccesshelper = nullptr;
+  m_d->toolhelper_extrapolators = nullptr;
+  m_d->toolhelper_fitters = nullptr;
+  m_d->matmixer = nullptr;
 
   m_d->ui.setupUi(this);
   m_d->trackcollwidget = new TrackCollWidget;
@@ -317,8 +317,8 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
 
   //These we init explicitly since we might otherwise trigger a change
   //before initlastvars (fixme: is this true and the right fix??)
-  m_d->last_propagator = 0;
-  m_d->last_trackFitter = 0;
+  m_d->last_propagator = nullptr;
+  m_d->last_trackFitter = nullptr;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
@@ -507,9 +507,9 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   m_d->ui_int.checkBox_selsingle_printinfo->setChecked(true);
   
   // Since TrkVolumesSvc isn't working anymore, hardcode values. (Remove when we move to new extrapolator)
-  m_d->calorimeterEntryLayer      = new Trk::Volume(0, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
-  m_d->muonSpectrometerEntryLayer = new Trk::Volume(0, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
-  m_d->muonSpectrometerExitLayer  = new Trk::Volume(0, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
+  m_d->calorimeterEntryLayer      = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
+  m_d->muonSpectrometerEntryLayer = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
+  m_d->muonSpectrometerExitLayer  = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
   initLastVars();
 }
 
@@ -548,8 +548,8 @@ void TrackSystemController::initTools()
     availableFittersChanged(m_d->toolhelper_fitters->availableTools());
     messageVerbose("Setting up tool helper to monitor fitters - end");
   } else {
-    m_d->toolhelper_extrapolators = 0;
-    m_d->toolhelper_fitters = 0;
+    m_d->toolhelper_extrapolators = nullptr;
+    m_d->toolhelper_fitters = nullptr;
     m_d->ui_extrap.comboBox_propagator->clear();
     m_d->ui_extrap.comboBox_propagator->addItem(Imp::noneAvailString);
     m_d->ui_extrap.comboBox_propagator->setEnabled(false);
@@ -1270,7 +1270,7 @@ SoMaterial * TrackSystemController::Imp::getMat(VP1MaterialButton* mb) const
 //____________________________________________________________________
 SoMaterial * TrackSystemController::getMaterialForPDGCode(const int& pdgCode) const
 {
-  VP1MaterialButton * matbutton(0);
+  VP1MaterialButton * matbutton(nullptr);
   int abspdg = abs(pdgCode);
   switch (abspdg) {
   case 211:  matbutton = m_d->ui_col.matButton_pions; break;
@@ -1617,12 +1617,12 @@ Trk::IExtrapolator * TrackSystemController::propagator() const
   if (!m_d->toolaccesshelper
       ||!m_d->ui_extrap.radioButton_athenaExtrapolator->isChecked()
       ||m_d->ui_extrap.comboBox_propagator->count()==0)
-    return 0;
+    return nullptr;
 
   QString key = m_d->ui_extrap.comboBox_propagator->currentText();
   if (key==Imp::noneAvailString)
-    return 0;
-  return key.isEmpty() ? 0 : m_d->toolaccesshelper->getToolPointer<Trk::IExtrapolator>(key);
+    return nullptr;
+  return key.isEmpty() ? nullptr : m_d->toolaccesshelper->getToolPointer<Trk::IExtrapolator>(key);
 }
 
 TrackSystemController::PropagationOptionFlags TrackSystemController::propagationOptions() const{
@@ -1651,12 +1651,12 @@ Trk::ITrackFitter * TrackSystemController::trackFitter() const
 {
   if (!m_d->toolaccesshelper
       ||m_d->ui_int.comboBox_fitters->count()==0)
-  return 0;
+  return nullptr;
 
   QString key = m_d->ui_int.comboBox_fitters->currentText();
   if (key==Imp::noneAvailString)
-    return 0;
-  return key.isEmpty() ? 0 : m_d->toolaccesshelper->getToolPointer<Trk::ITrackFitter>(key);
+    return nullptr;
+  return key.isEmpty() ? nullptr : m_d->toolaccesshelper->getToolPointer<Trk::ITrackFitter>(key);
 }
 
 Muon::MuonEDMPrinterTool * TrackSystemController::muonEDMPrinterTool() const
@@ -1678,7 +1678,7 @@ const Trk::Volume * TrackSystemController::extrapolateToThisVolume() const
     return m_d->muonSpectrometerEntryLayer;
   if (m_d->ui_extrap.comboBox_extendAllInDetTracksToHere->currentText()=="Muon Exit")
     return m_d->muonSpectrometerExitLayer;
-  return 0;
+  return nullptr;
 }
 
 //____________________________________________________________________

@@ -433,8 +433,8 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
   //Amg::Vector3D startGP  = (*inputTrk.trackParameters()->begin())->position();
   //Amg::Vector3D refDir = (*(inputTrk.trackParameters()->end()-1))->position() - startGP;
 
-  DataVector<const TrackStateOnSurface> *newListOfStates
-    = new DataVector<const TrackStateOnSurface>;
+  auto newListOfStates
+    = std::make_unique<DataVector<const TrackStateOnSurface>>();
   TS_iterator itStates = inputTrk.trackStateOnSurfaces()->begin();
   for (;itStates!=inputTrk.trackStateOnSurfaces()->end();++itStates)
     if ( (*itStates)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -470,7 +470,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
     delete CompFunc;
   }
   TrackInfo info;
-  return new Trk::Track(info,newListOfStates,nullptr);
+  return new Trk::Track(info,std::move(newListOfStates),nullptr);
 }
 
 // give back the Measurements stripped of a track+measurement input combination.

@@ -60,7 +60,7 @@ namespace Muon {
         Identifier chid = m_edmHelperSvc->chamberId(segment);
         if (m_idHelperSvc->isTrigger(chid)) {
             ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid));
-            return 0;
+            return nullptr;
         }
         MuPatSegment* info = new MuPatSegment();
         info->segment = &segment;
