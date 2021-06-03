@@ -74,7 +74,7 @@ namespace Trk
       
     }
 
-    second.setTracksAtVertex(tracksOfSecondVertex);
+    second.setTracksAtVertex(std::move(tracksOfSecondVertex));
     
   }
 
