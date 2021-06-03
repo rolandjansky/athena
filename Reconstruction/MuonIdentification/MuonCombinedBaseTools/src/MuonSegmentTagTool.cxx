@@ -517,6 +517,8 @@ namespace MuonCombined {
                         std::unique_ptr<const Trk::AtaPlane> atSegSurface{m_MuTagMatchingTool->ExtrapolateTrktoSegmentSurface(
                             ctx, *itSeg, trackAtMSEntrance[i_extrapolations].get(), direction)};
                         if (!atSegSurface || !atSegSurface->covariance() || !Amg::valid_cov(*atSegSurface->covariance())) continue;
+			const AmgSymMatrix(5) invCov=atSegSurface->covariance()->inverse();
+			if(!Amg::valid_cov(invCov)) continue;
 
                         MuonCombined::MuonSegmentInfo info = m_MuTagMatchingTool->muTagSegmentInfo(track, *itSeg, atSegSurface.get());
                         if (segmentToxAODSegmentMap) info.link = (*segmentToxAODSegmentMap)[*itSeg];
