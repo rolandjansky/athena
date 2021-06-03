@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLEVALUECACHE_H
@@ -7,6 +7,7 @@
 
 #include <atomic>
 #include <vector>
+#include <cstdlib>
 
 /**
 *  This class is to provide an event wide MT container for concurrent storing of basic types, like ints
