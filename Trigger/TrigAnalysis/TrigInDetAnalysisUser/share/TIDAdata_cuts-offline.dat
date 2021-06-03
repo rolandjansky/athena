@@ -30,8 +30,16 @@ Rmatch = 0.05;
 	a0v = 100.;
 	z0v = 300.5;
 #else
+
+#ifdef OFFVTX
+/// any z position wi respect to the primary vertex
+	a0v = 10.5;
+	z0v = 10.5;
+#else
+/// only 10.5 mm with respect to the primary vertex
 	a0v = 10.5;
 	z0v = 300.5;
+#ndif
 #endif
 
 // VertexSelection    = 0;
