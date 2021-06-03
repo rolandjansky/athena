@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm, cm, m
@@ -296,3 +296,6 @@ def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
     if hasattr(simFlags, 'Eta') or hasattr(simFlags, 'LArTB_H1TableYPos'): #FIXME Ugly hack
         kwargs.setdefault("TestBeam", True)
     return CfgMgr.MaterialDescriptionTool(name, **kwargs)
+
+def getSmartlessnessTool(name="SmartlessnessTool", **kwargs):
+    return CfgMgr.SmartlessnessTool(name, **kwargs)
