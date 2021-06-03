@@ -144,7 +144,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                                   path=larNoisyRO_hist_path,
                                   xbins=lArDQGlobals.noisyFEB_Bins,xmin=lArDQGlobals.noisyFEB_Min,xmax=lArDQGlobals.noisyFEB_Max)
     noisyROGroup.defineHistogram('LBN;LBN',type='TH1I',
-                                 title='Event counter per LB', path=larNoisyRO_hist_path,
+                                 title='Event counter per LB', 
+                                 path=larNoisyRO_hist_path,
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
     for subdet in range(0,2): 
