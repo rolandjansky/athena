@@ -263,68 +263,62 @@ sysLoader.systematicsList= ['']
 SeqPHYSLITE += sysLoader
 
 
-#dataType = "data"
+dataType = "data"
 #
-#if DerivationFrameworkIsMonteCarlo:
-#  dataType = "mc"
-##in your c++ code, create a ToolHandle<IPileupReweightingTool>
-##the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
-#from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles
-#ToolSvc += CfgMgr.CP__PileupReweightingTool("PHYSLITE_PRWTool",
-#                                            ConfigFiles=[],
-#                                            UnrepresentedDataAction=2,
-#                                            LumiCalcFiles=getLumiCalcFiles())
-#SeqPHYSLITE += CfgMgr.CP__PileupReweightingProvider(Tool=ToolSvc.PHYSLITE_PRWTool,RunSystematics=False)
-#
-## Include, and then set up the electron analysis sequence:
-#from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
-#    makeElectronAnalysisSequence
-#electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.NonIso', shallowViewOutput = False, deepCopyOutput = True )
-#electronSequence.configure( inputName = 'Electrons',
-#                            outputName = 'AnalysisElectrons' )
-#print( electronSequence ) # For debugging
-#
-## Add the electron sequence to the job:
-#SeqPHYSLITE += electronSequence
-#
-## Include, and then set up the photon analysis sequence:                                       
-#from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
-#    makePhotonAnalysisSequence
-#photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, recomputeIsEM=True )
-#photonSequence.configure( inputName = 'Photons',
-#                          outputName = 'AnalysisPhotons' )
-#print( photonSequence ) # For debugging
-#
-#SeqPHYSLITE += photonSequence
-#
-## Include, and then set up the muon analysis algorithm sequence:
-#from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-#muonSequence = makeMuonAnalysisSequence( dataType, shallowViewOutput = False, deepCopyOutput = True, workingPoint = 'Loose.NonIso' )
-#muonSequence.configure( inputName = 'Muons',
-#                        outputName = 'AnalysisMuons' )
-#print( muonSequence ) # For debugging
-## Add the sequence to the job:
-# 
-#SeqPHYSLITE += muonSequence
-#
-## Include, and then set up the tau analysis algorithm sequence:                                                    
-#from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-#tauSequence = makeTauAnalysisSequence( dataType, 'Baseline', shallowViewOutput = False, deepCopyOutput = True )
-#tauSequence.configure( inputName = 'TauJets', outputName = 'AnalysisTauJets' )
-#print( tauSequence ) # For debugging                                                                               
-## Add the sequence to the job:                                                                                     
-#SeqPHYSLITE += tauSequence
-#
-#jetContainer = 'AntiKt4EMPFlowJets'
+if DerivationFrameworkIsMonteCarlo:
+  dataType = "mc"
+
+# Create a pile-up analysis sequence
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+SeqPHYSLITE += pileupSequence
+
+# Include, and then set up the electron analysis sequence:
+from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import  makeElectronAnalysisSequence
+electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.NonIso', shallowViewOutput = False, deepCopyOutput = True )
+electronSequence.configure( inputName = 'Electrons',
+                            outputName = 'AnalysisElectrons' )
+print( electronSequence ) # For debugging
+# Add the electron sequence to the job:
+SeqPHYSLITE += electronSequence
+
+# Include, and then set up the photon analysis sequence:                                       
+from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
+photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, recomputeIsEM=True )
+photonSequence.configure( inputName = 'Photons',
+                          outputName = 'AnalysisPhotons' )
+print( photonSequence ) # For debugging
+SeqPHYSLITE += photonSequence
+
+# Include, and then set up the muon analysis algorithm sequence:
+from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
+muonSequence = makeMuonAnalysisSequence( dataType, shallowViewOutput = False, deepCopyOutput = True, workingPoint = 'Loose.NonIso' )
+muonSequence.configure( inputName = 'Muons',
+                        outputName = 'AnalysisMuons' )
+print( muonSequence ) # For debugging
+# Add the sequence to the job:
+ 
+SeqPHYSLITE += muonSequence
+
+# Include, and then set up the tau analysis algorithm sequence:                                                    
+from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
+tauSequence = makeTauAnalysisSequence( dataType, 'Baseline', shallowViewOutput = False, deepCopyOutput = True )
+tauSequence.configure( inputName = 'TauJets', outputName = 'AnalysisTauJets' )
+print( tauSequence ) # For debugging                                                                               
+# Add the sequence to the job:                                                                                     
+SeqPHYSLITE += tauSequence
+
 
 ## Include, and then set up the jet analysis algorithm sequence:
+#jetContainer = 'AntiKt4EMPFlowJets'
 #from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
 #jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False , runFJvtUpdate = False , runFJvtSelection = False )
 #jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 #print( jetSequence ) # For debugging
 #
 #SeqPHYSLITE += jetSequence
-#
+
 ## Make sure the MET knows what we've done
 ## First we need to rebuild charged pflow objects
 #from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
