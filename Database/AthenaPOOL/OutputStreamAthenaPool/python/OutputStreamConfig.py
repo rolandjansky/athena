@@ -55,7 +55,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       Key=eventFormatKey,
    )
    outputStream.HelperTools.append(eventFormatTool)
-   msg.info("Creating event format for this stream")
+   msg.debug("Creating event format for this stream")
 
    # Simplifies naming 
    outputStream.MetadataItemList.append(
