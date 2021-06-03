@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////
 // BPhysConversionFinder.cxx, (c) ATLAS Detector software
@@ -563,8 +563,7 @@ namespace DerivationFramework {
 
       const std::vector< std::vector<TLorentzVector> > &moms = result->getParticleMoms();
 
-      // Check for a successful fit
-      if(result != NULL) {
+      {
 
           if(moms.size() > 2) ATH_MSG_WARNING("DoCascadeFit - More than two output momentum!?");
 
