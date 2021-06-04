@@ -9,7 +9,7 @@
 #include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
 
 // EDM includes
-#include "xAODJet/Jet.h"
+#include "xAODBTagging/BTagging.h"
 
 #include <memory>
 #include <string>
@@ -27,7 +27,7 @@ namespace FlavorTagDiscriminants {
                  std::map<std::string, std::string> var_remap = {});
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
-    void decorate(const xAOD::Jet& jet) const;
+    void decorate(const xAOD::BTagging& btag) const;
     DL2DataDependencyNames getDataDependencyNames() const;
   private:
     std::unique_ptr<DL2> m_dl2;

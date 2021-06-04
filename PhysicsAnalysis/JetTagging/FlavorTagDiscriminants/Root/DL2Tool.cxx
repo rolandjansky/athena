@@ -33,7 +33,7 @@ namespace FlavorTagDiscriminants {
     return StatusCode::SUCCESS;
   }
 
-  void DL2Tool::decorate(const xAOD::Jet& jet) const {
+  void DL2Tool::decorate(const xAOD::BTagging& jet) const {
     ATH_MSG_DEBUG("Decoration from: " + m_props.nnFile);
     m_dl2->decorate(jet);
   }

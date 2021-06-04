@@ -16,6 +16,10 @@ namespace {
   void set_merge_gcc6p2(std::set<T>& target, const std::set<T>& src) {
     target.insert(src.begin(), src.end());
   }
+
+  const std::string jetLinkName = "jetLink";
+  const std::string trackLinkName = "BTagTrackToJetAssociator";
+
 }
 
 
@@ -30,6 +34,7 @@ namespace FlavorTagDiscriminants {
            FlipTagConfig flipConfig,
            std::map<std::string, std::string> out_remap,
            OutputType output_type):
+    m_jetLink(jetLinkName),
     m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config,graph_config.outputs.begin()->first)),
     m_variable_cleaner(nullptr)
@@ -84,6 +89,8 @@ namespace FlavorTagDiscriminants {
       }
       m_trackSequenceBuilders.push_back(track_getter);
       m_dataDependencyNames.trackInputs = track_data_deps;
+      m_dataDependencyNames.bTagInputs.insert(jetLinkName);
+      m_dataDependencyNames.bTagInputs.insert(trackLinkName);
     }
 
     // set up outputs
@@ -131,11 +138,11 @@ namespace FlavorTagDiscriminants {
     }
   }
 
-  void DL2::decorate(const xAOD::Jet& jet) const {
+  void DL2::decorate(const xAOD::BTagging& btag) const {
     using namespace internal;
     std::vector<NamedVar> vvec;
     for (const auto& getter: m_varsFromBTag) {
-      vvec.push_back(getter(jet));
+      vvec.push_back(getter(btag));
     }
     std::map<std::string, std::map<std::string, double> > nodes;
     if (m_variable_cleaner) {
@@ -149,9 +156,14 @@ namespace FlavorTagDiscriminants {
     }
 
     // add track sequences
+    auto jetLink = m_jetLink(btag);
+    if (!jetLink.isValid()) {
+      throw std::runtime_error("invalid jetLink");
+    }
+    const xAOD::Jet& jet = **jetLink;
     std::map<std::string,std::map<std::string, std::vector<double>>> seqs;
     for (const auto& builder: m_trackSequenceBuilders) {
-      Tracks sorted_tracks = builder.tracksFromJet(jet);
+      Tracks sorted_tracks = builder.tracksFromJet(jet, btag);
       Tracks flipped_tracks = builder.flipFilter(sorted_tracks, jet);
       for (const auto& seq_builder: builder.sequencesFromTracks) {
         seqs[builder.name].insert(seq_builder(jet, flipped_tracks));
@@ -164,8 +176,7 @@ namespace FlavorTagDiscriminants {
       // the second argument to compute(...) is for sequences
       auto out_vals = m_graph->compute(nodes, seqs, dec.first);
       for (const auto& node: dec.second) {
-        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
-        node.second(*btag, out_vals.at(node.first));
+        node.second(btag, out_vals.at(node.first));
       }
     }
   }
@@ -177,7 +188,7 @@ namespace FlavorTagDiscriminants {
   DL2::TrackSequenceBuilder::TrackSequenceBuilder(SortOrder order,
                                                   TrackSelection selection,
                                                   FlipTagConfig flipcfg):
-    tracksFromJet(order, selection),
+    tracksFromJet(order, selection, trackLinkName),
     flipFilter(internal::get::flipFilter(flipcfg).first)
   {
   }
@@ -189,17 +200,18 @@ namespace FlavorTagDiscriminants {
   namespace internal {
 
     // Track Getter Class
-    TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection):
-      m_trackAssociator("BTagTrackToJetAssociator"),
+    TracksFromJet::TracksFromJet(SortOrder order,
+                                 TrackSelection selection,
+                                 const std::string& track_link_name):
+      m_trackAssociator(track_link_name),
       m_trackSortVar(get::trackSortVar(order)),
       m_trackFilter(get::trackFilter(selection).first)
     {
     }
-    Tracks TracksFromJet::operator()(const xAOD::Jet& jet) const {
-      const xAOD::BTagging *btagging = xAOD::BTaggingUtilities::getBTagging( jet );
-      if (!btagging) throw std::runtime_error("can't find btagging object");
+    Tracks TracksFromJet::operator()(const xAOD::Jet& jet,
+                                     const xAOD::BTagging& btagging) const {
       std::vector<std::pair<double, const xAOD::TrackParticle*>> tracks;
-      for (const auto &link : m_trackAssociator(*btagging)) {
+      for (const auto &link : m_trackAssociator(btagging)) {
         if(!link.isValid()) {
           throw std::logic_error("invalid track link");
         }
