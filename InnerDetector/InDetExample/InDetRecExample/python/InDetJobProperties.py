@@ -1263,6 +1263,12 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class maskTRToutOfTimeBits(InDetFlagsJobProperty): 
+  """Masks out of time bits in TRT raw data similar to supression in data""" 
+  statusOn     = False 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2903,7 +2909,8 @@ _list_InDetJobProperties = [Enabled,
                             doStoreTrackSeeds,
                             doStoreTrackCandidates,
                             doHIP300,
-                            checkDeadElementsOnTrack
+                            checkDeadElementsOnTrack,
+                            maskTRToutOfTimeBits
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

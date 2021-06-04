@@ -108,6 +108,7 @@ class ConfiguredInDetPreProcessingTRT:
                                                                MaskFirstHTBitArgon                  = False,
                                                                MaskMiddleHTBitArgon                 = False,
                                                                MaskLastHTBitArgon                   = False,
+                                                               MaskOutOfTimeBits                    = InDetFlags.maskTRToutOfTimeBits(),
                                                                useDriftTimeHTCorrection        = True,
                                                                useDriftTimeToTCorrection       = True) # reenable ToT
 
