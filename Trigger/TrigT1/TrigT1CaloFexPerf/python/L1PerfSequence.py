@@ -161,9 +161,11 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         OutputTowers = "JTowersPerf",
     )
 
-    l1simAlgSeq += LVL1__FwdCellReader(
-	cellEtCut=100
-    )
+    if(simflags.Calo.ComputeFFexElectrons() ):
+        #This algorithm only runs on AllCalo at the moment, so it doesn't necessarily work on MC without the emulation enabled or AlLCalo available... 
+        l1simAlgSeq += LVL1__FwdCellReader( 
+	    cellEtCut=100
+        )
 
     l1simAlgSeq += LVL1__JGTowerNoiseAlg(
         "JTowerNoiseAlg",
