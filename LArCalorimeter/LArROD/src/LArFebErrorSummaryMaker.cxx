@@ -74,6 +74,12 @@ StatusCode LArFebErrorSummaryMaker::initialize()
   ATH_CHECK( m_writeKey.initialize() );
   ATH_CHECK( m_bfKey.initialize());
 
+
+  //Set error counters to 0
+  for (unsigned int i=0;i<LArFebErrorSummary::N_LArFebErrorType;++i){
+    m_errors[i]=0;
+  }
+
   ATH_MSG_INFO(" initialized "  );
 
   return StatusCode::SUCCESS ; 
@@ -307,7 +313,7 @@ StatusCode LArFebErrorSummaryMaker::finalize()
 
   for (unsigned int i=0;i<LArFebErrorSummary::N_LArFebErrorType;++i){
     uint16_t err = 1<<i; 
-    ATH_MSG_INFO( " type, name, count = " << i << " " << LArFebErrorSummary::error_to_string(err) << " " << m_errors[i]  );
+    ATH_MSG_INFO( " type, name, count = " << i << " " << LArFebErrorSummary::error_to_string(err) << " " << m_errors[i].load()  );
   }
   
   return StatusCode::SUCCESS;
