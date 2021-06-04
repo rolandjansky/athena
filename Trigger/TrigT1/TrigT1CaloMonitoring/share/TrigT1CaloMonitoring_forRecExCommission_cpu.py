@@ -28,7 +28,7 @@ if l1caloRawMon:
     Offline = not athenaCommonFlags.isOnline
     isData  = (globalflags.DataSource() == "data")
     isCalo  = (rec.doCalo() and rec.doLArg() and rec.doTile())
-    triggerConfigService = "TrigConf::TrigConfigSvc/TrigConfigSvc"
+    triggerConfigService = "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
 
     #================================= Monitoring configuration ======================
     from AthenaCommon.AlgSequence import AlgSequence
