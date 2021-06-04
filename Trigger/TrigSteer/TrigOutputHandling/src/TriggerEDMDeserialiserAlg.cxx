@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstring>
@@ -72,14 +72,15 @@ namespace  {
  * Collection of helper functions for raw pointer operations on the bytestream payload
  *
  * Most functions can be constexpr if the compiler implements ConstexprIterator (P0858R0)
- * Tested it works in clang9+ regardless of --std flag and in gcc10+ only with --std=c++20
+ * Tested it works in clang9 (and 10 and 11?) regardless of --std flag and in gcc10+ only with --std=c++20
+ * But clang12 requires --std=c++20.
  * TODO: Remove the C++ version checks when the release is built with --std=c++20 or newer
  */
 namespace PayloadHelpers {
   using TDA = TriggerEDMDeserialiserAlg;
 
   /// CLID of the collection stored in the next fragment
-  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  #if __cpp_lib_array_constexpr >= 201811L
   constexpr
   #endif
   CLID collectionCLID(TDA::PayloadIterator start) {
@@ -87,7 +88,7 @@ namespace PayloadHelpers {
   }
 
   /// Length of the serialised name payload
-  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  #if __cpp_lib_array_constexpr >= 201811L
   constexpr
   #endif
   size_t nameLength(TDA::PayloadIterator start) {
@@ -95,7 +96,7 @@ namespace PayloadHelpers {
   }
 
   /// Size in bytes of the buffer that is needed to decode next fragment data content
-  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  #if __cpp_lib_array_constexpr >= 201811L
   constexpr
   #endif
   size_t dataSize(TDA::PayloadIterator start) {
@@ -107,7 +108,7 @@ namespace PayloadHelpers {
    *
    * Intended to be used like this: start = advance(start); if ( start != data.end() )... decode else ... done
    **/
-  #if __cpp_lib_array_constexpr >= 201811L || __clang_major__ >= 9
+  #if __cpp_lib_array_constexpr >= 201811L
   constexpr
   #endif
   TDA::PayloadIterator toNextFragment(TDA::PayloadIterator start) {
