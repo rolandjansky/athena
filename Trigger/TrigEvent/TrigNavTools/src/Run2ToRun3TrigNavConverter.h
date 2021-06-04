@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGNAVTOOLS_RUN2TORUN3TRIGNAVCONVERTER_H
 #define TRIGNAVTOOLS_RUN2TORUN3TRIGNAVCONVERTER_H
@@ -48,7 +48,7 @@ private:
     Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {} };
     Gaudi::Property<std::vector<std::string>> m_roisToSave{ this, "Rois", {} };
 
-    ServiceHandle< TrigConf::IHLTConfigSvc > m_configSvc { this, "HLTConfigSvc", "HLTConfigSvc", "HLTConfig Service" };
+    ServiceHandle< TrigConf::IHLTConfigSvc > m_configSvc { this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc", "Trigger configuration service" };
     ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class name" };
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigNavWriteKey { this, "TrigNavWriteKey", "HLTNav_All" };
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigSummaryWriteKey { this, "TrigSummaryWriteKey", "HLTNav_Summary" };
