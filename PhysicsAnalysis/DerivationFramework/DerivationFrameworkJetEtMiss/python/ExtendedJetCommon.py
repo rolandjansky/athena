@@ -496,7 +496,7 @@ def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",tra
         # Calibration tool specific for pFlow fJVT: without GSC and smearing
         jetcalibtoolname = 'DFJetCalib_PFfJvt_'+jetalg
         if hasattr(ToolSvc, jetcalibtoolname):
-            jetaugtool.JetCalibToolfJvt = getattr(ToolSvc,jetcalibtoolname)
+            jetcalibrationtool = getattr(ToolSvc,jetcalibtoolname)
         else:
             jetcalibrationtool = CfgMgr.JetCalibrationTool(jetcalibtoolname,
                                                            JetCollection=jetalg,
