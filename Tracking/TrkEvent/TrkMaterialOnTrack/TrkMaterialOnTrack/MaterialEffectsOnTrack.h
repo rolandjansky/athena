@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKMATERIALEFFECTSONTRACK_MATERIALEFFECTSONTRACK_H
@@ -53,7 +53,7 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
                           const ScatteringAngles* scat, 
                           const Trk::EnergyLoss* eloss,
                           const Surface& assocSurf,
-                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
    
    /** @brief partial constructor passing (with ownership) a scattering angle object
     @param[in] tInX0 layer thickness in terms of rad length
@@ -64,7 +64,7 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
    MaterialEffectsOnTrack(const double tInX0,
                           const ScatteringAngles* scat,
                           const Surface& assocSurf,
-                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
 
    /** @brief partial constructor passing (with ownership) an energy loss object
     @param[in] tInX0 layer thickness in terms of rad length
@@ -75,7 +75,7 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
    MaterialEffectsOnTrack(const double tInX0,
                           const EnergyLoss* eloss,
                           const Surface& assocSurf,
-                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
 
    /** @brief partial constructor with only a thickness, input to ME-Updator
     @param[in] tInX0 layer thickness in terms of rad length
