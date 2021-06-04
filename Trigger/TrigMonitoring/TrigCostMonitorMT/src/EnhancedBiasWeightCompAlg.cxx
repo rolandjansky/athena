@@ -133,11 +133,9 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
         auto resultPair = std::make_pair<int, bool>(result.weight, result.isUnbiased);
         auto newPair = std::find(m_ebWeights.begin(), m_ebWeights.end(), resultPair);
         if (newPair == m_ebWeights.end()){
-            m_ebWeights.push_back(resultPair);
-            m_eventToWeight[context.eventID().event_number()] = m_ebWeights.size() - 1;
-        } else {
-            m_eventToWeight[context.eventID().event_number()] = newPair - m_ebWeights.begin();
+            newPair = m_ebWeights.push_back(resultPair);
         }
+        m_eventToWeight[context.eventID().event_number()] = std::distance(m_ebWeights.begin(), newPair);
     }
 
     ATH_MSG_DEBUG("EnhacedBias EBWeight: " << result.weight << " EnhacedBias isUnbiased: " << (bool) result.isUnbiased );
