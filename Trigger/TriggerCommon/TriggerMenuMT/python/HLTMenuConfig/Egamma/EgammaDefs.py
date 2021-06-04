@@ -139,16 +139,19 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
     SelectorNames = OrderedDict({
         'medium': 'AsgElectronIsEMSelectorHIMedium',
         'loose': 'AsgElectronIsEMSelectorHILoose',
+        'mergedtight'  : 'AsgElectronIsEMSelectorMergedTight',
     })
 
     ElectronToolConfigFile = {
         'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
         'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
+        'mergedtight'  : 'ElectronIsEMMergedTightSelectorCutDefs.conf',
     }
 
     ElectronMaskBits = {
         'medium': ElectronMediumHI,
         'loose': ElectronLooseHI,
+        'mergedtight'  : egammaPID.ElectronTightHLT,
     }
 
     selectors = []

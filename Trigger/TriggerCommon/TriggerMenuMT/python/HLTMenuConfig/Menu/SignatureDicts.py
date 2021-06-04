@@ -473,7 +473,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
+    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight', 'mergedtight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
     'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],
