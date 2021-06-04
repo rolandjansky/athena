@@ -49,7 +49,6 @@
 // External libraries
 #include "tbb/tick_count.h"
 
-#include "ClearStorePolicy.h"
 
 
 //=========================================================================
@@ -84,12 +83,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
 		  "(DEFAULT). 2: RECOVERABLE and FAILURE skip to next events");
   declareProperty("EventPrintoutInterval", m_eventPrintoutInterval=1,
                   "Print event heartbeat printouts every m_eventPrintoutInterval events");
-  declareProperty("ClearStorePolicy",
-		  m_clearStorePolicy = "EndEvent",
-		  "Configure the policy wrt handling of when the "
-		  "'clear-the-event-store' event shall happen: at EndEvent "
-		  "(default as it is makes things easier for memory management"
-		  ") or at BeginEvent (easier e.g. for interactive use)");
   declareProperty("PreSelectTools",m_tools,"AlgTools for event pre-selection")->
     declareUpdateHandler( &AthenaHiveEventLoopMgr::setupPreSelectTools, this ); ;
   
@@ -304,14 +297,6 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   }  
 
 //-------------------------------------------------------------------------
-// Setup 'Clear-Store' policy
-//-------------------------------------------------------------------------
-  try {
-    setClearStorePolicy( m_clearStorePolicy );
-  } catch(...) {
-    return StatusCode::FAILURE;
-  }
-//-------------------------------------------------------------------------
 // Make sure the ActiveStoreSvc is initialized.
 // We don't use this, but want to be sure that it gets created
 // during initialization, to avoid heap fragmentation.
@@ -323,8 +308,9 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     return sc;
   }
 
-  // Listen to the BeforeFork incident
+  // Listen to the BeforeFork and EventWritten incidents
   m_incidentSvc->addListener(this,"BeforeFork",0);
+  m_incidentSvc->addListener(this, "EventWritten",0);
 
   CHECK( m_conditionsCleaner.retrieve() );
 
@@ -346,25 +332,6 @@ AthenaHiveEventLoopMgr::eventStore() const {
 //=========================================================================
 // property handlers
 //=========================================================================
-void
-AthenaHiveEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
-  const std::string& policyName = m_clearStorePolicy.value();
-
-  if ( policyName != "BeginEvent" &&
-       policyName != "EndEvent" ) {
-
-    fatal() << "Unknown policy [" << policyName 
-            << "] for the 'ClearStore-policy !\n"
-            << "           Valid values are: BeginEvent, EndEvent"
-            << endmsg;
-    throw GaudiException("Can not setup 'ClearStore'-policy",
-			 name(),
-			 StatusCode::FAILURE);
-  }
-
-  return;
-}
-
 void
 AthenaHiveEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
 
@@ -908,6 +875,17 @@ int AthenaHiveEventLoopMgr::size()
 void AthenaHiveEventLoopMgr::handle(const Incident& inc)
 {
 
+  if(inc.type() == "EventWritten") {
+    // Clear the store at the end of the event.
+    // Do it here so that it executes in an algorithm context and thus
+    // multiple stores can be cleared at the same time.
+    StatusCode sc = m_whiteboard->clearStore(inc.context().slot());
+    if( !sc.isSuccess() )  {
+      warning() << "Clear of Event data store failed" << endmsg;    
+    }
+    return;
+  }
+
   if(inc.type()!="BeforeFork")
     return;
 
@@ -960,12 +938,9 @@ void AthenaHiveEventLoopMgr::handle(const Incident& inc)
   m_currentRun = pEvent->event_ID()->run_number();
 
   // Clear Store
-  const ClearStorePolicy::Type s_clearStore = clearStorePolicy( m_clearStorePolicy.value(), msgStream() );
-  if(s_clearStore==ClearStorePolicy::EndEvent) {
-    sc = eventStore()->clearStore();
-    if(!sc.isSuccess()) {
-      error() << "Clear of Event data store failed" << endmsg;
-    }
+  sc = eventStore()->clearStore();
+  if(!sc.isSuccess()) {
+    error() << "Clear of Event data store failed" << endmsg;
   }
 }
 
@@ -1347,10 +1322,6 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 //---------------------------------------------------------------------------
 
 StatusCode AthenaHiveEventLoopMgr::clearWBSlot(int evtSlot)  {
-  StatusCode sc = m_whiteboard->clearStore(evtSlot);
-  if( !sc.isSuccess() )  {
-    warning() << "Clear of Event data store failed" << endmsg;    
-  }
   return m_whiteboard->freeStore(evtSlot);  
 }
 //---------------------------------------------------------------------------
