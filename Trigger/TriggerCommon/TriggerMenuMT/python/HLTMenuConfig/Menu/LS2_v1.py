@@ -281,10 +281,10 @@ def setupMenu():
         ChainProp(name='HLT_xe110_pfsum_cssk_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe110_pfsum_vssk_L1XE50', groups=SingleMETGroup),
         # MultiMET Chain
-        ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE30', l1SeedThresholds=['XE30']*2, groups=MultiMETGroup), #must be FS seeded
+        ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE30', l1SeedThresholds=['FSNOSEED']*2, groups=MultiMETGroup), #must be FS seeded
         # ATR-21934
-        ChainProp(name='HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50',l1SeedThresholds=['XE50']*3,  groups=PrimaryLegGroup+MultiMETGroup),
-        ChainProp(name='HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50', l1SeedThresholds=['XE50']*3,  groups=PrimaryLegGroup+MultiMETGroup),
+        ChainProp(name='HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50',l1SeedThresholds=['FSNOSEED']*3,  groups=PrimaryLegGroup+MultiMETGroup),
+        ChainProp(name='HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50', l1SeedThresholds=['FSNOSEED']*3,  groups=PrimaryLegGroup+MultiMETGroup),
     ]
 
 
@@ -746,8 +746,8 @@ def setupMenu():
         ChainProp(name='HLT_g15_loose_2mu10_msonly_L12MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaMuonGroup),
 
         # Test chains for muon + jet/MET merging/aligning
-        ChainProp(name='HLT_mu6_xe30_mht_L1XE30', l1SeedThresholds=['MU6','XE30'], stream=[PhysicsStream], groups=MuonMETGroup),
-        ChainProp(name='HLT_mu6_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], stream=[PhysicsStream], groups=MuonJetGroup),
+        ChainProp(name='HLT_mu6_xe30_mht_L1XE30', l1SeedThresholds=['MU6','FSNOSEED'], stream=[PhysicsStream], groups=MuonMETGroup),
+        ChainProp(name='HLT_mu6_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','FSNOSEED'], stream=[PhysicsStream], groups=MuonJetGroup),
 
         #ATR-22107
         ChainProp(name='HLT_e24_lhmedium_mu8noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
@@ -874,25 +874,25 @@ def setupMenu():
     TriggerFlags.UnconventionalTrackingSlice.signatures = TriggerFlags.UnconventionalTrackingSlice.signatures() + [
 
         #These chains are temproray to get final rates, they will be reduced to a few chains in the future
-        ChainProp(name='HLT_unconvtrk50_isohpttrack_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk50_isohpttrack_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
 
 
         ChainProp(name='HLT_unconvtrk0_fslrt_L1All', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
 
         # dEdx triggers
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk25_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk50_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk25_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk50_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED','FSNOSEED']),
     ]
