@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaConditions/EMInsituDatabaseEntry.h"
@@ -17,7 +17,7 @@ EMInsituDatabaseEntry::EMInsituDatabaseEntry()
 
 
 /** Constructor Defining DatabaseID*/
-EMInsituDatabaseEntry::EMInsituDatabaseEntry(std::string dbaseID)
+EMInsituDatabaseEntry::EMInsituDatabaseEntry(const std::string& dbaseID)
 {
 	clear();
 	setDatabaseID(std::move(dbaseID));
@@ -26,30 +26,6 @@ EMInsituDatabaseEntry::EMInsituDatabaseEntry(std::string dbaseID)
 /** Default Destructor*/
 EMInsituDatabaseEntry::~EMInsituDatabaseEntry()
 {
-}
-
-/** Copy Constructor*/
-EMInsituDatabaseEntry::EMInsituDatabaseEntry(const EMInsituDatabaseEntry& ob)
-{
-// 	m_ID		= ob.m_ID;
-	m_DatabaseID	= ob.m_DatabaseID;
-	m_vecString	= ob.m_vecString;
-	m_vecFloat_Data	= ob.m_vecFloat_Data;
-	m_vecInt_Data	= ob.m_vecInt_Data;
-	m_vecFloat_Info	= ob.m_vecFloat_Info;
-	m_vecInt_Info	= ob.m_vecInt_Info;
-}
-
-EMInsituDatabaseEntry& EMInsituDatabaseEntry::operator = (const EMInsituDatabaseEntry& ob)
-{
-  //	m_ID		= ob.m_ID;
-	m_DatabaseID	= ob.m_DatabaseID;
-	m_vecString	= ob.m_vecString;
-	m_vecFloat_Data	= ob.m_vecFloat_Data;
-	m_vecInt_Data	= ob.m_vecInt_Data;
-	m_vecFloat_Info	= ob.m_vecFloat_Info;
-	m_vecInt_Info	= ob.m_vecInt_Info;
-        return *this;
 }
 
 /** Fill this EMInsituDatabaseEntry from given APEfficiencyMatrix*/
