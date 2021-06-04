@@ -130,13 +130,14 @@ def setupMenu():
         ChainProp(name='HLT_e5_dnntight_L1EM3', groups=SingleElectronGroup),
 
         # lrt chains
-        ChainProp(name='HLT_e5_lhloose_lrtloose_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhmedium_lrtmedium_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhtight_lrttight_L1EM3', groups=SingleElectronGroup),
+        # Commented out: ATR-23564
+        # ChainProp(name='HLT_e5_lhloose_lrtloose_L1EM3', groups=SingleElectronGroup),
+        # ChainProp(name='HLT_e5_lhmedium_lrtmedium_L1EM3', groups=SingleElectronGroup),
+        # ChainProp(name='HLT_e5_lhtight_lrttight_L1EM3', groups=SingleElectronGroup),
 
-        ChainProp(name='HLT_e26_lhloose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhmedium_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        # ChainProp(name='HLT_e26_lhloose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        # ChainProp(name='HLT_e26_lhmedium_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        # ChainProp(name='HLT_e26_lhtight_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
 
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
