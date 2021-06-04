@@ -3,22 +3,22 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef I_SINGLE_JET_DECORATOR_H
-#define I_SINGLE_JET_DECORATOR_H
+#ifndef I_BTAG_DECORATOR_H
+#define I_BTAG_DECORATOR_H
 
 #include "AsgTools/IAsgTool.h"
-#include "xAODJet/Jet.h"
+#include "xAODBTagging/BTagging.h"
 
-class ISingleJetDecorator : virtual public asg::IAsgTool {
-ASG_TOOL_INTERFACE(ISingleJetDecorator)
+class IBTagDecorator : virtual public asg::IAsgTool {
+ASG_TOOL_INTERFACE(IBTagDecorator)
 
 public:
 
   /// Destructor.
-  virtual ~ISingleJetDecorator() { };
+  virtual ~IBTagDecorator() { };
 
   /// Method to decorate a jet.
-  virtual void decorate(const xAOD::Jet& jet) const = 0;
+  virtual void decorate(const xAOD::BTagging& btag) const = 0;
 
   // Names of the decorations being added
   virtual std::set<std::string> getDecoratorKeys() const = 0;

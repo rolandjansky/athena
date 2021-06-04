@@ -328,9 +328,10 @@ def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, 
     HLBTagSeq = AthSequencer(sequenceName, Sequential = True)
     result.addSequence(HLBTagSeq)
 
-    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, JetCollection=JetCollection, BTagCollection=BTagCollection, Associator = Associator), sequenceName=sequenceName )
+    tracks = 'InDetTrackParticles'
+    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, JetCollection=JetCollection, BTagCollection=BTagCollection, Associator=Associator, TrackCollection=tracks), sequenceName=sequenceName )
     for dl2 in TrainingMaps:
-        result.merge(HighLevelBTagAlgCfg(inputFlags, BTagCollection, 'InDetTrackParticles', dl2), sequenceName=sequenceName )
+        result.merge(HighLevelBTagAlgCfg(inputFlags, BTagCollection, TrackCollection=tracks, NNFile=dl2), sequenceName=sequenceName )
 
     return result
 
