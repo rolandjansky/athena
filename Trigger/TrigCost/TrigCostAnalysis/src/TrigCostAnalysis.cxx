@@ -110,12 +110,21 @@ StatusCode TrigCostAnalysis::start() {
     }
   }
 
-  // Save identifiers for additional HLTJobOptions map
+  // Save identifiers and classes for additional HLTJobOptions map
   if (not m_additionalHashList.empty()){
     for (const std::string& entry : m_additionalHashList){
-      HLT::Identifier(std::string(entry));
-      TrigConf::HLTUtils::string2hash(entry, "ALG");
+      size_t breakPoint = entry.find("/");
+      if (breakPoint != std::string::npos){
+        std::string algType = entry.substr(0, breakPoint);
+        const std::string algName = entry.substr(breakPoint+1, entry.size());
+        while(algType.find(":") != std::string::npos) {
+          algType.replace(algType.find(":"), 1, "_");
+        }
+        m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
+      } else {
+        TrigConf::HLTUtils::string2hash(entry, "ALG");
       }
+    }
   }
 
   // As an initial guess, 25 should be a good uper maximum for the number of expected View instances.
