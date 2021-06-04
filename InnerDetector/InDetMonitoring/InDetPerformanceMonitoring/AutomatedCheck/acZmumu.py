@@ -546,6 +546,9 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     if ("NONE" not in m_userExtOutFile):
         theExtraOptions = " --extOutFile %s" %(m_userExtOutFile)
 
+    # SALVA: trying to remove the request of AOD.pool.root which we don't produce 
+    theExtraOptions = "%s --supStream StreamAOD" %(theExtraOptions)
+
     theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print ('%s ' %theCommand)
 
