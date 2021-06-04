@@ -32,7 +32,7 @@ atlas_add_library( JetRecLib
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( JetRec
-    src/*.h src/*.cxx src/components/*.cxx
+    src/components/*.cxx
     LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AthenaBaseComps GaudiKernel JetEDM JetInterface JetRecLib StoreGateLib xAODJet xAODMuon AnaAlgorithmLib )
 endif()
 
