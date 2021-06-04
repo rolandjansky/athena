@@ -6887,34 +6887,6 @@ HLT_unconvtrk50_isohpttrack_L1XE50:
   stepFeatures:
     0: 9
     1: 1
-HLT_xe100_mht_L1XE50:
-  eventCount: 8
-  stepCounts:
-    0: 8
-  stepFeatures:
-    0: 8
-HLT_xe100_pfsum_L1XE50:
-  eventCount: 4
-  stepCounts:
-    0: 9
-    1: 4
-  stepFeatures:
-    0: 9
-    1: 4
-HLT_xe100_tcpufit_L1XE50:
-  eventCount: 5
-  stepCounts:
-    0: 5
-  stepFeatures:
-    0: 5
-HLT_xe100_trkmht_L1XE50:
-  eventCount: 7
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 9
-    1: 7
 HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50:
   eventCount: 4
   stepCounts:
@@ -7077,12 +7049,6 @@ HLT_xe60_cell_xe95_pfsum_cssk_L1XE50:
   stepFeatures:
     0: 15
     1: 5
-HLT_xe65_cell_L1XE50:
-  eventCount: 6
-  stepCounts:
-    0: 6
-  stepFeatures:
-    0: 6
 HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1XE50:
   eventCount: 5
   stepCounts:

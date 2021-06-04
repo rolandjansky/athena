@@ -265,15 +265,6 @@ def setupMenu():
         ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', groups=SingleMETGroup),
 
-        ChainProp(name='HLT_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe60_cell_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe90_pfsum_vssk_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe65_cell_xe105_mhtpufit_em_subjesgscIS_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=SingleMETGroup),
-        ChainProp(name='HLT_xe65_cell_xe95_pfsum_vssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=SingleMETGroup),
-
         ChainProp(name='HLT_xe110_tc_em_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe110_mht_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe110_tcpufit_L1XE50', groups=SingleMETGroup),
