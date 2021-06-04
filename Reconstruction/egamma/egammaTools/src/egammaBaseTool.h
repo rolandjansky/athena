@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EGAMMABASETOOL_H
@@ -29,8 +29,8 @@ class egammaBaseTool
 
 public:
   /** @brief Default constructor*/
-  egammaBaseTool(const std::string& name,
-                 const std::string& description,
+  egammaBaseTool(const std::string& type,
+                 const std::string& name,
                  const IInterface* parent);
   /** @brief destructor*/
   virtual ~egammaBaseTool() = default;
