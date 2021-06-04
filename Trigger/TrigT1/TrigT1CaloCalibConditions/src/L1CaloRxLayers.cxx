@@ -9,17 +9,17 @@ L1CaloRxLayers::L1CaloRxLayers() :
 {}
 
 L1CaloRxLayers::L1CaloRxLayers(unsigned int channelId,
-                               const std::vector<int>& names,
-			       const std::vector<int>& ncells) :
+                               std::vector<int>&& names,
+			                   std::vector<int>&& ncells) :
   m_channelId(channelId),
-  m_names(names),
-  m_ncells(ncells)
+  m_names(std::move(names)),
+  m_ncells(std::move(ncells))
 {}
   
 L1CaloRxLayers::L1CaloRxLayers(const L1CaloRxCoolChannelId& channelId,
-                               const std::vector<int>& names,
-			       const std::vector<int>& ncells) :
+                               std::vector<int>&& names,
+			                   std::vector<int>&& ncells) :
   m_channelId(channelId),
-  m_names(names),
-  m_ncells(ncells)
+  m_names(std::move(names)),
+  m_ncells(std::move(ncells))
 {}

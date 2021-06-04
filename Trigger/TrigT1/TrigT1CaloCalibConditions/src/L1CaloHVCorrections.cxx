@@ -11,20 +11,20 @@ L1CaloHVCorrections::L1CaloHVCorrections() :
 
 L1CaloHVCorrections::L1CaloHVCorrections(unsigned int channelId,
 					 float rxMean,
-                                         const std::vector<int>& affectedCells,
-				         const std::vector<float>& layerMeans) :
+                         std::vector<int> &&affectedCells,
+				         std::vector<float> &&layerMeans) :
   m_channelId(channelId),
   m_rxMean(rxMean),
-  m_affectedCells(affectedCells),
-  m_layerMeans(layerMeans)
+  m_affectedCells(std::move(affectedCells)),
+  m_layerMeans(std::move(layerMeans))
 {}
   
 L1CaloHVCorrections::L1CaloHVCorrections(const L1CaloRxCoolChannelId& channelId,
 					 float rxMean,
-                                         const std::vector<int>& affectedCells,
-				         const std::vector<float>& layerMeans) :
+                     std::vector<int> &&affectedCells,
+				     std::vector<float> &&layerMeans) :
   m_channelId(channelId),
   m_rxMean(rxMean),
-  m_affectedCells(affectedCells),
-  m_layerMeans(layerMeans)
+  m_affectedCells(std::move(affectedCells)),
+  m_layerMeans(std::move(layerMeans))
 {}

@@ -21,11 +21,11 @@ class L1CaloRxLayers final
 
     L1CaloRxLayers();
     L1CaloRxLayers(unsigned int channelId,
-                      const std::vector<int>& names,
-	     	      const std::vector<int>& ncells);
+                      std::vector<int>&& names,
+	     	          std::vector<int>&& ncells);
     L1CaloRxLayers(const L1CaloRxCoolChannelId& channelId,
-                      const std::vector<int>& names,
-		      const std::vector<int>& ncells);
+                   std::vector<int>&& names,
+		           std::vector<int>&& ncells);
     
     ~L1CaloRxLayers() = default;
 
