@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,6 +30,8 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_hs_reco_eff(nullptr),
     m_vx_hs_sel_eff(nullptr),
     m_vx_hs_sel_loose_eff(nullptr),
+    m_vx_hs_reco_eff_nTruth(nullptr),
+    m_vx_hs_sel_eff_nTruth(nullptr),
     m_vx_hs_reco_long_reso(nullptr),
     m_vx_hs_reco_trans_reso(nullptr),
     m_vx_hs_truth_long_reso_vs_PU(nullptr),
@@ -62,6 +64,8 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
     book(m_vx_hs_reco_eff,"vx_hs_reco_eff");
     book(m_vx_hs_sel_eff,"vx_hs_sel_eff");
     book(m_vx_hs_sel_loose_eff,"vx_hs_sel_loose_eff");
+    book(m_vx_hs_reco_eff_nTruth,"vx_hs_reco_eff_nTruth");
+    book(m_vx_hs_sel_eff_nTruth,"vx_hs_sel_eff_nTruth");
     book(m_vx_hs_reco_long_reso,"vx_hs_reco_long_reso");
     book(m_vx_hs_reco_trans_reso,"vx_hs_reco_trans_reso");
     book(m_vx_hs_truth_long_reso,"vx_hs_truth_long_reso");
@@ -325,22 +329,23 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
     if (truthHSVertices.size() != 0) {
         float localPUDensity = getLocalPUDensity(truthHSVtx, truthHSVertices, truthPUVertices);
 
+	fillHisto(m_vx_hs_reco_eff, localPUDensity, truthHSVtxRecoed);
+	fillHisto(m_vx_hs_reco_eff_nTruth, nTruthVertices, truthHSVtxRecoed);
+
         if (truthHSVtxRecoed) {
-            fillHisto(m_vx_hs_reco_eff, localPUDensity, 1);
             fillHisto(m_vx_hs_reco_long_reso, localPUDensity, getRecoLongitudinalReso(bestRecoHSVtx_truth));
             fillHisto(m_vx_hs_reco_trans_reso, localPUDensity, getRecoTransverseReso(bestRecoHSVtx_truth));
             fillHisto(m_vx_hs_truth_long_reso_vs_PU, localPUDensity, truthHSVtx->z() - bestRecoHSVtx_truth->z());
             fillHisto(m_vx_hs_truth_trans_reso_vs_PU, localPUDensity, std::sqrt(std::pow(truthHSVtx->x() - bestRecoHSVtx_truth->x(), 2) + std::pow(truthHSVtx->y() - bestRecoHSVtx_truth->y(), 2)));
         }
-        else {
-            fillHisto(m_vx_hs_reco_eff, localPUDensity, 0);
-        }
 
-	fillHisto(m_vx_hs_sel_eff, localPUDensity, (bestRecoHSVtx_sumpt2 == bestRecoHSVtx_truth));
+	fillHisto(m_vx_hs_sel_eff, localPUDensity, truthHSVtxRecoed && (bestRecoHSVtx_sumpt2 == bestRecoHSVtx_truth));
+	fillHisto(m_vx_hs_sel_eff_nTruth, nTruthVertices, truthHSVtxRecoed && (bestRecoHSVtx_sumpt2 == bestRecoHSVtx_truth));
+
 
 	xAOD::Vertex::Decorator<int> nHSTrkDecor("nHSTrk");
 	int nHSTrk = nHSTrkDecor( *bestRecoHSVtx_sumpt2 );
-	fillHisto(m_vx_hs_sel_loose_eff, localPUDensity, nHSTrk>0);
+	fillHisto(m_vx_hs_sel_loose_eff, localPUDensity, truthHSVtxRecoed && nHSTrk>0);
     }
 
     fillHisto(m_vx_nReco_vs_nTruth_matched, nTruthVertices, breakdown[InDetVertexTruthMatchUtils::VertexMatchType::MATCHED]);
