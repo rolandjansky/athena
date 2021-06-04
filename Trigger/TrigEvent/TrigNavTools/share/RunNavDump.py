@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__=='__main__':
@@ -36,10 +36,10 @@ if __name__=='__main__':
     from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
     cfg.merge(MetaDataSvcCfg(ConfigFlags))
 
-    confSvc = CompFactory.TrigConf.xAODConfigSvc("HLTConfigSvc")
+    confSvc = CompFactory.TrigConf.xAODConfigSvc("xAODConfigSvc")
     cfg.addService(confSvc)
     from AthenaCommon.Constants import DEBUG
-    alg = CompFactory.Run2ToRun3TrigNavConverter("TrigNavCnv", OutputLevel=DEBUG, HLTConfigSvc=confSvc)
+    alg = CompFactory.Run2ToRun3TrigNavConverter("TrigNavCnv", OutputLevel=DEBUG, TrigConfigSvc=confSvc)
     alg.doPrint = False
     alg.Collections = ["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer"]
     
