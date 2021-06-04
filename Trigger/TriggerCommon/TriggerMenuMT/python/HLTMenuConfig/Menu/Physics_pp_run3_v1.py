@@ -176,11 +176,15 @@ def setupMenu():
     ]
 
     TriggerFlags.METSlice.signatures = [
-        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup+BCIDmonGroup),
-        ChainProp(name='HLT_xe100_mht_L1XE50', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe100_tcpufit_L1XE50', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe100_trkmht_L1XE50', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe100_pfsum_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe60_cell_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe90_pfsum_vssk_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe65_cell_xe105_mhtpufit_em_subjesgscIS_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup),
+        ChainProp(name='HLT_xe65_cell_xe95_pfsum_vssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
+
         # MultiMET Chain
         ChainProp(name='HLT_xe65_cell_xe110_tcpufit_L1XE50',l1SeedThresholds=['XE50']*2, groups=MultiMETGroup), #must be FS seeded
     ]
