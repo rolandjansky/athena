@@ -145,8 +145,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInUpperLowerTrack" <<endmsg;
 
   //**The returned tracks */
-  Trk::Track* upperTrack(0);
-  Trk::Track* lowerTrack(0);
+  Trk::Track* upperTrack(nullptr);
+  Trk::Track* lowerTrack(nullptr);
   
   /**Get the initial perigee parameters*/
   Trk::Perigee const* originalPerigee = input.perigeeParameters();
@@ -155,8 +155,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   Trk::ParticleHypothesis hypo = input.info().particleHypothesis();
 
   /** Get the  measurements */
-  DataVector<const Trk::TrackStateOnSurface>* uppertraj = new DataVector<const Trk::TrackStateOnSurface>;
-  DataVector<const Trk::TrackStateOnSurface>* lowertraj = new DataVector<const Trk::TrackStateOnSurface>;
+  auto uppertraj = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto lowertraj = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
   
   unsigned int totalNumberHits = 0;
 
@@ -189,13 +189,18 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
       lowertraj->push_back((**tsosit).clone());
       continue;
     }
-    
-    if (m_keepmaterial && ((**tsosit).type(Trk::TrackStateOnSurface::Scatterer) || (**tsosit).type(Trk::TrackStateOnSurface::BremPoint) || (**tsosit).type(Trk::TrackStateOnSurface::CaloDeposit))){
-      if (!perigeeseen) uppertraj->push_back((**tsosit).clone());
-      else lowertraj->push_back((**tsosit).clone());
+
+    if (m_keepmaterial &&
+        ((**tsosit).type(Trk::TrackStateOnSurface::Scatterer) ||
+         (**tsosit).type(Trk::TrackStateOnSurface::BremPoint) ||
+         (**tsosit).type(Trk::TrackStateOnSurface::CaloDeposit))) {
+      if (!perigeeseen)
+        uppertraj->push_back((**tsosit).clone());
+      else
+        lowertraj->push_back((**tsosit).clone());
       continue;
     }
-    const Trk::RIO_OnTrack *rio = 0;
+    const Trk::RIO_OnTrack *rio = nullptr;
     const Trk::MeasurementBase *measb=(**tsosit).measurementOnTrack();
     if (measb) rio=dynamic_cast<const Trk::RIO_OnTrack*>(measb);
 
@@ -270,11 +275,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
 
   }
 
-  /** Sort the hits. */
-  //std::sort(m_upperHits.begin(), m_upperHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
-  //std::sort(m_lowerHits.begin(), m_lowerHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
-  Trk::Track upperorigtrack(input.info(),uppertraj,0);
-  Trk::Track lowerorigtrack(input.info(),lowertraj,0);
+  Trk::Track upperorigtrack(input.info(),std::move(uppertraj),nullptr);
+  Trk::Track lowerorigtrack(input.info(),std::move(lowertraj),nullptr);
   
   /** Upper track */
   if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
@@ -355,7 +357,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTrack(Trk::Track const& input,
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In stripTrack" <<endmsg;
 
   /** The returned track */
-  Trk::Track* outputTrack(0);
+  Trk::Track* outputTrack(nullptr);
 
   /** The strip the Si */
   if(removeSilicon){
@@ -376,7 +378,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripSiFromTrack" <<endmsg;
   
   /** The returned track */
-  Trk::Track* outputTrack(0);
+  Trk::Track* outputTrack(nullptr);
 
   /** The measurements */
   Trk::MeasurementSet TRTHits;
@@ -443,7 +445,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripTRTFromTrack" <<endmsg;
 
   /** The returned track */
-  Trk::Track* outputTrack(0);
+  Trk::Track* outputTrack(nullptr);
 
   /** The measurements */
   Trk::MeasurementSet SiHits;
@@ -524,7 +526,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
 Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstraint(Trk::Perigee const* perigee,Trk::StraightLineSurface const* trtSurf) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makePConstraint" <<endmsg;
   
-  if( !perigee->covariance() ) return 0;
+  if( !perigee->covariance() ) return nullptr;
   
   /** Define the constraint parameter
    */
@@ -552,7 +554,7 @@ Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstra
 Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0Constraint(Trk::Perigee const* perigee) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makeThetaZ0Constraint" <<endmsg;  
 
-  if( !perigee->covariance() ) return 0;
+  if( !perigee->covariance() ) return nullptr;
   
   /** Define the constraint parameters
    */
@@ -596,8 +598,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInOddEvenHitsTrack" <<endmsg;
 
   /** The returned tracks */
-  Trk::Track* oddTrack(0);
-  Trk::Track* evenTrack(0);
+  Trk::Track* oddTrack(nullptr);
+  Trk::Track* evenTrack(nullptr);
   
   /** Get the initial perigee parameters */
   Trk::Perigee const* originalPerigee = input.perigeeParameters();

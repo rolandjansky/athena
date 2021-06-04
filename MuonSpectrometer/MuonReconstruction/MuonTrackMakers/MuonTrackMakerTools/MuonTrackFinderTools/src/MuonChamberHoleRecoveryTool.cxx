@@ -172,12 +172,14 @@ namespace Muon {
         ATH_MSG_DEBUG(" track has stations: " << stations.size() << "   original states " << states.size() << " new states "
                                               << newStates.size());
         // states were added, create a new track
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
         trackStateOnSurfaces->reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces->push_back(nit.release()); }
-        std::unique_ptr<Trk::Track> newTrack =
-            std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
+          track.info(),
+          std::move(trackStateOnSurfaces),
+          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 
@@ -741,7 +743,13 @@ namespace Muon {
             const double pullCut = m_idHelperSvc->measuresPhi(id) ? m_associationPullCutPhi : m_associationPullCutEta;
             double pull = std::abs(resPull->pull().front());
             Amg::Vector2D locExPos(exPars->parameters()[Trk::locX], exPars->parameters()[Trk::locY]);
-            bool inbounds = surf.insideBounds(locExPos, 10., 10.);
+
+            bool inbounds(false);
+            if (m_idHelperSvc->isMM(id)) {
+              inbounds = ((MuonGM::MMReadoutElement*)clus->detectorElement())->insideActiveBounds(id, locExPos, 10., 10.);
+            } else {
+              inbounds = surf.insideBounds(locExPos, 10., 10.);
+            }
 
             ATH_MSG_VERBOSE(" found prd: " << m_idHelperSvc->toString(id) << " res " << resPull->residual().front() << " pull " << pull
                                            << (inbounds ? " inside bounds " : " outside bounds "));
@@ -803,7 +811,14 @@ namespace Muon {
             bool inBounds = false;
             Amg::Vector2D locPos;
 
-            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) { inBounds = surf.insideBounds(locPos, -100., -100.); }
+            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) { 
+              if (m_idHelperSvc->isMM(detElId)) {
+                inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);   
+              } else {
+                inBounds = surf.insideBounds(locPos, -100., -100.);
+              }                                                      
+            }
+
             ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " position " << exPars->parameters()[Trk::locR]
                                          << (inBounds ? " inside bounds " : " outside bounds "));
 

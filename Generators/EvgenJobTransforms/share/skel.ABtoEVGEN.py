@@ -372,7 +372,14 @@ elif hasattr(runArgs, "outputEVNT_PreFile"):
 else:
   raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=True )
+# The xAOD::EventInfo is required to build the EventInfoTag
+# which is scheduled by the output stream
+if not hasattr(topSeq, "EventInfoCnvAlg"):
+   from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+   topSeq += xAODMaker__EventInfoCnvAlg()
+   # intnetionally skip adding the xAOD::EventInfo to the ItemList
+
+StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=False )
 if hasattr(runArgs, "inputEVNT_PreFile") :
   svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
   StreamEVGEN.TakeItemsFromInput = True

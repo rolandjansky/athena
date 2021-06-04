@@ -715,7 +715,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 }
 
 // ====================================================================================================================
-const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) const {
+const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) {
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Hole);
   const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr,trackPar->clone(),nullptr,nullptr,typePattern);
@@ -725,7 +725,7 @@ const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(
 // ====================================================================================================================
 const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::Track& oldTrack,
                                                                     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const {
-  DataVector<const Trk::TrackStateOnSurface>* trackTSOS = new DataVector<const Trk::TrackStateOnSurface>;
+  auto trackTSOS = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
   // get states from track
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = oldTrack.trackStateOnSurfaces()->begin();
@@ -738,7 +738,10 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS->size() && listOfHoles->empty()) {
     ATH_MSG_DEBUG("No holes on track, copy input track to new track");
     // create copy of track
-    const Trk::Track* newTrack = new Trk::Track(oldTrack.info(),trackTSOS,oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
+    const Trk::Track* newTrack = new Trk::Track(
+      oldTrack.info(),
+      std::move(trackTSOS),
+      oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
     return newTrack;
   }
 
@@ -772,7 +775,10 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   }
 
   // create copy of track
-  const Trk::Track* newTrack = new Trk::Track(oldTrack.info(),trackTSOS,oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
+  const Trk::Track* newTrack = new Trk::Track(
+    oldTrack.info(),
+    std::move(trackTSOS),
+    oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
 
   return newTrack;
 }

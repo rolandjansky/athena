@@ -329,7 +329,7 @@ Trk::SubtractedVolumeBounds::dump(std::ostream& sl) const
 Trk::Volume*
 Trk::SubtractedVolumeBounds::createSubtractedVolume(
   const Amg::Transform3D& transf,
-  Trk::Volume* subtrVol) const
+  Trk::Volume* subtrVol) 
 {
   Trk::Volume* subVol = nullptr;
   if (!subtrVol)

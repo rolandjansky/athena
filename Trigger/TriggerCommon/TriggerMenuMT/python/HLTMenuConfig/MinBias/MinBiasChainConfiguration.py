@@ -8,6 +8,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequence
 from TriggerMenuMT.HLTMenuConfig.MinBias.ALFAMenuSequences import ALFAPerfSequence
+from TriggerMenuMT.HLTMenuConfig.MinBias.AFPMenuSequence import AFPTrkRecoSequence
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -22,6 +24,18 @@ def MinBiasTrkSequenceCfg(flags):
 
 def MinBiasMbtsSequenceCfg(flags):
     return MinBiasMbtsSequence()
+
+def AFPrecoSequenceCfg(flags):
+    return AFPTrkRecoSequence()
+
+def TrigAFPDijetComboHypoToolCfg(flags):
+    from TrigAFPHypo.TrigAFPHypoConf import TrigAFPDijetComboHypoTool
+    monTool = GenericMonitoringTool("MonTool_AFPComboHypo")
+    monTool.Histograms = [defineHistogram('DijetMass', type='TH1F', path='EXPERT', title="Dijet mass", xbins=100, xmin=0, xmax=200000)]
+    tool = TrigAFPDijetComboHypoTool("AFPDijetComboHypoToolTest")
+    monTool.HistPath = 'AFPComboHypo/'+tool.getName()
+    tool.MonTool = monTool
+    return tool
 
 def ALFAPerfSequenceCfg(flags):
     return ALFAPerfSequence()
@@ -54,7 +68,11 @@ class MinBiasChainConfig(ChainConfigurationBase):
 
             steps.append(self.getMinBiasTrkStep())
 
-        if "alfaperf" == self.chainPart["recoAlg"][0]:
+        # afp reco chain
+        if "afprec" == self.chainPart['recoAlg'][0]:
+            steps.append(self.getAFPRecoStep())
+
+        if "_alfaperf" in self.chainName:
             steps.append(self.getALFAPerfStep())
 
         return self.buildChain(steps)
@@ -74,6 +92,8 @@ class MinBiasChainConfig(ChainConfigurationBase):
     def getMinBiasTrkStep(self):
         return self.getStep(4,'TrkCount',[MinBiasTrkSequenceCfg])
 
+    def getAFPRecoStep(self):
+        return self.getStep(1,'AFPReco',[AFPrecoSequenceCfg],comboTools=[TrigAFPDijetComboHypoToolCfg])
+
     def getALFAPerfStep(self):
         return self.getStep(1,'ALFAPerf',[ALFAPerfSequenceCfg])
-

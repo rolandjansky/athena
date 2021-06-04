@@ -40,7 +40,7 @@ StatusCode EventInfoReader::execute()
 {
     ATH_MSG_DEBUG("EventInfoReader::execute()" );
 
-    const EventInfo * evt = 0;
+    const EventInfo * evt = nullptr;
     ATH_CHECK( evtStore()->retrieve( evt ) );
     ATH_MSG_DEBUG( "Event ID: ["
                    << evt->event_ID()->run_number()   << ","

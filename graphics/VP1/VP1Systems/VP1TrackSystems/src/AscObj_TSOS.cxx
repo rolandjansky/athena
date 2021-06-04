@@ -98,11 +98,11 @@ AscObj_TSOS::AscObj_TSOS( TrackHandleBase *track,
     m_parts(TrackCommonFlags::TSOS_NoObjects),
     m_indexOfPointOnTrack(indexOfPointOnTrack), 
     m_distToNextPar(-1), 
-    m_objBrowseTree(0)
+    m_objBrowseTree(nullptr)
 {
   SoTransparency::initClass();
 
-  const Trk::Surface * surf(0);
+  const Trk::Surface * surf(nullptr);
   
   if (m_tsos->type(Trk::TrackStateOnSurface::Hole)) m_parts |= TrackCommonFlags::TSOS_Hole;
   
@@ -268,7 +268,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
   double sigma = 1;
 
   const Trk::RIO_OnTrack* rio = rioOnTrack();
-  if (!rio && competingRIOsOnTrack()!=0 ) {
+  if (!rio && competingRIOsOnTrack()!=nullptr ) {
       // must be crot
       rio =  &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb () ));
   } else {
@@ -938,7 +938,7 @@ const Trk::CompetingRIOsOnTrack * AscObj_TSOS::competingRIOsOnTrack() const
 //____________________________________________________________________
 const Trk::Surface * AscObj_TSOS::surface() const
 {
-  const Trk::Surface * surf(0);
+  const Trk::Surface * surf(nullptr);
   if (m_tsos->trackParameters())
     surf = &(m_tsos->trackParameters()->associatedSurface());
   if (!surf&&m_tsos->measurementOnTrack())
@@ -961,10 +961,10 @@ void AscObj_TSOS::addTransformToSurface(SoSeparator*& shape_simple,SoSeparator*&
   if (surface()->associatedDetectorElement()) type= m_objToType.type(surface()->associatedDetectorElement());
   
 //  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb()) : 0;
-  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb())) : 0;
+  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb())) : nullptr;
   if (type==TrkObjToString::Unknown && rio) type=m_objToType.type(rio);
 
-  SoTransform*   theHitTransform=0;  
+  SoTransform*   theHitTransform=nullptr;  
   if (rio) {
     TrkObjToString::MeasurementType type=m_objToType.type(rio);
     // std::cout<<"Got ROT of type"<<static_cast<unsigned int>(type)<<std::endl; 
@@ -1176,7 +1176,7 @@ void AscObj_TSOS::setVisible(bool vis) {
       
       if (!visible()) {
         // std::cout<<"Hidden"<<std::endl;
-        me->setFlags(0); // not selectable, not enabled
+        me->setFlags(nullptr); // not selectable, not enabled
         itemFont.setStrikeOut(true);
         
       } else {

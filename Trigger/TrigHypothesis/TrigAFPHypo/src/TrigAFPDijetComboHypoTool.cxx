@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrigAFPDijetComboHypoTool.h"
@@ -14,16 +14,21 @@
 #include "xAODTrigger/TrigPassBits.h"
 #include <math.h>
 
-
 TrigAFPDijetComboHypoTool::TrigAFPDijetComboHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : ComboHypoToolBase(type, name, parent) {}
+  : ComboHypoToolBase(type, name, parent),
+    m_transportBeamA("AFPProtonTransportTool/TransportBeamA", this),
+    m_transportBeamC("AFPProtonTransportTool/TransportBeamC", this)
+{
+  declareProperty("TransportBeamA",m_transportBeamA,"Proton transport tool side A");
+  declareProperty("TransportBeamC",m_transportBeamC,"Proton transport tool side C");
+}
 
 TrigAFPDijetComboHypoTool::~TrigAFPDijetComboHypoTool()
 {
 }
 
 StatusCode TrigAFPDijetComboHypoTool::initialize() {
-  ATH_MSG_DEBUG("Initialization. The correct configuration of this algorithm "
+  ATH_MSG_INFO("Initialization. The correct configuration of this algorithm "
                 << "requires jets ordered in increasing energy");
 
   if (!(m_monTool.name().empty())) {
@@ -31,6 +36,34 @@ StatusCode TrigAFPDijetComboHypoTool::initialize() {
     ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
   }
 
+  if(!(m_transportBeamA.name().empty())){
+    ATH_CHECK( m_transportBeamA.retrieve() );
+    ATH_MSG_DEBUG("m_transportBeamA name: " << m_transportBeamA);
+  }
+
+  if(!(m_transportBeamC.name().empty())){
+    ATH_CHECK( m_transportBeamC.retrieve() );
+    ATH_MSG_DEBUG("m_transportBeamC name: " << m_transportBeamC);
+  }
+
+  //Retrieving the parameterization file for A side
+  // By default it used file final_parameterization_b1.txt
+  ATH_MSG_DEBUG("Parameterization file for A side: "<< m_protonTransportParamFileNameA);
+  std::string filePathA = PathResolver::find_file(m_protonTransportParamFileNameA, "DATAPATH", PathResolver::RecursiveSearch);
+  ATH_MSG_DEBUG("Path to param file side A: "<<filePathA);
+  //Defining the parameterization object   
+  m_transportBeamA->setParamFile(filePathA);
+  ATH_CHECK(m_transportBeamA->load());
+  
+  //Retrieving the parameterization file for C side
+  // By default it used file final_parameterization_b2.txt
+  ATH_MSG_DEBUG("Parameterization file for C side: "<< m_protonTransportParamFileNameC);
+  std::string filePathC = PathResolver::find_file(m_protonTransportParamFileNameC, "DATAPATH", PathResolver::RecursiveSearch);
+  ATH_MSG_DEBUG("Path to param file side A: "<<filePathA);
+  //Defining the parameterization object   
+  m_transportBeamC->setParamFile(filePathC);
+  ATH_CHECK(m_transportBeamC->load());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -43,6 +76,11 @@ struct DescendingEt: std::binary_function<const xAOD::Jet*,
 };
 
 bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+
+  ATH_MSG_DEBUG("TrigAFPDijetComboHypoTool::executeAlg Executing algorithm");
+
+  auto dijetMass = Monitored::Scalar( "DijetMass"   , -1.0 );
+  auto monitorIt    = Monitored::Group( m_monTool, dijetMass);
 
   bool pass = false;
   
@@ -72,7 +110,8 @@ bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination
   TLorentzVector dijet = jet1_vec + jet2_vec;
 
   // Calculate dijet quantities
-  double dijetMass = dijet.M() * m_GeV;
+  dijetMass = dijet.M() * m_GeV;
+  ATH_MSG_DEBUG("AFP ComboHypo::DijetMass "<<dijetMass);
   //double dijetEta = dijet.Eta();
   double dijetRapidity = dijet.Rapidity();
 
@@ -81,16 +120,16 @@ bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination
   double xiJet2 = exp(-dijetRapidity) * dijetMass / m_totalEnergy;
   
   // Predict proton positions on AFP sides A and C
-  double predictProton1Energy = m_beamEnergy * (1. - xiJet1); // Side A
-  double predictProton2Energy = m_beamEnergy * (1. - xiJet2); // Side C
+  double predictProtonAEnergy = m_beamEnergy * (1. - xiJet1); // Side A
+  double predictProtonCEnergy = m_beamEnergy * (1. - xiJet2); // Side C
 
   // Side A position prediction
-  double sideA_predictX = 1e3 * m_transportBeam2->x(0, 0, 0, 0, 0, predictProton1Energy) + m_protonPosShift_x;
-  double sideA_predictY = 1e3 * m_transportBeam2->x(0, 0, 0, 0, 0, predictProton1Energy) + m_protonPosShift_y;
+  double sideA_predictX = 1e3 * m_transportBeamA->x(0, 0, 0, 0, 0, predictProtonAEnergy) + m_protonPosShift_x;
+  double sideA_predictY = 1e3 * m_transportBeamA->x(0, 0, 0, 0, 0, predictProtonAEnergy) + m_protonPosShift_y;
 
   // Side C position prediction
-  double sideC_predictX = 1e3 * m_transportBeam1->x(0, 0, 0, 0, 0, predictProton2Energy) + m_protonPosShift_x;
-  double sideC_predictY = 1e3 * m_transportBeam1->x(0, 0, 0, 0, 0, predictProton2Energy) + m_protonPosShift_y;
+  double sideC_predictX = 1e3 * m_transportBeamC->x(0, 0, 0, 0, 0, predictProtonCEnergy) + m_protonPosShift_x;
+  double sideC_predictY = 1e3 * m_transportBeamC->x(0, 0, 0, 0, 0, predictProtonCEnergy) + m_protonPosShift_y;
 
   // Retrieve AFP track container
   SG::ReadHandle<xAOD::AFPTrackContainer> tracksAFP(m_AFPtrackCollectionReadKey);
@@ -143,6 +182,8 @@ bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination
     double sideA_trackY = tracksAFP.get()->at(nearestTrackSideAId)->yLocal();
     double sideA_diffX = sideA_predictX - sideA_trackX;
     double sideA_diffY = sideA_predictY - sideA_trackY;
+
+    ATH_MSG_DEBUG("TrigAFPDijetComboHypoTool::execute sideA_diffX: " << sideA_diffX);
     
     if(sideA_minDist < m_maxProtonDist) passRCutA = true; 
 

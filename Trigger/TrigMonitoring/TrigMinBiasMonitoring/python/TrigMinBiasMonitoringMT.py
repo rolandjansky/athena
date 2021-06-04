@@ -7,6 +7,7 @@
 """
 from TrigMinBiasMonitoring.TrigMBTSMonitoringMT import TrigMBTS
 from TrigMinBiasMonitoring.TrigSPTRKMonitoringMT import TrigSPTRK
+from TrigMinBiasMonitoring.TrigEffMonitoring import TrigEff
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -14,6 +15,7 @@ def TrigMinBias(configFlags):
     acc = ComponentAccumulator()
     acc.merge(TrigSPTRK(configFlags))
     acc.merge(TrigMBTS(configFlags))
+    acc.merge(TrigEff(configFlags))
     return acc
 
 

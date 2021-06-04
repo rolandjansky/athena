@@ -8,7 +8,6 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
@@ -136,18 +135,21 @@ MuonInputProviderLegacy::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const 
    int etaTopo = roi.getieta();
    int phiTopo = roi.getiphi();
    if( phiTopo >= 32 ) phiTopo -= 64;
-   float etaDouble = roi.geteta();
-   float phiDouble = roi.getphi();
-   if( phiDouble >= M_PI ) phiDouble -= 2*M_PI;
 
-   TCS::MuonTOB muon( roi.getptValue(), 0, etaTopo, phiTopo, roi.getRoiID() );
-   muon.setEtDouble( static_cast<double>(roi.getptValue()) );
-   muon.setEtaDouble( static_cast<double>(etaDouble) );
-   muon.setPhiDouble( static_cast<double>(phiDouble) );
+   TCS::MuonTOB muon(roi.getRoiID());
 
    // legacy bit setting
+   muon.setBitsEt(8);
    muon.setBitsEta(6);
    muon.setBitsPhi(6);
+
+   muon.setEt(roi.getptValue());
+   muon.setIsolation(0);
+   muon.setEta(etaTopo);
+   muon.setPhi(phiTopo);
+   muon.setEtDouble(static_cast<double>(roi.getptValue()));
+   muon.setEtaDouble(static_cast<double>(etaTopo/10.));
+   muon.setEtaDouble(static_cast<double>(phiTopo/10.));
 
    m_hPt->Fill(muon.Et());
    m_hEtaPhi->Fill(muon.eta(),muon.phi());

@@ -1,12 +1,9 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/SimController.h"
-#include "TrigT1MuctpiPhase1/MuonSectorProcessor.h"
-#include "TrigT1MuctpiPhase1/TriggerProcessor.h"
-
+#include "SimController.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
@@ -22,19 +19,6 @@
 
 namespace LVL1MUCTPIPHASE1 {
 
-  SimController::SimController() :
-    m_triggerProcessor(new TriggerProcessor())
-  {
-    m_muonSectorProcessors.push_back(new MuonSectorProcessor(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA()));
-    m_muonSectorProcessors.push_back(new MuonSectorProcessor(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC()));
-  }
-  
-  SimController::~SimController()
-  {
-    for (int i=0;i<(int)m_muonSectorProcessors.size();i++) delete m_muonSectorProcessors[i];
-    delete m_triggerProcessor;
-  }
-
   std::vector<std::string> SimController::configureTopo(const std::string& barrelFileName,
 							const std::string& ecfFileName,
 							const std::string& side0LUTFileName,
@@ -43,7 +27,10 @@ namespace LVL1MUCTPIPHASE1 {
     std::vector<std::string> errors;
     bool success = m_l1topoLUT.initializeLUT(barrelFileName, ecfFileName, side0LUTFileName, side1LUTFileName);
     if (!success) errors = m_l1topoLUT.getErrors();
-    for (int i=0;i<(int)m_muonSectorProcessors.size();i++) m_muonSectorProcessors[i]->setL1TopoLUT(&m_l1topoLUT);
+    for (MuonSectorProcessor& msp : m_muonSectorProcessors )
+    {
+      msp.setL1TopoLUT(&m_l1topoLUT);
+    }
     return errors;
   }
 
@@ -68,45 +55,32 @@ namespace LVL1MUCTPIPHASE1 {
   std::string SimController::processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid)
   {
     std::string ret = "";
-    std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> processedInputs;
-    int nMSP = m_muonSectorProcessors.size();
-    for (int i=0;i<nMSP;i++)
+    std::vector<const LVL1MUONIF::Lvl1MuCTPIInputPhase1*> processedInputs;
+    for (MuonSectorProcessor& msp : m_muonSectorProcessors )
     {
-      m_muonSectorProcessors[i]->setInput(input);
-      m_muonSectorProcessors[i]->runOverlapRemoval(bcid);
-      if ((ret = m_muonSectorProcessors[i]->makeL1TopoData(bcid)) != "") return ret;
-      processedInputs.push_back(m_muonSectorProcessors[i]->getOutput());
+      msp.setInput(input);
+      msp.runOverlapRemoval(bcid);
+      if ((ret = msp.makeL1TopoData(bcid)) != "") return ret;
+      processedInputs.push_back(msp.getOutput());
     }
 
     //Run the trigger processor algorithms
     
-    m_triggerProcessor->mergeInputs(processedInputs);
-    if ((ret = m_triggerProcessor->computeMultiplicities(bcid)) != "") return ret;
-    m_triggerProcessor->makeTopoSelections();
+    m_triggerProcessor.mergeInputs(processedInputs);
+    if ((ret = m_triggerProcessor.computeMultiplicities(bcid)) != "") return ret;
+    m_triggerProcessor.makeTopoSelections();
     return "";
   }
 
-  LVL1::MuCTPIL1Topo SimController::getL1TopoData(int bcid)
+  LVL1::MuCTPIL1Topo SimController::getL1TopoData(int bcid) const
   {
     LVL1::MuCTPIL1Topo l1topo;
-    int nMSP = m_muonSectorProcessors.size();
-    for (int i=0;i<nMSP;i++)
+    for (const MuonSectorProcessor& msp : m_muonSectorProcessors )
     {
-      LVL1::MuCTPIL1Topo* l1topo_ptr = m_muonSectorProcessors[i]->getL1TopoData(bcid);
+      const LVL1::MuCTPIL1Topo* l1topo_ptr = msp.getL1TopoData(bcid);
       if (l1topo_ptr) l1topo += *l1topo_ptr;
     }
     return l1topo;
   }
 
-  TriggerProcessor* SimController::getTriggerProcessor()
-  {
-    return m_triggerProcessor;
-  }
-
-  std::vector<MuonSectorProcessor*>& SimController::getMuonSectorProcessors()
-  {
-    return m_muonSectorProcessors;
-  }
-
 }
-

@@ -12,7 +12,7 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
 // Gaudi & AthenaCommon
-#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/MsgStream.h"
 #include <string>
 #include <typeinfo>

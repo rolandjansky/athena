@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Methods to perform post-processing on run_nnnnnn/Muon/MuonSegmMonitoring/EndCapN/Detail/<Collection>/CSC* histograms
@@ -40,7 +40,7 @@ namespace dqutils {
     bool dbgLevel = false;
     if(dbgLevel) std::cout << "--> CSCChamberEfficiency: Calculate chamber efficiency by layer" << std::endl;
     std::string endc_label[2] = {"A","C"};
-    std::string coll_dir_label[1] = {"MuonSegments"};
+    std::string coll_dir_label[1] = {"TrackMuonSegments"};
     std::string coll_hist_label[1] = {"Muon"};
 
     f->cd("/");
@@ -111,8 +111,8 @@ namespace dqutils {
                 float eff = 0., err = 0.;
 
                 GetCscEffAndErr(num,num_err,den,den_err,eff,err,0);
-                h1_eff->SetBinContent(5*chamber+layer-4,eff);
-                h1_eff->SetBinError(5*chamber+layer-4,err);
+                h1_eff->SetBinContent(5*chamber+1+(layer-1),eff);
+                h1_eff->SetBinError(5*chamber+1+(layer-1),err);
               } // for loop over bins
             } else {                                              // Endcap C
               for(int chamber = 1; chamber < 17; chamber++){

@@ -28,14 +28,14 @@ class TopoAlgoDef:
 
         # eEM inputs
         # ALL
-        alg = AlgConf.ClusterNoSort( name = 'eEMall', inputs = 'eEmTobs', outputs = 'eEMall' ) 
+        alg = AlgConf.ClusterNoSort( name = 'eEMall', inputs = 'ClusterTobArray', outputs = 'eEMall' ) 
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('OutputWidth', HW.InputWidthEM)
         alg.addvariable('IsoMask', 0)
         tm.registerTopoAlgo(alg)  
 
         # SORT
-        alg = AlgConf.ClusterSort( name = 'eEMs', inputs = 'eEmTobs', outputs = 'eEMs' )
+        alg = AlgConf.eEmSort( name = 'eEMs', inputs = 'eEmTobs', outputs = 'eEMs' )
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortEM)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortEM)
@@ -45,7 +45,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', 0)
         tm.registerTopoAlgo(alg)
 
-        alg = AlgConf.ClusterSort( name = 'eEMshi', inputs = 'eEmTobs', outputs = 'eEMshi' )
+        alg = AlgConf.eEmSort( name = 'eEMshi', inputs = 'eEmTobs', outputs = 'eEMshi' )
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortEM)
         alg.addvariable('IsoMask', 3)
@@ -55,7 +55,7 @@ class TopoAlgoDef:
         tm.registerTopoAlgo(alg)
 
         # SELECT
-        alg = AlgConf.ClusterSelect( name = 'eEMab', inputs = 'eEmTobs', outputs = 'eEMab' )
+        alg = AlgConf.eEmSelect( name = 'eEMab', inputs = 'eEmTobs', outputs = 'eEMab' )
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
@@ -66,7 +66,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', 0)
         tm.registerTopoAlgo(alg)
 
-        alg = AlgConf.ClusterSelect( name = 'eEMabi', inputs = 'eEmTobs', outputs = 'eEMabi' )
+        alg = AlgConf.eEmSelect( name = 'eEMabi', inputs = 'eEmTobs', outputs = 'eEMabi' )
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
@@ -77,7 +77,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', 1)
         tm.registerTopoAlgo(alg)
 
-        alg = AlgConf.ClusterSelect( name = 'eEMabhi', inputs = 'eEmTobs', outputs = 'eEMabhi' )
+        alg = AlgConf.eEmSelect( name = 'eEMabhi', inputs = 'eEmTobs', outputs = 'eEMabhi' )
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)

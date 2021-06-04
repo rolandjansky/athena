@@ -133,8 +133,8 @@ def L1LegacyCaloSimMCCfg(flags):
     acc.addEventAlgo(CompFactory.LVL1.JetCMX('JetCMX'))
     acc.addEventAlgo(CompFactory.LVL1.EnergyCMX('EnergyCMX'))
     acc.addEventAlgo(CompFactory.LVL1.RoIROD('RoIROD'))
-    acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS())
-    acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC())
+    acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS(UseNewConfig = flags.Trigger.readLVL1FromJSON))
+    acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC(UseNewConfig = flags.Trigger.readLVL1FromJSON))
     return acc
 
 if __name__ == '__main__':

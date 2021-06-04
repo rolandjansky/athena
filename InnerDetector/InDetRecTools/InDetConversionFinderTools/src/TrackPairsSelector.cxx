@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -311,7 +311,7 @@ namespace InDet {
   // -------------------------------------------------------------
   std::map<std::string, float>
   TrackPairsSelector::getLastValues(
-    const TrackPairsSelector::Cache& cache) const
+    const TrackPairsSelector::Cache& cache) 
   {
     return {{"minimumDistanceTrk", cache.m_distance},
             {"deltaCotThetaTrk", cache.m_deltaCotTheta},

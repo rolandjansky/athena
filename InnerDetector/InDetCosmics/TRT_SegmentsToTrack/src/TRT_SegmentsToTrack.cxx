@@ -204,8 +204,8 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
       	= dynamic_cast<const Trk::StraightLineSurface*>(&((*iseg)->associatedSurface()));
       
       
-      const Trk::AtaStraightLine* inputMatchLine =0;
-      const Trk::Perigee* inputMatchPerigee =0;
+      const Trk::AtaStraightLine* inputMatchLine =nullptr;
+      const Trk::Perigee* inputMatchPerigee =nullptr;
       const Amg::VectorX &p = dynamic_cast<const Amg::VectorX&>((**iseg).localParameters());      
       
       if(!testSf){
@@ -231,7 +231,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
       ATH_MSG_DEBUG("Created inputMatchLine");
       
       std::unique_ptr<Trk::Track> fittedTrack;
-      const Trk::TrackParameters *inputpar=0;
+      const Trk::TrackParameters *inputpar=nullptr;
       if (inputMatchPerigee) inputpar=inputMatchPerigee;
       else if (inputMatchLine) inputpar=inputMatchLine;
 
@@ -245,7 +245,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
       if(fittedTrack){
         DataVector<const Trk::TrackStateOnSurface>::const_iterator itSet = fittedTrack->trackStateOnSurfaces()->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator itSetEnd = fittedTrack->trackStateOnSurfaces()->end();
-        const Trk::TrackParameters *measpar=0;
+        const Trk::TrackParameters *measpar=nullptr;
         double mindist=9999;
         for ( ; itSet!=itSetEnd; ++itSet) {
           if ((**itSet).type(Trk::TrackStateOnSurface::Measurement) && (**itSet).trackParameters()->position().perp()<mindist) {
@@ -262,14 +262,14 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           fittedTrack.reset();
         }
         else {
-          DataVector<const Trk::TrackStateOnSurface>* trajectory = new DataVector<const Trk::TrackStateOnSurface>;
+          auto trajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
           itSet = fittedTrack->trackStateOnSurfaces()->begin();
           for ( ; itSet!=itSetEnd; ++itSet) {
             if (!(**itSet).type(Trk::TrackStateOnSurface::Perigee)) {
-              const Trk::TrackParameters *trackpar=(**itSet).trackParameters() ? (**itSet).trackParameters()->clone() : 0;
-              const Trk::MeasurementBase *measurement=(**itSet).measurementOnTrack() ? (**itSet).measurementOnTrack()->clone() : 0;
-              const Trk::FitQuality *fitQual=(**itSet).fitQualityOnSurface() ? (**itSet).fitQualityOnSurface()->clone() : 0;
-              const Trk::MaterialEffectsBase *mateff=(**itSet).materialEffectsOnTrack() ? (**itSet).materialEffectsOnTrack()->clone() : 0;
+              const Trk::TrackParameters *trackpar=(**itSet).trackParameters() ? (**itSet).trackParameters()->clone() : nullptr;
+              const Trk::MeasurementBase *measurement=(**itSet).measurementOnTrack() ? (**itSet).measurementOnTrack()->clone() : nullptr;
+              const Trk::FitQuality *fitQual=(**itSet).fitQualityOnSurface() ? (**itSet).fitQualityOnSurface()->clone() : nullptr;
+              const Trk::MaterialEffectsBase *mateff=(**itSet).materialEffectsOnTrack() ? (**itSet).materialEffectsOnTrack()->clone() : nullptr;
               std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
               if ((**itSet).type(Trk::TrackStateOnSurface::Measurement)) typePattern.set(Trk::TrackStateOnSurface::Measurement);
               else if ((**itSet).type(Trk::TrackStateOnSurface::Outlier)) typePattern.set(Trk::TrackStateOnSurface::Outlier);
@@ -284,7 +284,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           itSetEnd = trajectory->end();
 	  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
 	  typePattern.set(Trk::TrackStateOnSurface::Perigee);
-          const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(0,myper,0,0,typePattern);
+          const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,myper,nullptr,nullptr,typePattern);
 
 	  int index=1;
           for ( ; itSet!=itSetEnd; ++itSet) {
@@ -305,7 +305,10 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
             if (inprod>0) trajectory->insert(trajectory->begin(),pertsos);
             else trajectory->push_back(pertsos);
           }
-          std::unique_ptr<Trk::Track> track=std::make_unique<Trk::Track>(fittedTrack->info(),trajectory,fittedTrack->fitQuality()->clone());
+          std::unique_ptr<Trk::Track> track =
+            std::make_unique<Trk::Track>(fittedTrack->info(),
+                                         std::move(trajectory),
+                                         fittedTrack->fitQuality()->clone());
           fittedTrack = std::move(track);
         }
       }
@@ -472,7 +475,7 @@ int InDet::TRT_SegmentsToTrack::nHTHits(const Trk::Track *track) const
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     
     const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
-    if (hitOnTrack != 0) {
+    if (hitOnTrack != nullptr) {
       const Identifier& surfaceID = hitOnTrack->identify();
       
       //take only TRT hits
@@ -503,7 +506,7 @@ int InDet::TRT_SegmentsToTrack::nTRTHits(const Trk::Track *track) const
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     
     const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
-    if (hitOnTrack != 0) {
+    if (hitOnTrack != nullptr) {
       const Identifier& surfaceID = hitOnTrack->identify();
       
       //take only TRT hits
@@ -890,11 +893,11 @@ void InDet::TRT_SegmentsToTrack::combineSegments(const EventContext& ctx) const
 	
 	if(fittedTrack){
 	  n_combined_fit++;
-	  outputCombiCollection->push_back(std::move(fittedTrack));
 	  ATH_MSG_DEBUG("Successful Barrel+Endcap fit of segment. ");
 	  ATH_MSG_DEBUG("Quality of Track:   "<<fittedTrack->fitQuality()->chiSquared()<<" / "<<fittedTrack->fitQuality()->numberDoF());
 	  ATH_MSG_VERBOSE(*fittedTrack);
-	}
+	  outputCombiCollection->push_back(std::move(fittedTrack));
+}
 	
 	delete inputMatchPerigee;
 	delete inputMatchLine;

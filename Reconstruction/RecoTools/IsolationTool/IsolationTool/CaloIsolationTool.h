@@ -39,6 +39,9 @@
 
 #include <vector>
 
+#include <map>
+#include <TGraph.h>
+
 namespace xAOD {
   
   class CaloIsolationTool: 
@@ -374,6 +377,24 @@ namespace xAOD {
         "InitializeReadHandles", true,
         "Initialize all ReadHandles."};
 
+      /** Property: need to know if this is MC (from rec.doTruth) for eta dep pileup corr */
+      Gaudi::Property<bool> m_isMC {this, "isMC", false, "is MC"};
+
+      /** Property: use pileup dependent correction*/
+      Gaudi::Property<bool> m_useEtaDepPU {this,
+	  "UseEtaDepPUCorr", true, "Use the eta dependent pileup correction"};
+
+      /** name of the root file for the eta dependant pileup correction */
+      Gaudi::Property<std::string> m_puZetaCorrectionFileName {this,
+	  "EtaDependentPileupCorrectionFileName", "IsolationCorrections/v4/zetas.root",
+	  "File name for the eta dependant pileup correction to isolation"};
+      Gaudi::Property<std::string> m_puZetaMCCorrectionFileName {this,
+	  "EtaDependentPileupMCCorrectionFileName", "IsolationCorrections/v4/zetas_correction.root",
+	  "File name for the eta dependant pileup correction to isolation, small mc correction"};
+
+      /** map of the zeta corrections (one / cone size) */
+      std::map<Iso::IsolationType,std::unique_ptr<TGraph>> m_puZetaCorrection;
+      std::map<Iso::IsolationType,std::unique_ptr<TGraph>> m_puZetaMCCorrection;
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
       bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts ) const;

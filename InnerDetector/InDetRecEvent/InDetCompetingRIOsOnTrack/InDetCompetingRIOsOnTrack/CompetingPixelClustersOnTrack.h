@@ -14,6 +14,7 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
 #include <iosfwd>
+#include <memory>
 
 class MsgStream;
 
@@ -70,6 +71,11 @@ public:
 
     /** needed to avoid excessive RTTI*/
     CompetingPixelClustersOnTrack* clone() const;
+    
+    /** NVI method returning unique_ptr clone */
+    std::unique_ptr<CompetingPixelClustersOnTrack> uniqueClone() const {
+      return std::unique_ptr<CompetingPixelClustersOnTrack>(clone());
+    }
 
     /** returns the surface for the local to global transformation .
         - interface from MeasurementBase */

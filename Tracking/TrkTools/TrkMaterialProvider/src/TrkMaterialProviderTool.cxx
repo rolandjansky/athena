@@ -261,7 +261,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
   // apply X0 and Eloss scale to MuonSpectrometer
   this->updateVectorMS(inputTSOS,firstMS,X0ScaleMS,ElossScaleMS);
   // update the original vector
-  this->updateVector(inputTSOS, firstCALO, firstMS, caloTSOS);
+  Trk::TrkMaterialProviderTool::updateVector(inputTSOS, firstCALO, firstMS, caloTSOS);
   myLocal_resetTrack(track);
 }
 
@@ -387,7 +387,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(const Trk::Track& idTrack, Trk
   // apply X0 and Eloss scale to MuonSpectrometer
   this->updateVectorMS(inputTSOS_MS,firstMS,X0ScaleMS,ElossScaleMS);
   // update the original vector
-  this->updateVector(inputTSOS_MS, firstCALO, firstMS, caloTSOS);
+  Trk::TrkMaterialProviderTool::updateVector(inputTSOS_MS, firstCALO, firstMS, caloTSOS);
 
   myLocal_resetTrack(extrapolatedTrack);
 }
@@ -1110,7 +1110,7 @@ void Trk::TrkMaterialProviderTool::removeMS(std::vector<const Trk::TrackStateOnS
 void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
 						DataVector<const Trk::TrackStateOnSurface>::iterator firstCALO,
 						DataVector<const Trk::TrackStateOnSurface>::iterator firstMS,
-						DataVector<const Trk::TrackStateOnSurface>* caloTSOS) const
+						DataVector<const Trk::TrackStateOnSurface>* caloTSOS) 
 {
   //printTSOS(*firstCALO, "UPD->FIRST CALO");
   //printTSOS(*firstMS, "UPD->FIRST MS");
@@ -1258,14 +1258,14 @@ unsigned int Trk::TrkMaterialProviderTool::getVolumeByGeo(const Trk::TrackStateO
 
 
 //** Helper to delete TSOS vectors*/
-void Trk::TrkMaterialProviderTool::deleteTSOS(const std::vector<const Trk::TrackStateOnSurface*>* vecTSOS) const
+void Trk::TrkMaterialProviderTool::deleteTSOS(const std::vector<const Trk::TrackStateOnSurface*>* vecTSOS) 
 {
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = vecTSOS->begin();
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = vecTSOS->end();
   for (; it != itEnd; ++it) delete *it;
   delete vecTSOS;
 }
-void Trk::TrkMaterialProviderTool::deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) const
+void Trk::TrkMaterialProviderTool::deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) 
 {
   if(vecTSOS->ownPolicy()==SG::VIEW_ELEMENTS) {
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it = vecTSOS->begin();

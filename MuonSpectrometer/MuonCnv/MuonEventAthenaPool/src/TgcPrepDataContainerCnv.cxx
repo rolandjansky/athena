@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcPrepDataContainerCnv.h"
@@ -41,7 +41,7 @@ StatusCode TgcPrepDataContainerCnv::initialize() {
 TgcPrepDataContainer_PERS*    TgcPrepDataContainerCnv::createPersistent (Muon::TgcPrepDataContainer* transCont) {
     MsgStream log(msgSvc(), "TgcPrepDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    TgcPrepDataContainer_PERS *pers= m_converter_p4.createPersistent( transCont, log );
+    TgcPrepDataContainer_PERS *pers= m_converter_p3.createPersistent( transCont, log );
     return pers;
 }
 
@@ -51,16 +51,11 @@ Muon::TgcPrepDataContainer* TgcPrepDataContainerCnv::createTransient() {
     static pool::Guid   p1_guid("8C563637-620B-43A0-9A5D-E0BC09496745"); // with TgcPrepData_tlp1
     static pool::Guid   p2_guid("EBB4DCEC-CE23-4A30-BEF7-F3150E4060CB"); // with TgcPrepDataContainerCnv_p2
     static pool::Guid   p3_guid("215726D6-15F4-41D2-B808-1B9E9FD84166"); // with TgcPrepDataContainerCnv_p3
-    static pool::Guid   p4_guid("3A3FA33A-50B8-4580-90F2-F72E6949BF54"); // with TgcPrepDataContainerCnv_p4
 
     
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::TgcPrepDataContainer* p_collection(0);
-    if( compareClassGuid(p4_guid) ) {
-        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 4 detected"<<endmsg;
-        std::unique_ptr< Muon::TgcPrepDataContainer_p4 >  p_coll( poolReadObject< Muon::TgcPrepDataContainer_p4 >() );
-        p_collection = m_converter_p4.createTransient( p_coll.get(), log );
-    } else if( compareClassGuid(p3_guid) ) {
+    if( compareClassGuid(p3_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
         std::unique_ptr< Muon::TgcPrepDataContainer_p3 >  p_coll( poolReadObject< Muon::TgcPrepDataContainer_p3 >() );
         p_collection = m_converter_p3.createTransient( p_coll.get(), log );

@@ -69,7 +69,7 @@ namespace Rec {
         declareProperty("MinMuonPt", m_minMuonPt);
     }
 
-    MuidCaloEnergyTool::~MuidCaloEnergyTool(void) {}
+    MuidCaloEnergyTool::~MuidCaloEnergyTool() = default;
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
@@ -118,7 +118,7 @@ namespace Rec {
         if (m_energyLossMeasurement) {
             // Energy Dep/Iso from calorimeters (projective assumption)
             std::unique_ptr<CaloMeas> caloMeas{m_caloMeasTool->energyMeasurement(ctx, eta, phi, eta, phi)};
-            if (caloMeas) { caloEnergy = measurement(ctx, trackMomentum, eta, phi, caloMeas.get()); }
+            if (caloMeas) { caloEnergy = measurement(ctx, trackMomentum, eta, phi, *caloMeas); }
         }
 
         if (!caloEnergy) {
@@ -155,52 +155,50 @@ namespace Rec {
 
         return caloEnergy;
     }
-    const Trk::TrackStateOnSurface* MuidCaloEnergyTool::trackStateOnSurface(const EventContext& ctx,
-                                                                            const Trk::TrackParameters& middleParameters,
-                                                                            const Trk::TrackParameters* innerParameters,
-                                                                            const Trk::TrackParameters* outerParameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloEnergyTool::trackStateOnSurface(const EventContext& ctx,
+                                                                                      const Trk::TrackParameters& middleParameters,
+                                                                                      const Trk::TrackParameters* innerParameters,
+                                                                                      const Trk::TrackParameters* outerParameters) const {
         ATH_MSG_VERBOSE("Muon with : p = " << middleParameters.momentum().mag() / Units::GeV << " Phi = "
                                            << middleParameters.position().phi() << " Eta =  " << middleParameters.position().eta());
 
         std::unique_ptr<CaloEnergy> caloEnergy;
         if (m_energyLossMeasurement) {
             // energy deposition according to the calo measurement
-            double eta = middleParameters.position().eta();
-            double phi = middleParameters.position().phi();
-            double etaEM = eta;
-            double phiEM = phi;
-            double etaHad = eta;
-            double phiHad = phi;
-            if (innerParameters) {
-                etaEM = innerParameters->position().eta();
-                phiEM = innerParameters->position().phi();
-            }
-            if (outerParameters) {
-                etaHad = outerParameters->position().eta();
-                phiHad = outerParameters->position().phi();
-            }
+            const double eta = middleParameters.position().eta();
+            const double phi = middleParameters.position().phi();
+            const double etaEM = innerParameters ? innerParameters->position().eta() : eta;
+            const double phiEM = innerParameters ? innerParameters->position().phi() : phi;
+            const double etaHad = outerParameters ? outerParameters->position().eta() : eta;
+            const double phiHad = outerParameters ? outerParameters->position().phi() : phi;
             std::unique_ptr<CaloMeas> caloMeas{m_caloMeasTool->energyMeasurement(ctx, etaEM, phiEM, etaHad, phiHad)};
-            if (caloMeas) { caloEnergy = measurement(ctx, middleParameters.momentum().mag(), eta, phi, caloMeas.get()); }
+            if (caloMeas) { caloEnergy = measurement(ctx, middleParameters.momentum().mag(), eta, phi, *caloMeas); }
         }
 
         if (!caloEnergy) {
             // parametrized energy deposition
+            ATH_MSG_DEBUG("Calculate parametrized energy loss");
             caloEnergy =
                 energyLoss(ctx, middleParameters.momentum().mag(), middleParameters.position().eta(), middleParameters.position().phi());
-
-            // WARN in case of anomalously high loss
+            /// WARN in case of anomalously high loss
             if (caloEnergy->deltaE() > 8. * Units::GeV && middleParameters.momentum().mag() < 500. * Units::GeV)
                 ATH_MSG_WARNING(" high parametrized energy loss: " << caloEnergy->deltaE() / Units::GeV << " GeV"
                                                                    << "   for p " << middleParameters.momentum().mag() / Units::GeV
                                                                    << " GeV"
                                                                    << "   eta " << middleParameters.position().eta());
         }
-
         // create MEOT owning CaloEnergy
         std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern(0);
         typePattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+        /// The Trk::MaterialEffectsOnTrack contain an observer pointer of the associated surface instead of
+        /// an real copy. Given that the method does no longer take ownership. Let's clone the Track parameters here,
+        /// which have a real copy and pipe their surface to the ctor.
+
+        std::unique_ptr<Trk::TrackParameters> middle_clone = middleParameters.uniqueClone();
+        /// Cache the pointer for the debug message
+        const CaloEnergy* calo_observer = caloEnergy.get();
         const Trk::MaterialEffectsOnTrack* materialEffects =
-            new const Trk::MaterialEffectsOnTrack(0., caloEnergy.release(), middleParameters.associatedSurface(), typePattern);
+            new const Trk::MaterialEffectsOnTrack(0., caloEnergy.release(), middle_clone->associatedSurface(), typePattern);
 
         // create TSOS
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -209,7 +207,7 @@ namespace Rec {
         // debugging
         if (msgLvl(MSG::DEBUG)) {
             std::string eLossType = "  no Calo !!";
-            switch (caloEnergy->energyLossType()) {
+            switch (calo_observer->energyLossType()) {
                 case CaloEnergy::Parametrized: eLossType = "Parametrized"; break;
                 case CaloEnergy::NotIsolated: eLossType = "NotIsolated "; break;
                 case CaloEnergy::MOP: eLossType = "MOP         "; break;
@@ -217,25 +215,23 @@ namespace Rec {
                 case CaloEnergy::FSRcandidate: eLossType = "FSRcandidate"; break;
                 default: break;
             };
-
             ATH_MSG_DEBUG(std::setiosflags(std::ios::fixed)
                           << " trackStateOnSurface with"
                           << " momentum =" << std::setw(6) << std::setprecision(1) << middleParameters.momentum().mag() / Units::GeV
                           << "  phi =" << std::setw(6) << std::setprecision(3) << middleParameters.position().phi()
                           << "  eta =" << std::setw(6) << std::setprecision(3) << middleParameters.position().eta()
-                          << ".  CaloEnergy: deltaE = " << std::setw(8) << std::setprecision(3) << caloEnergy->deltaE() / Units::GeV
-                          << "  +" << std::setw(5) << std::setprecision(3) << caloEnergy->sigmaPlusDeltaE() / Units::GeV << "  -"
-                          << std::setw(5) << std::setprecision(3) << caloEnergy->sigmaMinusDeltaE() / Units::GeV << " (" << std::setw(5)
-                          << std::setprecision(3) << caloEnergy->sigmaDeltaE() / Units::GeV << ") GeV,  CaloEnergy::Type " << eLossType);
+                          << ".  CaloEnergy: deltaE = " << std::setw(8) << std::setprecision(3) << calo_observer->deltaE() / Units::GeV
+                          << "  +" << std::setw(5) << std::setprecision(3) << calo_observer->sigmaPlusDeltaE() / Units::GeV << "  -"
+                          << std::setw(5) << std::setprecision(3) << calo_observer->sigmaMinusDeltaE() / Units::GeV << " (" << std::setw(5)
+                          << std::setprecision(3) << calo_observer->sigmaDeltaE() / Units::GeV << ") GeV,  CaloEnergy::Type " << eLossType);
         }
-
-        return new const Trk::TrackStateOnSurface(nullptr, &middleParameters, nullptr, materialEffects, pattern);
+        return std::make_unique<Trk::TrackStateOnSurface>(nullptr, middle_clone.release(), nullptr, materialEffects, pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
     std::unique_ptr<CaloEnergy> MuidCaloEnergyTool::measurement(const EventContext& ctx, double trackMomentum, double eta, double phi,
-                                                                CaloMeas* caloMeas) const {
+                                                                const CaloMeas& caloMeas) const {
         // Mean Energy Loss parametrization
         std::unique_ptr<CaloEnergy> caloParamMean{m_caloParamTool->meanParametrizedEnergy(trackMomentum, eta, phi)};
         // Mop Energy Loss parametrization
@@ -267,21 +263,21 @@ namespace Rec {
         // scale to get mop loss in em calo
         double MopLossEm = MopLoss * m_caloParamTool->emMopFraction(eta);
         // fraction of Tile used for the measurement
-        const double TileMeasurementMaterial = caloMeas->Tile_SamplingFraction();
+        const double TileMeasurementMaterial = caloMeas.Tile_SamplingFraction();
         // fraction of LArHEC used for the measurement
-        const double LArHECMeasurementMaterial = caloMeas->LArHEC_SamplingFraction();
+        const double LArHECMeasurementMaterial = caloMeas.LArHEC_SamplingFraction();
         // fraction of LArEM used for the measurement
-        const double LArEmMeasurementMaterial = caloMeas->LArEM_SamplingFraction();
+        const double LArEmMeasurementMaterial = caloMeas.LArEM_SamplingFraction();
         // Measured energy deposition in Tile
-        const double TileEnergy = caloMeas->Tile_EnergyMeasured();
+        const double TileEnergy = caloMeas.Tile_EnergyMeasured();
         // Measured energy deposition in E/M
-        const double EmEnergy = caloMeas->LArEM_EnergyMeasured();
+        const double EmEnergy = caloMeas.LArEM_EnergyMeasured();
 
         // Correction for forward calorimetry
         double ForwardHECCorrection = 0.;
-        if (std::abs(eta) > 2. && caloMeas->LArHEC_EnergyMeasured() > 100.)
+        if (std::abs(eta) > 2. && caloMeas.LArHEC_EnergyMeasured() > 100.)
             ForwardHECCorrection = (1. - LArHECMeasurementMaterial) * HECMaterial * MopLossCorrected;
-        const double LArHECEnergy = caloMeas->LArHEC_EnergyMeasured() + ForwardHECCorrection;  // Measured energy deposition in LArHEC
+        const double LArHECEnergy = caloMeas.LArHEC_EnergyMeasured() + ForwardHECCorrection;  // Measured energy deposition in LArHEC
 
         double TotalMeasuredEnergy = TileEnergy + EmEnergy + LArHECEnergy;
 
@@ -374,8 +370,8 @@ namespace Rec {
                                         << "Final Meas = " << FinalMeasuredEnergy / Units::GeV << " Mop Dep = " << MopLoss / Units::GeV
                                         << " +- " << MopError / Units::GeV);
 
-        const double HECIso = caloMeas->Tile_Isolation() + caloMeas->LArHEC_Isolation();
-        const double EmIso = caloMeas->LArEM_Isolation();
+        const double HECIso = caloMeas.Tile_Isolation() + caloMeas.LArHEC_Isolation();
+        const double EmIso = caloMeas.LArEM_Isolation();
         const double sinTheta = 1. / std::cosh(eta);
         const double pT = trackMomentum * sinTheta * Units::MeV;
 
@@ -412,8 +408,7 @@ namespace Rec {
             //  tail offset from high-statistics Z->mumu MC (measured by Peter K 09/12/2011),
             //  but next we try to separate any FSR contribution from the Landau tail
             double F1 = 0.;
-            if (caloMeas->LArEM_EnergyMeasured() > m_emEtCut)
-                F1 = caloMeas->LArEM_FirstCompartmentEnergy() / caloMeas->LArEM_EnergyMeasured();
+            if (caloMeas.LArEM_EnergyMeasured() > m_emEtCut) F1 = caloMeas.LArEM_FirstCompartmentEnergy() / caloMeas.LArEM_EnergyMeasured();
             ATH_MSG_VERBOSE(" start Tail and FSR treatment: Et in e.m. " << EmEnergy * sinTheta / Units::GeV << "  F1 ratio " << F1);
             if (!m_FSRtreatment || EmEnergy * sinTheta < m_emEtCut || F1 < m_emF1Cut) {
                 ++m_countMeasurement;

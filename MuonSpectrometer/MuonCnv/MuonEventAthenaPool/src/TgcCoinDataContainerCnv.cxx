@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Takashi Kubota - June 30, 2008 */
@@ -70,7 +70,7 @@ StatusCode TgcCoinDataContainerCnv::initialize() {
 TgcCoinDataContainer_PERS*    TgcCoinDataContainerCnv::createPersistent (Muon::TgcCoinDataContainer* transCont) {
     MsgStream log(msgSvc(), "TgcCoinDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    TgcCoinDataContainer_PERS *pixdc_p= m_TPConverter_tlp4.createPersistent( transCont, log );
+    TgcCoinDataContainer_PERS *pixdc_p= m_TPConverter_tlp3.createPersistent( transCont, log );
     return pixdc_p;
 }
 
@@ -80,15 +80,9 @@ Muon::TgcCoinDataContainer* TgcCoinDataContainerCnv::createTransient() {
     static pool::Guid   p1_guid("C312D3F5-60DB-41D5-895B-9FD4EF443E0B"); // with TgcCoinData_tlp1
     static pool::Guid   p2_guid("524775D8-A66F-4AD3-912E-7D05389C1011"); // with TgcCoinData_tlp2
     static pool::Guid   p3_guid("95BF89C7-1FFC-464F-A14D-742F9E874E56"); // with TgcCoinData_tlp3
-    static pool::Guid   p4_guid("50580B9C-95DB-4501-88EE-14E1CB0C41D6"); // with TgcCoinData_tlp4
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::TgcCoinDataContainer* p_collection(0);
-    if( compareClassGuid(p4_guid) ) {
-        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
-        poolReadObject< TgcCoinDataContainer_PERS >( m_TPConverter_tlp4 );
-        p_collection = m_TPConverter_tlp4.createTransient( log );
-    }
-    else if( compareClassGuid(p3_guid) ) {
+    if( compareClassGuid(p3_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
         poolReadObject< TgcCoinDataContainer_PERS >( m_TPConverter_tlp3 );
         p_collection = m_TPConverter_tlp3.createTransient( log );

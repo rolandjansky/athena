@@ -7,7 +7,7 @@
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
-source setupRivet.sh
+source setupRivet
 
 cat <<EOF > hepmc.events
 HepMC::Version 2.06.11

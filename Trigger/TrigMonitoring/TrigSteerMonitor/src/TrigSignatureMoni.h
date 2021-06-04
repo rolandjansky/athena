@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H
 #define TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H 1
@@ -24,6 +24,7 @@
 
 #include "TimeDivider.h"
 #include "AthenaKernel/AlgorithmTimer.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declarations
 class IIncidentSvc;
@@ -55,10 +56,10 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
       const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc );
 
     // Get the histogram
-    LockedHandle<TH2>& getHistogram() const;
+    LockedHandle<TH2>& getHistogram ATLAS_NOT_CONST_THREAD_SAFE () const;
 
     // Get the histogram buffer
-    LockedHandle<TH2>& getBuffer() const;
+    LockedHandle<TH2>& getBuffer ATLAS_NOT_CONST_THREAD_SAFE () const;
 
     // Get rate histogram timer pointer
     std::unique_ptr<Athena::AlgorithmTimer>& getTimer();
@@ -77,10 +78,10 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
     void updatePublished(unsigned int duration) const;
 
     // Callback to check if interval's duration passed and histogram should be published
-    void callback() const;
+    void callback();
 
-    mutable LockedHandle<TH2> m_bufferHistogram;
-    mutable LockedHandle<TH2> m_histogram;
+    mutable LockedHandle<TH2> m_bufferHistogram ATLAS_THREAD_SAFE;
+    mutable LockedHandle<TH2> m_histogram ATLAS_THREAD_SAFE;
     std::mutex m_mutex;
     std::unique_ptr<Athena::AlgorithmTimer> m_timer;
     std::unique_ptr<TimeDivider> m_timeDivider;
@@ -105,9 +106,9 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   ToolHandleArray<DecisionCollectorTool> m_featureCollectorTools{ this, "FeatureCollectorTools", {}, "Tools that collect decision counts for specific features for steps" };
 
   // Histograms
-  mutable LockedHandle<TH2> m_passHistogram;
-  mutable LockedHandle<TH2> m_countHistogram;
-  mutable LockedHandle<TH2> m_bunchHistogram;
+  mutable LockedHandle<TH2> m_passHistogram ATLAS_THREAD_SAFE;
+  mutable LockedHandle<TH2> m_countHistogram ATLAS_THREAD_SAFE;
+  mutable LockedHandle<TH2> m_bunchHistogram ATLAS_THREAD_SAFE;
   RateHistogram m_rateHistogram;
   RateHistogram m_bcidHistogram;
   RateHistogram m_sequenceHistogram;

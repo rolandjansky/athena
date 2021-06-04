@@ -1294,7 +1294,7 @@ namespace MuonCombined {
                                                   const Trk::Track& indetTrack) const {
         ATH_MSG_VERBOSE("Creating dummy tracks from segments...");
 
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto  trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         for (const auto* seg : segments) {
             // create pars for muon and loop over hits
@@ -1323,7 +1323,10 @@ namespace MuonCombined {
         Trk::TrackInfo info(Trk::TrackInfo::Unknown, Trk::muon);
         Trk::TrackInfo::TrackPatternRecoInfo author = Trk::TrackInfo::MuTag;
         info.setPatternRecognitionInfo(author);
-        Trk::Track* newtrack = new Trk::Track(info, trackStateOnSurfaces, (indetTrack.fitQuality())->clone());
+        Trk::Track* newtrack =
+          new Trk::Track(info,
+                         std::move(trackStateOnSurfaces),
+                         (indetTrack.fitQuality())->clone());
 
         // create a track summary for this track
         if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*newtrack, nullptr, false); }

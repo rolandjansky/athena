@@ -13,9 +13,8 @@ from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from .FastPhotonMenuSequences import fastPhotonMenuSequence
 from .PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
-
-
-from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonMenuSequence
+from .TLAPhotonMenuSequences import TLAPhotonMenuSequence
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -27,7 +26,6 @@ def fastPhotonCaloSequenceCfg( flags ):
     return fastCaloMenuSequence('Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
-
     return fastPhotonMenuSequence()
 
 def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
@@ -40,7 +38,6 @@ def precisionPhotonCaloSequenceCfg( flags ):
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 def _diPhotonComboHypoToolFromDict(chainDict, lowermass=80000,uppermass=-999,dphi=1.5,applymass=False,applydphi=False): 
     name = chainDict['chainName']
     monTool = GenericMonitoringTool("MonTool_"+name)
@@ -154,7 +151,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             if 'Photon' in cPart['signature']:
                 HLT_threshold = float(cPart['threshold'])
             
-        print("MARCOLOG ", HLT_threshold)    
+        #print("MARCOLOG ", HLT_threshold)    
         return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):

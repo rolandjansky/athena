@@ -873,7 +873,7 @@ const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise
 ///////////////////////////////////////////////////////////////////
 
 double
-InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::vector<const Trk::SpacePoint*>& vsp) const
+InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::vector<const Trk::SpacePoint*>& vsp) 
 {
   double theta = 0.;
   std::vector<double> rad;
@@ -961,7 +961,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::checkSeed
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters*
-InDet::TRT_SeededTrackFinder_ATL::modifyTrackParameters(const Trk::TrackParameters& TP, int mode) const
+InDet::TRT_SeededTrackFinder_ATL::modifyTrackParameters(const Trk::TrackParameters& TP, int mode) 
 {
   ///The mode corresponds to whether the track parameters are modified before the seed (0) or before the pixel propagation (1)
 
@@ -1024,7 +1024,7 @@ void  InDet::TRT_SeededTrackFinder_ATL::setTrackQualityCuts()
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::TRT_SeededTrackFinder_ATL::clusterTrackMap(Trk::Track* Tr,
-                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) 
 {
   DataVector<const Trk::MeasurementBase>::const_iterator
     m  = Tr->measurementsOnTrack()->begin(),
@@ -1042,7 +1042,7 @@ void  InDet::TRT_SeededTrackFinder_ATL::clusterTrackMap(Trk::Track* Tr,
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::SpacePoint*>& Sp,
-                                                   InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                   InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) 
 {
   const Trk::PrepRawData* prd   [ 40];
   const Trk::Track*       trk[2][200];
@@ -1101,7 +1101,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
 ///////////////////////////////////////////////////////////////////
 
  bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::vector<const Trk::SpacePoint*>& Sp,
-                                                InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) 
 {
   const Trk::PrepRawData* prd   [ 40];
   const Trk::Track*       trk[2][200];
@@ -1169,7 +1169,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_SeededTrackFinder_ATL::isNewTrack(Trk::Track* Tr,
-                                                  InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                  InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) 
 {
 
   const Trk::PrepRawData* prd   [100];
@@ -1228,7 +1228,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
     const DataVector<const Trk::TrackStateOnSurface>* newtsos = (*it)->trackStateOnSurfaces();
     if(!newtsos) continue;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator itp, itpe=newtsos->end();
-    for(itp=newtsos->begin(); itp!=itpe; itp++){
+    for(itp=newtsos->begin(); itp!=itpe; ++itp){
       ///Concentrate on the Si component of the track
       const InDet::SiClusterOnTrack* clus = dynamic_cast<const InDet::SiClusterOnTrack*>((*itp)->measurementOnTrack());
       if(clus && ((*itp)->type(Trk::TrackStateOnSurface::Measurement))){  //Count the number of hits used in the track
@@ -1251,7 +1251,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
 
     ///Throw out any spurious pixel hits.Need to rebuild the vector of track states on surface from scratch, since it's const in EDM
     if(nPixHits==1 && (sctR-pixR)>200.){
-      DataVector<const Trk::TrackStateOnSurface>* cltsos = new DataVector<const Trk::TrackStateOnSurface>;
+      auto cltsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
       const Trk::FitQuality* fq = (*it)->fitQuality()->clone();
       // copy track Si states into track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator p_tsos;
@@ -1261,7 +1261,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
       ///Construct the new track
       Trk::TrackInfo info;
  //     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-      Trk::Track* nTrack = new Trk::Track(info, cltsos, fq);
+      Trk::Track* nTrack = new Trk::Track(info, std::move(cltsos), fq);
       cleanSiTrack.push_back(nTrack);
       delete (*it);
     }else{

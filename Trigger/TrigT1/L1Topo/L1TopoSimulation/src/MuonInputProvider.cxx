@@ -8,7 +8,6 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
@@ -83,7 +82,7 @@ MuonInputProvider::handle(const Incident& incident) {
    auto hPt = std::make_unique<TH1I>("MuonTOBPt", "Muon TOB Pt", 40, 0, 40);
    hPt->SetXTitle("p_{T}");
 
-   auto hEtaPhiTopo = std::make_unique<TH2I>("MuonTOBPhiEtaTopo", "Muon TOB Location", 200, -200, 200, 64, -64, 64);
+   auto hEtaPhiTopo = std::make_unique<TH2I>("MuonTOBPhiEtaTopo", "Muon TOB Location", 200, -200, 200, 64, 0, 128);
    hEtaPhiTopo->SetXTitle("#eta");
    hEtaPhiTopo->SetYTitle("#phi");
 
@@ -188,16 +187,19 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
 
    // roi.geteta() and roi.getphi() return the the exact geometrical coordinates of the trigger chambers
    // L1Topo granularities are 0.025 for eta (=> inverse = 40) and 0.05 for phi (=> inverse = 20)
-   float etaDouble = roi.geteta();
-   float phiDouble = roi.getphi();
+   // L1Topo simulation uses positive phi (from 0 to 2pi) => transform phiTopo
+   float fEta = roi.geteta();
+   float fPhi = roi.getphi();
    
-   int etaTopo = topoIndex(etaDouble,40);
-   int phiTopo = topoIndex(phiDouble,20);
+   int etaTopo = topoIndex(fEta,40);
+   int phiTopo = topoIndex(fPhi,20);
+
+   if (phiTopo < 0){ phiTopo += 128; }
    
-   TCS::MuonTOB muon( roi.getptValue()*10, 0, etaTopo, phiTopo, roi.getRoiID() );
-   muon.setEtDouble( static_cast<double>(roi.getptValue()) );
-   muon.setEtaDouble( static_cast<double>(etaDouble) );
-   muon.setPhiDouble( static_cast<double>(phiDouble) );
+   TCS::MuonTOB muon( roi.getptValue()*10, 0, etaTopo, static_cast<unsigned int>(phiTopo), roi.getRoiID() );
+   muon.setEtDouble(static_cast<double>(roi.getptValue()));
+   muon.setEtaDouble(static_cast<double>(fEta));
+   muon.setPhiDouble(static_cast<double>(fPhi));
 
    // Muon flags
    if ( roi.getSectorName().at(0) != 'B' ) { // TGC ( endcap (E) + forward (F) )

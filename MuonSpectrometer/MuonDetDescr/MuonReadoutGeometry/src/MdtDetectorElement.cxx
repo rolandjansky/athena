@@ -31,7 +31,7 @@ MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv,
     : MuonDetectorElement(pv, mgr, id, idHash)
 {
   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
-    m_mdtRE[i] = 0;
+    m_mdtRE[i] = nullptr;
   }
   m_nRE=0;
 }

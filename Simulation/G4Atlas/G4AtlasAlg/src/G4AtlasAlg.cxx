@@ -129,7 +129,6 @@ void G4AtlasAlg::initializeOnce()
     std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
       std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
     runMgr->SetUserInitialization(actionInitialization.release());
-    runMgr->SetVolumeSmartlessLevel(m_volumeSmartlessLevel);
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
@@ -147,7 +146,6 @@ void G4AtlasAlg::initializeOnce()
     std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
       std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
     runMgr->SetUserInitialization(actionInitialization.release());
-    runMgr->SetVolumeSmartlessLevel(m_volumeSmartlessLevel);
   }
 
   // G4 user interface commands

@@ -478,7 +478,7 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
 										   covFromMS, *surf) ;
 
 
-          DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+         auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
           trackStateOnSurfaces->reserve(muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->size() + 1);
           DataVector<const Trk::TrackStateOnSurface>::const_iterator sb = muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->begin();
 
@@ -498,7 +498,10 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
 
             for ( ; sb != muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->end(); ++sb)  trackStateOnSurfaces->push_back((**sb).clone());
 
-            Trk::Track* tmpTrack = new Trk::Track(muon->inDetTrackParticle()->originalTrack()->info(), trackStateOnSurfaces, nullptr);
+            Trk::Track* tmpTrack = new Trk::Track(
+              muon->inDetTrackParticle()->originalTrack()->info(),
+              std::move(trackStateOnSurfaces),
+              nullptr);
 
             Trk::Track* MSConstraintFittedTrack = m_trackFitter->fit(*tmpTrack, m_runOutlierRemoval, Trk::muon);
 
@@ -511,8 +514,12 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
                 Trk::Track* IDOriginalTrackClone = new Trk::Track(*(muon->inDetTrackParticle()->originalTrack()));
                 if(IDOriginalTrackClone){
                   const Trk::Perigee * aMeasPerClone = IDOriginalTrackClone->perigeeParameters();
-                  if( aMeasPerClone ){
-                    ATH_MSG_DEBUG("IDOriginalTrackClone parameters --- pt: " << fabs(1./(aMeasPerClone->parameters()[Trk::qOverP]))*sin(aMeasPerClone->parameters()[Trk::theta]) << " d0: "<< aMeasPerClone->parameters()[Trk::d0] );   
+                  if (aMeasPerClone) {
+                    ATH_MSG_DEBUG(
+                      "IDOriginalTrackClone parameters --- pt: "
+                      << fabs(1. / (aMeasPerClone->parameters()[Trk::qOverP])) *
+                           sin(aMeasPerClone->parameters()[Trk::theta])
+                      << " d0: " << aMeasPerClone->parameters()[Trk::d0]);
                   }
                 }     
                 if(!IDOriginalTrackClone){
@@ -545,7 +552,6 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           } else{
             ATH_MSG_WARNING("failed in IDPerigeeParameters or IDPerigeeParametersClone  !");
             delete pmot;
-            delete trackStateOnSurfaces;
           }
 
         }

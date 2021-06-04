@@ -65,8 +65,8 @@ _all_streams = [
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
     # DELAYED STREAMS
-    StreamInfo('VBFDelayed'  , 'delayed', True, True),
-    StreamInfo('BphysDelayed', 'delayed', True, True),
+    StreamInfo('VBFDelayed'  , 'physics', True, True),
+    StreamInfo('BphysDelayed', 'physics', True, True),
     # Special stream to be used only for special chains rejecting all events like timeburner
     StreamInfo('DISCARD', 'unknown', False, True),
 

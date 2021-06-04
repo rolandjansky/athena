@@ -227,7 +227,7 @@ MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpConditions( MsgStream& out ) co
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpEvent( MsgStream& out ) 
 {
   return out;
 }

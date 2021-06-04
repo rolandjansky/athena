@@ -4,7 +4,6 @@
 
 #include "RPC_LinearSegmentMakerTool/RPC_LinearSegmentMakerTool.h"
 #include "MuonLinearSegmentMakerUtilities/Fit2D.h"
-#include "MuonLinearSegmentMakerUtilities/MuonLinearSegmentMakerUtilities.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkRoad/TrackRoad.h"
@@ -113,7 +112,7 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                                              pHit->globalPosition().perp(),
                                                              pHit->globalPosition().phi(),
                                                              w,
-                                                             (void*)pHit);
+                                                             (const void*)pHit);
             phiPoints.push_back(pPt);
 	    std::string iStationName = pReadoutElement->getStationName();
 	    int iDoubletR = pReadoutElement->getDoubletR();
@@ -127,7 +126,7 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                                              pHit->globalPosition().perp(),
                                                              pHit->globalPosition().z(),
                                                              w,
-                                                             (void*)pHit);
+                                                             (const void*)pHit);
             zPoints.push_back(pPt);
 	    std::string iStationName = pReadoutElement->getStationName();
 	    int iDoubletR = pReadoutElement->getDoubletR();
@@ -288,7 +287,7 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
         Muon::MuonSegment* pMuonSeg = new Muon::MuonSegment(pSegPos,
                                                             pSegDir,
                                                             pcov/*new Trk::ErrorMatrix()*/,
-                                                            const_cast<Trk::PlaneSurface*>(pSurface->clone()),
+                                                            pSurface->clone(),
                                                             pRios,
                                                             pFitQuality);
         if (msgLvl(MSG::DEBUG))

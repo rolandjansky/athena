@@ -126,16 +126,9 @@ else:
     tileInfoConfigurator.setupCOOLPHYPULSE()
     tileInfoConfigurator.setupCOOLAutoCr()
 
-    from AthenaCommon.AppMgr import ToolSvc
-    from TileConditions.TileCondProxyConf import getTileCondProxy
-    from TileConditions.TileConditionsConf import TileBadChanTool
-
-    if not 'TileBchList' in dir():
-        TileBchList='TileNoBad.oflBch'; # dummy file without bad channels
-
-    #=== set file name with bad channels
-    msg.info("Reading TileCal bad channel list from %s" % TileBchList )
-    ToolSvc.TileBadChanTool.ProxyOflBch = getTileCondProxy('FILE','Bch',TileBchList,'TileCondProxyFile_OflBch')
+    msg.info("Reading TileCal bad channel list from TileDefault.onlBch and TileDefault.oflBch files")
+    from TileConditions.TileCondToolConf import getTileBadChanTool
+    getTileBadChanTool('FILE')
 
 # fine-tune CellNoise values depending on beam type
 if not 'TileCommissioning' in dir():

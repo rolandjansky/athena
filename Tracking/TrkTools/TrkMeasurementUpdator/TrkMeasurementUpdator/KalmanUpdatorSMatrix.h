@@ -330,16 +330,16 @@ private:
 
   //! Avoid multiplications with sparse H matrices by cutting 2D rows&columns
   //! out of the full cov matrix.
-  SCovMatrix2 projection_2D(const SCovMatrix5&, const int&) const;
+  static SCovMatrix2 projection_2D(const SCovMatrix5&, const int&) ;
   //! Avoid multiplications with sparse H matrices by cutting 2D rows&columns
   //! out of the full cov matrix.
-  SCovMatrix2 projection_2D(const Amg::MatrixX&, const int&) const;
+  static SCovMatrix2 projection_2D(const Amg::MatrixX&, const int&) ;
   //! Avoid multiplications with sparse H matrices by cutting 3D rows&columns
   //! out of the full cov matrix.
-  SCovMatrix3 projection_3D(const SCovMatrix5&, const int&) const;
+  static SCovMatrix3 projection_3D(const SCovMatrix5&, const int&) ;
   //! Avoid multiplications with sparse H matrices by cutting 4D rows&columns
   //! out of the full cov matrix.
-  SCovMatrix4 projection_4D(const SCovMatrix5&, const int&) const;
+  static SCovMatrix4 projection_4D(const SCovMatrix5&, const int&) ;
 
   // === note: any of the following log... method is only called if
   // the msgstream level has been set appropriately.

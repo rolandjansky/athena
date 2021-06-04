@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKCaloCluster_OnTrack_H
 #define TRKCaloCluster_OnTrack_H
  // Trk
 #include "TrkMeasurementBase/MeasurementBase.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 //
@@ -49,6 +48,11 @@ namespace Trk {
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
       virtual CaloCluster_OnTrack* clone() const override final;
+      
+      /**NVI Clone giving up unique pointer */
+       std::unique_ptr<CaloCluster_OnTrack> uniqueClone() const{
+         return std::unique_ptr<CaloCluster_OnTrack>(clone());
+       }
 
       /** returns the surface for the local to global transformation
       - interface from MeasurementBase */

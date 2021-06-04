@@ -129,7 +129,8 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
       MurmurHash2_test bitmask_test crc64_test Ring_test
       restrict_test vectorize_test get_unaligned_test aligned_vector_test
       vec_int_test vec_float_test vec_fb_int_test vec_fb_float_test
-      ConcurrentHashmapImpl_test SimpleUpdater_test hexdump_test )
+      ConcurrentHashmapImpl_test SimpleUpdater_test hexdump_test
+      FPControl_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LOG_IGNORE_PATTERN "no version information available"

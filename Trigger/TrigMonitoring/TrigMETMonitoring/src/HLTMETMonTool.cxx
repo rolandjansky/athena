@@ -2,7 +2,7 @@
    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigMETMonitoring/HLTMETMonTool.h"
+#include "HLTMETMonTool.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"

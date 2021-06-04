@@ -115,12 +115,12 @@ namespace {
         firstidpar = *parit;
       }
       
-      parit++;
+      ++parit;
     }
 
     parit = track.trackParameters()->end();
     do {
-      parit--;
+      --parit;
       if (
         ((**parit).covariance() != nullptr) && 
         (**parit).associatedSurface().type() == Trk::SurfaceType::Perigee) 
@@ -622,9 +622,9 @@ namespace Trk {
       }
       
       if (firstismuon) {
-        tsosit--;
+        --tsosit;
       } else {
-        tsosit++;
+        ++tsosit;
       }
     }
 
@@ -2278,7 +2278,7 @@ namespace Trk {
     std::unique_ptr<Track> track =
       fit(ctx, rots, param, runOutlier, matEffects);
 
-    for (MeasurementSet::const_iterator it = rots.begin(); it != rots.end(); it++) {
+    for (MeasurementSet::const_iterator it = rots.begin(); it != rots.end(); ++it) {
       delete *it;
     }
     
@@ -2426,7 +2426,7 @@ namespace Trk {
     
     std::unique_ptr<Track> track = fit(ctx,intrk, rots, runOutlier, matEffects);
     
-    for (MeasurementSet::const_iterator it = rots.begin(); it != rots.end(); it++) {
+    for (MeasurementSet::const_iterator it = rots.begin(); it != rots.end(); ++it) {
       delete *it;
     }
     
@@ -3010,7 +3010,7 @@ namespace Trk {
     const TrackParameters &parforextrap,
     const TrackParameters &refpar2,
     const ParticleHypothesis matEffects
-  ) const {
+  ) {
     /*
      * Please refer to external sources on how to find the intersection between
      * a line and a disc.
@@ -3055,7 +3055,7 @@ namespace Trk {
     const TrackParameters &parforextrap,
     const TrackParameters &refpar2,
     const ParticleHypothesis matEffects
-  ) const {
+  ) {
     /*
      * I hope you like trigonometry!
      *
@@ -3340,7 +3340,7 @@ namespace Trk {
     GXFTrackState & lastsistate,
     const TrackParameters *refpar,
     bool hasmat
-  ) const {
+  ) {
     /*
      * Reserve some arbitrary number of layers in the output vectors.
      */
@@ -3396,7 +3396,7 @@ namespace Trk {
       /*
        * Iterate over our disc layers.
        */
-      for (; it != itend; it++) {
+      for (; it != itend; ++it) {
         /*
          * If we've overshot the last hit in our track, we don't need to look
          * at any further layers. We're done!
@@ -3469,7 +3469,7 @@ namespace Trk {
     for (
       std::vector<const Layer *>::const_iterator it = cache.m_barrelcylinders.begin(); 
       it != cache.m_barrelcylinders.end();
-      it++
+      ++it
     ) {
       /*
        * Check for overshoots and reject them.
@@ -4698,7 +4698,7 @@ namespace Trk {
         GXFTrackState *scatstate2 = nullptr;
         int scatindex = 0;
         
-        for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it = trajectory.trackStates().begin(); it != trajectory.trackStates().end(); it++) {
+        for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it = trajectory.trackStates().begin(); it != trajectory.trackStates().end(); ++it) {
           if ((**it).getStateType(TrackStateOnSurface::Scatterer)) {
             if (
               scatindex == trajectory.numberOfScatterers() / 2 || 
@@ -4941,7 +4941,7 @@ namespace Trk {
     int it = 0;
     int tmpminiter = cache.m_miniter;
     
-    for (; it < m_maxit; it++) {
+    for (; it < m_maxit; ++it) {
       cache.m_lastiter = it;
       
       if (it >= m_maxit - 1) {
@@ -6560,7 +6560,7 @@ namespace Trk {
           return nullptr;
         }
 
-        for (int it = 0; it < m_maxit; it++) {
+        for (int it = 0; it < m_maxit; ++it) {
           if (it == m_maxit - 1) {
             ATH_MSG_DEBUG("Fit did not converge");
             cache.m_fittercode = FitterStatusCode::NoConvergence;
@@ -6720,7 +6720,7 @@ namespace Trk {
   void GlobalChi2Fitter::makeTrackFillDerivativeMatrix(
     Cache &cache,
     GXFTrajectory &oldtrajectory
-  ) const {
+  ) {
     Amg::MatrixX & derivs = oldtrajectory.weightedResidualDerivatives();
     Amg::VectorX & errors = oldtrajectory.errors();
     int nrealmeas = 0;
@@ -7312,7 +7312,7 @@ namespace Trk {
       info.setTrackProperties(TrackInfo::StraightTrack);
     }
 
-    std::unique_ptr<Track> rv = std::make_unique<Track>(info, trajectory.release(), qual.release());
+    std::unique_ptr<Track> rv = std::make_unique<Track>(info, std::move(trajectory), qual.release());
 
     /*
      * Here, we create a track summary and attach it to our newly created
@@ -7735,7 +7735,7 @@ __attribute__ ((flatten))
     Eigen::Matrix<double, 5, 5> & jac,
     Eigen::Matrix<double, 5, 5> & out,
     int jmin, int jmax
-  ) const {
+  ) {
     out = (jac * out);
     
     if (jmin > 0) {
@@ -7749,7 +7749,7 @@ __attribute__ ((flatten))
     out(4, 4) = jac(4, 4);
   }
 
-  void GlobalChi2Fitter::calculateDerivatives(GXFTrajectory & trajectory) const { 
+  void GlobalChi2Fitter::calculateDerivatives(GXFTrajectory & trajectory) { 
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     int nscatupstream = trajectory.numberOfUpstreamScatterers();
     int nbremupstream = trajectory.numberOfUpstreamBrems();
@@ -8236,7 +8236,7 @@ __attribute__ ((flatten))
   }
 
   bool
-    GlobalChi2Fitter::correctAngles(double &phi, double &theta) const {
+    GlobalChi2Fitter::correctAngles(double &phi, double &theta) {
     if (theta > M_PI) {
       theta = M_PI - theta;
       phi += M_PI;

@@ -14,6 +14,9 @@ public:
 
   LArCalculatorSvcImp(const std::string& name, ISvcLocator * pSvcLocator);
 
+  // Give this method an empty default since it's mostly not used
+  virtual void initializeForSDCreation() override {};
+
 protected:
   // Birks' law
   bool m_BirksLaw;

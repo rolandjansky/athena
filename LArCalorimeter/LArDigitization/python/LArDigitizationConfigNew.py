@@ -20,6 +20,7 @@ from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 # for Trigger Tower
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
+from SGComps.AddressRemappingConfig import InputRenameCfg, InputOverwriteCfg
 
 def useLArFloat(flags):
     """Return bool for simplified transient LArHit with float E,time"""
@@ -127,15 +128,10 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
             kwargs.setdefault("PileUp", True)
     kwargs.setdefault("useLArFloat", useLArFloat(flags))
     if useLArFloat(flags):
-        maps = [
-            "LArHitContainer#LArHitEMB->LArHitFloatContainer#LArHitEMB",
-            "LArHitContainer#LArHitEMEC->LArHitFloatContainer#LArHitEMEC",
-            "LArHitContainer#LArHitHEC->LArHitFloatContainer#LArHitHEC",
-            "LArHitContainer#LArHitFCAL->LArHitFloatContainer#LArHitFCAL"
-        ]
-        AddressRemappingSvc, ProxyProviderSvc = CompFactory.getComps("AddressRemappingSvc", "ProxyProviderSvc",)
-        acc.addService(AddressRemappingSvc(TypeKeyOverwriteMaps=maps, ProxyDict="ActiveStoreSvc"))
-        acc.addService(ProxyProviderSvc(ProviderNames=["AddressRemappingSvc"]))
+        acc.merge(InputOverwriteCfg("LArHitContainer","LArHitEMB","LArHitFloatContainer","LArHitEMB"))
+        acc.merge(InputOverwriteCfg("LArHitContainer","LArHitEMEC","LArHitFloatContainer","LArHitEMEC"))
+        acc.merge(InputOverwriteCfg("LArHitContainer","LArHitHEC","LArHitFloatContainer","LArHitHEC"))
+        acc.merge(InputOverwriteCfg("LArHitContainer","LArHitFCAL","LArHitFloatContainer","LArHitFCAL"))
         kwargs.setdefault("LArHitContainers", [])
     else:
         kwargs.setdefault("LArHitFloatContainers", [])
@@ -258,4 +254,17 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
 
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
+    return acc
+
+
+def LArHitFilterCfg(flags, **kwargs):
+    """ Return ComponentAccumulator with LArHitFilter """
+    acc = ComponentAccumulator()
+    acc.merge(LArGMCfg(flags))
+    acc.merge(InputRenameCfg("LArHitContainer","LArHitEMB","LArHitEMBOLD"))
+    acc.merge(InputRenameCfg("LArHitContainer","LArHitEMEC","LArHitEMECOLD"))
+    acc.merge(InputRenameCfg("LArHitContainer","LArHitHEC","LArHitHECOLD"))
+    acc.merge(InputRenameCfg("LArHitContainer","LArHitFCAL","LArHitFCALOLD"))
+    LArHitFilter = CompFactory.LArHitFilter
+    acc.addEventAlgo(LArHitFilter("LArHitFilter"))
     return acc

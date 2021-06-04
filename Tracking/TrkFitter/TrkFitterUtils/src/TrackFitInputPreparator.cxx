@@ -426,15 +426,15 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
 //
 Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
 (const Trk::Track& inputTrk, const Trk::MeasurementSet& inputMbs,
- const SortInputFlag doSorting, const bool reintegrateOutliers) const
+ const SortInputFlag doSorting, const bool reintegrateOutliers) 
 {
 
   // FIXME do i need this?
   //Amg::Vector3D startGP  = (*inputTrk.trackParameters()->begin())->position();
   //Amg::Vector3D refDir = (*(inputTrk.trackParameters()->end()-1))->position() - startGP;
 
-  DataVector<const TrackStateOnSurface> *newListOfStates
-    = new DataVector<const TrackStateOnSurface>;
+  auto newListOfStates
+    = std::make_unique<DataVector<const TrackStateOnSurface>>();
   TS_iterator itStates = inputTrk.trackStateOnSurfaces()->begin();
   for (;itStates!=inputTrk.trackStateOnSurfaces()->end();++itStates)
     if ( (*itStates)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -470,14 +470,14 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
     delete CompFunc;
   }
   TrackInfo info;
-  return new Trk::Track(info,newListOfStates,nullptr);
+  return new Trk::Track(info,std::move(newListOfStates),nullptr);
 }
 
 // give back the Measurements stripped of a track+measurement input combination.
 //
 Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
 (const Trk::Track& inputTrk, const Trk::MeasurementSet& inputMbs,
- const SortInputFlag /*doSorting*/, const bool /*reintegrateOutliers*/) const
+ const SortInputFlag /*doSorting*/, const bool /*reintegrateOutliers*/) 
 {
   // FIXME do sorting and outlier treatment
 
@@ -499,7 +499,7 @@ Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
 //
 Trk::PrepRawDataSet Trk::TrackFitInputPreparator::stripPrepRawData
 (const Trk::Track& inputTrk, const Trk::PrepRawDataSet& inputPrds,
- const SortInputFlag doSorting, const bool reintegrateOutliers) const
+ const SortInputFlag doSorting, const bool reintegrateOutliers) 
 {
   // apped PRDs to end of track. For pre-pend make a parameter
   PrepRawDataSet newPrdSet;

@@ -1,0 +1,59 @@
+# Separate blocks with ---
+---
+Input : ['Muon/MuonRawDataMonitoring/MDT/MDT(?P<id0>[^/]*)/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_TUBE_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/TotalNumber_of_MDT_hits_per_event_ADCCut']
+Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RawHitsPerChamber/HitsPerEvtInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RawHitsPerChamber/HitsPerEvtInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/VolumeMapBarrel', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/VolumeMapEndcap']
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_hits_per_evt
+Description: HitPerEvtPerChamber
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      ]
+Output : ['Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/mdtBA_TUBE_eff']
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
+Parameters: { ec : 0}
+Description: Eff
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      ]
+Output : ['Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/mdtBC_TUBE_eff']
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
+Parameters: { ec : 1}
+Description: Eff
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+       ]
+Output : ['Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/mdtEA_TUBE_eff']
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
+Parameters: { ec : 2}
+Description: Eff
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      ]
+Output : ['Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/mdtEC_TUBE_eff']
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
+Parameters: { ec : 3}
+Description: Eff
+
+---
+Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
+Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
+Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
+Description: BoxesAndLines
+
+---
+Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
+Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
+Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
+Description: BoxesAndLines
+

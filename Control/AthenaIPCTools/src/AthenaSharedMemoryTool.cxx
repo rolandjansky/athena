@@ -396,7 +396,10 @@ StatusCode AthenaSharedMemoryTool::clearObject(const char** tokenString, int& nu
          return(StatusCode::SUCCESS);
       }
       if (strncmp(*tokenString, "start", 5) == 0) {
-         ATH_MSG_INFO("Server clearObject() got start, client = " << num);
+         ATH_MSG_INFO("Server clearObject() got start, client = " << num << ", of " << m_num - 1);
+         if (m_dataClients.empty()) { // Annouce all workers to prevent early writer termination
+            for (int i = 1; i < m_num - 1; i++) m_dataClients.insert(i);
+         }
          m_dataClients.insert(num);
          evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
          num = -1;

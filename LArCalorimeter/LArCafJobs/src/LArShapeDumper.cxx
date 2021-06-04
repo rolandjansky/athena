@@ -49,7 +49,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nLArError(0),
   m_nNoDigits(0),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
   m_caloDetDescrMgr(nullptr),
   m_onlineHelper(nullptr),
   m_doEM(false),
@@ -108,7 +107,6 @@ StatusCode LArShapeDumper::initialize()
 
   if (m_doTrigger) {
     ATH_CHECK( m_trigDec.retrieve() );
-    ATH_CHECK( m_configSvc.retrieve() );
   }
 
   ATH_CHECK( m_dumperTool.retrieve() );

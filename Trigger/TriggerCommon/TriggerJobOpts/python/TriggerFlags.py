@@ -557,6 +557,7 @@ class triggerMenuSetup(JobProperty):
         'MC_pp_v7_TriggerValidation_mc_prescale', # MC trigger simulated in 21.0 but reconstructed in 22.0
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         'Cosmic_run3_v1',
+        'LS2_v1_Primary_prescale',
         'LS2_v1_TriggerValidation_prescale',
         'LS2_v1_BulkMCProd_prescale',
         'LS2_v1_CPSampleProd_prescale'

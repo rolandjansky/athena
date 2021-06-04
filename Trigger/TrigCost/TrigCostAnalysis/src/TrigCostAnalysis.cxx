@@ -198,6 +198,12 @@ StatusCode TrigCostAnalysis::execute() {
 
   const std::set<TrigCompositeUtils::DecisionID> seededChains = m_algToChainTool->retrieveActiveChains(context, "HLTNav_L1");
   std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
+
+  // Skip empty events, where only cost chain was active
+  if (seededChains.size() == 1 && *seededChains.begin() == TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")){
+    return StatusCode::SUCCESS;
+  }
+
   for (auto id : seededChains){
       TrigCompositeUtils::AlgToChainTool::ChainInfo chainInfo;
       ATH_CHECK(m_algToChainTool->getChainInfo(context, id, chainInfo));

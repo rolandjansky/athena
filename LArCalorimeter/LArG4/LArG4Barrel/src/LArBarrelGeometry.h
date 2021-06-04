@@ -45,6 +45,8 @@ namespace LArG4 {
       virtual StatusCode initialize() override final;
       virtual StatusCode finalize() override final;
 
+      virtual void initializeForSDCreation() override final;
+
       // Full identifier computation from a G4 step
       virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
 

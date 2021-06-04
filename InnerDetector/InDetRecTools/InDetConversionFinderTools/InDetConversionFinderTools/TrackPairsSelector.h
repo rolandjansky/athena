@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETCONVERSIONFINDERTOOLS_TRACKPAIRSSELECTOR_H
@@ -59,7 +59,7 @@ public:
 
   /** Return a map with the values calculated for the last pair
    * to decorate the vertex once it is created **/
-  std::map<std::string, float> getLastValues(const Cache& cache) const;
+  static std::map<std::string, float> getLastValues(const Cache& cache) ;
 
 private:
   /**Conversion helper tool.  */

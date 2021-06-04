@@ -113,7 +113,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     const Trk::TrackStateOnSurface* pertsos = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
-    DataVector<const Trk::TrackStateOnSurface>* traj = new DataVector<const Trk::TrackStateOnSurface>;
+    auto traj = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
     traj->push_back(pertsos);
     for (const Trk::PrepRawData* prd: prdsInSp) {
       const Trk::Surface& surf = prd->detectorElement()->surface(prd->identify());
@@ -135,7 +135,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     if (mtrk>0) { // survived seeds set as
       data.trackInfo().setTrackFitter(Trk::TrackInfo::xKalman); // xk seedfinder
     }
-    Trk::Track* t = new Trk::Track(data.trackInfo(), traj, nullptr);
+    Trk::Track* t = new Trk::Track(data.trackInfo(), std::move(traj), nullptr);
     if (t) data.seedSegmentsCollection()->push_back(t);
   }
 }

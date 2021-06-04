@@ -659,7 +659,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 }
 
 
-void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) const 
+void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) 
 {
   /**** 5x5 matrix inversion by Gaussian elimination ****/
   int i,j,k,l;
@@ -859,7 +859,7 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
   return pTSS;
 }
 
-Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState* pTS) const
+Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState* pTS) 
 {
 
 
@@ -1177,8 +1177,7 @@ Trk::DistributedKalmanFilter::fit(
                         << sin(pMP->parameters()[Trk::theta]) /
                              pMP->parameters()[Trk::qOverP]);
 
-        DataVector<const TrackStateOnSurface>* pvTS =
-          new DataVector<const TrackStateOnSurface>;
+        auto pvTS = std::make_unique<DataVector<const TrackStateOnSurface>>();
         pvTS->clear();
 
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
@@ -1208,7 +1207,7 @@ Trk::DistributedKalmanFilter::fit(
         Trk::FitQuality* pFQ = new Trk::FitQuality(chi2, ndof);
         ATH_MSG_DEBUG(pvTS->size() << " new RIO_OnTrack(s) created");
         TrackInfo info(TrackInfo::DistributedKalmanFilter,matEffects);
-        fittedTrack = new Track(info, pvTS, pFQ);
+        fittedTrack = new Track(info, std::move(pvTS), pFQ);
       } else {
         fittedTrack=nullptr;
       }

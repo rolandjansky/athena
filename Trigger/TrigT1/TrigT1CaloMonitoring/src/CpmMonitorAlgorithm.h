@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALOMONITORING_CPMMONITORALGORITHM_H
 #define TRIGT1CALOMONITORING_CPMMONITORALGORITHM_H
@@ -96,7 +96,7 @@ private:
   SG::ReadHandleKey<xAOD::CMXCPTobContainer> m_cmxCpTobLocation{this, "CMXCPTobLocation", LVL1::TrigT1CaloDefs::CMXCPTobLocation, "CMXCPTob container"};
   SG::ReadHandleKey<xAOD::CMXCPHitsContainer> m_cmxCpHitsLocation{this, "CMXCPHitsLocation", LVL1::TrigT1CaloDefs::CMXCPHitsLocation, "CMXCPHits container"};
 
-  int * getIsolationBits(int val, int nThresh, int nBits, int offset=0) const;
+  std::vector<bool> getIsolationBits(int val, int nThresh, int nBits) const;
 
 
   StatusCode fillCpmTowerVectors(SG::ReadHandle<xAOD::CPMTowerContainer> &cpmTower,

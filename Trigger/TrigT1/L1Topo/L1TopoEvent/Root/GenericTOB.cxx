@@ -9,6 +9,7 @@ TCS::GenericTOB::GenericTOB(uint32_t roiWord) :
   BaseTOB( roiWord,"GenericTOB" )
 {
    m_tobType = JET;
+   std::cout << "WARNING: no sizeCheck() function applied in GenericTOB" << std::endl;
 }
 
 // constructor from generic data
@@ -20,7 +21,9 @@ TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord)
    , m_EtDouble((double)Et)
    , m_etaDouble(((double)eta)/10.)
    , m_phiDouble(((double)phi)/10.)
-{}
+{
+   std::cout << "WARNING: no sizeCheck() function applied in GenericTOB" << std::endl;
+}
 
 // copy constructor
 TCS::GenericTOB::GenericTOB(const GenericTOB & other) = default;
@@ -61,6 +64,18 @@ TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    , m_etaDouble(cluster.etaDouble())
    , m_phiDouble(cluster.phiDouble())
    , m_tobType(cluster.tobType())
+{}
+
+// constructor from eEm
+TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
+   BaseTOB(eem)
+   , m_Et(eem.Et())
+   , m_eta(eem.eta())
+   , m_phi(eem.phi())
+   , m_EtDouble(eem.EtDouble())
+   , m_etaDouble(eem.etaDouble())
+   , m_phiDouble(eem.phiDouble())
+   , m_tobType(eem.tobType())
 {}
 
 // constructor from muon

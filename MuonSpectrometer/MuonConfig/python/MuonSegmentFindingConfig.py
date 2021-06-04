@@ -671,12 +671,18 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
-    # We need to add two algorithms - one for normal collisions, one for NCB
-    acc = MooSegmentFinderAlgCfg(flags, Cardinality=cardinality)
-    result.merge(acc)
+    
+    if flags.Input.Format == 'BS':
+        from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
+        result.merge( MuonByteStreamDecodersCfg(flags) )
+        from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
+        result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
 
-    acc = MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality)
-    result.merge(acc)
+
+    # We need to add two algorithms - one for normal collisions, one for NCB
+    result.merge( MooSegmentFinderAlgCfg(flags, Cardinality=cardinality) )
+    result.merge( MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality) )
+
     return result
 
 if __name__=="__main__":

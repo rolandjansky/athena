@@ -661,7 +661,7 @@ namespace Muon {
                     Identifier layerId = m_idHelperSvc->layerId((*itR)->identify());
                     layers.insert(layerId);
                     const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(*itR);
-                    const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : 0;
+                    const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : nullptr;
                     if (rpcPRD) rpcTimes.push_back(rpcPRD->time());
                 }
                 nlayers = layers.size();

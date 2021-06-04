@@ -404,7 +404,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
             if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
             if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
           }
-          if( match()->match(el,tag, TrigDefs::includeFailedDecisions) )
+          if( match()->isPassed(el,tag) )
             tagPassed=true;
         }
         else{
@@ -424,7 +424,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
     bool tagMatched=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList[ilist];
-        if( match()->match(el,tag) )
+        if( match()->isPassed(el,tag) )
             tagMatched=true;
     }
     

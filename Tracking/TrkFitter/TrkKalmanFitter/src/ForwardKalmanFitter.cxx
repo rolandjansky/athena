@@ -225,7 +225,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
 
   }
   delete updatedPar; updatedPar = nullptr;     // clean up
-  int testNumber = m_utility->rankedNumberOfMeasurements(trajectory);
+  int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only "<<testNumber<<" and thus too few fittable meas'ts!");
     return FitterStatusCode::FewFittableMeasurements; // master tool (KalmanFitter) will clean up the trajectory...
@@ -252,7 +252,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
     return FitterStatusCode::BadInput;
   }
   if (allowRecalibrate) m_utility->identifyMeasurements(trajectory);
-  Trk::Trajectory::iterator it = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator it = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   const TrackParameters* updatedPar = nullptr;        // delete & remake during filter
   Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
   ATH_MSG_DEBUG ("-F- entering FwFilter with matEff="<<controlledMatEffects.particleType()<<
@@ -278,11 +278,11 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   } else {
     if (filterStartState>2) {
       // set iterator to *before* new outlier, because we didn't keep the update from there.
-      Trk::Trajectory::iterator testIt = m_utility->firstFittableState(trajectory);
+      Trk::Trajectory::iterator testIt = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
       while (testIt != trajectory.end() &&
              testIt->positionOnTrajectory()<filterStartState) {
         it = testIt;
-        testIt = m_utility->nextFittableState(trajectory,it);
+        testIt = Trk::ProtoTrajectoryUtility::nextFittableState(trajectory,it);
       }
     }
     ATH_MSG_VERBOSE ("-F- start filtering with parameters from "<<
@@ -344,7 +344,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   }
 
   delete updatedPar;
-  int testNumber = m_utility->rankedNumberOfMeasurements(trajectory);
+  int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only " << testNumber
                    << " and thus too few fittable measurements!");
@@ -546,7 +546,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
         Trk::alongMomentum);
     }
     if (updMomNoise) {
-      Trk::Trajectory::iterator b = m_utility->previousFittableState(T, predictedState);
+      Trk::Trajectory::iterator b = Trk::ProtoTrajectoryUtility::previousFittableState(T, predictedState);
       if (b!=T.end()) {
         b->checkinDNA_MaterialEffects(updMomNoise);
         bremEffectsState = &(*b);
@@ -750,7 +750,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
  bool) const {
 
   // FIXME check that trajectory is empty
-  Trk::Trajectory::iterator ffs = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator ffs = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   if (ffs->forwardTrackParameters() || ffs->referenceParameters()) {
     ATH_MSG_WARNING (" wrong input? Dont call enterSeedIntoTrajectory on a full trajectory");
     if (ffs->forwardTrackParameters()) delete ffs->checkoutForwardPar();

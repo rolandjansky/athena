@@ -4,35 +4,16 @@
 
 #include "MuonCondAlg/MuonAlignmentErrorData.h"
 
-MuonAlignmentErrorData::MuonAlignmentErrorData():
-  m_test(0),
-  m_vec(0)
-{  
-}
+MuonAlignmentErrorData::MuonAlignmentErrorData() : m_test(0), m_vec(0) {}
 
-MuonAlignmentErrorData::~MuonAlignmentErrorData()
-{  
-}
+MuonAlignmentErrorData::~MuonAlignmentErrorData() {}
 
-deviationStr::deviationStr():
-  traslation(0.), 
-  rotation(0.), 
-  stationName(""), 
-  multilayer("") 
-{ 
-} 
+deviationStr::deviationStr() : traslation(0.), rotation(0.), stationName(""), multilayer("") {}
 
-deviationStr::~deviationStr() {
-} 
+deviationStr::~deviationStr() {}
 
-void MuonAlignmentErrorData::setVec(const std::vector<deviationStr> vec){
-  m_vec = vec;
-}
+void MuonAlignmentErrorData::setVec(const std::vector<deviationStr> vec) { m_vec = vec; }
 
-void MuonAlignmentErrorData::getVec(std::vector<deviationStr>& vec) const{
-  vec = m_vec;
-}
+void MuonAlignmentErrorData::getVec(std::vector<deviationStr>& vec) const { vec = m_vec; }
 
-void MuonAlignmentErrorData::clearVec(){
-  m_vec.clear();
-}
+void MuonAlignmentErrorData::clearVec() { m_vec.clear(); }

@@ -99,8 +99,8 @@ TrackCollHandleBase::TrackCollHandleBase( TrackSysCommonData * cd,
   : VP1StdCollection(cd->system(),"TrackCollHandle_"+TrackType::typeToString(type)+"_"+name), m_d(new Imp),
     m_nshownhandles(0), m_type(type),
     m_commonData(cd),
-    m_sephelper(0),
-    m_propagator(0),
+    m_sephelper(nullptr),
+    m_propagator(nullptr),
     m_propagationOptions(TrackSystemController::NoPropOptions),
     m_propMaxRadius(0.0),
     m_parts(TrackCommonFlags::NoParts),
@@ -118,7 +118,7 @@ TrackCollHandleBase::TrackCollHandleBase( TrackSysCommonData * cd,
 {
   m_d->theclass = this;
   m_d->name = name;
-  m_d->lastUsedPropagator = 0;
+  m_d->lastUsedPropagator = nullptr;
   m_d->notifystatesave = false;
   m_d->shownTSOSParts = TrackCommonFlags::TSOS_NoObjects;
   m_d->customColouredTSOSParts = TrackCommonFlags::TSOS_NoObjects;
@@ -134,8 +134,8 @@ TrackCollHandleBase::TrackCollHandleBase( TrackSysCommonData * cd,
   m_d->tsos_parTubeErrorsDrawCylinders = false;
 
   m_d->comboBox_colourby = new QComboBox;
-  m_d->objBrowseTree = 0;
-  m_d->matButton=0;
+  m_d->objBrowseTree = nullptr;
+  m_d->matButton=nullptr;
 }
 
 //____________________________________________________________________
@@ -366,7 +366,7 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
   
   if (cutOnlyVertexAssocTracks()){
     // std::cout<<"cutOnlyVertexAssocTracks: "<<handle<<",\t: "<<common()->system()->materialFromVertex(handle)<<std::endl;
-    return common()->system()->materialFromVertex(handle)!=0; // return false if no vertex material associated to this track
+    return common()->system()->materialFromVertex(handle)!=nullptr; // return false if no vertex material associated to this track
   }  
   
   return true;
@@ -719,7 +719,7 @@ void TrackCollHandleBase::trackHandleIterationBegin()
 //____________________________________________________________________
 TrackHandleBase* TrackCollHandleBase::getNextTrackHandle() {
   if (m_d->itTrackHandles==m_d->itTrackHandlesEnd)
-    return 0;
+    return nullptr;
   else
     return *(m_d->itTrackHandles++);
 }
@@ -1063,7 +1063,7 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
 //      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
 //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(0); // not selectable, not enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(nullptr); // not selectable, not enabled
   }
   actualSetShownTSOSPartsOnHandles();
   actualSetCustomColouredTSOSPartsOnHandles();
@@ -1115,7 +1115,7 @@ void TrackCollHandleBase::fillObjectBrowser()
   
   QList<QTreeWidgetItem *> list;
   trackHandleIterationBegin();
-  TrackHandleBase* trkHandle=0;
+  TrackHandleBase* trkHandle=nullptr;
   unsigned int i=0;
   unsigned int numVisible=0;
   while ((trkHandle=getNextTrackHandle()))

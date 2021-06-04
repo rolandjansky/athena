@@ -627,7 +627,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 double
 Trk::InDetDynamicNoiseAdjustment::calculateDna(double xth,
                                                double c,
-                                               double zest) const
+                                               double zest) 
 {
   double dna = 0.0;
   double m = c;

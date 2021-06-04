@@ -44,9 +44,163 @@
 ATH_ENABLE_VECTORIZATION;
 
 //static particle masses
-namespace{
-  constexpr Trk::ParticleMasses s_particleMasses{};
+namespace {
+constexpr Trk::ParticleMasses s_particleMasses{};
+
+/////////////////////////////////////////////////////////////////////////////////
+// Create straight line in case of q/p = 0
+/////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Trk::TrackParameters>
+createStraightLine(const Trk::TrackParameters* inputTrackParameters)
+{
+  AmgVector(5) lp = inputTrackParameters->parameters();
+  lp[Trk::qOverP] = 1. / 1e10;
+
+  if (inputTrackParameters->type() == Trk::Curvilinear) {
+    return std::make_unique<Trk::CurvilinearParameters>(
+      inputTrackParameters->position(),
+      lp[2],
+      lp[3],
+      lp[4],
+      (inputTrackParameters->covariance()
+         ? std::optional<AmgSymMatrix(5)>(*inputTrackParameters->covariance())
+         : std::nullopt));
+  }
+  return inputTrackParameters->associatedSurface().createUniqueTrackParameters(
+    lp[0],
+    lp[1],
+    lp[2],
+    lp[3],
+    lp[4],
+    (inputTrackParameters->covariance()
+       ? std::optional<AmgSymMatrix(5)>(*inputTrackParameters->covariance())
+       : std::nullopt));
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+// Distance to surface
+/////////////////////////////////////////////////////////////////////////////////
+double
+distance(Trk::SurfaceType surfaceType,
+         double* targetSurface,
+         const double* P,
+         bool& distanceEstimationSuccessful)
+{
+  if (surfaceType == Trk::SurfaceType::Plane ||
+      surfaceType == Trk::SurfaceType::Disc)
+    return Trk::RungeKuttaUtils::stepEstimatorToPlane(
+      targetSurface, P, distanceEstimationSuccessful);
+  if (surfaceType == Trk::SurfaceType::Cylinder)
+    return Trk::RungeKuttaUtils::stepEstimatorToCylinder(
+      targetSurface, P, distanceEstimationSuccessful);
+
+  if (surfaceType == Trk::SurfaceType::Line ||
+      surfaceType == Trk::SurfaceType::Perigee)
+    return Trk::RungeKuttaUtils::stepEstimatorToStraightLine(
+      targetSurface, P, distanceEstimationSuccessful);
+
+  if (surfaceType == Trk::SurfaceType::Cone)
+    return Trk::RungeKuttaUtils::stepEstimatorToCone(
+      targetSurface, P, distanceEstimationSuccessful);
+
+  // presumably curvilinear?
+  return Trk::RungeKuttaUtils::stepEstimatorToPlane(
+    targetSurface, P, distanceEstimationSuccessful);
+}
+
+std::unique_ptr<Trk::TrackParameters>
+propagateNeutral(const Trk::TrackParameters& parm,
+                 std::vector<Trk::DestSurf>& targetSurfaces,
+                 Trk::PropDirection propDir,
+                 std::vector<unsigned int>& solutions,
+                 double& path,
+                 bool usePathLimit,
+                 bool returnCurv)
+{
+
+  // find nearest valid intersection
+  double tol = 0.001;
+  solutions.clear();
+  std::vector<std::pair<unsigned int, double>> currentDist;
+  currentDist.clear();
+  std::vector<std::pair<const Trk::Surface*, Trk::BoundaryCheck>>::iterator
+    sIter = targetSurfaces.begin();
+  std::vector<std::pair<unsigned int, double>>::iterator oIter =
+    currentDist.begin();
+  std::vector<Trk::DestSurf>::iterator sBeg = targetSurfaces.begin();
+
+  const Amg::Vector3D& position(parm.position());
+  Amg::Vector3D direction(parm.momentum().normalized());
+
+  for (; sIter != targetSurfaces.end(); sIter++) {
+    Trk::DistanceSolution distSol =
+      (*sIter).first->straightLineDistanceEstimate(position, direction);
+    if (distSol.numberOfSolutions() > 0) {
+      unsigned int numSf = sIter - sBeg;
+      if (distSol.first() > tol) {
+        if (!currentDist.empty()) {
+          oIter = currentDist.end();
+          while (oIter != currentDist.begin() &&
+                 distSol.first() < (*(oIter - 1)).second)
+            oIter--;
+          oIter = currentDist.insert(
+            oIter, std::pair<unsigned int, double>(numSf, distSol.first()));
+        } else {
+          currentDist.emplace_back(numSf, distSol.first());
+        }
+      }
+      if (distSol.numberOfSolutions() > 1 && distSol.second() > tol) {
+        if (!currentDist.empty()) {
+          oIter = currentDist.end();
+          while (oIter != currentDist.begin() &&
+                 distSol.second() < (*(oIter - 1)).second)
+            oIter--;
+          oIter = currentDist.insert(
+            oIter, std::pair<unsigned int, double>(numSf, distSol.second()));
+        } else {
+          currentDist.emplace_back(numSf, distSol.second());
+        }
+      }
+    }
+  }
+
+  // loop over surfaces, find valid intersections
+  for (oIter = currentDist.begin(); oIter != currentDist.end(); oIter++) {
+    Amg::Vector3D xsct = position + propDir * direction * ((*oIter).second);
+    if (targetSurfaces[(*oIter).first].first->isOnSurface(
+          xsct, (*oIter).second, 0.001, 0.001)) {
+      if (usePathLimit && path > 0. && path < ((*oIter).second)) {
+        Amg::Vector3D endpoint = position + propDir * direction * path;
+        return std::make_unique<Trk::CurvilinearParameters>(
+          endpoint, parm.momentum(), parm.charge());
+      }
+      path = (*oIter).second;
+      solutions.push_back((*oIter).first);
+      const Trk::Surface* sf = targetSurfaces[(*oIter).first].first;
+
+      if (returnCurv || sf->type() == Trk::SurfaceType::Cone) {
+        return std::make_unique<Trk::CurvilinearParameters>(
+          xsct, parm.momentum(), parm.charge());
+      }
+      return sf->createUniqueTrackParameters(
+        xsct, parm.momentum(), parm.charge(), std::nullopt);
+    }
+  }
+
+  return nullptr;
+}
+
+void
+clearCache(Trk::STEP_Propagator::Cache& cache)
+{
+  cache.m_delIoni = 0.;
+  cache.m_delRad = 0.;
+  cache.m_sigmaIoni = 0.;
+  cache.m_sigmaRad = 0.;
+}
+
+} // end of anonymous namespace
 
 /////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -108,7 +262,6 @@ Trk::STEP_Propagator::~STEP_Propagator()= default;
 // initialize
 StatusCode Trk::STEP_Propagator::initialize()
 {
-  ATH_MSG_VERBOSE(" STEP_Propagator initialize() successful" );
 
   // Read handle for AtlasFieldCacheCondObj
   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
@@ -132,8 +285,6 @@ StatusCode Trk::STEP_Propagator::initialize()
       ATH_MSG_WARNING( "Could not retrieve " << m_rndGenSvc <<", no smearing done." );
       m_randomEngine = nullptr;
     } else {
-      ATH_MSG_VERBOSE( "Successfully retrieved " << m_rndGenSvc );
-
       //Get own engine with own seeds:
       m_randomEngine = m_rndGenSvc->GetEngine(m_randomEngineName);
       if (!m_randomEngine) {
@@ -148,7 +299,6 @@ StatusCode Trk::STEP_Propagator::initialize()
 // finalize
 StatusCode Trk::STEP_Propagator::finalize()
 {
-  ATH_MSG_VERBOSE(" finalize() successful" );
   return StatusCode::SUCCESS;
 }
 
@@ -2305,34 +2455,6 @@ Trk::STEP_Propagator::getMagneticField(Cache& cache,
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-// Main program for step estimation to surfaces
-/////////////////////////////////////////////////////////////////////////////////
-
-double
-Trk::STEP_Propagator::distance (Trk::SurfaceType surfaceType,
-                                double*     targetSurface,
-                                const double*     P,
-                                bool&       distanceEstimationSuccessful) const
-{
-  if (surfaceType == Trk::SurfaceType::Plane || surfaceType == Trk::SurfaceType::Disc)
-    return Trk::RungeKuttaUtils::stepEstimatorToPlane(targetSurface, P,
-                                                distanceEstimationSuccessful);
-  if (surfaceType == Trk::SurfaceType::Cylinder)
-    return Trk::RungeKuttaUtils::stepEstimatorToCylinder(
-        targetSurface, P, distanceEstimationSuccessful);
-
-  if (surfaceType == Trk::SurfaceType::Line || surfaceType == Trk::SurfaceType::Perigee)
-    return Trk::RungeKuttaUtils::stepEstimatorToStraightLine(
-        targetSurface, P, distanceEstimationSuccessful);
-
-  if (surfaceType == Trk::SurfaceType::Cone)
-    return Trk::RungeKuttaUtils::stepEstimatorToCone(targetSurface, P,
-                                               distanceEstimationSuccessful);
-
-  // presumably curvilinear?
-  return Trk::RungeKuttaUtils::stepEstimatorToPlane(targetSurface, P, distanceEstimationSuccessful);
-}
 
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -2599,38 +2721,6 @@ void Trk::STEP_Propagator::updateMaterialEffects( Cache& cache,
   cache.m_matupd_lastpath = path;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-// Create straight line in case of q/p = 0
-/////////////////////////////////////////////////////////////////////////////////
-
-std::unique_ptr<Trk::TrackParameters>
- Trk::STEP_Propagator::createStraightLine( const Trk::TrackParameters*  inputTrackParameters) const
-{
-  AmgVector(5) lp = inputTrackParameters->parameters();
-  lp[Trk::qOverP] = 1./1e10;
-
-  //  ATH_MSG_VERBOSE("STEP propagator detects invalid input parameters (q/p=0 ), resetting momentum to 1.e10");
-
-  if (inputTrackParameters->type() == Trk::Curvilinear) {
-    return std::make_unique<Trk::CurvilinearParameters>(
-      inputTrackParameters->position(),
-      lp[2],
-      lp[3],
-      lp[4],
-      (inputTrackParameters->covariance()
-         ? std::optional<AmgSymMatrix(5)>(*inputTrackParameters->covariance())
-         : std::nullopt));
-  }
-  return inputTrackParameters->associatedSurface().createUniqueTrackParameters(
-    lp[0],
-    lp[1],
-    lp[2],
-    lp[3],
-    lp[4],
-    (inputTrackParameters->covariance()
-       ? std::optional<AmgSymMatrix(5)>(*inputTrackParameters->covariance())
-       : std::nullopt));
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Calculate energy loss in MeV/mm.
@@ -2700,82 +2790,6 @@ void Trk::STEP_Propagator::sampleBrem(Cache& cache, double mom) const
   cache.m_bremMom = pow(eps,pow(rndx,exp(1.)))*mom;          // adjustment here ?
   cache.m_bremSampleThreshold = mom - cache.m_bremMom;
   cache.m_bremEmitThreshold = mom - rnde*cache.m_bremMom;
-}
-
-std::unique_ptr<Trk::TrackParameters>
-Trk::STEP_Propagator::propagateNeutral(const Trk::TrackParameters&   parm,
-                                       std::vector<DestSurf>&        targetSurfaces,
-                                       Trk::PropDirection            propDir,
-                                       std::vector<unsigned int>&    solutions,
-                                       double&                  path,
-                                       bool                     usePathLimit,
-                                       bool                     returnCurv) const {
-
-  // find nearest valid intersection
-  double tol = 0.001;
-  solutions.clear();
-  std::vector<std::pair<unsigned int,double> > currentDist;
-  currentDist.clear();
-  std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >::iterator sIter = targetSurfaces.begin();
-  std::vector<std::pair<unsigned int,double> >::iterator oIter = currentDist.begin();
-  std::vector<DestSurf >::iterator sBeg  = targetSurfaces.begin();
-
-  const Amg::Vector3D& position(parm.position());
-  Amg::Vector3D direction(parm.momentum().normalized());
-
-  for (; sIter!=targetSurfaces.end(); sIter++) {
-    Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,direction);
-    if (distSol.numberOfSolutions()>0 ) {
-      unsigned int numSf = sIter-sBeg;
-      if (distSol.first()>tol) {
-        if (!currentDist.empty()) {
-          oIter= currentDist.end();
-          while (oIter!=currentDist.begin() && distSol.first()<(*(oIter-1)).second ) oIter--;
-          oIter = currentDist.insert(oIter,std::pair<unsigned int,double>(numSf,distSol.first()));
-        } else {
-          currentDist.emplace_back(numSf,distSol.first());
-        }
-      }
-      if ( distSol.numberOfSolutions()>1 && distSol.second()>tol) {
-        if (!currentDist.empty()) {
-          oIter= currentDist.end();
-          while (oIter!=currentDist.begin() && distSol.second()<(*(oIter-1)).second ) oIter--;
-          oIter = currentDist.insert(oIter,std::pair<unsigned int,double>(numSf,distSol.second()));
-        } else {
-          currentDist.emplace_back(numSf,distSol.second());
-        }
-      }
-    }
-  }
-
-  // loop over surfaces, find valid intersections
-  for (oIter=currentDist.begin();oIter!=currentDist.end(); oIter++) {
-    Amg::Vector3D xsct= position+propDir*direction*((*oIter).second);
-    if (targetSurfaces[(*oIter).first].first->isOnSurface(xsct, (*oIter).second, 0.001, 0.001) ) {
-      if ( usePathLimit && path>0. && path<((*oIter).second) ) {
-        Amg::Vector3D endpoint = position+propDir*direction*path;
-        return std::make_unique< Trk::CurvilinearParameters>(endpoint,parm.momentum(),parm.charge());
-      }
-      path = (*oIter).second;
-      solutions.push_back((*oIter).first);
-      const Trk::Surface* sf = targetSurfaces[(*oIter).first].first;
-
-      if( returnCurv || sf->type()==Trk::SurfaceType::Cone) {
-        return std::make_unique< Trk::CurvilinearParameters>(xsct,parm.momentum(),parm.charge());
-      }
-      return sf->createUniqueTrackParameters(xsct,parm.momentum(),parm.charge(),std::nullopt);
-    }
-  }
-
-  return nullptr;
-}
-
-void Trk::STEP_Propagator::clearCache(Cache& cache) const
-{
-  cache.m_delIoni=0.;
-  cache.m_delRad=0.;
-  cache.m_sigmaIoni=0.;
-  cache.m_sigmaRad=0.;
 }
 
 void Trk::STEP_Propagator::getFieldCacheObject( Cache& cache,const EventContext& ctx) const

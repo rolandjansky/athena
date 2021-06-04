@@ -36,7 +36,6 @@ class _ConfigSettings_electron( _ConfigSettingsBase ):
       self._doCloneRemoval      = True #Previously False in Run2!
       self._doSeedRedundancyCheck = True
       self._doTRT               = True
-      self._electronPID         = True
       self._keepTrackParameters = True
 
 
@@ -85,7 +84,6 @@ class _ConfigSettings_tauCore( _ConfigSettingsBase ):
        self._name     = "tauCore"
        self._suffix   = "TauCore"
        self._roi      = "HLT_Roi_TauCore"
-       self._doTRT    = True
        self._holeSearch_FTF = True
 
 class _ConfigSettings_tauIso( _ConfigSettingsBase ):
@@ -96,8 +94,6 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       self._roi      = "RoiForTauIso"
       self._etaHalfWidth   = 0.4
       self._phiHalfWidth   = 0.4
-      self._doTRT          = True
-      self._electronPID    = True
       self._adaptiveVertex = True
       self._addSingleTrackVertices = True
       self._vertex         = "HLT_IDVertex_Tau"
@@ -177,8 +173,8 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._nClustersMin    = 8
       self._RoadWidth       = 5
-      #      to be added as the default later
-      #      self._UseTrigSeedML  = 4
+      self._dodEdxTrk       = True
+      self._UseTrigSeedML   = 4
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
@@ -196,6 +192,7 @@ class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._nClustersMin    = 8
       self._RoadWidth       = 5
+      self._UseTrigSeedML   = 4
       self._doRecord        = False
 
 
@@ -214,6 +211,7 @@ class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._nClustersMin    = 8
       self._RoadWidth       = 5
+      self._UseTrigSeedML   = 4
       self._vertex          = "HLT_IDVertex_FS"
 
 

@@ -1,6 +1,0 @@
-enable=1
-runnumber=147816
-ecm=8000
-jobconf=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147816.Pythia8_AU2CTEQ6L1_Zee.py
-jobdescr="Generator: Pythia 8, Process: Z->e,e, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV"
-analist="LeptonJetAnalysis PdfAnalysis"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: build
@@ -42,7 +42,7 @@ writeBS.type = 'athenaHLT'
 writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
 writeBS.args = '-o output'
-writeBS.args += ' -c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+writeBS.args += ' -c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 
 # Extract and decode physics_Main
 filterMain = filterBS("Main")
@@ -65,7 +65,7 @@ test.get_step('CheckFile').input_file = 'ESD.pool.root,ESD.Module1.pool.root'
 # Ultimately there should be no per-event messages
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 600,
+  'WARNING': 4000,  # TODO: Fix the warnings and decrease the limit, ATR-23548, ATR-22942
   'INFO': 600,
   'other': 100
 }

@@ -333,11 +333,11 @@ namespace Trk {
     ) const override;
 
   private:
-    void calculateJac(
+    static void calculateJac(
       Eigen::Matrix<double, 5, 5> &,
       Eigen::Matrix<double, 5, 5> &,
       int, int
-    ) const;
+    ) ;
 
     Track * fitIm(
       const EventContext& ctx,
@@ -428,13 +428,13 @@ namespace Trk {
      * @note This method can probably be replaced entirely by the straight line
      * intersection method of the appropriate Surface subclass.
      */
-    std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
+    static std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
       Cache & cache,
       const DiscSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
       const ParticleHypothesis mat
-    ) const;
+    ) ;
 
     /**
      * @brief Find the intersection of a set of track parameters onto a
@@ -445,13 +445,13 @@ namespace Trk {
      * @note This method can probably be replaced entirely by the straight line
      * intersection method of the appropriate Surface subclass.
      */
-    std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
+    static std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
       Cache & cache,
       const CylinderSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
       const ParticleHypothesis mat
-    ) const;
+    ) ;
 
     /**
      * @brief Given layer information, probe those layers for scatterers and
@@ -504,7 +504,7 @@ namespace Trk {
      * @param[in] refpar Reference parameters from which to extrapolate.
      * @param[in] hasmat Are there any existing materials on this track?
      */
-    void addMaterialGetLayers(
+    static void addMaterialGetLayers(
       Cache & cache,
       std::vector<std::pair<const Layer *, const Layer *>> & layers,
       std::vector<std::pair<const Layer *, const Layer *>> & uplayers,
@@ -513,7 +513,7 @@ namespace Trk {
       GXFTrackState & last,
       const TrackParameters * refpar,
       bool hasmat
-    ) const;
+    ) ;
 
     /**
      * @brief A faster strategy for adding scatter material to tracks, works
@@ -580,10 +580,10 @@ namespace Trk {
       const ParticleHypothesis
     ) const;
 
-    void makeTrackFillDerivativeMatrix(
+    static void makeTrackFillDerivativeMatrix(
       Cache &,
       GXFTrajectory &
-    ) const;
+    ) ;
 
     std::unique_ptr<const TrackParameters> makeTrackFindPerigeeParameters(
       const EventContext &,
@@ -839,7 +839,7 @@ namespace Trk {
       int
     ) const;
 
-    void calculateDerivatives(GXFTrajectory &) const;
+    static void calculateDerivatives(GXFTrajectory &) ;
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
@@ -855,7 +855,7 @@ namespace Trk {
 
     virtual void setMinIterations(int);
 
-    bool correctAngles(double &, double &) const;
+    static bool correctAngles(double &, double &) ;
 
     bool isMuonTrack(const Track &) const;
 

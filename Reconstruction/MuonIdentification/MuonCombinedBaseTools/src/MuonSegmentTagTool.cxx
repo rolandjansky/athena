@@ -317,7 +317,8 @@ namespace MuonCombined {
                     ATH_MSG_DEBUG("Surface " << surface_counter);
                     if (surface_counter == 3) continue;
                     if (!hasSeg[surface_counter]) continue;
-                    if (atSurface && atSurface->pT() < 500) {
+                    if ((atSurface && atSurface->pT() < 500) || (!atSurface && trackAtMSEntrance[i_extrapolations].get()->pT()<500 &&
+								 surface_counter!=0 && surface_counter!=4 && surface_counter!=7 && surface_counter!=8 && surface_counter!=11)) {
                         ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
                         break;
                     }
@@ -516,6 +517,8 @@ namespace MuonCombined {
                         std::unique_ptr<const Trk::AtaPlane> atSegSurface{m_MuTagMatchingTool->ExtrapolateTrktoSegmentSurface(
                             ctx, *itSeg, trackAtMSEntrance[i_extrapolations].get(), direction)};
                         if (!atSegSurface || !atSegSurface->covariance() || !Amg::valid_cov(*atSegSurface->covariance())) continue;
+			const AmgSymMatrix(5) invCov=atSegSurface->covariance()->inverse();
+			if(!Amg::valid_cov(invCov)) continue;
 
                         MuonCombined::MuonSegmentInfo info = m_MuTagMatchingTool->muTagSegmentInfo(track, *itSeg, atSegSurface.get());
                         if (segmentToxAODSegmentMap) info.link = (*segmentToxAODSegmentMap)[*itSeg];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -224,59 +224,59 @@ namespace Trk {
       // Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      bool predictedStateFitQuality
-	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) const;
+      static bool predictedStateFitQuality
+	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) ;
 
-      bool fullStateFitQuality
-	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) const;
+      static bool fullStateFitQuality
+	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) ;
 
       ///////////////////////////////////////////////////////////////////
       // Converters
       ///////////////////////////////////////////////////////////////////
 
-      bool trackParametersToUpdator
-	(const        TrackParameters&,double*,double*) const;
+      static bool trackParametersToUpdator
+	(const        TrackParameters&,double*,double*) ;
 
-      bool trackParametersToUpdator
-	(const PatternTrackParameters&,double*,double*) const;
+      static bool trackParametersToUpdator
+	(const PatternTrackParameters&,double*,double*) ;
 
-      bool localParametersToUpdator
-	(const LocalParameters&,const Amg::MatrixX&,int&,int&,double*,double*) const;
+      static bool localParametersToUpdator
+	(const LocalParameters&,const Amg::MatrixX&,int&,int&,double*,double*) ;
 
-    std::unique_ptr<TrackParameters> updatorToTrackParameters
-	(const TrackParameters&,double*,double*) const;
+    static std::unique_ptr<TrackParameters> updatorToTrackParameters
+	(const TrackParameters&,double*,double*) ;
 
       ///////////////////////////////////////////////////////////////////
       // Update no measured track parameters
       ///////////////////////////////////////////////////////////////////
 
       bool updateNoMeasuredWithOneDim
-	(double*,double*,double*,double*) const;
+	(const double*,const double*,double*,double*) const;
 
       bool updateNoMeasuredWithTwoDim
-	(double*,double*,double*,double*) const;
+	(const double*,const double*,double*,double*) const;
 
       bool updateNoMeasuredWithAnyDim
-	(double*,double*,double*,double*,int) const;
+	(const double*,const double*,double*,double*,int) const;
 
       ///////////////////////////////////////////////////////////////////
       // Update measured track parameters
       ///////////////////////////////////////////////////////////////////
 
-      bool updateWithOneDim
-	(int,bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithOneDim
+	(int,bool,const double*,const double*,double*,double*,double&) ;
 
-      bool updateWithTwoDim
-	(int,bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithTwoDim
+	(int,bool,const double*,const double*,double*,double*,double&) ;
 
-      bool updateWithTwoDimParameters
-	(int,bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithTwoDimParameters
+	(int,bool,const double*,const double*,double*,const double*,double&) ;
 
-      bool updateWithFiveDim
-	(    bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithFiveDim
+	(    bool,double*,double*,double*,double*,double&) ;
 
       bool updateWithAnyDim
-	(int,bool,double*,double*,double*,double*,double&,
+	(int,bool,double*,const double*,double*,double*,double&,
 	 int,int) const;
 
       bool updateWithOneDimWithBoundary
@@ -285,22 +285,22 @@ namespace Trk {
       bool updateWithTwoDimWithBoundary
 	(int,bool,double*,double*,double*,double*,double&) const;
 
-      bool invert (int,double*,double*) const;
-      bool invert2(    double*,double*) const;
-      bool invert3(    double*,double*) const;
-      bool invert4(    double*,double*) const;
-      bool invert5(    double*,double*) const;
+      static bool invert (int,double*,double*) ;
+      static bool invert2(    const double*,double*) ;
+      static bool invert3(    const double*,double*) ;
+      static bool invert4(    const double*,double*) ;
+      static bool invert5(    const double*,double*) ;
 
-      double Xi2    (int,double*,double*) const;
-      double Xi2for1(    double*,double*) const;
-      double Xi2for2(    double*,double*) const;
-      double Xi2for3(    double*,double*) const;
-      double Xi2for4(    double*,double*) const;
-      double Xi2for5(    double*,double*) const;
+      static double Xi2    (int,double*,double*) ;
+      static double Xi2for1(    const double*,const double*) ;
+      static double Xi2for2(    const double*,const double*) ;
+      static double Xi2for3(    const double*,const double*) ;
+      static double Xi2for4(    const double*,const double*) ;
+      static double Xi2for5(    const double*,const double*) ;
 
-      int  differenceParLoc(int,double*,double*,double*) const;
-      void differenceLocPar(int,double*,double*,double*) const;
-      void testAngles(double*,double*) const;
+      static int  differenceParLoc(int,const double*,const double*,double*) ;
+      static void differenceLocPar(int,const double*,const double*,double*) ;
+      static void testAngles(double*,double*) ;
 
       void mapKeyProduction();
 

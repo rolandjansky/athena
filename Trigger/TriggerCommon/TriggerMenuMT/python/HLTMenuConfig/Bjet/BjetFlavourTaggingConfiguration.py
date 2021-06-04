@@ -40,7 +40,13 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     acc.merge(BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection=inputTracks, PrimaryVertexCollectionName=inputVertex))
     
     #Jet Augmenter
-    acc.merge(BTagHighLevelAugmenterAlgCfg(ConfigFlags, JetCollection=inputJets.replace("Jets",""), BTagCollection=BTagName, Associator=TrackToJetAssociators[0]))
+    acc.merge(BTagHighLevelAugmenterAlgCfg(
+        ConfigFlags,
+        JetCollection=inputJets.replace("Jets",""),
+        BTagCollection=BTagName,
+        Associator=TrackToJetAssociators[0],
+        TrackCollection=inputTracks,
+    ))
 
     #Run new Run3 taggers, i.e. DL1, RNNIP, DL1r
     postTagDL2JetToTrainingMap={

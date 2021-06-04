@@ -1,0 +1,15 @@
+#
+#   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Separate blocks with ---
+---
+Input : ['Muon/MuonSegmentMonitoring/EndCap(?P<side>.)/Overview/MuonSegments/CSC/Muon_Segm_QSumEtaGoodClusPerLayer_E(?P=side)']
+Output : ['Muon/MuonRawDataMonitoring/CSC/Overview/CSCE{side}/h1csc_clus_qsum_signal_E{side}_lfitmean']
+Function : CscRawDataMonitoring.CscPostProcessing.CSCLandauFit
+Description: CSCLandauFit
+
+---
+Input : ['Muon/MuonSegmentMonitoring/EndCap(?P<side>.)/Detail/CSC/Muon_Segm_NumNClusSegments_E(?P=side)']
+Output : ['Muon/MuonSegmentMonitoring/EndCap{side}/Overview/CSC/Muon_Segm_Efficiency_E{side}']
+Function : CscRawDataMonitoring.CscPostProcessing.CscChamberEfficiency
+Description : CSCChamberEfficiency

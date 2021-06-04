@@ -68,7 +68,7 @@ Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracksCol,
   //TODO: make sure the ownership; delete origin tracks from map?
   std::vector<const Track*> tracks;
   tracks.reserve(tracksCol->size());
-  for(auto e: *tracksCol){
+  for(const auto *e: *tracksCol){
     tracks.push_back(e);
   }
   ATH_MSG_DEBUG ("Processing "<<tracks.size()<<" tracks");

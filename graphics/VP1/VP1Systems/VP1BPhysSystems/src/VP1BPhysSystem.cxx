@@ -59,7 +59,7 @@ const unsigned long darkGray = darknes*65536 + darknes*256 + darknes;
 
 bool Br::init(TTree* tree) {
 	vp1Filter = tree;
-	if(tree==NULL) return false;
+	if(tree==nullptr) return false;
 
 	vp1Filter->SetBranchAddress("evtNum", &evtNum);
 	vp1Filter->SetBranchAddress("runNum", &runNum);
@@ -137,10 +137,10 @@ VP1BPhysSystem::VP1BPhysSystem()
 {
 	messageDebug("in BPhysSystem");
 
-	m_rootFile = NULL;
-	m_tree = NULL;
-	m_sg = NULL;
-	m_root = NULL;
+	m_rootFile = nullptr;
+	m_tree = nullptr;
+	m_sg = nullptr;
+	m_root = nullptr;
 
 	
 //   messageDebug("Creating propagationHelper...");
@@ -155,7 +155,7 @@ QWidget * VP1BPhysSystem::buildController()
 {
 	messageDebug("in buildController");
   
-	QWidget * controller = new QWidget(0);
+	QWidget * controller = new QWidget(nullptr);
 	m_c->ui.setupUi(controller);
 
   //connect slots
@@ -201,7 +201,7 @@ void VP1BPhysSystem::actualBuild() {
 	}
 
   //check that file was open
-	if(m_tree==NULL) return;
+	if(m_tree==nullptr) return;
 
   //retrieving event info
 	const EventInfo* eventInfo;
@@ -375,7 +375,7 @@ void VP1BPhysSystem::filterTrack(SoSeparator *root, const Rec::TrackParticleCont
     //identify selected track
 		if(fabs(trk_pt - pt)<0.1 && fabs(trk_eta - eta)<0.01) {
 			drawCutoffTrackParticle(root, *partItr, x, y, z, color);
-			if(selectedParticles!=NULL) {
+			if(selectedParticles!=nullptr) {
 				selectedParticles->push_back(*partItr);
 			}
 		}
@@ -398,7 +398,7 @@ void VP1BPhysSystem::drawAllTrackParticles(StoreGateSvc* sg, SoSeparator *root, 
 	Rec::TrackParticleContainer::const_iterator partItr, partItrEnd = partCont->end();
 	for ( partItr = partCont->begin() ; partItr != partItrEnd; ++partItr) {
 		bool found = false;
-		if(selectedParticles!=NULL) {
+		if(selectedParticles!=nullptr) {
 			std::vector<const Rec::TrackParticle*>::const_iterator selItr = selectedParticles->begin();
 			for(; selItr!=selectedParticles->end(); ++selItr) {
 				if(*partItr == *selItr) {
@@ -525,7 +525,7 @@ void VP1BPhysSystem::drawPoints(SoSwitch* trackSwitch, std::vector<Amg::Vector3D
 				unsigned long color, double width, bool isNeutral)
 {
 	messageDebug("in drawPoints");
-	if(points == NULL) return;
+	if(points == nullptr) return;
 
 	SoSeparator* sep = new SoSeparator();
   
@@ -578,10 +578,10 @@ std::vector<Amg::Vector3D >* VP1BPhysSystem::getPoints(const Trk::Track* track) 
   //retrieve/create VP1Extrapolator
   
 	messageDebug("Retrieving propagator...");
-	Trk::IExtrapolator* propagator = NULL;
+	Trk::IExtrapolator* propagator = nullptr;
 	VP1ToolAccessHelper toolaccess(this);
 	propagator = toolaccess.getToolPointer<Trk::IExtrapolator>("Trk::Extrapolator/VP1Extrapolator",false/*silent*/,true/*create if not exists*/);
-	if(propagator == NULL) {
+	if(propagator == nullptr) {
 		message("Error: propagator Trk::Extrapolator/VP1Extrapolator couldn't be created");
 	}
 	messageDebug("...done");
@@ -594,7 +594,7 @@ std::vector<Amg::Vector3D >* VP1BPhysSystem::getPoints(const Trk::Track* track) 
 
 //   propagator = NULL;
   //propagate track in magnetic field
-	if(propagator!=NULL && propagationHelper!=NULL) {
+	if(propagator!=nullptr && propagationHelper!=nullptr) {
 		messageDebug("Starting propagator...");
 		propagationHelper->makePointsCharged(*points,track,propagator);
 		messageDebug("..done");
@@ -780,7 +780,7 @@ void VP1BPhysSystem::loadFile() {
   
 	messageDebug("in loadFile");
 
-	QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open File"),tr("."),tr("ROOT files (*.root)"));
+	QString fileName = QFileDialog::getOpenFileName(nullptr, tr("Open File"),tr("."),tr("ROOT files (*.root)"));
 	if(fileName.isEmpty()) return;
 
 	m_c->ui.leFileName->setText(fileName);
@@ -788,23 +788,23 @@ void VP1BPhysSystem::loadFile() {
 	
 	
   //close previous file
-	if(m_rootFile!=NULL) {
+	if(m_rootFile!=nullptr) {
 		m_rootFile->Close();
 
-		if(m_br!=NULL) {
+		if(m_br!=nullptr) {
 			delete m_br;
-			m_br = NULL;
+			m_br = nullptr;
 		}
     
-		m_rootFile = NULL;
-		m_tree = NULL;
+		m_rootFile = nullptr;
+		m_tree = nullptr;
 	}
 
   //try to open a new file
 	m_rootFile = TFile::Open(m_fileName.toStdString().c_str());
-	if(m_rootFile!=NULL && !m_rootFile->IsZombie()) {
+	if(m_rootFile!=nullptr && !m_rootFile->IsZombie()) {
 		m_tree = (TTree*)m_rootFile->Get("vp1bphys");
-		if(m_tree!=NULL) {
+		if(m_tree!=nullptr) {
 			m_tree->BuildIndex("runNum","evtNum");
 			m_br = new Br();
 			m_br->init(m_tree);
@@ -816,10 +816,10 @@ void VP1BPhysSystem::loadFile() {
 	}else{
 		m_c->ui.lStatus->setText("File doesn't exist");
 		message("File doesn't exist");
-		m_tree = NULL;
+		m_tree = nullptr;
 	}
 
-	if(m_sg!=NULL && m_root!=NULL) actualBuild();
+	if(m_sg!=nullptr && m_root!=nullptr) actualBuild();
 	updateGUI();
 	
 	messageDebug("leaving loadFile");
@@ -975,7 +975,7 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 	std::vector< const Trk::TrackParameters* >  trackpars;
 	trackpars = trackparticle->trackParameters();
 
-	DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+	auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 	messageDebug("...done");
 
 	if (!trackpars.empty()) {
@@ -990,7 +990,7 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 
 			messageDebug("new TrackStateOnSurface");
 
-			if (p) trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+			if (p) trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
 		}
 		unsigned limit(needresorting?trackpars.size()-1:trackpars.size());
 		messageDebug("...done");
@@ -1004,7 +1004,7 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 				continue;
 /*      if (!common()->trackSanityHelper()->isSafe(p))
 			continue;*/
-			trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+			trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
 		}
 		messageDebug("...done");
     
@@ -1014,9 +1014,9 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 
 #ifdef TRKTRACK_TRACKINFO_H
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,Trk::pion);
-    const Trk::Track * trk = new Trk::Track(ti,trackStateOnSurfaces/*track assumes ownership*/,0/*fitquality*/);
+    const Trk::Track * trk = new Trk::Track(ti,std::move(trackStateOnSurfaces)/*track assumes ownership*/,nullptr/*fitquality*/);
 #else
-    const Trk::Track * trk = new Trk::Track(Trk::Track::unknown, trackStateOnSurfaces/*track assumes ownership*/,
+    const Trk::Track * trk = new Trk::Track(Trk::Track::unknown, std::move(trackStateOnSurfaces)/*track assumes ownership*/,
 																						0/*fitquality*/,Trk::pion);
 #endif
   
@@ -1046,15 +1046,15 @@ const Trk::Track* VP1BPhysSystem::getRefittedTrack(const Amg::Vector3D& position
   //TODO: check parameters safety
 
   //creates a vector of TracksStates on surface
-	DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
-	trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+	auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+	trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
 
   //create track
 #ifdef TRKTRACK_TRACKINFO_H
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,Trk::pion);
-    const Trk::Track * trk = new Trk::Track(ti,trackStateOnSurfaces/*track assumes ownership*/,0/*fitquality*/);
+    const Trk::Track * trk = new Trk::Track(ti,std::move(trackStateOnSurfaces)/*track assumes ownership*/,nullptr/*fitquality*/);
 #else
-    const Trk::Track * trk = new Trk::Track(Trk::Track::unknown, trackStateOnSurfaces/*track assumes ownership*/,
+    const Trk::Track * trk = new Trk::Track(Trk::Track::unknown, std::move(trackStateOnSurfaces)/*track assumes ownership*/,
 																						0/*fitquality*/,Trk::pion);
 #endif
   

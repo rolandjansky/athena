@@ -55,6 +55,8 @@ public:
 
   DeclareInterfaceID(ILArBarrelGeometry,1,0);
 
+  virtual void initializeForSDCreation() = 0;
+
   // Full identifier computation from a G4 step
   virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const = 0;
 

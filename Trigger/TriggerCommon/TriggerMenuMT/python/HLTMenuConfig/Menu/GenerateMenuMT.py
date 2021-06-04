@@ -159,7 +159,12 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # and then import them!
         log.debug("[getSignaturesInMenu]signaturesToGenerate: %s",  self.signaturesToGenerate)
 
-        extendedSignatureToGenerate = self.signaturesToGenerate+['Streaming'] # always import the Streaming sig because noalg chains are moved to StreamingSlice
+        # Extend the list to satisfy certain requirements
+        extendedSignatureToGenerate = self.signaturesToGenerate
+        # always import the Streaming sig because noalg chains are moved to StreamingSlice
+        extendedSignatureToGenerate += ['Streaming']
+        # always import the Combined sig to handle topo ComboHypos
+        extendedSignatureToGenerate += ['Combined'] 
 
         for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)

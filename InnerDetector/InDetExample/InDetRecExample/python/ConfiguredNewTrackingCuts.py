@@ -55,7 +55,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- this is for the TRT-extension
     self.__minTRTonTrk             = 9
-    self.__minTRTPrecFrac          = self.__indetflags.minPrecHitFractionTrtExt()
+    self.__minTRTPrecFrac          = 0.3
 
     # --- general pattern cuts for NewTracking
     self.__radMax                  = 600. * Units.mm # default R cut for SP in SiSpacePointsSeedMaker

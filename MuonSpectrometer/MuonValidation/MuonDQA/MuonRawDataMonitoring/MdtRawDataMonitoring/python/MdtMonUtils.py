@@ -119,3 +119,93 @@ def putLine(h, x1, y1, x2, y2, offset, c=1):
     line = TLine(x1-offset, y1*0.5, x2-offset, y2*0.5)
     line.SetLineColor(c)
     h.GetListOfFunctions().Add(line)
+
+tubeLenght_dict = {
+    "BEE": 0.9115,
+    "BIS": 1.6715,
+    "BIS8": 0.8515,
+    "BIL": 2.6715,
+    "BIM" : 1.5365,
+    "BIR" : 1.1055,
+    "BIR1" : 2.6715,
+    "BIR2" : 1.5365,
+    "BIR4": 1.5365,
+    "BIR5" : 1.5365,
+    "BIR3" : 1.1055,
+    "BIR6" : 1.1055,
+    "BME" : 2.15, #approximate!                                                                                                                                   
+    "BMG" : 1.12, #approximate!                                                                                                               
+    "BML" : 3.5515,
+    "BMS" : 3.0715,
+    "BMF" : 3.0715,
+    "BOL" : 4.9615,
+    "BOG" : 3.7715,
+    "BOS": 3.7733,
+    "BOF" : 3.7733,
+    "EES1" : 2.1945,
+    "EES2" : 2.5905,
+    "EEL105": 2.6265,
+    "EEL1" : 4.2015,
+    "EEL2" : 3.6015,
+    "EIS1" : 1.0605,
+    "EIS2" : 1.4115,
+    "EIL1" : 1.5465,
+    "EIL2" : 2.0865,
+    "EIL311" : 1.7415,
+    "EIL315" : 1.7415,
+    "EIL3" : 2.0715,
+    "EIL411" : 1.5515,
+    "EIL415" : 1.5515,
+    "EIL401" : 1.5365,
+    "EIL409" : 1.5365,
+    "EIL403" : 2.8015,
+    "EIL405" : 2.8015,
+    "EIL413" : 2.8015,
+    "EIL407" : 2.0115,
+    "EIL501" : 2.8015,
+    "EIL509" : 2.8015,
+    "EML1" : 1.5465,
+    "EML2" : 2.4465,
+    "EML3" : 3.4065,
+    "EML4" : 4.3665,
+    "EML5" : 5.3265,
+    "EMS1" : 1.0875,
+    "EMS2" : 1.6635,
+    "EMS3" : 2.2395,
+    "EMS4" : 2.8155,
+    "EMS5" : 3.3915,
+    "EOL1" : 2.0415,
+    "EOL2" : 3.0015,
+    "EOL3" : 3.7815,
+    "EOL4" : 4.5015,
+    "EOL5" : 5.2215,
+    "EOL6" : 5.9415,
+    "EOS1" : 1.4655,
+    "EOS2" : 1.9695,
+    "EOS3" : 2.4735,
+    "EOS4" : 2.9415,
+    "EOS5" : 3.3735,
+    "EOS6" : 3.8055,
+}
+
+def getTubeLength( name ):
+
+    name03=name[0:3]
+    name04=name[0:4]
+    name56= name[5:7]
+
+    tubeLength = 4.9615
+
+    if name03 in tubeLenght_dict:
+        tubeLength = tubeLenght_dict[name03]
+
+    if name04 in tubeLenght_dict:
+        tubeLength = tubeLenght_dict[name04]
+
+    if name03+name56 in tubeLenght_dict:
+        tubeLength = tubeLenght_dict[name03+name56]
+
+    if name04+name56 in tubeLenght_dict:
+        tubeLength = tubeLenght_dict[name04+name56]
+
+    return tubeLength 

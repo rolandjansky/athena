@@ -76,25 +76,25 @@ public:
     charge(TrackHandleBase::unknown()),
     massinit(false),
     mass(TrackHandleBase::unknown()),
-    line(0),
-    extraRepresentation(0),
-    extrapSurfaces_sep(0),
+    line(nullptr),
+    extraRepresentation(nullptr),
+    extrapSurfaces_sep(nullptr),
     extraRepAttached(false),
-    points_raw(0), points_propagated(0),
-    points_raw_id_projections(0),
-    points_raw_muon_projections(0),
-    points_propagated_id_projections(0),
-    points_propagated_muon_projections(0),
+    points_raw(nullptr), points_propagated(nullptr),
+    points_raw_id_projections(nullptr),
+    points_raw_muon_projections(nullptr),
+    points_propagated_id_projections(nullptr),
+    points_propagated_muon_projections(nullptr),
     inittouchedchambers(false),
-    randommaterial(0),
+    randommaterial(nullptr),
     pathInfoLoaded(false),
-    pathInfo_TrkTrack(0),
-    pathInfo_Points(0),
-    label_sep(0),
+    pathInfo_TrkTrack(nullptr),
+    pathInfo_Points(nullptr),
+    label_sep(nullptr),
     shownTSOSParts(TrackCommonFlags::TSOS_NoObjects),
     customColouredTSOSParts(TrackCommonFlags::TSOS_NoObjects),
-    tsos_ascobjs(0),
-    m_objBrowseTree(0),
+    tsos_ascobjs(nullptr),
+    m_objBrowseTree(nullptr),
     tempMaxPropRadius(0.0){}
   ~Imp() { delete tsos_ascobjs; }
   TrackHandleBase * theclass;
@@ -194,7 +194,7 @@ void TrackHandleBase::Imp::ensureLoadPathInfo()
 
 //____________________________________________________________________
 TrackHandleBase::TrackHandleBase(TrackCollHandleBase*ch)
-  : m_d(new Imp(this)), m_visible(false), m_collhandle(ch), m_currentmaterial(0)
+  : m_d(new Imp(this)), m_visible(false), m_collhandle(ch), m_currentmaterial(nullptr)
 {
   assert(m_collhandle);
   ++Imp::ntrackhandles;
@@ -379,10 +379,10 @@ void TrackHandleBase::Imp::ensureInitTSOSs()
 
   unsigned parindex(0);
 
-  AscObj_TSOS* ascObjNeedDistToNext(0);
+  AscObj_TSOS* ascObjNeedDistToNext(nullptr);
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = pathInfo_TrkTrack->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = pathInfo_TrkTrack->trackStateOnSurfaces()->end();
-  const Trk::TrackParameters* trackParam(0);
+  const Trk::TrackParameters* trackParam(nullptr);
   for (; tsos_iter != tsos_end; ++tsos_iter) {
     trackParam = (*tsos_iter)->trackParameters();
     if (!sanity->isSafe(*tsos_iter)) {
@@ -396,7 +396,7 @@ void TrackHandleBase::Imp::ensureInitTSOSs()
     //Fixme: likewise check that we don't have a bad measurement, material effect, ...
     if (ascObjNeedDistToNext&&trackParam) {
       ascObjNeedDistToNext->setDistToNextPar((trackParam->position()-ascObjNeedDistToNext->approxCenter()).mag());
-      ascObjNeedDistToNext = 0;
+      ascObjNeedDistToNext = nullptr;
     }
     VP1Msg::messageVerbose("Adding TSOS at index:"+QString::number(parindex));
     ascObjNeedDistToNext = addTSOS(*tsos_iter,parindex++);
@@ -486,11 +486,11 @@ void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints, float ma
   }
   if ( invalidatePropagatedPoints) {
     if (m_d->points_propagated != m_d->points_raw) {
-      delete m_d->points_propagated;m_d->points_propagated = 0;
+      delete m_d->points_propagated;m_d->points_propagated = nullptr;
     }
-    delete m_d->points_raw;m_d->points_raw = 0;   
-    if (m_d->points_propagated_id_projections) { delete m_d->points_propagated_id_projections; m_d->points_propagated_id_projections = 0; }
-    if (m_d->points_propagated_muon_projections) { delete m_d->points_propagated_muon_projections; m_d->points_propagated_muon_projections = 0; }
+    delete m_d->points_raw;m_d->points_raw = nullptr;   
+    if (m_d->points_propagated_id_projections) { delete m_d->points_propagated_id_projections; m_d->points_propagated_id_projections = nullptr; }
+    if (m_d->points_propagated_muon_projections) { delete m_d->points_propagated_muon_projections; m_d->points_propagated_muon_projections = nullptr; }
   }
   if (m_visible) {
     m_d->rebuild3DObjects();
@@ -508,8 +508,8 @@ void TrackHandleBase::updateInDetProjections()
   if (m_d->points_raw_id_projections!=m_d->points_propagated_id_projections)
     delete m_d->points_propagated_id_projections;
   delete m_d->points_raw_id_projections;
-  m_d->points_raw_id_projections = 0;
-  m_d->points_propagated_id_projections = 0;
+  m_d->points_raw_id_projections = nullptr;
+  m_d->points_propagated_id_projections = nullptr;
   //Rebuild 3D objects:
   update3DObjects();
 }
@@ -521,8 +521,8 @@ void TrackHandleBase::updateMuonProjections()
   if (m_d->points_raw_muon_projections!=m_d->points_propagated_muon_projections)
     delete m_d->points_propagated_muon_projections;
   delete m_d->points_raw_muon_projections;
-  m_d->points_raw_muon_projections = 0;
-  m_d->points_propagated_muon_projections = 0;
+  m_d->points_raw_muon_projections = nullptr;
+  m_d->points_propagated_muon_projections = nullptr;
   //Rebuild 3D objects:
   update3DObjects();
 }
@@ -617,7 +617,7 @@ void TrackHandleBase::clearLine()
   if (m_d->line) {
     common()->unregisterTrack(m_d->line);
     m_d->line->unref();
-    m_d->line=0;
+    m_d->line=nullptr;
   }
 }
 
@@ -948,7 +948,7 @@ void TrackHandleBase::updateMaterial()
   } else {
     //Just clear material.
     m_currentmaterial->unref();
-    m_currentmaterial = 0;
+    m_currentmaterial = nullptr;
     m_d->materialChanged();
   }
 }
@@ -970,7 +970,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
 
   if (pathInfo_TrkTrack) {
     const VP1TrackSanity * sanity = theclass->common()->trackSanityHelper();
-    Amg::Vector3D * firstmomentum(0);
+    Amg::Vector3D * firstmomentum(nullptr);
     //Amg::Vector3D vect3d{0.,0.,0.};
     if (pathInfo_TrkTrack->trackParameters())
       points_raw->reserve(pathInfo_TrkTrack->trackParameters()->size());
@@ -1019,7 +1019,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
     
     //std:: cout << "firstmomentum: " << firstmomentum << std::endl;
     delete firstmomentum;
-    firstmomentum = 0;
+    firstmomentum = nullptr;
     return;
   }
   if (pathInfo_Points)
@@ -1050,7 +1050,7 @@ void TrackHandleBase::Imp::ensureInitPointsPropagated()
     		  theclass->collHandle()->propagator(),
     		  theclass->extrapolationParticleHypothesis(),
     		  !theclass->collHandle()->ignoreMEOTinProp(),
-    		  theclass->collHandle()->extendTracks() ? theclass->common()->controller()->extrapolateToThisVolume() : 0 );
+    		  theclass->collHandle()->extendTracks() ? theclass->common()->controller()->extrapolateToThisVolume() : nullptr );
     else
       ok = theclass->common()->trackPropagationHelper()->makePointsNeutral(*points_propagated,pathInfo_TrkTrack);
 
@@ -1090,8 +1090,8 @@ void TrackHandleBase::Imp::ensureInitPointsProjections_InDet( bool raw )
   }
 
   //Time for the hard work:
-  std::vector<Amg::Vector3D > * points=0;
-  Amg::SetVectorVector3D* projections=0;
+  std::vector<Amg::Vector3D > * points=nullptr;
+  Amg::SetVectorVector3D* projections=nullptr;
   if (raw) {
     points_raw_id_projections = new Amg::SetVectorVector3D;
     points = points_raw;
@@ -1292,7 +1292,7 @@ SoMaterial * TrackHandleBase::Imp::determineMaterial()
     //      }
 
       TrackHandleBase* handle = theclass->common()->lastSelectedTrackHandle();
-      if (handle==0) {
+      if (handle==nullptr) {
       //theclass->collHandle()->systemBase()->message("No previously selected track.");
         return theclass->collHandle()->material(); // use collection colouring
       }
@@ -1619,10 +1619,10 @@ class AssocObjAttachmentHandle::Imp {
 public:
   Imp(TrackLODHandle *tlh,TrackHandleBase * th)
     : trackhandle(th),
-    trackmat(0),
+    trackmat(nullptr),
     lodHandle(tlh),
-    septrack_simple(0),
-    septrack_detailed(0),
+    septrack_simple(nullptr),
+    septrack_detailed(nullptr),
     pickStyleChildIdx(-1),
     attached(false) {}
   TrackHandleBase * trackhandle;
@@ -1654,8 +1654,8 @@ public:
   }
   static SoMaterial * dummymaterial;
 };
-SoPickStyle * AssocObjAttachmentHandle::Imp::pickStyle = 0;
-SoMaterial * AssocObjAttachmentHandle::Imp::dummymaterial = 0;
+SoPickStyle * AssocObjAttachmentHandle::Imp::pickStyle = nullptr;
+SoMaterial * AssocObjAttachmentHandle::Imp::dummymaterial = nullptr;
 
 //____________________________________________________________________
 void AssocObjAttachmentHandle::trackVisibilityChanged()
@@ -1696,7 +1696,7 @@ AssocObjAttachmentHandle::~AssocObjAttachmentHandle()
     Imp::pickStyle->unref();
     if ( Imp::pickStyle->getRefCount()==1 ) {
       Imp::pickStyle->unref();
-      Imp::pickStyle = 0;
+      Imp::pickStyle = nullptr;
     }
   }
 
@@ -1965,7 +1965,7 @@ void TrackHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) 
   m_d->m_objBrowseTree->setText(1, l );    
 
   if (!visible()) {
-    m_d->m_objBrowseTree->setFlags(0); // not selectable, not enabled
+    m_d->m_objBrowseTree->setFlags(nullptr); // not selectable, not enabled
   }
   listOfItems << browserTreeItem();
 }
@@ -1981,7 +1981,7 @@ void TrackHandleBase::visibleStateChanged()
   }
     
   if (!visible()) {
-    browserTreeItem()->setFlags(0); // not selectable, not enabled
+    browserTreeItem()->setFlags(nullptr); // not selectable, not enabled
   } else {
     browserTreeItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
   }  

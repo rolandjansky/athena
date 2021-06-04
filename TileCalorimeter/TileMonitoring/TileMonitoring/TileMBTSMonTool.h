@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -155,7 +155,7 @@ class TileMBTSMonTool: public TileFatherMonTool {
     int m_MBTScounters[2][64];
     std::vector<bool> m_counterExist;
 
-    bool m_useTrigger;
+    bool m_useTriggerTileMon;
     bool m_fillHistogramsPerMBTS;
 
     int32_t m_old_lumiblock;

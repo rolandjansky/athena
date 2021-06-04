@@ -199,7 +199,7 @@ StatusCode StoreGateSvc::stop()    {
 }
 
 void StoreGateSvc::handle(const Incident &inc) {
-  m_defaultStore->handle(inc);
+  currentStore()->handle(inc);
 }
 
 //////////////////////////////////////////////////////////////

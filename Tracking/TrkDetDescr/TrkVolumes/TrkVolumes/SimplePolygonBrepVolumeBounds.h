@@ -100,7 +100,7 @@ class SimplePolygonBrepVolumeBounds final: public VolumeBounds {
   void processSubVols();
   Trk::PlaneSurface* sideSurf(const Amg::Transform3D&, unsigned int,
                               unsigned int) const;
-  bool Xor(bool x, bool y) const;
+  static bool Xor(bool x, bool y) ;
 
   bool Left(std::pair<double, double> a, std::pair<double, double> b,
             std::pair<double, double> c) const;

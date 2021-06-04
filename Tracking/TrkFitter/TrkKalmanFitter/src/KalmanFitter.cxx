@@ -447,7 +447,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     m_trajectory.clear(); return nullptr;
   }
   m_utility->identifyMeasurements(m_trajectory);
-  m_maximalNdof = m_utility->rankedNumberOfMeasurements(m_trajectory)-5;
+  m_maximalNdof = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory)-5;
   ATH_MSG_VERBOSE( "These TrackPars are chosen as seed: "<<*minPar);
   bool doDNA = !m_dynamicNoiseAdjustor.empty();
   if (m_doDNAForElectronsOnly && prtHypothesis != Trk::electron) doDNA = false;
@@ -552,7 +552,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
   if (m_callValidationTool)
     callValidation(ctx, 0, kalMec.particleType(), m_fitStatus);
   float this_eta=0.0;     // statistics
-  m_maximalNdof = m_utility->rankedNumberOfMeasurements(m_trajectory)-5;
+  m_maximalNdof = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory)-5;
   if (msgLvl(MSG::DEBUG)) {
     this_eta = estimatedStartParameters.eta();
     monitorTrackFits( Trk::KalmanFitter::Call, this_eta );
@@ -640,7 +640,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     }
   }
   float this_eta=0.0;     // statistics
-  m_maximalNdof = m_utility->rankedNumberOfMeasurements(m_trajectory)-5;
+  m_maximalNdof = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory)-5;
   if (msgLvl(MSG::DEBUG)) {
     this_eta = estimatedStartParameters.eta();
     monitorTrackFits( Trk::KalmanFitter::Call, this_eta );
@@ -720,7 +720,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
 
   // use external preparator class to prepare PRD set for fitter interface
   PrepRawDataSet orderedPRDColl =
-    m_inputPreparator->stripPrepRawData(inputTrack,addPrdColl,m_option_enforceSorting,
+    Trk::TrackFitInputPreparator::stripPrepRawData(inputTrack,addPrdColl,m_option_enforceSorting,
                                         true /* do not lose outliers! */);
   std::unique_ptr<Trk::Track> fittedTrack =
     fit(ctx, orderedPRDColl, *estimatedStartParameters, runOutlier, matEffects);
@@ -761,7 +761,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     m_trajectory.clear(); return nullptr;
   }
   m_utility->identifyMeasurements(m_trajectory);
-  m_maximalNdof = m_utility->rankedNumberOfMeasurements(m_trajectory)-5;
+  m_maximalNdof = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory)-5;
   ATH_MSG_VERBOSE( "These TrackPars are chosen as seed: "
          <<*estimatedStartParameters);
 
@@ -866,7 +866,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     m_trajectory.clear(); return nullptr;
   }
   m_utility->identifyMeasurements(m_trajectory);
-  m_maximalNdof = m_utility->rankedNumberOfMeasurements(m_trajectory)-5;
+  m_maximalNdof = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory)-5;
   bool doDNA = !m_dynamicNoiseAdjustor.empty();
   if (m_doDNAForElectronsOnly && matEffects != Trk::electron) doDNA = false;
   Trk::KalmanMatEffectsController kalMec(matEffects, doDNA);
@@ -985,7 +985,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
 
     if (m_option_doValidationAction) m_extrapolator->validationAction();
 
-    if (nOutlierIterations==1 && !m_utility->trajectoryHasMefot(m_trajectory)
+    if (nOutlierIterations==1 && !Trk::ProtoTrajectoryUtility::trajectoryHasMefot(m_trajectory)
         && !m_brempointAnalyser.empty()
         && !kalMec.aggressiveDNA()
         && kalMec.breakpointType()==Trk::BreakpointNotSpecified ) {
@@ -994,7 +994,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
     }
 
     // --- evaluate dna after 1st iteration: keep if breakpoint is real, or undo+refit if not useful
-    if (nOutlierIterations==1 && m_utility->trajectoryHasMefot(m_trajectory)
+    if (nOutlierIterations==1 && Trk::ProtoTrajectoryUtility::trajectoryHasMefot(m_trajectory)
         && !m_brempointAnalyser.empty()
         && !kalMec.aggressiveDNA()
         && kalMec.breakpointType() == Trk::BreakpointNotSpecified) {
@@ -1012,7 +1012,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
     if (kalMec.breakpointType() == Trk::DnaBremPointNotUseful) {
       kalMec.updateBreakpoint(Trk::NoBreakpoint);
       --nOutlierIterations;
-      m_utility->defineMeasurementsExceptThis(m_trajectory,0); // reset FKF-misses
+      Trk::ProtoTrajectoryUtility::defineMeasurementsExceptThis(m_trajectory,0); // reset FKF-misses
       iFilterBeginState = 1;
       this->prepareNextIteration(1,newFitQuality,iFilterBeginState, *startPar);
 
@@ -1036,7 +1036,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
       }
 
       // --- run outlier logic. Check if we end up at ndof<=0 or if outliers are found.
-      int nPreviousOutliers = m_utility->numberOfOutliers(m_trajectory);
+      int nPreviousOutliers = Trk::ProtoTrajectoryUtility::numberOfOutliers(m_trajectory);
       if (newFitQuality == nullptr || newFitQuality->numberDoF() <= 0) {
         fitter_is_ready = false;
       } else {
@@ -1060,9 +1060,9 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
       bool fit_has_failed =
         ( newFitQuality==nullptr
 	  || newFitQuality->numberDoF() <=0
-          || ( (m_utility->numberOfOutliers(m_trajectory)-nPreviousOutliers)> 0.4*m_trajectory.size())
+          || ( (Trk::ProtoTrajectoryUtility::numberOfOutliers(m_trajectory)-nPreviousOutliers)> 0.4*m_trajectory.size())
           || nOutlierIterations >= m_option_max_N_iterations
-          || m_utility->rankedNumberOfMeasurements(m_trajectory) < 5);
+          || Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory) < 5);
       if (fit_has_failed)
         m_fitStatus = (newFitQuality && newFitQuality->numberDoF() <=0) ?
           Trk::FitterStatusCode::FewFittableMeasurements                :
@@ -1087,7 +1087,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
         }
         if ( (nMeasPrecise+nMeasTube+nOutlPrecise+nOutlTube) > 12
 	     && ( ( (nOutlPrecise+nOutlTube) > 7 && nOutlierIterations >= m_option_max_N_iterations-1)
-		  || (m_utility->numberOfNewOutliers(m_trajectory,posFirstTrt)>3
+		  || (Trk::ProtoTrajectoryUtility::numberOfNewOutliers(m_trajectory,posFirstTrt)>3
 		      && nOutlierIterations >= m_option_max_N_iterations-1)
 		  || (nOutlierIterations >= m_option_max_N_iterations
 		      && m_trajectory.size()>20) )) {
@@ -1100,7 +1100,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
 
 
         // and prevent tracks from getting close to their ndof limit
-        int currentNdof = m_utility->rankedNumberOfMeasurements(m_trajectory)-5;
+        int currentNdof = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory)-5;
 
         if ( (m_maximalNdof >= 2 * currentNdof) && (m_maximalNdof < 7) ) {
           m_fitStatus = Trk::FitterStatusCode::NoConvergence;
@@ -1150,22 +1150,22 @@ bool Trk::KalmanFitter::invokeAnnealingFilter(const Trk::TrackParameters*&  star
       // and look for problematic seeds (replaces old seed-recovery by T.Belkind)
       double chi2_AFB = 0.0;
       if (newFitQuality != nullptr) {
-        Trk::FitQuality ffq = m_utility->forwardFilterQuality(m_trajectory);
+        Trk::FitQuality ffq = Trk::ProtoTrajectoryUtility::forwardFilterQuality(m_trajectory);
         chi2_AFB = (ffq.chiSquared() - newFitQuality->chiSquared()) /
           (ffq.chiSquared() + newFitQuality->chiSquared());
       }
-      unsigned int count_trt = m_utility->numberOfSpecificStates(m_trajectory,Trk::TrackState::TRT,Trk::TrackState::AnyState);
+      unsigned int count_trt = Trk::ProtoTrajectoryUtility::numberOfSpecificStates(m_trajectory,Trk::TrackState::TRT,Trk::TrackState::AnyState);
       found_problematic_seed = m_trajectory.size() < 25 && // don't continue iterating on long tracks
         count_trt<0.9*m_trajectory.size() &&
-        (m_utility->numberOfNewOutliers(m_trajectory,6) > 1 ||
+        (Trk::ProtoTrajectoryUtility::numberOfNewOutliers(m_trajectory,6) > 1 ||
          (chi2_AFB > 0.1 && m_trajectory.size()<18) /*FKF returned w/ more problems*/ );
     }
 
     if (instable_filter || found_problematic_seed) {
 
       // --- prepare trajectory for running DAF as outlier and driftcircle-R-L logic
-      m_utility->defineMeasurementsExceptThis(m_trajectory,0);
-      m_utility->clearFitResultsAfterOutlier(m_trajectory,newFitQuality,0);
+      Trk::ProtoTrajectoryUtility::defineMeasurementsExceptThis(m_trajectory,0);
+      Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,newFitQuality,0);
       ATH_MSG_DEBUG ( "Simple outlier detection fails, now using deterministic annealing.");
 
       FitterStatusCode dafStatus = Trk::FitterStatusCode::OutlierLogicFailure;
@@ -1194,7 +1194,7 @@ bool Trk::KalmanFitter::invokeAnnealingFilter(const Trk::TrackParameters*&  star
 
       bool successfulRecovery  = newFitQuality!= nullptr
         && dafStatus==Trk::FitterStatusCode::Success
-        && m_utility->rankedNumberOfMeasurements(m_trajectory) >= 5
+        && Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(m_trajectory) >= 5
         && !m_outlierLogic->reject(*newFitQuality);
 
       if (successfulRecovery) {
@@ -1249,7 +1249,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
 
   // idea: if the backward filter was good, use its parameters to restart outliers at state 1
   //       or equally use those pars for undoing DNA. Prepare new seed trackparameters:
-  Trk::Trajectory::iterator ffs = m_utility->firstFittableState(m_trajectory);
+  Trk::Trajectory::iterator ffs = Trk::ProtoTrajectoryUtility::firstFittableState(m_trajectory);
   if (Chi2FilterAfb > 0.2  || // indicates that backward filter is reliable
       !m_outlierLogic->reject(*FQ)) {
     const Trk::TrackParameters* resultFromPreviousIter
@@ -1271,7 +1271,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
   // if that worked: clean up, set filter back to first state and plug in new seed parameters
   if (newSeedPars) {
     iFilterBeginState = 1;
-    m_utility->clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState);
+    Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState);
     if (m_forwardFitter->needsReferenceTrajectory()) {
       AmgVector(5)* x = new AmgVector(5)(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
       ffs->checkinParametersDifference(x);
@@ -1284,7 +1284,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
     // if not: restart iteration after first outlier, unless there are outliers at the start
   } else if (iFilterBeginState > 1) {
     ATH_MSG_VERBOSE ("Clearing fit results after state T"<<iFilterBeginState);
-    m_utility->clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState); // FIXME develop remake of refs
+    Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState); // FIXME develop remake of refs
     if (ffs->positionOnTrajectory() > iFilterBeginState) {
       ATH_MSG_VERBOSE ("New outlier(s) have shifted beginning of trajectory, "<<
                        "therefore need to recreate seed from input ref params.");
@@ -1292,7 +1292,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
     }
   } else {
     ATH_MSG_VERBOSE ("reset seed to parameters given by input plus large covariance.");
-    m_utility->clearFitResultsAfterOutlier(m_trajectory,FQ,0);
+    Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,FQ,0);
     m_forwardFitter->enterSeedIntoTrajectory(m_trajectory,backupParams,m_cov0,KalmanMatEffectsController(),false);
   }
   return true;
@@ -1322,7 +1322,7 @@ Trk::KalmanFitter::makeTrack(
     m_fitStatus = Trk::FitterStatusCode::FewFittableMeasurements;
     return nullptr;
   }
-    SmoothedTrajectory* finalTrajectory = new SmoothedTrajectory();
+    auto finalTrajectory = std::make_unique<SmoothedTrajectory>();
 
     // add new TSoS with parameters on reference surface (e.g. physics Perigee)
     if (m_option_PerigeeAtOrigin) {
@@ -1334,7 +1334,7 @@ Trk::KalmanFitter::makeTrack(
         ATH_MSG_DEBUG ("********** perigee making failed, drop track");
         if (msgLvl(MSG::DEBUG)) monitorTrackFits( Trk::KalmanFitter::PerigeeMakingFailure, this_eta );
         m_fitStatus = Trk::FitterStatusCode::PerigeeMakingFailure;
-        delete finalTrajectory;  return nullptr;
+        return nullptr;
       }
     } else {
       const TrackStateOnSurface* refState = makeReferenceState(
@@ -1346,7 +1346,7 @@ Trk::KalmanFitter::makeTrack(
     }
 
 
-    bool dnaFitPresent = m_utility->trajectoryHasMefot(m_trajectory);
+    bool dnaFitPresent = Trk::ProtoTrajectoryUtility::trajectoryHasMefot(m_trajectory);
     Trajectory::iterator it = m_trajectory.begin();
     int i=0;
     for(; it!=m_trajectory.end(); it++, i++) {
@@ -1369,7 +1369,7 @@ Trk::KalmanFitter::makeTrack(
       info.setTrackProperties (TrackInfo::BremFitSuccessful);
       if (msgLvl(MSG::INFO)) monitorTrackFits( DNAFoundBrem, this_eta );
     }
-    Trk::Track* fittedTrack = new Track(info, finalTrajectory,FQ );
+    Trk::Track* fittedTrack = new Track(info, std::move(finalTrajectory),FQ );
     if (!fittedTrack) {
       ATH_MSG_WARNING ("Trk::Track constructor failed!");
       m_fitStatus = Trk::FitterStatusCode::PerigeeMakingFailure;
@@ -1379,17 +1379,17 @@ Trk::KalmanFitter::makeTrack(
     if (testParam && testParam->covariance()) {
       const AmgSymMatrix(5)& cov = *testParam->covariance();
       if (cov(0,4) == 0.0 && cov(1,4)==0.0 && cov(2,4)==0.0 && cov(3,4)==0) {
-	ATH_MSG_VERBOSE ("Detected straight-line track.");
-	fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack);
-	if (msgLvl(MSG::INFO)) monitorTrackFits( Trk::KalmanFitter::StraightTrackModel, this_eta );
+        ATH_MSG_VERBOSE ("Detected straight-line track.");
+        fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack);
+        if (msgLvl(MSG::INFO)) monitorTrackFits( Trk::KalmanFitter::StraightTrackModel, this_eta );
       }
     }
     // we made it !
-    ATH_MSG_DEBUG ("\n********** done, track made with Chi2 = " << FQ->chiSquared()
+    ATH_MSG_DEBUG ("\n********** done, track made with Chi2 = " << fittedTrack->fitQuality()->chiSquared()
 		   << " / " << FQ->numberDoF() << " **********\n");
     if (msgLvl(MSG::DEBUG)) {
       monitorTrackFits( Trk::KalmanFitter::Success, this_eta );
-      updateChi2Asymmetry( m_fitStatistics[Trk::KalmanFitter::Success], *FQ, this_eta);
+      updateChi2Asymmetry( m_fitStatistics[Trk::KalmanFitter::Success], *(fittedTrack->fitQuality()), this_eta);
     }
     m_fitStatus = Trk::FitterStatusCode::Success;
     return fittedTrack;
@@ -1501,7 +1501,7 @@ void Trk::KalmanFitter::updateChi2Asymmetry(std::vector<int>& Nsuccess,
                                             const Trk::FitQuality& bwFQ,
                                             const double& eta) const {
   if ( m_option_callValidationToolForFailedFitsOnly && m_callValidationTool ) return;
-  Trk::FitQuality fwFQ = m_utility->forwardFilterQuality(m_trajectory);
+  Trk::FitQuality fwFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(m_trajectory);
   double chi2_AFB = (fwFQ.chiSquared() - bwFQ.chiSquared())/ (fwFQ.chiSquared() + bwFQ.chiSquared());
   m_chiSquaredAfb[Trk::KalmanFitter::iAll]
     += (chi2_AFB        - m_chiSquaredAfb[Trk::KalmanFitter::iAll])/double(Nsuccess[Trk::KalmanFitter::iAll]);

@@ -388,8 +388,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   if (!parseFileName(fileName, key.particleType)) return;
   ATH_MSG_DEBUG("Setup BDT for particle " << key.particleType);
 
-  TString filePath = PathResolverFindCalibFile(fileName.Data());
-  std::unique_ptr<TFile> f(TFile::Open(filePath));
+  std::unique_ptr<TFile> f(TFile::Open(fileName));
   CHECK_SETUPBDT( f.get() && !f->IsZombie() );
 
   // Load hPoly

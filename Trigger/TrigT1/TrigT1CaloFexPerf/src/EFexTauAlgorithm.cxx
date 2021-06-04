@@ -76,7 +76,7 @@ float LVL1::EFexTauAlgorithm::CaloCellET(const CaloCell *const &inputCell, float
    // Calculates the ET (before digitization)
    float inputCell_energy = inputCell->energy();
    float inputCell_eta = inputCell->eta();
-   float inputCell_ET = inputCell_energy / cosh(inputCell_eta);
+   float inputCell_ET = cosh(inputCell_eta) ? inputCell_energy / cosh(inputCell_eta) : inputCell_energy;
    // Check to see if negative ET values are allowed
    bool allowNegs = false;
    if (digitScale < 0.)
@@ -91,7 +91,7 @@ float LVL1::EFexTauAlgorithm::CaloCellET(const CaloCell *const &inputCell, float
    if (allowNegs || inputCell_ET > 0.)
    {
       // Split up ET into magnitude & whether it's positive or negative
-      float posOrNeg = inputCell_ET / std::abs(inputCell_ET);
+      float posOrNeg = inputCell_ET ? inputCell_ET / std::abs(inputCell_ET) : inputCell_ET;
       inputCell_ET = std::abs(inputCell_ET);
       // If no digitisation, return ET following noise cut
       if (digitScale == 0)
@@ -104,7 +104,7 @@ float LVL1::EFexTauAlgorithm::CaloCellET(const CaloCell *const &inputCell, float
       // Apply digitization & then noise cut
       else
       {
-         float divET = inputCell_ET / digitScale;
+         float divET = digitScale ? inputCell_ET / digitScale : inputCell_ET;
          int roundET = divET;
          float result = digitScale * roundET;
          if (digitThreshold == 0)
@@ -503,7 +503,7 @@ LVL1::EFexTauAlgorithm::execute(const EventContext& ctx) const
       oreIsoOuterET += supercellMapEM2.GetBinContent(i_fine + 4, offPhiCoordinate);
 
       // Calculate isolation value as the ratio of inner over outer energies
-      double eFEX_OregonIso = oreIsoInnerET / oreIsoOuterET;
+      double eFEX_OregonIso = oreIsoOuterET ? oreIsoInnerET / oreIsoOuterET : oreIsoInnerET;
 
       // Calculation of isolation cut values discussed here
       // https://indico.cern.ch/event/867020/contributions/3726146/attachments/2003208/3344698/L1CALOJoint03132020.pdf
@@ -630,7 +630,7 @@ LVL1::EFexTauAlgorithm::execute(const EventContext& ctx) const
       denBCiso += supercellMapTWR.GetBinContent(i - 1, j - 1);
       denBCiso += supercellMapTWR.GetBinContent(i + 1, j - 1);
 
-      float eFEX_BCiso = nomeFEX_BCiso / denBCiso;
+      float eFEX_BCiso = denBCiso ? nomeFEX_BCiso / denBCiso : nomeFEX_BCiso;
 
       // Set boolean for whether event passes 12 GeV isolation cut, hardcoding isolation threshold for now
       bool eFEX_BCiso_12pass = true;

@@ -144,6 +144,8 @@ public:
   /// clear the vector                                                                                                                               
   void clear()  { m_roiDescriptors.clear(); }  // setComposite(false); }
 
+  void reserve(size_t s) { m_roiDescriptors.reserve(s); }
+
   /// add and RoiDescriptor                                                                                                                           
   void push_back(const IRoiDescriptor* roi) { m_roiDescriptors.push_back(roi); setComposite(true); }
 

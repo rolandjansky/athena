@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -430,7 +430,7 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
   histlbName = "FracTileDigiErrors"+moduleName;
  
    
-  m_hist_error[ros][drawer] = book2I("",histName.c_str(), histTitle.c_str(),16,0.0,16.0,NERROR + NCORRUPTED,0.,NERROR + NCORRUPTED);
+  m_hist_error[ros][drawer] = book2I("",histName, histTitle,16,0.0,16.0,NERROR + NCORRUPTED,0.,NERROR + NCORRUPTED);
   m_hist_error[ros][drawer]->GetXaxis()->SetTitle("DMU");
   SetBinLabel(m_hist_error[ros][drawer]->GetYaxis(),m_ErrorsLabels);  
 
@@ -441,10 +441,10 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
   }
 
   if (m_doOnline) {
-    m_hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(), 100, -99.5, 0.5, -1.1, 1.1);
+    m_hist_error_lb[ros][drawer] = bookProfile("", histlbName, histlbTitle, 100, -99.5, 0.5, -1.1, 1.1);
     m_hist_error_lb[ros][drawer]->GetXaxis()->SetTitle("Last LumiBlocks");
   } else {
-    m_hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(), m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, -1.1, 1.1);
+    m_hist_error_lb[ros][drawer] = bookProfile("", histlbName, histlbTitle, m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, -1.1, 1.1);
     m_hist_error_lb[ros][drawer]->GetXaxis()->SetTitle("LumiBlock");
   }
   m_hist_error_lb[ros][drawer]->GetYaxis()->SetTitle("Fraction of Digital errors");

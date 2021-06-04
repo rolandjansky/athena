@@ -23,7 +23,7 @@ namespace AmbiguityProcessor{
   float 
   calculateFitQuality(const Trk::Track & track){
     float result{0.0};
-    if  (const auto quality=track.fitQuality(); quality and quality->numberDoF()>0 ){ 
+    if  (const auto *const quality=track.fitQuality(); quality and quality->numberDoF()>0 ){ 
       result = quality->chiSquared()/quality->numberDoF();
     }
     return result; 
@@ -34,7 +34,7 @@ namespace AmbiguityProcessor{
     double reXi2 = 0.; 
     int nDF = 0;
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track.trackStateOnSurfaces();
-    DataVector<const Trk::TrackStateOnSurface>* vecTsos = new DataVector<const Trk::TrackStateOnSurface>();
+    auto vecTsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end(); 
@@ -54,7 +54,7 @@ namespace AmbiguityProcessor{
     Trk::TrackInfo newInfo;
     newInfo.setPatternRecognitionInfo(Trk::TrackInfo::SimpleAmbiguityProcessorTool);
     info.addPatternReco(newInfo); 
-    return std::make_unique<Trk::Track>(info, vecTsos, fq);
+    return std::make_unique<Trk::Track>(info, std::move(vecTsos), fq);
   }
 
 }

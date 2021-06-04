@@ -28,11 +28,12 @@ namespace Trig{
       
     private:
 
+      bool decide( const TrigData &input, const xAOD::CaloCluster*) const;
       int findCutIndex( float eta ) const;
 
       Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
       Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
-      Gaudi::Property< float > m_et2thr      { this, "ET2Thr"        , 0. , "" };  
+      Gaudi::Property< std::vector<float> > m_et2thr { this, "ET2thr" , {} , "" };  
       Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; 
       Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
 

@@ -141,7 +141,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
 
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
   void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
-  
+
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };
   void extrapolate(const xAOD::Muon*, MyMuon&) const;

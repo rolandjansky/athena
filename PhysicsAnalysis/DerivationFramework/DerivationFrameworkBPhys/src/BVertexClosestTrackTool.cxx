@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -56,16 +56,17 @@ namespace DerivationFramework {
   //-------------------------------------------------------------------------
   //
   // helper class
-  BVertexClosestTrackTool::CtItem::CtItem(std::string Name, std::string Prefix,
-					  std::string Bname,
+  BVertexClosestTrackTool::CtItem::CtItem(const std::string& Name,
+                                          const std::string& Bname,
+					  const std::string& Prefix,
 					  double Dca, double DcaErr,
 					  double Zca, double ZcaErr,
             double VtxNDErr2, double TrkNDErr2, double Phi0Used,
 					  int    NTrksChi2,
             xAOD::TrackParticle* CloseTrack,
-            TrackBag Tracks,
-            std::vector<std::vector<double> > Vtap,
-            std::vector<unsigned short> Selpat)
+            const TrackBag& Tracks,
+            const std::vector<std::vector<double> >& Vtap,
+            const std::vector<unsigned short>& Selpat)
     : BaseItem(Name, Bname, Prefix), dca(Dca), dcaErr(DcaErr),
       zca(Zca), zcaErr(ZcaErr), vtxNDErr2(VtxNDErr2), trkNDErr2(TrkNDErr2),
       phi0Used(Phi0Used),
@@ -76,9 +77,9 @@ namespace DerivationFramework {
   BVertexClosestTrackTool::CtItem::~CtItem() {
   }
   
-  void BVertexClosestTrackTool::CtItem::setup(std::string Name,
-					      std::string Bname,
-					      std::string Prefix) {
+  void BVertexClosestTrackTool::CtItem::setup(const std::string& Name,
+					      const std::string& Bname,
+					      const std::string& Prefix) {
     BaseItem::setup(Name, Bname, Prefix);
     dca        = -999.;
     dcaErr     = -99.;
@@ -94,9 +95,9 @@ namespace DerivationFramework {
     selpat.clear();
   }
   
-  void BVertexClosestTrackTool::CtItem::setup(std::string Name,
-					      std::string Bname,
-					      std::string Prefix, 
+  void BVertexClosestTrackTool::CtItem::setup(const std::string& Name,
+					      const std::string& Bname,
+					      const std::string& Prefix, 
 					      double Dca, double DcaErr,
 					      double Zca, double ZcaErr,
                 double VtxNDErr2, double TrkNDErr2, double Phi0Used,

@@ -7,6 +7,7 @@
 
 #include "PhysicalVolumeAccessor.h"
 #include <string>
+#include <mutex>
 
 class LArStraightAbsorbers {
 private:
@@ -19,6 +20,7 @@ private:
   bool m_filled;
   static LArStraightAbsorbers* s_instance;
   int m_parity;
+  static std::once_flag s_flag;
 public:
   static LArStraightAbsorbers* GetInstance(const std::string& strDetector="") ;
   double XCentAbs(int stackid, int cellid) const;

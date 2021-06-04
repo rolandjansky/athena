@@ -282,8 +282,8 @@ class PFOInputConfig(AlgInputConfig):
         recoDict = copy.copy(recoDict)
         # Force the jet data type to the correct thing
         recoDict["constitType"] = "pf"
-        jetRecoDict=jetRecoDictForMET(trkopt="ftf", **recoDict),
-        constit = defineJetConstit(jetRecoDict, pfoPrefix="HLT_ftd")
+        jetRecoDict=jetRecoDictForMET(trkopt="ftf", **recoDict)
+        constit = defineJetConstit(jetRecoDict, pfoPrefix="HLT_ftf")
         # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkop        
         acc.addEventAlgo( getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default")) ) # WARNING getConstitModAlg_nojetdef could return None, however this won't happen for PFlow
         # Update the PFO prefix

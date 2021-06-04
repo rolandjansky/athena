@@ -187,7 +187,7 @@ def TGCTriggerConfig(flags):
     else:
         condSeq += CompFactory.TGCTriggerDbAlg()
         if not flags.Input.isMC:
-            conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-03"
+            conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
             conddb._SetAcc('TGC_OFL','COOLOFL_TGC')
             conddb.blockFolder("/TGC/TRIGGER/CW_EIFI")
             conddb.blockFolder("/TGC/TRIGGER/CW_BW")
@@ -237,7 +237,7 @@ def Lvl1BarrelMuonSequence(flags):
 
     from IOVDbSvc.CondDB import conddb
     if flags.Trigger.doLVL1 and not flags.Input.isMC:
-        conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-03"
+        conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
         conddb._SetAcc('RPC_OFL','COOLOFL_RPC')
         conddb.blockFolder("/RPC/TRIGGER/CM_THR_ETA")
         conddb.blockFolder("/RPC/TRIGGER/CM_THR_PHI")

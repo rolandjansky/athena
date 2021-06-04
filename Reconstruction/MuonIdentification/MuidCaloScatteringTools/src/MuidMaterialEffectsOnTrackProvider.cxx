@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -86,10 +86,10 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
         Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
         Trk::ScatteringAngles* newsa2 = new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
 
-        meots.push_back(Trk::MaterialEffectsOnTrack(X0inner, newsa, innersurf));
+        meots.emplace_back(X0inner, newsa, innersurf);
         meots.push_back(Trk::MaterialEffectsOnTrack(0, new Trk::EnergyLoss(energy.first, energy.second), middlesurf,
                                                     Trk::MaterialEffectsBase::EnergyLossEffects));
-        meots.push_back(Trk::MaterialEffectsOnTrack(X0outer, newsa2, outersurf));
+        meots.emplace_back(X0outer, newsa2, outersurf);
 
         for (int i = 0; i < 3; i++) {
             // std::cout << "meot: " << meots[i] << std::endl;
@@ -109,11 +109,11 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
             if (!meot) continue;
             double sintheta = std::sin((*tsosvec)[i]->trackParameters()->parameters()[Trk::theta]);
             double qoverp = (*tsosvec)[i]->trackParameters()->parameters()[Trk::qOverP];
-            const CaloEnergy* eloss = 0;
+            const CaloEnergy* eloss = nullptr;
             if (meot) eloss = dynamic_cast<const CaloEnergy*>(meot->energyLoss());
 
-            Trk::EnergyLoss* neweloss = 0;
-            Trk::ScatteringAngles* newsa = 0;
+            Trk::EnergyLoss* neweloss = nullptr;
+            Trk::ScatteringAngles* newsa = nullptr;
             if (eloss)
                 neweloss = new CaloEnergy(*eloss);
             else {

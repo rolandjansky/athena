@@ -139,7 +139,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
 
     // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
     const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
-    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+    auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
     unsigned int newSize = oldTSOT->size() + 1;
     trackStateOnSurfaces->reserve(newSize);
 
@@ -161,7 +161,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0, ipPerigee->clone(), 0, 0, typePattern));
+                trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
             }
         }
 
@@ -179,8 +179,10 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
     Trk::TrackInfo info(track.info().trackFitter(), track.info().particleHypothesis());
     info.setPatternRecognitionInfo(Trk::TrackInfo::MuidStandAlone);
     // create new track
-    std::unique_ptr<Trk::Track> extrapolateTrack =
-        std::make_unique<Trk::Track>(info, trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+    std::unique_ptr<Trk::Track> extrapolateTrack = std::make_unique<Trk::Track>(
+      info,
+      std::move(trackStateOnSurfaces),
+      track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     // create track summary
     m_trackSummary->updateTrack(ctx, *extrapolateTrack);
     return extrapolateTrack;

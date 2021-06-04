@@ -38,7 +38,8 @@ namespace FSR {
         declareProperty( "topo_drcut", m_topo_drcut =  0.08 );
         declareProperty( "topo_f1cut", m_topo_f1cut = 0.2 );
         declareProperty( "egCalibToolName", m_energyRescalerName );
-
+        declareProperty("AFII_corr", m_AFII_corr = false);
+        declareProperty("IsMC",      m_is_mc     = true);
     }
 
     FsrPhotonTool::~FsrPhotonTool() 
@@ -65,19 +66,27 @@ namespace FSR {
 
         // Initialize the isolation tool for leakage correction
 
-        asg::AsgToolConfig config2 ("CP::IsolationCorrectionTool/isoCorrTool");
-        RETURN_CHECK("initialize", config2.setProperty ("UseMetadata", true));
-        RETURN_CHECK("initialize", config2.makePrivateTool (m_isoCorrTool)); 
+        asg::AsgToolConfig config1 ("CP::IsolationCorrectionTool/isoCorrTool");
+        RETURN_CHECK("initialize", config1.setProperty ("AFII_corr", m_AFII_corr));
+        RETURN_CHECK("initialize", config1.setProperty ("IsMC", m_is_mc));
+        ATH_MSG_DEBUG("initialize - set IsMC/AFII_corr: " << int(m_is_mc) << "/" << int(m_AFII_corr) << " for IsolationCorrectionTool ");
+        if (msg().level() <= MSG::DEBUG) {
+            RETURN_CHECK( "initialize", config1.setProperty( "OutputLevel", MSG::DEBUG) );
+        }
+        RETURN_CHECK("initialize", config1.makePrivateTool (m_isoCorrTool)); 
         ATH_MSG_INFO("initialize - IsolationCorrectionTool initialized " << m_isoCorrTool->name());
 
         
         // Create IsolationCloseByCorrectionTool with IsolationSelectionTool as a private tool,
         // assigning it the photon working point
 
-        asg::AsgToolConfig config3 ("CP::IsolationCloseByCorrectionTool/isoCloseByCorrTool");
-        RETURN_CHECK("initialize", config3.createPrivateTool("IsolationSelectionTool", "CP::IsolationSelectionTool"));
-        RETURN_CHECK("initialize", config3.setProperty( "IsolationSelectionTool.PhotonWP", m_far_fsr_isoWorkingPoint));
-        RETURN_CHECK("initialize", config3.makePrivateTool (m_isoCloseByCorrTool));  
+        asg::AsgToolConfig config2 ("CP::IsolationCloseByCorrectionTool/isoCloseByCorrTool");
+        RETURN_CHECK("initialize", config2.createPrivateTool("IsolationSelectionTool", "CP::IsolationSelectionTool"));
+        RETURN_CHECK("initialize", config2.setProperty( "IsolationSelectionTool.PhotonWP", m_far_fsr_isoWorkingPoint));
+        if (msg().level() <= MSG::DEBUG) {
+            RETURN_CHECK( "initialize", config2.setProperty( "OutputLevel", MSG::DEBUG) );
+        }
+        RETURN_CHECK("initialize", config2.makePrivateTool (m_isoCloseByCorrTool));  
         ATH_MSG_INFO("initialize - photon IsolationCloseByCorrectionTool initialized " << m_isoCloseByCorrTool->name());
         RETURN_CHECK("initialize", m_isoCloseByCorrTool.retrieve());
         RETURN_CHECK("initialize", m_isoCorrTool.retrieve());

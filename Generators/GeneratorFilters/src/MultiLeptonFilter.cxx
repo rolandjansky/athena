@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/MultiLeptonFilter.h"
@@ -28,7 +28,7 @@ StatusCode MultiLeptonFilter::filterEvent() {
 	  }
 	}
   }
-  ATH_MSG_INFO("Found " << numLeptons << "Leptons");
+  ATH_MSG_DEBUG("Found " << numLeptons << "Leptons");
   setFilterPassed(numLeptons >= m_NLeptons);
   return StatusCode::SUCCESS;
 }

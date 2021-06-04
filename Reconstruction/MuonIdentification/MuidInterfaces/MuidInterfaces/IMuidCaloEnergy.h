@@ -47,9 +47,9 @@ namespace Rec {
 
         /**IMuidCaloEnergy interface:
            TrackStateOnSurface for parameters and energyLoss at the calorimeter mid-surface */
-        virtual const Trk::TrackStateOnSurface* trackStateOnSurface(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
-                                                                    const Trk::TrackParameters* innerParameters = nullptr,
-                                                                    const Trk::TrackParameters* outerParameters = nullptr) const = 0;
+        virtual std::unique_ptr<Trk::TrackStateOnSurface> trackStateOnSurface(
+            const EventContext& ctx, const Trk::TrackParameters& middleParameters, const Trk::TrackParameters* innerParameters = nullptr,
+            const Trk::TrackParameters* outerParameters = nullptr) const = 0;
     };
 
 }  // namespace Rec

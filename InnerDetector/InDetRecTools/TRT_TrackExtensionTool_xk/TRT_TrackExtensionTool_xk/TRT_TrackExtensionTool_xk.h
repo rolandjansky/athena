@@ -161,7 +161,7 @@ namespace InDet{
       bool numberPIXandSCTclustersCut(const Trk::Track&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      static MsgStream&    dumpEvent     (MsgStream   & out) ;
     };
 
   MsgStream&    operator << (MsgStream&   ,const TRT_TrackExtensionTool_xk&);

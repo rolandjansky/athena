@@ -39,6 +39,17 @@ def TrackCountHypoToolGen(chainDict):
         # will set here cuts
     return hypo
 
+def TrigZVertexHypoToolGen(chainDict):
+    from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoTool
+    hypo = TrigZVertexHypoTool(chainDict["chainName"])
+    if "pusup" in chainDict["chainName"]:
+        # TODO enable when we setup more chains and have the cuts available
+        # at the moment we require a vertex to be found
+        # hypo.minWeight = int(chainDict["chainParts"][0]["pileupInfo"].strip("pusup"))
+        hypo.minWeight = 1 
+    else:
+        raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
+    return hypo
 
 ### Now the sequences
 
@@ -97,8 +108,8 @@ def MinBiasZVertexFinderSequence():
     vdv = CfgMgr.AthViews__ViewDataVerifier( "VDVZFinderInputs" )
     vdv.DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), ( 'PixelID' , 'DetectorStore+PixelID' ) ]
 
-    from IDScanZFinder.IDScanZFinderConf import  TrigZFinderAlg
-    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, TrigZFinderAlg() ])
+    from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderAlg
+    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, MinBiasZFinderAlg ])
     
     #idTrigConfig = getInDetTrigConfig('InDetSetup')
     ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
@@ -111,18 +122,14 @@ def MinBiasZVertexFinderSequence():
     
 
     ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
-    
-    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
-    from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
-    ZVertFindHypoAlg = TrigStreamerHypoAlg("ZVertFinderHypoAlg")
-    ZVertFindHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
-    
-    ZVertFindHypoToolGen = StreamerHypoToolGenerator
+    from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoAlg
 
+    hypoAlg = TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z"))
+    
     return MenuSequence(Sequence    = ZVertFindSequence,
                         Maker       = ZVertFindInputMakerAlg,
-                        Hypo        = ZVertFindHypoAlg,
-                        HypoToolGen = ZVertFindHypoToolGen)
+                        Hypo        = hypoAlg,
+                        HypoToolGen = TrigZVertexHypoToolGen)
 
 
 
