@@ -470,15 +470,6 @@ if globalflags.InputFormat.is_bytestream():
         elif len(athenaCommonFlags.BSRDOInput())>0:
             svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
-    if globalflags.DataSource()=='geant4':
-        logRecExCommon_topOptions.info("DataSource is 'geant4'")
-        #Special add-ons for simulation based bytestream
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        tf.configurationSourceList = ['ds']
-        tf.readLVL1configFromXML = True
-        svcMgr.ByteStreamCnvSvc.IsSimulation = True
-
-
     #Set TypeNames of ByteStreamInputService according to global flags:
     protectedInclude("RecExCommon/BSRead_config.py")
 
