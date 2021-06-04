@@ -2,7 +2,6 @@
 #
 # art-description: Run PhysicaValidation code from all domains on mc20e. Uses AOD from test_mc20e_nopileup_13TeV.sh on 27 May 2021
 # art-output: log.*
-# art-athena-mt: 4
 # art-type: grid
 # art-include: master/Athena
 
