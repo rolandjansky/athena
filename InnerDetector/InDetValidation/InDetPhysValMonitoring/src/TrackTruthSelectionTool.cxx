@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetPhysValMonitoring includes
@@ -17,8 +17,11 @@ TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string& name) :
 
   // declareProperty( "Property", m_nProperty ); //example property declaration
   declareProperty("maxEta", m_maxEta = 2.5);
+  declareProperty("minEta", m_minEta = -1);
   declareProperty("minPt", m_minPt = 400);
   declareProperty("maxPt", m_maxPt = -1);
+  declareProperty("maxD0", m_maxD0 = -1);
+  declareProperty("maxZ0", m_maxZ0 = -1);
   declareProperty("maxBarcode", m_maxBarcode = 200e3);
   declareProperty("requireCharged", m_requireCharged = true);
   declareProperty("requireStatus1", m_requireStatus1 = true);
@@ -41,11 +44,20 @@ TrackTruthSelectionTool::initialize() {
   if (m_maxEta > -1) {
     m_cuts.push_back(std::make_pair("eta", "Cut on (absolute) particle eta"));
   }
+  if (m_minEta > -1) {
+    m_cuts.push_back(std::make_pair("min_eta", "Cut on minimum (absolute) particle eta"));
+  }
   if (m_minPt > -1) {
     m_cuts.push_back(std::make_pair("min_pt", "Cut on minimum particle pT"));
   }
   if (m_maxPt > -1) {
     m_cuts.push_back(std::make_pair("max_pt", "Cut on maximum particle pT"));
+  }
+  if (m_maxD0 > -1) {
+    m_cuts.push_back(std::make_pair("max_d0", "Cut on maximum particle d0"));
+  }
+  if (m_maxZ0 > -1) {
+    m_cuts.push_back(std::make_pair("max_z0", "Cut on maximum particle z0"));
   }
 
   if (m_maxBarcode > -1) {
@@ -117,11 +129,20 @@ TrackTruthSelectionTool::accept(const xAOD::TruthParticle* p) const {
   if (m_maxEta > -1) {
     m_accept.setCutResult("eta", (p->pt() > 1e-7 ? (std::fabs(p->eta()) < m_maxEta) : false));
   }
+  if (m_minEta > -1) {
+    m_accept.setCutResult("min_eta", (p->pt() > 1e-7 ? (std::fabs(p->eta()) > m_minEta) : false));
+  }
   if (m_minPt > -1) {
     m_accept.setCutResult("min_pt", (p->pt() > m_minPt));
   }
   if (m_maxPt > -1) {
     m_accept.setCutResult("max_pt", (p->pt() < m_maxPt));
+  }
+  if (m_maxD0 > -1) {
+    m_accept.setCutResult("max_d0", (p->isAvailable<float>("d0") && std::fabs(p->auxdata<float>("d0")) < m_maxD0));
+  }
+  if (m_maxZ0 > -1) {
+    m_accept.setCutResult("max_z0", (p->isAvailable<float>("z0") && std::fabs(p->auxdata<float>("z0")) < m_maxZ0));
   }
   if ((m_maxBarcode > -1)) {
     m_accept.setCutResult("barcode", (p->barcode() < m_maxBarcode));
