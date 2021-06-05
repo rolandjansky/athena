@@ -80,8 +80,9 @@ def TruthJetRangeCfg(flags, name="TruthJetRange", **kwargs):
     #this is the time of the xing in ns
     kwargs.setdefault("FirstXing", TruthJet_FirstXing())
     kwargs.setdefault("LastXing",  TruthJet_LastXing())
-    kwargs.setdefault("ItemList", ["JetCollection#InTimeAntiKt4TruthJets",
-                                   "JetCollection#OutOfTimeAntiKt4TruthJets"])
+    itemList = ["xAOD::JetContainer#AntiKt4TruthJets",
+                "xAOD::JetContainer#AntiKt6TruthJets"]
+    kwargs.setdefault("ItemList", itemList)
     return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
@@ -106,8 +107,8 @@ def MergeAntiKt6TruthJetsCfg(flags, name="MergeAntiKt6TruthJetsTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing())
         kwargs.setdefault("LastXing",  TruthJet_LastXing())
-    kwargs.setdefault("InTimeOutputTruthJetCollKey", "InTimeAntiKt4TruthJets")
-    kwargs.setdefault("OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt4TruthJets")
+    kwargs.setdefault("InTimeOutputTruthJetCollKey", "InTimeAntiKt6TruthJets")
+    kwargs.setdefault("OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt6TruthJets")
     tool = CompFactory.MergeTruthJetsTool(name, **kwargs)
     acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
