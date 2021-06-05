@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_VERTEXTRUTHMATCHING
@@ -72,6 +72,9 @@ private:
     // HS vertex selection efficiency vs PU
     TEfficiency* m_vx_hs_sel_eff;
     TEfficiency* m_vx_hs_sel_loose_eff;
+    // HS vertex efficiency vs nTruthVertex
+    TEfficiency* m_vx_hs_reco_eff_nTruth;
+    TEfficiency* m_vx_hs_sel_eff_nTruth;
     // For reco (covariance) resolutions:
     TProfile* m_vx_hs_reco_long_reso;
     TProfile* m_vx_hs_reco_trans_reso;

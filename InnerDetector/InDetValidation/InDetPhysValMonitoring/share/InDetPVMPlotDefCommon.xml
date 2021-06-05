@@ -1294,13 +1294,21 @@
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
   <y title="HS vertex reconstruction efficiency" lo="0.8" hi="1.2"/>
 </h>
-<h id="vx_hs_sel_eff" type="TEfficiency" title="HS vertex selection efficiency (sum[pt,track^2])">
+<h id="vx_hs_sel_eff" type="TEfficiency" title="HS vertex reconstruction + selection efficiency (sum[pt,track^2])">
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
-  <y title="HS vertex selection efficiency" lo="0.6" hi="1.2"/>
+  <y title="HS vertex reconstruction + selection efficiency" lo="0.6" hi="1.2"/>
 </h>
-<h id="vx_hs_sel_loose_eff" type="TEfficiency" title="HS vertex selection efficiency (sum[pt,track^2])">
+<h id="vx_hs_sel_loose_eff" type="TEfficiency" title="HS vertex reconstruction + selection efficiency (sum[pt,track^2])">
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
-  <y title="HS vertex selection efficiency" lo="0.6" hi="1.2"/>
+  <y title="HS vertex reconstruction + selection efficiency" lo="0.6" hi="1.2"/>
+</h>
+<h id="vx_hs_reco_eff_nTruth" type="TEfficiency" title="HS vertex reconstruction efficiency">
+  <x title="Number of interactions" n="30" lo="0.5" hi="300.5"/>
+  <y title="HS vertex reconstruction efficiency" lo="0.6" hi="1.2"/>
+</h>
+<h id="vx_hs_sel_eff_nTruth" type="TEfficiency" title="HS vertex reconstruction + selection efficiency (sum[pt,track^2])">
+  <x title="Number of interactions" n="30" lo="0.5" hi="300.5"/>
+  <y title="HS vertex reconstruction + selection efficiency" lo="0.6" hi="1.2"/>
 </h>
 <h id="vx_hs_reco_long_reso" type="TProfile" title="Reco Longitudinal Resolution">
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
