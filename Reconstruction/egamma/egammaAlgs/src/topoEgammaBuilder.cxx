@@ -29,12 +29,13 @@
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
-  , m_deltaEta1Pear{}
 {}
 
 StatusCode
 topoEgammaBuilder::initialize()
 {
+  m_deltaEta1Pear = std::make_unique<electronPearShapeAlignmentCorrection>();
+
   // the data handle keys
   ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize(m_doElectrons));
   ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize(m_doPhotons));
@@ -397,7 +398,7 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
   static const SG::AuxElement::Accessor<float> pear("deltaEta1PearDistortion");
 
   const float pearShape = m_isTruth ? 0.0
-                                    : m_deltaEta1Pear.getDeltaEtaDistortion(
+                                    : m_deltaEta1Pear->getDeltaEtaDistortion(
                                         electron->caloCluster()->etaBE(2),
                                         electron->caloCluster()->phiBE(2));
 
