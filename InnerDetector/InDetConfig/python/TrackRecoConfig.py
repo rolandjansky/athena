@@ -251,10 +251,8 @@ def TrackRecoCfg(flags):
     # needed for brem/seeding, TODO decided if needed here
     from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
     result.merge(LArBadFebCfg(flags))
-    from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg
-    result.merge(CaloCellMakerCfg(flags))
-    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(flags, doLCCalib=False))
+    from CaloRec.CaloRecoConfig import CaloRecoCfg
+    result.merge(CaloRecoCfg(flags,doLCCalib=True))
     from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
     result.merge(egammaTopoClusterCopierCfg(flags))
     from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
