@@ -61,7 +61,7 @@ const int max_JET_3bit_Threshold_Number = 10;
 L1CaloCTPMon::L1CaloCTPMon( const std::string & type, const std::string & name,
   		            const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
+    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_debug(false), m_histBooked(false),
@@ -111,6 +111,8 @@ StatusCode L1CaloCTPMon::initialize()
   StatusCode sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure()) return sc;
   
+  // Connect to the TrigConfigSvc for the trigger configuration:
+
   sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()

@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id: L1Muctpi.cxx 794528 2017-01-30 12:36:33Z fwinkl $
 
 // STL include(s):
 #include <iostream>
@@ -45,7 +46,7 @@ const std::string LVL1MUCTPI::L1Muctpi::m_DEFAULT_RDOLocID                 = "MU
 //--------------
 LVL1MUCTPI::L1Muctpi::L1Muctpi( const std::string& name, ISvcLocator* pSvcLocator )
    : base_class( name, pSvcLocator ),
-     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
+     m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
      m_theMuctpi( 0 ), m_executeFunction(nullptr)  
 {   
    // Declare the service handles as properties:

@@ -21,7 +21,7 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
@@ -76,7 +76,7 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
                                   const std::string & name,
                                   const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
+    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_debug(false), m_histBooked(false),m_lumiNo(0),

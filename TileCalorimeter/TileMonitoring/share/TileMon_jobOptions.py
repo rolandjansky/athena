@@ -199,7 +199,7 @@ if  tileRawMon:
         TileMBTSMon = CfgMgr.TileMBTSMonTool(name              = 'TileMBTSMon'
                                              , OutputLevel     = INFO
                                              , histoPathBase   = "/Tile/MBTS_OLD"
-                                             , LVL1ConfigSvc   = "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
+                                             , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
                                              , doOnline        = athenaCommonFlags.isOnline()
                                              , readTrigger     = False
                                              , UseTrigger      = False

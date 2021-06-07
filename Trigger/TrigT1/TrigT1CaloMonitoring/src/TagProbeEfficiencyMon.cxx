@@ -61,7 +61,7 @@ namespace LVL1 {
 TagProbeEfficiencyMon::TagProbeEfficiencyMon( const std::string & type, const std::string& name, 
                                               const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent ),
-    m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
+    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
 	m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_histBooked(false),
