@@ -156,8 +156,8 @@ namespace Rec {
         void replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
         void removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
-        Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
-                                                     const Trk::RecVertex* mbeamAxis) const;
+        static Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
+                                                     const Trk::RecVertex* mbeamAxis) ;
 
         void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
         int countAEOTs(const Trk::Track* track, const std::string& txt) const;

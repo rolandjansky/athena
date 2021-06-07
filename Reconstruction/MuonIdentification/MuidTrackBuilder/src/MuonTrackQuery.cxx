@@ -891,7 +891,7 @@ namespace Rec {
         return parameters;
     }
 
-    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) {
         double phi = parameters.parameters()[Trk::phi0];
         if (phi > 0.) {
             phi -= M_PI;
