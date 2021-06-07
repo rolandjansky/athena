@@ -112,66 +112,133 @@ def setupMenu():
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
-        # ElectronChains----------
-        #--------- e etcut
-        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup+BCIDmonGroup),
-        ChainProp(name='HLT_e300_etcut_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
-   
-        #--------- e lh
-        ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
-        ChainProp(name='HLT_e80_lhmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
-
-        #---------- e lh iso
-        ChainProp(name='HLT_e24_lhtight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        # Electron Chains----------
+        #--------- primary 1e
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
+        ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
+        ChainProp(name='HLT_e300_etcut_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
 
-        #---------- 2e 
-        ChainProp(name='HLT_2e17_etcut_L12EM15VH', groups=SupportLegGroup+MultiElectronGroup),
+        #---------- primary 2e 
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VHI', groups=PrimaryLegGroup+MultiElectronGroup),
-        ChainProp(name='HLT_2e19_lhvloose_L12EM15VHI', groups=PrimaryLegGroup+MultiElectronGroup),
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', groups=PrimaryLegGroup+MultiElectronGroup), 
+
+        #---------- primary 3e
+        ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH',l1SeedThresholds=['EM20VH','EM10VH'], groups=PrimaryLegGroup+MultiElectronGroup), 
+
+        #--------- primary Zee TnP
         ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
-        ChainProp(name='HLT_e26_lhtight_e15_idperf_tight_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup),  
 
-        #---------- 3e
-        ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH',l1SeedThresholds=['EM20','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
+        #--------- primary special
+        ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+SingleElectronGroup), 
 
-        # PhotonChains----------
-        #----------- g etcut
+        #--------- support Zee and J/psi TnP
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_idperf_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=SupportLegGroup+MultiElectronGroup),  
+
+        ChainProp(name='HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_e9_etcut_Jpsiee_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_e14_etcut_Jpsiee_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e9_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_noringer_e9_etcut_Jpsiee_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_Jpsiee_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup), 
+
+        #------------ support legs of multi-electrons
+        ChainProp(name='HLT_e15_etcut_idperf_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
+
+        ChainProp(name='HLT_e4_etcut_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e9_etcut_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e14_etcut_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e15_etcut_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
+
+        ChainProp(name='HLT_e12_lhvloose_L1EM10VH', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e17_lhvloose_L1EM15VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SupportLegGroup+SingleElectronGroup),
+
+        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e9_lhtight_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e9_lhtight_noringer_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e14_lhtight_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e14_lhtight_noringer_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e20_lhtight_ivarloose_L1EM15VH', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+
+        #------------ support validation of tag-and-probe mass cuts
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e9_lhtight_e4_etcut_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+SingleElectronGroup),
+
+        #------------ support alternative lowest unprescaled 1e
+        ChainProp(name='HLT_e24_lhtight_ivarloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+
+        #------------ support noringer of primary 1e
+        ChainProp(name='HLT_e26_lhtight_ivarloose_noringer_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_noringer_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_noringer_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+
+        #------------ support bootstrap
+        ChainProp(name='HLT_e50_etcut_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e120_etcut_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e250_etcut_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+
+        #------------ support background studies
+        ChainProp(name='HLT_e10_lhvloose_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e15_lhvloose_L1EM10VH', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e20_lhvloose_L1EM15VH', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e30_lhvloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e40_lhvloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhvloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e80_lhvloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e100_lhvloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e120_lhvloose_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
+
+        # Photon Chains----------
+        #----------- primary 1g
+        ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
         ChainProp(name='HLT_g300_etcut_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
 
-        #----------- g isEM
-        ChainProp(name='HLT_g22_tight_L1EM15VH',groups=PrimaryLegGroup+SinglePhotonGroup), 
-        ChainProp(name='HLT_g25_tight_L1EM20VH', groups=PrimaryLegGroup+SinglePhotonGroup), 
-        ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
-        ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
-        ChainProp(name='HLT_g160_loose_L1EM22VHI', groups=PrimaryLegGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VH', groups=PrimaryLegGroup+SinglePhotonGroup), 
-        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VHI', groups=PrimaryLegGroup+SinglePhotonGroup), 
-
-        #----------- 2g 
-        ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
+        #----------- primary 2g
         ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup), 
-        ChainProp(name='HLT_2g20_tight_icalotight_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup),
-        ChainProp(name='HLT_2g22_tight_L12EM15VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
         ChainProp(name='HLT_2g22_tight_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup), 
-        ChainProp(name='HLT_2g22_tight_icaloloose_L12EM15VHI', groups=PrimaryLegGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], groups=PrimaryLegGroup+MultiPhotonGroup), 
         ChainProp(name='HLT_2g50_loose_L12EM20VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
-        ChainProp(name='HLT_2g60_loose_L12EM20VH', groups=PrimaryLegGroup+MultiPhotonGroup),
-        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=PrimaryLegGroup+MultiPhotonGroup), 
-        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=SupportLegGroup+MultiPhotonGroup),
-        ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup), 
-        
-        #------------ 3g
-        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH',l1SeedThresholds=['EM20VH','EM7'], groups=PrimaryLegGroup+MultiPhotonGroup),
 
-        #------- e+g
-        # Primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
+        #------------ primary 3g
+        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH',l1SeedThresholds=['EM20VH','EM10VH'], groups=PrimaryLegGroup+MultiPhotonGroup), 
+
+        #------------ primary special
+        ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
+
+        #------------ support legs of multi-photons
+        ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g35_medium_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+
+        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g15_tight_L1EM10VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g20_tight_L1EM15VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g22_tight_L1EM15VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+
+        ChainProp(name='HLT_2g15_tight_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=SupportLegGroup+SinglePhotonGroup), 
+        
+        #------------ support bootstrap and background studies
+        ChainProp(name='HLT_g250_etcut_L1EM22VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g10_loose_L1EM7', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g15_loose_L1EM10VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g20_loose_L1EM15VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g25_loose_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g30_loose_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g40_loose_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g50_loose_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g60_loose_L1EM22VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g80_loose_L1EM22VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g100_loose_L1EM22VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_g120_loose_L1EM22VHI', groups=SupportLegGroup+SinglePhotonGroup), 
+
+        #------- Electron+Photon Chains
+        # primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
         ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
         ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup), # unsure about l1SeedThresholds
-
 
     ]
 
@@ -361,8 +428,7 @@ def setupMenu():
     TriggerFlags.MinBiasSlice.signatures   = []
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = [
-    ]
+    TriggerFlags.StreamingSlice.signatures = []
     TriggerFlags.MonitorSlice.signatures   = [
         ChainProp(name='HLT_noalg_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']), # HLT_costmonitor
     ]
