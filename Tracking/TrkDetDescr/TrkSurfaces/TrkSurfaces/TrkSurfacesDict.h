@@ -25,5 +25,6 @@
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/TriangleBounds.h"
+#include "TrkSurfaces/SurfaceHolders.h"
 
 #endif
