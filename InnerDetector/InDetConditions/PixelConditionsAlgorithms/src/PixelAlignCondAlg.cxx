@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAlignCondAlg.h"
@@ -28,7 +28,7 @@ StatusCode PixelAlignCondAlg::initialize()
   ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders.value()));
   ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders.value()));
   ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders.value()));
-  ATH_CHECK(m_readKeyIBLDist.initialize());
+  ATH_CHECK(m_readKeyIBLDist.initialize(!m_readKeyIBLDist.empty()));
 
   // Write Handles
   ATH_CHECK(m_writeKey.initialize());
@@ -36,7 +36,7 @@ StatusCode PixelAlignCondAlg::initialize()
   // Register write handle
   ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
-  ATH_CHECK(detStore()->retrieve(m_detManager, "Pixel"));
+  ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
   return StatusCode::SUCCESS;
 }
@@ -76,39 +76,40 @@ StatusCode PixelAlignCondAlg::execute(const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist, ctx};
-    const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
-    if (readCdoIBLDist==nullptr) {
-      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
-      return StatusCode::FAILURE;
-    }
-
-
     // ____________ Apply alignments to Pixel GeoModel ____________
     // Construct Container for read CDO.
     InDetDD::RawAlignmentObjects readCdoContainerStatic;
     readCdoContainerStatic.emplace(m_readKeyStatic.key(), readCdoStatic);
     ATH_CHECK(m_detManager->align(readCdoContainerStatic, writeCdo.get()));
 
-    // This absolutely needs to go last, since it relies on deltas from other alignment
-    // already be set in the alignment store!!!
-    InDetDD::RawAlignmentObjects readCdoContainerIBLDist;
-    readCdoContainerIBLDist.emplace(m_readKeyIBLDist.key(), readCdoIBLDist);
-    ATH_CHECK(m_detManager->align(readCdoContainerIBLDist, writeCdo.get()));
-
     if (not readHandleStatic.range(rangeW)) {
       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleStatic.key());
       return StatusCode::FAILURE;
     }
 
-    EventIDRange rangeWIBL;
-    if (not readHandleIBLDist.range(rangeWIBL)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleIBLDist.key());
-      return StatusCode::FAILURE;
+    // IBL
+    if (!m_readKeyIBLDist.empty()) {
+      // This absolutely needs to go last, since it relies on deltas from other alignment
+      // already be set in the alignment store!!!
+      SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist, ctx};
+      const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
+      if (readCdoIBLDist==nullptr) {
+        ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
+        return StatusCode::FAILURE;
+      }
+
+      InDetDD::RawAlignmentObjects readCdoContainerIBLDist;
+      readCdoContainerIBLDist.emplace(m_readKeyIBLDist.key(), readCdoIBLDist);
+      ATH_CHECK(m_detManager->align(readCdoContainerIBLDist, writeCdo.get()));
+
+      EventIDRange rangeWIBL;
+      if (not readHandleIBLDist.range(rangeWIBL)) {
+       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleIBLDist.key());
+       return StatusCode::FAILURE;
+      }
+
+      rangeW = EventIDRange::intersect(rangeW, rangeWIBL);
     }
-
-    rangeW = EventIDRange::intersect(rangeW, rangeWIBL);
-
   } else { // Dynamic
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1, ctx};
@@ -132,13 +133,6 @@ StatusCode PixelAlignCondAlg::execute(const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist, ctx};
-    const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
-    if (readCdoIBLDist==nullptr) {
-      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
-      return StatusCode::FAILURE;
-    }
-
 
     // ____________ Apply alignments to Pixel GeoModel ____________
     // Construct Container for read CDO-s.
@@ -153,12 +147,6 @@ StatusCode PixelAlignCondAlg::execute(const EventContext& ctx) const
     InDetDD::RawAlignmentObjects readCdoContainerDynamicL3;
     readCdoContainerDynamicL3.emplace(m_readKeyDynamicL3.key(), readCdoDynamicL3);
     ATH_CHECK(m_detManager->align(readCdoContainerDynamicL3, writeCdo.get()));
-
-    // This absolutely needs to go last, since it relies on deltas from other alignment
-    // already be set in the alignment store!!!
-    InDetDD::RawAlignmentObjects readCdoContainerIBLDist;
-    readCdoContainerIBLDist.emplace(m_readKeyIBLDist.key(), readCdoIBLDist);
-    ATH_CHECK(m_detManager->align(readCdoContainerIBLDist, writeCdo.get()));
 
     // Define validity of the output cond object and record it
     EventIDRange rangeWL1;
@@ -179,15 +167,33 @@ StatusCode PixelAlignCondAlg::execute(const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
 
-    EventIDRange rangeWIBL;
-    if (not readHandleIBLDist.range(rangeWIBL)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleIBLDist.key());
-      return StatusCode::FAILURE;
+    // IBL
+    if (!m_readKeyIBLDist.empty()) {
+      // This absolutely needs to go last, since it relies on deltas from other alignment
+      // already be set in the alignment store!!!
+      SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist, ctx};
+      const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
+      if (readCdoIBLDist==nullptr) {
+        ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
+        return StatusCode::FAILURE;
+      }
+
+      InDetDD::RawAlignmentObjects readCdoContainerIBLDist;
+      readCdoContainerIBLDist.emplace(m_readKeyIBLDist.key(), readCdoIBLDist);
+      ATH_CHECK(m_detManager->align(readCdoContainerIBLDist, writeCdo.get()));
+
+      EventIDRange rangeWIBL;
+      if (not readHandleIBLDist.range(rangeWIBL)) {
+       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleIBLDist.key());
+       return StatusCode::FAILURE;
+      }
+
+      rangeW = EventIDRange::intersect(rangeWL1, rangeWL2, rangeWL3, rangeWIBL);
+    } else {
+      rangeW = EventIDRange::intersect(rangeWL1, rangeWL2, rangeWL3);
     }
-
-    rangeW = EventIDRange::intersect(rangeWL1, rangeWL2, rangeWL3, rangeWIBL);
   }
-
+  
   // Set (default) absolute transforms in alignment store by calling them.
   for (const InDetDD::SiDetectorElement* oldEl: *oldColl) {
     oldEl->getMaterialGeom()->getAbsoluteTransform(writeCdo.get());

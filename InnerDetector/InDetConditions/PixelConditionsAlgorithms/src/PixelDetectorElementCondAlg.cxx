@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorElementCondAlg.h"
@@ -34,7 +34,7 @@ StatusCode PixelDetectorElementCondAlg::initialize()
   ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
   // We need the detector manager
-  ATH_CHECK(detStore()->retrieve(m_detManager, "Pixel"));
+  ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
   return StatusCode::SUCCESS;
 }
