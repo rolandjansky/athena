@@ -13,6 +13,9 @@ public:
   ContainsPtrSurface(const Trk::Surface& s)
     : Trk::SurfacePtrHolder(s)
   {}
+  ContainsPtrSurface(const Trk::Surface* s)
+    : Trk::SurfacePtrHolder(s)
+  {}
   ContainsPtrSurface() = default;
   ContainsPtrSurface(const ContainsPtrSurface& other) = default;
   ContainsPtrSurface(ContainsPtrSurface&& other) noexcept = default;
@@ -27,6 +30,9 @@ public:
   ContainsUniqSurface(const Trk::Surface& s)
     : Trk::SurfaceUniqHolder(s)
   {}
+  ContainsUniqSurface(const Trk::Surface* s)
+    : Trk::SurfaceUniqHolder(s)
+  {}
   ContainsUniqSurface() = default;
   ContainsUniqSurface(const ContainsUniqSurface& other) = default;
   ContainsUniqSurface(ContainsUniqSurface&& other) noexcept = default;
@@ -39,11 +45,14 @@ void
 testPtr1()
 {
   std::cout << "testPtr1" << '\n';
-  auto owner = std::make_unique<Trk::PerigeeSurface>();
+  auto owner = std::make_unique<const Trk::PerigeeSurface>();
   owner->setOwner(Trk::TGOwn);
   // construct from reference
   ContainsPtrSurface test1(*owner);
   std::cout << (test1.surfacePtr() == owner.get()) << '\n';
+  // construct from ptr
+  ContainsPtrSurface test11(owner.get());
+  std::cout << (test11.surfacePtr() == owner.get()) << '\n';
   // copy ctor we still point to the same
   ContainsPtrSurface test2 = test1;
   std::cout << (test2.surfacePtr() == owner.get()) << '\n';
@@ -61,15 +70,17 @@ testPtr1()
   std::cout << (test4.surfacePtr() == nullptr) << '\n';
   // destroy also 1,2,5
   test1.destroySurface();
+  test11.destroySurface();
   test2.destroySurface();
   test5.destroySurface();
   std::cout << (test1.surfacePtr() == nullptr) << '\n';
+  std::cout << (test11.surfacePtr() == nullptr) << '\n';
   std::cout << (test2.surfacePtr() == nullptr) << '\n';
   std::cout << (test5.surfacePtr() == nullptr) << '\n';
   // The owner should be still be there
   std::cout << (owner.get() != nullptr) << '\n';
   owner.reset();
-  // No the owner also goes
+  // Now the owner also goes
   std::cout << (owner.get() == nullptr) << '\n';
 }
 
@@ -82,6 +93,9 @@ testPtr2()
   // construct from reference we clone
   ContainsPtrSurface test1(*free);
   std::cout << (test1.surfacePtr() != free.get()) << '\n';
+  // construct from ptr we clone
+  ContainsPtrSurface test11(free.get());
+  std::cout << (test11.surfacePtr() != free.get()) << '\n';
   // copy ctor will clone
   ContainsPtrSurface test2 = test1;
   std::cout << (test2.surfacePtr() != free.get()) << '\n';
@@ -99,15 +113,17 @@ testPtr2()
   std::cout << (test4.surfacePtr() == nullptr) << '\n';
   // destroy  also 1,2,5
   test1.destroySurface();
+  test11.destroySurface();
   test2.destroySurface();
   test5.destroySurface();
   std::cout << (test1.surfacePtr() == nullptr) << '\n';
+  std::cout << (test11.surfacePtr() == nullptr) << '\n';
   std::cout << (test2.surfacePtr() == nullptr) << '\n';
   std::cout << (test5.surfacePtr() == nullptr) << '\n';
   // The free should be still be there
   std::cout << (free.get() != nullptr) << '\n';
   free.reset();
-  // No the free also goes
+  // Now the free also goes
   std::cout << (free.get() == nullptr) << '\n';
 }
 
@@ -120,6 +136,9 @@ testUniq1()
   // construct from reference
   ContainsUniqSurface test1(*owner);
   std::cout << (test1.surfacePtr() == owner.get()) << '\n';
+  // construct from ptr
+  ContainsPtrSurface test11(owner.get());
+  std::cout << (test11.surfacePtr() == owner.get()) << '\n';
   // copy ctor we still point to the same
   ContainsUniqSurface test2 = test1;
   std::cout << (test2.surfacePtr() == owner.get()) << '\n';
@@ -137,15 +156,17 @@ testUniq1()
   std::cout << (test4.surfacePtr() == nullptr) << '\n';
   // destroy  also 1,2,5
   test1.destroySurface();
+  test11.destroySurface();
   test2.destroySurface();
   test5.destroySurface();
   std::cout << (test1.surfacePtr() == nullptr) << '\n';
+  std::cout << (test11.surfacePtr() == nullptr) << '\n';
   std::cout << (test2.surfacePtr() == nullptr) << '\n';
   std::cout << (test5.surfacePtr() == nullptr) << '\n';
   // The owner should be still be there
   std::cout << (owner.get() != nullptr) << '\n';
   owner.reset();
-  // No the owner also goes
+  // Now the owner also goes
   std::cout << (owner.get() == nullptr) << '\n';
 }
 
@@ -158,6 +179,9 @@ testUniq2()
   // construct from reference we clone
   ContainsUniqSurface test1(*free);
   std::cout << (test1.surfacePtr() != free.get()) << '\n';
+  // construct from ptr we clone
+  ContainsPtrSurface test11(free.get());
+  std::cout << (test11.surfacePtr() != free.get()) << '\n';
   // copy ctor will clone
   ContainsUniqSurface test2 = test1;
   std::cout << (test2.surfacePtr() != free.get()) << '\n';
@@ -175,15 +199,17 @@ testUniq2()
   std::cout << (test4.surfacePtr() == nullptr) << '\n';
   // destroy  also 1,2,5
   test1.destroySurface();
+  test11.destroySurface();
   test2.destroySurface();
   test5.destroySurface();
   std::cout << (test1.surfacePtr() == nullptr) << '\n';
+  std::cout << (test11.surfacePtr() == nullptr) << '\n';
   std::cout << (test2.surfacePtr() == nullptr) << '\n';
   std::cout << (test5.surfacePtr() == nullptr) << '\n';
   // The free should be still be there
   std::cout << (free.get() != nullptr) << '\n';
   free.reset();
-  // No the free also goes
+  // Now the free also goes
   std::cout << (free.get() == nullptr) << '\n';
 }
 
