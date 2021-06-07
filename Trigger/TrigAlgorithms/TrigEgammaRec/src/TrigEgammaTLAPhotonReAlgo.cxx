@@ -109,6 +109,10 @@ StatusCode TrigEgammaTLAPhotonReAlgo::execute()
 
   //loop on all the photons from the beginning to the last photon we want, and put them the output photon collection
   //also, set a link to their parent photon
+
+  // for debugging purposes, don't leave it in
+  int nCopied = 0;
+
   for( auto it_ph=originalPhotons.begin(); it_ph!=it_ptThresholdBound; ++it_ph ) {
     xAOD::Photon* copiedPhoton = new xAOD::Photon(*(*it_ph));
 
@@ -117,7 +121,12 @@ StatusCode TrigEgammaTLAPhotonReAlgo::execute()
     h_TLAPhotons->push_back(copiedPhoton);
     ATH_MSG_DEBUG("Selected photon pT: " << copiedPhoton->pt());
 
+    nCopied++;
+
   }
+
+  ATH_MSG_WARNING("For this event, TLA Copied: " << nCopied);
+  std::cout << "For this event, TLA Copied (cout) " << nCopied << std::endl;
 
 
   return StatusCode::SUCCESS;

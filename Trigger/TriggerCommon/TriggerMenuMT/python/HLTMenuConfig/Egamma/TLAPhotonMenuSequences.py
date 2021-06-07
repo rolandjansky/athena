@@ -74,6 +74,7 @@ def TLAPhotonMenuSequence( flags, photonsIn, HLT_threshold):
     (tlaPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn, HLT_threshold=HLT_threshold)
     hypo = TrigEgammaTLAPhotonHypoAlg("TrigEgammaTLAPhotonHypoAlgMT_"+photonsIn)
     hypo.Photons = sequenceOut
+    hypo.OriginalPhotons = "HLT_egamma_Photons"
 
 
     return MenuSequence( Sequence    = tlaPhotonAthSequence,
