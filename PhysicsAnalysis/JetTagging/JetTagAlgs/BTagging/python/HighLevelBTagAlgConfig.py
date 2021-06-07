@@ -92,7 +92,7 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
         btagContainer=BTaggingCollection,
         trackContainer=TrackCollection,
         decorator=dl2,
-        undeclaredReadDecorKeys=veto_list,
+        undeclaredReadDecorKeys=sorted(veto_list),
     )
 
     # -- create the association algorithm
