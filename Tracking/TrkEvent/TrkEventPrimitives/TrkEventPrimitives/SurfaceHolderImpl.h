@@ -161,7 +161,7 @@ public:
   SurfaceUniqHolderImpl& operator=(SurfaceUniqHolderImpl&&) noexcept = default;
 
   /// return the ptr we hold
-  const Surface* surfacePtr() { return m_associatedSurface.get(); }
+  const S* surfacePtr() { return m_associatedSurface.get(); }
 
   /// destroySurface deletes the ptr if not null and is free
   /// usefull also for testing
