@@ -4978,10 +4978,44 @@ HLT_mb_sp5000_trk80_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp600_trk45_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sptrk_L1MBTS_1:
+   eventCount: 0
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sptrk_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sptrk_pt2_L1AFP_A_AND_C:
+  eventCount: 0
+HLT_mb_sptrk_pt2_L1AFP_A_OR_C:
+  eventCount: 0
+HLT_mb_sptrk_pt2_L1MBTS_2:
+  eventCount: 0
+HLT_mb_sptrk_pt2_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sptrk_pt4_L1AFP_A_AND_C:
+  eventCount: 0
+HLT_mb_sptrk_pt4_L1AFP_A_OR_C:
+  eventCount: 0
+HLT_mb_sptrk_pt4_L1MBTS_2:
+  eventCount: 0
+HLT_mb_sptrk_pt4_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sptrk_pt6_L1AFP_A_AND_C:
+  eventCount: 0
+HLT_mb_sptrk_pt6_L1AFP_A_OR_C:
+  eventCount: 0
+HLT_mb_sptrk_pt6_L1MBTS_2:
+  eventCount: 0
+HLT_mb_sptrk_pt6_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sptrk_pt8_L1AFP_A_AND_C:
+  eventCount: 0
+HLT_mb_sptrk_pt8_L1AFP_A_OR_C:
+  eventCount: 0
+HLT_mb_sptrk_pt8_L1MBTS_2:
+  eventCount: 0
+HLT_mb_sptrk_pt8_L1RD0_FILLED:
+  eventCount: 0  
 HLT_mu0_muoncalib_L1MU20:
   eventCount: 0
 HLT_mu0_muoncalib_L1MU4_EMPTY:
