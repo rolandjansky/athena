@@ -102,6 +102,10 @@ def setupMenu():
     ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
+
+        # Phase1 eEM chains
+        ChainProp(name='HLT_e5_etcut_L1eEM3', groups=SingleElectronGroup),
+
         # ElectronChains----------
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
