@@ -125,8 +125,8 @@ StatusCode TrigEgammaTLAPhotonReAlgo::execute()
 
   }
 
-  ATH_MSG_WARNING("For this event, TLA Copied: " << nCopied);
-  std::cout << "For this event, TLA Copied (cout) " << nCopied << std::endl;
+  ATH_MSG_DEBUG("For this event, TLA Copied: " << nCopied);
+  
 
 
   return StatusCode::SUCCESS;
