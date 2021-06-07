@@ -21,11 +21,8 @@
 #include "ThePEG/Handlers/EventHandler.h"
 #include "ThePEG/PDF/PartonExtractor.h"
 #include "ThePEG/PDF/PDF.h"
-
 #include "Herwig/API/HerwigAPI.h"
-
 #include "PathResolver/PathResolver.h"
-
 #include "boost/thread/thread.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
