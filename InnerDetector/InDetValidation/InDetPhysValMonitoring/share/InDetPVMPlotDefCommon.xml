@@ -1133,19 +1133,19 @@
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_matched" type="TH1" title="Normalised weights of tracks for PU  matched vertices">
-  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_merged" type="TH1" title="Normalised weights of tracks for PU merged vertices">
-  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_split" type="TH1" title="Normalised weights of tracks for PU split vertices">
-  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_fake" type="TH1" title="Normalised weights of tracks for PU fake vertices">
-  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
 
@@ -1182,19 +1182,19 @@
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_HS_matched" type="TH1" title="Normalised weights of tracks for HS  matched vertices">
-  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_HS_merged" type="TH1" title="Normalised weights of tracks for HS merged vertices">
-  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_HS_split" type="TH1" title="Normalised weights of tracks for HS split vertices">
-  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_HS_fake" type="TH1" title="Normalised weights of tracks for HS fake vertices">
-  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_d_asym_matched" type="TH1" title="asymmetry of track d0 around vertex of tracks for matched vertices">
@@ -1536,19 +1536,19 @@
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_ALL_matched" type="TH1" title="Normalised weights of tracks for ALL  matched vertices">
-  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_ALL_merged" type="TH1" title="Normalised weights of tracks for ALL merged vertices">
-  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_ALL_split" type="TH1" title="Normalised weights of tracks for ALL split vertices">
-  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_ALL_fake" type="TH1" title="Normalised weights of tracks for ALL fake vertices">
-  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
+  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
 <h id="vx_d_asym_ALL_matched" type="TH1" title="asymmetry of track d0 around vertex of tracks for ALL matched vertices">
@@ -1680,39 +1680,39 @@
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_ALL_matched" type="TH1" title="Number of matched vertices per event for sumpt above 20Gev">
-  <x title="Number of vertices per event ALL" n="100" lo="0" hi="100"/>
+  <x title="Number of vertices per event ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_ALL_merged" type="TH1" title="Number of merged vertices per event for sumpt above 20Gev">
-  <x title="Number of vertices per event ALL" n="100" lo="0" hi="100"/>
+  <x title="Number of vertices per event ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_ALL_split" type="TH1" title="Number of split vertices per event for sumpt above 20Gev">
-  <x title="Number of vertices per event ALL" n="100" lo="0" hi="100"/>
+  <x title="Number of vertices per event ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_HS_matched" type="TH1" title="Number of HS matched vertices per event">
-  <x title="Number of vertices per event HS" n="100" lo="0" hi="10"/>
+  <x title="Number of vertices per event HS" n="100" lo="0" hi="5"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_HS_merged" type="TH1" title="Number of HS merged vertices per event">
-  <x title="Number of vertices per event HS" n="100" lo="0" hi="10"/>
+  <x title="Number of vertices per event HS" n="100" lo="0" hi="5"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_HS_split" type="TH1" title="Number of HS split vertices per event">
-  <x title="Number of vertices per event HS" n="100" lo="0" hi="10"/>
+  <x title="Number of vertices per event HS" n="100" lo="0" hi="5"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_matched" type="TH1" title="Number of PU matched vertices per event">
-  <x title="Number of vertices per event PU" n="100" lo="0" hi="100"/>
+  <x title="Number of vertices per event PU" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_merged" type="TH1" title="Number of PU merged vertices per event">
-  <x title="Number of vertices per event PU" n="100" lo="0" hi="100"/>
+  <x title="Number of vertices per event PU" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
 <h id="vx_nVertices_split" type="TH1" title="Number of PU split vertices per event">
-  <x title="Number of vertices per event PU" n="100" lo="0" hi="100"/>
+  <x title="Number of vertices per event PU" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
 <!-- -->
