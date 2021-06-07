@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,6 @@ TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 
 // Trigger includes
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 // fwd declare muon printing tool
 namespace Rec {
@@ -78,7 +77,6 @@ class TrigDecisionChecker : public AthAlgorithm
 
   StatusCode checkMetEDM(const std::string& trigItem);
 
-  Gaudi::Property<uint32_t> m_smKey{ this, "SMK", 0, "The super master key to use" }; //!< Super Master Key number to select (0=ignore)
   Gaudi::Property<bool> m_eventDecisionPrintout{this, "WriteEventDecision", true};
 
   // write out trigger counts
@@ -113,8 +111,6 @@ class TrigDecisionChecker : public AthAlgorithm
   float m_muSum = 0; 
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; //!< interface to use the trigger data: TriggerTool
-  /// The trigger configuration service to get the information from
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc{ this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc"} ;
 
   /// Muon triggers to test output for
   Gaudi::Property<std::vector<std::string>> m_muonItems{ this, "MuonItems", {} };
