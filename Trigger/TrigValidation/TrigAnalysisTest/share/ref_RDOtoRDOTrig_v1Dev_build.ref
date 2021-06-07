@@ -2356,6 +2356,8 @@ HLT_e5_etcut_L1EM3:
     1: 501
     2: 191
     3: 116
+HLT_e5_etcut_L1eEM3:
+  eventCount: 0
 HLT_e5_idperf_loose_L1EM3:
   eventCount: 15
   stepCounts:
