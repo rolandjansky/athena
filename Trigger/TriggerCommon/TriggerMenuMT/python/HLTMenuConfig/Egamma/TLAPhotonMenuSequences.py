@@ -31,11 +31,11 @@ def TLAPhotonSequence(flags, photonsIn, HLT_threshold):
 
     # check from chain dictionary the threshold of the photon part
    
-    # set the Fex TLA threshold to HLT_threshold - 20 GeV, or 0 GeV is HLT_threshold is < 20 
+    # set the TLA threshold to HLT_threshold - 20 GeV, or 0 GeV if HLT_threshold is < 20 
     # at this point the threshold is in GeV, provide it in MeV to the selector
-    TLA_threshold = HLT_threshold - 20 if HLT_threshold - 20 > 0 else 0
+    TLA_threshold = max(HLT_threshold - 20, 0)*1000 # MeV
 
-    TLAPhotonAlg = getConfiguredTLAPhotonSelector(photonPtThreshold=TLA_threshold*1000, inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
+    TLAPhotonAlg = getConfiguredTLAPhotonSelector(photonPtThreshold=TLA_threshold, inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
 
     # The OR makes sure that TLAPhotonAlg can access the data dependencies specified by ViewVerify
     photonInViewAlgs = parOR("tlaPhotonInViewAlgs", [ViewVerify, TLAPhotonAlg])

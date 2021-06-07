@@ -51,7 +51,6 @@ StatusCode TrigEgammaTLAPhotonHypoAlg::execute( const EventContext& ctx) const
 
 // check if we have at least one decision associated to the TLA Photon Container (the decision should be from the getFastPhoton alg?)
 bool atLeastOneDecision = false;
-int numMatchedDecisions = 0;
 
 // creates (via SG handle) a DecisionContainer for the output decision
 SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), ctx);
@@ -79,50 +78,45 @@ for (const Decision* currDecision : *prevDecisions)
     auto tlaPhotonsHandle = ViewHelper::makeHandle( *(viewEL), m_TLAPhotonsKey, ctx);
     ATH_CHECK(tlaPhotonsHandle.isValid());
     const PhotonContainer* TLAPhotons = tlaPhotonsHandle.get();
-  // // retrieve the photon associated to currDecision via Element Link
-  // TrigCompositeUtils::LinkInfo< xAOD::PhotonContainer > myFeature = TrigCompositeUtils::findLink< xAOD::PhotonContainer >( currDecision, TrigCompositeUtils::featureString());
-  // ATH_CHECK(myFeature.isValid());
-  // auto contLink = myFeature.link;
-  for (const xAOD::Photon* currPhoton : *hltPhotonsCollectionHandle)
-  {
-    //const xAOD::Photon* currPhoton = *(myFeature.link);
-
-    ATH_MSG_DEBUG("Original Photon Printout: " << currPhoton->p4().Pt() << " " << currPhoton->p4().Eta() << " " << currPhoton->p4().Phi() );
-
-    // now loop over the TLAPhotons container and look for a photon matching the photon associated to the current decision
-    for (const xAOD::Photon* TLAPhoton : *TLAPhotons)
+    
+    for (const xAOD::Photon* currPhoton : *hltPhotonsCollectionHandle)
     {
-      bool matchedWithPrevDecision = false;
-      // verify match between TLAPhoton and currPhoton
-      //if (currPhoton->p4().DeltaR(TLAPhoton->p4()) < 0.1)
-      ATH_MSG_DEBUG("TLA Photon Printout: " << TLAPhoton->p4().Pt() << " " << TLAPhoton->p4().Eta() << " " << TLAPhoton->p4().Phi() );
       
 
-      if (TLAPhoton->p4().Pt() == currPhoton->p4().Pt() and TLAPhoton->p4().Eta() == currPhoton->p4().Eta()
-            and TLAPhoton->p4().Phi() == currPhoton->p4().Phi()) // they are the same photon 
+      ATH_MSG_DEBUG("Original Photon Printout: " << currPhoton->p4().Pt() << " " << currPhoton->p4().Eta() << " " << currPhoton->p4().Phi() );
+
+      // now loop over the TLAPhotons container and look for a photon matching the photon associated to the current decision
+      for (const xAOD::Photon* TLAPhoton : *TLAPhotons)
       {
-
-        ATH_MSG_DEBUG("Matched a decision to a TLA Photon!");
-
-        matchedWithPrevDecision = true; 
-        atLeastOneDecision = true;
-        numMatchedDecisions++;
-
-        // now create a new Decision object, have it be linked to the current TLAPhoton, then create the pair with photon,decision
-        // to feed the HypoTool
-        Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, currDecision, hypoAlgNodeName(), ctx);
         
-        // create the link
-        ElementLink<xAOD::PhotonContainer> photonLink = ElementLink<xAOD::PhotonContainer>(*TLAPhotons, TLAPhoton->index());
-        ATH_CHECK(photonLink.isValid());
-        newDecision->setObjectLink<xAOD::PhotonContainer>(featureString(), photonLink);
+        ATH_MSG_DEBUG("TLA Photon Printout: " << TLAPhoton->p4().Pt() << " " << TLAPhoton->p4().Eta() << " " << TLAPhoton->p4().Phi() );
+        
+        // verify match between TLAPhoton and currPhoton
+        if (TLAPhoton->p4().Pt() == currPhoton->p4().Pt() and TLAPhoton->p4().Eta() == currPhoton->p4().Eta()
+              and TLAPhoton->p4().Phi() == currPhoton->p4().Phi()) // they are the same photon 
+        {
 
-        photonHypoInputs.push_back( std::make_pair(TLAPhoton, newDecision) );
+          ATH_MSG_DEBUG("Matched a decision to a TLA Photon!");
+
+          matchedWithPrevDecision = true; 
+          atLeastOneDecision = true;
+
+          // now create a new Decision object, have it be linked to the current TLAPhoton, then create the pair with photon,decision
+          // to feed the HypoTool
+          Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, currDecision, hypoAlgNodeName(), ctx);
+          
+          // create the link
+          ElementLink<xAOD::PhotonContainer> photonLink = ElementLink<xAOD::PhotonContainer>(*TLAPhotons, TLAPhoton->index());
+          ATH_CHECK(photonLink.isValid());
+          newDecision->setObjectLink<xAOD::PhotonContainer>(featureString(), photonLink);
+
+          photonHypoInputs.push_back( std::make_pair(TLAPhoton, newDecision) );
+
+          break; // the Original Photon has been matched with a TLA Photon, no need to continue the TLA loop
+        }
       }
-      if (matchedWithPrevDecision) break; // the photon has been matched, no need to continue with the TLA loop
     }
-  }
-  if (atLeastOneDecision) break; // found a positive decision, no need to continue the loop
+  if (atLeastOneDecision) break; // found a positive decision, no need to continue the Decision  loop
 }
 
 
