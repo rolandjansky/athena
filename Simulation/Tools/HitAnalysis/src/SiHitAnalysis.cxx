@@ -60,11 +60,18 @@ StatusCode SiHitAnalysis::initialize()
   float bin_up = 600;
   float radius_up = 600;
   float radius_down = 200;
-  if (detName == "Pixel" || detName == "ITkPixel") {
+  float z_max = 1200;
+  if (detName == "Pixel") {
     bin_down = -170;
     bin_up = 170;
     radius_up = 170;
     radius_down = 0;
+  } else if (detName == "ITkPixel") {
+    bin_down = -325;
+    bin_up = 325;
+    radius_up = 325;
+    radius_down = 0;
+    z_max = 3000;
   }
 
   m_h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
@@ -73,7 +80,7 @@ StatusCode SiHitAnalysis::initialize()
   m_h_hits_y = new TH1D(("h_"+detName+"_y").c_str(), ("h_"+detName+"_y").c_str(), 100,bin_down,bin_up);
   m_h_hits_y->StatOverflows();
 
-  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-1200,1200);
+  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-z_max,z_max);
   m_h_hits_z->StatOverflows();
 
   m_h_hits_r = new TH1D(("h_"+detName+"_r").c_str(), ("h_"+detName+"_r").c_str(), 100,radius_down,radius_up);
@@ -82,7 +89,7 @@ StatusCode SiHitAnalysis::initialize()
   m_h_xy = new TH2D(("h_"+detName+"_xy").c_str(), ("h_"+detName+"_xy").c_str(), 100,bin_down,bin_up,100, bin_down, bin_up);
   m_h_xy->StatOverflows();
 
-  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-1200,1200.,100, radius_down, radius_up);
+  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-z_max, z_max, 100, radius_down, radius_up);
   m_h_zr->StatOverflows();
 
   m_h_hits_time = new TH1D(("h_"+detName+"_time").c_str(), ("h_"+detName+"_time").c_str(), 100,0,500);
@@ -100,7 +107,7 @@ StatusCode SiHitAnalysis::initialize()
   m_h_time_eloss = new TH2D(("h_"+detName+"_time_eloss").c_str(), ("h_"+detName+" Eloss vs. time").c_str(),100, 0,500,100,0,50);
   m_h_time_eloss->StatOverflows();
 
-  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -1200,1200,100,0,50);
+  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -z_max,z_max,100,0,50);
   m_h_z_eloss->StatOverflows();
 
   m_h_r_eloss = new TH2D(("h_"+detName+"_r_eloss").c_str(), ("h_"+detName+ " Eloss vs. r").c_str(),100, radius_down,radius_down,100,0,50);
