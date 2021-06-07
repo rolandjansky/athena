@@ -81,7 +81,7 @@ private:
   // ------------------------- Service/Tool handles ---------------------------------
   /// Handle to the Lvl1ConfigSvc interface
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
-    this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "LVL1 Trigger configuration service"
+    this, "LVL1ConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "LVL1 Trigger configuration service"
   };
   /// Handle to the RPC RecRoITool
   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcRoITool {

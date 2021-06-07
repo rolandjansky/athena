@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #**************************************************************
@@ -199,7 +199,7 @@ if doTileCells:
         TileMBTSMon = CfgMgr.TileMBTSMonTool( name            = 'TileMBTSMon'
                                               , OutputLevel     = INFO
                                               , histoPathBase   = "/Tile/MBTS"
-                                              , LVL1ConfigSvc   = "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
+                                              , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
                                               , doOnline        = athenaCommonFlags.isOnline()
                                               , readTrigger     = doTrigger)
 

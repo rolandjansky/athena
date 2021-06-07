@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -34,7 +34,7 @@ class TH2F_LW;
 class StatusCode;
 
 namespace TrigConf {
-  class ILVL1ConfigSvc;
+  class ITrigConfigSvc;
 }
 
 namespace LVL1 {
@@ -80,7 +80,7 @@ class TrigT1CaloLWHistogramTool;
   static const int TOB_TYPES=5;
   static const int MAXTOBS=30;
   /// Trigger configuration service
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+   ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
    /// Corrupt events tool
    ToolHandle<ITrigT1CaloMonErrorTool>     m_errorTool;
    /// Histogram utilities tool

@@ -45,7 +45,7 @@ namespace LVL1 {
 
 TrigT1CaloLWHistogramTool::TrigT1CaloLWHistogramTool(const std::string& name)
         : AsgTool(name),
-	  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
+	  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
 	  m_monGroup(0), m_phiScaleTT(32./M_PI), m_phiScaleJE(16./M_PI)
 {
   declareInterface<TrigT1CaloLWHistogramTool>(this);
