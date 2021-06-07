@@ -11,7 +11,7 @@
 
 #include "Herwig7_i/Herwig7.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
-
+#include "Herwig7_i/PowhegLesHouchesFileReader.h"
 DECLARE_ALGORITHM_FACTORY(Herwig7)
 
 DECLARE_FACTORY_ENTRIES(Herwig7_i) {
