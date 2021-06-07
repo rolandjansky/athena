@@ -85,8 +85,6 @@ TauJetIDWP RNNMedium
 TauJetIDWPLoose RNNLoose
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
-TauEleOLR False
-TauEleOLRLoose False
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False

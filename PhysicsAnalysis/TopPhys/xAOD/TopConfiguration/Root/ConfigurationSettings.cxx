@@ -302,14 +302,16 @@ namespace top {
                       "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
                       "Loose");
-    registerParameter("TauEleOLR",
+    registerParameter("TauMuOLR",
                       "Apply tau-electron overlap removal (True/False)."
-                      "Default False",
-                      "False");
-    registerParameter("TauEleOLRLoose",
+                      "Default True",
+                      "True",
+                      {"True","False"});
+    registerParameter("TauMuOLRLoose",
                       "Apply loose tau-electron overlap removal (True/False)."
-                      "Default False",
-                      "False");
+                      "Default True",
+                      "True",
+                      {"True", "False"});
     registerParameter("TauJetConfigFile",
                       "Config file to configure tau selection. "
                       "If anything other than 'Default'"
