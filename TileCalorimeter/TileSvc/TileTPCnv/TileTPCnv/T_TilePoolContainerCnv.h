@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // T_TilePoolContainerCnv.h 
@@ -59,7 +59,7 @@ public:
 
     trans->cleanup(); // remove all collections
 
-    if ( abs(trans->get_hashType()-hashType) > 0xF) {
+    if ( trans->get_hashType() != hashType ) {
       log << MSG::DEBUG << "Pers hash type " << hashType
           << " does not match Trans hash type " << trans->get_hashType()
           << " ==> reinitializing hash " << endmsg;
