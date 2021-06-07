@@ -33,4 +33,11 @@
   <class name="Trk::DiscTrapezoidalBounds" />  
   <class name="Trk::AnnulusBounds" />  
   <class name="Trk::NoBounds" />  
+  <class name="Trk::SurfacePtrHolder"/>
+  <class name="Trk::ConeSurfacePtrHolder"/>
+  <class name="Trk::CylinderSurfacePtrHolder"/>
+  <class name="Trk::DiscSurfacePtrHolder"/>
+  <class name="Trk::PerigeeSurfacePtrHolder"/>
+  <class name="Trk::PlaneSurfacePtrHolder"/>
+  <class name="Trk::StraightLineSurfacePtrHolder"/>
  </lcgdict>

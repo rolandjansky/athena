@@ -34,3 +34,8 @@ atlas_add_dictionary( TrkSurfacesDict
 atlas_add_test( CylinderSurface_test
                 SOURCES test/CylinderSurface_test.cxx
                 LINK_LIBRARIES TrkEventPrimitives TrkSurfaces TestTools )
+
+
+atlas_add_test( SurfaceHolder_test
+                SOURCES test/SurfaceHolder_test.cxx
+                LINK_LIBRARIES TrkEventPrimitives TrkSurfaces)
