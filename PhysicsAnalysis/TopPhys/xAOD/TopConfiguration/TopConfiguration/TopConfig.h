@@ -1440,12 +1440,12 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.eleBDTWP = s;
     }
 
-    inline virtual void tauEleOLR(bool do_tau_ele_olr) {
-      if (!m_configFixed) m_tau_configuration.eleOLR = do_tau_ele_olr;
+    inline virtual void tauMuOLR(bool do_tau_ele_olr) {
+      if (!m_configFixed) m_tau_configuration.muOLR = do_tau_ele_olr;
     }
 
-    inline virtual void tauEleOLRLoose(bool do_tau_ele_olr) {
-      if (!m_configFixed) m_tau_configuration_loose.eleOLR = do_tau_ele_olr;
+    inline virtual void tauMuOLRLoose(bool do_tau_ele_olr) {
+      if (!m_configFixed) m_tau_configuration_loose.muOLR = do_tau_ele_olr;
     }
 
     inline virtual void tauSFDoRNNID(bool do_tau_rnn_id) {
@@ -1497,12 +1497,12 @@ namespace top {
       return m_tau_configuration_loose.eleBDTWP;
     }
 
-    inline virtual bool tauEleOLR() {
-      return m_tau_configuration.eleOLR;
+    inline virtual bool tauMuOLR() {
+      return m_tau_configuration.muOLR;
     }
 
-    inline virtual bool tauEleOLRLoose() {
-      return m_tau_configuration_loose.eleOLR;
+    inline virtual bool tauMuOLRLoose() {
+      return m_tau_configuration_loose.muOLR;
     }
 
     inline const std::string& tauJetConfigFile() {
@@ -2393,8 +2393,8 @@ namespace top {
       // the electron BDTWP
       std::string eleBDTWP = "Medium";
       bool substructureSF = false;
-      // Whether to perform electron overlap removal
-      bool eleOLR = false;
+      // Whether to perform muon overlap removal
+      bool muOLR = true;
       // pT cut on taus
       float pt = 20000;
       std::string etaRegions="[0., 1.37, 1.52, 2.5]";
