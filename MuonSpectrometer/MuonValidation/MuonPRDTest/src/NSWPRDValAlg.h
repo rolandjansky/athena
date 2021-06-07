@@ -26,6 +26,7 @@
 #include "CSCSimHitVariables.h"
 #include "CSCDigitVariables.h"
 #include "TGCSimHitVariables.h"
+#include "TGCDigitVariables.h"
 #include "TGCRDOVariables.h"
 #include "sTGCSimHitVariables.h"
 #include "sTGCSDOVariables.h"
@@ -80,6 +81,7 @@ class NSWPRDValAlg:public AthAlgorithm
   std::unique_ptr<RpcDigitVariables>      m_RPCDigitVar;
   std::unique_ptr<CSCSimHitVariables>     m_CSCSimHitVar;
   std::unique_ptr<TGCSimHitVariables>     m_TGCSimHitVar;
+  std::unique_ptr<TGCDigitVariables>      m_TgcDigitVar;
   std::unique_ptr<TGCRDOVariables>        m_TgcRdoVar;
 
   TTree* m_tree; // still needed in NSWMatchingAlg during finalize
@@ -120,7 +122,8 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doRPCSDO;           // switch on the output of the RPC SDO
   BooleanProperty  m_doRPCDigit;         // switch on the output of the RPC digitization
   BooleanProperty  m_doTGCHit;           // switch on the output of the TGC simulated hits
-  BooleanProperty  m_doTGCRDO;           // switch on the output of the TGC digitization
+  BooleanProperty  m_doTGCDigit;         // switch on the output of the TGC digitization
+  BooleanProperty  m_doTGCRDO;           // switch on the output of the TGC RDO
 
   unsigned int m_runNumber;
   unsigned int m_eventNumber;
@@ -146,6 +149,7 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_RPC_DigitContainerName;
   std::string m_CSC_SimContainerName;
   std::string m_TGC_SimContainerName;
+  std::string m_TGC_DigitContainerName;
   std::string m_TGC_RDOContainerName;
 
   // Matching algorithm

@@ -52,8 +52,8 @@ class L1CaloRxLayersContainer: public DataObject,
     
     const L1CaloRxLayers* rxLayers(unsigned int channelId) const;
     const L1CaloRxLayers* rxLayers(const L1CaloRxCoolChannelId& channelId) const;
-    void addRxLayers(unsigned int channelId, const L1CaloRxLayers& rxLayers);
-    void addRxLayers(const L1CaloRxCoolChannelId& channelId, const L1CaloRxLayers& rxLayers);
+    void addRxLayers(unsigned int channelId, L1CaloRxLayers&& rxLayers);
+    void addRxLayers(const L1CaloRxCoolChannelId& channelId, L1CaloRxLayers&& rxLayers);
     
     inline const_iterator begin() const { return m_mRxLayersMap.begin(); };
     inline const_iterator end()   const { return m_mRxLayersMap.end(); };

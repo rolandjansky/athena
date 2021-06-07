@@ -50,6 +50,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("RPC_DigitContainerName",         m_RPC_DigitContainerName="RPC_DIGITS");
   declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
   declareProperty("TGC_SimContainerName",           m_TGC_SimContainerName="TGC_Hits");
+  declareProperty("TGC_DigitContainerName",         m_TGC_DigitContainerName="TGC_DIGITS");
   declareProperty("TGC_RDOContainerName",           m_TGC_RDOContainerName="TGCRDO");
 
   // Input properties: do EDM objects
@@ -75,6 +76,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("doRPCDigit",      m_doRPCDigit=false);
   declareProperty("doCSCHit",        m_doCSCHit=false);
   declareProperty("doTGCHit",        m_doTGCHit=false);
+  declareProperty("doTGCDigit",      m_doTGCDigit=false);
   declareProperty("doTGCRDO",        m_doTGCRDO=false);
 
   // Input properties: NSW Maching algorithm
@@ -247,6 +249,12 @@ StatusCode NSWPRDValAlg::initialize() {
      ATH_CHECK( m_TGCSimHitVar->initializeVariables() );
   }
 
+  if (m_doTGCDigit){
+     m_TgcDigitVar = std::make_unique<TGCDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_DigitContainerName, msgLevel());
+     ATH_CHECK( m_TgcDigitVar->initializeVariables() );
+  }
+
   if (m_retrieveTgcCabling) {
      const ITGCcablingServerSvc* TgcCabGet = nullptr;
      ATH_CHECK(service("TGCcablingServerSvc", TgcCabGet, true));
@@ -337,6 +345,8 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doCSCHit) ATH_CHECK( m_CSCSimHitVar->fillVariables(muonDetMgr) );
 
   if (m_doTGCHit) ATH_CHECK( m_TGCSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doTGCDigit) ATH_CHECK( m_TgcDigitVar->fillVariables(muonDetMgr) );
 
   if (m_doTGCRDO) ATH_CHECK( m_TgcRdoVar->fillVariables(muonDetMgr) );
 

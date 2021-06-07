@@ -1,17 +1,13 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# @version $Id: RDOMerge_tf.py 710146 2015-11-24 10:37:59Z graemes $ 
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 import time
 
-import logging
-
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
@@ -28,14 +24,14 @@ ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--DBRelease', '--FwdRegionO
 @sigUsrStackTrace
 def main():
     
-    msg.info('This is %s' % sys.argv[0])
+    msg.info('This is %s', sys.argv[0])
 
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
 
-    msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+    msg.info("%s stopped at %s, trf exit code %d", sys.argv[0], time.asctime(), trf.exitCode)
     sys.exit(trf.exitCode)
 
 def getTransform():
@@ -62,6 +58,9 @@ def addMyArgs(parser):
     parser.add_argument('--outputRDO_MRGFile', '--outputRDOFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
                         help='Output merged RDO file', group='RDOMerge_tf')
+    parser.add_argument('--PileUpPresampling',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool),
+                        help='Run digitization with pile-up presampling configuration.', group='RDOMerge_tf')
 #     parser.add_argument('--fastPoolMerge', type=trfArgClasses.argFactory(trfArgClasses.argBool),
 #                         help='Hybrid POOL merging switch (default True)')
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigCompositeUtils_TrigCompositeUtils_h
@@ -43,6 +43,7 @@
 
 namespace TrigCompositeUtils {
 
+  // cppcheck-suppress unknownMacro
   ANA_MSG_HEADER (msgRejected)
 
   /// alias types, for readability and to simplify future evolution

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include <assert.h>
@@ -102,16 +102,6 @@ EMAPMatrix<T>::~EMAPMatrix()
 
 
 template <class T>
-EMAPMatrix<T>::EMAPMatrix(const EMAPMatrix& ob)
-{
-  m_dimensions		= ob.m_dimensions;
-  m_axis			= ob.m_axis;
-  m_matrix		= ob.m_matrix;
-  m_base			= ob.m_base;
-  m_textDescription	= ob.m_textDescription;
-}
-
-template <class T>
 void EMAPMatrix<T>::clear()
 {
   m_dimensions  = 0;
@@ -119,20 +109,6 @@ void EMAPMatrix<T>::clear()
   m_base.clear();
   m_matrix.clear();
   m_textDescription = "";
-}
-
-
-template <class T>
-EMAPMatrix<T>& EMAPMatrix<T>::operator = (const EMAPMatrix& ob)
-{
-  if (this != &ob) {
-    m_dimensions		= ob.m_dimensions;
-    m_axis			= ob.m_axis;
-    m_matrix		= ob.m_matrix;
-    m_base			= ob.m_base;
-    m_textDescription	= ob.m_textDescription;
-  }
-  return *this;
 }
 
 
@@ -190,7 +166,8 @@ std::vector<unsigned int> EMAPMatrix<T>::Index(unsigned int id)
 
                 
 template <class T>
-StatusCode EMAPMatrix<T>::setBinContent(std::vector<double> x, T value)
+// cppcheck-suppress passedByValue
+StatusCode EMAPMatrix<T>::setBinContent(const std::vector<double>& x, T value)
 {
   std::vector<unsigned int> id;
   if (x.size()==m_dimensions) {
@@ -210,6 +187,7 @@ StatusCode EMAPMatrix<T>::setBinContent(std::vector<double> x, T value)
 }
 
 template <class T>
+// cppcheck-suppress passedByValue
 StatusCode EMAPMatrix<T>::setBinContent(double x, T value)
 {
   if (m_dimensions!=1) return StatusCode::FAILURE;;
@@ -219,6 +197,7 @@ StatusCode EMAPMatrix<T>::setBinContent(double x, T value)
 }
 
 template <class T>
+// cppcheck-suppress passedByValue
 StatusCode EMAPMatrix<T>::setBinContent(double x, double y, T value)
 {
   if (m_dimensions!=2)  return StatusCode::FAILURE;;
@@ -229,6 +208,7 @@ StatusCode EMAPMatrix<T>::setBinContent(double x, double y, T value)
 }
 
 template <class T>
+// cppcheck-suppress passedByValue
 StatusCode	EMAPMatrix<T>::setBinContent(double x, double y, double z, T value)
 {
   if (m_dimensions!=3)  return StatusCode::FAILURE;;
@@ -240,6 +220,7 @@ StatusCode	EMAPMatrix<T>::setBinContent(double x, double y, double z, T value)
 }
 
 template <class T>
+// cppcheck-suppress passedByValue
 StatusCode EMAPMatrix<T>::setBinContent(double x, double y, double z, double u, T value)
 {
   if (m_dimensions!=4) return StatusCode::FAILURE;;
@@ -252,6 +233,7 @@ StatusCode EMAPMatrix<T>::setBinContent(double x, double y, double z, double u, 
 }
 
 template <class T>
+// cppcheck-suppress passedByValue
 StatusCode EMAPMatrix<T>::setBinContent(double x, double y, double z, double u, double v, T value)
 {
   if (m_dimensions!=5) return StatusCode::FAILURE;

@@ -22,20 +22,25 @@ def createNavConverterAlg():
 
 def NavConverterCfg(flags):
     acc = ComponentAccumulator()
-    from TrigConfigSvc.TrigConfigSvcCfg import HLTConfigSvcCfg
-    configSvcAcc = HLTConfigSvcCfg(flags)
-    service = configSvcAcc.getService("HLTConfigSvc") #TODO fetching the HLTConfigSvc should rely on the fact that it
-    acc.merge(configSvcAcc)
+    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+    tdt_ca = getTrigDecisionTool(flags)
+    tdt = tdt_ca.getPrimary()
+    acc.merge(tdt_ca)
 
     cnvAlg = createNavConverterAlg()
-    cnvAlg.HLTConfigSvc = service
+    cnvAlg.TrigDecisionTool = tdt
+    cnvAlg.TrigConfigSvc = tdt.TrigConfigSvc
     acc.addEventAlgo(cnvAlg)
+
     return acc
+
 
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
+
     acc = NavConverterCfg(ConfigFlags)
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.wasMerged()
-

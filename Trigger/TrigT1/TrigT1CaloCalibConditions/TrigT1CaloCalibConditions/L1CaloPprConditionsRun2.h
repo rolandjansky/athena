@@ -17,7 +17,7 @@
  *  @author Veit Scharf
  */
 
-class L1CaloPprConditionsRun2
+class L1CaloPprConditionsRun2 final
 {
 public:
 
@@ -62,7 +62,7 @@ public:
     short int firCoeff5, unsigned short lutCpSlope, unsigned short lutCpNoiseCut,
     unsigned short lutJepSlope, unsigned short lutJepNoiseCut);
 
-  virtual ~L1CaloPprConditionsRun2() {};
+  ~L1CaloPprConditionsRun2() =default;
 
   // getters
   unsigned short extBcidThreshold()    const { return m_extBcidThreshold; }

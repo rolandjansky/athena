@@ -92,11 +92,9 @@ def getTruthJetRange(name="TruthJetRange", **kwargs):
     kwargs.setdefault('LastXing',  TruthJet_LastXing() )
     itemList = []
     if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
-        itemList += ["xAOD::JetContainer#InTimeAntiKt4TruthJets",
-                     "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets"]
+        itemList += ["xAOD::JetContainer#AntiKt4TruthJets"]
     if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
-        itemList += ["xAOD::JetContainer#InTimeAntiKt6TruthJets",
-                     "xAOD::JetContainer#OutOfTimeAntiKt6TruthJets"]
+        itemList += ["xAOD::JetContainer#AntiKt6TruthJets"]
     kwargs.setdefault('ItemList',  itemList)
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 

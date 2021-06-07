@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def CaloRecoCfg(configFlags, clustersname="CaloTopoClusters"):
+def CaloRecoCfg(configFlags, clustersname="CaloTopoClusters",doLCCalib=None):
     
     result=ComponentAccumulator()
     if not configFlags.Input.isMC:
@@ -33,7 +33,7 @@ def CaloRecoCfg(configFlags, clustersname="CaloTopoClusters"):
     
     #Configure topo-cluster builder
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname))
+    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname, doLCCalib=doLCCalib))
 
     return result
 

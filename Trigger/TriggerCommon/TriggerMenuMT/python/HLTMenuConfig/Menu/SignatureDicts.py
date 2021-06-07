@@ -131,7 +131,31 @@ JetChainParts = {
     'trkopt'       : # Tracking configuration
       ['notrk','ftf'],
     'trkpresel'    : # Tracking preselection
-      ['nopresel','preselj20'],
+      ['nopresel',
+       #Loose
+       'preselj20',  #L1J15, L1J20
+       'preselj60',  #L1J30
+       'preselj135', #L1J50, #L1J100
+       'presel2j135', #L1J50, L1J100
+       'presel4j33', #L13J50
+       'presel5j24', #L14J15
+       'presel6j36', #L14J15
+       'presel7j21', #L14J15
+       #Medium
+       'preselj180',  #L1J100
+       'presel2j180', #L1J100
+       'presel4j55',  #L13J50
+       'presel5j35',  #L14J15
+       'presel6j40',  #L14J15
+       'presel7j28',  #L14J15
+       #Tight
+       'preselj225', #L1J100
+       'presel2j225', #L1J100
+       'presel4j85', #L13J50
+       'presel5j50', #L14J15
+       'presel6j45', #L14J15
+       'presel7j35', #L14j15
+     ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
     #   other dict contents. If it is not 'simple', then the configuration is 100%
@@ -473,7 +497,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
+    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight', 'mergedtight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
     'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],

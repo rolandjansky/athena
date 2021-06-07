@@ -4,6 +4,7 @@ Py:MetaReader        INFO Current mode used: full
 Py:MetaReader        INFO Current filenames: ['newMeta._0001.data']
 `-- newMeta._0001.data: 
     |-- GeoAtlas          : None
+    |-- auto_flush        : 1
     |-- beam_energy       : 6500
     |-- beam_type         : collisions
     |-- bs_metadata       : 
@@ -16,6 +17,8 @@ Py:MetaReader        INFO Current filenames: ['newMeta._0001.data']
     |-- conditions_tag    : None
     |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'IS_PHYSICS']
     |-- evt_number        : [1857736]
+    |-- file_comp_alg     : 1
+    |-- file_comp_level   : 1
     |-- file_size         : 5552580
     |-- file_type         : BS
     |-- lumiBlockNumbers  : [151]

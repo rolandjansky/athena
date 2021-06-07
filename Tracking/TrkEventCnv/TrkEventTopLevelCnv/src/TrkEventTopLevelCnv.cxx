@@ -16,9 +16,6 @@ DECLARE_TPCNV_FACTORY(SegmentCollectionCnv_tlp4,
 
 
 DECLARE_TPCNV_FACTORY(TrackCollectionCnv_tlp6,
-                      Trk::TrackCollection,
+                      TrackCollection,
                       Trk::TrackCollection_tlp6,
                       Athena::TPCnvVers::Current)
-
-
-                      

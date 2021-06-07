@@ -153,8 +153,8 @@ void L1CaloHVCorrectionsContainer::makeTransient(const std::map<std::string, Con
               }
             }
 
-            L1CaloHVCorrections l1CaloHVCorrections(chanNum, rxMean, affectedCells, layerMeans);
-            m_mHVCorrectionsMap[chanNum] = l1CaloHVCorrections;
+            L1CaloHVCorrections l1CaloHVCorrections(chanNum, rxMean, std::move(affectedCells), std::move(layerMeans));
+            m_mHVCorrectionsMap[chanNum] = std::move(l1CaloHVCorrections);
         }
     } else {
         std::cout << "L1CaloHVCorrectionsContainer : Could not find requested CondAttrListCollection "
@@ -172,12 +172,12 @@ const L1CaloHVCorrections* L1CaloHVCorrectionsContainer::hvCorrections(const L1C
     return this->hvCorrections(channelId.id());
 }
 
-void L1CaloHVCorrectionsContainer::addHVCorrections(unsigned int channelId, const L1CaloHVCorrections& hvCorrections) {
-    m_mHVCorrectionsMap[channelId] = hvCorrections;
+void L1CaloHVCorrectionsContainer::addHVCorrections(unsigned int channelId, L1CaloHVCorrections&& hvCorrections) {
+    m_mHVCorrectionsMap[channelId] = std::move(hvCorrections);
 }
 
-void L1CaloHVCorrectionsContainer::addHVCorrections(const L1CaloRxCoolChannelId& channelId, const L1CaloHVCorrections& hvCorrections) {
-    this->addHVCorrections(channelId.id(), hvCorrections);
+void L1CaloHVCorrectionsContainer::addHVCorrections(const L1CaloRxCoolChannelId& channelId, L1CaloHVCorrections&& hvCorrections) {
+    this->addHVCorrections(channelId.id(), std::move(hvCorrections));
 }
 
 void L1CaloHVCorrectionsContainer::clear() {

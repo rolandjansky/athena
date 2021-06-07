@@ -97,7 +97,8 @@ def setupMenu():
         #-- nscan ATR-19376
         ChainProp(name='HLT_mu20_mu6noL1_nscan_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'],   groups=MultiMuonGroup),
         
-
+        #------------ 1e_1g ATR-23158
+        ChainProp(name='HLT_e25_mergedtight_g35_medium_Heg_L12EM20VH',l1SeedThresholds=['EM20VH','EM20VH'], groups=PrimaryLegGroup+MultiElectronGroup), 
     ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -387,8 +388,16 @@ def setupMenu():
 
        
         # ATR-22096
-        ChainProp(name='HLT_j420_ftf_L1J100',             groups=SingleJetGroup+ PrimaryLegGroup),
-        ChainProp(name='HLT_j420_pf_ftf_L1J100',          groups=SingleJetGroup+ PrimaryLegGroup),
+        ChainProp(name='HLT_j420_ftf_L1J100',               groups=SingleJetGroup+ PrimaryLegGroup),
+        ChainProp(name='HLT_j420_pf_ftf_L1J100',            groups=SingleJetGroup+ PrimaryLegGroup),
+
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_j420_pf_ftf_preselj135_L1J100', groups=SingleJetGroup+ PrimaryLegGroup),
+        ChainProp(name='HLT_j420_pf_ftf_preselj180_L1J100', groups=SingleJetGroup+ PrimaryLegGroup),
+        ChainProp(name='HLT_j420_pf_ftf_preselj225_L1J100', groups=SingleJetGroup+ PrimaryLegGroup),
+        ChainProp(name='HLT_j135_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j180_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j225_L1J100', groups=SingleJetGroup),
 
         ChainProp(name='HLT_3j200_ftf_L1J100',            groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_3j200_pf_ftf_L1J100',         groups=MultiJetGroup + PrimaryLegGroup),
@@ -397,29 +406,75 @@ def setupMenu():
         ChainProp(name='HLT_4j115_ftf_L13J50',            groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_4j115_pf_ftf_L13J50',         groups=MultiJetGroup + PrimaryLegGroup),
 
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_4j115_pf_ftf_presel4j33_L13J50', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_4j115_pf_ftf_presel4j55_L13J50', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_4j115_pf_ftf_presel4j85_L13J50', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_4j33_L13J50', groups=MultiJetGroup),
+        ChainProp(name='HLT_4j55_L13J50', groups=MultiJetGroup),
+        ChainProp(name='HLT_4j85_L13J50', groups=MultiJetGroup),
+
         ChainProp(name='HLT_5j70_ftf_0eta240_L14J15',     groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_5j70_pf_ftf_0eta240_L14J15',  groups=MultiJetGroup + PrimaryLegGroup),
+ 
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_5j70_pf_ftf_0eta240_presel5j24_L14J15',  groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_5j70_pf_ftf_0eta240_presel5j35_L14J15',  groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_5j70_pf_ftf_0eta240_presel5j50_L14J15',  groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_5j24_L14J15',  groups=MultiJetGroup ),
+        ChainProp(name='HLT_5j35_L14J15',  groups=MultiJetGroup ),
+        ChainProp(name='HLT_5j50_L14J15',  groups=MultiJetGroup ),
 
         ChainProp(name='HLT_5j85_subjesIS_L14J15',        groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_5j85_ftf_L14J15',             groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_5j85_pf_ftf_L14J15',          groups=MultiJetGroup + PrimaryLegGroup),
 
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_5j85_pf_ftf_presel5j24_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_5j85_pf_ftf_presel5j35_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_5j85_pf_ftf_presel5j50_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+
         ChainProp(name='HLT_6j55_subjesIS_0eta240_L14J15',groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_6j55_ftf_0eta240_L14J15',     groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_6j55_pf_ftf_0eta240_L14J15',  groups=MultiJetGroup + PrimaryLegGroup),
+
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_6j55_pf_ftf_0eta240_presel6j36_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_6j55_pf_ftf_0eta240_presel6j40_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_6j55_pf_ftf_0eta240_presel6j45_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_6j36_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j40_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_L14J15', groups=MultiJetGroup),
 
         ChainProp(name='HLT_6j70_subjesIS_L14J15',        groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_6j70_ftf_L14J15',             groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_6j70_pf_ftf_L14J15',          groups=MultiJetGroup + PrimaryLegGroup),
 
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_6j70_pf_ftf_presel6j36_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_6j70_pf_ftf_presel6j40_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_6j70_pf_ftf_presel6j45_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+
         ChainProp(name='HLT_7j45_subjesIS_L14J15',        groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_7j45_ftf_L14J15',             groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_7j45_pf_ftf_L14J15',          groups=MultiJetGroup + PrimaryLegGroup),
 
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_7j45_pf_ftf_presel7j21_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_7j45_pf_ftf_presel7j28_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_7j45_pf_ftf_presel7j35_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_7j21_L14J15', groups=MultiJetGroup ),
+        ChainProp(name='HLT_7j28_L14J15', groups=MultiJetGroup ),
+        ChainProp(name='HLT_7j35_L14J15', groups=MultiJetGroup ),
+
         ChainProp(name='HLT_10j40_subjesIS_L14J15',       groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_10j40_ftf_L14J15',            groups=MultiJetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_10j40_pf_ftf_L14J15',         groups=MultiJetGroup + PrimaryLegGroup),
-
+ 
+        #Adding testing chains for Tight,Medium,Loose preselections (ATR-23547) and also corresponding emtopo chain
+        ChainProp(name='HLT_10j40_pf_ftf_presel7j21_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_10j40_pf_ftf_presel7j28_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
+        ChainProp(name='HLT_10j40_pf_ftf_presel7j35_L14J15', groups=MultiJetGroup + PrimaryLegGroup),
 
         #  Chains to test JVT and PFlow effects in low-threshold 6j
         ChainProp(name='HLT_6j25_0eta240_L14J15',                           groups=MultiJetGroup),
