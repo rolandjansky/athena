@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
 
@@ -29,7 +29,6 @@ class HLTNavigationOffline ( HLTNavigation ):
         super( HLTNavigationOffline, self ).__init__( name )
 
     def setDefaults(self, handle):
-        handle.ReferenceAllClasses = True
         handle.ClassesToPayload = []
 
 
@@ -41,7 +40,6 @@ class HLTNavigationOnline ( HLTNavigation ):
         super( HLTNavigationOnline, self ).__init__( name )
 
     def setDefaults(self, handle):
-        handle.ReferenceAllClasses = False
         handle.ClassesToPayload = []
 
 
@@ -52,7 +50,6 @@ class TestingHLTNavigationOffline ( HLTNavigation ):
         super( TestingHLTNavigationOffline, self ).__init__( name )
 
     def setDefaults(self, handle):
-        handle.ReferenceAllClasses = True
         handle.ClassesToPayload = []
         from AthenaCommon.Constants import VERBOSE
         handle.OutputLevel = VERBOSE

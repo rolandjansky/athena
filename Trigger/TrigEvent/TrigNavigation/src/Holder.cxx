@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -14,6 +14,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainersRoot/getDynamicAuxID.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
 #include "AthenaKernel/CLIDRegistry.h"
@@ -26,9 +27,6 @@
 
 
 using namespace HLTNavDetails;
-
-#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x 
-
 
 
 /*****************************************************************************
@@ -62,7 +60,7 @@ void IHolder::prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objS
 
 bool IHolder::serialize(std::vector<uint32_t>& output)  const {
 
-  MLOG(DEBUG) << "Holder<T> serialize, " << *this  << endmsg;
+  ATH_MSG_DEBUG("Holder<T> serialize, " << *this );
   // if feature to be forgotten then indication of it is simply 0 size of serialized vector
 
   output.push_back( typeClid() );
@@ -82,13 +80,13 @@ bool IHolder::serializeWithPayload(const xAOD::AuxSelection& sel,
                                    size_t& payloadsize) {
   bool header_ser = serialize(output);
   if(!header_ser){
-    MLOG(ERROR) << " header serialization failed " << endmsg;
+    ATH_MSG_ERROR(" header serialization failed ");
     return false;
   }
   std::vector<uint32_t> payload;
   bool payload_ser = serializePayload(payload, sel);
   if(!payload_ser){
-    MLOG(ERROR) << " payload serialization failed " << endmsg;
+    ATH_MSG_ERROR(" payload serialization failed ");
     return false;
   }
   payloadsize = payload.size();
@@ -100,7 +98,7 @@ std::string IHolder::generateAliasKey(CLID c, uint16_t sti, const std::string& l
   std::ostringstream ss;
   ss <<  "HLTAutoKey_" << label << "_" << c << "_" << sti << "_" << (size == 0xffffffff ? "back" : "to")  << "_" << m_uniqueCounter;
   std::string st = ss.str();
-  MLOG(DEBUG) << "IHolder::generateAliasKey generated key: " << st << endmsg;
+  ATH_MSG_DEBUG("IHolder::generateAliasKey generated key: " << st);
   m_uniqueCounter++;
   return st;
 }
@@ -151,16 +149,16 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
   const std::string container_typename = collectionName();
 
   if ( m_storeGate->transientContains(container_clid, sgkey) ) {
-    MLOG(VERBOSE) << "deserialize: while working on: " << container_typename << " and key: " << sgkey
-                  << " from serialized form found it in SG already, sync with it" << endmsg;
+    ATH_MSG_VERBOSE("deserialize: while working on: " << container_typename << " and key: " << sgkey
+                    << " from serialized form found it in SG already, sync with it");
     syncWithSG();
   }
 
-  MLOG(VERBOSE) << "deserializing a data blob of size " << dataBlob.size() << " navi version is " << version;
-  MLOG(DEBUG) << "holder type clid " << feature_clid<< " collection clid: " << container_clid << endmsg;
+  ATH_MSG_VERBOSE("deserializing a data blob of size " << dataBlob.size() << " navi version is " << version);
+  ATH_MSG_DEBUG("holder type clid " << feature_clid<< " collection clid: " << container_clid);
 
   if (container_clid<1){
-    MLOG(WARNING) << "holder type clid " << feature_clid << " collection clid: " << container_clid << endmsg;
+    ATH_MSG_WARNING("holder type clid " << feature_clid << " collection clid: " << container_clid);
   }  
   
   typedef std::vector<uint32_t>::const_iterator it_type;
@@ -172,18 +170,18 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
 
   if(version == 4){
     auto firstsize = *(it++);
-    MLOG(VERBOSE) << "first part has size: " << firstsize;
+    ATH_MSG_VERBOSE("first part has size: " << firstsize);
   
     first = std::vector<uint32_t>(it,it+firstsize);
   
     std::advance(it,firstsize);  
   
     if(!(it!=dataBlob.end())){
-      MLOG(VERBOSE) << "this datablob only has a first part (non xAOD case)";
+      ATH_MSG_VERBOSE("this datablob only has a first part (non xAOD case)");
     }
     else{
       auto secondsize = *(it++);
-      MLOG(VERBOSE) << "second part has size: " << secondsize;
+      ATH_MSG_VERBOSE("second part has size: " << secondsize);
       second = std::vector<uint32_t>(it,it+secondsize);
       std::advance(it,secondsize);  
     }
@@ -197,7 +195,7 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
   DataObject* dobj(0);
 
   if (m_objectserializerSvc->createObj((IOpaqueAddress*)&addr, dobj).isFailure() ){
-    MLOG(WARNING) << "deserialize main: failed" << std::endl;
+    ATH_MSG_WARNING("deserialize main: failed");
     return false;
   }
 
@@ -211,12 +209,12 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
   DataObject* dobjaux(0);
   if(!second.empty()){
     std::string sgkeyaux = sgkey+"Aux.";
-    MLOG(VERBOSE) << "aux clid was deduced to be: " << auxClidOrZero();
+    ATH_MSG_VERBOSE("aux clid was deduced to be: " << auxClidOrZero());
     TrigStreamAddress auxaddr(auxClidOrZero(), sgkeyaux, "", 0, 0);
     auxaddr.add(second);
 
     if (m_objectserializerSvc->createObj((IOpaqueAddress*)&auxaddr, dobjaux).isFailure() ){
-      MLOG(WARNING) << "Aux Store deserialization failed";
+      ATH_MSG_WARNING("Aux Store deserialization failed");
       return false;
     }
 
@@ -235,7 +233,7 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
                                           it - dataBlob.begin(),
                                           *istore))
       {
-        *m_log << MSG::WARNING << "Aux Store dynamic var deserialization failed";
+        ATH_MSG_WARNING("Aux Store dynamic var deserialization failed");
         return false;
       }
     }
@@ -255,45 +253,45 @@ bool HLTNavDetails::IHolder::serializePayload(std::vector<uint32_t>& dataBlob,
   DataObject* dobj = getDataObject();
   
   if(!dobj){
-    MLOG(WARNING) << "data object points to null. can't serialize" << endmsg;
+    ATH_MSG_WARNING("data object points to null. can't serialize");
   }
 
-  MLOG(VERBOSE) << "creating serialized representation for " << dobj << endmsg;
+  ATH_MSG_VERBOSE("creating serialized representation for " << dobj);
 
 
   TrigStreamAddress* addr(0);
   if ( m_objectserializerSvc->createRep(dobj, *pp_cast<IOpaqueAddress>(&addr) ).isSuccess() ) {
-    MLOG(VERBOSE) << "serialization of feature (object) successful, blob size: "  << addr->get().size() << endmsg;
+    ATH_MSG_VERBOSE("serialization of feature (object) successful, blob size: "  << addr->get().size());
     dataBlob.push_back(addr->get().size());
     dataBlob.insert(dataBlob.end(), addr->get().begin(), addr->get().end());
     // above should be optimized (need to know if in case of failed serialization addr->get() contains empty data vector)
   }
   else{
-    MLOG(ERROR) << "Container serialization Failure" << endmsg;
+    ATH_MSG_ERROR("Container serialization Failure");
     return false;
   }
   DataBucketBase* dobjBase = static_cast<DataBucketBase*>(dobj);
   if ( dobjBase ) {
     dobjBase->relinquish();
-    MLOG(VERBOSE) << "serialization giving up the ownership" << endmsg;
+    ATH_MSG_VERBOSE("serialization giving up the ownership");
   }
   delete dobj;
   delete addr;
   
   DataObject* dobjaux = getAuxDataObject();
 
-  MLOG(VERBOSE) << "aux object: " << dobjaux << endmsg;
+  ATH_MSG_VERBOSE("aux object: " << dobjaux);
 
   TrigStreamAddress* auxaddr(0);
   if(dobjaux){
-    MLOG(VERBOSE) << "AuxStore serialization" << endmsg;
+    ATH_MSG_VERBOSE("AuxStore serialization");
     if(m_objectserializerSvc->createRep(dobjaux,*pp_cast<IOpaqueAddress>(&auxaddr) ).isSuccess() ){
-      MLOG(VERBOSE) << "aux conversion success! aux blob has size: " << auxaddr->get().size() << endmsg;
+      ATH_MSG_VERBOSE("aux conversion success! aux blob has size: " << auxaddr->get().size());
       dataBlob.push_back(auxaddr->get().size());
       dataBlob.insert(dataBlob.end(), auxaddr->get().begin(), auxaddr->get().end());
     }
     else{
-      MLOG(ERROR) << "AuxStore serialization Failure" << endmsg;
+      ATH_MSG_ERROR("AuxStore serialization Failure");
       return false;
     }
     DataBucketBase* dobjBaseAux = static_cast<DataBucketBase*>(dobjaux);
@@ -306,19 +304,19 @@ bool HLTNavDetails::IHolder::serializePayload(std::vector<uint32_t>& dataBlob,
     }
 
     dobjBaseAux->relinquish();
-    *m_log << MSG::VERBOSE << "serialization giving up the ownership of Aux" << endmsg;
+    ATH_MSG_VERBOSE("serialization giving up the ownership of Aux");
     delete dobjaux;
     delete auxaddr;
 
     // Handle dynamic variables.
     if (iio) {
       if (!serializeDynVars (*iio, sel, dataBlob)) {
-        *m_log << MSG::ERROR << "Serialization of dynamic aux variables failed." << endmsg;
+        ATH_MSG_ERROR("Serialization of dynamic aux variables failed.");
         return false;
       }
     }
   }
-  MLOG(VERBOSE) << "finished serializing payload. size: " << dataBlob.size() << endmsg;
+  ATH_MSG_VERBOSE("finished serializing payload. size: " << dataBlob.size());
 
   return true;
 }
@@ -352,12 +350,12 @@ bool IHolder::serializeDynVars (const SG::IAuxStoreIO& iio,
     // Get the TClass of the object being saved.
     const std::type_info* tinfo = iio.getIOType (id);
     if (!tinfo) {
-      *m_log << MSG::ERROR << "serialize aux dyn vars failed: can't get type_info." << endmsg;
+      ATH_MSG_ERROR("serialize aux dyn vars failed: can't get type_info.");
       return false;
     }
     TClass* cls = TClass::GetClass (*tinfo);
     if (!cls) {
-      *m_log << MSG::ERROR << "serialize aux dyn vars failed: can't get TClass." << endmsg;
+      ATH_MSG_ERROR("serialize aux dyn vars failed: can't get TClass.");
       return false;
     }
 
@@ -408,7 +406,7 @@ bool IHolder::deserializeDynVars (const std::vector<uint32_t>& dataBlob,
 {
   SG::IAuxStoreHolder* holder = dynamic_cast<SG::IAuxStoreHolder*> (&store);
   if (!holder) {
-    *m_log << MSG::ERROR << "deserialize aux dyn vars failed: can't convert to IAuxStoreHolder." << endmsg;
+    ATH_MSG_ERROR("deserialize aux dyn vars failed: can't convert to IAuxStoreHolder.");
     return false;
   }
   
@@ -498,7 +496,7 @@ IHolder::deserializeDynVars (const std::vector<uint32_t>& dataBlob,
       if (elt_tinfo)
         id = SG::getDynamicAuxID (*elt_tinfo, name, elementTypeName, tname, false);
       if (id == SG::null_auxid) {
-        *m_log << MSG::ERROR << "deserialize aux dyn var failed; can't find auxid for:" << name << endmsg;
+        ATH_MSG_ERROR("deserialize aux dyn var failed; can't find auxid for:" << name);
         return std::unique_ptr<SG::IAuxStore> (std::move(store));
       }
     }

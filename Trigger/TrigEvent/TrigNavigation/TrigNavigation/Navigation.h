@@ -1,41 +1,26 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef TRIGNAVIGATION_HLTNAVIGATION_H
 #define TRIGNAVIGATION_HLTNAVIGATION_H
 
-#include <stdint.h>
-#include <set>
-#include <sstream>
-#include <iostream>
-
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IConversionSvc.h"
 
-#include "AthContainers/OwnershipPolicy.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
-#include "AthLinks/ElementLinkVector.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigNavigation/NavigationCore.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/FullHolderFactory.h"
-
-
-class StringSerializer;
-
-static const InterfaceID IID_TrigNavigation("TrigNavigation", 1 , 0);
 
 
 namespace HLT {
@@ -114,17 +99,17 @@ namespace HLT {
 
   class Navigation : public AthAlgTool, public NavigationCore {
   public:
+    // resolve ambiguity between base classes
+    using AthAlgTool::msg;
+    using AthAlgTool::msgLvl;
+
     Navigation( const std::string& type,
                 const std::string& name,
                 const IInterface* parent );
 
     virtual ~Navigation();
-    static const InterfaceID& interfaceID() {
-      return IID_TrigNavigation;
-    }
 
-    virtual StatusCode initialize();  //!< initialization, there JO are read,parsed
-    virtual StatusCode finalize();    //!< finalization, as reset()
+    virtual StatusCode initialize() override;
 
     /**
      * @brief attaches feature to given TriggerElement
@@ -180,8 +165,7 @@ namespace HLT {
   private:
     // private stuff of Navigation class
     ServiceHandle<IConversionSvc>          m_serializerServiceHandle;
-    ServiceHandle<StoreGateSvc>            m_storeGateHandle;
-    ServiceHandle<IClassIDSvc>             m_clidSvc; 
+    ServiceHandle<IClassIDSvc>             m_clidSvc;
     std::vector<std::string>               m_dlls;
     FullHolderFactory                      m_fullholderfactory;
     bool                                   m_readonly;
