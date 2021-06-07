@@ -13,6 +13,7 @@ def getConfiguredTLAPhotonSelector(photonPtThreshold=10000, maxNPhotons=-1, inpu
     TrigEgammaTLAPhotonFex = conf2toConfigurable(CompFactory.TrigEgammaTLAPhotonReAlgo() )
 
     TrigEgammaTLAPhotonFex.photonPtThreshold = photonPtThreshold
+    
     TrigEgammaTLAPhotonFex.maxNPhotons = maxNPhotons
     
     TrigEgammaTLAPhotonFex.TLAInputPhotonContainer = inputPhotonsKey
