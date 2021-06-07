@@ -30,7 +30,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
         elif 'Primary_prescale' in menu_name:
-            enableChains(TriggerFlags, Prescales.HLTPrescales_primary_prescale, ['Primary:L1Muon','Primary:Legacy','Primary:PhaseI'])
+            enableChains(TriggerFlags, Prescales.HLTPrescales_primary_prescale, ['Primary:L1Muon','Primary:Legacy','Primary:PhaseI','Primary:CostAndRate'])
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_primary_prescale
         elif 'TriggerValidation_prescale' in menu_name:
