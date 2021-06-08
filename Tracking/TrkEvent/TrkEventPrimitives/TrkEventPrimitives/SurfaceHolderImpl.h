@@ -46,18 +46,24 @@ based on if its free or owned.
 
 namespace Trk {
 
-
 template<typename S>
 class SurfacePtrHolderImpl
 {
 public:
   /// default ctor
   SurfacePtrHolderImpl() = default;
-  /// ctor from const Surface ref if surface is free
+  /// ctor from const Surface ref. If surface is free
   /// we clone, otherwise we take its address.
-  SurfacePtrHolderImpl(const S& s)
+  explicit SurfacePtrHolderImpl(const S& s)
     : m_associatedSurface(s.isFree() ? s.clone() : &s)
   {}
+
+  /// ctor from const Surface ptr. If surface is free
+  /// we clone, otherwise we take its address.
+  explicit SurfacePtrHolderImpl(const S* s)
+    : m_associatedSurface(s && s->isFree() ? s->clone() : s)
+  {}
+
   /// copy ctor, if surface is free we clone/copy.
   /// If not we just point to the one owned by detector geometry
   SurfacePtrHolderImpl(const SurfacePtrHolderImpl& other)
@@ -128,10 +134,20 @@ class SurfaceUniqHolderImpl
 public:
   /// default ctor
   SurfaceUniqHolderImpl() = default;
-  ///
-  SurfaceUniqHolderImpl(const S& s)
+
+  /// ctor from const Surface ref. If surface is free
+  /// we clone, otherwise we take its address.
+
+  explicit SurfaceUniqHolderImpl(const S& s)
     : m_associatedSurface(s.isFree() ? s.clone() : &s)
   {}
+
+  /// ctor from const Surface ptr. If surface is free
+  /// we clone, otherwise we take its address.
+  explicit SurfaceUniqHolderImpl(const S* s)
+    : m_associatedSurface(s)
+  {}
+
   /// copy ctor, if surface is free we clone/copy.
   /// If not we just point to the one owned by detector geometry
   SurfaceUniqHolderImpl(const SurfaceUniqHolderImpl& other)
