@@ -14,7 +14,7 @@ from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
-from DerivationFrameworkJetEtMiss import METCommon
+from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg 
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
@@ -253,7 +253,7 @@ FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYSLITE)
 
 
 #==============================================================================
-# Systematics
+# Analysis-level variables 
 #==============================================================================
 
 # Set up the systematics loader/handler algorithm:
@@ -310,33 +310,29 @@ print( tauSequence ) # For debugging
 SeqPHYSLITE += tauSequence
 
 
-## Include, and then set up the jet analysis algorithm sequence:
-#jetContainer = 'AntiKt4EMPFlowJets'
-#from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-#jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False , runFJvtUpdate = False , runFJvtSelection = False )
-#jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
-#print( jetSequence ) # For debugging
-#
-#SeqPHYSLITE += jetSequence
+# Include, and then set up the jet analysis algorithm sequence:
+jetContainer = 'AntiKt4EMPFlowJets'
+from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False, runFJvtUpdate = False, runFJvtSelection = False, runJvtSelection = False)
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+print( jetSequence ) # For debugging
 
-## Make sure the MET knows what we've done
-## First we need to rebuild charged pflow objects
-#from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
-#scheduleCHSPFlowMods(SeqPHYSLITE)
-## Now build MET from our analysis objects
-#from DerivationFrameworkJetEtMiss import METCommon
-#from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
-#associators = [AssocConfig('PFlowJet', 'AnalysisJets'),
-#               AssocConfig('Muon', 'AnalysisMuons'),
-#               AssocConfig('Ele', 'AnalysisElectrons'),
-#               AssocConfig('Gamma', 'AnalysisPhotons'),
-#               AssocConfig('Tau', 'AnalysisTauJets'),
-#               AssocConfig('Soft', '')]
-#PHYSLITE_cfg = METAssocConfig('AnalysisMET',
-#                              associators,
-#                              doPFlow=True)
-#METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
-#scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
+SeqPHYSLITE += jetSequence
+
+# Build MET from our analysis objects
+from DerivationFrameworkJetEtMiss import METCommon
+from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
+associators = [AssocConfig('PFlowJet', 'AnalysisJets'),
+               AssocConfig('Muon', 'AnalysisMuons'),
+               AssocConfig('Ele', 'AnalysisElectrons'),
+               AssocConfig('Gamma', 'AnalysisPhotons'),
+               AssocConfig('Tau', 'AnalysisTauJets'),
+               AssocConfig('Soft', '')]
+PHYSLITE_cfg = METAssocConfig('AnalysisMET',
+                              associators,
+                              doPFlow=True)
+METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
+scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 
 #====================================================================
 # TRIGGER CONTENT
