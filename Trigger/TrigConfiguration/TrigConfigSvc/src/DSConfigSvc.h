@@ -29,6 +29,10 @@
 #include <string>
 #include <vector>
 
+#define DEPRECATED \
+   static std::atomic<bool> warn = true; \
+   if (warn) { ATH_MSG_WARNING("DSConfigSvc::" <<__func__ << " is deprecated"); warn = false; }
+
 class EventContext;
 
 /**
@@ -60,65 +64,65 @@ namespace TrigConf {
       virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
       // LVL1 menu and prescales only (no bunchgroups, prescale clocks, etc.)
-      virtual const CTPConfig* ctpConfig() const override {
+      virtual const CTPConfig* ctpConfig() const override { DEPRECATED;
          return & m_ctpConfig;
       }
 
       // access muctpi configuration
-      virtual const Muctpi* muctpiConfig() const override {
+      virtual const Muctpi* muctpiConfig() const override { DEPRECATED;
          return & m_ctpConfig.muCTPi();
       }
 
       // access to trigger thresholds
-      virtual const ThresholdConfig* thresholdConfig() const override {
+      virtual const ThresholdConfig* thresholdConfig() const override { DEPRECATED;
          return & m_ctpConfig.menu().thresholdConfig();
       }
 
       // returns bunch group set
-      virtual const BunchGroupSet* bunchGroupSet() const override {
+      virtual const BunchGroupSet* bunchGroupSet() const override { DEPRECATED;
          return & m_ctpConfig.bunchGroupSet();
       }
 
       // access to HLT chains
-      virtual const HLTChainList& chains() const override {
+      virtual const HLTChainList& chains() const override { DEPRECATED;
          return m_hltFrame.getHLTChainList();
       }
 
       // access to HLT sequences
-      virtual const HLTSequenceList& sequences() const override {
+      virtual const HLTSequenceList& sequences() const override { DEPRECATED;
          return m_hltFrame.getHLTSequenceList();
       }
 
       // access to SMK
-      virtual uint32_t masterKey() const override { return m_masterKey; }
+      virtual uint32_t masterKey() const override { DEPRECATED; return m_masterKey; }
 
       // access to LVL1 prescale key
-      virtual uint32_t lvl1PrescaleKey() const override {
+      virtual uint32_t lvl1PrescaleKey() const override { DEPRECATED;
          return m_lvl1PsKey;
       }
 
       // access to HLT prescale configuration key
-      virtual uint32_t hltPrescaleKey() const override { return m_hltPsKey; }
+      virtual uint32_t hltPrescaleKey() const override { DEPRECATED; return m_hltPsKey; }
 
       // access to a description of the source of the configuration (TriggerDB/XMLfilename)
-      virtual std::string configurationSource() const override {
+      virtual std::string configurationSource() const override { DEPRECATED;
          return m_configSrc;
       }
 
       /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
       /// @{
-      virtual const ::TrigConf::L1Menu& l1Menu(const ::EventContext&) const override {
+      virtual const ::TrigConf::L1Menu& l1Menu(const ::EventContext&) const override { DEPRECATED;
         const static ::TrigConf::L1Menu dummy = ::TrigConf::L1Menu();
         return dummy;
       }
 
-      virtual const ::TrigConf::L1PrescalesSet& l1PrescalesSet(const ::EventContext&) const override {
+      virtual const ::TrigConf::L1PrescalesSet& l1PrescalesSet(const ::EventContext&) const override { DEPRECATED;
         const static ::TrigConf::L1PrescalesSet dummy = ::TrigConf::L1PrescalesSet();
         return dummy;
       }
 
-      virtual const ::TrigConf::L1BunchGroupSet& l1BunchGroupSet(const ::EventContext&) const override {
+      virtual const ::TrigConf::L1BunchGroupSet& l1BunchGroupSet(const ::EventContext&) const override { DEPRECATED;
         const static ::TrigConf::L1BunchGroupSet dummy = ::TrigConf::L1BunchGroupSet();
         return dummy;
       }
@@ -127,12 +131,12 @@ namespace TrigConf {
       /// @name Dummy implementations of the Run 3 HLT JSON trigger configuration interface in IIHLTConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
       /// @{
-      virtual const ::TrigConf::HLTMenu& hltMenu(const ::EventContext&) const override {
+      virtual const ::TrigConf::HLTMenu& hltMenu(const ::EventContext&) const override { DEPRECATED;
          const static ::TrigConf::HLTMenu dummy = ::TrigConf::HLTMenu();
          return dummy;
       }
 
-      virtual const ::TrigConf::HLTPrescalesSet& hltPrescalesSet(const ::EventContext&) const override {
+      virtual const ::TrigConf::HLTPrescalesSet& hltPrescalesSet(const ::EventContext&) const override { DEPRECATED;
          const static ::TrigConf::HLTPrescalesSet dummy = ::TrigConf::HLTPrescalesSet();
          return dummy;
       }
