@@ -9,7 +9,6 @@ TCS::GenericTOB::GenericTOB(uint32_t roiWord) :
   BaseTOB( roiWord,"GenericTOB" )
 {
    m_tobType = JET;
-   std::cout << "WARNING: no sizeCheck() function applied in GenericTOB" << std::endl;
 }
 
 // constructor from generic data
@@ -21,9 +20,7 @@ TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord)
    , m_EtDouble((double)Et)
    , m_etaDouble(((double)eta)/10.)
    , m_phiDouble(((double)phi)/10.)
-{
-   std::cout << "WARNING: no sizeCheck() function applied in GenericTOB" << std::endl;
-}
+{}
 
 // copy constructor
 TCS::GenericTOB::GenericTOB(const GenericTOB & other) = default;
@@ -37,6 +34,30 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
    , m_eta(jet.eta())
    , m_phi(jet.phi())
    , m_EtDouble(jet.EtDouble(jetSize))
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from small R jet
+TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
+   BaseTOB(tau)
+   , m_Et(tau.Et())
+   , m_eta(tau.eta())
+   , m_phi(tau.phi())
+   , m_EtDouble(tau.EtDouble())
+   , m_etaDouble(tau.etaDouble())
+   , m_phiDouble(tau.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from large R jet
+TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
+   BaseTOB(jet)
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(jet.phi())
+   , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
    , m_tobType(JET)

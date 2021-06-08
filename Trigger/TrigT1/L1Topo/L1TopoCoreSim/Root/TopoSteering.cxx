@@ -73,7 +73,9 @@ TCS::StatusCode
 TopoSteering::reset() {
 
    ClusterTOB::clearHeap();
+   eEmTOB::clearHeap();
    JetTOB::clearHeap();
+   jJetTOB::clearHeap();
    MuonTOB::clearHeap();
    LateMuonTOB::clearHeap();
    MuonNextBCTOB::clearHeap();
@@ -437,7 +439,9 @@ TopoSteering::executeCountingAlgorithm(TCS::CountingAlg *alg,
 void
 TopoSteering::printDebugInfo() {
    TRG_MSG_INFO("Number of ClusterTOB  : " << ClusterTOB::heap().size());
+   TRG_MSG_INFO("Number of eEmTOB      : " << eEmTOB::heap().size());
    TRG_MSG_INFO("Number of JetTOB      : " << JetTOB::heap().size());
+   TRG_MSG_INFO("Number of jJetTOB     : " << jJetTOB::heap().size());
    TRG_MSG_INFO("Number of GenericTOB  : " << GenericTOB::heap().size());
    TRG_MSG_INFO("Number of CompositeTOB: " << CompositeTOB::heap().size());
    TRG_MSG_INFO("Number of MuonTOB     : " << MuonTOB::heap().size());

@@ -39,10 +39,15 @@ namespace LVL1 {
      
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      mutable LockedHandle<TH1> m_hEmEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEmEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMEtaPhi_local ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMEtEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMEtPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtPhi ATLAS_THREAD_SAFE;
 
      SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEX EDM"};
    };

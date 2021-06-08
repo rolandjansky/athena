@@ -12,6 +12,8 @@ TopoInputEvent::TopoInputEvent() :
   m_eems("InputeEms",120),
   m_taus("InputTaus",120),
   m_jets("InputJets",60),
+  m_jTaus("InputjTaus",60),
+  m_jLargeRJets("InputjLargeRJets",60),
   m_jJets("InputjJets",60),
   m_muons("InputMuons",32),
   m_lateMuons("InputLateMuons",32),
@@ -40,6 +42,16 @@ StatusCode TopoInputEvent::addTau(const TCS::ClusterTOB & tau) {
 
 StatusCode TopoInputEvent::addJet(const TCS::JetTOB & jet) {
    m_jets.push_back(jet);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addjTau(const TCS::jTauTOB & tau) {
+   m_jTaus.push_back(tau);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addjLargeRJet(const TCS::jLargeRJetTOB & jet) {
+   m_jLargeRJets.push_back(jet);
    return StatusCode::SUCCESS;
 }
 
@@ -87,6 +99,21 @@ void TopoInputEvent::setOverflowFromJetInput   (const bool &v)
     m_overflowFromJetInput = v;
 }
 
+void TopoInputEvent::setOverflowFromjTauInput   (const bool &v)
+{
+    m_overflowFromjTauInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjJetInput   (const bool &v)
+{
+    m_overflowFromjJetInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjLargeRJetInput   (const bool &v)
+{
+    m_overflowFromjLargeRJetInput = v;
+}
+
 void TopoInputEvent::setOverflowFromEnergyInput(const bool &v)
 {
     m_overflowFromEnergyInput = v;
@@ -104,7 +131,9 @@ TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    case CLUSTER: return &m_clusters;
    case EEM: return &m_eems;
    case JET: return &m_jets;
+   case JTAU: return &m_jTaus;
    case JJET: return &m_jJets;
+   case JLARGERJET: return &m_jLargeRJets;
    case MUON: return &m_muons;
    case LATEMUON: return &m_lateMuons;
    case MUONNEXTBC: return &m_muonsNextBC;
@@ -138,6 +167,8 @@ TCS::TopoInputEvent::clear() {
    m_clusters.clear();
    m_eems.clear();
    m_jets.clear();
+   m_jTaus.clear();
+   m_jLargeRJets.clear();
    m_jJets.clear();
    m_taus.clear();
    m_muons.clear();
@@ -189,6 +220,16 @@ TopoInputEvent::dump() {
       file << jet->Et1() << "  " << jet->Et2() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << std::endl;
    }
    file << "</jet>" << std::endl;
+   file << "<jTau>" << std::endl;
+   for(jTauTOB* tau : m_jTaus) {
+      file << tau->Et() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
+   }
+   file << "</jTau>" << std::endl;
+   file << "<jLargeRJet>" << std::endl;
+   for(jLargeRJetTOB* jet : m_jLargeRJets) {
+      file << jet->Et() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << std::endl;
+   }
+   file << "</jLargeRJet>" << std::endl;
    file << "<jJet>" << std::endl;
    for(jJetTOB* jet : m_jJets) {
       file << jet->Et() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << std::endl;
