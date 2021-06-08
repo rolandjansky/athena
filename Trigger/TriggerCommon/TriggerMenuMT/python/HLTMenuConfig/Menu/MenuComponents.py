@@ -276,7 +276,9 @@ class ComboMaker(AlgNode):
     def __init__(self, name, multiplicity, legIds, comboHypoCfg):
         self.prop1="MultiplicitiesMap"
         self.prop2="LegMap"
-        self.mult=list(multiplicity)
+        self.multiplicity=list(multiplicity)
+        if(len(list(legIds)) != len(self.multiplicity)):
+            legIds = range(len(self.multiplicity))
         self.legIds = list(legIds)
         self.comboHypoCfg = comboHypoCfg
         Alg = self.create( name )
@@ -290,7 +292,7 @@ class ComboMaker(AlgNode):
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
         log.debug("ComboMaker %s adding chain %s", compName(self.Alg), chainName)
-        allMultis = self.mult
+        allMultis = self.multiplicity
         legs = self.legIds
         newdict = {chainName : allMultis}
         newlegdict = {chainName : legs}
@@ -862,6 +864,13 @@ class ChainStep(object):
  
         self.name = name
         self.sequences=Sequences
+        self.hasHiddenLeg = False
+        if len(chainDicts) > 0  and 'signature' in chainDicts[0]: 
+            leg_signatures = [step['signature'] for step in chainDicts if step['signature'] != 'Bjet']
+            if (len(multiplicity) > 0 and leg_signatures.count('Jet') == 1) and (len(set(leg_signatures)) > 1 and chainDicts[0]['signatures'].count('Jet') > 1) and (len(leg_signatures) != 2 or leg_signatures.count('MET') == 0):
+                index_jetLeg = leg_signatures.index('Jet')
+                multiplicity[index_jetLeg:index_jetLeg] = [1] * (len(chainDicts[0]['chainMultiplicities']) - len(multiplicity))                
+                self.hasHiddenLeg = True
         self.multiplicity = multiplicity
         self.comboHypoCfg=comboHypoCfg
         self.comboToolConfs=comboToolConfs
@@ -952,8 +961,17 @@ class ChainStep(object):
         self.combo.createComboHypoTools(chainDict, self.comboToolConfs)
             
     def getChainLegs(self):
-        """ This is extrapolating the chain legs from the step dictionaries"""      
+        from TrigCompositeUtils.TrigCompositeUtils import legName
+        import re
+
+        """ This is extrapolating the chain legs from the step dictionaries"""       
         legs = [part['chainName'] for part in self.stepDicts]
+        if self.hasHiddenLeg:
+            for i_chainMultiplicities in range(len(self.multiplicity)):
+                if re.search('^leg[0-9]{3}_',legs[0]):
+                    if i_chainMultiplicities in [int(s_chainleg.split('_')[0].replace('leg','')) for s_chainleg in legs]:
+                        continue
+                    legs.append(legName('_'.join(self.stepDicts[0]['chainName'].split('_')[1:]), i_chainMultiplicities))
         return legs
 
     def getChainNames(self):  

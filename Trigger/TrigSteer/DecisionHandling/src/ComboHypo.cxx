@@ -68,7 +68,7 @@ StatusCode ComboHypo::initialize() {
   bool errorOccured = false;
   if (m_checkMultiplicityMap) {
     for ( const auto& m : m_multiplicitiesReqMap ) {
-      if ( m.second.size() != maxMult )  {
+      if ( m.second.size() > maxMult )  {
         errorOccured =  true;
         ATH_MSG_ERROR( "Chain " << m.first
           << " configured with input multiplicity " << m.second.size() << " like this: " << m.second
