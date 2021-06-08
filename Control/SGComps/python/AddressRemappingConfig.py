@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def AddressRemappingCfg(renameMaps=[]):
+def AddressRemappingCfg(renameMaps=[], overwriteMaps=[]):
     """
     Creates a ComponentAccumulator instance containing the 
     AddressRemappingSvc and other needed services
@@ -18,6 +18,7 @@ def AddressRemappingCfg(renameMaps=[]):
     acc = ComponentAccumulator()
     svc = AddressRemappingSvc()
     svc.TypeKeyRenameMaps = renameMaps
+    svc.TypeKeyOverwriteMaps = overwriteMaps
     acc.addService(svc)
     acc.addService(ProxyProviderSvc(ProviderNames=["AddressRemappingSvc"])) 
 
@@ -43,11 +44,11 @@ def InputRenameCfg(type, from_name, to_name):
       InputRenameCfg ("Foo", "foo.d1", "bar.x1")
     """
 
-    return AddressRemappingCfg([ '%s#%s->%s' % (type, from_name, to_name) ])
+    return AddressRemappingCfg(renameMaps = [ '%s#%s->%s' % (type, from_name, to_name) ])
 
 
 def InputOverwriteCfg(from_type, from_name, to_type, to_name):
     """ Add a new type overwrite mapping. """
 
-    return AddressRemappingCfg([ '%s#%s->%s#%s' % (from_type, from_name,
+    return AddressRemappingCfg(overwriteMaps = [ '%s#%s->%s#%s' % (from_type, from_name,
                                                    to_type, to_name) ])
