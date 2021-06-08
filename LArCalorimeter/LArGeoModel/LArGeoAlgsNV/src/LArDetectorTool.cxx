@@ -135,19 +135,8 @@ StatusCode LArDetectorToolNV::create()
   GeoModelExperiment* theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt,"ATLAS"));
 
-  int testbeam = 0 ;
   // testbeam=0  Atlas
-  // testbeam=1  H8 test beam => build GeoModel in LArDetectorFactory
-  // testbeam=2  H6 test beam => don't build GeoModel in LArDetectorFactory
-
-  std::string LArTag = accessSvc->getChildTag("LAr",detectorKey,detectorNode);
-
-  if(LArTag.find("H8")!=std::string::npos) {
-    testbeam = 1 ;
-  }
-  else if(LArTag.find("H6")!=std::string::npos) {
-    testbeam = 2 ;
-  }
+  int testbeam = 0;
 
   GeoPhysVol *world=theExpt->getPhysVol();
   if(sqliteReader) {
@@ -161,6 +150,17 @@ StatusCode LArDetectorToolNV::create()
   }
   else {
     // Geometry is constructed from the Geometry DB
+
+    // testbeam=1  H8 test beam => build GeoModel in LArDetectorFactory
+    // testbeam=2  H6 test beam => don't build GeoModel in LArDetectorFactory
+    std::string LArTag = accessSvc->getChildTag("LAr",detectorKey,detectorNode);
+    if(LArTag.find("H8")!=std::string::npos) {
+      testbeam = 1 ;
+    }
+    else if(LArTag.find("H6")!=std::string::npos) {
+      testbeam = 2 ;
+    }
+
     LArGeo::LArDetectorFactory theLArFactory(detStore().operator->()
 					     , hvManager
 					     , testbeam
