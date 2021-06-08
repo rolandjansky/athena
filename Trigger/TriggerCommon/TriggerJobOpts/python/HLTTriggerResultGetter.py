@@ -113,13 +113,11 @@ class ByteStreamUnpackGetterRun1or2(Configured):
                     "HLT::HLTResult/HLTResult_L2",
                     "HLT::HLTResult/HLTResult_EF" ]
                 extr.L2ResultKey = "HLTResult_L2"
-                extr.EFResultKey = "HLTResult_EF"
-                extr.HLTResultKey = ""
+                extr.HLTResultKey = "HLTResult_EF"
             else:
                 ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
                     "HLT::HLTResult/HLTResult_HLT" ]
                 extr.L2ResultKey = ""
-                extr.EFResultKey = ""
                 extr.HLTResultKey = "HLTResult_HLT"
 
             #
@@ -137,7 +135,6 @@ class ByteStreamUnpackGetterRun1or2(Configured):
             # if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
             # but the extraction algorithm must run
             extr.L2ResultKey = ""
-            extr.EFResultKey = ""
             extr.HLTResultKey = ""
             extr.DSResultKeys = []
 
