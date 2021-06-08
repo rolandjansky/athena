@@ -60,7 +60,7 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
 
         // --- Retrieving root files and list of keys ---
 
-        std::unique_ptr<TFile> rootFile {TFile::Open(fileName.c_str(), "READ")};
+        std::unique_ptr<TFile> rootFile{TFile::Open(fileName.c_str(), "READ")};
         if (!rootFile) {
             ATH_MSG_FATAL("Could not retrieve root file: " << fileName);
             return StatusCode::FAILURE;
@@ -76,16 +76,16 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
             return StatusCode::FAILURE;
         }
 
-        int numKeysSignal{0},  numKeysBkg{0};
+        int numKeysSignal{0}, numKeysBkg{0};
         // --- Retrieving individual histograms ---
         for (int iHist = 0; iHist < listOfKeys->GetSize(); iHist++) {
             const std::string histName = listOfKeys->At(iHist)->GetName();
             TH1F* hist = nullptr;
-            rootFile->GetObject(histName.c_str(),hist);
-            if (!hist) { 
-                ATH_MSG_ERROR("cannot retrieve hist " << histName); 
+            rootFile->GetObject(histName.c_str(), hist);
+            if (!hist) {
+                ATH_MSG_ERROR("cannot retrieve hist " << histName);
                 return StatusCode::FAILURE;
-            }            
+            }
             std::unique_ptr<TH1F> unique_hist{hist};
             unique_hist->SetDirectory(nullptr);
             bool isSignal = false;
@@ -161,12 +161,12 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
                                       const double eta_trkAtCalo, const double phi_trkAtCalo, const double dR_CUT) const {
     const double dR_CUT2 = dR_CUT * dR_CUT;
 
-    double etot_em {0}, etot_hd {0}, etot {0};
+    double etot_em{0}, etot_hd{0}, etot{0};
 
     double s[24] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     ATH_MSG_DEBUG("Loop over the CaloTopClusters...");
-    for (const xAOD::CaloCluster* theClus: *ClusCollection) {
+    for (const xAOD::CaloCluster* theClus : *ClusCollection) {
         double dphi = std::abs(theClus->phi() - phi_trkAtCalo);
         if (dphi > M_PI) dphi = 2 * M_PI - dphi;
         const double deta = std::abs(theClus->eta() - eta_trkAtCalo);
@@ -233,16 +233,16 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
                 etilee0 + etilee1 + etilee2 + ehec0 + ehec1 + ehec2 + ehec3 + efcal0 + efcal1 + efcal2;
     }
 
-    ATH_MSG_VERBOSE("Values extracted from the CaloTopoClusters for a cone of: " << dR_CUT << "\n"
-                          << " - Energy in Calorimeter Total: " << etot << "  EM: " << etot_em << "  HAD: " << etot_hd
-                          << "\n      eemb0: " << s[0] << "\n      eemb1: " << s[1] << "\n      eemb2: " << s[2]
-                          << "\n      eemb3: " << s[3] << "\n      eeme0: " << s[4] << "\n      eeme1: " << s[5]
-                          << "\n      eeme2: " << s[6] << "\n      eeme3: " << s[7] << "\n    etileg1: " << s[8]
-                          << "\n    etileg2: " << s[9] << "\n    etileg3: " << s[10] << "\n    etileb0: " << s[11]
-                          << "\n    etileb1: " << s[12] << "\n    etileb2: " << s[13] << "\n    etilee0: " << s[14]
-                          << "\n    etilee1: " << s[15] << "\n    etilee2: " << s[16] << "\n      ehec0: " << s[17]
-                          << "\n      ehec1: " << s[18] << "\n      ehec2: " << s[19] << "\n      ehec3: " << s[20]
-                          << "\n     efcal0: " << s[21] << "\n     efcal1: " << s[22] << "\n     efcal2: " << s[23] );
+    ATH_MSG_VERBOSE("Values extracted from the CaloTopoClusters for a cone of: "
+                    << dR_CUT << "\n"
+                    << " - Energy in Calorimeter Total: " << etot << "  EM: " << etot_em << "  HAD: " << etot_hd
+                    << "\n      eemb0: " << s[0] << "\n      eemb1: " << s[1] << "\n      eemb2: " << s[2] << "\n      eemb3: " << s[3]
+                    << "\n      eeme0: " << s[4] << "\n      eeme1: " << s[5] << "\n      eeme2: " << s[6] << "\n      eeme3: " << s[7]
+                    << "\n    etileg1: " << s[8] << "\n    etileg2: " << s[9] << "\n    etileg3: " << s[10] << "\n    etileb0: " << s[11]
+                    << "\n    etileb1: " << s[12] << "\n    etileb2: " << s[13] << "\n    etilee0: " << s[14] << "\n    etilee1: " << s[15]
+                    << "\n    etilee2: " << s[16] << "\n      ehec0: " << s[17] << "\n      ehec1: " << s[18] << "\n      ehec2: " << s[19]
+                    << "\n      ehec3: " << s[20] << "\n     efcal0: " << s[21] << "\n     efcal1: " << s[22]
+                    << "\n     efcal2: " << s[23]);
 
     for (int i = 0; i < 24; ++i) s[i] /= Gaudi::Units::GeV;
     etot_em /= Gaudi::Units::GeV;
@@ -256,10 +256,9 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
         if (s[i] > tmp_mxH && i >= 11) { tmp_mxH = s[i]; }
     }
 
-    double emFr{999}, mxFr{999}, mxEM{999}, mxHad{999},
-     EoverEtrk{999},
-     eemb1_wrtTotal{999}, eemb2_wrtTotal{999}, eemb3_wrtGroup{999}, etileb0_wrtGroup{999}, etileb1_wrtTotal{999},
-        etileb2_wrtGroup{999}, eeme1_wrtGroup{999}, eeme1_wrtTotal{999}, eeme2_wrtTotal{999}, eeme3_wrtGroup{999}, ehec0_wrtTotal{999};
+    double emFr{999}, mxFr{999}, mxEM{999}, mxHad{999}, EoverEtrk{999}, eemb1_wrtTotal{999}, eemb2_wrtTotal{999}, eemb3_wrtGroup{999},
+        etileb0_wrtGroup{999}, etileb1_wrtTotal{999}, etileb2_wrtGroup{999}, eeme1_wrtGroup{999}, eeme1_wrtTotal{999}, eeme2_wrtTotal{999},
+        eeme3_wrtGroup{999}, ehec0_wrtTotal{999};
 
     if (etot > 0) {
         mxFr = tmp_mx / etot;
@@ -308,11 +307,11 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
     vars["ehec0_wrtTotal"] = ehec0_wrtTotal;
 
     ATH_MSG_ALWAYS("likelihood discriminant variables values: " << dR_CUT);
-    if (msgLevel(MSG::DEBUG)){
+    if (msgLevel(MSG::DEBUG)) {
         std::map<std::string, double>::const_iterator iter;
         for (iter = vars.begin(); iter != vars.end(); ++iter) ATH_MSG_DEBUG("  - " << iter->first << ": " << iter->second);
     }
-    double LR {0},ProbS{1}, ProbB{1};
+    double LR{0}, ProbS{1}, ProbB{1};
 
     int iFile = -1;
     if (std::abs(eta_trk) < 1.4) {
