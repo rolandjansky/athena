@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+
 def getConfiguredTLAPhotonSelector(photonPtThreshold=10000, maxNPhotons=-1, inputPhotonsKey="HLT_egamma_Photons", TLAPhotonsKey="HLT_egamma_Photons_TLA"):
 
 
@@ -12,7 +13,9 @@ def getConfiguredTLAPhotonSelector(photonPtThreshold=10000, maxNPhotons=-1, inpu
     TrigEgammaTLAPhotonFex = conf2toConfigurable(CompFactory.TrigEgammaTLAPhotonReAlgo() )
 
     TrigEgammaTLAPhotonFex.photonPtThreshold = photonPtThreshold
+    
     TrigEgammaTLAPhotonFex.maxNPhotons = maxNPhotons
+    
     TrigEgammaTLAPhotonFex.TLAInputPhotonContainer = inputPhotonsKey
     
 

@@ -11,7 +11,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 
 
 
-def TLAPhotonSequence(flags, photonsIn):
+def TLAPhotonSequence(flags, photonsIn, HLT_threshold):
     ''''Create TLA Photon Sequence'''
 
 
@@ -27,8 +27,15 @@ def TLAPhotonSequence(flags, photonsIn):
     
 
     from TrigEgammaRec.TrigEgammaTLAPhotonConfig import getConfiguredTLAPhotonSelector
-    # this has yet to be written, should be similar to the jet tla
-    TLAPhotonAlg = getConfiguredTLAPhotonSelector(inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
+   
+
+    # check from chain dictionary the threshold of the photon part
+   
+    # set the TLA threshold to HLT_threshold - 20 GeV, or 0 GeV if HLT_threshold is < 20 
+    # at this point the threshold is in GeV, provide it in MeV to the selector
+    TLA_threshold = max(HLT_threshold - 20, 0)*1000 # MeV
+
+    TLAPhotonAlg = getConfiguredTLAPhotonSelector(photonPtThreshold=TLA_threshold, inputPhotonsKey=photonsIn, TLAPhotonsKey=sequenceOut)
 
     # The OR makes sure that TLAPhotonAlg can access the data dependencies specified by ViewVerify
     photonInViewAlgs = parOR("tlaPhotonInViewAlgs", [ViewVerify, TLAPhotonAlg])
@@ -38,8 +45,7 @@ def TLAPhotonSequence(flags, photonsIn):
 
     return ( recoSeq, sequenceOut )
 
-
-def TLAPhotonAthSequence(flags, photonsIn):
+def TLAPhotonAthSequence(flags, photonsIn, HLT_threshold):
     
     tlaPhotonViewsMakerAlg = EventViewCreatorAlgorithm("IM_TLAPhotons")
     tlaPhotonViewsMakerAlg.RoIsLink = "initialRoI"
@@ -53,22 +59,23 @@ def TLAPhotonAthSequence(flags, photonsIn):
 
     tlaPhotonViewsMakerAlg.ViewNodeName = "tlaPhotonInViewAlgs"
 
-    (tlaPhotonSequence, sequenceOut) = RecoFragmentsPool.retrieve( TLAPhotonSequence, flags, photonsIn=photonsIn )
-    # the TLAPhoton sequence is now tlaPhotonViewsMakerAlg --> TrigEgammaTLAPhotonFex
+
+    (tlaPhotonSequence, sequenceOut) = RecoFragmentsPool.retrieve( TLAPhotonSequence,  flags, photonsIn=photonsIn,  HLT_threshold=HLT_threshold)
+    # the TLAPhoton sequence is now tlaPhotonViewsMakerAlg --> TrigEgammaTLAPhotonFexMT
     tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence_"+photonsIn, [tlaPhotonViewsMakerAlg, tlaPhotonSequence] )
     
     return (tlaPhotonAthSequence, tlaPhotonViewsMakerAlg, sequenceOut)
 
-
-
-def TLAPhotonMenuSequence(flags, photonsIn):
+def TLAPhotonMenuSequence( flags, photonsIn, HLT_threshold):
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlg
     from TrigEgammaHypo.TrigEgammaTLAPhotonHypoTool import TrigEgammaTLAPhotonHypoToolFromDict # JetTLA calls a function "FromDict" from a python, investigate later
 
-    (tlaPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn)
-    hypo = TrigEgammaTLAPhotonHypoAlg("TrigEgammaTLAPhotonHypoAlg_"+photonsIn)
+    (tlaPhotonAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAPhotonAthSequence, flags, photonsIn=photonsIn, HLT_threshold=HLT_threshold)
+    hypo = TrigEgammaTLAPhotonHypoAlg("TrigEgammaTLAPhotonHypoAlgMT_"+photonsIn)
+
     hypo.Photons = sequenceOut
+    hypo.OriginalPhotons = photonsIn
 
 
     return MenuSequence( Sequence    = tlaPhotonAthSequence,

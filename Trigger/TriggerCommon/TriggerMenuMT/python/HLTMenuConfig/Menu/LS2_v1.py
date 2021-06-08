@@ -199,11 +199,8 @@ def setupMenu():
         ChainProp(name='HLT_g35_tight_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g35_tight_icaloloose_L1EM22VHI', groups=SinglePhotonGroup),
 
-     
-     
         # PhotonDS chains for TLA
         ChainProp(name='HLT_g35_loose_PhotonDS_L1EM22VHI',stream=['PhotonDS'], groups=SinglePhotonGroup),
-
      
         # Primary photon chains
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
