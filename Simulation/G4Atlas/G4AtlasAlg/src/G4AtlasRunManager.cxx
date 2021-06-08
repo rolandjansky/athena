@@ -24,7 +24,6 @@ G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager()
   , m_msg("G4AtlasRunManager")
   , m_recordFlux(false)
-  , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
@@ -67,21 +66,6 @@ void G4AtlasRunManager::InitializeGeometry()
   }
   else {
     ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
-  }
-
-  // Geometry has been initialized.
-  if (m_senDetTool.retrieve().isFailure()) { //svcLocator->service("SensitiveDetector",m_senDetSvc).isFailure())
-    ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
-    G4ExceptionDescription description;
-    description << "InitializeGeometry: Failed to retrieve ISensitiveDetectorMasterTool.";
-    G4Exception("G4AtlasRunManager", "CouldNotRetrieveSDMaster", FatalException, description);
-    abort(); // to keep Coverity happy
-  }
-  if(m_senDetTool->initializeSDs().isFailure()) {
-    G4ExceptionDescription description;
-    description << "InitializeGeometry: Call to ISensitiveDetectorMasterTool::initializeSDs failed.";
-    G4Exception("G4AtlasRunManager", "FailedToInitializeSDs", FatalException, description);
-    abort(); // to keep Coverity happy
   }
   return;
 }

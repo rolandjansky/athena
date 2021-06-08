@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,80 +11,18 @@
 #include "G4NistManager.hh"
 #include "G4Material.hh"
 
-// // Includes for field configuration debugging
-// #include "G4FieldManagerStore.hh"
-// #include "G4ChordFinder.hh"
-// #include "G4LogicalVolumeStore.hh"
-// #include "G4MagIntegratorDriver.hh"
-// #include "G4AtlasRK4.hh"
-// #include "G4HelixImplicitEuler.hh"
-// #include "G4HelixSimpleRunge.hh"
-// #include "G4HelixExplicitEuler.hh"
-// #include "G4NystromRK4.hh"
-// #include "G4ClassicalRK4.hh"
-
 DetectorGeometrySvc::DetectorGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class(name,pSvcLocator)
-  ,  m_regionCreators(this)
-  ,  m_parallelWorlds(this)
-  ,  m_configurationTools(this)
-  ,  m_fieldManagers(this)
 {
   ATH_MSG_DEBUG( "DetectorGeometrySvc being created!" );
-  declareProperty( "RegionCreators", m_regionCreators , "Tools to define G4 physics regions" );
-  declareProperty( "ParallelWorlds", m_parallelWorlds , "Tools to define G4 parallel worlds" );
-  declareProperty( "FieldManagers", m_fieldManagers,"field managers used");
-  declareProperty( "GeometryConfigurationTools",m_configurationTools,"Tools for geometry configuration");
 }
 
 StatusCode DetectorGeometrySvc::initialize(){
 
   // go through all tools and retrieve them
   //  This fires initialize() for each of those tools
-  ATH_MSG_DEBUG( "Initializing Geometry configuration tools "  );
-  for (auto it: m_configurationTools)
-  {
-    ATH_CHECK( it.retrieve() );
-    ATH_CHECK( it->preGeometryConfigure() );
-  }
-
   ATH_MSG_DEBUG( "Setting up a DetectorConstruction " << m_detConstruction.name() );
   ATH_CHECK(m_detConstruction.retrieve());
-
-  ATH_MSG_DEBUG( "Initializing World detectors in " << name() );
-  ATH_CHECK( m_detTool.retrieve() );
-
-  ATH_MSG_DEBUG( "Detectors " << m_detTool.name() <<" being set as World" );
-  m_detTool->SetAsWorld();
-  m_detTool->Build();
-
-  ATH_MSG_DEBUG( "Setting World in the DetectorConstruction " );
-  m_detConstruction->SetWorld(m_detTool->GetWorldVolume());
-
-  ATH_MSG_DEBUG( "Setting up G4 physics regions" );
-  for (auto& it: m_regionCreators)
-    {
-      ATH_CHECK( it.retrieve() );
-    }
-
-  if (m_activateParallelWorlds)
-    {
-      ATH_MSG_DEBUG( "Setting up G4 parallel worlds" );
-      for (auto& it: m_parallelWorlds)
-        {
-          ATH_CHECK( it.retrieve() );
-          m_parallelWorldNames.push_back(it.name());
-          m_detConstruction->RegisterParallelWorld(it->GetParallelWorld());
-        }
-    }
-
-  ATH_MSG_DEBUG( "Running geometry post-configuration tools" );
-  for (auto it: m_configurationTools)
-    ATH_CHECK( it->postGeometryConfigure() );
-
-  ATH_MSG_DEBUG( "Setting up field managers" );
-  ATH_CHECK( m_fieldManagers.retrieve() );
-  ATH_CHECK( initializeFields() );
 
   ATH_MSG_DEBUG( "DetectorGeometrySvc initialized!!!" );
   return StatusCode::SUCCESS;
@@ -122,17 +60,6 @@ StatusCode DetectorGeometrySvc::finalize(){
   return StatusCode::SUCCESS;
 }
 
-//-----------------------------------------------------------------------------
-// Setup the magnetic field managers for configured volumes
-//-----------------------------------------------------------------------------
-StatusCode DetectorGeometrySvc::initializeFields()
-{
-  for (auto& fm : m_fieldManagers) {
-    ATH_CHECK( fm->initializeField() );
-  }
-  return StatusCode::SUCCESS;
-}
-
 G4VUserDetectorConstruction* DetectorGeometrySvc::GetDetectorConstruction()
 {
   return m_detConstruction->GetDetectorConstruction();
@@ -140,6 +67,6 @@ G4VUserDetectorConstruction* DetectorGeometrySvc::GetDetectorConstruction()
 
 std::vector<std::string>& DetectorGeometrySvc::GetParallelWorldNames()
 {
-  return m_parallelWorldNames;
+  return m_detConstruction->GetParallelWorldNames();
 }
 

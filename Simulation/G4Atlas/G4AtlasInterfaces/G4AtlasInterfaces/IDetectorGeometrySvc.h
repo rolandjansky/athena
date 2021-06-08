@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASINTERFACES_IDETECTORGEOMETRYSVC_H
@@ -11,13 +11,13 @@
 #include <string>
 
 /** @class IDetectorGeometrySvc IDetectorGeometrySvc.h "G4AtlasInterfaces/IDetectorGeometrySvc.h"
- *  
+ *
  *  Abstract interface to service for Geant4 detector geometry classes
- * 
+ *
  *  @author ADA
  *  @date   2015-01-16
  */
- 
+
 class G4VUserDetectorConstruction;
 
 class IDetectorGeometrySvc : virtual public IService {
@@ -27,12 +27,7 @@ class IDetectorGeometrySvc : virtual public IService {
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(IDetectorGeometrySvc, 1, 0);
 
-  /// Setup the magnetic field managers for detector volumes
-  virtual StatusCode initializeFields() = 0;
-  
   virtual G4VUserDetectorConstruction* GetDetectorConstruction() = 0;
-  
-  virtual void ActivateParallelWorlds() = 0;
 
   virtual std::vector<std::string>& GetParallelWorldNames() = 0;
 
