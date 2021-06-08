@@ -160,7 +160,8 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
       float qx=sh->etCos().at(m_harmonic);
       float qy=sh->etSin().at(m_harmonic);
       m_psiN_FCal=std::atan2(qy,qx)/float(m_n); // Psi2 (m_n=2)
-      m_vN_fcal=std::sqrt(qx+qx+qy*qy)/m_FCalET;
+      m_vN_fcal=-999.;
+      if (m_FCalET != 0.) m_vN_fcal = std::sqrt(qx+qx+qy*qy)/m_FCalET;
       break;
     }
   }
@@ -195,12 +196,15 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
     // ATH_MSG_INFO(" FCal ET: "<< m_FCalET<<"  SubtractedE:, "<<SubtractedET<<" m_psiN_FCal: "<<m_psiN_FCal<<" Acos: "<<Acos <<" m_vN_fcal: "<<m_vN_fcal<<" ptcut: "<<m_ptcut);
     m_2dSubtractedET_pT->Fill( j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV, SubtractedET, weight);
 
+    double subtractedET_Expected = -999.;
+    if (m_FCalET != 0.) subtractedET_Expected = (SubtractedET/m_FCalET)*0.025;
+
     m_SubtractedET_Centrality->Fill( m_FCalET, SubtractedET, weight);
     m_2dSubtractedET_Centrality->Fill( m_FCalET, SubtractedET, weight);
-    m_2dSubtractedET_Expected_Centrality->Fill( m_FCalET, (SubtractedET/m_FCalET)*0.025, weight);
+    m_2dSubtractedET_Expected_Centrality->Fill( m_FCalET, subtractedET_Expected, weight);
 
-    m_2dSubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
-    m_SubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
+    m_2dSubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+    m_SubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
     m_2dSubtractedET_2Dphi->Fill( Acos,SubtractedET, weight);
     m_SubtractedET_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight); 
     m_SubtractedET_pt->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET, weight ); 
@@ -215,8 +219,8 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
       m_JetSubtractedScaleMomentum_eta_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta"), weight );
       m_JetSubtractedScaleMomentum_phi_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
       m_JetSubtractedScaleMomentum_m_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
-      m_2dSubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
-      m_SubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
+      m_2dSubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
       m_2dSubtractedET_2Dphi_0_10->Fill( Acos,SubtractedET, weight);
       m_SubtractedET_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight ); 
@@ -232,8 +236,8 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
       m_JetSubtractedScaleMomentum_phi_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
       m_JetSubtractedScaleMomentum_m_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
 
-      m_2dSubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
-      m_SubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
+      m_2dSubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
       m_2dSubtractedET_2Dphi_10_20->Fill( Acos,SubtractedET, weight);
 
@@ -251,8 +255,8 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
       m_JetSubtractedScaleMomentum_phi_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
       m_JetSubtractedScaleMomentum_m_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
 
-      m_2dSubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
-      m_SubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
+      m_2dSubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
       m_2dSubtractedET_2Dphi_20_40->Fill( Acos,SubtractedET, weight);
 
@@ -269,8 +273,8 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
       m_JetSubtractedScaleMomentum_phi_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
       m_JetSubtractedScaleMomentum_m_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
 
-      m_2dSubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
-      m_SubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025, weight);
+      m_2dSubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
       m_2dSubtractedET_2Dphi_60_100->Fill( Acos,SubtractedET, weight);
 

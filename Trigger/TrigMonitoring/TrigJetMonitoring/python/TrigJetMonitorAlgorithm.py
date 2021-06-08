@@ -17,6 +17,7 @@ import sys,argparse
 OfflineJetCollections = {
   'AntiKt4EMTopoJets'  : { 'MatchTo' : 'AntiKt4EMPFlowJets' },
   'AntiKt4EMPFlowJets' : { 'MatchTo' : 'NONE' },
+  #'AntiKt10EMPFlowCSSKJets' : { 'MatchTo' : 'NONE' },
 }
 
 ###########################################
@@ -150,6 +151,34 @@ def getEtaRange(chain):
   else: # by default central
     return 0,2.5
 
+def getBinningFromThreshold(chain,varname):
+  #default binning if nothing below applies
+  xbins, xmin, xmax = 160,0.,800000.
+  #pt and et binning based on threshold
+  if varname == "pt" or varname == "et":
+    threshold = int(chain.split("_")[1].split('j')[1])
+    if threshold < 50:
+      return 40, 0., 100000.
+    if threshold < 120:
+      return 36, 20000., 200000.
+
+    xbins = 40
+    xmin = 50000.+100000.*(int(threshold/100)-1) #example: threshold = 330 -> 250 to 450; threshold = 420 -> 350 to 550
+    if threshold % 100 == 0: #gives enough low bins if threshold is an exact divider of 100 GeV such as 3j200
+      xmin = 1000.*(threshold - 100.)
+    xmax = xmin + 200000.
+    if "a10" in chain: # efficiency curve broader for large-R jets
+      xmin = xmin - 50000. 
+      xmax = xmax + 50000. 
+      if "pf" in chain:
+        xmax = xmax + 50000. # needed to include efficiency plateau for large-R PFlow chains
+        if "smc" in chain:
+          xmax = xmax + 50000. # efficiency plateau even higher for a10 pdf smc chains due to imperfect calibration
+  #mass binning for large-R smc chains
+  elif varname == "m":
+    xbins, xmin, xmax = 35, 30000., 100000.
+  return xbins, xmin, xmax
+
 #########################################################
 # Schedule more histograms for dedicated jet collections
 #########################################################
@@ -166,7 +195,6 @@ ExtraOfflineHists = [
   "NumTrkPt1000[0]",
   "TrackWidthPt1000[0]",
   "SumPtTrkPt500[0]",
-  SelectSpec( 'LooseBadFailedJets', 'LooseBad', InverseJetSel=True, FillerTools = ["pt","phi","eta"]),
 ]
 
 # All online small-R jet collections
@@ -183,6 +211,18 @@ ExtraSmallROnlineHists = [
 
 # All online large-R jet collections
 ExtraLargeROnlineHists = [
+]
+
+ExtraOnlineNJetHists = [
+  "njets",
+  "njetsEt20Eta0_32",
+  "njetsEt30Eta0_32", 
+  "njetsEt50Eta0_32",
+  "njetsEt80Eta0_32",
+  "njetsPt20Eta0_32",
+  "njetsPt30Eta0_32",
+  "njetsPt50Eta0_32",
+  "njetsPt80Eta0_32",
 ]
 
 # Kinematics at different scales for offline and small-R online jet collections
@@ -417,6 +457,7 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
        )
    else: # offline
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
+     if 'AntiKt4' in jetcoll: conf.appendHistos(SelectSpec( 'LooseBadFailedJets', 'LooseBad', InverseJetSel=True, FillerTools = ["pt","phi","eta"])) #cleaning variables not applicable for large-R collections
      if 'PF' in jetcoll: # dedicated histograms for offline PFlow jets
        conf.appendHistos("SumPtChargedPFOPt500[0]")
        conf.appendHistos("fCharged")
@@ -518,26 +559,18 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
            "eta",
            "et",
            "phi",
-           EventHistoSpec('njets', (25,0,25), title='njets;njets;Entries' ),
-           EventHistoSpec('njetsEt20Eta0_32', (25,0,25), title='njetsEt20Eta0_32;njetsEt20Eta0_32;Entries' ),
-           EventHistoSpec('njetsEt30Eta0_32', (25,0,25), title='njetsEt30Eta0_32;njetsEt20Eta0_32;Entries' ),
-           EventHistoSpec('njetsEt50Eta0_32', (25,0,25), title='njetsEt50Eta0_32;njetsEt50Eta0_32;Entries' ),
-           EventHistoSpec('njetsEt80Eta0_32', (25,0,25), title='njetsEt80Eta0_32;njetsEt80Eta0_32;Entries' ),
-           EventHistoSpec('njetsPt20Eta0_32', (25,0,25), title='njetsPt20Eta0_32;njetsPt20Eta0_32;Entries' ),
-           EventHistoSpec('njetsPt30Eta0_32', (25,0,25), title='njetsPt30Eta0_32;njetsPt20Eta0_32;Entries' ),
-           EventHistoSpec('njetsPt50Eta0_32', (25,0,25), title='njetsPt50Eta0_32;njetsPt50Eta0_32;Entries' ),
-           EventHistoSpec('njetsPt80Eta0_32', (25,0,25), title='njetsPt80Eta0_32;njetsPt80Eta0_32;Entries' ),
    )
+   for hist in ExtraOnlineNJetHists: trigConf.appendHistos(EventHistoSpec(hist, (20,0,25), title=hist+';'+hist+';Entries'))
    # Add NjetEt and NjetPt histograms for simple scenarios
    if 'ht' not in chain and 'dijet' not in chain and 'fbdj' not in chain:
      NjetHistName = getNjetHistName(chain)
      from JetMonitoring.JetStandardHistoSpecs import knownEventVar
-     if knownEventVar.get(NjetHistName,None) is not None:
+     if knownEventVar.get(NjetHistName,None) is not None and NjetHistName not in ExtraOnlineNJetHists: #avoids duplication warnings for some chains
        trigConf.appendHistos(
          EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
        )
      NjetHistName = NjetHistName.replace('Et','Pt')
-     if knownEventVar.get(NjetHistName,None) is not None:
+     if knownEventVar.get(NjetHistName,None) is not None and NjetHistName not in ExtraOnlineNJetHists:
        trigConf.appendHistos(
          EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
        )
@@ -575,7 +608,8 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
        # define the histogram, give them individual names so they don't overwrite each other
        append = "offlineCut_"+conf.name.split("_")[-1] if "offlineCut" in conf.name else "noOfflineCut"
        histname = "trigEff_vs_"+conf.Var.Name+"_"+append
-       group.defineHistogram('trigPassed,jetVar;'+histname,title='titletrig', type="TEfficiency", path=chainFolder, xbins=10000 , xmin=0, xmax=800000. ,)
+       xbins, xmin, xmax = getBinningFromThreshold(chain,conf.Var.Name)
+       group.defineHistogram('trigPassed,jetVar;'+histname,title=histname, type="TEfficiency", path=chainFolder, xbins=xbins , xmin=xmin, xmax=xmax ,)
    # Get jet index and eta selection for offline jets
    parts        = chain.split('j')
    multiplicity = parts[0].split('_')[1]

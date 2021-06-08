@@ -171,7 +171,8 @@ int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer
     // while (diff > TMath::Pi()/2. ) diff = TMath::Pi() - diff;
 
     if( dr < 0.2) {
-      double relDiff = ( matched->pt()* toGeV - refPt )/refPt;
+      double relDiff = -999.;
+      if (refPt > 0.) relDiff = ( matched->pt()* toGeV - refPt )/refPt;
       m_etres->Fill( relDiff, weight );
       m_etres_eta->Fill( refjet->eta(), relDiff);
       if (matched->pt()* toGeV > 100) {

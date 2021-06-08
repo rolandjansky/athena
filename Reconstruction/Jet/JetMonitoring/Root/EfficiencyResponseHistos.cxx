@@ -84,7 +84,8 @@ int EfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &
     m_deltaRclosest->Fill( dr, weight );
 
     if( dr < 0.3) {
-      double relDiff = ( matched->pt()* toGeV - refPt )/refPt;
+      double relDiff = -999;
+      if (refPt > 0.) relDiff = ( matched->pt()* toGeV - refPt )/refPt;
       m_etres->Fill( relDiff, weight );
       m_etres_eta->Fill( refjet->eta(), relDiff, weight);
       m_etres_pt->Fill( refPt, relDiff, weight);
