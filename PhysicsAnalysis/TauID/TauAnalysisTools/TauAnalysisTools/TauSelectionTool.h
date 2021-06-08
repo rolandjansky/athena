@@ -143,7 +143,7 @@ private:
   // vector of absolute charge requirements
   std::vector<int> m_vAbsCharges;
   // vector of number of track requirements
-  std::vector<size_t> m_vNTracks;
+  std::vector<unsigned> m_vNTracks;
   // vector of JetBDT cut regions
   std::vector<float> m_vJetBDTRegion;
   // vector of JetBDTSigTrans cut regions
