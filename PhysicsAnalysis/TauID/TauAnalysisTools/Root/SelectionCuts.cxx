@@ -244,7 +244,7 @@ bool SelectionCutNTracks::accept(const xAOD::TauJet& xTau,
   // check track multiplicity, if tau has one of the number of tracks requiered then return true; false otherwise
   for( size_t iNumTrack = 0; iNumTrack < m_tTST->m_vNTracks.size(); iNumTrack++ )
   {
-    if ( xTau.nTracks() == m_tTST->m_vNTracks.at(iNumTrack) )
+    if ( static_cast<unsigned> (xTau.nTracks()) == m_tTST->m_vNTracks.at(iNumTrack) )
     {
       acceptData.setCutResult( "NTrack", true );
       return true;
