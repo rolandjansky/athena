@@ -109,13 +109,11 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
 
     # set some default proper ties
     if flags.Common.isOnline and not flags.Input.isMC:
-       kwargs.setdefault("TubeFolder", "/MDT/T0")
-       kwargs.setdefault("RtFolder",  "/MDT/RT")
+       kwargs.setdefault("ReadKeyTube", "/MDT/T0")
+       kwargs.setdefault("ReadKeyRt",  "/MDT/RT")
     else:
-       kwargs.setdefault("TubeFolder", "/MDT/T0"+ mdt_folder_name_appendix)
-       kwargs.setdefault("RtFolder",  "/MDT/RT"+ mdt_folder_name_appendix)
-    kwargs.setdefault("ReadKeyTube", kwargs["TubeFolder"])
-    kwargs.setdefault("ReadKeyRt",   kwargs["RtFolder"])
+       kwargs.setdefault("ReadKeyTube", "/MDT/T0"+ mdt_folder_name_appendix)
+       kwargs.setdefault("ReadKeyRt", "/MDT/RT"+ mdt_folder_name_appendix)
     kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
     if flags.Input.isMC is False: # Should be " if flags.Input.isMC=='data' " ?
         kwargs.setdefault("defaultT0", 40)

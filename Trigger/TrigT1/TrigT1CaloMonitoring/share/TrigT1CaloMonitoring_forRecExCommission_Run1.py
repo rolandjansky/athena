@@ -27,7 +27,7 @@ if l1caloRawMon:
     Offline = not athenaCommonFlags.isOnline
     isData  = (globalflags.DataSource() == "data")
     isCalo  = (rec.doCalo() and rec.doLArg() and rec.doTile())
-    triggerConfigService = "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
+    triggerConfigService = "TrigConf::TrigConfigSvc/TrigConfigSvc"
 
     #================================= Monitoring configuration ======================
     from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager

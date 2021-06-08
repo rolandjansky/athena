@@ -24,6 +24,7 @@
 #include "TrigT1Result/RoIBResult.h"
 
 // TrigConf includes
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/TriggerItem.h"
@@ -66,7 +67,7 @@ using namespace std;
 
 TrigT1CTMonitoring::DeriveSimulationInputs::DeriveSimulationInputs( const std::string& name, ISvcLocator* pSvcLocator )
    : AthAlgorithm( name, pSvcLocator ), 
-     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
+     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
 {
    declareProperty("TrigConfigSvc",       m_configSvc,     "Trigger Config Service");
    declareProperty("do_MuCTPI_input",     do_MuCTPI_input, "Flag to rederive MuCTPI input from raw data fragment");

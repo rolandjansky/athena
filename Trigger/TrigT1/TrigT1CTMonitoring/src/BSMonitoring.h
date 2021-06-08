@@ -169,7 +169,7 @@ namespace TrigT1CTMonitoring {
     unsigned int m_runNumber{0};
     unsigned int m_eventNumber{0};
 
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{ this, "TrigConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Trigger Config Service" };
+    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{ this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger Config Service" };
     ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
     ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};
 

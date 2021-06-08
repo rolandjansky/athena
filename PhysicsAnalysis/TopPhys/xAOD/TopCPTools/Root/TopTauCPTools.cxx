@@ -162,21 +162,7 @@ namespace top {
     iSelectionCuts |= TauAnalysisTools::CutJetIDWP;
     iSelectionCuts |= TauAnalysisTools::CutEleBDTWP;
 
-    //WARNING the CutEleOLR is special, and has to be added only in the map if needed
     int iSelectionCutsLoose = iSelectionCuts;
-    if (m_config->tauEleOLR()) iSelectionCuts |= TauAnalysisTools::CutEleOLR;
-    if (m_config->tauEleOLRLoose()) iSelectionCutsLoose |= TauAnalysisTools::CutEleOLR;
-
-    //add warning for special case of using EleIDBDT AND ELEOLR outdated->can just use oldBDT
-
-    if (m_config->tauEleOLR()&& tauEleBDTWP >=2){
-    	ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options"
-    			"use OldLoose or OldMedium if you really want to use both (outdated)");
-    }
-    if (m_config->tauEleOLRLoose() && tauEleBDTWPLoose >=2 ){
-      ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options. "
-          "Use OldLoose or OldMedium if you really want to use both (outdated)");
-        }
 
     //============================================================
     // Nominal Tau Selection
@@ -219,10 +205,10 @@ namespace top {
                    "Failed to set tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWP),
                    "Failed to set tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
-                   "Failed to set tau EleBDTWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleOLR", m_config->tauEleOLR()),
-                   "Failed to set tau-electron overlap removal in tau selection tool");
+        //top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
+        //           "Failed to set tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLR()),
+                   "Failed to set tau MuonOLR");
       }
       top::check(tauSelectionTool->initialize(), "Failed to initialize tauSelectionTool");
       m_tauSelectionTool = tauSelectionTool.release();
@@ -292,10 +278,10 @@ namespace top {
                    "Failed to set loose tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWPLoose),
                    "Failed to set loose tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
-                   "Failed to set loose tau EleBDTWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleOLR", m_config->tauEleOLRLoose()),
-                   "Failed to set tau-electron overlap removal in loose tau selection tool");
+        //top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
+        //           "Failed to set loose tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLRLoose()),
+                   "Failed to set tau MuonOLR");
       }
       top::check(tauSelectionTool->initialize(), "Failed to initialize tauSelectionTool");
       m_tauSelectionToolLoose = tauSelectionTool.release();

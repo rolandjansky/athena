@@ -98,9 +98,11 @@ def PFCfg(inputFlags,**kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
 
-    #Configure topocluster algorithmsm, and associated conditions
-    from CaloRec.CaloRecoConfig import CaloRecoCfg
-    result.merge(CaloRecoCfg(inputFlags,doLCCalib=True))
+    #Configure topocluster algorithmsm, and associated conditions    
+    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
+    result.merge(CaloTopoClusterCfg(inputFlags,clustersname="CaloTopoClusters",
+                                    doLCCalib=True))
+
 
     from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
     result.merge(caloTopoCoolFolderCfg(inputFlags))

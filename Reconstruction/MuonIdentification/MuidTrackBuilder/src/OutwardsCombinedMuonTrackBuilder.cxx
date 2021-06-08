@@ -173,7 +173,7 @@ namespace Rec {
                 const Trk::TrackParameters* pars = (**t).trackParameters();
 
                 if (pars) {
-                    const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+                    const Trk::TrackStateOnSurface* TSOS = (**t).clone();
                     trackStateOnSurfaces->push_back(TSOS);
 
                     // including vertex region pseudoMeas
@@ -262,7 +262,7 @@ namespace Rec {
 
             if ((**t).alignmentEffectsOnTrack()) continue;
 
-            const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+            const Trk::TrackStateOnSurface* TSOS = (**t).clone();
             trackStateOnSurfaces->push_back(TSOS);
         }
 
@@ -606,7 +606,7 @@ namespace Rec {
                     }
                 }
             } else {
-                const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+                const Trk::TrackStateOnSurface* TSOS = (**t).clone();
                 trackStateOnSurfaces->push_back(TSOS);
             }
         }
@@ -618,7 +618,7 @@ namespace Rec {
     }
 
     Trk::PseudoMeasurementOnTrack* OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters* parameters,
-                                                                                   const Trk::RecVertex& vertex) const {
+                                                                                   const Trk::RecVertex& vertex) {
         // create the corresponding PerigeeSurface, localParameters and
         // covarianceMatrix
         const Trk::PerigeeSurface surface(vertex.position());

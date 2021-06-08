@@ -11,6 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1Result/CTP_RDO.h"
 
@@ -43,6 +44,7 @@ namespace LVL1 {
 }
 
 namespace TrigConf {
+  class ITrigConfigSvc;
   class DBLoader;
   class PIT;
   class TriggerThreshold;
@@ -76,7 +78,7 @@ namespace TrigT1CTMonitoring {
       unsigned int N_connectors_ctpin {4};
       unsigned int N_connectors_fp {3}; //front panel
 
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 
       int CTPINCables[31][3][4]; //[cableBits][slots][connectors] for inputs arriving at CTPIN boards
       int FPCables[32][3][2]; //[cableBits][connectors][clock] for inputs arriving at CTPCORE front panel (as of runII)

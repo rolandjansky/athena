@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -61,7 +61,7 @@ namespace LVL1MUCTPI {
   L1MuctpiTool::L1MuctpiTool(const std::string& type, const std::string& name, 
 			 const IInterface* parent ):
     base_class(type, name, parent),
-      m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
+      m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
       m_theMuctpi( 0 ), m_executeFunction(nullptr)  {
 
 

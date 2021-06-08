@@ -3832,7 +3832,7 @@ namespace Rec {
 
     Trk::PseudoMeasurementOnTrack* CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters& parameters,
                                                                            const Trk::RecVertex* vertex,
-                                                                           const Trk::RecVertex* mbeamAxis) const {
+                                                                           const Trk::RecVertex* mbeamAxis) {
         // create the corresponding PerigeeSurface, localParameters and covarianceMatrix
         const Trk::PerigeeSurface surface(vertex->position());
         Trk::LocalParameters localParameters;

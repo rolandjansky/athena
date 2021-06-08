@@ -89,12 +89,12 @@ TEST_F( PixelSensorGmxSDtest, ProcessHits )
   sd2.ProcessHits(&sp, &th );
 
   HepGeom::Point3D<double> P1,P2;
-  P1[SiHit::xEta] = 0;
+  P1[SiHit::xEta] = 1;
   P1[SiHit::xPhi] = 0;
-  P1[SiHit::xDep] = 1;
-  P2[SiHit::xEta] = 0;
+  P1[SiHit::xDep] = 0;
+  P2[SiHit::xEta] = 2;
   P2[SiHit::xPhi] = 0;
-  P2[SiHit::xDep] = 2;
+  P2[SiHit::xDep] = 0;
 
   int barcode = 0;
   HepMcParticleLink plink(barcode);

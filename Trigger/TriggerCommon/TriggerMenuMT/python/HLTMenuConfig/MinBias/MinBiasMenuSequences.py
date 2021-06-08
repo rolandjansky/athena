@@ -10,6 +10,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+import AthenaCommon.SystemOfUnits as Units
 
 
 ########
@@ -34,8 +35,12 @@ def TrackCountHypoToolGen(chainDict):
     if "hmt" in chainDict["chainName"]:
         hypo.minNtrks = int(chainDict["chainParts"][0]["hypoEFInfo"].strip("trk"))
     if "mb_sptrk" in chainDict["chainName"]:
-        hypo.minPt = 0.2
+        hypo.minPt = 200
         hypo.maxZ0 = 401
+    if "mb_sptrk_pt" in chainDict["chainName"]:
+        hypo.minPt = int(chainDict["chainParts"][0]["hypoEFInfo"].strip("pt"))*Units.GeV
+        hypo.maxZ0 = 401
+
         # will set here cuts
     return hypo
 

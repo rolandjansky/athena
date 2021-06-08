@@ -175,7 +175,8 @@ namespace CP
   /// SystematicSet hash function for general use
   struct SystematicSetHash
   {
-    std::size_t operator()(const SystematicSet&);
+    std::size_t operator()(const SystematicSet& sysSet) const {
+      return sysSet.hash();}
   };
 
   /// Hash function specifically for boost::hash

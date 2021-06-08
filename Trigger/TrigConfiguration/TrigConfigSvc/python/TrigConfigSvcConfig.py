@@ -5,11 +5,6 @@ from TrigConfigSvc.TrigConfigSvcConf import (TrigConf__LVL1ConfigSvc,
                                              TrigConf__DSConfigSvc,
                                              TrigConf__TrigConfigSvc)
 
-# Hack: xml.etree module is hidden by mistake in LCG56c
-from PyUtils.xmldict import import_etree
-etree = import_etree()
-import xml.etree.cElementTree as ET
-
 from os.path import exists, join, abspath
 
 from AthenaCommon.Logging import logging  # loads logger
@@ -50,11 +45,6 @@ def findFileInXMLPATH(filename):
                 mlog.info("Found XML file: " + abspath(test))
                 return abspath(test)
 
-            test = join(path, "TriggerMenuXML",filename)
-            if exists(test):
-                mlog.info("Found XML file: " + abspath(test))
-                return abspath(test)
-
             test = join(path, "TriggerMenuMT",filename)
             if exists(test):
                 mlog.info("Found XML file: " + abspath(test))
@@ -64,174 +54,16 @@ def findFileInXMLPATH(filename):
 
 
 
-class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
+class HLTConfigSvc( TrigConf__HLTConfigSvc ):
     #__slots__ = []
     def __init__( self, name="HLTConfigSvc" ):
-        super( DefaultHLTConfigSvc, self ).__init__( name )  #
-
-    def getAlgorithmsRun2(self):
-        """Produces pair of lists with algorithms scheduled for  L2 and EF"""
-
-        mlog = logging.getLogger("TrigConfigSvcConfig.py")
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if TriggerFlags.readMenuFromTriggerDb():
-            from TrigConfigSvc.TrigConfigSvcUtils import getAlgorithmsForMenuRun2
-            mlog.info("Will load algos from DB")
-            allalgs = getAlgorithmsForMenuRun2(TriggerFlags.triggerDbConnection(),TriggerFlags.triggerDbKeys()[0])
-        else:
-            mlog.info("Will load algos from xml")
-            allalgs = []
-            doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
-            algs = self.getAllAlgorithms(doc)
-            l2TEs, efTEs = self.getTEsByLevel(doc)
-
-            for te in l2TEs:
-                if te in algs.keys():
-                    allalgs += algs[te]
-
-            for te in efTEs:
-                if te in algs.keys():
-                    allalgs += algs[te]
-
-        return allalgs
-
-
-
-    def getAlgorithmsByLevel(self):
-        """Produces pair of lists with algorithms scheduled for  L2 and EF"""
-
-        mlog = logging.getLogger("TrigConfigSvcConfig.py")
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if TriggerFlags.readMenuFromTriggerDb():
-            from TrigConfigSvc.TrigConfigSvcUtils import getAlgorithmsForMenu
-            mlog.info("Will load algos from DB")
-            l2algs, efalgs = getAlgorithmsForMenu(TriggerFlags.triggerDbConnection(),TriggerFlags.triggerDbKeys()[0])
-        else:
-            mlog.info("Will load algos from xml")
-            l2algs = []
-            efalgs = []
-            doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
-            algs = self.getAllAlgorithms(doc)
-            l2TEs, efTEs = self.getTEsByLevel(doc)
-
-            for te in l2TEs:
-                if te in algs.keys():
-                    l2algs += algs[te]
-
-            for te in efTEs:
-                if te in algs.keys():
-                    efalgs += algs[te]
-
-        return l2algs, efalgs
-
-    def getTEsByLevel(self, doc = None):
-        """Produce 2 lists of all TEs used in signatures of level L2 and EF"""
-        l2TEs = []
-        efTEs = []
-        #print "INFO parsing: " + self.XMLMenuFile
-        if not doc: doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
-
-        #print "INFO got chains " + str(chainlist)
-        for ch in doc.getiterator("CHAIN"):
-            for te in ch.getiterator("TRIGGERELEMENT"):
-                if ch.get("level") == "L2":
-                    l2TEs.append(te.get("te_name"))
-                else:
-                    efTEs.append(te.get("te_name"))
-
-        # having TEs of each level which are mentioned in chains we need to scan sequences now
-        # and find if there are some recursive sequences to be called
-        seqinp = self.getAllSequenceInputs()
-        for te in l2TEs:
-            if te in seqinp.keys():
-                l2TEs.extend(seqinp[te]) # note that this recursive (we extend list on which we loop)
-
-        for te in efTEs:
-            if te in seqinp.keys():
-                efTEs.extend(seqinp[te]) # note that this recursive (we extend list on which we loop)
-
-        # make them unique
-        l2TEs = self.unique(l2TEs)
-        efTEs = self.unique(efTEs)
-
-        # eliminate from EF list those TEs mentioned in the L2
-        temp = []
-        for te in efTEs:
-            if te not in l2TEs:
-                temp.append(te)
-        efTEs = temp
-        return l2TEs, efTEs
-
-    def unique(self, l):
-        #d = {}
-        #for item in l:
-        #    d[item] = item
-        #return d.keys()
-        return list(set(l))
-
-
-    def getAllSequenceInputs (self, doc = None):
-        """ Produce dictionaries where key is outout TE name and values are tuples of TEs """
-        if not doc: doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
-        inp = {}
-        for seq in doc.getiterator("SEQUENCE"):
-            #print "INFO Discovered algorithms in the sequence: " + seq.getAttribute("algorithm")
-            inp[seq.get("output")] = seq.get("input").split()
-        return inp
-
-    def getAllAlgorithms(self, doc = None):
-        """ Produce dictionary where key is output TE name of the sequence and value is a list of algos in sequence"""
-        #print "INFO parsing: " + self.XMLMenuFile
-        if not doc: doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
-        #print "INFO getting sequences "
-        algos = {}
-        for seq in doc.getiterator("SEQUENCE"):
-            algos[seq.get("output")] = seq.get("algorithm").split()
-
-        return algos
-
-
-
-class TestingHLTConfigSvc ( DefaultHLTConfigSvc ):
-    def __init__( self, name="HLTConfigSvc" ):
-        super( TestingHLTConfigSvc, self ).__init__( name )  #
-
-    def setDefaults(self, handle):
-        from AthenaCommon.Constants import VERBOSE
-        handle.OutputLevel=VERBOSE
-
-
-class HLTConfigSvc ( DefaultHLTConfigSvc ):
-    def __init__( self, name="HLTConfigSvc" ):
-        super( HLTConfigSvc, self ).__init__( name )  #
+        super( HLTConfigSvc, self ).__init__( name )
 
     def setDefaults(self, handle):
         pass
 
 
-
-class DefaultLVL1ConfigSvc ( TrigConf__LVL1ConfigSvc ):
-    __slots__ = []
-    def __init__( self, name="LVL1ConfigSvc" ):
-        super( DefaultLVL1ConfigSvc, self ).__init__( name )  #
-
-    def setDefaults(self, handle):
-        pass
-
-
-class TestingLVL1ConfigSvc ( TrigConf__LVL1ConfigSvc ):
-    __slots__ = []
-    def __init__( self, name="LVL1ConfigSvc" ):
-        super( TestingLVL1ConfigSvc, self ).__init__( name )  #
-
-    def setDefaults(self, handle):
-        from AthenaCommon.Constants import VERBOSE
-        handle.OutputLevel=VERBOSE
-
-
-
-
-class LVL1ConfigSvc ( DefaultLVL1ConfigSvc ):
+class LVL1ConfigSvc ( TrigConf__LVL1ConfigSvc ):
     __slots__ = []
     def __init__( self, name="LVL1ConfigSvc" ):
         super( LVL1ConfigSvc, self ).__init__( name )
@@ -303,10 +135,6 @@ class SetupTrigConfigSvc(object):
             self.hltXmlFile = 'HLT_XML_FILE_NOT_SET'
             self.l1XmlFile  = 'L1_XML_FILE_NOT_SET'
 
-        def spam(self):
-            """ Test method, return singleton id """
-            return id(self)
-
 
         def SetStates(self, state):
             if self.initialised:
@@ -330,7 +158,6 @@ class SetupTrigConfigSvc(object):
 
             from AthenaCommon.AppMgr import ServiceMgr
 
-
             self.mlog.info( "initialising TrigConfigSvc using state %s", self.states )
             if 'xml' in self.states:
                 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -346,30 +173,11 @@ class SetupTrigConfigSvc(object):
                     self.mlog.info( "Will not setup HLTConfigSvc, since doHLT() is False" )
                     self.states[self.states.index("xml")] = "xmll1"
 
-                # generating a json L1 menu for Physics_pp_v7_primaries
-                # is needed for a transition period where we still have jobs
-                # running on this old menu, but the software expects a
-                # json-style L1 menu
-                menuName = TriggerFlags.triggerMenuSetup()
-                doGenerateJsonMenuForRun2Menu = (menuName == "Physics_pp_v7_primaries")
-                if doGenerateJsonMenuForRun2Menu:
-                    self.mlog.info("Generating L1 menu %s", menuName)
-                    from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-                    l1cfg = L1MenuConfig(menuName = menuName) # create menu
-                    menuFileName = 'L1Menu_' + menuName + '_' + TriggerFlags.menuVersion() + '.json'
-                    bgsFileName = 'BunchGroupSet_' + menuName + '_' + TriggerFlags.menuVersion() + '.json'
-                    l1JsonFileName, jsonBgsFileName = l1cfg.writeJSON(outputFile = menuFileName, bgsOutputFile = bgsFileName) # write menu and bunchgroupset
                 self.mlog.info("setup LVL1 ConfigSvc and add instance to ServiceMgr")
                 self.mlog.info("xml file = %s", self.l1XmlFile)
-                if doGenerateJsonMenuForRun2Menu:
-                    self.mlog.info("L1Menu json file= %s", l1JsonFileName)
-                    self.mlog.info("Bunchgroup json file= %s", jsonBgsFileName)
 
                 l1 = LVL1ConfigSvc("LVL1ConfigSvc")
                 l1.XMLMenuFile = self.l1XmlFile
-                if doGenerateJsonMenuForRun2Menu:
-                    l1.JsonFileName = l1JsonFileName
-                    l1.JsonFileNameBGS = jsonBgsFileName
                 ServiceMgr += l1
 
 
@@ -386,11 +194,6 @@ class SetupTrigConfigSvc(object):
             from AthenaCommon.AppMgr import theApp
             theApp.CreateSvc += [ ServiceMgr.TrigConfigSvc.getFullName() ]
 
-        def GetPlugin(self):
-            if not self.initialised:
-                raise (RuntimeError, 'athena service has not been added, cannot return plugin!.')
-            from AthenaCommon.AppMgr import ServiceMgr
-            return ServiceMgr.TrigConfigSvc
 
     # storage for the instance reference
     __instance = None

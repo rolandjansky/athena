@@ -115,14 +115,14 @@ Muon::Muon(MuonParameters::Author author,
 {
   this->set4Mom(combTP->hlv());
 
-  m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(inDetTP));
+  m_inDetTrackParticle.setElement(inDetTP);
 
   if(isExtrapolatedToVertex)
-    m_muonExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(extrapTP));
+    m_muonExtrapolatedTrackParticle.setElement(extrapTP);
   else
-    m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(extrapTP));
+    m_innerExtrapolatedTrackParticle.setElement(extrapTP);
 
-  m_combinedMuonTrackParticle.setElement(const_cast<Rec::TrackParticle*>(combTP));
+  m_combinedMuonTrackParticle.setElement(combTP);
 
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
@@ -158,12 +158,12 @@ Muon::Muon(MuonParameters::Author author,
   this->set4Mom(trackParticle->hlv());
 
   if(isExtrapolatedToVertex)
-    m_muonExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+    m_muonExtrapolatedTrackParticle.setElement(trackParticle);
   else {
     if (this->isCaloMuonId())
-      m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+      m_inDetTrackParticle.setElement(trackParticle);
     else
-      m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+      m_innerExtrapolatedTrackParticle.setElement(trackParticle);
   }
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
@@ -201,7 +201,7 @@ Muon::Muon(MuonParameters::Author author,
   m_isCorrected(false)
  {
   this->set4Mom(inDetTP->hlv());
-  m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(inDetTP));
+  m_inDetTrackParticle.setElement(inDetTP);
 
   for (unsigned int i=0; i<muonSegments.size(); ++i) this->addSegment(segmentContainer, muonSegments[i]);
 
@@ -725,7 +725,7 @@ int Muon::numberOfTrackSummaryTypes(unsigned int type) const {
 void Muon::set_energyLoss ( const MuonCaloEnergyContainer* cont, const CaloEnergy* caloEnergy )
 {
   if (m_caloEnergyLoss.isValid() ) m_caloEnergyLoss.reset();
-  m_caloEnergyLoss.toContainedElement(*cont, const_cast<CaloEnergy*>(caloEnergy));
+  m_caloEnergyLoss.toContainedElement(*cont, caloEnergy);
 }
 
 /** Set Inner Detector TrackParticle */
@@ -733,12 +733,12 @@ void Muon::set_inDetTrackParticle(const Rec::TrackParticleContainer* cont,
 				  const Rec::TrackParticle* trackParticle )
 {
   if (m_inDetTrackParticle.isValid() ) m_inDetTrackParticle.reset();
-  m_inDetTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+  m_inDetTrackParticle.toContainedElement(*cont, trackParticle);
 }
 
 void Muon::set_inDetTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+  m_inDetTrackParticle.setElement(trackParticle);
 }
 
 /** Set MuonSegments  */
@@ -752,7 +752,7 @@ void Muon::set_muonSegments(const Trk::SegmentCollection* segmentContainer,
 void Muon::addSegment ( const Trk::SegmentCollection* segmentContainer, const Trk::Segment* segment )
 {
   ElementLink<Trk::SegmentCollection> link;
-  link.toContainedElement( *segmentContainer, const_cast<Trk::Segment*>(segment) ) ;
+  link.toContainedElement( *segmentContainer,segment) ;
   m_muonSegments.push_back( link ) ;
 }
 
@@ -774,7 +774,7 @@ void Muon::set_muonSpectrometerTrackParticle(const Rec::TrackParticleContainer* 
 {
   if ( m_muonSpectrometerTrackParticle.isValid() ) m_muonSpectrometerTrackParticle.reset();
   if (cont && trackParticle) // allow also to remove an EL
-    m_muonSpectrometerTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_muonSpectrometerTrackParticle.toContainedElement(*cont, trackParticle);
 }
 
 /** Set Muon Extrapolated TrackParticle */
@@ -783,14 +783,14 @@ void Muon::set_muonExtrapolatedTrackParticle(const Rec::TrackParticleContainer* 
 {
   if (m_muonExtrapolatedTrackParticle.isValid() ) m_muonExtrapolatedTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_muonExtrapolatedTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_muonExtrapolatedTrackParticle.toContainedElement(*cont, trackParticle);
     m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
   }
 }
 
 void Muon::set_muonExtrapolatedTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_muonExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+  m_muonExtrapolatedTrackParticle.setElement(trackParticle);
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
 }
 
@@ -800,13 +800,13 @@ void Muon::set_innerExtrapolatedTrackParticle(const Rec::TrackParticleContainer*
 {
   if (m_innerExtrapolatedTrackParticle.isValid() ) m_innerExtrapolatedTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_innerExtrapolatedTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_innerExtrapolatedTrackParticle.toContainedElement(*cont, trackParticle);
   }
 }
 
 void Muon::set_innerExtrapolatedTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+  m_innerExtrapolatedTrackParticle.setElement(trackParticle);
 }
 
 /** Set Combined Muon TrackParticle */
@@ -815,14 +815,14 @@ void Muon::set_combinedMuonTrackParticle(const Rec::TrackParticleContainer* cont
 {
   if (m_combinedMuonTrackParticle.isValid() ) m_combinedMuonTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_combinedMuonTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_combinedMuonTrackParticle.toContainedElement(*cont, trackParticle);
     m_hasCombinedMuonTrackParticle = m_combinedMuonTrackParticle.isValid();
   }
 }
 
 void Muon::set_combinedMuonTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_combinedMuonTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle)); 
+  m_combinedMuonTrackParticle.setElement(trackParticle); 
   m_hasCombinedMuonTrackParticle = m_combinedMuonTrackParticle.isValid();
 }
 
@@ -832,7 +832,7 @@ void Muon::set_statCombinedMuonTrackParticle(const Rec::TrackParticleContainer* 
 {
   if (m_statCombinedMuonTrackParticle.isValid() ) m_statCombinedMuonTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_statCombinedMuonTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_statCombinedMuonTrackParticle.toContainedElement(*cont, trackParticle);
   }
 }
 
