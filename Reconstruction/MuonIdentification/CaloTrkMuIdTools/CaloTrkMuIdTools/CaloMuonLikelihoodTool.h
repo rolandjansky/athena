@@ -39,7 +39,7 @@ private:
 
     std::unique_ptr<const TH1F> m_TH1F_sig[9][11]{};
     std::unique_ptr<const TH1F> m_TH1F_bkg[9][11]{};
-    std::string m_TH1F_key[9][11];
+    std::string m_TH1F_key[9][11]{};
     int m_numKeys[9]{};
     mutable std::atomic_int m_cnt_warn{0};
 
