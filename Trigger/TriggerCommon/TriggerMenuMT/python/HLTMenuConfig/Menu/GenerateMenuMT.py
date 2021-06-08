@@ -555,6 +555,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # Having built the Menu add prescales for disabling items (e.g. MC production)
         applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
 
+        log.info("Checking the L1HLTConsistency...")
+        from TriggerMenuMT.HLTMenuConfig.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+        checkL1HLTConsistency()
+        
         log.info("Generating HLT menu JSON...")
         
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON

@@ -820,8 +820,8 @@ def setupMenu():
 
         #Combined BPhys
         #ATR-22749 Added on May 25
-        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu6_noL2Comb_L1BPH-0M9-EM7-EM5_MU6', l1SeedThresholds=['EM7','EM5','MU6'], groups=BphysElectronGroup),
-        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_2mu4_noL2Comb_L1BPH-0M9-EM7-EM5_2MU4', l1SeedThresholds=['EM7','EM5','MU4'], groups=BphysElectronGroup),
+        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu6_noL2Comb_L1BPH-0M9-EM7-EM5_MU6', l1SeedThresholds=['EM7','EM3','MU6'], groups=BphysElectronGroup),
+        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_2mu4_noL2Comb_L1BPH-0M9-EM7-EM5_2MU4', l1SeedThresholds=['EM7','EM3','MU4'], groups=BphysElectronGroup),
 
         # Tests of potential TLA chains for cost/rate
         # ATR-19317 - dijet+ISR 

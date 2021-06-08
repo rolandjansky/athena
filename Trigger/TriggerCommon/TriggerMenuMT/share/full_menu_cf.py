@@ -225,9 +225,9 @@ def generateChains():
 
         metChains = [
             makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
-            makeChain(name="HLT_xe30_L1XE10",         L1Thresholds=["XE10"], ChainSteps=[metCellStep]),
-            makeChain(name="HLT_xe30_tcpufit_L1XE10", L1Thresholds=["XE10"], ChainSteps=[metClusterPufitStep]),
-            makeChain(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',  L1Thresholds=["XE10","XE10"], ChainSteps=[comboStep_cell_clusterpufit ]) 
+            makeChain(name="HLT_xe30_L1XE30",         L1Thresholds=["XE30"], ChainSteps=[metCellStep]),
+            makeChain(name="HLT_xe30_tcpufit_L1XE30", L1Thresholds=["XE30"], ChainSteps=[metClusterPufitStep]),
+            makeChain(name='HLT_xe30_cell_xe30_tcpufit_L1XE30',  L1Thresholds=["XE30","XE30"], ChainSteps=[comboStep_cell_clusterpufit ]) 
             ]
 
         testChains += metChains
@@ -267,7 +267,7 @@ def generateChains():
         comboStep_et_mufast           = makeChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[1,1])
     #   comboStep_mufast_etcut1_step1 = makeChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[1,1])
         
-        comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM8I_MU10', L1Thresholds=["EM8I", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
+        comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM7_MU10', L1Thresholds=["EM7", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
     #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step',   ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
         testChains += comboChains
         
@@ -293,7 +293,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 generateChains()
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
-
+from TriggerMenuMT.HLTMenuConfig.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+checkL1HLTConsistency()
+       
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
