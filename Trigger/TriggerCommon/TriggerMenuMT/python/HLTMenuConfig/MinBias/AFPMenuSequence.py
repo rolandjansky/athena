@@ -7,6 +7,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.GlobalFlags import globalflags
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def AFPTrkRecoSequence():
 
@@ -36,7 +37,12 @@ def AFPTrkRecoSequence():
     
     # SID part
     from AFP_LocReco.AFP_LocRecoConf import AFP_SIDLocReco
-    AFP_SID = AFP_SIDLocReco("AFP_SIDLocReco", AFP_Geometry = AFP_Geometry_tool, vecListAlgoSID = AFP_SIDLocReco_ListAlgoSID, DataType = AFP_SIDLocReco_DataType, AmpThresh = AFP_SIDLocReco_AmpThresh)
+    AFP_SID = AFP_SIDLocReco("AFP_SIDLocReco",
+                            AFP_Geometry = AFP_Geometry_tool,
+                            vecListAlgoSID = AFP_SIDLocReco_ListAlgoSID,
+                            DataType = AFP_SIDLocReco_DataType,
+                            AmpThresh = AFP_SIDLocReco_AmpThresh, 
+                            AFPTrackContainerKey = recordable('HLT_AFPTrackContainer'))
     
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool("MonTool_AFP_SIDLocReco")
