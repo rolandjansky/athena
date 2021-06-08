@@ -215,7 +215,7 @@ def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 
-def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, lrtInfo=''):
+def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
     eventShape = precisionCaloMenuDefs.egEventShape
 
