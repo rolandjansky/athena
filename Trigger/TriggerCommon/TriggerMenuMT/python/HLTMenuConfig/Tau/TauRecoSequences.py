@@ -35,9 +35,6 @@ def _getTauSignatureShort( name ):
     elif "TrackTwo" in name:
       signature = 'tauTrkTwo'
       signatureID = 'tauIso'
-    elif "EF" in name:
-      signature = 'tauEF'
-      signatureID = 'tauIso'
     elif "MVA" in name:
       signature = 'tauMVA'
       signatureID = 'tauIso'
@@ -135,9 +132,6 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     elif "Track" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
        algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_Presel"
-    elif "EF" in step:
-       algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
-       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
 
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")   
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
@@ -312,8 +306,6 @@ def tauIdSequence( RoIs, name):
       tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "TrackTwo")
       ViewVerifyId.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),
                                    ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_Presel' )]
-    elif "EF" in name:
-      tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "EF")
     elif "MVA" in name:
       tauPrecisionAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "PrecisionMVA")
     elif "LLP" in name:
@@ -433,7 +425,7 @@ def tauFTFTauSequence(ConfigFlags):
     return (tauFastTrackTauSequence, ftfTauViewsMaker, sequenceOut)
 
 # ===============================================================================================                                                           
-#   Reco sequence for FTFTauCore + TrackRoIUpdater Alg (tracktwo, tracktwoEF, tracktwoMVA)                                                                  
+#   Reco sequence for FTFTauCore + TrackRoIUpdater Alg (tracktwo, tracktwoMVA)                                                                  
 # ===============================================================================================  
 
 def tauFTFCoreSequence(ConfigFlags):
@@ -459,7 +451,7 @@ def tauFTFCoreSequence(ConfigFlags):
     return (tauFastTrackCoreSequence, ftfCoreViewsMaker, sequenceOut)
 
 # ===============================================================================================                                                          
-#   Reco sequence for FTFTauIso (tracktwo, tracktwoEF, tracktwoMVA)                                                                  
+#   Reco sequence for FTFTauIso (tracktwo, tracktwoMVA)                                                                  
 # ===============================================================================================  
 
 def tauFTFIsoSequence(ConfigFlags):
@@ -580,7 +572,7 @@ def tauPrecTrackSequence(ConfigFlags):
     return (tauPrecTrkSequence, tauPrecViewsMaker, sequenceOut)
 
 # ===============================================================================================                                                            
-#   Reco sequence for Precision tracking (from FTF Iso or PreSelection algorithm)   (tracktwo, tracktwoEF, tracktwoMVA)                           
+#   Reco sequence for Precision tracking (from FTF Iso or PreSelection algorithm)   (tracktwo, tracktwoMVA)                           
 # ===============================================================================================                                                            
 
 def tauPrecIsoTrackSequence(ConfigFlags):
@@ -644,28 +636,6 @@ def tauTrackTwoSequence(ConfigFlags):
 
     tauFastTrackTwoSequence = seqAND("tauFastTrackTwoSequence", [ftfTrackTwoViewsMaker, tauTrackTwoInViewSequence ])
     return (tauFastTrackTwoSequence, ftfTrackTwoViewsMaker, sequenceOut)
-
-# ===============================================================================================                                                            
-#    Reco sequence for Tau Precision Alg (tracktwoEF)                                                            
-# =============================================================================================== 
-
-def tauEFSequence(ConfigFlags):
-
-    RecoSequenceName = "tauEFInViewSequence"
-
-    efViewsMaker                   = EventViewCreatorAlgorithm("IMTauEF")
-    efViewsMaker.RoIsLink          = "roi"  
-    efViewsMaker.RoITool           = ViewCreatorPreviousROITool()
-    efViewsMaker.InViewRoIs        = "RoiForTauIso"
-    efViewsMaker.Views             = "TAUEFViews"
-    efViewsMaker.ViewFallThrough   = True
-    efViewsMaker.RequireParentView = True
-    efViewsMaker.ViewNodeName      = RecoSequenceName
-
-    (tauEFInViewSequence, sequenceOut) = tauIdSequence( efViewsMaker.InViewRoIs, RecoSequenceName)
-
-    tauEFSequence = seqAND("tauEFSequence", [efViewsMaker, tauEFInViewSequence ])
-    return (tauEFSequence, efViewsMaker, sequenceOut)
 
 # ===============================================================================================                                                            
 #    Reco sequence for Tau Precision MVA Alg (tracktwoMVA)                                                                                 
