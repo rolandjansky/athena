@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetRecFlags.py
 #
@@ -189,7 +189,7 @@ class useCalibThresholdsLCTopo(JobProperty):
   """
   statusOn     = True
   allowedTypes = ['bool']  # type
-  StoredValue  = True      # default value
+  StoredValue  = False      # default value
 
 class containerNamePrefix(JobProperty):
   """ Prefix for jet collection names

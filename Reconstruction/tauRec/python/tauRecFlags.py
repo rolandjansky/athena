@@ -179,7 +179,7 @@ class tauRecMinPt(JobProperty):
     """
     statusOn=True
     allowedTypes=['float']
-    StoredValue=0.*Units.GeV
+    StoredValue=10.*Units.GeV
 
 class tauRecMaxNTracks(JobProperty):
     """ maximum number of classifiedCharged tracks for a tau candidate
