@@ -32,7 +32,11 @@ StatusCode RegionCreator::initialize()
     }
     ATH_MSG_INFO( "m_regionName default value reset to "<<m_regionName.value());
   }
+  return StatusCode::SUCCESS;
+}
 
+void RegionCreator::Construct()
+{
   //create a new G4Region
   G4Region* theRegion=new G4Region(m_regionName.value());
 
@@ -64,8 +68,6 @@ StatusCode RegionCreator::initialize()
   theRegion->SetProductionCuts(cuts);
 
   Dump();
-
-  return StatusCode::SUCCESS;
 }
 
 void RegionCreator::Dump()

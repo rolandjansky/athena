@@ -34,7 +34,6 @@ G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   , m_msg("G4AtlasWorkerRunManager")
     // TODO: what if we need to make these configurable?
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager")
-  , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
 {}
 
@@ -108,27 +107,7 @@ void G4AtlasWorkerRunManager::InitializeGeometry()
   // We don't currently use parallel worlds in ATLAS, but someday we might
   kernel->SetNumberOfParallelWorld(masterKernel->GetNumberOfParallelWorld());
 
-  // Setup the sensitive detectors on each worker.
-  if(m_senDetTool.retrieve().isFailure()) {
-    throw GaudiException("Could not retrieve SD master tool",
-                         methodName, StatusCode::FAILURE);
-  }
-  if(m_senDetTool->initializeSDs().isFailure()) {
-    throw GaudiException("Failed to initialize SDs for worker thread",
-                         methodName, StatusCode::FAILURE);
-  }
-
-  // Set up the detector magnetic field
-  if(m_detGeoSvc.retrieve().isFailure()) {
-    throw GaudiException("Could not retrieve det geo svc",
-                         methodName, StatusCode::FAILURE);
-  }
-  if(m_detGeoSvc->initializeFields().isFailure()) {
-    throw GaudiException("Failed to initialize mag field for worker thread",
-                         methodName, StatusCode::FAILURE);
-  }
-
-  // These currently do nothing because we don't override
+  // Construct sensitive detectors and magnetic field
   userDetector->ConstructSDandField();
   userDetector->ConstructParallelSD();
 
