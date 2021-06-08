@@ -209,7 +209,8 @@ StatusCode TrigCostAnalysis::execute() {
   std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
 
   // Skip empty events, where only cost chain was active
-  if (seededChains.size() == 1 && *seededChains.begin() == TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")){
+  if ((seededChains.size() == 1 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")))
+    || (seededChains.size() == 2 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")) && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_L1All"))) ){
     return StatusCode::SUCCESS;
   }
 
