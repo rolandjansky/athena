@@ -98,7 +98,7 @@ for (const Decision* currDecision : *prevDecisions)
 
           ATH_MSG_DEBUG("Matched a decision to a TLA Photon!");
 
-          matchedWithPrevDecision = true; 
+          
           atLeastOneDecision = true;
 
           // now create a new Decision object, have it be linked to the current TLAPhoton, then create the pair with photon,decision
