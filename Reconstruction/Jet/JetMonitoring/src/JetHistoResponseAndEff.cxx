@@ -76,7 +76,8 @@ StatusCode JetHistoResponseAndEff::processJetContainer(const JetMonitoringAlg& p
     parentAlg.fill(m_group, refPt , passDr1, passDr2, passDr3 , closestDr);         
 
     if( dr < 0.3) {
-      relDiff = ( matched->pt()* m_energyScale - refPt )/refPt;
+      if (refPt > 0.) relDiff = ( matched->pt()* m_energyScale - refPt )/refPt;
+      else relDiff = -999;
       refEta = refjet->eta();
       parentAlg.fill(m_group, refPt , refEta, relDiff ); 
     }
