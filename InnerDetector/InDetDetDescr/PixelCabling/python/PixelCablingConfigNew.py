@@ -9,5 +9,13 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def PixelCablingSvcCfg(flags, name="PixelCablingSvc", **kwargs):
     """Return a ComponentAccumulator with configured PixelCablingSvc"""
     acc = ComponentAccumulator()
-    acc.addService(CompFactory.PixelCablingSvc(name, **kwargs))
+    acc.addService(CompFactory.PixelCablingSvc(name, **kwargs), primary=True)
+    return acc
+
+
+def ITkPixelCablingSvcCfg(flags, name="ITkPixelCablingSvc", **kwargs):
+    """Return a ComponentAccumulator with configured PixelCablingSvc for ITk"""
+    acc = ComponentAccumulator()
+    kwargs.setdefault("DetManagerName", "ITkPixel")
+    acc.addService(CompFactory.PixelCablingSvc(name, **kwargs), primary=True)
     return acc

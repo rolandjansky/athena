@@ -511,14 +511,3 @@ def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs
     kwargs.setdefault("WriteRadiationFluenceMapKey", "PixelRadiationDamageFluenceMapData")
     acc.addCondAlgo(CompFactory.PixelRadSimFluenceMapAlg(name, **kwargs))
     return acc
-
-def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **kwargs):
-    """Return a ComponentAccumulator with configured ITkPixelOfflineCalibCondAlg"""
-    acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/ITkClusterError", "PIXEL_OFL", className="CondAttrListCollection"))
-    kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
-    kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")
-    kwargs.setdefault("InputSource", 2)
-    acc.addCondAlgo(CompFactory.ITkPixelOfflineCalibCondAlg(name, **kwargs))
-    return acc
-

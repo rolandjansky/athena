@@ -98,11 +98,8 @@ def MergedPixelsToolCfg(flags, **kwargs) :
       acc.merge(accbuf)
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
-      from InDetConfig.InDetRecToolConfig import PixelConditionsSummaryToolCfg
-      accbuf = PixelConditionsSummaryToolCfg(flags)
-      conditionssummarytool = accbuf.popPrivateTools()
-      kwargs.setdefault("PixelConditionsSummaryTool", conditionssummarytool ) 
-      acc.merge(accbuf)
+      from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+      kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) ) 
 
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
