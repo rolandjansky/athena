@@ -1,40 +1,44 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//  jJetSelect.cxx
+//  jLargeRJetSort.cxx
 //  TopoCore
-//  algorithm to create abbreviated jJet lists
+//  algorithm to make sorted jLargeRJets lists
 //
-#include "L1TopoAlgorithms/jJetSelect.h"
+#include "L1TopoAlgorithms/jLargeRJetSort.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jJetTOBArray.h"
+#include "L1TopoEvent/jLargeRJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
-REGISTER_ALG_TCS(jJetSelect)
+REGISTER_ALG_TCS(jLargeRJetSort)
 
+bool SortByEtLargestjLargeRJet(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
+{
+   return tob1->Et() > tob2->Et();
+}
 
 // constructor
-TCS::jJetSelect::jJetSelect(const std::string & name) :
+TCS::jLargeRJetSort::jLargeRJetSort(const std::string & name) :
    SortingAlg(name)
 {
    defineParameter( "InputWidth", 64 ); // for FW
    defineParameter( "InputWidth1stStage", 16 ); // for FW
    defineParameter( "OutputWidth", 10 );
-   defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 31);
    defineParameter( "DoEtaCut", 1);
 }
 
 
-TCS::jJetSelect::~jJetSelect()
+TCS::jLargeRJetSort::~jLargeRJetSort()
 {}
 
+
+
 TCS::StatusCode
-TCS::jJetSelect::initialize() {
+TCS::jLargeRJetSort::initialize() {
    m_numberOfJets = parameter("OutputWidth").value();
-   m_et = parameter("MinET").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
    m_doEtaCut = parameter("DoEtaCut").value();
@@ -42,25 +46,23 @@ TCS::jJetSelect::initialize() {
 }
 
 
-
-
 TCS::StatusCode
-TCS::jJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
-
-  const jJetTOBArray & jets = dynamic_cast<const jJetTOBArray&>(input);
-
+TCS::jLargeRJetSort::sort(const InputTOBArray & input, TOBArray & output) {
+  
+  const jLargeRJetTOBArray & jets = dynamic_cast<const jLargeRJetTOBArray&>(input);
+   
   // fill output array with GenericTOBs builds from jets
-  for(jJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
-    unsigned int Et = parType_t((*jet)->Et()); 
-    if( Et <= m_et ) continue; // ET cut
+  for(jLargeRJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
     if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) < m_minEta)) continue; 
     if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) > m_maxEta)) continue;      	
-
-    output.push_back( GenericTOB(**jet) );
+    output.push_back( GenericTOB(**jet)  );
   }
 
+   // sort
+   output.sort(SortByEtLargestjLargeRJet);
+   
    // keep only max number of jets
-   int par = m_numberOfJets ;
+   int par = m_numberOfJets;
    unsigned int maxNumberOfJets = (unsigned int)(par<0?0:par);
    if(maxNumberOfJets>0) {
       while( output.size()> maxNumberOfJets ) {

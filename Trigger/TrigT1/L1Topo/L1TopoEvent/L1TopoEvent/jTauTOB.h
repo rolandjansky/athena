@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef JJETTOB_H
-#define JJETTOB_H
+#ifndef JTAUTOB_H
+#define JTAUTOB_H
 
 #include <iostream>
 
@@ -15,20 +15,20 @@ namespace TCS {
    
    class GenericTOB;
    
-   class jJetTOB : public BaseTOB {
+   class jTauTOB : public BaseTOB {
    public:
       
       // default constructor
-      jJetTOB(uint32_t roiWord = 0, std::string tobName = "jJetTOB");
+      jTauTOB(uint32_t roiWord = 0, std::string tobName = "jTauTOB");
 
       // copy constructor
-      jJetTOB(const jJetTOB & jet);
+      jTauTOB(const jTauTOB & jet);
 
       // constructor with initial values
-      jJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, std::string tobName = "jJetTOB" );
+      jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, std::string tobName = "jTauTOB" );
 
       // destructor
-      virtual ~jJetTOB();
+      virtual ~jTauTOB();
       
       // accessors
       unsigned int energy() const { return m_Et; }
@@ -53,10 +53,10 @@ namespace TCS {
 
       inputTOBType_t tobType() const { return JET; }
 
-      static jJetTOB* createOnHeap(const jJetTOB& jet);
+      static jTauTOB* createOnHeap(const jTauTOB& jet);
       static void clearHeap();
 
-      static const Heap<TCS::jJetTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::jTauTOB>& heap() { return fg_heap; }
 
    private:
 
@@ -75,7 +75,7 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static thread_local Heap<TCS::jJetTOB> fg_heap;
+      static thread_local Heap<TCS::jTauTOB> fg_heap;
    };
    
 }

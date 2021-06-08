@@ -8,6 +8,8 @@
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/JetTOB.h"
+#include "L1TopoEvent/jTauTOB.h"
+#include "L1TopoEvent/jLargeRJetTOB.h"
 #include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/eEmTOB.h"
@@ -35,6 +37,12 @@ namespace TCS {
 
       // constructor from jet
       GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize);
+
+      // constructor from small r jet
+      GenericTOB(const jTauTOB & tau);
+
+      // constructor from small r jet
+      GenericTOB(const jLargeRJetTOB & jet);
 
       // constructor from small r jet
       GenericTOB(const jJetTOB & jet);

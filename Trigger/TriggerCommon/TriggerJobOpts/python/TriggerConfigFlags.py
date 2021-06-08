@@ -34,6 +34,9 @@ def createTriggerFlags():
     # Enable Run-3 LVL1 calo simulation and/or decoding
     flags.addFlag('Trigger.enableL1CaloPhase1', False)
 
+    # Enable L1Topo simulation to write inputs to txt
+    flags.addFlag('Trigger.enableL1TopoDump', False)
+
     # Enable usage of new L1 menu   
     flags.addFlag('Trigger.readLVL1FromJSON', True)
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__eEmTOBArray__
-#define __TopoCore__eEmTOBArray__
+#ifndef EEMTOBARRAY_H
+#define EEMTOBARRAY_H
 
 #include <iostream>
 #include "L1TopoEvent/InputTOBArray.h"
@@ -18,7 +18,7 @@ namespace TCS {
       eEmTOBArray(const std::string & name, unsigned int reserve);
 
       virtual unsigned int size() const { return DataArrayImpl<eEmTOB>::size(); }
-      
+
    private:
       virtual void print(std::ostream&) const;
    };

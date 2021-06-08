@@ -317,7 +317,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
          uint32_t sel = pe.selection();
 
          if(debug)
-	         cout << " parameter " << ": " << setw(20) << left << pname << " value = " << setw(3) << left << val << " (selection " << sel << ")" << endl;
+	   cout << "Algo Name: " << l1algoName << " parameter " << ": " << setw(20) << left << pname << " value = " << setw(3) << left << val << " (selection " << sel << ")" << endl;
          ps->addParameter( pname, val, sel);
 	 
       }

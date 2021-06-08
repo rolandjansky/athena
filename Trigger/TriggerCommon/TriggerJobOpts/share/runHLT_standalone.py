@@ -45,6 +45,7 @@ class opt:
     enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
+    enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -207,6 +208,7 @@ ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
 ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
+ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags

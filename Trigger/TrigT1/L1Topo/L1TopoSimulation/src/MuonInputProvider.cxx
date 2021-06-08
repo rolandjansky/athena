@@ -198,8 +198,8 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    
    TCS::MuonTOB muon( roi.getptValue()*10, 0, etaTopo, static_cast<unsigned int>(phiTopo), roi.getRoiID() );
    muon.setEtDouble(static_cast<double>(roi.getptValue()));
-   muon.setEtaDouble(static_cast<double>(fEta));
-   muon.setPhiDouble(static_cast<double>(fPhi));
+   muon.setEtaDouble(static_cast<double>(etaTopo/40.0));
+   muon.setPhiDouble(static_cast<double>(phiTopo/20.0));
 
    // Muon flags
    if ( roi.getSectorName().at(0) != 'B' ) { // TGC ( endcap (E) + forward (F) )

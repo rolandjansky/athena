@@ -12,6 +12,8 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   else if(type == TCS::TAU) return "Taus";
   else if(type == TCS::EEM) return "eEms";
   else if(type == TCS::JET) return "Jets";
+  else if(type == TCS::JTAU) return "jTaus";
+  else if(type == TCS::JLARGERJET) return "jLargeRJets";
   else if(type == TCS::JJET) return "jJets";
   else if(type == TCS::MET) return "MET";
   else if(type == TCS::MUON) return "Muons";
@@ -24,7 +26,7 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
 TCS::inputTOBType_t
 TCS::inputType(const std::string& input) {
 
-   if ( input == "Clusters" || input == "EmTobArray" )
+   if ( input == "Clusters" || input == "ClusterTobArray" || input == "EmTobArray" )
       return TCS::CLUSTER;
 
    if ( input == "eEM" || input == "eEMTobArray" || input == "eEmTobs" )
@@ -34,10 +36,10 @@ TCS::inputType(const std::string& input) {
       return TCS::CLUSTER;
 
    if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" )
-      return TCS::TAU;
+      return TCS::CLUSTER;
 
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
-      return TCS::TAU;
+      return TCS::JTAU;
 
    if ( input == "Jets" || input == "JetTobArray" )
       return TCS::JET;
@@ -46,7 +48,7 @@ TCS::inputType(const std::string& input) {
       return TCS::JJET;
 
    if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" )
-      return TCS::JET;
+      return TCS::JLARGERJET;
 
    if ( input == "gJet" || input == "gJetTobArray" || input == "gJetTobs" )
       return TCS::JET;
