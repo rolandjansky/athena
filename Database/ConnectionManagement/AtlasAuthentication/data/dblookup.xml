@@ -232,6 +232,11 @@
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN2" accessMode="read" />
 </logicalservice>
 
+<logicalservice name="TRIGGERDB_RUN3">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN3" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN3" accessMode="read" />
+</logicalservice>
+
 <logicalservice name="TRIGGERDB">
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN2" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN2" accessMode="read" />
@@ -247,9 +252,32 @@
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_MC" accessMode="read" />
 </logicalservice>
 
+<logicalservice name="TRIGGERDBMC_RUN2">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN2_MC" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN2_MC" accessMode="read" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDBMC_RUN3">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN3_MC" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN3_MC" accessMode="read" />
+</logicalservice>
+
 <logicalservice name="TRIGGERDBMC">
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN2_MC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN2_MC" accessMode="read" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDBTEST">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_TEST" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_TEST" accessMode="read" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDBDEV1_I8">
+ <service name="oracle://INT8R/ATLAS_CONF_TRIGGER_DEV1" accessMode="read" authentication="password" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDBDEV2_I8">
+ <service name="oracle://INT8R/ATLAS_CONF_TRIGGER_DEV2" accessMode="read" authentication="password" />
 </logicalservice>
 
 <logicalservice name="TRIGGERDBDEV1">
@@ -274,6 +302,16 @@
 
 <logicalservice name="TRIGGERDBATNDEV">
  <service name="oracle://devdb10/ATLAS_TRIGGER_ATN" accessMode="" authentication="password" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDBREPR_RUN2">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_REPR" accessMode="read" />
+</logicalservice>
+
+<logicalservice name="TRIGGERDBREPR_RUN3">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_RUN3_REPR" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_RUN3_REPR" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="TRIGGERDBREPR">
