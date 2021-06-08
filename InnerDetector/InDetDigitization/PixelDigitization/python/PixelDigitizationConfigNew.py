@@ -4,25 +4,20 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
-    PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
-    PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
-    PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
-    PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg,
-    PixelDeadMapCondAlgCfg, PixelRadSimFluenceMapAlgCfg
-# NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
+    PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg,
+    PixelDistortionAlgCfg, PixelRadSimFluenceMapAlgCfg
+    # TODO: NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
 )
-
-from Digitization.PileUpToolsConfig import PileUpToolsCfg
-from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
-from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -65,6 +60,7 @@ def EfieldInterpolatorCfg(flags, name="EfieldInterpolator", **kwargs):
 
 def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     """Return a configured EnergyDepositionTool"""
+    acc = PixelDistortionAlgCfg(flags)
     kwargs.setdefault("DeltaRayCut", 117.)
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
@@ -73,127 +69,113 @@ def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)          # needs validation
     kwargs.setdefault("doPU", True)
     EnergyDepositionTool = CompFactory.EnergyDepositionTool
-    return EnergyDepositionTool(name, **kwargs)
+    acc.setPrivateTools(EnergyDepositionTool(name, **kwargs))
+    return acc
 
 
 def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSimPlanarTool"""
-    acc = PixelSiPropertiesCfg(flags)
-    SiTool = acc.popPrivateTools()
+    acc = PixelConfigCondAlgCfg(flags)
+    SiTool = acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
     LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
+    if flags.Digitization.DoRadiationDamage:
+        acc.merge(PixelRadSimFluenceMapAlgCfg(flags))
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
     return acc
 
 
 def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSim3DTool"""
-    acc = PixelSiPropertiesCfg(flags)
-    SiTool = acc.popPrivateTools()
+    acc = PixelConfigCondAlgCfg(flags)
+    SiTool = acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
     acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     SensorSim3DTool = CompFactory.SensorSim3DTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
+    if flags.Digitization.DoRadiationDamage:
+        acc.merge(PixelRadSimFluenceMapAlgCfg(flags))
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
     return acc
 
 
-def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
-    """Return a RD53SimTool configured for Barrel"""
-    kwargs.setdefault("BarrelEC", 0)
-    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    RD53SimTool = CompFactory.RD53SimTool
-    return RD53SimTool(name, **kwargs)
-
-
-def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
-    """Return a RD53SimTool configured for Endcap"""
-    kwargs.setdefault("BarrelEC", 2)
-    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    RD53SimTool = CompFactory.RD53SimTool
-    return RD53SimTool(name, **kwargs)
-
-
 def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
+    acc = PixelCablingSvcCfg(flags)
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI4SimTool = CompFactory.FEI4SimTool
-    return FEI4SimTool(name, **kwargs)
+    acc.setPrivateTools(FEI4SimTool(name, **kwargs))
+    return acc
 
 
 def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
+    acc = PixelCablingSvcCfg(flags)
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 4)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI4SimTool = CompFactory.FEI4SimTool
-    return FEI4SimTool(name, **kwargs)
+    acc.setPrivateTools(FEI4SimTool(name, **kwargs))
+    return acc
 
 
 def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
+    acc = PixelCablingSvcCfg(flags)
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI3SimTool = CompFactory.FEI3SimTool
-    return FEI3SimTool(name, **kwargs)
+    acc.setPrivateTools(FEI3SimTool(name, **kwargs))
+    return acc
 
 
 def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
+    acc = PixelCablingSvcCfg(flags)
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
+    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI3SimTool = CompFactory.FEI3SimTool
-    return FEI3SimTool(name, **kwargs)
+    acc.setPrivateTools(FEI3SimTool(name, **kwargs))
+    return acc
 
 
 def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool"""
     acc = PixelGeometryCfg(flags)
-    # module parameters
-    acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.Digitization.DoRadiationDamage:
-        acc.merge(PixelRadSimFluenceMapAlgCfg(flags))
-    # charge calibration
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-# NEW FOR RUN3    acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
-    # DCS setup
-    acc.merge(PixelDCSCondHVAlgCfg(flags))
-    acc.merge(PixelDCSCondTempAlgCfg(flags))
-    # cabling setup
-    if not flags.Input.isMC:
-        acc.merge(PixelHitDiscCnfgAlgCfg(flags))
-        acc.merge(PixelReadoutSpeedAlgCfg(flags))
-        acc.merge(PixelCablingCondAlgCfg(flags))
-    # deadmap
-    acc.merge(PixelDCSCondStateAlgCfg(flags))
-    acc.merge(PixelDCSCondStatusAlgCfg(flags))
-    acc.merge(PixelDeadMapCondAlgCfg(flags))
-    # offline calibration
-    acc.merge(PixelDistortionAlgCfg(flags))
-
-    acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
-    acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
-    acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-    acc.merge(PixelCablingSvcCfg(flags))
-
     # set up tool handle lists
     chargeTools = []
     feSimTools = []
     chargeTools.append(acc.popToolsAndMerge(SensorSimPlanarToolCfg(flags)))
-    if flags.GeoModel.Run == "RUN4":
-        feSimTools.append(BarrelRD53SimToolCfg(flags))
-        feSimTools.append(EndcapRD53SimToolCfg(flags))
-    else:
-        chargeTools.append(acc.popToolsAndMerge(SensorSim3DToolCfg(flags)))
-        feSimTools.append(BarrelFEI4SimToolCfg(flags))
-        feSimTools.append(DBMFEI4SimToolCfg(flags))
-        feSimTools.append(BarrelFEI3SimToolCfg(flags))
-        feSimTools.append(EndcapFEI3SimToolCfg(flags))
+    chargeTools.append(acc.popToolsAndMerge(SensorSim3DToolCfg(flags)))
+    feSimTools.append(acc.popToolsAndMerge(BarrelFEI4SimToolCfg(flags)))
+    feSimTools.append(acc.popToolsAndMerge(DBMFEI4SimToolCfg(flags)))
+    feSimTools.append(acc.popToolsAndMerge(BarrelFEI3SimToolCfg(flags)))
+    feSimTools.append(acc.popToolsAndMerge(EndcapFEI3SimToolCfg(flags)))
     kwargs.setdefault("InputObjectName", "PixelHits")
     kwargs.setdefault("ChargeTools", chargeTools)
     kwargs.setdefault("FrontEndSimTools", feSimTools)
-    kwargs.setdefault("EnergyDepositionTool", EnergyDepositionToolCfg(flags))
+    kwargs.setdefault("EnergyDepositionTool", acc.popToolsAndMerge(EnergyDepositionToolCfg(flags)))
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", Pixel_FirstXing(flags))
         kwargs.setdefault("LastXing", Pixel_LastXing(flags))
@@ -324,13 +306,6 @@ def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
 def PixelDigitizationCfg(flags, **kwargs):
     """Return ComponentAccumulator for Pixel digitization and Output"""
     acc = PixelDigitizationBasicCfg(flags, **kwargs)
-    acc.merge(PixelOutputCfg(flags))
-    return acc
-
-
-def PixelOverlayDigitizationCfg(flags, **kwargs):
-    """Return ComponentAccumulator with Pixel Overlay digitization and Output"""
-    acc = PixelOverlayDigitizationBasicCfg(flags, **kwargs)
     acc.merge(PixelOutputCfg(flags))
     return acc
 

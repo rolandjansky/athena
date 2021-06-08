@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCABLINGSVC_H
@@ -36,6 +36,7 @@ class PixelCablingSvc: virtual public IPixelCablingSvc, public AthService {
 
   private:
     ServiceHandle< StoreGateSvc > m_detStore;
+    StringProperty m_detManagerName{this, "DetManagerName", "Pixel", "Name of the DeterctorManager to retrieve"};
     const InDetDD::PixelDetectorManager *m_detManager;
     const PixelID* m_idHelper;
 

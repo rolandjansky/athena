@@ -23,27 +23,10 @@ def ITkPixelGeometryCfg(flags):
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]
 
     # Alignment corrections and DetElements to conditions
-    if flags.GeoModel.Align.Dynamic:
-        raise RuntimeError("ITk dynamic alignment not supported yet!")
+    if flags.Common.Project != "AthSimulation" and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay):
+        from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelDetectorElementCondAlgCfg
+        acc.merge(ITkPixelDetectorElementCondAlgCfg(flags))
     else:
-        if flags.Common.Project != "AthSimulation" and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay):
-            acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align", className="AlignableTransformContainer"))
-        else:
-            acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align"))
-    if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
-        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
-            PixelAlignCondAlg = CompFactory.PixelAlignCondAlg
-            pixelAlignCondAlg = PixelAlignCondAlg(name = "ITkPixelAlignCondAlg",
-                                                  DetManagerName = "ITkPixel",
-                                                  ReadKeyIBLDist = "",
-                                                  WriteKey = "ITkPixelAlignmentStore",
-                                                  UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic)
-            acc.addCondAlgo(pixelAlignCondAlg)
-            PixelDetectorElementCondAlg = CompFactory.PixelDetectorElementCondAlg
-            pixelDetectorElementCondAlg = PixelDetectorElementCondAlg(name = "ITkPixelDetectorElementCondAlg",
-                                                                      DetManagerName = "ITkPixel",
-                                                                      ReadKey = "ITkPixelAlignmentStore",
-                                                                      WriteKey = "ITkPixelDetectorElementCollection")
-            acc.addCondAlgo(pixelDetectorElementCondAlg)
+        acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align"))
 
     return acc

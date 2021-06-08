@@ -29,7 +29,7 @@ StatusCode PixelCablingSvc::initialize() {
 
   ATH_CHECK(m_detStore.retrieve());
 
-  ATH_CHECK(m_detStore->retrieve(m_detManager,"Pixel"));
+  ATH_CHECK(m_detStore->retrieve(m_detManager,m_detManagerName));
 
   ATH_CHECK(m_detStore->retrieve(m_idHelper,"PixelID"));
 
