@@ -118,8 +118,10 @@ if rec.doPerfMon() :
             jobproperties.PerfMonFlags.doSemiDetailedMonitoring = rec.doSemiDetailedPerfMon()
             include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
         else:
+            jobproperties.PerfMonFlags.doFastMonMT = True
+            jobproperties.PerfMonFlags.doFullMonMT = rec.doDetailedPerfMonMT()
+            jobproperties.PerfMonFlags.OutputJSON  = "perfmonmt_"+OutFileName+".json"
             include( "PerfMonComps/PerfMonMTSvc_jobOptions.py" )
-            svcMgr.PerfMonMTSvc.jsonFileName = "perfmonmt_"+OutFileName+".json"
 
     except Exception:
         treatException("Could not load PerfMon" )
