@@ -33,6 +33,7 @@ errorRegex = [
     r'^\s*can be produced by alg(s): ',
     r'pure virtual method called',
     r'Selected dynamic Aux atribute.*not found in the registry',
+    r'FPEAuditor.*WARNING FPE',
 ]
 
 # Add list of all builtin Python errors
@@ -46,7 +47,8 @@ traceback = [
     r'Shortened traceback',
     r'stack trace',
     r'^Algorithm stack',
-    r'^#\d+\s*0x\w+ in '
+    r'^#\d+\s*0x\w+ in ',
+    r'FPEAuditor.*INFO FPE stacktrace',
 ]
 errorRegex.extend(traceback)
 

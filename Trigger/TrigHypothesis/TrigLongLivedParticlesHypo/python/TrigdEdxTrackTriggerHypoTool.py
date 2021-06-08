@@ -18,7 +18,7 @@ def TrigdEdxTrackTriggerHypoToolFromDict( chainDict ):
     tool = CompFactory.TrigdEdxTrackTriggerHypoTool(name)
 
     monTool = GenericMonitoringTool("IM_MonTool"+name)
-    monTool.defineHistogram('trackPt',    type='TH1F', path='EXPERT', title="Hypo p_{T}^{track};p_{T}^{track} [GeV];Nevents", xbins=50, xmin=0, xmax=100) 
+    monTool.defineHistogram('trackPtGeV', type='TH1F', path='EXPERT', title="Hypo p_{T}^{track};p_{T}^{track} [GeV];Nevents", xbins=50, xmin=0, xmax=100) 
     monTool.defineHistogram('trackEta',   type='TH1F', path='EXPERT', title="Hypo p_{T}^{track} (after p_{T} cut);eta;Nevents", xbins=60, xmin=-3.0, xmax=3.0) 
     monTool.defineHistogram('tracka0beam',type='TH1F', path='EXPERT', title="Hypo a0beam (after eta cut);a0beam [mm];Nevents", xbins=50, xmin=-5.0, xmax=5.0) 
     monTool.defineHistogram('trackdEdx',  type='TH1F', path='EXPERT', title="Hypo dE/dx (after a0beam cut);dE/dx;Nevents", xbins=50, xmin=0, xmax=10) 
@@ -36,7 +36,7 @@ def TrigdEdxTrackTriggerHypoToolFromDict( chainDict ):
         
     log.info("UTT: Threshold Values are: %s",strThr)
 
-    tool.cutTrackPt = thresholds
+    tool.cutTrackPtGeV = thresholds
 
     trackEta=[]
     trackdEdx=[]

@@ -109,13 +109,20 @@ def onlyAttributesAreProperties(cls):
 def clonable(cls):
     """Transforms the input class cls by adding a clone() method. 
     This clone() method returns a clone instance with a _locked attribute set to False by default (so the clone is modifiable) """
+
+    def recc_lock(o, lock):
+        if hasattr(o,"_locked"):
+            o._locked = lock
+            for k,v in o.__dict__.items():
+                recc_lock(v,lock)
+        
     def clone(self, lock=False, **args):
         from copy import deepcopy
         o = deepcopy(self)
         o._locked = False # unlock so we can modfiy the clone with user given arguments
         for k,v in args.items():
             setattr(o,k,v)
-        o._locked = lock
+        recc_lock(o,lock) # make sure lock is propagated to all lockable sub-object
         return o
     cls.clone = clone
     return cls
@@ -123,9 +130,18 @@ def clonable(cls):
 
 class ldict(dict):
     """A dictionnary which items can not be modified once set.
-
-    Also its items are attributes (Main/only motivation : easier interactive inspection)
+    
+    Also implements 2 additional features :
+     - a clone method to conveniently create a new version with only some items changed
+     - all items are also attributes (i.e. d['a'] can be accessed by d.a : this is mostly for easier interactive inspection)
     """
+    def __init__(self, **args):
+        super().__init__(**args)
+        # make key aivailable as attribute
+        for k,v in args.items():
+            super().__setattr__(k,v)
+            
+        
     def __setitem__(self, k, v):
         if k in self:
             raise KeyError("Can't override key "+k)
@@ -135,3 +151,29 @@ class ldict(dict):
     def update(self, **args): # we need to redefine it
         for k,v in args.items():
             self[k]=v
+
+    def clone(self,**args):
+        from copy import deepcopy
+        o = deepcopy(self)
+        for k,v in args.items():
+            # bypass the protection to update the user given items
+            dict.__setitem__(o,k,v)            
+            dict.__setattr__(o,k,v)
+        return o
+            
+def flattenDic(inD):
+    """returns a copy of the inD dictionnary with no nested directories. Instead the content of nested dict inside inD are indexed by keys constructed from nested keys :
+    {'A' : 3 , 'B' : { 'C':5, 'D': 6} } --> {'A' : 3 , 'B.C':5, 'B.D': 6}
+    This works only if nested dic have str keys.
+
+    This function is used mainly in trigger config
+     """
+    outD = {}
+    for k,v in inD.items():
+        if isinstance(v,dict):
+            subD = flattenDic(v)
+            for subk, subv in subD.items():
+                outD[f'{k}.{subk}']=subv                
+        else:
+            outD[k]=v
+    return outD

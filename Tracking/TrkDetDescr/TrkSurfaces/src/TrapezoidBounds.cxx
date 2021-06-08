@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ Trk::TrapezoidBounds::insideExclude(const Amg::Vector2D& locpo, double tol1, dou
 
 // checking if local point lies above a line
 bool
-Trk::TrapezoidBounds::isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) const
+Trk::TrapezoidBounds::isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) 
 {
   // the most tolerant approach for tol1 and tol2
   double sign = k > 0. ? -1. : +1.;
@@ -147,9 +147,7 @@ Trk::TrapezoidBounds::minDistance(const Amg::Vector2D& pos) const
 
   for (int i = 0; i != Np; ++i) {
 
-    int j = i + 1;
-    if (j == Np)
-      j = 0;
+    int j = (i == Np-1 ? 0 : i+1);
 
     double x = X[i] - pos[0];
     double y = Y[i] - pos[1];

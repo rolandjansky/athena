@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm> 
@@ -95,8 +95,8 @@ DataProxy::DataProxy():
   m_dObject(nullptr), 
   m_dataLoader(nullptr),
   m_t2p(nullptr),
-  m_errno(ALLOK),
-  m_store(nullptr)
+  m_store(nullptr),
+  m_errno(ALLOK)
 { 
 }
 
@@ -134,8 +134,8 @@ DataProxy::DataProxy(TransientAddress&& tAddr,
   m_tAddress(std::move(tAddr)),
   m_dataLoader(svc),
   m_t2p(nullptr),
-  m_errno(ALLOK),
-  m_store(nullptr)
+  m_store(nullptr),
+  m_errno(ALLOK)
 {
   //assert( tAddr->clID() != 0 );
   if (svc) svc->addRef();
@@ -155,8 +155,8 @@ DataProxy::DataProxy(DataObject* dObject,
   m_tAddress(std::move(*tAddr)),
   m_dataLoader(nullptr),
   m_t2p(nullptr),
-  m_errno(ALLOK),
-  m_store(nullptr)
+  m_store(nullptr),
+  m_errno(ALLOK)
 {
   setObject(dObject);
   delete tAddr;
@@ -174,8 +174,8 @@ DataProxy::DataProxy(DataObject* dObject,
   m_tAddress(std::move(tAddr)),
   m_dataLoader(nullptr),
   m_t2p(nullptr),
-  m_errno(ALLOK),
-  m_store(nullptr)
+  m_store(nullptr),
+  m_errno(ALLOK)
 {
   setObject(dObject);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERSZWINDOWFILTER_H
@@ -19,6 +19,7 @@ public:
 
   DiLeptonMassFilter(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode filterInitialize();
+  virtual StatusCode filterFinalize();
   virtual StatusCode filterEvent();
 
 private:
@@ -30,6 +31,7 @@ private:
   double m_minDilepPt;
   bool   m_allowElecMu;
   bool   m_allowSameCharge;
+  int m_AthenaCalls;
 
 };
 

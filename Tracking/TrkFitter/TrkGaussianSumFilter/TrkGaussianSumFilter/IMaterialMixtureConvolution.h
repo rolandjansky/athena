@@ -12,9 +12,9 @@
 #ifndef TrkIMaterialMixtureConvolution_H
 #define TrkIMaterialMixtureConvolution_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 //
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+#include "TrkGaussianSumFilterUtils/GsfMaterial.h"
 //
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"

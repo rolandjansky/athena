@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -162,7 +162,7 @@ GetLCWeights::~GetLCWeights()
 StatusCode GetLCWeights::initialize()
 {
 
-  m_outputFile = new TFile(m_outputFileName.c_str(),"RECREATE");
+  m_outputFile = std::make_unique<TFile>(m_outputFileName.c_str(),"RECREATE");
   m_outputFile->cd();
 
   m_weight.resize(CaloSampling::Unknown);
@@ -433,18 +433,15 @@ StatusCode GetLCWeights::execute()
 
   // calculate total calib energy of each cell in each cluster
 
-  std::vector<const CaloCalibrationHitContainer * >::const_iterator it;
-  for (it=v_cchc.begin();it!=v_cchc.end();it++) {
-    CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-    CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
-    for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+  for (const CaloCalibrationHitContainer* cchc : v_cchc) {
+    for (const CaloCalibrationHit* hit : *cchc) {
+      Identifier myId = hit->cellID();
       int otherSubDet;
       IdentifierHash myHashId = calo_id->subcalo_cell_hash(myId,otherSubDet);
       if ( myHashId != CaloCell_ID::NOT_VALID ) {
 	ClusWeight * theList = cellVector[otherSubDet][(unsigned int)myHashId];
 	while ( theList ) {
-	 theList->eCalibTot += (*chIter)->energyTotal();
+	 theList->eCalibTot += hit->energyTotal();
 	 theList = theList->next;
 	}
       }
@@ -628,11 +625,8 @@ void GetLCWeights::mapparse() {
 
   int nsamp(-1);
 
-  std::map<std::string,Gaudi::Histo1DDef>::iterator miter = m_dimensionsmap.begin();
-  std::map<std::string,Gaudi::Histo1DDef>::iterator mend = m_dimensionsmap.end();
-  
-  for( ; miter != mend; miter++ ) {
-    std::string dimname = miter->first.substr(0,miter->first.find(":"));
+  for (const std::pair<const std::string, Gaudi::Histo1DDef>& p : m_dimensionsmap) {
+    std::string dimname = p.first.substr(0,p.first.find(":"));
     int theSampling(CaloSampling::Unknown);
     for (unsigned int jsamp = 0;jsamp< CaloSampling::Unknown; jsamp++) {
       if ( dimname == CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)jsamp)) {
@@ -660,11 +654,11 @@ void GetLCWeights::mapparse() {
 	m_dimensions.resize(nsamp+1);
 	m_dimensions[nsamp].resize(0);
       }
-      m_dimensions[theUsedSamplings[theSampling]].push_back(miter->second);
+      m_dimensions[theUsedSamplings[theSampling]].push_back(p.second);
       ATH_MSG_DEBUG(" New Dimension for " << dimname << ": " 
-		    << miter->second.title() << ", [" << miter->second.lowEdge()
-		    << ", " << miter->second.highEdge() 
-		    << ", " << miter->second.bins()
+		    << p.second.title() << ", [" << p.second.lowEdge()
+		    << ", " << p.second.highEdge() 
+		    << ", " << p.second.bins()
 		    << "]");
     }
   }

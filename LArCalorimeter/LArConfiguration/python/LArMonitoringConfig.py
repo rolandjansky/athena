@@ -26,8 +26,8 @@ def LArMonitoringConfig(inputFlags):
             acc.merge(LArCollisionTimeMonConfig(inputFlags))
         if not inputFlags.Input.isMC:
             acc.merge(LArNoisyROMonConfig(inputFlags))
-            acc.merge(LArAffectedRegionsConfig(inputFlags))
             if 'online' not in inputFlags.DQ.Environment:
+                acc.merge(LArAffectedRegionsConfig(inputFlags))
                 acc.merge(LArHVCorrMonConfig(inputFlags))
 
 

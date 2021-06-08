@@ -16,7 +16,7 @@ ex.input = 'data_Main'
 ex.max_events = 1000
 ex.threads = 1
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doBphysicsSlice=True;forceEnableAllChains=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doBphysicsSlice=True;doL1Sim=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

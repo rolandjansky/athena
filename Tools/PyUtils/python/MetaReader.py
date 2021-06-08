@@ -307,8 +307,16 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
             data_reader = eformat.EventStorage.pickDataReader(filename)
             assert data_reader, 'problem picking a data reader for file [%s]' % filename
 
+            # set auto flush equivalent, which for BS is always 1
+            meta_dict[filename]['auto_flush'] = 1
+
             if hasattr(data_reader, 'GUID'):
                 meta_dict[filename]['file_guid'] = getattr(data_reader, 'GUID')()
+
+            # compression level and algorithm, for BS always ZLIB
+            meta_dict[filename]['file_comp_alg'] = 1
+            meta_dict[filename]['file_comp_level'] = 1
+
 
             # if the flag full is set to true then grab all metadata
             # ------------------------------------------------------------------------------------------------------#

@@ -18,7 +18,6 @@ precommand = ''.join([
   "setMenu='Dev_HI_run3_v1';",
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
-  "fpeAuditor=True;"
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 

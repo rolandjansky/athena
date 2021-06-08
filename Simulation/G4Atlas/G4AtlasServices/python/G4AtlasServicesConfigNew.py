@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -9,7 +9,7 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, Bedro
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg
 
 #the geometry tools
-from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
+from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, SmartlessnessToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 from AthenaCommon import Logging
@@ -224,15 +224,19 @@ def getGeometryConfigurationTools(ConfigFlags):
     geoConfigToolList = []
     # The methods for these tools should be defined in the
     # package containing each tool, so G4AtlasTools in this case
-    geoConfigToolList += [MaterialDescriptionToolCfg(ConfigFlags)]
-    return geoConfigToolList
+    result =ComponentAccumulator()
+    geoConfigToolList += [result.popToolsAndMerge(MaterialDescriptionToolCfg(ConfigFlags))]
+    geoConfigToolList += [result.popToolsAndMerge(SmartlessnessToolCfg(ConfigFlags))]
+    return result, geoConfigToolList
 
 
 def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("DetectorConstruction", G4AtlasDetectorConstructionToolCfg(ConfigFlags))
     ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
-    kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools(ConfigFlags))
+    geoConfAcc, listOfGeoConfTools = getGeometryConfigurationTools(ConfigFlags)
+    result.merge(geoConfAcc)
+    kwargs.setdefault("GeometryConfigurationTools", listOfGeoConfTools)
 
     #if hasattr(simFlags,"Eta"): #FIXME ugly hack
     if False:

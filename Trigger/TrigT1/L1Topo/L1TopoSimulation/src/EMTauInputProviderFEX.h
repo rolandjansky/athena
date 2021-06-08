@@ -1,6 +1,4 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoSimulation_EMTauInputProviderFEX
 #define L1TopoSimulation_EMTauInputProviderFEX
@@ -38,12 +36,11 @@ namespace LVL1 {
 
       /** \brief calculates eta and phi from roiWord*/
       void CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const;
-      int ConvertEta(const int val) const;
      
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hEmEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEmEtaPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
 

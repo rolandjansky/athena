@@ -38,8 +38,8 @@
 LArCellContFakeWriter::LArCellContFakeWriter(const std::string &name, 
 					     ISvcLocator *pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_caloMgr(0),
-    m_calocellId(0)
+    m_caloMgr(nullptr),
+    m_calocellId(nullptr)
 {}
 
 // Initialize method:

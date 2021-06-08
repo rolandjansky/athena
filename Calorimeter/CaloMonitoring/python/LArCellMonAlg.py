@@ -19,7 +19,8 @@ def LArCellMonConfigOld(inputFlags):
     else:
        isMC=True
 
-    if not isMC:
+    from AthenaMonitoring.DQMonFlags import DQMonFlags   
+    if not isMC and DQMonFlags.enableLumiAccess():
         from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault
         LBDurationCondAlgDefault()
         from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault
@@ -106,19 +107,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     else: 
        badChanMaskProblems=["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG","unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"]
 
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg():
-       from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-
-       acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=badChanMaskProblems,ToolName="BadLArRawChannelMask")
-       LArCellMonAlg.LArBadChannelMask=acc.popPrivateTools()
-       helper.resobj.merge(acc)
-    else:
-       from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-       theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-       theLArBadChannelsMasker.DoMasking=True
-       theLArBadChannelsMasker.ProblemsToMask=badChanMaskProblems
-       LArCellMonAlg.LArBadChannelMask=theLArBadChannelsMasker
+    LArCellMonAlg.ProblemsToMask=badChanMaskProblems
 
     if not isCosmics and not isMC:
         LArCellMonAlg.useReadyFilterTool=True
@@ -344,8 +333,8 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                            type='TH2F', path=energyvstime_hist_path,
                            xbins=lArCellBinningScheme.timescale, ybins=lArCellBinningScheme.energyscale)
 
-         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(eCutForTiming[idx//2]),
-                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(eCutForTiming[idx//2])+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
+         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(int(eCutForTiming[idx//2])),
+                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(int(eCutForTiming[idx//2]))+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
                            weight='cellEnergy_'+part+'_cut',
                            cutmask='enGreaterThanCut_'+part,
                            type='TH1F', path=energyvstime_hist_path,
@@ -407,7 +396,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
     #now histograms
     for part in LArCellMonAlg.LayerNames:
-        allMonArray.defineHistogram('dummy', type='TH1F', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
+        allMonArray.defineHistogram('dummy', type='TH1F', path='/', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
 
         allMonArray.defineHistogram('celleta,cellphi;CellOccupancyVsEtaPhi',
                                                 title='No. of events in (#eta,#phi) for '+part+';cell #eta;cell #phi',

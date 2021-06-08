@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -63,7 +63,6 @@ LArDigitMon::LArDigitMon(const std::string& type,
     m_strHelper(0),
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
-    m_badChannelMask("BadLArRawChannelMask"),
     m_summary(0),
     m_feedthroughID(0),
     m_slot(0),
@@ -77,7 +76,6 @@ LArDigitMon::LArDigitMon(const std::string& type,
 {	
   /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
-  declareProperty("LArBadChannelMask",m_badChannelMask);
   /**default cut to select events*/
   declareProperty("SigmaCut",               m_SigmaCut=5);
   /**default saturation cuts*/
@@ -174,16 +172,9 @@ LArDigitMon::initialize()
   
 
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if (m_ignoreKnownBadChannels) { 
-    sc=m_badChannelMask.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
-      return StatusCode::FAILURE;
-    }
-  } else {
-    m_badChannelMask.disable();
-  }
-  
+  ATH_CHECK( m_bcContKey.initialize(m_ignoreKnownBadChannels));
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
   /** Bool used for online*/
   m_PercComputed=false;
   
@@ -326,6 +317,12 @@ LArDigitMon::fillHistograms()
 
 
   SG::ReadHandle<LArDigitContainer> pLArDigitContainer{m_digitContainerKey};
+
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_ignoreKnownBadChannels ) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+    bcCont=*bcContHdl;
+  }
   
   /** Define iterators to loop over Digits containers*/
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
@@ -439,8 +436,7 @@ LArDigitMon::fillHistograms()
     /** Remove problematic channels*/
     if (m_ignoreKnownBadChannels ) {
       HWIdentifier id = pLArDigit->hardwareID();
-      //CaloGain::CaloGain gain = pLArDigit->gain();
-      if ( m_badChannelMask->cellShouldBeMasked(id)) {
+      if ( m_bcMask.cellShouldBeMasked(bcCont,id)) {
 	continue;
       }
     }
@@ -489,7 +485,7 @@ LArDigitMon::fillHistograms()
     if((*maxSam-pedestal)>pedestalRMS*m_SigmaCut)
     {
       /** Loop over the samples and get signal shape:*/
-      for(int i=0;i<pLArDigit->nsamples();i++,iterSam++)FillSignShape(ThisPartition,i,(*iterSam-pedestal),(*maxSam-pedestal));
+      for(int i=0;i<pLArDigit->nsamples();++i,++iterSam)FillSignShape(ThisPartition,i,(*iterSam-pedestal),(*maxSam-pedestal));
       
       /** Then fill histo about max sample:*/
       FillAverMaxDig(ThisPartition,maxPos,(*maxSam-pedestal),l1Trig,LBN);

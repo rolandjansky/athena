@@ -9,75 +9,96 @@
 #
 def setupChain( trigger , OutputLevel=0):
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-    info = dictFromChainName(trigger)
+    from AthenaConfiguration.ComponentFactory import CompFactory
 
-    signature = info['signatures'][0]
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    d = dictFromChainName(trigger)
+
+    signature = d['signatures'][0]
 
     from pprint import pprint
-    pprint(info)
+    pprint(d)
 
 
     # Configure L1Calo 
     from TrigEgammaEmulationToolMT.TrigEgammaEmulationL1CaloHypoConfig import createL1Calo
-    L1CaloTool = createL1Calo(trigger + "_Step0" , info)
+    L1CaloTool = createL1Calo(trigger + "_Step0" , d)
 
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastCaloHypoConfig import createFastCalo
-    FastCaloTool = createFastCalo(trigger+"_Step1", info)
+    from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastCaloHypoConfig import TrigEgammaFastCaloHypoToolFromDict
+    FastCaloTool = TrigEgammaFastCaloHypoToolFromDict(trigger+"_Step1", d)
+
 
     if signature == 'Electron':
+        
+        # Configure Fast Electron
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastElectronHypoConfig import TrigEgammaFastElectronHypoToolFromDict
+        FastTool = TrigEgammaFastElectronHypoToolFromDict(trigger + "_Step2", d)
+
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionCaloHypoConfig import TrigEgammaPrecisionCaloHypoToolFromDict
+        PrecisionCaloTool = TrigEgammaPrecisionCaloHypoToolFromDict(trigger+"_Step3", d)
+
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionTrackingHypoConfig import TrigEgammaPrecisionTrackingHypoToolFromDict
+        PrecisionTrackingTool = TrigEgammaPrecisionTrackingHypoToolFromDict(trigger+"_Step4", d)
+
         # Configure Precision Electron
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionElectronHypoConfig import createPrecisionElectron
-        PrecisionTool = createPrecisionElectron(trigger + "_Step4", info)
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionElectronHypoConfig import TrigEgammaPrecisionElectronHypoToolFromDict
+        PrecisionTool = TrigEgammaPrecisionElectronHypoToolFromDict(trigger + "_Step5", d)
 
     elif signature == 'Photon':
+
+        # Configure Fast Photon
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastPhotonHypoConfig import TrigEgammaFastPhotonHypoToolFromDict
+        FastTool = TrigEgammaFastPhotonHypoToolFromDict(trigger + "_Step2", d)
+
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionCaloHypoConfig import TrigEgammaPrecisionCaloHypoToolFromDict
+        PrecisionCaloTool = TrigEgammaPrecisionCaloHypoToolFromDict(trigger+"_Step3", d)
+
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionTrackingHypoConfig import TrigEgammaPrecisionTrackingHypoToolFromDict
+        PrecisionTrackingTool = TrigEgammaPrecisionTrackingHypoToolFromDict(trigger+"_Step4", d)
+
         # Configure Precision Photon
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionPhotonHypoConfig import createPrecisionPhoton
-        PrecisionTool = createPrecisionPhoton(trigger+"_Step4", info)
+        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionPhotonHypoConfig import TrigEgammaPrecisionPhotonHypoToolFromDict
+        PrecisionTool = TrigEgammaPrecisionPhotonHypoToolFromDict(trigger + "_Step5", d)
 
 
 
-
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationToolMTConf import Trig__TrigEgammaEmulationChain
-    chain = Trig__TrigEgammaEmulationChain(
-                                name                = trigger,
-                                L1CaloTool          = L1CaloTool,
-                                FastCaloTool        = FastCaloTool, 
-                                FastTool            = "",
-                                PrecisionCaloTool   = "",
-                                PrecisionTool       = PrecisionTool,
-                                Chain               = trigger,
-                                L1Item              = "",
-                                Signature           = "electron",
-                                OutputLevel         = OutputLevel
+    chain = CompFactory.Trig.TrigEgammaEmulationChain(
+                                name                    = trigger,
+                                L1CaloTool              = L1CaloTool, # Step 0
+                                FastCaloTool            = FastCaloTool, # Step 1
+                                FastTool                = FastTool, # Step 2
+                                PrecisionCaloTool       = PrecisionCaloTool, # Step 3
+                                PrecisionTrackingTool   = PrecisionTrackingTool, # Step 4
+                                PrecisionTool           = PrecisionTool, # Step 5
+                                Chain                   = trigger,
+                                L1Item                  = "",
+                                Signature               = signature.lower(),
+                                OutputLevel             = OutputLevel
     )
 
     return chain
 
 
 
-def createEmulator( name, triggerList ):
+def createEmulator( name, TriggerList=[], ElectronTriggerList=[], PhotonTriggerList=[]):
 
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationToolMTConf import Trig__TrigEgammaEmulationToolMT
-    #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionPhotonSelectors
     #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
-    
+    from AthenaConfiguration.ComponentFactory import CompFactory
     hypos = []
-
     # setup all chains
-    for trigger in triggerList:
+    for trigger in TriggerList:
         chain = setupChain(trigger)
         hypos.append(chain)
 
-   
+
     #
     # create emulator
     #
-    emulator = Trig__TrigEgammaEmulationToolMT(name, 
+    emulator = CompFactory.Trig.TrigEgammaEmulationToolMT(name, 
                                         #ElectronLHTools = createTrigEgammaPrecisionElectronLHSelectors(),
                                         #PhotonIsEMTools = createTrigEgammaPrecisionPhotonSelectors(),
-                                        ElectronTriggerList = [],
-                                        PhotonTriggerList = [],
+                                        ElectronTriggerList = ElectronTriggerList,
+                                        PhotonTriggerList = PhotonTriggerList,
                                         HypoTools = hypos,
                                         )
 

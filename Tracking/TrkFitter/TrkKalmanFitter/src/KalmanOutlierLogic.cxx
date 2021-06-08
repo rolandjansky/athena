@@ -145,7 +145,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
   int  numberOfSensorOutliers = 0;
   double chi2GainFromSensorOutliers = -1.0;
   int  firstStateWithOutlier = 1000;
-  Trk::FitQuality ffFQ = m_utility->forwardFilterQuality(T);
+  Trk::FitQuality ffFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(T);
   double ffProb = 0.0;
   if (ffFQ.numberDoF()>0 && ffFQ.chiSquared() > 0.0)
     ffProb = 1.0-Genfun::CumulativeChiSquare(ffFQ.numberDoF())(ffFQ.chiSquared());
@@ -205,13 +205,13 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
     
     // look for really bad forward fits - may hamper things like TRT extension, combined reco.
     if (10.0*ffProb < m_Trajectory_Chi2ProbCut &&
-        (m_utility->numberOfOutliers(T)<4) && fitIteration==1) {
+        (Trk::ProtoTrajectoryUtility::numberOfOutliers(T)<4) && fitIteration==1) {
       if (!isBadBackward) {
           ATH_MSG_DEBUG ("-O- No outlier found yet, but detected problematic forward " <<
                          "fit with AFB "<<chi2_AFB<< " trying if this comes from chi2 on last hits");
         int nLastCandidates = 0;
         Trk::Trajectory::reverse_iterator outlierCandidate
-          = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(T)));
+          = Trk::Trajectory::reverse_iterator(++(Trk::ProtoTrajectoryUtility::lastFittableState(T)));
         for( ; outlierCandidate!=T.rend(); ++outlierCandidate) {
           if (!outlierCandidate->measurement()) continue;
           ++ nLastCandidates;
@@ -231,7 +231,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
         ATH_MSG_VERBOSE ("-O- No outlier found yet, but detected problematic forward fit "<<
                          "with AFB "<<chi2_AFB<< " trying if this comes from beginning of fit");
         int nFirstCandidates = 0;
-        Trk::Trajectory::iterator outlierCandidate = m_utility->firstFittableState(T);
+        Trk::Trajectory::iterator outlierCandidate = Trk::ProtoTrajectoryUtility::firstFittableState(T);
         for( ; outlierCandidate!=T.end(); ++outlierCandidate) {
           if (!outlierCandidate->measurement()) continue;
           ++ nFirstCandidates;
@@ -255,14 +255,14 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
 
     if ( !isBadForward && isBadBackward
          && (chi2_AFB < -0.5)
-         && fitIteration == 1 && (m_utility->numberOfOutliers(T)<4) ) {
+         && fitIteration == 1 && (Trk::ProtoTrajectoryUtility::numberOfOutliers(T)<4) ) {
       ATH_MSG_DEBUG ("-O- No outlier found yet, but detected problematic backward fit "<<
                      "with AFB "<<chi2_AFB<<" trying if this comes from problem in last hits");
       int nLastCandidates = 0;
       double candidateChi2     = 0.0;
       Trk::ProtoTrackStateOnSurface* suspiciousState = nullptr;
       Trk::Trajectory::reverse_iterator rit
-        = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(T)));
+        = Trk::Trajectory::reverse_iterator(++(Trk::ProtoTrajectoryUtility::lastFittableState(T)));
       for( ; rit!=T.rend(); ++rit) {
         if (!rit->measurement()) continue;
         ++ nLastCandidates;
@@ -318,7 +318,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
         if ( ( 100.0*prob < m_Trajectory_Chi2ProbCut ||
                10000.0*ffProb < m_Trajectory_Chi2ProbCut ||
                projectedProb < m_Trajectory_Chi2ProbCut ) &&
-             (m_utility->numberOfMeasurements(T)>10 || fitIteration > 1)   ) {
+             (Trk::ProtoTrajectoryUtility::numberOfMeasurements(T)>10 || fitIteration > 1)   ) {
           ATH_MSG_VERBOSE ("-O- chosen also #" << secondWorstState->positionOnTrajectory() <<
                            " at rT=" << secondWorstState->measurement()->globalPosition().perp()<<
                            " z=" << secondWorstState->measurement()->globalPosition().z()<<
@@ -330,7 +330,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
                                            firstStateWithOutlier);
         }
       } else {
-        if (m_utility->numberOfSpecificStates(T,Trk::TrackState::TRT,Trk::TrackState::Fittable)>4) {
+        if (Trk::ProtoTrajectoryUtility::numberOfSpecificStates(T,Trk::TrackState::TRT,Trk::TrackState::Fittable)>4) {
           auto itsTRT = [](const Trk::Trajectory::iterator & pTrajectory){
             return (pTrajectory->measurementType()==Trk::TrackState::TRT);
           };

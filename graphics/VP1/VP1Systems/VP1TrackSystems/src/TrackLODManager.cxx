@@ -22,12 +22,12 @@
 //____________________________________________________________________
 class TrackLODManager::Imp {
 public:
-  Imp() : attachnode(0),
-	  attachnode_lod(0),
-	  attachsep_simple(0),
-	  attachsep_detailed(0),
-	  attachHelper_simple(0),
-	  attachHelper_detailed(0),
+  Imp() : attachnode(nullptr),
+	  attachnode_lod(nullptr),
+	  attachsep_simple(nullptr),
+	  attachsep_detailed(nullptr),
+	  attachHelper_simple(nullptr),
+	  attachHelper_detailed(nullptr),
 	  detailLevel(TrackCommonFlags::AUTO) {}
   SoGroup * attachnode;
   SoGroup * attachnode_lod;
@@ -167,25 +167,25 @@ void TrackLODManager::eraseEventData()
 
   if (m_d->attachnode_lod) {
     m_d->attachnode_lod->unref();
-    m_d->attachnode_lod = 0;
+    m_d->attachnode_lod = nullptr;
   }
 
   if (m_d->attachsep_simple) {
     delete m_d->attachHelper_simple;
-    m_d->attachHelper_simple = 0;
+    m_d->attachHelper_simple = nullptr;
     m_d->attachsep_simple->unref();
-    m_d->attachsep_simple = 0;
+    m_d->attachsep_simple = nullptr;
   }
 
   if (m_d->attachsep_detailed) {
     delete m_d->attachHelper_detailed;
-    m_d->attachHelper_detailed = 0;
+    m_d->attachHelper_detailed = nullptr;
     m_d->attachsep_detailed->unref();
-    m_d->attachsep_detailed = 0;
+    m_d->attachsep_detailed = nullptr;
   }
 
   m_d->attachnode->unref();
-  m_d->attachnode = 0;
+  m_d->attachnode = nullptr;
   messageVerbose("eraseEventData end");
 
 }
@@ -198,7 +198,7 @@ TrackLODHandle * TrackLODManager::getLODHandle(int regionindex, const double& cr
     return it->second;
   if (!m_d->attachnode) {
     message("getTrackLODHandle ERROR: Called before attachment node was set!");
-    return 0;
+    return nullptr;
   }
   TrackLODHandle * lh = new TrackLODHandle(m_d->attachnode_lod,m_d->attachHelper_simple,m_d->attachHelper_detailed,regionindex,crossover_value);
   m_d->id_2_lodhandle[std::make_pair(regionindex,crossover_value)] = lh;
@@ -223,9 +223,9 @@ public:
       attachHelper_detailed(shd),
       regIdx(i),
       crossVal(c),
-      lod(0),
-      sep_detailed(0),
-      sep_simple(0) {}
+      lod(nullptr),
+      sep_detailed(nullptr),
+      sep_simple(nullptr) {}
   SoGroup* attachGroup_LOD;
   VP1ExtraSepLayerHelper * attachHelper_simple;
   VP1ExtraSepLayerHelper * attachHelper_detailed;

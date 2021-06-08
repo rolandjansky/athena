@@ -2,11 +2,12 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-LArBadChannelCondAlg, LArBadFebCondAlg, LArBadChannelMasker=CompFactory.getComps("LArBadChannelCondAlg","LArBadFebCondAlg","LArBadChannelMasker",)
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 
 def LArBadChannelCfg(configFlags, tag=None):
+
+    
 
     result=LArOnOffIdMappingCfg(configFlags)
     rekey="/LAR/BadChannels/BadChannels"
@@ -21,7 +22,7 @@ def LArBadChannelCfg(configFlags, tag=None):
         result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/BadChannels",
                                         f"/LAR/BadChannelsOfl/BadChannels<key>{rekey}</key>",tag=tag,
                                         className="CondAttrListCollection"))  
-    theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=rekey)
+    theLArBadChannelCondAlgo=CompFactory.LArBadChannelCondAlg(ReadKey=rekey)
     result.addCondAlgo(theLArBadChannelCondAlgo)
     return result
 
@@ -40,17 +41,9 @@ def LArBadFebCfg(configFlags, tag=None):
         result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/MissingFEBs",
                                            f"/LAR/BadChannelsOfl/MissingFEBs<key>{rekey}</key>",tag=tag,
                                            className="AthenaAttributeList"))  
-    result.addCondAlgo(LArBadFebCondAlg(ReadKey=rekey))
+    result.addCondAlgo(CompFactory.LArBadFebCondAlg(ReadKey=rekey))
     return result
 
-
-def LArBadChannelMaskerCfg(configFlags,problemsToMask,doMasking=True,ToolName="LArBadChannelMasker"):
-    result=LArBadChannelCfg(configFlags)
-     
-    bcMasker=LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask, DoMasking=doMasking)
-    result.setPrivateTools(bcMasker)
-    return result
-                    
 
 
 if __name__=="__main__":
@@ -70,9 +63,6 @@ if __name__=="__main__":
     
     cfg.merge(LArBadChannelCfg(ConfigFlags))
     cfg.merge(LArBadFebCfg(ConfigFlags))
-    acc=LArBadChannelMaskerCfg(ConfigFlags,["allDead",])
-    masker=acc.popPrivateTools()
-    cfg.merge(acc)
     f=open("LArBCCondAlgos.pkl","wb")
     cfg.store(f)
     f.close()

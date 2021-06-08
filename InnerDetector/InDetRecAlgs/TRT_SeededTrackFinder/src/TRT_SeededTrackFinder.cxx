@@ -669,7 +669,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 	///Construct the new track
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-        std::unique_ptr<Trk::Track> newTrack(std::make_unique<Trk::Track>(info, ntsos.release(), fq));
+        std::unique_ptr<Trk::Track> newTrack(std::make_unique<Trk::Track>(info, std::move(ntsos), fq));
 
 	//Careful refitting at the end
 	if (m_doRefit) {
@@ -745,7 +745,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const 
 
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, ntsos.release(), nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, std::move(ntsos), nullptr);
 
 	// Careful refitting of the TRT stand alone track
 	if (m_doRefit) {
@@ -802,7 +802,7 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
 
   Trk::TrackInfo info;
   info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-  std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, ntsos.release(), fq) );
+  std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, std::move(ntsos), fq) );
 
   //Careful refitting at the end
   if (m_doRefit) {
@@ -852,11 +852,11 @@ void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC) const
     const DataVector<const Trk::TrackStateOnSurface>* newtsos = (*r)->trackStateOnSurfaces();
     if(!newtsos) continue;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator itp, itpe=newtsos->end();
-    for(itp=newtsos->begin(); itp!=itpe; itp++){
+    for(itp=newtsos->begin(); itp!=itpe; ++itp){
       ///Concentrate on the Si component of the track
       const InDet::SiClusterOnTrack* clus = dynamic_cast<const InDet::SiClusterOnTrack*>((*itp)->measurementOnTrack());
       if(clus && ((*itp)->type(Trk::TrackStateOnSurface::Measurement))){  //Count the number of hits used in the track
-	double rc = clus->globalPosition().perp();
+        double rc = clus->globalPosition().perp();
         if((40.<=rc)&&(rc<80.)){npix1++;}    //1st pixel layer
         if((80.<=rc)&&(rc<100.)){npix2++;}   //2nd pixel layer
         if((100.<=rc)&&(rc<150.)){npix3++;}  //3rd pixel layer
@@ -875,7 +875,6 @@ void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC) const
     }
     nsctTot1+=nsct1; nsctTot2+=nsct2; nsctTot3+=nsct3; nsctTot4+=nsct4;
     npixTot1+=npix1; npixTot2+=npix2; npixTot3+=npix3;
-    //cout << "HITS IN TRACK " << nhits << " OUTLIERS " << noutl << " HOLES " << nholes << endl;
   }
   msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endmsg;
   msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endmsg;

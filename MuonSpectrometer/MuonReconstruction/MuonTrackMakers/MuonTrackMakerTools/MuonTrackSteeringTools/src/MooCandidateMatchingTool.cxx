@@ -389,7 +389,7 @@ namespace Muon {
         if (info.reason == TrackSegmentMatchResult::NoMomentumWithMagField) {
             // for tracks that have no momentum, but need a curved match
             // fall-back to segment matching with the closest segment
-            MuPatSegment* closestSegment = 0;
+            MuPatSegment* closestSegment = nullptr;
             double closestSegmentDist = 1E9;
             std::vector<MuPatSegment*>::const_iterator itS = info.MCTBTrack->segments().begin(), itS_end = info.MCTBTrack->segments().end();
             for (; itS != itS_end; ++itS) {
@@ -701,9 +701,9 @@ namespace Muon {
         bool hasStereoAngle = false;
 
         // find closest track parameters
-        const Trk::TrackParameters* closestPars = 0;
+        const Trk::TrackParameters* closestPars = nullptr;
         double closestParsDist = 1E9;
-        const Trk::TrackParameters* closestMeasPars = 0;
+        const Trk::TrackParameters* closestMeasPars = nullptr;
         double closestMeasParsDist = 1E9;
         // const Trk::TrackStateOnSurface* closestTSOS = 0;
         Identifier closestId;
@@ -795,8 +795,8 @@ namespace Muon {
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::DEBUG) << MSG::VERBOSE << "match Closest chamber: " << m_idHelperSvc->toStringChamber(info.trackChamberId)
                             << " Segment: " << m_idHelperSvc->toStringChamber(info.segmentChamberId);
-            const Trk::TrackParameters* tmpPars = 0;
-            if (closestMeasPars) tmpPars = closestMeasPars->covariance() ? closestMeasPars : 0;
+            const Trk::TrackParameters* tmpPars = nullptr;
+            if (closestMeasPars) tmpPars = closestMeasPars->covariance() ? closestMeasPars : nullptr;
             if (tmpPars) {
                 msg(MSG::DEBUG) << std::endl
                                 << "Closest measured track parameters: " << m_printer->print(*tmpPars) << std::endl

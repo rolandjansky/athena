@@ -38,25 +38,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     larDigitMonAlg.LArDigitsSubDetNames=lArDQGlobals.SubDet
     larDigitMonAlg.LArDigitsPartitionNames=lArDQGlobals.Partitions
     larDigitMonAlg.LArDigitsNslots=nslots
-
-    # adding BadChan masker private tool
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg() :
-        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-        cfg=ComponentAccumulator()
-
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-        larDigitMonAlg.LArBadChannelMask=acc.popPrivateTools()
-        cfg.merge(acc)
-    else :
-
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-        theLArBadChannelsMasker.DoMasking=True
-        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
-        larDigitMonAlg.LArBadChannelMask=theLArBadChannelsMasker
-
+    larDigitMonAlg.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
 
     summaryGroup = helper.addGroup(
         larDigitMonAlg,
@@ -211,8 +193,10 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max)
     
 
-
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     if isRun3Cfg():
+        cfg=ComponentAccumulator()
         cfg.merge(helper.result())
         return cfg
     else:    

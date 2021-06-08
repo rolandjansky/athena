@@ -516,6 +516,14 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_effcounts+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberBAGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+                                             
+
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
         mdtPerChamberBAGroup.defineHistogram("mezz_perch_"+ch+";"+title_mdtmezz,  type='TH1F',
@@ -588,6 +596,12 @@ def MdtMonitoringConfig(inputFlags):
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
                                              title=title_effcounts+";tubeID;Number of Entries",
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberBCGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
@@ -667,6 +681,12 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_effcounts+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberEAGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
         mdtPerChamberEAGroup.defineHistogram("mezz_perch_"+ch+";"+title_mdtmezz,  type='TH1F',
@@ -743,6 +763,14 @@ def MdtMonitoringConfig(inputFlags):
                                              cutmask='hitcut',
                                              title=title_effcounts+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+        
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberECGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
         mdtPerChamberECGroup.defineHistogram("mezz_perch_"+ch+";"+title_mdtmezz,  type='TH1F',
@@ -783,7 +811,7 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    
+    #ConfigFlags.Input.Files =['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.ESD.e6337_e5984_s3170_r12399_r12253_r12399/ESD.24234434._000058.pool.root.1']
     #ConfigFlags.Input.isMC = True
     #ConfigFlags.Common.isOnline = True
     ConfigFlags.Output.HISTFileName = 'MdtMonitorOutput.root'
@@ -835,5 +863,5 @@ if __name__=='__main__':
 
     #cfg.printConfig(withDetails=True, summariseProps = True)
     
-    cfg.run(1000)
+    cfg.run(-1)
 

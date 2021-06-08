@@ -71,39 +71,56 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
     } // Offline photon
   
 
-    // Good pair to be measure
-    auto acceptData = setAccept( pairObj.second, info );
-  
     pair_vec.push_back(pairObj);
+    auto acceptData = setAccept( pairObj.second, info );
     accept_vec.push_back(acceptData);
-
     if( pairObj.first->auxdecor<bool>("Isolated") ){
-      pair_iso_vec.push_back(pairObj);
-      accept_iso_vec.push_back(acceptData);
+        pair_iso_vec.push_back(pairObj);
+        accept_iso_vec.push_back(acceptData);
     }
-  }
 
+
+  }
   
   if (info.trigL1){
     fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec);
   }else{
     fillEfficiency( "L1Calo"  , "L1Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "L2Calo"  , "L2Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "L2"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "EFCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
+    fillEfficiency( "FastCalo"  , "L2Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
+    fillEfficiency( "PrecisionCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec , accept_vec);
 
+    if( info.trigType == "electron" ){
+        fillEfficiency( "FastElectron"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
+        fillEfficiency( "PrecisionElectron"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec); 
+    }
+    else if( info.trigType == "photon" ){
+        fillEfficiency( "FastPhoton"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
+        fillEfficiency( "PrecisionPhoton"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
+    }
     if( m_detailedHists ){
-      
-      for( const auto& pid : m_isemname ){
-        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-      }
 
-      for( const auto& pid : m_lhname ){
-        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-      }
+        if( info.trigType == "electron" ){
+            for( const auto& pid : m_isemname ){
+                fillEfficiency( "PrecisionElectron" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
+                fillEfficiency( "PrecisionElectron" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+            for( const auto& pid : m_lhname ){
+                fillEfficiency( "PrecisionElectron" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
+                fillEfficiency( "PrecisionElectron" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+        }
+        else if( info.trigType == "photon" ){
+            for( const auto& pid : m_isemname ){
+                fillEfficiency( "PrecisionPhoton" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
+                fillEfficiency( "PrecisionPhoton" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+
+            for( const auto& pid : m_lhname ){
+                fillEfficiency( "PrecisionPhoton" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
+                fillEfficiency( "PrecisionPhoton" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+            }
+        }
+
     } 
 
   }
@@ -300,47 +317,22 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
         
         if( info.trigType == "electron" ){
             // HLT Electron
-            if(info.isGSF){
-                std::vector<const xAOD::Electron*> el_vec;
-                std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("ElectronGSF") );      
-                for( auto &featLinkInfo : vec ){
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    // If not pass, continue
-                    el_vec.push_back(feat);
-                    eg_vec.push_back(feat);
-                }
-                fillShowerShapes( trigger, eg_vec, true );
-                fillTracking( trigger, el_vec, true );
-            }else if(info.isLRT){
-                std::vector<const xAOD::Electron*> el_vec;
-                std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("ElectronLRT") );      
-                for( auto &featLinkInfo : vec ){
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    // If not pass, continue
-                    el_vec.push_back(feat);
-                    eg_vec.push_back(feat);
-                }
-                
-                fillShowerShapes( trigger, eg_vec, true );
-                fillTracking( trigger, el_vec, true );
-            }else{
-                std::vector<const xAOD::Electron*> el_vec;
-                std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition ,match()->key("Electron") );      
-                for( auto &featLinkInfo : vec ){
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    // If not pass, continue
-                    el_vec.push_back(feat);
-                    eg_vec.push_back(feat);
-                }
-                fillShowerShapes( trigger, eg_vec, true );
-                fillTracking( trigger, el_vec, true );
+            std::string key = match()->key("Electrons");
+            if(info.isGSF) key = match()->key("Electrons_GSF");
+            if(info.isLRT) key = match()->key("Electrons_LRT");
+            
+            std::vector<const xAOD::Electron*> el_vec;
+            std::vector<const xAOD::Egamma*> eg_vec;
+            auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition,key);      
+            for( auto &featLinkInfo : vec ){
+                const auto *feat = *(featLinkInfo.link);
+                if(!feat) continue;
+                // If not pass, continue
+                el_vec.push_back(feat);
+                eg_vec.push_back(feat);
             }
+            fillShowerShapes( trigger, eg_vec, true );
+            fillTracking( trigger, el_vec, true );
         }else{
           ATH_MSG_WARNING( "Chain type not Electron for TP trigger" );
         }
@@ -366,7 +358,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
         // L2Calo
         {
           std::vector<const xAOD::TrigEMCluster*> emCluster_vec;
-          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,condition ,match()->key("L2Calo") );      
+          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,condition ,match()->key("FastCalo") );      
           for(auto &featLinkInfo : vec ){                                             
             if(! featLinkInfo.isValid() ) continue;
             const auto *feat = *(featLinkInfo.link);                   
@@ -379,8 +371,11 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
 
         // EFCalo
         {
+          std::string key = match()->key("PrecisionCalo");
+          if(info.isLRT) key = match()->key("PrecisionCalo_LRT");
+          
           std::vector<const xAOD::CaloCluster* > clus_vec;
-          auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::Physics ,match()->key("EFCalo") );      
+          auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::Physics,key);      
           for(auto &featLinkInfo : vec ){                                             
             if(! featLinkInfo.isValid() ) continue;
             const auto *feat = *(featLinkInfo.link);                   
@@ -395,9 +390,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
             
             // L2 Electron
             {
+                std::string key = match()->key("FastElectrons");
+                if(info.isLRT) key = match()->key("FastElectrons_LRT");
+                
                 std::vector<const xAOD::TrigElectron*> el_vec;
                 // Get only passed objects
-                auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::Physics ,match()->key("L2Electron") );      
+                auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::Physics,key );      
                 for( auto &featLinkInfo : vec ){
                     if(! featLinkInfo.isValid() ) continue;
                     const auto *feat = *(featLinkInfo.link);
@@ -406,40 +404,16 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                 }
                 fillL2Electron( trigger, el_vec );
             }
+
             // HLT Electron
-            if (info.isGSF){
+            {
+                std::string key = match()->key("Electrons");
+                if(info.isGSF) key = match()->key("Electrons_GSF");
+                if(info.isLRT) key = match()->key("Electrons_LRT");
+               
                 std::vector<const xAOD::Electron*> el_vec;
                 std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("ElectronGSF") );      
-                for( auto &featLinkInfo : vec ){
-                    if(! featLinkInfo.isValid() ) continue;
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    el_vec.push_back(feat);
-                    eg_vec.push_back(feat);
-                }
-                fillShowerShapes( trigger, eg_vec, true );
-                fillTracking( trigger, el_vec, true );
-            }else if(info.isLRT){
-                
-                std::vector<const xAOD::Electron*> el_vec;
-                std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("ElectronLRT") );      
-                for( auto &featLinkInfo : vec ){
-                    if(! featLinkInfo.isValid() ) continue;
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    el_vec.push_back(feat);
-                    eg_vec.push_back(feat);
-                    
-                }
-                fillShowerShapes( trigger, eg_vec, true );
-                fillTracking( trigger, el_vec, true );
-    
-            }else{
-                std::vector<const xAOD::Electron*> el_vec;
-                std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("Electron") );      
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,key );      
                 for( auto &featLinkInfo : vec ){
                     if(! featLinkInfo.isValid() ) continue;
                     const auto *feat = *(featLinkInfo.link);
@@ -451,12 +425,11 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                 fillTracking( trigger, el_vec, true );
             }
 
-
         }else if ( info.trigType == "photon"){
             // HLT Photon
             {
                 std::vector<const xAOD::Egamma*> ph_vec;
-                auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photon") );      
+                auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photons") );      
                 for( auto &featLinkInfo : vec ){
                     if(! featLinkInfo.isValid() ) continue;
                     const auto *feat = *(featLinkInfo.link);
@@ -970,7 +943,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
       { // Get the closest electron object from the trigger starting with deltaR = 0.15
         float maxDeltaR=0.05;
-        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,match()->key("Electron") );      
+        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,match()->key("Electrons") );      
         for(auto &featLinkInfo : vec ){                                             
           if(! featLinkInfo.isValid() ) continue;
           const auto *feat = *(featLinkInfo.link);                   
@@ -1339,7 +1312,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
 
       { // Get the closest electron object from the trigger starting with deltaR = 0.15
         float maxDeltaR=0.05;
-        auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photon") );      
+        auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photons") );      
         for(auto &featLinkInfo : vec ){                                             
           if(! featLinkInfo.isValid() ) continue;
           const auto *feat = *(featLinkInfo.link);                   
@@ -1605,7 +1578,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string 
 
         { // Get the closest electron object from the trigger starting with deltaR = 0.15
           float maxDeltaR=0.05;
-          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,TrigDefs::Physics ,match()->key("L2Calo") );      
+          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,TrigDefs::Physics ,match()->key("FastCalo") );      
           for(auto &featLinkInfo : vec ){                                             
             if(! featLinkInfo.isValid() ) continue;
             const auto *feat = *(featLinkInfo.link);                   

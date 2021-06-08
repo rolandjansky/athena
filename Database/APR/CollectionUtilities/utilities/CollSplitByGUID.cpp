@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,6 +11,7 @@
  */
 
 #include "CollectionUtilities/CollSplitByGUIDBase.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -20,6 +21,7 @@ using namespace pool;
 
 #define corENDL coral::MessageStream::endmsg
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 int main(int argc, const char *argv[])
 {

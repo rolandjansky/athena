@@ -96,11 +96,15 @@ def _diElectronMassComboHypoToolFromDict(chainDict, mass_range):
     tool.MonTool = monTool
     return tool
 
+
 def diElectronZeeMassComboHypoToolFromDict(chainDict):
     return _diElectronMassComboHypoToolFromDict(chainDict, (50000, 130000))
 
 def diElectronJpsieeMassComboHypoToolFromDict(chainDict):
     return _diElectronMassComboHypoToolFromDict(chainDict, (1000, 5000))
+
+def diEgammaHegMassComboHypoToolFromDict(chainDict):
+    return _diElectronMassComboHypoToolFromDict(chainDict, (90000, 1400000))
 
 def electronFastCaloCfg_fwd( flags, is_probe_leg=False ):
     return fastCaloMenuSequence_FWD("Electron", is_probe_leg=is_probe_leg)
@@ -135,8 +139,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'mediumidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'tightidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
+                'idperfetcut'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'loose'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'medium'    : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
+                'mergedtight' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhvloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
@@ -155,8 +161,9 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightivarloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhtightivarmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhtightivartight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
+                'lhtightivarloosenoringer'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 
-                # gsf sequences. For now just settin gup as normal non-gsf chains
+                # gsf sequences. For now just setting up as normal non-gsf chains
                 'lhloosegsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhvloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
                 'lhmediumgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
@@ -284,6 +291,9 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         elif "Jpsiee" in self.chainName:
             stepName = "precision_topoelectron_Jpsiee"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
+        elif "Heg" in self.chainName:
+            stepName = "precision_electron_Heg"+str(isocut)
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diEgammaHegMassComboHypoToolFromDict])
         elif "bBeeM6000" in self.chainName:
             stepName = "precision_electron_bBee"+isocut
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])

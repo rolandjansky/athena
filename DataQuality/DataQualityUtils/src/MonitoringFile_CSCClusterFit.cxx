@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Methods to perform post-processing on run_nnnnnn/Muon/MuonRawDataMonitoring/CSC/CSCE[AC]/Overview/lfitmean histograms
@@ -44,7 +44,7 @@ namespace dqutils {
     endc_label.push_back("C");
     
     std::vector<std::string> coll_dir_label;
-    coll_dir_label.push_back("MuonSegments");
+    coll_dir_label.push_back("TrackMuonSegments");
 
     std::vector<std::string> coll_hist_label;
     coll_hist_label.push_back("Muon");

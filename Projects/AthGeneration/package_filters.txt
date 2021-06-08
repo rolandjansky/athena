@@ -152,6 +152,8 @@
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
 + External/Pythia8
+- Generators/GenzModuleEvent
+- Generators/ProtosLHEF_i
 - Generators/TrackRecordGenerator
 + Generators/.*
 + InnerDetector/InDetExample/InDetRecExample

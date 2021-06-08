@@ -64,15 +64,15 @@ def InTimeOnlyMcEventCollCfg(flags, name="InTimeOnlyMcEventCollTool", **kwargs):
 
 
 # The earliest bunch crossing time for which interactions will be sent
-# to the Truth jet merging code.
+# to the Truth jet merging code. See discussions in ATLASSIM-3837.
 def TruthJet_FirstXing():
-    return -500
+    return -125
 
 
 # The latest bunch crossing time for which interactions will be sent
-# to the Truth jet merging code.
+# to the Truth jet merging code. See discussions in ATLASSIM-3837.
 def TruthJet_LastXing():
-    return 100
+    return 75
 
 
 def TruthJetRangeCfg(flags, name="TruthJetRange", **kwargs):
@@ -80,12 +80,13 @@ def TruthJetRangeCfg(flags, name="TruthJetRange", **kwargs):
     #this is the time of the xing in ns
     kwargs.setdefault("FirstXing", TruthJet_FirstXing())
     kwargs.setdefault("LastXing",  TruthJet_LastXing())
-    kwargs.setdefault("ItemList", ["JetCollection#InTimeAntiKt4TruthJets",
-                                   "JetCollection#OutOfTimeAntiKt4TruthJets"])
+    itemList = ["xAOD::JetContainer#AntiKt4TruthJets",
+                "xAOD::JetContainer#AntiKt6TruthJets"]
+    kwargs.setdefault("ItemList", itemList)
     return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
-def MergeTruthJetsCfg(flags, name="MergeTruthJetsTool", **kwargs):
+def MergeAntiKt4TruthJetsCfg(flags, name="MergeAntiKt4TruthJetsTool", **kwargs):
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(TruthJetRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
@@ -99,10 +100,24 @@ def MergeTruthJetsCfg(flags, name="MergeTruthJetsTool", **kwargs):
     return acc
 
 
+def MergeAntiKt6TruthJetsCfg(flags, name="MergeAntiKt6TruthJetsTool", **kwargs):
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TruthJetRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
+        kwargs.setdefault("FirstXing", TruthJet_FirstXing())
+        kwargs.setdefault("LastXing",  TruthJet_LastXing())
+    kwargs.setdefault("InTimeOutputTruthJetCollKey", "InTimeAntiKt6TruthJets")
+    kwargs.setdefault("OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt6TruthJets")
+    tool = CompFactory.MergeTruthJetsTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
+    return acc
+
+
 def MergeTruthJetsFilterCfg(flags, name="MergeTruthJetsFilterTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("ActivateFilter", True)
-    acc.merge(MergeTruthJetsCfg(flags, name, **kwargs))
+    acc.merge(MergeAntiKt4TruthJetsCfg(flags, name, **kwargs))
     return acc
 
 

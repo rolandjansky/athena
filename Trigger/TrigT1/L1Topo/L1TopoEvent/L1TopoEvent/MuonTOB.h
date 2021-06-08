@@ -17,8 +17,11 @@ namespace TCS {
       // default constructor
       MuonTOB(uint32_t roiWord = 0, std::string tobName = "MuonTOB");
       
-      // constructor with individual values
+      // constructor with individual values (int phi, legacy)
       MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "MuonTOB");
+
+      // constructor with individual values (unsigned int phi, phase-1)
+      MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord = 0, std::string tobName = "MuonTOB");
 
       // constructor with initial values
       MuonTOB(const MuonTOB & muon);
@@ -27,6 +30,7 @@ namespace TCS {
       virtual ~MuonTOB();
 
       // accessors
+      // phi type needs to be changed to unsigned int once legacy is removed
       unsigned int nBitsEt() const { return m_nBitsEt; }
       unsigned int nBitsIsolation() const { return m_nBitsIsolation; }
       unsigned int nBitsEta() const { return m_nBitsEta; }
@@ -48,8 +52,9 @@ namespace TCS {
       double PhiDouble() const { return m_phiDouble; }         // Real muon phi
       
       // setters
+      // phi type needs to be changed to unsigned int once legacy is removed
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
-      void setIsolation(unsigned int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
+      void setIsolation(unsigned int iso) { m_isolation = sizeCheck(iso, nBitsIsolation()); }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
@@ -78,13 +83,14 @@ namespace TCS {
       virtual void print(std::ostream &o) const;
 
    private:
-      // phase-1: 9 bits for eta, 7 bits for phi (default)
-      // legacy: 6 bits for eta, 6 bits for phi
-      unsigned int m_nBitsEt{8};
+      // phase-1: 13 bits for Et, 9 bits for eta, 7 bits for phi (default)
+      // legacy: 8 bits for Et, 6 bits for eta, 6 bits for phi
+      unsigned int m_nBitsEt{13};
       unsigned int m_nBitsIsolation{5};
       unsigned int m_nBitsEta{9};
       unsigned int m_nBitsPhi{7};
 
+      // phi type needs to be changed to unsigned int once legacy is removed
       unsigned int m_Et{0};
       unsigned int m_isolation{0};
       int m_eta{0};

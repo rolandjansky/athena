@@ -89,15 +89,13 @@ StatusCode TrigZFinderAlg::execute(const EventContext& context) const
   zFinderContainer->setStore(zFinderContainerAux.get());
 
   for ( auto vertex: *vertices ) {
-    ATH_MSG_DEBUG("z of vertice: "<< vertex->z() );
-    ATH_MSG_INFO("mass of vertice: "<< vertex->mass() );
-    ATH_MSG_DEBUG("mass variance of vertice: "<< vertex->massVariance() );
+    ATH_MSG_DEBUG("z of vertex: "<< vertex->z() );
+    ATH_MSG_DEBUG("weight vertex: "<< vertex->cov()[5] );
 
     xAOD::TrigComposite *zFinder = new xAOD::TrigComposite();
     zFinderContainer->push_back(zFinder);
-    zFinder->setDetail("zfinder_vtx_z", vertex->z() );
-    zFinder->setDetail("zfinder_vtx_mass", vertex->mass() );
-    zFinder->setDetail("zfinder_vtx_massVariance", vertex->massVariance() );
+    zFinder->setDetail<float>("zfinder_vtx_z", vertex->z() );
+    zFinder->setDetail<float>("zfinder_vtx_weight", vertex->cov()[5] );
   }
 
   SG::WriteHandle<xAOD::TrigCompositeContainer> zFinderHandle(m_zFinderKey, context);

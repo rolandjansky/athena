@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ namespace InDet{
       //@{
       std::unique_ptr<Trk::TrackParameters> trackParameters(bool,int);
       std::unique_ptr<Trk::TrackParameters> trackParametersWithNewDirection(bool,int);
-      std::unique_ptr<Trk::TrackParameters> trackParameters(Trk::PatternTrackParameters&,bool);
+      static std::unique_ptr<Trk::TrackParameters> trackParameters(Trk::PatternTrackParameters&,bool);
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ namespace InDet{
       ///    CM ->globalPars[6]  dCM/   globalPars[13]   globalPars[20]   globalPars[27]   globalPars[34]   globalPars[41] 
       ///    + dA/dS (42-44) and step (45) 
       // /////////////////////////////////////////////////////////////////////////////////
-      void transformPlaneToGlobal(bool,
+      static void transformPlaneToGlobal(bool,
                                   Trk::PatternTrackParameters& localParameters,
                                   double* globalPars);
 
@@ -409,54 +409,54 @@ namespace InDet{
         Invalid = 3
       };
 
-      bool                                        m_stereo      ;
-      bool                                        m_utsos[3]    ;
-      bool                                        m_fieldMode   ;
+      bool                                        m_stereo{}      ;
+      bool                                        m_utsos[3]{}    ;
+      bool                                        m_fieldMode{}   ;
       bool                                        m_useassoTool = false ;
       /// status flag. Start as 0. 
       /// set to 1 if set up for forward 
       /// set to 2 if set up for backward 
       /// set to 3 by lastTrajectoryElement or  BackwardPropagationSmoother if m_cluster
-      int                                         m_status      ;  
-      int                                         m_detstatus   ; //!< 0 (no clusters) 
-      int                                         m_inside      ;
-      int                                         m_nMissing       ;
-      int                                         m_nlinksForward     ;
-      int                                         m_nlinksBackward     ;
-      int                                         m_nholesForward     ;
-      int                                         m_nholesBackward     ;
-      int                                         m_dholesForward     ;
-      int                                         m_dholesBackward     ;
-      int                                         m_nclustersForward  ;
-      int                                         m_nclustersBackward  ;
-      int                                         m_npixelsBackward    ;
-      int                                         m_noisemodel  ;
-      int                                         m_ndf         ;
-      int                                         m_ndfForward        ;
-      int                                         m_ndfBackward        ;
-      int                                         m_ntsos       ;
-      int                                         m_maxholes    ;
-      int                                         m_maxdholes   ;
-      double                                      m_dist        ;
-      double                                      m_xi2Forward        ;
-      double                                      m_xi2Backward        ;
-      double                                      m_xi2totalForward   ;
-      double                                      m_xi2totalBackward   ;
-      double                                      m_radlength   ;
-      double                                      m_radlengthN  ;
-      double                                      m_energylose  ;
-      double                                      m_halflength  ;
-      double                                      m_step        ;
-      double                                      m_xi2max      ;
-      double                                      m_xi2maxNoAdd ;
-      double                                      m_xi2maxlink  ;  
-      double                                      m_xi2multi    ;
-      double                                      m_localTransform[13]      ;     /// the transform for this element
-      double                                      m_localDir [ 3]      ;
+      int                                         m_status{}      ;  
+      int                                         m_detstatus{}   ; //!< 0 (no clusters) 
+      int                                         m_inside{}      ;
+      int                                         m_nMissing{}       ;
+      int                                         m_nlinksForward{}     ;
+      int                                         m_nlinksBackward{}     ;
+      int                                         m_nholesForward{}     ;
+      int                                         m_nholesBackward{}     ;
+      int                                         m_dholesForward{}     ;
+      int                                         m_dholesBackward{}     ;
+      int                                         m_nclustersForward{}  ;
+      int                                         m_nclustersBackward{}  ;
+      int                                         m_npixelsBackward{}    ;
+      int                                         m_noisemodel{}  ;
+      int                                         m_ndf{}         ;
+      int                                         m_ndfForward{}        ;
+      int                                         m_ndfBackward{}        ;
+      int                                         m_ntsos{}       ;
+      int                                         m_maxholes{}    ;
+      int                                         m_maxdholes{}   ;
+      double                                      m_dist{}        ;
+      double                                      m_xi2Forward{}        ;
+      double                                      m_xi2Backward{}        ;
+      double                                      m_xi2totalForward{}   ;
+      double                                      m_xi2totalBackward{}   ;
+      double                                      m_radlength{}   ;
+      double                                      m_radlengthN{}  ;
+      double                                      m_energylose{}  ;
+      double                                      m_halflength{}  ;
+      double                                      m_step{}        ;
+      double                                      m_xi2max{}      ;
+      double                                      m_xi2maxNoAdd{} ;
+      double                                      m_xi2maxlink{}  ;  
+      double                                      m_xi2multi{}    ;
+      double                                      m_localTransform[13]{}      ;     /// the transform for this element
+      double                                      m_localDir [ 3]{}      ;
 
-      const InDetDD::SiDetectorElement*           m_detelement  ;
-      const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
-      const Trk::Surface*                         m_surface     ;
+      const InDetDD::SiDetectorElement*           m_detelement{}  ;
+      const InDet::SiDetElementBoundaryLink_xk*   m_detlink{}     ;
+      const Trk::Surface*                         m_surface{}     ;
       /**
        * @name Data members using std::any
        * std::any is used to cover 
@@ -469,9 +469,9 @@ namespace InDet{
       std::any                                    m_sibegin     ;
       std::any                                    m_siend       ;
       //@}
-      const InDet::SiCluster*                     m_cluster     ;
-      const InDet::SiCluster*                     m_clusterOld  ;
-      const InDet::SiCluster*                     m_clusterNoAdd;
+      const InDet::SiCluster*                     m_cluster{}     ;
+      const InDet::SiCluster*                     m_clusterOld{}  ;
+      const InDet::SiCluster*                     m_clusterNoAdd{};
 
       /// Pattern track parameters 
 
@@ -489,14 +489,14 @@ namespace InDet{
       InDet::SiClusterLink_xk                     m_linkForward[10]   ; 
       InDet::SiClusterLink_xk                     m_linkBackward[10]   ; 
       Trk::NoiseOnSurface                         m_noise       ; 
-      const InDet::SiTools_xk*                    m_tools       ; 
+      const InDet::SiTools_xk*                    m_tools{}       ; 
       MagField::AtlasFieldCache                   m_fieldCache;
-      const Trk::IPatternParametersUpdator*       m_updatorTool ;
-      const Trk::IPatternParametersPropagator*    m_proptool    ;
-      const Trk::IRIO_OnTrackCreator*             m_riotool     ;
-      const Trk::PRDtoTrackMap                   *m_prdToTrackMap;      
+      const Trk::IPatternParametersUpdator*       m_updatorTool{} ;
+      const Trk::IPatternParametersPropagator*    m_proptool{}    ;
+      const Trk::IRIO_OnTrackCreator*             m_riotool{}     ;
+      const Trk::PRDtoTrackMap                   *m_prdToTrackMap{};      
 
-      Trk::TrackStateOnSurface*                   m_tsos[3]     ;
+      Trk::TrackStateOnSurface*                   m_tsos[3]{}     ;
       Amg::MatrixX                                m_covariance  ;
 
       IteratorType m_itType{Invalid};

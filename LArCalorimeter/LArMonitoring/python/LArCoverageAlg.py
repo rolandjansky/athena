@@ -36,21 +36,7 @@ def LArCoverageConfig(inputFlags):
 def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     larCoverageAlg = helper.addAlgorithm(algoinstance,'LArCoverageAlg')
-
-    # adding BadChan masker private tool
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg():
-       from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg#,LArBadChannelCfg
-       acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-       larCoverageAlg.LArBadChannelMask=acc.popPrivateTools()
-       helper.resobj.merge(acc)
-    else:   
-       from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-       theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
-       theLArRCBMasker.DoMasking=True
-       theLArRCBMasker.ProblemsToMask=["deadReadout","deadPhys","highNoiseHG","highNoiseMG","highNoiseLG"]
-       larCoverageAlg.LArBadChannelMask=theLArRCBMasker
-
+    larCoverageAlg.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 

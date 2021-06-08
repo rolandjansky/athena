@@ -18,7 +18,7 @@ endif()
 
 # Component(s) in the package.
 atlas_add_library( JetRecToolsLib
-   JetRecTools/*.h Root/*.cxx
+   JetRecTools/*.h Root/*.cxx src/*.cxx
    PUBLIC_HEADERS JetRecTools
    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}

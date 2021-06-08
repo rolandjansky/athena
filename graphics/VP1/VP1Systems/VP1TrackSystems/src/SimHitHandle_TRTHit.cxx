@@ -30,7 +30,7 @@
 //____________________________________________________________________
 class SimHitHandle_TRTHit::Imp {
 public:
-  Imp(const TRTUncompressedHit*h) : thehit(h), detelem(0),strawID(0) {}
+  Imp(const TRTUncompressedHit*h) : thehit(h), detelem(nullptr),strawID(0) {}
   const TRTUncompressedHit* thehit;
   mutable const InDetDD::TRT_BaseElement * detelem;
   mutable size_t strawID;
@@ -167,12 +167,12 @@ int SimHitHandle_TRTHit::actualPDGCodeFromSimHit() const
 Trk::TrackParameters * SimHitHandle_TRTHit::createTrackParameters() const
 {
   if (!m_d->ensureDetElemInit())
-    return 0;
+    return nullptr;
   const Trk::StraightLineSurface * surf
     = dynamic_cast<const Trk::StraightLineSurface *>( &(m_d->detelem->strawSurface(m_d->strawID)));
   if (!surf) {
     VP1Msg::message("SimHitHandle_TRTHit::createTrackParameters ERROR: could not get Trk::StraightLineSurface");
-    return 0;
+    return nullptr;
   }
 
   double c;

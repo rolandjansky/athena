@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATESVC_H
@@ -654,11 +654,12 @@ public:
 
   /**
    * @brief Return the metadata source ID for the current event slot.
+   * @param key SG key of the DataHeader to query.
    *        Returns an empty string if no source has been set.
    *
    *        The default version always returns an empty string.
    */
-  virtual SG::SourceID sourceID() const override;
+  virtual SG::SourceID sourceID (const std::string& key = "EventSelector") const override;
 
 
   /////////////////////////////////////////////////////////////////////////

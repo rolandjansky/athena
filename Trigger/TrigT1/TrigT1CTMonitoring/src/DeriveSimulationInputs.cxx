@@ -673,8 +673,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
 
 
    //retrieve muctpi nim object if it is there
-   LVL1::NimCTP* MuctpiNim(nullptr);
    if ( evtStore()->contains< LVL1::NimCTP >( LVL1::DEFAULT_NimCTPLocation ) ) {
+      const LVL1::NimCTP* MuctpiNim = nullptr;
 
       ATH_CHECK( evtStore()->retrieve( MuctpiNim, LVL1::DEFAULT_NimCTPLocation ) );
 
@@ -709,17 +709,13 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       // if muctpi sim has not already put something into SG
       // construct the NIM object from scratch and write to SG
 
-      MuctpiNim = new LVL1::NimCTP();
+      auto MuctpiNim = std::make_unique<LVL1::NimCTP>();
       MuctpiNim->SetCableWord0(nimCables0);
       MuctpiNim->SetCableWord1(nimCables1);
       MuctpiNim->SetCableWord2(nimCables2);
 			
       //writing SG NIM information 
-      sc = evtStore()->record(MuctpiNim, LVL1::DEFAULT_NimCTPLocation); 
-      if ( sc.isFailure() ) {
-         ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_NimCTPLocation);
-         return sc;
-      }
+      ATH_CHECK( evtStore()->record(std::move(MuctpiNim), LVL1::DEFAULT_NimCTPLocation) );
    }
    return sc;
 }

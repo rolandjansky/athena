@@ -18,7 +18,7 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake REQUIRED )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "_ATLAS_1"
+set( LCG_VERSION_POSTFIX "_ATLAS_4"
    CACHE STRING "Version postfix for the LCG release to use" )
 set( LCG_VERSION_NUMBER 100
    CACHE STRING "Version number for the LCG release to use" )

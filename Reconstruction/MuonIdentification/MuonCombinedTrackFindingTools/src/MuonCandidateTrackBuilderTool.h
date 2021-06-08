@@ -80,7 +80,7 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */
-        virtual Trk::Track* buildCombinedTrack(const Trk::Track& idTrack, const MuonCandidate& candidate) const override;
+        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack, const MuonCandidate& candidate) const override;
 
     private:
         ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this, "MuonSegmentTrackBuilder",

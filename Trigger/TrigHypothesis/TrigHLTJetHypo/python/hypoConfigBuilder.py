@@ -39,10 +39,16 @@ logger.setLevel(DEBUG)
 
 # Dictionary to interpret / map scenario aliases into actual scenario strings that can be understood by scenario_XX.py
 aliasesDict = {
-  'HT'           : {},
-  'DIJET'        : {'DIJETaliasExample' : 'DIJET20j12etXX110djmass',},
-  'FBDJSHARED'   : {},
-  'FBDJNOSHARED' : {},
+  'DJMASS500j35'                 : 'DIJET35j12ptXX500djmass',
+  'DJMASS700j35'                 : 'DIJET35j12ptXX700djmass',
+  'DJMASS1000j35'                : 'DIJET35j12ptXX1000djmass',
+  'DJMASS700j40'                 : 'DIJET40j12ptXX700djmass',
+  'DJMASS700j50x0eta240'         : 'DIJET50j12ptXX0j12eta240XX700djmass',
+  'DJMASS700j80x0eta240'         : 'DIJET80j12ptXX0j12eta240XX700djmass',
+  'DJMASS900j50'                 : 'DIJET50j12ptXX900djmass',
+  'DJMASS1000j50'                : 'DIJET50j12ptXX1000djmass',
+  'DJMASS1000j50dphi240'         : 'DIJET50j12ptXX1000djmassXXdjdphi240',
+  'DJMASS1000j50dphi200x400deta' : 'DIJET50j12ptXX1000djmassXXdjdphi200XX400djdeta',
 }
 
 def make_root_repcondconfig():
@@ -179,6 +185,9 @@ def process_nonsimple(scenario, chainPartInd):
     Note:  a non-simple scenario will  produce more than HelperToolConfigTool
     if jet sharing among Conditions is required."""
     
+    # interpret scenario aliases
+    if scenario in aliasesDict.keys(): scenario = aliasesDict[scenario]
+
     router = {
         'HT': process_ht,
         'DIJET': process_dijet,
@@ -193,9 +202,6 @@ def process_nonsimple(scenario, chainPartInd):
     assert m is not None,'No scenario stub was found'
     groupdict = m.groupdict()
     assert groupdict['stub'] in router,'scenario stub ({}) not recognized'.format(groupdict['stub'])
-
-    # interpret scenario aliases
-    if scenario in aliasesDict[groupdict['stub']].keys(): scenario = aliasesDict[groupdict['stub']][scenario]
 
     return router[groupdict['stub']](scenario, chainPartInd)  # list of HelperToolConfigTool
 

@@ -20,6 +20,10 @@ atlas_add_test( MainServicesConfig
    SCRIPT python -m AthenaConfiguration.MainServicesConfig
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( testAccumulatorCache
+    SCRIPT python -m unittest AthenaConfiguration.testAccumulatorCache
+   POST_EXEC_SCRIPT nopost.sh )
+
 if( NOT XAOD_ANALYSIS )
    atlas_add_test( ComponentAccumulatorTest
       SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulatorTest

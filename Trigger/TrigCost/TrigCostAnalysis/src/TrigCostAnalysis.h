@@ -81,6 +81,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_29042021.txt",
       "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains. To be updated periodically." };
 
+    Gaudi::Property<std::vector<std::string>> m_additionalHashList { this, "AdditionalHashList", {},
+      "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains." };
+
     Gaudi::Property<size_t> m_TimeRangeLengthLB { this, "TimeRangeLengthLB", 50,
       "Length of each variable length Time Range in LB" };
 

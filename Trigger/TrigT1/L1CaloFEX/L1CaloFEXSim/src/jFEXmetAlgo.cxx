@@ -194,7 +194,7 @@ void LVL1::jFEXmetAlgo::buildMetXComponent()
     
     //computing the X and Y component of MET
     for(uint iphi=0;iphi<m_met.size();iphi++){
-        m_met_Xcoord[iphi]=m_met[iphi]*cos(m_met_angle[iphi])*pow(2,9); // the 2^9 is used in the firmware to sum with higher precision
+        m_met_Xcoord[iphi]=m_met[iphi]*cos(m_met_angle[iphi]/10.)/**pow(2,9)*/; // the 2^9 is used in the firmware to sum with higher precision
     }
     
     //Summing all X coordinate
@@ -208,7 +208,7 @@ void LVL1::jFEXmetAlgo::buildMetXComponent()
 int LVL1::jFEXmetAlgo::GetMetXComponent()
 {
     //Bit shifting to correct the 2^9 factor above
-    return m_Totalmet_Xcoord >> 9;
+    return m_Totalmet_Xcoord /*>> 9*/;
     
 }
 
@@ -221,7 +221,7 @@ void LVL1::jFEXmetAlgo::buildMetYComponent()
     
     //computing the X and Y component of MET
     for(uint iphi=0;iphi<m_met.size();iphi++){
-        m_met_Ycoord[iphi]=m_met[iphi]*sin(m_met_angle[iphi])*pow(2,9); // the 2^9 is used in the firmware to sum with higher precision
+        m_met_Ycoord[iphi]=m_met[iphi]*sin(m_met_angle[iphi]/10.)/**pow(2,9)*/; // the 2^9 is used in the firmware to sum with higher precision
     }
     
     //Summing all Y coordinate
@@ -235,7 +235,7 @@ void LVL1::jFEXmetAlgo::buildMetYComponent()
 int LVL1::jFEXmetAlgo::GetMetYComponent()
 {
     //Bit shifting to correct the 2^9 factor above
-    return m_Totalmet_Ycoord >> 9;
+    return m_Totalmet_Ycoord /*>> 9*/;
     
 }
          

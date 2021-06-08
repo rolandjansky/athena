@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ private:
     std::unique_ptr<Amg::MatrixX> fullCovarianceMatrix(const FitState& fitState) const;
 
     /**  access to the number of iterations taken by the latest track fit */
-    int				iterationsOfLastFit(const FitState& fitState) const;
+    static int				iterationsOfLastFit(const FitState& fitState) ;
 
 
     /**  set method for the minimum number of iterations for (alignment) friend */

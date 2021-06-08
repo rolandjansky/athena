@@ -39,24 +39,8 @@ def LArCosmicsMonConfigCore(helper, algoinstance,inputFlags):
     larCosmicsMonAlg.MuonADCthreshold_EM_endcap = 40
     larCosmicsMonAlg.MuonADCthreshold_HEC = 40
     larCosmicsMonAlg.MuonADCthreshold_FCAL = 40
-
-    # adding BadChan masker private tool
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior :
-        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-        cfg=ComponentAccumulator()
-
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-        larCosmicsMonAlg.LArBadChannelMask=acc.popPrivateTools()
-        cfg.merge(acc)
-    else :
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-        theLArBadChannelsMasker.DoMasking=True
-        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
-        larCosmicsMonAlg.LArBadChannelMask=theLArBadChannelsMasker
-        pass
+    larCosmicsMonAlg.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
+    
 
     #mon group 
     cosmicMonGroup = helper.addGroup(

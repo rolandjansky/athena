@@ -9,7 +9,6 @@
  */
 
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
 
 #include "TrkParameters/TrackParameters.h"
@@ -37,12 +36,8 @@ Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(
   const std::string& name,
   const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_useReferenceMaterial(false)
-  , m_momentumCut(250. * Gaudi::Units::MeV)
 {
   declareInterface<IMultiStateMaterialEffectsUpdator>(this);
-  declareProperty("UseReferenceMaterial", m_useReferenceMaterial);
-  declareProperty("MinimalMomentum", m_momentumCut);
 }
 
 Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() = default;
@@ -50,9 +45,8 @@ Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() = default;
 StatusCode
 Trk::GsfMaterialEffectsUpdator::initialize()
 {
-  // Retrieve the specific material effects
-  ATH_CHECK(m_materialEffects.retrieve());
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
+  m_materialEffects = GsfCombinedMaterialEffects(
+    m_parameterisationFileName, m_parameterisationFileNameHighX0);
   return StatusCode::SUCCESS;
 }
 
@@ -137,12 +131,11 @@ Trk::GsfMaterialEffectsUpdator::updateState(
   // material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  auto updatedState = compute(
-    componentParameters,
-    *materialProperties,
-    pathLength,
-    direction,
-    particleHypothesis);
+  auto updatedState = compute(componentParameters,
+                              *materialProperties,
+                              pathLength,
+                              direction,
+                              particleHypothesis);
 
   return updatedState;
 }
@@ -160,12 +153,11 @@ Trk::GsfMaterialEffectsUpdator::updateState(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis particleHypothesis) const
 {
-  auto updatedState = compute(
-    componentParameters,
-    materialProperties,
-    pathLength,
-    direction,
-    particleHypothesis);
+  auto updatedState = compute(componentParameters,
+                              materialProperties,
+                              pathLength,
+                              direction,
+                              particleHypothesis);
   return updatedState;
 }
 
@@ -237,8 +229,8 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   // Bail out if still no material properties can be found
   if (!materialProperties) {
     Trk::MultiComponentState clonedMultiComponentState{};
-    clonedMultiComponentState.emplace_back(
-      componentParameters.first->clone(), componentParameters.second);
+    clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
+                                           componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -256,12 +248,11 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   // material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  auto updatedState = compute(
-    componentParameters,
-    *materialProperties,
-    pathLength,
-    direction,
-    particleHypothesis);
+  auto updatedState = compute(componentParameters,
+                              *materialProperties,
+                              pathLength,
+                              direction,
+                              particleHypothesis);
 
   return updatedState;
 }
@@ -333,8 +324,8 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   // Bail out if still no material properties can be found
   if (!materialProperties) {
     Trk::MultiComponentState clonedMultiComponentState{};
-    clonedMultiComponentState.emplace_back(
-      componentParameters.first->clone(), componentParameters.second);
+    clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
+                                           componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -351,12 +342,11 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   // material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  return compute(
-    componentParameters,
-    *materialProperties,
-    pathLength,
-    direction,
-    particleHypothesis);
+  return compute(componentParameters,
+                 *materialProperties,
+                 pathLength,
+                 direction,
+                 particleHypothesis);
 }
 
 /* ============================================================================
@@ -377,8 +367,8 @@ Trk::GsfMaterialEffectsUpdator::compute(
 
   if (momentum <= m_momentumCut) {
     Trk::MultiComponentState clonedMultiComponentState{};
-    clonedMultiComponentState.emplace_back(
-      componentParameters.first->clone(), componentParameters.second);
+    clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
+                                           componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -391,13 +381,12 @@ Trk::GsfMaterialEffectsUpdator::compute(
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
   GsfMaterial::Combined cache;
-  m_materialEffects->compute(
-    cache,
-    componentParameters,
-    materialProperties,
-    pathLength,
-    direction,
-    particleHypothesis);
+  m_materialEffects.compute(cache,
+                            componentParameters,
+                            materialProperties,
+                            pathLength,
+                            direction,
+                            particleHypothesis);
 
   // check all vectors have the same size
   if (cache.weights.size() != cache.deltaPs.size()) {
@@ -436,8 +425,8 @@ Trk::GsfMaterialEffectsUpdator::compute(
         std::move(updatedCovariance));
     double updatedWeight =
       componentParameters.second * cache.weights[componentIndex];
-    computedState.emplace_back(
-      std::move(updatedTrackParameters), updatedWeight);
+    computedState.emplace_back(std::move(updatedTrackParameters),
+                               updatedWeight);
   }
   return computedState;
 }

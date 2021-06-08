@@ -13,6 +13,7 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -34,17 +35,20 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
 
 
         ~TrigEgammaMatchingToolMT()=default;
+        
         StatusCode initialize();
 
+        // check if the offline object passed by HLT step for one specific trigger
+        bool isPassed( const xAOD::Egamma *,const std::string&, unsigned int condition=TrigDefs::Physics ) const;
 
-        bool match(const xAOD::Egamma *,const std::string&, unsigned int condition=TrigDefs::Physics ) const;
-        bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool match( const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
         
-        std::string key( std::string ) const;
         
         template<class T> bool ancestorPassed( const TrigCompositeUtils::Decision*, const std::string trigger , const std::string key,
                                                unsigned int condition=TrigDefs::Physics ) const;
         
+
+
         template<class T> TrigCompositeUtils::LinkInfo<T> getFeature( const TrigCompositeUtils::Decision *, std::string trigger,
                                                                       unsigned int condition=TrigDefs::Physics ) const;
         template<class T> std::vector<TrigCompositeUtils::LinkInfo<T>> getFeatures( const TrigCompositeUtils::Decision *, std::string trigger , 
@@ -52,11 +56,12 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
         template<class T> std::vector<TrigCompositeUtils::LinkInfo<T>> getFeatures( const TrigCompositeUtils::Decision *, std::string trigger, std::string key ,
                                                                                     unsigned int condition=TrigDefs::Physics ) const;
         
-        
+        // access the feature from the container
         const xAOD::EmTauRoI* getL1Feature( const TrigCompositeUtils::Decision * ) const;
-    
-   
-
+        // access the feature from the container
+        const xAOD::TrigRingerRings* getRingsFeature( const TrigCompositeUtils::Decision * ) const;
+        // get the container key
+        std::string key( std::string ) const;
 
     private:
         
@@ -85,9 +90,10 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
         ToolHandle<Trig::TrigDecisionTool>  m_trigDecTool{this, "TriggerTool", ""};
         const ToolHandle<Trig::TrigDecisionTool>& tdt() const { return m_trigDecTool; };
         
-        Gaudi::Property<float> m_dR{this, "DeltaR", 0.07};       
-        Gaudi::Property<float> m_dRL1{this, "L1DeltaR", 0.15};       
-        SG::ReadHandleKey<xAOD::EmTauRoIContainer>        m_emTauRoIKey{this, "EmTauRoIKey" , "LVL1EmTauRoIs", ""};
+        Gaudi::Property<float> m_dR{this, "DeltaR", 0.07};
+        Gaudi::Property<float> m_dRL1{this, "L1DeltaR", 0.15};
+        SG::ReadHandleKey<xAOD::EmTauRoIContainer>         m_emTauRoIKey{this, "EmTauRoIKey" , "LVL1EmTauRoIs", ""};
+        SG::ReadHandleKey<xAOD::TrigRingerRingsContainer>  m_ringerKey{this, "RingerKey" , "HLT_FastCaloRinger", ""};
 
 };
 

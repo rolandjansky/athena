@@ -8,10 +8,10 @@ atlas_add_component( TrkGaussianSumFilter
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GeoPrimitives GaudiKernel TrkGaussianSumFilterUtilsLib
-                     TrkGeometry  TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface
-                     TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces 
-                     CxxUtils PathResolver TrkDetElementBase TrkCaloCluster_OnTrack TrkPrepRawData 
-                     TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack)
+                     TrkGeometry  TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack 
+                     TrkMultiComponentStateOnSurface TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces 
+                     TrkFitterUtils TrkToolInterfaces CxxUtils TrkDetElementBase TrkCaloCluster_OnTrack 
+                     TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack)
 
 # Install files from the package:
 atlas_install_runtime( Data/*.par )

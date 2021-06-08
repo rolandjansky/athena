@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERAWCHNOISECALIBALG_H
@@ -38,12 +38,6 @@
 #include <map>
 #include <stdint.h>
 
-#define NSIDES 2
-#define NSAMPLES 4
-#define NTOWERS 17
-#define NCELLGAINS 6
-#define NPARS 8
-
 class TileHWID;
 class TileBeamElemContByteStreamCnv;
 class TileDQstatus;
@@ -53,6 +47,12 @@ class TH1F;
 class TileRawChNoiseCalibAlg: public AthAlgorithm {
 
   public:
+    static constexpr int NSIDES = 2;
+    static constexpr int NSAMPLES = 4;
+    static constexpr int NTOWERS = 17;
+    static constexpr int NCELLGAINS = 6;
+    static constexpr int NPARS = 8;
+
     TileRawChNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~TileRawChNoiseCalibAlg();
 

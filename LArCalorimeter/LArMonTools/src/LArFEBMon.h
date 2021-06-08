@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARFEBMON_H
@@ -196,7 +196,7 @@ private:
   StatusCode bookNewPartitionSumm(summaryPartition& summ,std::string summName);
   void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
-  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
+  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,const std::string& summName);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);
   int returnPartition(int be,int pn,int ft,int sl);
 };

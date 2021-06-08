@@ -7,7 +7,7 @@
 //
 #include "L1TopoAlgorithms/eEmSort.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/ClusterTOBArray.h"
+#include "L1TopoEvent/eEmTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -36,7 +36,7 @@ TCS::eEmSort::~eEmSort() {}
 
 TCS::StatusCode
 TCS::eEmSort::initialize() {
-   m_numberOfClusters = parameter("OutputWidth").value();
+   m_numberOfeEms = parameter("OutputWidth").value();
    m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
@@ -48,18 +48,18 @@ TCS::eEmSort::initialize() {
 TCS::StatusCode
 TCS::eEmSort::sort(const InputTOBArray & input, TOBArray & output) {
 
-   const ClusterTOBArray & clusters = dynamic_cast<const ClusterTOBArray&>(input);
+   const eEmTOBArray & eems = dynamic_cast<const eEmTOBArray&>(input);
 
-   // fill output array with GenericTOB buildt from clusters
-   for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
-      const GenericTOB gtob(**cl);
+   // fill output array with GenericTOB buildt from eEms
+   for(eEmTOBArray::const_iterator eem = eems.begin(); eem!= eems.end(); ++eem ) {
+      const GenericTOB gtob(**eem);
 
-      if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
-      if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;
+      if (parType_t(std::abs((*eem)-> eta())) < m_minEta) continue; 
+      if (parType_t(std::abs((*eem)-> eta())) > m_maxEta) continue;
       // isolation cut
       if (m_iso != 0 ) {
           unsigned int isobit(0x1 << (m_iso-1));
-          if(m_doIsoCut && ((parType_t((*cl)->isolation()) & isobit) != isobit)) continue;
+          if(m_doIsoCut && ((parType_t((*eem)->isolation()) & isobit) != isobit)) continue;
       }
       
       output.push_back( gtob );
@@ -69,11 +69,11 @@ TCS::eEmSort::sort(const InputTOBArray & input, TOBArray & output) {
    output.sort(SortByEtLargesteEm);
    
 
-   // keep only max number of clusters
-   int par = m_numberOfClusters;
-   unsigned int maxNumberOfClusters = (unsigned int)(par<0?0:par);
-   if(maxNumberOfClusters>0) {
-      while( output.size()> maxNumberOfClusters ) {
+   // keep only max number of eEms
+   int par = m_numberOfeEms;
+   unsigned int maxNumberOfeEms = (unsigned int)(par<0?0:par);
+   if(maxNumberOfeEms>0) {
+      while( output.size()> maxNumberOfeEms ) {
          output.pop_back();
       }
    }

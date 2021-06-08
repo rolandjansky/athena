@@ -15,11 +15,10 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 1
 precommand = ''.join([
-  "setMenu='LS2_v1';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
+  "setMenu='LS2_v1_TriggerValidation_prescale';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
+  "doL1Sim=True;",
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
-  "forceEnableAllChains=True;",
-  "fpeAuditor=True;",
   "reverseViews=True;"
 ])
 ex.args = '-c "{:s}"'.format(precommand)

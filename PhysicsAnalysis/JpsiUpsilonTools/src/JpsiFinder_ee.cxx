@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -456,8 +456,8 @@ namespace Analysis {
         std::vector<const xAOD::TrackParticle*>::const_iterator innerItr;
         
         if(TracksIn.size()>=2){
-            for(outerItr=TracksIn.begin();outerItr<TracksIn.end();outerItr++){
-                for(innerItr=(outerItr+1);innerItr!=TracksIn.end();innerItr++){
+            for(outerItr=TracksIn.begin();outerItr<TracksIn.end();++outerItr){
+                for(innerItr=(outerItr+1);innerItr!=TracksIn.end();++innerItr){
                     pair.trackParticle1 = *innerItr;
                     pair.trackParticle2 = *outerItr;
                     pair.pairType = TRK2;
@@ -483,8 +483,8 @@ namespace Analysis {
         std::vector<const xAOD::Electron*>::const_iterator innerItr;
         
         if(electronsIn.size()>=2){
-            for(outerItr=electronsIn.begin();outerItr<electronsIn.end();outerItr++){
-                for(innerItr=(outerItr+1);innerItr!=electronsIn.end();innerItr++){
+            for(outerItr=electronsIn.begin();outerItr<electronsIn.end();++outerItr){
+                for(innerItr=(outerItr+1);innerItr!=electronsIn.end();++innerItr){
 //                    if((*outerItr)->auxdata<int>("truthOrigin") == 26 && (*innerItr)->auxdata<int>("truthOrigin")==26) ATH_MSG_DEBUG("pair is from jpsi!");
 //                    else continue;
                     pair.el1 = *innerItr;
@@ -508,33 +508,31 @@ namespace Analysis {
         
         std::vector<JpsiEECandidate> myPairs;
         JpsiEECandidate pair;
-        std::vector<const xAOD::TrackParticle*>::const_iterator trkItr;
-        std::vector<const xAOD::Electron*>::const_iterator muItr;
         
         // Unless user is running in tag and probe mode, remove tracks which are also identified as muons
         std::vector<const xAOD::TrackParticle*> tracksToKeep;
         if (!tagAndProbe) {
             if(tracks.size()>=1 && electrons.size()>=1){
-                for(trkItr=tracks.begin();trkItr<tracks.end();trkItr++){
+                for (const xAOD::TrackParticle* trk : tracks) {
                     bool trackIsElectron(false);
-                    for(muItr=electrons.begin();muItr<electrons.end();muItr++){
-                      if ( (*muItr)->trackParticleLink().cachedElement() == (*trkItr) ) {
+                    for (const xAOD::Electron* ele : electrons) {
+                      if ( ele->trackParticleLink().cachedElement() == trk ) {
                           trackIsElectron=true; 
                           break;
                         }
                     }
-                    if (!trackIsElectron) tracksToKeep.push_back(*trkItr);
+                    if (!trackIsElectron) tracksToKeep.push_back(trk);
                 }
             }
         } else {tracksToKeep = tracks;}
         
         if(tracksToKeep.size()>=1 && electrons.size()>=1){
-            for(trkItr=tracksToKeep.begin();trkItr<tracksToKeep.end();trkItr++){
-                for(muItr=electrons.begin();muItr<electrons.end();muItr++){
-                    pair.el1 = *muItr;
+            for (const xAOD::TrackParticle* trk : tracks) {
+                for (const xAOD::Electron* ele : electrons) {
+                    pair.el1 = ele;
                     // Muon track 1st
-                    pair.trackParticle1 = (*muItr)->trackParticleLink().cachedElement();
-                    pair.trackParticle2 = *trkItr;
+                    pair.trackParticle1 = ele->trackParticleLink().cachedElement();
+                    pair.trackParticle2 = trk;
                     pair.pairType = ELTRK;
                     myPairs.push_back(pair);
                 }

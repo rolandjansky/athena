@@ -60,8 +60,8 @@ namespace MuonCombined {
                                                               "Handle to the service providing the IMuonEDMHelperSvc interface"};
 
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-        ToolHandle<IMuTagMatchingTool> p_MuTagMatchingTool{this, "MuTagMatchingTool", "MuTagMatchingTool/MuTagMatchingTool"};
-        ToolHandle<IMuTagAmbiguitySolverTool> p_MuTagAmbiguitySolverTool{this, "MuTagAmbiguitySolverTool",
+        ToolHandle<IMuTagMatchingTool> m_MuTagMatchingTool{this, "MuTagMatchingTool", "MuTagMatchingTool/MuTagMatchingTool"};
+        ToolHandle<IMuTagAmbiguitySolverTool> m_MuTagAmbiguitySolverTool{this, "MuTagAmbiguitySolverTool",
                                                                          "MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool"};
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool",
                                                                         "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",

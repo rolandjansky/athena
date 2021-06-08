@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArMinBiasAlg.h"
@@ -223,12 +223,9 @@
       const LArHitContainer* hit_container ;
       ATH_CHECK(evtStore()->retrieve(hit_container,HitContainer[iHitContainer]));
       int ihit = 0;
-      LArHitContainer::const_iterator hititer;
-      for(hititer=hit_container->begin();
-           hititer != hit_container->end();hititer++)
+      for (const LArHit* hit : *hit_container)
       {       
           ihit++; 
-          LArHit* hit = (*hititer);
           Identifier cellID=hit->cellID();
           double energy = hit->energy(); 
           double time =hit->time();

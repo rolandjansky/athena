@@ -314,7 +314,6 @@ def sequenceScanner( HLTNode ):
     from collections import defaultdict
     _seqMapInStep = defaultdict(set)
     _status = True
-
     def _mapSequencesInSteps(seq, stepIndex, childInView):
         """ Recursively finds the steps in which sequences are used"""
         if not isSequence(seq):
@@ -402,7 +401,7 @@ def createDataFlow(chains, allDicts):
     NSTEPS = len(chainWithMaxSteps.steps)
 
     log.info("[createDataFlow] creating DF for %d chains and total %d steps", len(chains), NSTEPS)
-
+    
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     # initialize arrays for monitor
     finalDecisions = [ [] for n in range(NSTEPS) ]

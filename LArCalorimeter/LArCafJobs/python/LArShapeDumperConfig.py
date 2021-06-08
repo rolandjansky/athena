@@ -53,15 +53,6 @@ def LArShapeDumperCfg(flags):
         result.merge(L1TriggerByteStreamDecoderCfg(flags))
 
     
-    masker = CompFactory.LArBadChannelMasker('LArBadChannelMasker')
-    masker.DoMasking=True
-    masker.ProblemsToMask=[
-         'deadReadout', 'deadPhys',
-         'almostDead', 'short',
-         'highNoiseHG','highNoiseMG','highNoiseLG'
-    ]
-
-
     result.merge(addFolders(flags,'/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<tag>LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00</tag>','LAR_OFL'))
     result.getService("IOVDbSvc").overrideTags+=['<prefix>/LAR/ElecCalibOfl/Shape/RTM/5samples1phase</prefix><tag>LARElecCalibOflShapeRTM5samples1phase-RUN2-UPD1-04</tag>']
 
@@ -76,7 +67,8 @@ def LArShapeDumperCfg(flags):
     dumperAlg.DumpChannelInfos = flags.LArShapeDump.dumpChannelInfos
     dumperAlg.DumpDisconnected = False
     dumperAlg.DigitsKey = flags.LArShapeDump.digitsKey
-    dumperAlg.BadChannelMasker = masker
+    dumperAlg.ProblemsToMask=['deadReadout', 'deadPhys','almostDead', 'short',
+                              'highNoiseHG','highNoiseMG','highNoiseLG']
     dumperAlg.LArShapeDumperTool=CompFactory.LArShapeDumperTool(DoShape=True)
     dumperAlg.FileName=flags.LArShapeDump.outputNtup
     dumperAlg.TriggerNames = flags.LArShapeDump.triggerNames

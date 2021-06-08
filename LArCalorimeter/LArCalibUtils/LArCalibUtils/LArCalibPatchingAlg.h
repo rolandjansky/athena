@@ -19,8 +19,7 @@
 #include <string>
  
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRawConditions/LArOFCComplete.h"
@@ -40,7 +39,7 @@
   * - Neighbor in Phi @n
   * - Average over all channels with the same phi @n
   *
-  * The @c LArBadChannelMasker tool is used to determine what types of problems should be patched.
+  * The @c LArBadChannelMask is used to determine what types of problems should be patched.
   * The patched value is added to the LArConditionsContainer as correction. The neighbor-patching is templated,
   * and works for any kind of payload object while the averaging needs knowledge about the payload object and
   * is implemented a specialized method @c getAverage. 
@@ -173,7 +172,8 @@ private:
 
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
-  ToolHandle<ILArBadChannelMasker> m_maskingTool;
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToPatch{this,"ProblemsToPatch",{}, "Bad-Channel categories to patch"};
 
   bool m_useCorrChannel;
   bool m_patchAllMissing;

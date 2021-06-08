@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 # Pay attention this will return a list of tools
@@ -28,14 +28,6 @@ def HLTCaloMonitoringTool():
                                         HLTContainerRun2 = "",
                                         HLTContainerRun3 = "HLT_TopoCaloClustersLC")
         
-    #from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloToolL2
-    #HLTCaloL2 = HLTCaloToolL2(name             = 'HLTCaloL2',
-    #                                    histoPathBase    = "/Trigger/HLT",
-    #                                    ListOfCellsKeys  =
-    #                 ['HLT_CaloCellContainer_TrigT2CaloTauCells','HLT_CaloCellContainer_TrigT2CaloEgammaCells'])
-    #from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloClusterTool
-    #HLTCaloCluster =  HLTCaloClusterTool( name = 'HLTCaloCluster',
-    #                                    histoPathBase    = "/Trigger/HLT")
     list = [ xAODTrigEMClusters ]
     list += [ xAODCaloClustersFS ]
     list += [ xAODCaloClustersRoI ]

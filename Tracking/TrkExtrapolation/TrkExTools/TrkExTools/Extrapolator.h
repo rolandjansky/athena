@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -769,8 +769,6 @@ private:
                      ParticleHypothesis particle = pion,
                      bool startingLayer = false) const;
 
-  /** Private method for chosing the propagator in the simple/full configured mode */
-  unsigned int propagatorType(const TrackingVolume& tvol) const;
 
   /** Private method for Initial Extrapolation setup
     -> overwrites the given pointers for the start and destination parameters
@@ -789,11 +787,6 @@ private:
                                      const Trk::Layer*& associatedLayer,
                                      const Trk::TrackingVolume*& associatedVolume,
                                      const Trk::TrackingVolume*& destinationVolume) const;
-
-  /** RadialDirection helper method
-    - inbound : -1
-    - outbound:  1  */
-  int radialDirection(const Trk::TrackParameters& pars, PropDirection dir) const;
 
   /** Check for punchThrough in case of radial (perpendicular) direction change,
     returns true if the radial direction change is actually ok (i.e. punch-through allowed)
@@ -833,13 +826,8 @@ private:
       cleans up, calls model action or validation action, empties garbage bin and leaves */
   const Trk::TrackParameters* returnResult(Cache& cache, const Trk::TrackParameters* result) const;
 
-  /** For the output - layer */
-  std::string layerRZoutput(const Trk::Layer& lay) const;
-
   /** For the output - global position */
   std::string positionOutput(const Amg::Vector3D& pos) const;
-  /** For the output - global momentum */
-  std::string momentumOutput(const Amg::Vector3D& mom) const;
 
   /** helper method for MaterialEffectsOnTrack to be added */
   void addMaterialEffectsOnTrack(const EventContext& ctx,

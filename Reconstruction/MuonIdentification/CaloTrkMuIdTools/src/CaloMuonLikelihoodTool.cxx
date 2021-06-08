@@ -148,7 +148,8 @@ double CaloMuonLikelihoodTool::getLHR( const xAOD::TrackParticle* trk, const xAO
     double qOverP = trk->qOverP();
     if (qOverP!=0) p_trk = std::abs(1/qOverP);
 
-    std::unique_ptr<Trk::CaloExtension> caloExt=m_caloExtensionTool->caloExtension(*trk);
+    std::unique_ptr<Trk::CaloExtension> caloExt =
+      m_caloExtensionTool->caloExtension(Gaudi::Hive::currentContext(), *trk);
 
     if(!caloExt) return 0;
     const Trk::TrackParameters* caloEntryInterSec = caloExt->caloEntryLayerIntersection();

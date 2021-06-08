@@ -9,6 +9,7 @@
 #include "../LArCosmicsMonAlg.h"
 #include "../LArNoiseCorrelationMonAlg.h"
 #include "../LArCalibPedMonAlg.h"
+#include "../LArCoherentNoisefractionMonAlg.h"
 
 DECLARE_COMPONENT(LArCollisionTimeMonAlg)
 DECLARE_COMPONENT(LArAffectedRegionsAlg)
@@ -21,3 +22,4 @@ DECLARE_COMPONENT(LArHVCorrectionMonAlg)
 DECLARE_COMPONENT(LArCosmicsMonAlg)
 DECLARE_COMPONENT(LArNoiseCorrelationMonAlg)
 DECLARE_COMPONENT(LArCalibPedMonAlg)
+DECLARE_COMPONENT(LArCoherentNoisefractionMonAlg)

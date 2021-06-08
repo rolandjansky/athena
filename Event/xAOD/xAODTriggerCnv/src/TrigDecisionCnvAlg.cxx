@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvAlg.cxx 688265 2015-08-08 16:31:45Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -14,9 +13,7 @@ namespace xAODMaker {
 
    TrigDecisionCnvAlg::TrigDecisionCnvAlg( const std::string& name,
                                            ISvcLocator* svcLoc )
-      : AthReentrantAlgorithm( name, svcLoc ),
-        m_cnvTool( "xAODMaker::TrigDecisionCnvTool/TrigDecisionCnvTool",
-                   this ) {
+      : AthReentrantAlgorithm( name, svcLoc ) {
    }
 
 

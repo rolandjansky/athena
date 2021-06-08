@@ -26,11 +26,10 @@ public:
    virtual StatusCode  execute(const EventContext& context) const override;
    
 private: 
-   ToolHandleArray< TrigdEdxTrackTriggerHypoTool >   m_hypoTools  {this, "HypoTools", {}, "Tools to perfrom selection"};
-   SG::ReadHandleKey< xAOD::TrigCompositeContainer > m_dEdxTrkKey {this, "dEdxTrk", "HLT_dEdxTrk", ""};
-   SG::ReadHandleKey< xAOD::TrigCompositeContainer>  m_dEdxHitKey {this, "dEdxHit", "HLT_dEdxHit", ""};
-
-   SG::WriteHandleKey<xAOD::TrigCompositeContainer>  m_hPtdEdxKey {this, "HPtdEdx", "HLT_HPtdEdx", ""};
+   ToolHandleArray< TrigdEdxTrackTriggerHypoTool >   m_hypoTools     {this, "HypoTools", {}, "Tools to perfrom selection"};
+   SG::ReadHandleKey< xAOD::TrigCompositeContainer > m_dEdxTrkKey    {this, "dEdxTrk",    "HLT_dEdxTrk", ""};
+   SG::ReadHandleKey< xAOD::TrigCompositeContainer>  m_dEdxHitKey    {this, "dEdxHit",    "HLT_dEdxHit", ""};
+   SG::WriteHandleKey<xAOD::TrigCompositeContainer>  m_HPtdEdxTrkKey {this, "HPtdEdxTrk", "HLT_HPtdEdxTrk", ""};
 }; 
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGDEDXTRACKTRIGGERHYPOALG_H

@@ -19,10 +19,11 @@ Muon::nsw::NSWElink::NSWElink (uint32_t *bs)
   // Packet length includes Felix header
 
   uint32_t word = bs[m_wordCount++];
-  int packet_nbytes  = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskFlxLENGTH, Muon::nsw::bitPosFlxLENGTH);
-  int packet_status  = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskFlxSTATUS, Muon::nsw::bitPosFlxSTATUS);
+  unsigned int packet_nbytes = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskFlxLENGTH, Muon::nsw::bitPosFlxLENGTH);
+  m_packet_status  = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskFlxSTATUS, Muon::nsw::bitPosFlxSTATUS);
 
-  m_elinkId = new Muon::nsw::NSWResourceId (bs[m_wordCount++]);
+  m_elinkWord = bs[m_wordCount++];
+  m_elinkId = new Muon::nsw::NSWResourceId (m_elinkWord);
 
   // Decode sROC header
 
@@ -30,7 +31,7 @@ Muon::nsw::NSWElink::NSWElink (uint32_t *bs)
 
   ERS_DEBUG (2, "==============================================================");
   ERS_DEBUG (2, "FELIX HEADER: LENGTH (BYTES) = " << packet_nbytes <<
-	     " | STATUS = " << packet_status << " | ELINK ID = 0x" << std::hex << m_elinkId << std::dec);
+	     " | STATUS = " << m_packet_status << " | ELINK ID = 0x" << std::hex << m_elinkId << std::dec);
 
   if ((m_isNull = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskSRocNULL, Muon::nsw::bitPosSRocNULL)) == true)
   {

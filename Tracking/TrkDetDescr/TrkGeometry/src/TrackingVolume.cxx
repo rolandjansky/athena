@@ -1294,7 +1294,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE(
 const Trk::Layer* Trk::TrackingVolume::closest(const Amg::Vector3D& pos,
                                                const Amg::Vector3D& dir,
                                                const Trk::Layer& first,
-                                               const Trk::Layer& second) const {
+                                               const Trk::Layer& second) {
   // use the distance solution for assigning the layer
   Trk::DistanceSolution distSolToPrevious =
       first.surfaceRepresentation().straightLineDistanceEstimate(pos, dir);

@@ -11,7 +11,7 @@ theLArCosmicsMonTool = LArCosmicsMonTool(name="LArCosmicsMonTool",
                                          muonADCthreshold_EM_endcap = 40,         # Sampling 2
                                          muonADCthreshold_HEC       = 30,         # Sampling 1
                                          muonADCthreshold_FCAL      = 30,         # Sampling 1
-                                         LArBadChannelMask          = theLArBadChannelsMasker
+                                         ProblemsToMask             = ProblemsToMask
                          )
 
 theLArCosmicsMonTool.LArPedestalKey='LArPedestal'

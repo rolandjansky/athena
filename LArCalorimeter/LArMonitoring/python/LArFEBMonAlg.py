@@ -205,17 +205,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
     if isOnline:     
        Group.defineHistogram('LBf,EvtRejYield;RAW_EventsRejectedLB',
-                                titile='% of events rejected in current LB (online only)',
+                                title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=summary_hist_path,
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
        Group.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
-                                titile='LAr event size per stream per LB (w/o ROS headers)',
+                                title='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=summary_hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                ylabels=larFEBMonAlg.Streams 
+                                ylabels=list(larFEBMonAlg.Streams) 
                                 )
 
     # Now per partition histograms
@@ -377,17 +377,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
        if isOnline:
           darray.defineHistogram('LBf,erronl;RAW_EventsRejectedLB',
-                                titile='% of events rejected in current LB (online only)',
+                                title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
-                                titile='LAr event size per stream per LB (w/o ROS headers)',
+                                title='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                ylabels=larFEBMonAlg.Streams
+                                ylabels=list(larFEBMonAlg.Streams)
                                 )
        pass
 

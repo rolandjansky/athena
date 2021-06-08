@@ -79,11 +79,11 @@ public:
     unsigned int iRunNumber = 0, unsigned int iMu = 0 ) override;
 
   /** scale factor bin x (e.g. lead match pT)*/
-  double (*m_fX)(const xAOD::DiTauJet& xDiTau);
+  double (*m_fXDiTau)(const xAOD::DiTauJet& xDiTau);
   /** scale factor bin y (e.g. sublead match pT)*/
-  double (*m_fY)(const xAOD::DiTauJet& xDiTau);
+  double (*m_fYDiTau)(const xAOD::DiTauJet& xDiTau);
   /** scale factor bin z (e.g. dR match particles)*/
-  double (*m_fZ)(const xAOD::DiTauJet& xDiTau);
+  double (*m_fZDiTau)(const xAOD::DiTauJet& xDiTau);
 
   void ReadInputs(std::unique_ptr<TFile> &fFile);
 
@@ -103,9 +103,9 @@ public:
   /** generate a set of relevant systematic variations to be applied*/
   void generateSystematicSets();
   /** true if scale factor name is already decorated*/ 
-  bool m_bSFIsAvailable;
+  bool m_bSFIsAvailableDiTau;
   /** true if cale factor name is already decorated has already been checked*/
-  bool m_bSFIsAvailableChecked;
+  bool m_bSFIsAvailableCheckedDiTau;
 
 };
 } // namespace TauAnalysisTools

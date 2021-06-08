@@ -51,11 +51,14 @@ Py:MetaReader        INFO Current mode used: lite
 Py:MetaReader        INFO Current filenames: ['mergedBS._0001.data', 'mergedBS._0002.data']
 |-- mergedBS._0001.data: 
 |   |-- GeoAtlas          : None
+|   |-- auto_flush        : 1
 |   |-- beam_energy       : 6500
 |   |-- beam_type         : collisions
 |   |-- conditions_tag    : None
 |   |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'Unknown']
 |   |-- evt_number        : [1]
+|   |-- file_comp_alg     : 1
+|   |-- file_comp_level   : 1
 |   |-- file_size         : 10494356
 |   |-- file_type         : BS
 |   |-- lumiBlockNumbers  : [0]
@@ -67,11 +70,14 @@ Py:MetaReader        INFO Current filenames: ['mergedBS._0001.data', 'mergedBS._
 |   `-- stream            : 
 `-- mergedBS._0002.data: 
     |-- GeoAtlas          : None
+    |-- auto_flush        : 1
     |-- beam_energy       : 6500
     |-- beam_type         : collisions
     |-- conditions_tag    : None
     |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'Unknown']
     |-- evt_number        : [11]
+    |-- file_comp_alg     : 1
+    |-- file_comp_level   : 1
     |-- file_size         : 10494376
     |-- file_type         : BS
     |-- lumiBlockNumbers  : [0]

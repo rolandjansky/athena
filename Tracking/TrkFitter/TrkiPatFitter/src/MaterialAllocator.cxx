@@ -1026,7 +1026,7 @@ namespace Trk
 
   void
   MaterialAllocator::deleteMaterial(const std::vector<const TrackStateOnSurface*>* material,
-                                    Garbage_t& garbage) const {
+                                    Garbage_t& garbage) {
     if (material) {
       for (const TrackStateOnSurface* m : *material) {
         garbage.push_back (std::unique_ptr<const TrackStateOnSurface>(m));
@@ -2015,7 +2015,7 @@ namespace Trk
   FitMeasurement*
   MaterialAllocator::measurementFromTSOS(const TrackStateOnSurface& tsos,
                                          double outgoingEnergy,
-                                         double particleMass) const {
+                                         double particleMass) {
     if (!tsos.trackParameters() || !tsos.materialEffectsOnTrack()) return nullptr;
 
     double deltaE = outgoingEnergy - tsos.trackParameters()->momentum().mag();

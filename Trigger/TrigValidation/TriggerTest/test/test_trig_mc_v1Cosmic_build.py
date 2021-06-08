@@ -19,7 +19,6 @@ precommand = ''.join([
   "doCosmics=True;",
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
-  "fpeAuditor=True;"
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 

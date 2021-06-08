@@ -184,6 +184,16 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 
     LegDecisionsMap thisChainCombMap;
 
+    // This map records the history for any given feature.
+    // E.g. for a key corresponding to a 4th Step muon, the entries in the payload std::set will be the 3rd step, 2nd step and 1st step
+    // features from within the same ROI.
+    //
+    // Using this information the combo hypo is able to deduce that a 4th-step-muon and its prior 2nd-step-muon should not be considered as two distinct candidates.
+    //
+    // Such a check is needed when implementing tag-and-probe style chains as when performing the probe processing we will be comparing 1st, 2nd, 3rd,. etc. 
+    // step features on the probe leg to final-step features on the tag leg.
+    std::map<uint32_t, std::set<uint32_t>> priorFeaturesMap;
+
     // Check multiplicity of each leg of this chain
     for ( size_t legIndex = 0; legIndex <  multiplicityPerLeg.size(); ++legIndex ) {
       const size_t requiredMultiplicity =  multiplicityPerLeg.at( legIndex );
@@ -219,13 +229,14 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       //
       // The behaviour may also be kept even after we have started to process a leg through HypoAlgs. This is done by the HypoAlg
       // setting the "feature" to be the same as the initialRoI. The initialRoI must still be a FullScan ROI for this to work.
+
       for (const ElementLink<DecisionContainer> dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0;
         uint16_t featureIndex = 0, roiIndex = 0;
         bool roiFullscan = false;
         // NOTE: roiKey, roiIndex are only currently used in the discrimination for L1 Decision objects (which don't have a 'feature' link)
         // NOTE: We should make it configurable to choose either the feature or the ROI here, as done in the InputMaker base class when merging.
-        ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex, roiFullscan) );
+        ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex, roiFullscan, priorFeaturesMap) );
         if (roiFullscan and (    (featureKey == roiKey and featureIndex == roiIndex) // The user explicitly set the feature === the initialRoI (and it is FS)
                               or (featureKey == 0 and roiKey != 0) // The leg has not yet started to process, the initialRoI is FS
                             )
@@ -249,6 +260,38 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       
     } // end loop over legIndex
 
+    // Up-cast any features which are actually earlier-step versions of other features (see priorFeaturesMap above)
+    // to be considered as equivalent to the later step version, note that this is for combo uniqueness comparison purposes only.
+    for (std::set<uint32_t>& legHashes : legFeatureHashes) {
+      // We will continue to up-cast a single feature at a time in each leg's set of features, until no more upcast opportunities are available.
+      size_t emergencyBreak = 0;
+      while (true) {
+        bool somethingChanged = false;
+        for (const uint32_t legHash : legHashes) {
+          for (auto const& [key, payloadSet] : priorFeaturesMap) {
+            if (payloadSet.count(legHash) == 1) {
+              ATH_MSG_DEBUG("Feature hash=" << legHash << " identified as a prior feature of hash=" << key 
+                << ", we will up-cast this hash to the later version for ComboHypo uniqueness comparison purposes.");
+              legHashes.erase(legHash);
+              legHashes.insert(key);
+              // CAUTION we have mutated a set we're iterating over. We must now break out of the loop over legHashes. This requires two breaks.
+              // This also lets the upcast cascade, i.e. what we insert as 'key' here could trigger another up-cast when considered as 'legHash' in the next iteration of the while(true) loop.
+              somethingChanged = true;
+              break;
+            }
+          } // End inner for loop (over priorFeaturesMap)
+          if (somethingChanged) {
+            break; // Break out of the outer loop when something changes, this avoids a continued invalid iteration over a mutated container.
+          }
+        } // End outer for loop (over legHashes)
+        if (!somethingChanged or ++emergencyBreak == 500) {
+          if (emergencyBreak == 500) {
+            ATH_MSG_WARNING("ComboHypo emergency loop break activated!");
+          }
+          break; // Break out of the while(true) loop when all elements of legHashes have been checked and none were upcast
+        }
+      }
+    } // Loop over the different legs
 
     // Remove any duplicated features which are shared between legs.
     // Keep the feature only in the leg which can afford to loose the least number of object, given its multiplicity requirement.
@@ -338,20 +381,55 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 
 
 StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>& dEL,
-  uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan) const 
+  uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan,
+  std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap
+  ) const 
 {
-  uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
-  const bool foundFeature = typelessFindLink((*dEL), featureString(), featureKey, featureClid, featureIndex);
+  // Return collections for the findLinks call. 
+  // While we will be focusing on the most recent feature, for tag-and-probe we need to keep a record of the features from the prior steps too.
+
+  uint32_t clid; // We don't care about the class ID. This part gets ignored.
+  const bool foundFeature = typelessFindLink((*dEL), featureString(), featureKey, clid, featureIndex);
+
+  if (foundFeature and priorFeaturesMap.count(featureKey + featureIndex) == 0) {
+    const std::string* key_str = evtStore()->keyToString(featureKey);
+    ATH_MSG_DEBUG("Note: Will use feature hash " << featureKey + featureIndex << ", for " << (key_str ? *key_str : "UNKNOWN") << " index=" << featureIndex);
+    // Perform a deep search. This doesn't just find the most recent feature, it finds features from past steps too.
+    std::vector<uint32_t> keys;
+    std::vector<uint32_t> clids; // We don't care about the class ID. This part gets ignored.
+    std::vector<uint16_t> indicies;
+    std::set<const xAOD::TrigComposite*> fullyExploredFrom; // This is a cache which typelessFindLinks will use to avoid re-visiting already explored regions of the graph
+    typelessFindLinks((*dEL), featureString(), keys, clids, indicies, TrigDefs::allFeaturesOfType, &fullyExploredFrom);
+    // Here's where we keep the record of the features in previous steps. Step ordering is unimportant, we can use a set.
+    if (keys.size() > 1) {
+      for (size_t i = 1; i < keys.size(); ++i) { // Skip the 1st entry, this will be equal to featureKey and featureIndex from typelessFindLink above.
+        // featureKey + featureIndex should be considered as equivalent to a per-feature hash (featureKey is a real hash, featureIndex is an offset index)
+        if (featureKey + featureIndex == keys.at(i) + indicies.at(i)) {
+          continue; // Do not add the case where a feature is re-attached to more than one step.
+        }
+        priorFeaturesMap[featureKey + featureIndex].insert(keys.at(i) + indicies.at(i));
+      }
+    } else { // Exactly one feature. Make a note of this by inserting an empty set, such that we don't do this search again.
+      priorFeaturesMap.insert( std::pair<uint32_t, std::set<uint32_t>>(featureKey + featureIndex, std::set<uint32_t>()) );
+    }
+  }
+
   // Try and get seeding ROI data too. Don't need to be type-less here
   LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
   if (roiSeedLI.isValid()) {
     roiKey = roiSeedLI.link.key();
     roiIndex = roiSeedLI.link.index();
     roiFullscan = (*(roiSeedLI.link))->isFullscan();
+    if (!foundFeature) {
+      const std::string* roi_str = evtStore()->keyToString(roiKey);
+      ATH_MSG_DEBUG("Note: Located fallback-ROI, if used this will have feature hash =" << roiKey + roiIndex << ", for " << (roi_str ? *roi_str : "UNKNOWN") << " index=" << roiIndex);
+    }
   }
+
   if (!foundFeature && !roiSeedLI.isValid()) {
     ATH_MSG_WARNING("Did not find the feature or initialRoI for " << dEL.dataID() << " index " << dEL.index());
   }
+
   return StatusCode::SUCCESS;
 }
 

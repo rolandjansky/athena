@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMomentumBalanceSignificanceTool.h"
@@ -28,9 +28,9 @@ namespace Rec {
 
         // get combined track
         const Trk::Track* theTrack =
-            muon.trackParticle(xAOD::Muon::CombinedTrackParticle) ? muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track() : 0;
+            muon.trackParticle(xAOD::Muon::CombinedTrackParticle) ? muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track() : nullptr;
 
-        if (theTrack == NULL) {
+        if (theTrack == nullptr) {
             ATH_MSG_DEBUG("No primary author original track for refitted muon, stop calculation...");
             return 0.0;
         } else
@@ -41,8 +41,8 @@ namespace Rec {
         // find the TSOS carrying caloEnergy (TSOS type CaloDeposit)
         // compare parameters with those from previous TSOS
         double energyBalance = 0.;
-        const Trk::EnergyLoss* energyLoss = 0;
-        const Trk::TrackParameters* previousParameters = 0;
+        const Trk::EnergyLoss* energyLoss = nullptr;
+        const Trk::TrackParameters* previousParameters = nullptr;
         for (DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
              s != track.trackStateOnSurfaces()->end(); ++s) {
             if (!(**s).trackParameters()) continue;

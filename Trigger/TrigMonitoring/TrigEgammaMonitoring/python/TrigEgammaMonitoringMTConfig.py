@@ -463,42 +463,51 @@ class TrigEgammaMonAlgBuilder:
         self.bookL1CaloResolutions( monAlg, trigger )
         self.bookL1CaloAbsResolutions( monAlg, trigger )
         self.bookL2CaloResolutions( monAlg, trigger )
-        self.bookHLTResolutions( monAlg, trigger )
         
         if info.isElectron():
           self.bookL2ElectronDistributions( monAlg, trigger )
           # Offline and HLT
-          self.bookShowerShapesDistributions( monAlg, trigger, online=True )
-          self.bookShowerShapesDistributions( monAlg, trigger, online=False )
+          self.bookShowerShapesDistributions( monAlg, trigger, "PrecisionElectron" ,online=True)
+          self.bookShowerShapesDistributions( monAlg, trigger, "PrecisionElectron" ,online=False)
           self.bookTrackingDistributions( monAlg, trigger, online=True )
           self.bookTrackingDistributions( monAlg, trigger, online=False )
+          self.bookHLTResolutions( monAlg, trigger,"PrecisionElectron" )
           self.bookHLTElectronResolutions( monAlg, trigger, info.isIsolated() )
 
         elif info.isPhoton():
           # Should we include L2 for photon in the future?
-          self.bookShowerShapesDistributions( monAlg, trigger, online=True )
-          self.bookShowerShapesDistributions( monAlg, trigger, online=False )
+          self.bookShowerShapesDistributions( monAlg, trigger, "PrecisionPhoton", online=True )
+          self.bookShowerShapesDistributions( monAlg, trigger, "PrecisionPhoton", online=False)
+          self.bookHLTResolutions( monAlg, trigger,"PrecisionPhoton" )
           self.bookHLTPhotonResolutions( monAlg, trigger, info.isIsolated() )
 
         
         #
         # Efficiecies
         #
+
         self.bookEfficiencies( monAlg, trigger, "L1Calo" )
-        self.bookEfficiencies( monAlg, trigger, "L2Calo" )
-        self.bookEfficiencies( monAlg, trigger, "L2"     )
-        self.bookEfficiencies( monAlg, trigger, "EFCalo" )
-        self.bookEfficiencies( monAlg, trigger, "HLT"    )
+        self.bookEfficiencies( monAlg, trigger, "FastCalo" )
+        self.bookEfficiencies( monAlg, trigger, "PrecisionCalo" )
         
-        if self.detailedHistograms:
-          for pid in self.isemnames + self.lhnames:
-            self.bookEfficiencies( monAlg, trigger, "HLT", pid )
-            self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
+        if info.isPhoton():         
+          self.bookEfficiencies( monAlg, trigger, "FastPhoton")         
+          self.bookEfficiencies( monAlg, trigger, "PrecisionPhoton")
 
-        
+          if self.detailedHistograms:
+            for pid in self.isemnames + self.lhnames:
+              self.bookEfficiencies( monAlg, trigger, "PrecisionPhoton", pid )
+              self.bookEfficiencies( monAlg, trigger, "PrecisionPhoton", pid+"Iso" )        
+        else:  
+          self.bookEfficiencies( monAlg, trigger, "FastElectron")
+          self.bookEfficiencies( monAlg, trigger, "PrecisionElectron")
+          
+          if self.detailedHistograms:
+            for pid in self.isemnames + self.lhnames:
+              self.bookEfficiencies( monAlg, trigger, "PrecisionElectron", pid )
+              self.bookEfficiencies( monAlg, trigger, "PrecisionElectron", pid+"Iso" )
 
 
-    
 
   def bookEvent(self, monAlg, analysis, tap=False):
 
@@ -543,7 +552,7 @@ class TrigEgammaMonAlgBuilder:
   def bookL2CaloDistributions( self , monAlg, trigger ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Calo', self.basePath+'/'+trigger+'/Distributions/L2Calo' )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Calo', self.basePath+'/'+trigger+'/Distributions/FastCalo' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
@@ -556,7 +565,7 @@ class TrigEgammaMonAlgBuilder:
   def bookL2ElectronDistributions( self, monAlg, trigger ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Electron', self.basePath+'/'+trigger+'/Distributions/L2' )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Electron', self.basePath+'/'+trigger+'/Distributions/FastElectron' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
@@ -569,7 +578,7 @@ class TrigEgammaMonAlgBuilder:
   def bookEFCaloDistributions( self, monAlg, trigger ):
     
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_EFCalo', self.basePath+'/'+trigger+'/Distributions/EFCalo' )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_EFCalo', self.basePath+'/'+trigger+'/Distributions/PrecisionCalo' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
@@ -587,11 +596,18 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book Shower shapes
   #
-  def bookShowerShapesDistributions( self, monAlg, trigger, online=True ):
-    
+  def bookShowerShapesDistributions( self, monAlg, trigger, level, online=True):
+
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
-                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
+                              self.basePath+'/'+trigger+'/Distributions/' + (level if online else "Offline") )
+    
+    # from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    # monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
+                              # self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
+
+    
 
     self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -1, 1))
     self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ethad1 ; Count", 20, -1, 1))
@@ -617,11 +633,15 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book Tracking
   #
-  def bookTrackingDistributions( self, monAlg, trigger, online=True ):
+  def bookTrackingDistributions( self, monAlg, trigger,online=True ):
     
+
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    # monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
+                              # self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
+    
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
-                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
+                              self.basePath+'/'+trigger+'/Distributions/' + ("PrecisionElectron" if online else "Offline") )
 
 
     # Tracking quantities
@@ -712,7 +732,7 @@ class TrigEgammaMonAlgBuilder:
   def bookL2CaloResolutions(self, monAlg, trigger):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L2Calo', self.basePath+'/'+trigger+'/Resolutions/L2Calo' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L2Calo', self.basePath+'/'+trigger+'/Resolutions/FastCalo' )
     
     # online values used to fill all 2d histograms
     self.addHistogram(monGroup, TH1F("et", "E_{T}; E_{T}[GeV] ; Count", 50, 0.0, 100.))
@@ -799,10 +819,12 @@ class TrigEgammaMonAlgBuilder:
 
 
 
-  def bookHLTResolutions(self, monAlg, trigger):
+  def bookHLTResolutions(self, monAlg, trigger,level):
 
+    
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    # monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/'+level )
      
     # online values used to fill all 2d histograms
     self.addHistogram(monGroup, TH1F("et", "E_{T}; E_{T}[GeV] ; Count", 50, 0.0, 100.))
@@ -841,7 +863,8 @@ class TrigEgammaMonAlgBuilder:
 
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    # monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/PrecisionElectron')
 
     self.addHistogram(monGroup, TH1F("res_pt", "p_{T} resolution; (p_{T}(on)-p_{T}(off))/p_{T}(off) ; Count", 120, -1.5, 1.5))
     self.addHistogram(monGroup, TH1F("res_deta1", "deta1; deta1 ; (deta1(on)-deta1(off))/deta1(off)", 100, -1., 1.))
@@ -899,7 +922,8 @@ class TrigEgammaMonAlgBuilder:
 
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    # monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/PrecisionPhoton' )
 
     self.addHistogram(monGroup, TH1F("res_et_cnv", "HLT E_{T} resolution for converted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
     self.addHistogram(monGroup, TH1F("res_et_uncnv", "HLT E_{T} resolution for unconverted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))

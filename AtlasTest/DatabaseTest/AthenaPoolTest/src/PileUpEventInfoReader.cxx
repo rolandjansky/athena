@@ -41,7 +41,7 @@ StatusCode PileUpEventInfoReader::execute()
     ATH_MSG_DEBUG("PileUpEventInfoReader::execute()" );
 
     // PileupEventInfo as itself
-    const PileUpEventInfo* pevt = 0;
+    const PileUpEventInfo* pevt = nullptr;
     //sc = m_storeGate->retrieve( pevt, "OverlayEvent" );
     ATH_CHECK( evtStore()->retrieve( pevt ) );
 

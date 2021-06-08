@@ -49,71 +49,71 @@ class TrackingVolumeManipulator {
                                          BoundarySurfaceFace secondFace) const;
 
   /** protected method to set the boundary surface of a tracking volume */
-  void setBoundarySurface ATLAS_NOT_THREAD_SAFE(
+  static void setBoundarySurface ATLAS_NOT_THREAD_SAFE(
       const TrackingVolume& tvol,
       SharedObject<const BoundarySurface<TrackingVolume> > bsurf,
-      BoundarySurfaceFace face) const;
+      BoundarySurfaceFace face) ;
 
   /** protected method to set inside Volume of a BoundarySurface:
       input:
        - the volume that holdes the BoundarySurface
        - the face type of the boundary to be set
        - the volume to be set as inside volume */
-  void setInsideVolume
+  static void setInsideVolume
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol, BoundarySurfaceFace face,
-                        const TrackingVolume* insidevol) const;
+                        const TrackingVolume* insidevol) ;
 
   /** protected method to set inside VolumeArray of a BoundarySurface:
       input:
        - ithe volume that holdes the BoundarySurface
        - the face type of the boundary to be set
        - the volume array to be set as inside volume array */
-  void setInsideVolumeArray
+  static void setInsideVolumeArray
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol, BoundarySurfaceFace face,
-                        BinnedArray<TrackingVolume>* insidevolarray) const;
+                        BinnedArray<TrackingVolume>* insidevolarray) ;
 
   /** protected method to set inside VolumeArray of a BoundarySurface:
       input:
        - ithe volume that holdes the BoundarySurface
        - the face type of the boundary to be set
        - the volume array to be set as inside volume array */
-  void setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(
+  static void setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(
       const TrackingVolume& tvol, BoundarySurfaceFace face,
-      const SharedObject<BinnedArray<TrackingVolume> >& insidevolarray) const;
+      const SharedObject<BinnedArray<TrackingVolume> >& insidevolarray) ;
 
   /** protected method to set outside Volume of a BoundarySurface:
       input:
        - the volume that holdes the BoundarySurface
        - the face type of the boundary to be set
        - the volume to be set as outside volume */
-  void setOutsideVolume
+  static void setOutsideVolume
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol, BoundarySurfaceFace face,
-                        const TrackingVolume* outsidevol) const;
+                        const TrackingVolume* outsidevol) ;
 
   /** protected method to set outside VolumeArray of a BoundarySurface:
       input:
        - the volume that holdes the BoundarySurface
        - the face type of the boundary to be set
        - the volume array to be set as outside volume array */
-  void setOutsideVolumeArray
+  static void setOutsideVolumeArray
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol, BoundarySurfaceFace face,
-                        BinnedArray<TrackingVolume>* outsidevolarray) const;
+                        BinnedArray<TrackingVolume>* outsidevolarray) ;
 
   /** protected method to set outside VolumeArray of a BoundarySurface:
       input:
        - the volume that holdes the BoundarySurface
        - the face type of the boundary to be set
        - the volume array to be set as outside volume array */
-  void setOutsideVolumeArray ATLAS_NOT_THREAD_SAFE(
+  static void setOutsideVolumeArray ATLAS_NOT_THREAD_SAFE(
       const TrackingVolume& tvol, BoundarySurfaceFace face,
-      const SharedObject<BinnedArray<TrackingVolume> >& outsidevolarray) const;
+      const SharedObject<BinnedArray<TrackingVolume> >& outsidevolarray) ;
 
   /** protected method to confine (dense) volumes:
       input:
        - the volume that holdes the BoundarySurfaces (embedded)
        - the volume to be set as outside volume  */
-  void confineVolume ATLAS_NOT_THREAD_SAFE(
-      const TrackingVolume& tvol, const TrackingVolume* outsidevol) const;
+  static void confineVolume ATLAS_NOT_THREAD_SAFE(
+      const TrackingVolume& tvol, const TrackingVolume* outsidevol) ;
 };
 }  // namespace Trk
 

@@ -232,6 +232,23 @@ def defineMenu():
         'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
 
         # AFP
+        # high-priority (all mu)
+        'L1_AFP_A_AND_C_TOF_T0T1',
+        'L1_AFP_FSA_BGRP0', 'L1_AFP_FSC_BGRP0',
+        # med-priority (all mu)
+        'L1_AFP_FSA_TOF_T0_BGRP0', 'L1_AFP_FSA_TOF_T1_BGRP0','L1_AFP_FSC_TOF_T0_BGRP0', 'L1_AFP_FSC_TOF_T1_BGRP0',
+        # low-priority (all mu)
+        'L1_AFP_FSA_TOF_T2_BGRP0', 'L1_AFP_FSA_TOF_T3_BGRP0','L1_AFP_FSC_TOF_T2_BGRP0', 'L1_AFP_FSC_TOF_T3_BGRP0',
+        'L1_AFP_A_OR_C_UNPAIRED_ISO', 'L1_AFP_A_OR_C_UNPAIRED_NONISO', 'L1_AFP_A_OR_C_EMPTY', 'L1_AFP_A_OR_C_FIRSTEMPTY',
+        'L1_AFP_A_AND_C_TOF_J50', 'L1_AFP_A_AND_C_TOF_T0T1_J50','L1_AFP_A_AND_C_TOF_J75', 'L1_AFP_A_AND_C_TOF_T0T1_J75', 
+        # high-priority (low mu)
+        'L1_AFP_NSA_BGRP0', 'L1_AFP_NSC_BGRP0', 
+        'L1_AFP_A','L1_AFP_C', 'L1_AFP_A_AND_C',
+        #'L1_AFP_A_OR_C_J5','L1_AFP_A_AND_C_J5', # J5 not available in legacy menu. Need to update to jJ threshold for low-mu
+        'L1_AFP_A_OR_C_J12','L1_AFP_A_AND_C_J12',
+        'L1_MU6_AFP_A_OR_C','L1_MU6_AFP_A_AND_C','L1_EM7_AFP_A_OR_C','L1_EM7_AFP_A_AND_C',
+        # med-priority (low mu)
+        'L1_AFP_A_OR_C','L1_AFP_A_OR_C_MBTS_2', 'L1_AFP_A_AND_C_MBTS_2',
 
         # MBTS
         'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY', 'L1_MBTSA0', 'L1_MBTSA1', 'L1_MBTSA2', 'L1_MBTSA3', 'L1_MBTSA4', 'L1_MBTSA5', 'L1_MBTSA6', 'L1_MBTSA7', 'L1_MBTSA8', 'L1_MBTSA9', 'L1_MBTSA10', 'L1_MBTSA11', 'L1_MBTSA12', 'L1_MBTSA13', 'L1_MBTSA14', 'L1_MBTSA15', 'L1_MBTSC0', 'L1_MBTSC1', 'L1_MBTSC2', 'L1_MBTSC3', 'L1_MBTSC4', 'L1_MBTSC5', 'L1_MBTSC6', 'L1_MBTSC7', 'L1_MBTSC8', 'L1_MBTSC9', 'L1_MBTSC10', 'L1_MBTSC11', 'L1_MBTSC12', 'L1_MBTSC13', 'L1_MBTSC14', 'L1_MBTSC15', 'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_2',
@@ -324,7 +341,7 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
-
+        'L1_AFP_A_AND_C_TOF_CEP-CJ60','L1_AFP_A_AND_C_TOF_T0T1_CEP-CJ60',
 
         ]
 

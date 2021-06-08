@@ -28,19 +28,14 @@ def LArCellCorrectorCfg(configFlags):
         correctionTools.append(theMerger)
     
     if configFlags.LAr.doCellNoiseMasking or configFlags.LAr.doCellSporadicNoiseMasking:
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
+        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg
+        result.merge(LArBadChannelCfg(configFlags))
         theNoiseMasker=LArCellNoiseMaskingTool(qualityCut = 4000)
         if configFlags.LAr.doCellNoiseMasking:
-            acc= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="LArNoiseMasker")
-            theNoiseMasker.MaskingTool=acc.popPrivateTools()
-            result.merge(acc)
-            theNoiseMasker.maskNoise = True
+            theNoiseMasker.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
             pass
         if configFlags.LAr.doCellSporadicNoiseMasking:
-            acc=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="LArSporadicNoiseMasker")
-            theNoiseMasker.MaskingSporadicTool=acc.popPrivateTools()
-            result.merge(acc)
-            theNoiseMasker.maskSporadic=True
+            theNoiseMasker.SporadicProblemsToMask=["sporadicBurstNoise",]
             pass
         correctionTools.append(theNoiseMasker)
 

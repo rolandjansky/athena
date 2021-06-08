@@ -77,10 +77,7 @@ StatusCode LArAutoCorr2Ntuple::stop() {
  unsigned cellZeroCounter=0;
  for ( unsigned igain=CaloGain::LARHIGHGAIN; 
        igain<CaloGain::LARNGAIN ; ++igain ) {
-   std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-   std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-   for (;it!=it_e;it++) {
-     const HWIdentifier hwid = *it;
+   for (HWIdentifier hwid : m_onlineId->channel_range()) {
      ILArAutoCorr::AutoCorrRef_t corr=larAutoCorr->autoCorr(hwid,igain);
 
      if (corr.size()>0) {

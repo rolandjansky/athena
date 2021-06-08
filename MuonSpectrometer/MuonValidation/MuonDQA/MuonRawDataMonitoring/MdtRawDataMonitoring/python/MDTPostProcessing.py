@@ -2,19 +2,28 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from .MdtMonUtils import putBoxMdtGlobal
+from ROOT import TH1F
+from .MdtMonUtils import putBoxMdtGlobal, getTubeLength
 import numpy as np
-
 
 def make_hits_per_evt(inputs):
    EvtOccBCap = inputs[0][1][1].Clone()
-   EvtOccBCap.Reset()
    EvtOccECap = inputs[0][1][2].Clone()
+   EvtOccBCap.Reset()
    EvtOccECap.Reset()
    EvtOccBCap.SetName("HitsPerEvtInBarrelPerChamber_ADCCut")
    EvtOccBCap.SetTitle("Avg # hits/evt Barrel, ADCCut")
    EvtOccECap.SetName("HitsPerEvtInEndCapPerChamber_ADCCut")
    EvtOccECap.SetTitle("Avg # hits/evt Endcap, ADCCut")
+   
+   VolumeMapBCap = inputs[0][1][1].Clone()
+   VolumeMapECap = inputs[0][1][2].Clone()
+   VolumeMapBCap.Reset()
+   VolumeMapECap.Reset()
+   VolumeMapBCap.SetName("VolumeMapBarrel")
+   VolumeMapBCap.SetTitle("Volume Map (#tubes*tubeVol in m^3) Barrel")
+   VolumeMapECap.SetName("VolumeMapEncap")
+   VolumeMapECap.SetTitle("Volume Map (#tubes*tubeVol in m^3) Endcap")
 
    size = len(inputs)
    chamberHits_vec = []
@@ -58,23 +67,57 @@ def make_hits_per_evt(inputs):
 
       h_trigger = inputs[0][1][3]
       nTriggers = int(h_trigger.GetEntries())
-      if (not hvOff):
-         if(len(yAxis) == 4):
-            yAxis2 = yAxis[0]+' '+yAxis[1:3]+' '+yAxis[3]
-            # yAxis2=yAxis[0]+','+yAxis[1:3]+','+yAxis[3]
-         else:
-            yAxis2 = yAxis[0]+' '+yAxis[1:3]
-            # yAxis2=yAxis[0]+','+yAxis[1:3]
-         if(xAxis.startswith("B")):
+
+      tubeRadiusScale = 1
+      tubeLength =      getTubeLength(name)
+      if(name[0:3] == "BME" or name[0:3] == "BMG"):
+         tubeRadiusScale = 0.25 
+      numTubesInChamber=hi.GetNbinsX()
+      #0.0006881 m2 = pi*tube_r^2
+      chamb_vol = numTubesInChamber*tubeLength*0.0006881*tubeRadiusScale
+
+
+      if(len(yAxis) == 4):
+         yAxis2 = yAxis[0]+' '+yAxis[1:3]+' '+yAxis[3]
+         #yAxis2=yAxis[0]+','+yAxis[1:3]+','+yAxis[3]
+      else:
+         yAxis2 = yAxis[0]+' '+yAxis[1:3]
+         #yAxis2=yAxis[0]+','+yAxis[1:3]
+      if(xAxis.startswith("B")):
+         VolumeMapBCap.Fill(xAxis, yAxis2, chamb_vol)
+         if (not hvOff):
             EvtOccBCap.Fill(xAxis, yAxis2, nhits/(float(nTriggers)))
-         else:
+      else:
+         VolumeMapECap.Fill(xAxis, yAxis2, chamb_vol)
+         if (not hvOff):
             EvtOccECap.Fill(xAxis, yAxis2, nhits/(float(nTriggers)))
 
    putBoxMdtGlobal(EvtOccBCap, "B")
    putBoxMdtGlobal(EvtOccECap, "E")
+   putBoxMdtGlobal(VolumeMapBCap, "B")
+   putBoxMdtGlobal(VolumeMapECap, "E")
 
-   return [EvtOccBCap, EvtOccECap]
+   return [EvtOccBCap, EvtOccECap, VolumeMapBCap, VolumeMapECap]
 
+
+def make_eff_histo(inputs, ec):
+   ecap = ["BA", "BC", "EA", "EC"]
+   ecap_str= ecap[ec]
+   ecap_fullStr_lower = "mdt"+ecap_str
+   heff = TH1F(ecap_fullStr_lower+"_TUBE_eff",ecap_fullStr_lower+"_TUBE_eff",100,0,1)
+
+   size = len(inputs)
+   dencut = 10
+
+   for i in range(size): 
+      hi_num = inputs[i][1][0].Clone()
+      hi_den = inputs[i][1][1].Clone()
+      nbin=hi_den.GetNbinsX()
+      for ibin in range(nbin):
+         if( hi_den.At(ibin) > dencut ):
+            heff.Fill( (hi_num.At(ibin))/(hi_den.At(ibin)) )
+
+   return [heff]
 
 def MdtGlobalBox(inputs):
    EvtOccBCap = inputs[0][1][0]

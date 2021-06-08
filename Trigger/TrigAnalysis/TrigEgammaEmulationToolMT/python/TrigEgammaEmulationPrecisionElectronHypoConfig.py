@@ -3,6 +3,7 @@
 #
  
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
@@ -43,8 +44,7 @@ class TrigEgammaEmulationPrecisionElectronHypoToolConfig:
     self.__sel = sel
     self.__iso = iso
     
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationToolMTConf import Trig__TrigEgammaEmulationPrecisionElectronHypoTool
-    tool = Trig__TrigEgammaEmulationPrecisionElectronHypoTool( name )
+    tool = CompFactory.Trig.TrigEgammaEmulationPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( self.__threshold*GeV, tool )
@@ -129,17 +129,31 @@ class TrigEgammaEmulationPrecisionElectronHypoToolConfig:
 
 
 
-#
-# create and configure the precision electron hypo tool
-#
-def createPrecisionElectron( name, info ):
+def _IncTool( name, chain, threshold, sel, iso ):
+    config = TrigEgammaEmulationPrecisionElectronHypoToolConfig(name, chain, threshold, sel, iso)
+    config.compile()
+    return config.tool()
 
-    cpart = info['chainParts'][0]
-    sel = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-    etthr = int(cpart['threshold'])
-    isoinfo = cpart['isoInfo']
-    chain = info['chainName']
 
-    hypo = TrigEgammaEmulationPrecisionElectronHypoToolConfig( name, chain, etthr, sel, isoinfo )
-    hypo.compile()
-    return hypo.tool()
+
+def TrigEgammaPrecisionElectronHypoToolFromDict( name, d ):
+    """ Use menu decoded chain dictionary to configure the tool """
+    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Electron'))]
+
+    def __mult(cpart):
+        return int( cpart['multiplicity'] )
+
+    def __th(cpart):
+        return cpart['threshold']
+    
+    def __sel(cpart):
+        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+
+    def __iso(cpart):
+        return cpart['isoInfo']
+
+    chain = d['chainName']
+    return _IncTool( name, chain, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0])  )
+                   
+    
+

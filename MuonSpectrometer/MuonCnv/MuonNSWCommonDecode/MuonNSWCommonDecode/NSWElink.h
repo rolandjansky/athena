@@ -20,7 +20,7 @@ namespace Muon
     class NSWElink
     {
      public:
-      //NSWElink ();
+      //NSWElink (); to be implemented for simulation
       NSWElink (uint32_t *bs);
       virtual ~NSWElink ();
 
@@ -28,8 +28,10 @@ namespace Muon
 
       unsigned int nwords () const {return m_wordCount;};
       unsigned int nhits  () const {return m_nhits;};
+      unsigned int status () const {return m_packet_status;};
  
       // Detector Logical ID and components
+      uint32_t elinkWord  () const {return m_elinkWord;};
       Muon::nsw::NSWResourceId *elinkId () const {return m_elinkId;};
 
       // ROC header
@@ -58,6 +60,7 @@ namespace Muon
       unsigned int m_wordCount;
       unsigned int m_nhits;
       unsigned int m_running_checksum;
+      unsigned int m_packet_status;
 
       bool m_isNull;
       bool m_noTdc;
@@ -74,6 +77,7 @@ namespace Muon
       uint16_t m_l0Id;
       uint16_t m_flagMiss;
 
+      uint32_t m_elinkWord;
       Muon::nsw::NSWResourceId *m_elinkId;
       std::vector <Muon::nsw::VMMChannel *> m_channels;
     };

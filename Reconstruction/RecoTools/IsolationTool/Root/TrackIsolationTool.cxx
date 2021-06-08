@@ -189,7 +189,7 @@ namespace xAOD {
     for( const auto& tp : tps ) {
       if( (!m_trkselTool->accept( *tp , input.vertex)) ||
         (m_useTTVATool && (!input.vertex || !m_ttvaTool->isCompatible(*tp, *input.vertex)))){
-          if (!input.vertex){
+          if (m_useTTVATool && !input.vertex){
             ATH_MSG_WARNING("Encountered a track isolation input with invalid vertex while requiring TTVA. Rejecting, please check your inputs!"); 
           } 
           ATH_MSG_DEBUG("reject track pt = " << tp->pt());

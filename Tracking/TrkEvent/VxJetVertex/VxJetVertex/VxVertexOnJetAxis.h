@@ -62,13 +62,13 @@ namespace Trk {
   /**
    * Constructs a VxVertexOnJetAxis with its tracks pointers 
    */                               
-    VxVertexOnJetAxis(const std::vector<VxTrackAtVertex*> & tracksAtVertex);              
+    VxVertexOnJetAxis(std::vector<VxTrackAtVertex*> tracksAtVertex);
 
   /**
    * Constructs a VxVertexOnJetAxis with its tracks pointers + number of Vertex (only internally 
    used by the fitter)
    */                               
-    VxVertexOnJetAxis(const std::vector<VxTrackAtVertex*> & tracksAtVertex,
+    VxVertexOnJetAxis(std::vector<VxTrackAtVertex*>  tracksAtVertex,
 		      int numVertex);
   
   /**
@@ -123,7 +123,7 @@ namespace Trk {
   /**
    * set Tracks At Vertex Method
    */
-    void setTracksAtVertex(const std::vector<VxTrackAtVertex*> & tracksAtVertex);
+    void setTracksAtVertex(std::vector<VxTrackAtVertex*> tracksAtVertex);
 
   /**
    * get compatibility to the primary vertex

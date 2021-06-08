@@ -19,17 +19,6 @@ from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArChanMasker=LArBadChannelMasker("LArChanMasker")
-theLArChanMasker.DoMasking=True
-theLArChanMasker.ProblemsToMask=[
-     "deadReadout","deadPhys","short",
-     "sporadicBurstNoise",
-     "highNoiseHG","highNoiseMG","highNoiseLG"
-]
-ToolSvc+=theLArChanMasker
-
-
 LArCellMon = LArCellMonTool(
     name = "LArCellMonCosmics",
     CaloCellContainer = "AllCalo",
@@ -49,7 +38,12 @@ LArCellMon = LArCellMonTool(
     minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1",
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
-    LArBadChannelMask=theLArChanMasker,
+    ProblemsToMask=[
+       "deadReadout","deadPhys","short",
+       "sporadicBurstNoise",
+       "highNoiseHG","highNoiseMG","highNoiseLG"
+    ],
+
     MaskBadChannels    = False,
     MaskNoCondChannels = False,
 

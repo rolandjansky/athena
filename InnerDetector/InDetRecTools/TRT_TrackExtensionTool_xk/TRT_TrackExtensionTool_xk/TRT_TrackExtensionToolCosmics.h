@@ -149,8 +149,8 @@ namespace InDet {
     
       const TRT_ID* m_trtid{} ;
 
-      MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      static MsgStream&    dumpConditions(MsgStream   & out) ;
+      static MsgStream&    dumpEvent     (MsgStream   & out) ;
 
 
 

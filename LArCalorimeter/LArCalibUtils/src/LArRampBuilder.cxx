@@ -6,7 +6,7 @@
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArCalibTriggerAccumulator.h"
 #include "LArRawConditions/LArRampComplete.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -55,7 +55,6 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("isSC",            m_isSC=false);
   declareProperty("isHEC",           m_ishec=false);
   declareProperty("HECKey",          m_hec_key="");
-  declareProperty("BadChannelMask",  m_badChannelMask);
   declareProperty("CorrectBadChannels",  m_doBadChannelMask = false);
   declareProperty("Iterate",         m_iterate = false);
 
@@ -108,14 +107,8 @@ StatusCode LArRampBuilder::initialize()
   ATH_CHECK( m_cablingKey.initialize() );
   if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
 
-  if(m_doBadChannelMask) { 
-    sc=m_badChannelMask.retrieve(); 
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Could not retrieve BadChannelMask "
-		    << m_badChannelMask );
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK(m_bcContKey.initialize(m_doBadChannelMask));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   m_ramps=new LArConditionsContainer<ACCRAMP>();
   //FIXME: Thats probably nonsenes, these raw ramps aren't written to COOL
@@ -455,6 +448,14 @@ StatusCode LArRampBuilder::stop()
 { 
   ATH_MSG_INFO( "in stop."); 
 
+  //retrieve BadChannel info:
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_doBadChannelMask) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+    bcCont=(*bcContHdl);
+  }
+
+
   StatusCode sc;
   //Create transient ramp object (to be filled later) (one object for all gains)
   LArRampComplete* larRampComplete;
@@ -585,7 +586,7 @@ StatusCode LArRampBuilder::stop()
 	    // probably wrong max for small signal = noise artifact 
 	    kMax=2;
             bool isgood=true;
-            if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
+            if(m_doBadChannelMask && m_bcMask.cellShouldBeMasked(bcCont,chid)) isgood=false;
 	    if (cabling->isOnlineConnected(chid) && isgood) {
 	      ATH_MSG_WARNING( "Not enough samples around the maximum! Use kMax=2 ("
 				<< m_onlineHelper->channel_name(chid) <<", DAC=" << dac_it->first 
@@ -730,11 +731,11 @@ StatusCode LArRampBuilder::stop()
 	sort(data.begin(),data.end()); //Sort vector of raw data (necessary to cut off nonlinar high ADC-values)
 	std::vector<float> rampCoeffs;
 	std::vector<int> vSat;
-	StatusCode sc=rampfit(m_degree+1,data,rampCoeffs,vSat,chid,cabling);
+	StatusCode sc=rampfit(m_degree+1,data,rampCoeffs,vSat,chid,cabling,bcCont);
 	if (sc!=StatusCode::SUCCESS){
 	  if (!cabling->isOnlineConnected(chid))
 	      ATH_MSG_DEBUG("Failed to produce ramp for disconnected channel " << m_onlineHelper->channel_name(chid));
-	  else if (m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid,gain))
+	  else if (m_doBadChannelMask && m_bcMask.cellShouldBeMasked(bcCont,chid))
 	    ATH_MSG_INFO( "Failed to produce ramp for known bad channel " << m_onlineHelper->channel_name(chid));
 	  else
 	    ATH_MSG_ERROR( "Failed to produce ramp for channel " << m_onlineHelper->channel_name(chid));
@@ -822,11 +823,12 @@ StatusCode LArRampBuilder::stop()
  
 StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::RAMPPOINT_t>& data, 
 				   std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
-                                   const HWIdentifier chid, const LArOnOffIdMapping* cabling) {
+                                   const HWIdentifier chid, const LArOnOffIdMapping* cabling, 
+				   const LArBadChannelCont* bcCont) {
   unsigned linRange=data.size();
   if (linRange<2) {
     bool isgood=true;
-    if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false; 
+    if(m_doBadChannelMask && m_bcMask.cellShouldBeMasked(bcCont,chid)) isgood=false; 
     if (cabling->isOnlineConnected(chid) && isgood ) {
       ATH_MSG_ERROR( "Not enough datapoints (" << linRange << ") to fit a polynom!" );
       return StatusCode::FAILURE;
@@ -860,7 +862,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   if (!m_withIntercept) 
     deg--;
   bool isgood=true;
-  if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
+  if(m_doBadChannelMask && m_bcMask.cellShouldBeMasked(bcCont,chid)) isgood=false;
   if (deg>linRange) {
     if (cabling->isOnlineConnected(chid) && isgood ) 
       ATH_MSG_ERROR( "Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg );

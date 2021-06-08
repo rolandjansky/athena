@@ -81,7 +81,7 @@ namespace InDet {
 
     SG::WriteHandle<InDet::TRT_DriftCircleContainer> rioContainer(m_rioContainerKey, ctx);
     if(m_rioContainerCacheKey.key().empty()){
-      rioContainer = std::make_unique<InDet::TRT_DriftCircleContainer>(m_pTRTHelper->straw_layer_hash_max());
+      rioContainer = std::make_unique<InDet::TRT_DriftCircleContainer>(m_pTRTHelper->straw_layer_hash_max(),EventContainers::Mode::OfflineFast);
     }else{
       SG::UpdateHandle<TRT_DriftCircleContainerCache> clusterContainercache(m_rioContainerCacheKey, ctx);
       ATH_CHECK( rioContainer.record (std::make_unique<TRT_DriftCircleContainer>(clusterContainercache.ptr()) ));

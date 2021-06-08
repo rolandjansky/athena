@@ -10,4 +10,4 @@
 
 export ATHENA_CORE_NUMBER=8
 
-test_compare_SerialAndThreadedAthenas.sh BTagging/RecExRecoTest_ART_FlavorTagging_fromESD.py
+test_compare_SerialAndThreadedAthenas.sh RecExRecoTest/RecExRecoTest_ART_FlavorTagging_fromESD.py

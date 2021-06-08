@@ -38,7 +38,8 @@ class LArDQGlobals(object):
                    'Tmin','Tmax','DTmin','DTmax','OnlineOffline','TTriggerTypeMax','MaxCellThresholdADC',
                    'CorruptionSource','Streams',
                    'Partitions','Sides','Variables','Layers','Cell_Variables',
-                   'febsBarrelA','febsEndcapA','febsBarrelC','febsEndcapC')
+                   'febsBarrelA','febsEndcapA','febsBarrelC','febsEndcapC',
+                   'CNFN_tot','CNFXmin_tot','CNFXmax_tot','CNFN_ncoh','CNFXmin_ncoh','CNFXmax_ncoh')
       
 
 lArDQGlobals = LArDQGlobals()
@@ -370,4 +371,12 @@ for sdet in lArDQGlobals.SubDet:
                         lArDQGlobals.Cell_Variables["etaRange"][sdet]["C"][Lay] = lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay]
                   else: #all other partitions
                         lArDQGlobals.Cell_Variables["etaRange"][sdet]["C"][Lay] =list(map(lambda x: x*-1,lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay]))[::-1]
-                              
+
+#CNF
+lArDQGlobals.CNFN_tot = 80
+lArDQGlobals.CNFXmin_tot = -400.
+lArDQGlobals.CNFXmax_tot = 400.
+lArDQGlobals.CNFN_ncoh = 120
+lArDQGlobals.CNFXmin_ncoh = -40.
+lArDQGlobals.CNFXmax_ncoh = 200.
+

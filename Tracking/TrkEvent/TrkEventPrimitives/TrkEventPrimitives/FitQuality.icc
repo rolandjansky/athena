@@ -20,6 +20,13 @@ FitQuality::clone() const
   return new FitQuality(*this);
 }
 
+inline std::unique_ptr<FitQuality>
+FitQuality::uniqueClone() const
+{
+  return std::unique_ptr<FitQuality>(clone());
+}
+
+
 inline double
 FitQuality::chiSquared() const
 {
@@ -29,7 +36,7 @@ FitQuality::chiSquared() const
 inline int
 FitQuality::numberDoF() const
 {
-  return static_cast<int>(floor(m_numberDoF + 0.5));
+  return static_cast<int>(std::floor(m_numberDoF + 0.5));
 }
 
 inline double

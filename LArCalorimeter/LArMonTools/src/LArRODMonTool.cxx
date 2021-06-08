@@ -111,7 +111,6 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   declareProperty("ADCthreshold",m_adc_th = 50); // Minimal number of ADC amplitude among samples required to compare online/offline
   declareProperty("peakTimeCut",m_peakTime_cut = 5.); // Cut on abs(peak time) to compare online/offline (all quantities)
 
-  declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("SkipKnownProblematicChannels",m_skipKnownProblematicChannels = false);
   declareProperty("SkipNullPed",m_skipNullPed = false);
   declareProperty("SkipNullQT",m_skipNullQT = false);
@@ -186,16 +185,11 @@ LArRODMonTool::initialize() {
 
   ATH_CHECK(m_cablingKey.initialize());
 
-  if (m_skipKnownProblematicChannels) { 
-    sc=m_badChannelMask.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    m_badChannelMask.disable();
-  }
+  
+  /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
+  ATH_CHECK( m_bcContKey.initialize(m_skipKnownProblematicChannels));
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
   // Open output files for DspTest
   if (m_doDspTestDump) {
     m_fai = std::fopen(m_AiFileName.c_str(),"w");
@@ -707,6 +701,12 @@ StatusCode LArRODMonTool::fillHistograms() {
   SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
   const LArADC2MeV* adc2mev=*adc2MeVHdl;
 
+  
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_skipKnownProblematicChannels) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+    bcCont=*bcContHdl;
+  }
 
   if (m_doCheckSum || m_doRodStatus) {
     FebStatus_Check();
@@ -743,7 +743,7 @@ StatusCode LArRODMonTool::fillHistograms() {
       if (m_ignoreFEBs.find(febId)!=ignoreFebsEnd) continue;
     }
     //Check if this is a bad channel
-    if (m_skipKnownProblematicChannels && m_badChannelMask->cellShouldBeMasked(idDig)) continue;
+    if (m_skipKnownProblematicChannels && m_bcMask.cellShouldBeMasked(bcCont,idDig)) continue;
 
     //Check pedestal if needed
     if (m_skipNullPed) {

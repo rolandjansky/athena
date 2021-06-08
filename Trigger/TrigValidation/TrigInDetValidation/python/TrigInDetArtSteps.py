@@ -8,6 +8,7 @@ The main common check steps are defined in the TrigValSteering.CheckSteps module
 '''
 
 import os
+import subprocess
 import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
@@ -93,9 +94,13 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_e26_idperf_loose_lrtloose_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron') :
-                chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
-                chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
-                chains +=  "'HLT_e26_lhtight_gsf_L1EM22VHI',"
+                # chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
+                # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
+                chains += "'HLT_e26_lhtight_gsf_L1EM22VHI',"
+                chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
+                chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
+                chains += "'HLT_e5_idperf_loose_L1EM3',"
+                chains += "'HLT_e5_idperf_tight_L1EM3',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
@@ -122,10 +127,9 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
-
-        if (self.release == 'current'):
-            print( "Using current release for offline Reco steps  " )
-        else:
+        
+        AVERSION = ""
+        if (self.release != 'current'):
             # get the current atlas base release, and the previous base release
             import os
             DVERSION=os.getenv('Athena_VERSION')
@@ -133,14 +137,19 @@ class TrigInDetReco(ExecStep):
                 if ( DVERSION is None ) :
                     AVERSION = "22.0.20"
                 else:
-                    BASE=DVERSION[:5]
-                    SUB=int(DVERSION[5:])
-                    SUB -= 1
-                    AVERSION=BASE+str(SUB)
+                    AVERSION=str(subprocess.Popen(["getrelease.sh",DVERSION],stdout=subprocess.PIPE).communicate()[0],'utf-8')
+                    if AVERSION == "":
+                        print( "cannot get last stable release - will use current release" )
             else:
                 AVERSION = self.release
+
+        # would use AVERSION is not None, but the return from a shell function with no printout 
+        # gets set as an empty string rather than None        
+        if AVERSION != "":
             self.args += ' --asetup "RAWtoESD:Athena,'+AVERSION+'" "ESDtoAOD:Athena,'+AVERSION+'" '
             print( "remapping athena base release version for offline Reco steps: ", DVERSION, " -> ", AVERSION )
+        else:
+            print( "Using current release for offline Reco steps  " )
 
 
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
@@ -222,6 +231,7 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline-vtxtrack.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )

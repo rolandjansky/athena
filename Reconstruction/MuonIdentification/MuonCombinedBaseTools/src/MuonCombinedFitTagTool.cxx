@@ -9,6 +9,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#include <memory>
+
+
+
 #include "MuonCombinedFitTagTool.h"
 
 #include "MuonCombinedEvent/CombinedFitTag.h"
@@ -128,7 +132,7 @@ namespace MuonCombined {
             Trk::TrackScore score = m_trackScoringTool->score(*combinedTrack, true);
 
             // add fit info into tag object
-            currentTag.reset(new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, score));
+            currentTag = std::make_unique<CombinedFitTag>(xAOD::Muon::MuidCo, muonCandidate, score);
 
             // re-fit standalone track (if needed) and store output into tag object
             METrack = evaluateMatchProperties(combinedTrack.get(), *currentTag, *((*rit).second->indetTrackParticle().track()),
@@ -159,7 +163,7 @@ namespace MuonCombined {
                         Trk::TrackScore score = m_trackScoringTool->score(*combinedTrack, true);
 
                         // add fit info into tag object
-                        currentTag.reset(new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, score));
+                        currentTag = std::make_unique<CombinedFitTag>(xAOD::Muon::MuidCo, muonCandidate, score);
 
                         if (msgLevel() >= MSG::DEBUG) {
                             dumpCaloEloss(combinedTrack.get(), "Recovery Combined Track ", ctx);
@@ -342,7 +346,7 @@ namespace MuonCombined {
         if (!m_vertexKey.empty()) {
             SG::ReadHandle<xAOD::VertexContainer> vertices{m_vertexKey, ctx};
             if (vertices.isValid()) {
-                for (const auto vx : *vertices) {
+                for (const auto *const vx : *vertices) {
                     for (const auto& tpLink : vx->trackParticleLinks()) {
                         if (*tpLink == &idTrackParticle) {
                             matchedVertex = vx;
@@ -434,7 +438,7 @@ namespace MuonCombined {
         double eta = 0.;
         double pMuonEntry = 0.;
 
-        for (auto m : *trackTSOS) {
+        for (const auto *m : *trackTSOS) {
             const Trk::MeasurementBase* mot = m->measurementOnTrack();
             if (m->trackParameters()) pMuonEntry = m->trackParameters()->momentum().mag();
             if (mot) {
@@ -736,12 +740,10 @@ namespace MuonCombined {
         if (curExtrTrack && curExtrTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && bestExtrTrack &&
             bestExtrTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
             // best fit chi2
-            if (fitChiSq1 < fitChiSq2) return true;
-            return false;
+            return fitChiSq1 < fitChiSq2;
         } else {
             // best match chi2
-            if (matchChiSq1 < matchChiSq2) return true;
-            return false;
+            return matchChiSq1 < matchChiSq2;
         }
     }
 

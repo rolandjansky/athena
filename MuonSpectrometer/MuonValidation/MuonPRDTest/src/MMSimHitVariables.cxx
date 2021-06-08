@@ -171,9 +171,10 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
     int stripNumber = detEl->stripNumber(posOnSurf,offId);
     //  int LastStripNumber = detEl->stripNumber(posOnTopSurf, offId);
      
-    // perform bound check
-    m_NSWMM_isInsideBounds.push_back( surf.insideBounds(posOnSurf) );
-        
+    // perform bound check (making the call from the detector element to consider edge passivation)
+    //m_NSWMM_isInsideBounds.push_back( surf.insideBounds(posOnSurf) );
+    m_NSWMM_isInsideBounds.push_back( detEl->insideActiveBounds(offId, posOnSurf) );
+
     if( stripNumber == -1 ){
       ATH_MSG_WARNING("MicroMegas validation: failed to obtain strip number " << m_MmIdHelper->print_to_string(offId) );
       ATH_MSG_WARNING(" pos " << posOnSurf << " z " << rSurface_pos.z() );

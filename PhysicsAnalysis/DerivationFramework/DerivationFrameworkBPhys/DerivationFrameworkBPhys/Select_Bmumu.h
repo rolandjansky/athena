@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -78,9 +78,9 @@ namespace DerivationFramework {
       bool checkAllMuonsTight(const std::vector<const xAOD::Muon*>& muons,
                               int maxMuonsToCheck=-1) const;
       
-      bool pass(const SG::AuxElement& em, std::string hypo) const;
-      bool setPass(const SG::AuxElement& em, std::string hypo, bool passVal) const;
-      bool setPassIfNotAvailable(SG::AuxElement& em, std::string hypo,
+      bool pass(const SG::AuxElement& em, const std::string& hypo) const;
+      bool setPass(const SG::AuxElement& em, const std::string& hypo, bool passVal) const;
+      bool setPassIfNotAvailable(SG::AuxElement& em, const std::string& hypo,
 				 bool passVal) const;
       // std::vector<xAOD::Vertex*> getPrecedingVertices(const xAOD::Vertex* vtx);
       

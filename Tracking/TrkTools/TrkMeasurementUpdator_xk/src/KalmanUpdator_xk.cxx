@@ -1131,7 +1131,7 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
  const Amg::Vector2D     & P,
  const Amg::MatrixX      & E,
  int&                      N,
- double&                  X2) const
+ double&                  X2) 
 {
   // Measurement information preparation
   //
@@ -1165,7 +1165,7 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
  int&                        N,
- double&                    X2) const
+ double&                    X2) 
 {
   // Measurement information preparation
   //
@@ -1197,7 +1197,7 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithOneDim
-(double* M,double* MV,double* P, double* PV) const
+(const double* M,const double* MV,double* P, double* PV) const
 {
   P [ 0] =    M [ 0];
   PV[ 0] =    MV[ 0];
@@ -1225,7 +1225,7 @@ bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithOneDim
 ///////////////////////////////////////////////////////////////////
 
 bool Trk::KalmanUpdator_xk::updateNoMeasuredWithTwoDim
-(double* M,double* MV,double* P, double* PV) const
+(const double* M,const double* MV,double* P, double* PV) const
 {
   P [ 0] =    M [ 0];
   P [ 1] =    M [ 1];
@@ -1256,7 +1256,7 @@ bool Trk::KalmanUpdator_xk::updateNoMeasuredWithTwoDim
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithAnyDim
-(double* M,double* MV,double* P,double* PV,int K) const
+(const double* M,const double* MV,double* P,double* PV,int K) const
 {
 
   int i=0;
@@ -1291,7 +1291,7 @@ bool  Trk::KalmanUpdator_xk::updateNoMeasuredWithAnyDim
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::updateWithOneDim
-(int O,bool X,double* M,double* MV,double* P, double* PV,double& xi2) const
+(int O,bool X,const double* M,const double* MV,double* P, double* PV,double& xi2) 
 {
   double v0;
   if(O>0) {v0 = MV[0]+PV[0];}
@@ -1416,7 +1416,7 @@ bool  Trk::KalmanUpdator_xk::updateWithOneDimWithBoundary
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::updateWithTwoDim
-(int O,bool X,double* M,double* MV,double* P, double* PV,double& xi2) const
+(int O,bool X,const double* M,const double* MV,double* P, double* PV,double& xi2) 
 {
   double v0;
   double v1;
@@ -1488,7 +1488,7 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDim
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::updateWithTwoDimParameters
-(int O,bool X,double* M,double* MV,double* P, double* PV,double& xi2) const
+(int O,bool X,const double* M,const double* MV,double* P, const double* PV,double& xi2) 
 {
   double v0;
   double v1;
@@ -1619,7 +1619,7 @@ bool  Trk::KalmanUpdator_xk::updateWithTwoDimWithBoundary
 ///////////////////////////////////////////////////////////////////
 
 bool  Trk::KalmanUpdator_xk::updateWithFiveDim
-(bool X,double* M,double* MV,double* P, double* PV,double& xi2) const
+(bool X,double* M,double* MV,double* P, double* PV,double& xi2) 
 {
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;
@@ -1722,7 +1722,7 @@ bool  Trk::KalmanUpdator_xk::updateWithFiveDim
 ///////////////////////////////////////////////////////////////////
 
 bool Trk::KalmanUpdator_xk::updateWithAnyDim
-(int O,bool X,double* M,double* MV,double* P, double* PV,double& xi2,
+(int O,bool X,double* M,const double* MV,double* P, double* PV,double& xi2,
  int N,int K) const
 {
   double s;
@@ -1810,7 +1810,7 @@ bool Trk::KalmanUpdator_xk::updateWithAnyDim
 ///////////////////////////////////////////////////////////////////
 
 bool Trk::KalmanUpdator_xk::trackParametersToUpdator
-(const Trk::TrackParameters& T,double* P,double* V) const
+(const Trk::TrackParameters& T,double* P,double* V) 
 {
   P[0] = T.parameters()[0];
   P[1] = T.parameters()[1];
@@ -1847,7 +1847,7 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 ///////////////////////////////////////////////////////////////////
 
 bool Trk::KalmanUpdator_xk::trackParametersToUpdator
-(const Trk::PatternTrackParameters& T,double* P,double* V) const
+(const Trk::PatternTrackParameters& T,double* P,double* V) 
 {
   const AmgVector(5) & par = T.parameters();
 
@@ -1887,7 +1887,7 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 
 bool  Trk::KalmanUpdator_xk::localParametersToUpdator
 (const Trk::LocalParameters& L,const Amg::MatrixX& C,
- int& N,int& K,double* P,double* V) const
+ int& N,int& K,double* P,double* V) 
 {
 
   N = C.rows(); if(N==0 || N>5 || L.dimension()!=N) return false;
@@ -1922,7 +1922,7 @@ bool  Trk::KalmanUpdator_xk::localParametersToUpdator
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::updatorToTrackParameters
-(const Trk::TrackParameters& T,double* P,double* V) const
+(const Trk::TrackParameters& T,double* P,double* V) 
 {
   AmgSymMatrix(5) e;
   e<<  V[ 0],V[ 1],V[ 3],V[ 6],V[10],
@@ -1942,7 +1942,7 @@ std::unique_ptr<Trk::TrackParameters> Trk::KalmanUpdator_xk::updatorToTrackParam
 // Output parameters : b -  inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) const
+bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) 
 {
   if(n==2) return invert2(a,b);
   if(n==3) return invert3(a,b);
@@ -1961,7 +1961,7 @@ bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) const
 // Output parameters : b(0/2) -  inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool  Trk::KalmanUpdator_xk::invert2 (double* a,double* b) const
+bool  Trk::KalmanUpdator_xk::invert2 (const double* a,double* b) 
 {
   double d  = a[0]*a[2]-a[1]*a[1]; if(d<=0.) return false; d=1./d;
   double b0 = a[2]*d;
@@ -1982,7 +1982,7 @@ bool  Trk::KalmanUpdator_xk::invert2 (double* a,double* b) const
 // Output parameters : b(0/5) -  inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool  Trk::KalmanUpdator_xk::invert3(double* a,double* b) const
+bool  Trk::KalmanUpdator_xk::invert3(const double* a,double* b) 
 {
   double b0 = (a[2]*a[5]-a[4]*a[4]);
   double b1 =-(a[1]*a[5]-a[3]*a[4]);
@@ -2012,7 +2012,7 @@ bool  Trk::KalmanUpdator_xk::invert3(double* a,double* b) const
 // Output parameters : b(0/9) - inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::invert4(double* a,double* b) const
+bool Trk::KalmanUpdator_xk::invert4(const double* a,double* b) 
 {
   double d00 = a[1]*a[4]-a[2]*a[3];
   double d01 = a[1]*a[5]-a[4]*a[3];
@@ -2067,7 +2067,7 @@ bool Trk::KalmanUpdator_xk::invert4(double* a,double* b) const
 // Output parameters : b(0/14) - inverted matrix
 ///////////////////////////////////////////////////////////////////
 
-bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
+bool Trk::KalmanUpdator_xk::invert5(const double* a,double* b) 
 {
   if(a[ 0] <=0.) return false;
   double x1    = 1./a[ 0];
@@ -2154,7 +2154,7 @@ bool Trk::KalmanUpdator_xk::invert5(double* a,double* b) const
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
-double Trk::KalmanUpdator_xk::Xi2(int N,double* R,double* W) const
+double Trk::KalmanUpdator_xk::Xi2(int N,double* R,double* W) 
 {
   if(N==1) return Xi2for1(R,W);
   if(N==2) return Xi2for2(R,W);
@@ -2169,7 +2169,7 @@ double Trk::KalmanUpdator_xk::Xi2(int N,double* R,double* W) const
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
-double Trk::KalmanUpdator_xk::Xi2for1(double* R,double* W) const
+double Trk::KalmanUpdator_xk::Xi2for1(const double* R,const double* W) 
 {
   double Xi2 = R[0]*W[0]*R[0];
   return Xi2;
@@ -2180,7 +2180,7 @@ double Trk::KalmanUpdator_xk::Xi2for1(double* R,double* W) const
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
-double Trk::KalmanUpdator_xk::Xi2for2(double* R,double* W) const
+double Trk::KalmanUpdator_xk::Xi2for2(const double* R,const double* W) 
 {
   double Xi2 =
     (R[0]*W[ 0]+R[1]*W[ 1])*R[0]+
@@ -2193,7 +2193,7 @@ double Trk::KalmanUpdator_xk::Xi2for2(double* R,double* W) const
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
-double Trk::KalmanUpdator_xk::Xi2for3(double* R,double* W) const
+double Trk::KalmanUpdator_xk::Xi2for3(const double* R,const double* W) 
 {
   double Xi2 =
     (R[0]*W[ 0]+R[1]*W[ 1]+R[2]*W[ 3])*R[0]+
@@ -2207,7 +2207,7 @@ double Trk::KalmanUpdator_xk::Xi2for3(double* R,double* W) const
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
-double Trk::KalmanUpdator_xk::Xi2for4(double* R,double* W) const
+double Trk::KalmanUpdator_xk::Xi2for4(const double* R,const double* W) 
 {
   double Xi2 =
     ((R[0]*W[ 0]+R[1]*W[ 1])+(R[2]*W[ 3]+R[3]*W[ 6]))*R[0]+
@@ -2222,7 +2222,7 @@ double Trk::KalmanUpdator_xk::Xi2for4(double* R,double* W) const
 // R - residial  and W -weight matrix
 ///////////////////////////////////////////////////////////////////
 
-double Trk::KalmanUpdator_xk::Xi2for5(double* R,double* W) const
+double Trk::KalmanUpdator_xk::Xi2for5(const double* R,const double* W) 
 {
   double Xi2 =
     ((R[0]*W[ 0]+R[1]*W[ 1]+R[2]*W[ 3])+(R[3]*W[ 6]+R[4]*W[10]))*R[0]+
@@ -2239,7 +2239,7 @@ double Trk::KalmanUpdator_xk::Xi2for5(double* R,double* W) const
 ///////////////////////////////////////////////////////////////////
 
 int Trk::KalmanUpdator_xk::differenceParLoc
-(int K,double* L,double* T, double* R) const
+(int K,const double* L,const double* T, double* R) 
 {
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;
@@ -2269,7 +2269,7 @@ int Trk::KalmanUpdator_xk::differenceParLoc
 ///////////////////////////////////////////////////////////////////
 
 void Trk::KalmanUpdator_xk::differenceLocPar
-(int K,double* L,double* T, double* R) const
+(int K,const double* L,const double* T, double* R) 
 {
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;
@@ -2316,7 +2316,7 @@ void Trk::KalmanUpdator_xk::mapKeyProduction()
 // Polar     angle p[3] shoud be >  0  and < +pi
 /////////////////////////////////////////////////////////////////////////////////
 
-void Trk::KalmanUpdator_xk::testAngles(double* p,double* v) const
+void Trk::KalmanUpdator_xk::testAngles(double* p,double* v) 
 {
   const double pi2 = 2.*M_PI;
   const double pi = M_PI;

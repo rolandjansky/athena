@@ -304,7 +304,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
   auto buff_navigationDistanceIncreaseBreaks =
     m_navigationDistanceIncreaseBreaks.buffer();
 
-  while (currentVolume && currentVolume != destinationVolume && currentState) {
+  while (currentVolume && currentVolume != destinationVolume) {
     // Configure propagator based on the current tracking volume
     currentPropagator =
       m_propagatorStickyConfiguration
@@ -991,9 +991,8 @@ Trk::GsfExtrapolator::extrapolateFromLayerToLayer(
   while (nextLayer && nextLayer != destinationLayer) {
     layersHit.insert(nextLayer);
     // Only extrapolate to an intermediate layer if it requires material
-    // update... otherwise step over it
-    if (nextLayer && nextLayer->layerMaterialProperties()) {
-
+    // update. Otherwise step over it
+    if (nextLayer->layerMaterialProperties()) {
       if (!currentState.empty()) {
         currentState = extrapolateToIntermediateLayer(ctx,
                                                       cache,

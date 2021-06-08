@@ -7,8 +7,6 @@
 
 #include "CTPUnpackingToolBase.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 

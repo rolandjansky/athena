@@ -272,7 +272,7 @@ VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
       }
     }
 
-    m_primaryVertex->setTracksAtVertex(primaryVectorNew);
+    m_primaryVertex->setTracksAtVertex(std::move(primaryVectorNew));
 
   } else {
     std::cout << "VxJetCandidate EDM class: Warning in COPY: no primary vertex present" << std::endl;
@@ -309,7 +309,7 @@ VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
           std::cout << "************************************ ---------------------------- **************************************" << std::endl;
         }
       }
-      newVertexOnJetAxis->setTracksAtVertex(vertexVectorNew);
+      newVertexOnJetAxis->setTracksAtVertex(std::move(vertexVectorNew));
       m_verticesOnJetAxis.push_back(newVertexOnJetAxis);
 
     } else {
@@ -408,7 +408,7 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
         }
       }
 
-      m_primaryVertex->setTracksAtVertex(primaryVectorNew);
+      m_primaryVertex->setTracksAtVertex(std::move(primaryVectorNew));
 
     } else {
       std::cout << "VxJetCandidate EDM class: Warning in COPY: no primary vertex present" << std::endl;
@@ -445,7 +445,7 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
             std::cout << "************************************ ---------------------------- **************************************" << std::endl;
           }
         }
-        newVertexOnJetAxis->setTracksAtVertex(vertexVectorNew);
+        newVertexOnJetAxis->setTracksAtVertex(std::move(vertexVectorNew));
         m_verticesOnJetAxis.push_back(newVertexOnJetAxis);
 
       } else {

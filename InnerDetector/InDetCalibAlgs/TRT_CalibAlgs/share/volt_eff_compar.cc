@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <vector>
 #include <time.h>
 
@@ -83,15 +83,13 @@ int main(int argc, char *argv[])
 	char voltageFile_HVlineIdentifier[10];
 	for(i=0;i<numLines;i++)
 	{
-		fscanf(voltage_file, "%s %*s %*s %*s %i", voltageFile_HVlineIdentifier, &HVlineNumber);
-//		printf("HV line issue identifier: %s\n",voltageFile_HVlineIdentifier);
+		fscanf(voltage_file, "%9s %i", voltageFile_HVlineIdentifier, &HVlineNumber);
 		if (strcmp (voltageFile_HVlineIdentifier,"Low") == 0)
 		{
 			v_lines.push_back(ChannelName[HVlineNumber]);
 		}
 		if (strcmp (voltageFile_HVlineIdentifier,"Unknown") == 0)
 		{
-//			printf("Ooops, HV line with unknown voltage value found!\n");
                         fprintf(output_file,"Voltage on the line \t%s\t is unknown: could not have been read from COOL DB. Experts attention needed! Ignore any other mentionings of this line in this report.\n",(ChannelName[HVlineNumber]).c_str());
                         final_report_is_not_empty = true;
 		}
@@ -108,13 +106,6 @@ int main(int argc, char *argv[])
 	{
 		fscanf(eff_file, "%hi %hi %hi %*i %i %*i %*i %i %*i", &e_side, &e_phi_sector, &e_straw_index, &Nhits, &Nholes);
 		fscanf(HVLinesNumbers_file,"%i",&HVlineNumber);
-/*
-		if (j==0)
-		{
-			rewind(HVLinesNumbers_file);
-//it is because e.g. straw #1670 (in strawstatus*.txt) relates to an HV line that is on text line #1671 in HVLinesNumbers.txt
-		}
-*/
 		if (abs(e_side) == 2)
 		{
 			efficiency = (Nhits != 0)?float(Nhits)/float(Nhits+Nholes):0.;

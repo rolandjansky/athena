@@ -112,8 +112,7 @@ LArRawChannelMon = LArRawChannelMonTool(
     # --- histogram registration ---
     interval                  = "run",
 
-    masking_tool              = theLArBadChannelsMasker,
-
+    ProblemsToMask            = ProblemsToMask,
     # Number of luminosity blocks to display in histograms
     n_lumi_blocks             = 3000,
 

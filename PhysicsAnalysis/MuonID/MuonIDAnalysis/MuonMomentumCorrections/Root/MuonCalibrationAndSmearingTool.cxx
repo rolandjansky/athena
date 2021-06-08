@@ -157,7 +157,6 @@ namespace CP {
     m_MacroRegionIdxMap( tool.m_MacroRegionIdxMap ),
     m_MacroRegionName( tool.m_MacroRegionName ),
     m_MacroRegionInnerEta( tool.m_MacroRegionInnerEta ),
-    m_Parameters( tool.m_Parameters ),
     m_currentParameters( nullptr),
     m_StatCombPtThreshold(tool.m_StatCombPtThreshold),
     m_HighPtSystThreshold(tool.m_HighPtSystThreshold),
@@ -263,6 +262,8 @@ namespace CP {
         ATH_MSG_ERROR( "Unkown region values");
         return StatusCode::FAILURE;
     }
+    m_Parameters.initialize( affectingSystematics(), [this] ( const SystematicSet& systConfig, ParameterSet& param ) {
+      return calcSystematicVariation( systConfig, param );});
     if( !applySystematicVariation( SystematicSet() ) ) {
       ATH_MSG_ERROR( "Unable to run with no systematic" );
       return StatusCode::FAILURE;
@@ -1339,24 +1340,8 @@ namespace CP {
     return affectingSystematics();
   }
 
-  StatusCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
+  StatusCode MuonCalibrationAndSmearingTool::calcSystematicVariation( const SystematicSet& systConfig, ParameterSet& param ) const {
 
-    // First check if we already know this systematic configuration
-    std::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
-    if( parIter != m_Parameters.end() ) {
-      m_currentParameters = &parIter->second;
-      return StatusCode::SUCCESS;
-    }
-
-    // Then check if it is actually supported
-    static CP::SystematicSet affSysts = affectingSystematics();
-    SystematicSet checkSysConf;
-    if( !SystematicSet::filterForAffectingSystematics( systConfig, affSysts, checkSysConf ) ) {
-      ATH_MSG_ERROR( "Passing unsupported systematic to the tool!" );
-      return StatusCode::FAILURE;
-    }
-
-    ParameterSet param;
     param.SmearTypeID = MCAST::SystVariation::Default;
     param.SmearTypeMS = MCAST::SystVariation::Default;
     param.Scale = MCAST::SystVariation::Default;
@@ -1465,9 +1450,12 @@ namespace CP {
     ATH_MSG_DEBUG( "Systematic variation's parameters, SmearTypeID: " << param.SmearTypeID );
     ATH_MSG_DEBUG( "Systematic variation's parameters, SmearTypeMS: " << param.SmearTypeMS );
     ATH_MSG_DEBUG( "Systematic variation's parameters, Scale: " << param.Scale );
-    // store this calibration for future use, and make it current
-    m_currentParameters = &m_Parameters.insert( std::make_pair( systConfig, param ) ).first->second;
     return StatusCode::SUCCESS;
+  }
+
+  StatusCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
+
+    return m_Parameters.get( systConfig, m_currentParameters );
 
   }
 

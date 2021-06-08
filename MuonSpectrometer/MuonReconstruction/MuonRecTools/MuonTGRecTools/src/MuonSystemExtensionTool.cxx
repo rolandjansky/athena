@@ -147,10 +147,12 @@ namespace Muon {
     bool MuonSystemExtensionTool::muonSystemExtension(const xAOD::TrackParticle& indetTrackParticle,
                                                       const MuonSystemExtension*& muonSystemExtention) const {
         // get calo extension
-        std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(indetTrackParticle);
+        std::unique_ptr<Trk::CaloExtension> caloExtension =
+          m_caloExtensionTool->caloExtension(Gaudi::Hive::currentContext(),
+                                             indetTrackParticle);
         if (!caloExtension || !caloExtension->muonEntryLayerIntersection()) {
-            ATH_MSG_VERBOSE("Failed to get CaloExtension ");
-            return false;
+          ATH_MSG_VERBOSE("Failed to get CaloExtension ");
+          return false;
         }
 
         // get entry parameters, use it as current parameter for the extrapolation

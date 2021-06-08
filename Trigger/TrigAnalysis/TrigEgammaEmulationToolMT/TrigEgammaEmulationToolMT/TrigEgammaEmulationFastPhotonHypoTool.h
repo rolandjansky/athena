@@ -26,9 +26,10 @@ namespace Trig{
 
 
     private:
-
+        int findCutIndex( float eta ) const;
         bool decide(  const Trig::TrigData &input ) const;
-
+        
+        Gaudi::Property<bool>                 m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
         Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
         Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" }; 
         Gaudi::Property< std::vector<float> > m_eTthr       { this, "ETThr"         , {} , "" };  

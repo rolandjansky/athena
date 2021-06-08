@@ -83,8 +83,6 @@ CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   , m_bPtTauEtaCalibIsAvailable(false)
   , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
-  m_mSystematics = {};
-
   declareProperty("InputFilePath",       m_sInputFilePath       = "" );
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );

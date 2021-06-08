@@ -79,9 +79,12 @@ class ComboHypo : public ::AthReentrantAlgorithm {
    * @param[out] featureIndex Index inside the featureKey collection. 
    * @param[out] roiKey Type-less SG Key hash of the collection hosting the Decision node's initial ROI collection. 
    * @param[out] roiIndex Index inside the roiKey collection. 
+   * @param[out] roiFullscan Flag indicating if the located initial ROI has the FullScan flag enabled. 
+   *                         Triggers special behaviour allowing the ROI to satisfy arbitrary multiplicities in an arbitrary number of legs.
+   * @param[inout] priorFeaturesMap Data structure collating for a given feature (key) what the prior features were integrated over all previous steps (value set). 
    **/
   StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
-    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan) const; 
+    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan, std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap) const; 
 
 
   /**

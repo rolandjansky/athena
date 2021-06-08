@@ -17,6 +17,7 @@ class TrigEgammaFastElectronHypoToolConfig:
                            'lhmedium' , 
                            'lhloose'  , 
                            'lhvloose' ,
+                           'mergedtight',
                            #'dnntight',
                            #'dnnmedium',
                            #'dnnloose',

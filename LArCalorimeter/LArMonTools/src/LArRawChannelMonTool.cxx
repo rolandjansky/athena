@@ -100,7 +100,6 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
   , m_lar_online_id_ptr ( 0 )
   , m_calo_id_mgr_ptr( 0 )
   , m_cable_service_tool ( "LArCablingLegacyService" )
-  , m_masking_tool ( "BadLArRawChannelMask" )
   , m_filterAtlasReady_tools (this)
   , m_atlas_ready( false )
   , m_lar_online_id_str_helper_ptr ( 0 )
@@ -115,7 +114,6 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
 {
 
   declareProperty( "dataNameBase", m_data_name_base = "LArRawChannel" );
-  declareProperty( "masking_tool",    m_masking_tool );
   declareProperty( "ATLASReadyFilterTool",    m_filterAtlasReady_tools );
 
   declareProperty( "occupancy_thresholds",     m_occupancy_thresholds );
@@ -177,7 +175,10 @@ StatusCode LArRawChannelMonTool::initialize()
   ATH_CHECK( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ) );
   ATH_CHECK( detStore()->retrieve( m_calo_id_mgr_ptr ) );
   ATH_CHECK( m_cable_service_tool.retrieve() );
-  ATH_CHECK( m_masking_tool.retrieve() );
+  ATH_CHECK( m_bcContKey.initialize());
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
+
   ATH_CHECK( m_filterAtlasReady_tools.retrieve() );
 
   ATH_CHECK( m_noiseKey.initialize() );
@@ -1365,6 +1366,9 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   SG::ReadCondHandle<CaloNoise> noiseH (m_noiseKey, ctx);
 
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+  const LArBadChannelCont* bcCont={*bcContHdl};
+
   // --- Loop over RawChannels ---
   for( const LArRawChannel &chan : *raw_channels ){
 
@@ -1396,7 +1400,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       if ( !calo_element_ptr ) continue;
 
       // --- skipp masked channels ---
-      if ( m_masking_tool->cellShouldBeMasked( hardware_id ) ) continue;
+      if ( m_bcMask.cellShouldBeMasked(bcCont, hardware_id ) ) continue;
 
 
       // --- monitor properly reconstructed channels only ---

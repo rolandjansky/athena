@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_HIVEMGRSVC_H
@@ -13,7 +13,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/SGHiveEventSlot.h"
@@ -29,7 +28,7 @@ class ISvcLocator;
  *  $Id: SGHiveMgrSvc.h 794852 2017-01-31 23:24:04Z leggett $
  **/
 namespace SG {
-  class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service,  public IIncidentListener {
+class HiveMgrSvc : public extends<Service, IHiveWhiteBoard> {
   friend class TestSGHiveMgrSvc;
 public:
   //@{ @name IHiveWhiteBoard implementation
@@ -98,11 +97,7 @@ public:
   //@{ @name Gaudi Service boilerplate
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
-
-  //handle incidents
-  virtual void handle(const Incident&) override final;    
 
   /// Standard Service Constructor. sets active store to default event store
   HiveMgrSvc(const std::string& name, ISvcLocator* svc);

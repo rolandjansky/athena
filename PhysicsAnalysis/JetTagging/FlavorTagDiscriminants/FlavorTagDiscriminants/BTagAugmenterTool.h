@@ -8,28 +8,29 @@
 
 
 #include "AsgTools/AsgTool.h"
-#include "FlavorTagDiscriminants/ISingleJetDecorator.h"
+#include "FlavorTagDiscriminants/IBTagDecorator.h"
 
 class BTagJetAugmenter;
 
 namespace FlavorTagDiscriminants {
 
-  class BTagAugmenterTool : public asg::AsgTool, virtual public ISingleJetDecorator
+  class BTagAugmenterTool : public asg::AsgTool, virtual public IBTagDecorator
   {
-    ASG_TOOL_CLASS(BTagAugmenterTool, ISingleJetDecorator )
+    ASG_TOOL_CLASS(BTagAugmenterTool, IBTagDecorator )
   public:
     BTagAugmenterTool(const std::string& name);
     ~BTagAugmenterTool();
 
     StatusCode initialize() override;
 
-    virtual void decorate(const xAOD::Jet& jet) const override;
+    virtual void decorate(const xAOD::BTagging& btag) const override;
 
     virtual std::set<std::string> getDecoratorKeys() const override;
     virtual std::set<std::string> getAuxInputKeys() const override;
     virtual std::set<std::string> getConstituentAuxInputKeys() const override;
   private:
     std::string m_flipTagConfig;
+    std::string m_trackAssociator;
     std::unique_ptr<BTagJetAugmenter> m_aug; //!
   };
 

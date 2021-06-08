@@ -34,7 +34,7 @@ public:
       simHitList(shl),
       genParticle(p),
       ascObjVis(false),
-      ascObjs(0),
+      ascObjs(nullptr),
       trkTrack(nullptr) {}
   TrackHandle_TruthTrack * theclass;
   SimBarCode simBarCode;
@@ -50,14 +50,14 @@ public:
   static Trk::Perigee * createTrkPerigeeFromProdVertex(HepMC::ConstGenParticlePtr p, const double& charge )
   {
     if (!p)
-      return 0;//Fixme: message!
+      return nullptr;//Fixme: message!
     auto v = p->production_vertex();
     if (!v)
-      return 0;//Fixme: message!
+      return nullptr;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
     double absmom(mom.mag());
     if (absmom<=0)
-      return 0;//Fixme: message!
+      return nullptr;//Fixme: message!
     Amg::Vector3D pos(v->position().x(),v->position().y(),v->position().z());
     return new Trk::Perigee(0.,0.,mom.phi(), mom.theta(), charge/absmom, pos);
    }
@@ -65,10 +65,10 @@ public:
   static Trk::TrackParameters * createTrkParamFromDecayVertex(HepMC::ConstGenParticlePtr p, const double& charge )
   {
     if (!p)
-      return 0;//Fixme: message!
+      return nullptr;//Fixme: message!
     auto v = p->end_vertex();
     if (!v)
-      return 0;//Fixme: message!
+      return nullptr;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
 //     double absmom(mom.mag());
 //     if (absmom<=0)
@@ -83,7 +83,7 @@ public:
 
   static Trk::TrackStateOnSurface * createTSOS(const Trk::TrackParameters * pars)
   {
-    return pars ? new Trk::TrackStateOnSurface(0,pars,0,0) : 0;
+    return pars ? new Trk::TrackStateOnSurface(nullptr,pars,nullptr,nullptr) : nullptr;
   }
   static void addPars(DataVector<const Trk::TrackStateOnSurface>* dv, const Trk::TrackParameters * pars)
   {
@@ -112,11 +112,15 @@ public:
     }
 
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,theclass->extrapolationParticleHypothesis());
-    trkTrack = new Trk::Track(ti,trackStateOnSurfaces/*track assumes ownership*/,0/*fitquality*/);
+    trkTrack = new Trk::Track(ti,
+                              std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
+                                (trackStateOnSurfaces),
+                              nullptr /*fitquality*/);
 
-//     if (VP1Msg::verbose())
-//       VP1Msg::messageVerbose("TrackHandle_TruthTrack created track with "
-// 			     +QString::number(trackStateOnSurfaces->size())+" parameters");
+    //     if (VP1Msg::verbose())
+    //       VP1Msg::messageVerbose("TrackHandle_TruthTrack created track with "
+    // 			     +QString::number(trackStateOnSurfaces->size())+"
+    // parameters");
   }
 
 };

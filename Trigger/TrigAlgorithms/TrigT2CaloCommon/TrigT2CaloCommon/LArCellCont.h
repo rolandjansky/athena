@@ -27,7 +27,7 @@
 
 #include <vector>
 
-class ILArBadChannelMasker;
+//class ILArBadChannelMasker;
 class ILArBadFebMasker;
 class CaloBCIDAverage;
 static std::vector<float> corrBCIDref_example;
@@ -105,7 +105,7 @@ private:
 	std::vector<DataVector<LArCell>*> m_vecs;
 
 	/** A tool to help mask cells */
-	const ILArBadChannelMasker  *m_masker;
+	//const ILArBadChannelMasker  *m_masker;
 	/** A tool to help mask febs */
 	const ILArBadFebMasker *m_badFebMasker;
 	/** List of Missing ROBs to be disabled at the RS */

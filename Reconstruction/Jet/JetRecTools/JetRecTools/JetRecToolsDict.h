@@ -19,5 +19,6 @@
 #include "JetRecTools/PuppiWeightTool.h"
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
+#include "JetRecTools/JetTrackSelectionAlg.h"
 
 #endif //JETRECTOOLS_JETRECTOOLSDICT_H

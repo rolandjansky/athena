@@ -19,7 +19,7 @@
 #include "L1TopoInterfaces/Count.h"
 
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/ClusterTOBArray.h"
+#include "L1TopoEvent/eEmTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 
 REGISTER_ALG_TCS(EMMultiplicity)
@@ -45,10 +45,10 @@ TCS::EMMultiplicity::initialize() {
 
   // book histograms
   std::string hname_accept = "hEMMultiplicity_accept_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "eta vs pT", 100, -49., 49., 25, 0., 25.);
+  bookHist(m_histAccept, hname_accept, "eta vs pT", 150, -100, 100, 30, 0., 20.);
 
   hname_accept = "hEMMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "Counts", 10, 0., 10. );
+  bookHist(m_histAccept, hname_accept, "Counts", 15, 0., 10. );
 
   return StatusCode::SUCCESS;
      
@@ -77,25 +77,24 @@ TCS::EMMultiplicity::process( const TCS::InputTOBArray & input,
   //cout << "wstot: " << TrigConf::Selection::wpToString(eEMThr.wstot()) << endl;
 
   // Grab inputs
-  const ClusterTOBArray & clusters = dynamic_cast<const ClusterTOBArray&>(input);
+  const eEmTOBArray & eems = dynamic_cast<const eEmTOBArray&>(input);
 
-  int counting = 0;
-  float MEV = 1000.;
+  int counting = 0; 
   
   // loop over input TOBs
-  for(ClusterTOBArray::const_iterator cl = clusters.begin();
-      cl != clusters.end();
-      ++cl ) {
+  for(eEmTOBArray::const_iterator eem = eems.begin();
+      eem != eems.end();
+      ++eem ) {
     
-    const GenericTOB gtob(**cl);
+    const GenericTOB gtob(**eem);
 
     bool passed = false;
     for(auto & rv : eEMThr.thrValues())
-      if ( (gtob.eta() < rv.etaMax()) && (gtob.eta() >= rv.etaMin()) && (gtob.Et()/MEV> static_cast<unsigned int>(rv.value())) ) passed = true;
+      if ( (gtob.eta() < rv.etaMax()) && (gtob.eta() >= rv.etaMin()) && (gtob.EtDouble()> static_cast<unsigned int>(rv.value())) ) passed = true;
       
     if (passed) {
       counting++; 
-      fillHist2D( m_histAccept[0], gtob.eta(), gtob.Et()/MEV );
+      fillHist2D( m_histAccept[0], gtob.eta(), gtob.EtDouble() );
     }
 
   }

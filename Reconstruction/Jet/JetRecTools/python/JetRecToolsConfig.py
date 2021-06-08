@@ -16,85 +16,87 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from JetRecConfig.JetRecConfig import isAthenaRelease
 
 
-# May need to specify non-standard tracking collections, e.g. for trigger
-# Testing code -- move to another module and perhaps allow extensions
-# e.g. in a dedicated trigger collections module to keep online/offline
-# code more factorised
-trackcollectionmap = {
-    # Offline track collections
-    "": {
-        "Tracks":           "InDetTrackParticles",
-        "JetTracks":        "JetSelectedTracks",
-        "Vertices":         "PrimaryVertices",
-        "TVA":              "JetTrackVtxAssoc",
-        "GhostTracks":      "PseudoJetGhostTrack",
-        "GhostTracksLabel": "GhostTrack",
-    }
-}
 
-def getTrackSelTool(trkopt="",doWriteTracks=False, cutLevel="Loose", minPt=500):
-
-    # Track selector needs its own hierarchical config getter in JetRecTools?
-    idtrackselloose = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
-        "idtrackselloose",
-        CutLevel         = cutLevel,
-        minPt            = minPt,        
-    )
+def getIDTrackSelectionTool(trkOpt, **userProps):
+    from JetRecConfig.StandardJetContext import jetContextDic
+    # see the default options in jetContextDic from StandardJetContext.py
+    selProperties = jetContextDic[trkOpt]["trackSelOptions"].clone( **userProps)
+    idtracksel = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
+        "idtracksel_"+trkOpt,
+        **selProperties )
+    
     if os.environ.get("AtlasProject",None) != "AnalysisBase":
         # thes options can not be set in AnalysisBase. (but not setting them is equivalent to set them to False)
-        idtrackselloose.UseTrkTrackTools = False
-        idtrackselloose.Extrapolator     = ""
-        idtrackselloose.TrackSummaryTool = ""
+        idtracksel.UseTrkTrackTools = False
+        idtracksel.Extrapolator     = ""
+        idtracksel.TrackSummaryTool = ""
+    return idtracksel
+
+def getTrackSelAlg(trkOpt="default", ):
+    from JetRecConfig.StandardJetContext import jetContextDic
+    trkProperties = jetContextDic[trkOpt]
+
+    # Get a InDetTrackSelectionTool, OVERWRITING the CutLevel :
+    idtracksel = getIDTrackSelectionTool(trkOpt, CutLevel=trkProperties['GhostTrackCutLevel'])
+
+    return  CompFactory.JetTrackSelectionAlg( "trackselalg",
+                                              TrackSelector = idtracksel,
+                                              InputContainer = trkProperties["Tracks"],
+                                              OutputContainer = trkProperties["JetTracks"],
+                                             )
+    
+def getTrackSelTool(trkOpt=""):
+    # this tool is still used by trk moment tools.
+    # it should be deprecated in favor of simply the InDet tool
+    idtrackselloose = getIDTrackSelectionTool(trkOpt)
 
     jettrackselloose = CompFactory.JetTrackSelectionTool(
         "jettrackselloose",
         Selector        = idtrackselloose
     )
-    # Should phase this out completely!
-    # Make a jet track selection alg
-    # Elsewhere just use the ID track tool directly
-    if doWriteTracks:
-        jettracksname = "JetSelectedTracks"
-        if trkopt: jettracksname += "_{}".format("trkopt")
-        jettrackselloose.InputContainer  = trackcollectionmap[trkopt]["Tracks"]
-        jettrackselloose.OutputContainer = jettracksname
 
     return jettrackselloose
 
-def getTrackVertexAssocTool(trkopt="", theSequence=None, ttva_opts = { "WorkingPoint" : "Custom", "d0_cut" : 2.0, "dzSinTheta_cut" : 2.0 }):
-    if trkopt: "_{}".format(trkopt)
+def getTrackVertexAssocTool(trkOpt="", theSequence=None, ttva_opts = { "WorkingPoint" : "Custom", "d0_cut" : 2.0, "dzSinTheta_cut" : 2.0 }):
+    if trkOpt: "_{}".format(trkOpt)
     # Track-vertex association
     # This is to be deprecated
     # In fact can probably be switched already to match legacy master
     # but for a future MR
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    from JetRecConfig.StandardJetContext import jetContextDic
 
+    trkProperties = jetContextDic[trkOpt]
+    
     idtvassoc = getTTVAToolForReco(
         "idloosetvassoc",
-        TrackContName = trackcollectionmap[trkopt]["Tracks"],
-        VertexContName = trackcollectionmap[trkopt]["Vertices"],
+        TrackContName = trkProperties["Tracks"],
+        VertexContName = trkProperties["Vertices"],
         returnCompFactory = True,
         add2Seq=theSequence,
-        addDecoAlg=isAthenaRelease(),
+        addDecoAlg= isAthenaRelease(), # ?? it seems mandatory ??
         **ttva_opts
     )
 
     jettvassoc = CompFactory.TrackVertexAssociationTool(
         "jettvassoc",
-        TrackParticleContainer  = trackcollectionmap[trkopt]["Tracks"],
-        TrackVertexAssociation  = trackcollectionmap[trkopt]["TVA"],
-        VertexContainer         = trackcollectionmap[trkopt]["Vertices"],
+        TrackParticleContainer  = trkProperties["Tracks"],
+        TrackVertexAssociation  = trkProperties["TVA"],
+        VertexContainer         = trkProperties["Vertices"],
         TrackVertexAssoTool     = idtvassoc
     )
     return jettvassoc
 
-def getTrackUsedInFitTool(trkopt=""):
-    if trkopt: "_{}".format(trkopt)
+def getTrackUsedInFitTool(trkOpt=""):
+    if trkOpt: "_{}".format(trkOpt)
     # InDet decorator tool:
+    from JetRecConfig.StandardJetContext import jetContextDic
+
+    trkProperties = jetContextDic[trkOpt]
     IDUsedInFitTrkDecoTool = CompFactory.getComp("InDet::InDetUsedInFitTrackDecoratorTool")(
         "IDUsedInFitTrkDecoTool",
-        TrackContainer       = trackcollectionmap[trkopt]["Tracks"],
-        VertexContainer      = trackcollectionmap[trkopt]["Vertices"],
+        TrackContainer       = trkProperties["Tracks"],
+        VertexContainer      = trkProperties["Vertices"],
         AMVFVerticesDecoName = "TTVA_AMVFVertices_forReco",
         AMVFWeightsDecoName  = "TTVA_AMVFWeights_forReco"
     )

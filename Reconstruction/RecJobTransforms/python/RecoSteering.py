@@ -12,6 +12,7 @@ def RecoSteering(flags):
     The selftest available below can be used for simple jobs, yet full functionality is achieved with tansforms that set many flags.
     """
     acc = ComponentAccumulator()
+
     # setup input    
     if flags.Input.Format == 'BS':
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
@@ -24,7 +25,7 @@ def RecoSteering(flags):
 
     # calorimeter    
     from CaloRec.CaloRecoConfig import CaloRecoCfg
-    acc.merge(CaloRecoCfg(flags))
+    acc.merge(CaloRecoCfg(flags,doLCCalib=True))
     log.info("---------- Configured calorimeter reconstruction")
 
     # ID    
@@ -36,6 +37,16 @@ def RecoSteering(flags):
     from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
     acc.merge(MuonReconstructionCfg(flags))
     log.info("---------- Configured muon tracking")
+
+    #Caching of CaloExtension for downstream Combined Performance algorithms.
+    #The algorithms that use these cached CaloExtension only run in the reco step that produces ESD.
+    if flags.Output.doESD:
+      from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+      acc.merge(CaloExtensionBuilderAlgCfg(flags))
+      log.info("---------- Configured track calorimeter extension builder")
+
+    from eflowRec.PFRun3Config import PFCfg
+    acc.merge(PFCfg(flags))
 
     # physics objects
     # egamma

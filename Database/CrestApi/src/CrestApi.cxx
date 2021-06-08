@@ -854,7 +854,7 @@ namespace Crest {
 
     nlohmann::json jsObj = {};
     jsObj["datatype"] = "iovs";
-    jsObj["format"] = "JSON";
+    jsObj["format"] = "IovSetDto";
     jsObj["size"] = js.size();
     jsObj["resources"] = js;
     std::string str = jsObj.dump();

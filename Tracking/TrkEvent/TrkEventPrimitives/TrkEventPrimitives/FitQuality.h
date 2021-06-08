@@ -9,9 +9,10 @@
 #ifndef TRKEVENTPRIMITIVES_TRKFITQUALITY_H
 #define TRKEVENTPRIMITIVES_TRKFITQUALITY_H
 
-#include <cmath>
-#include <iostream>
 
+#include <iosfwd>
+#include <cmath> //for std::floor in the included .icc file
+#include <memory>
 class MsgStream;
 
 namespace Trk {
@@ -48,6 +49,9 @@ public:
 
   /**Virtual constructor */
   virtual FitQuality* clone() const;
+  
+  /**NVI uniqueClone */
+  std::unique_ptr<FitQuality> uniqueClone() const;
 
   /** returns the @f$ \chi^2 @f$ of the overall track fit*/
   double chiSquared() const;
@@ -68,8 +72,8 @@ public:
 
 
 private:
-  double m_chiSquared;
-  double m_numberDoF;
+  double m_chiSquared{};
+  double m_numberDoF{};
 
 }; // end of class definitions
 

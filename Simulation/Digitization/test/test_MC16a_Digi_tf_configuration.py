@@ -171,17 +171,17 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___StandardSignalOnlyTruthPileUpToolsAlg_PileUpTools(self):
-        expected_PileUpTools = ['MergeMcEventCollTool/SignalOnlyMcEventCollTool','MergeTruthJetsTool/MergeTruthJetsTool','MergeTrackRecordCollTool/MergeMuonEntryLayerTool','MergeCalibHitsTool/MergeCalibHitsTool','BCM_DigitizationTool/BCM_DigitizationTool','PixelDigitizationTool/PixelDigitizationTool','SCT_DigitizationTool/SCT_DigitizationTool','TRTDigitizationTool/TRTDigitizationTool','LArPileUpTool/LArPileUpTool','TileHitVecToCntTool/TileHitVecToCntTool','CscDigitizationTool/CscDigitizationTool','MdtDigitizationTool/MdtDigitizationTool','RpcDigitizationTool/RpcDigitizationTool','TgcDigitizationTool/TgcDigitizationTool','MergeRecoTimingObjTool/MergeRecoTimingObjTool']
+        expected_PileUpTools = ['MergeMcEventCollTool/SignalOnlyMcEventCollTool','MergeTruthJetsTool/MergeAntiKt4TruthJetsTool','MergeTruthJetsTool/MergeAntiKt6TruthJetsTool','MergeTrackRecordCollTool/MergeMuonEntryLayerTool','MergeCalibHitsTool/MergeCalibHitsTool','BCM_DigitizationTool/BCM_DigitizationTool','PixelDigitizationTool/PixelDigitizationTool','SCT_DigitizationTool/SCT_DigitizationTool','TRTDigitizationTool/TRTDigitizationTool','LArPileUpTool/LArPileUpTool','TileHitVecToCntTool/TileHitVecToCntTool','CscDigitizationTool/CscDigitizationTool','MdtDigitizationTool/MdtDigitizationTool','RpcDigitizationTool/RpcDigitizationTool','TgcDigitizationTool/TgcDigitizationTool','MergeRecoTimingObjTool/MergeRecoTimingObjTool']
         self._assert_Algorithm_property_unordered_equal(
             'StandardSignalOnlyTruthPileUpToolsAlg',
             'PileUpTools',
             expected_PileUpTools)
 
 
-    def test___MergeTruthJetsTool_properties(self):
-        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeTruthJetsTool'
+    def test___MergeAntiKt4TruthJetsTool_properties(self):
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeAntiKt4TruthJetsTool'
         expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InTimeOutputTruthJetCollKey', 'LastXing', 'OutOfTimeTruthJetCollKey', 'PileUpMergeSvc']
-        expected_nonstring_properties = {'LastXing': '100', 'FirstXing': '-500'}
+        expected_nonstring_properties = {'LastXing': '75', 'FirstXing': '-125'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
             tested_configurable_name,
@@ -276,7 +276,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['ADC2MeVKey', 'AutoCorrNoiseKey', 'BadFebKey', 'CablingKey', 'DetStore', 'DigitContainer', 'DigitContainer_DigiHSTruth', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LastXing', 'MaskingTool', 'NoiseKey', 'NoiseOnOff', 'Nsamples', 'OFCKey', 'PedestalKey', 'PileUpMergeSvc', 'RndmEvtOverlay', 'RndmSvc', 'ShapeKey', 'TriggerTimeToolName', 'fSamplKey', 'firstSample', 'useLArFloat']
+        expected_property_list = ['ADC2MeVKey', 'AutoCorrNoiseKey', 'BadChanKey', 'BadFebKey', 'CablingKey', 'DetStore', 'DigitContainer', 'DigitContainer_DigiHSTruth', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LastXing', 'NoiseKey', 'NoiseOnOff', 'Nsamples', 'OFCKey', 'PedestalKey', 'PileUpMergeSvc', 'ProblemsToMask', 'RndmEvtOverlay', 'RndmSvc', 'ShapeKey', 'TriggerTimeToolName', 'fSamplKey', 'firstSample', 'useLArFloat']
 
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4',
                                          'LArHitContainers': '["StoreGateSvc+LArHitEMB","StoreGateSvc+LArHitEMEC","StoreGateSvc+LArHitHEC","StoreGateSvc+LArHitFCAL"]', 'LArHitFloatContainers':'[]'}

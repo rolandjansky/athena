@@ -26,6 +26,7 @@ the_signature_grouping = OrderedDict([
     ('MuonnoL1', 'MuonnoL1'),
     ('Electronprobe', 'EgammaProbe'),
     ('Photonprobe' , 'EgammaProbe'),
+    ('MinBias', 'MinBias'),
     ])
     
 
@@ -121,12 +122,16 @@ class MenuAlignment():
                 inlist = True
                 for ibset,bset in enumerate(unique_sets):
                     if aset == bset:
-                        continue
+                        inlist = True
+                        break
                     elif set(aset).issubset(set(bset)):
-                        continue
+                        inlist = True
+                        break
                     elif set(bset).issubset(set(aset)):
                         unique_sets.pop(ibset)
                         unique_sets += [aset]
+                        inlist = True
+                        break
                     else:
                         inlist = False
                 if not inlist:

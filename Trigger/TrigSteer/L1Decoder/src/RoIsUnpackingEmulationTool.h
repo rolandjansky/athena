@@ -9,7 +9,6 @@
 
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 // L1Decoder includes

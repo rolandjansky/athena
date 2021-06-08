@@ -47,13 +47,11 @@ def TileDigitsMakerCfg(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
 
-    if 'TileCondToolNoiseSample' not in kwargs:
-        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
-        kwargs['TileCondToolNoiseSample'] = acc.popToolsAndMerge(TileCondToolNoiseSampleCfg(flags))
+    from TileConditions.TileSampleNoiseConfig import TileSampleNoiseCondAlgCfg
+    acc.merge( TileSampleNoiseCondAlgCfg(flags) )
 
-    if 'TileCondToolEmscale' not in kwargs:
-        from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
-        kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge(TileCondToolEmscaleCfg(flags))
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
 
     if kwargs['RndmEvtOverlay']:
         tileNoise = False
@@ -72,9 +70,6 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs['InputTileDigitContainer'] = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
         kwargs['TileDQstatus'] = 'TileDQstatus'
 
-        if flags.Concurrency.NumThreads > 0:
-            kwargs['Cardinality'] = flags.Concurrency.NumThreads
-
     if tileNoise or tileCoherNoise or kwargs['RndmEvtOverlay']:
         if 'RndmSvc' not in kwargs:
             from RngComps.RandomServices import RNG
@@ -84,21 +79,12 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs['RndmSvc'] = None
 
     if kwargs['UseCoolPulseShapes']:
-        if 'TileCondToolPulseShape' not in kwargs:
-            from TileConditions.TilePulseShapeConfig import TileCondToolPulseShapeCfg
-            pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
-            kwargs['TileCondToolPulseShape'] = pulseShapeTool
-    else:
-        kwargs['TileCondToolPulseShape'] = None
-
+        from TileConditions.TilePulseShapeConfig import TilePulseShapeCondAlgCfg
+        acc.merge( TilePulseShapeCondAlgCfg(flags) )
 
     if kwargs['MaskBadChannels'] or kwargs['RndmEvtOverlay']:
-        if 'TileBadChanTool' not in kwargs:
-            from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
-            badChannelsTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
-            kwargs['TileBadChanTool'] = badChannelsTool
-    else:
-        kwargs['TileBadChanTool'] = None
+        from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+        acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     if flags.Digitization.PileUpPresampling:
         kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')

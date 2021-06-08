@@ -18,7 +18,8 @@
 //#include "AthenaMonitoring/IDQFilterTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArCabling/LArCablingLegacyService.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -148,8 +149,12 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
   const CaloIdManager       *m_calo_id_mgr_ptr; //!< offline calo structure
 
   ToolHandle<LArCablingLegacyService>    m_cable_service_tool;//!< LAr connections
-  ToolHandle<ILArBadChannelMasker> m_masking_tool;      //!< LAr Masking
 
+ /** Handle to bad-channel mask */
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
   SG::ReadCondHandleKey<CaloNoise> m_noiseKey
     { this, "NoiseKey", "totalNoise", "SG key for noise" };
 

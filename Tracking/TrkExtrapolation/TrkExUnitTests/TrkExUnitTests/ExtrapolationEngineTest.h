@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -108,38 +108,38 @@ namespace Trk {
     std::string m_treeName;
     std::string m_treeFolder;
     std::string m_treeDescription;
-    TTree* m_tree;
+    TTree* m_tree{};
     TRandom m_tRandom;
 
 
-    float m_startPositionX;
-    float m_startPositionY;
-    float m_startPositionZ;
-    float m_startPositionR;
-    float m_startPhi;
-    float m_startTheta;
-    float m_startEta;
-    float m_startP;
-    float m_startPt;
+    float m_startPositionX{};
+    float m_startPositionY{};
+    float m_startPositionZ{};
+    float m_startPositionR{};
+    float m_startPhi{};
+    float m_startTheta{};
+    float m_startEta{};
+    float m_startP{};
+    float m_startPt{};
     float m_charge;
 
-    int m_endSuccessful;
-    float m_endPositionX;
-    float m_endPositionY;
-    float m_endPositionZ;
-    float m_endPositionR;
-    float m_endPhi;
-    float m_endTheta;
-    float m_endEta;
-    float m_endP;
-    float m_endPt;
-    float m_endPathLength;
+    int m_endSuccessful{};
+    float m_endPositionX{};
+    float m_endPositionY{};
+    float m_endPositionZ{};
+    float m_endPositionR{};
+    float m_endPhi{};
+    float m_endTheta{};
+    float m_endEta{};
+    float m_endP{};
+    float m_endPt{};
+    float m_endPathLength{};
 
-    int m_backSuccessful;
-    float m_backPositionX;
-    float m_backPositionY;
-    float m_backPositionZ;
-    float m_backPositionR;
+    int m_backSuccessful{};
+    float m_backPositionX{};
+    float m_backPositionY{};
+    float m_backPositionZ{};
+    float m_backPositionR{};
     float m_backPhi;
     float m_backTheta;
     float m_backEta;

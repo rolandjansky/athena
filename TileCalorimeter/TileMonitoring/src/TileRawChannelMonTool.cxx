@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -44,7 +44,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   : TilePaterMonTool(type, name, parent)
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_cispar(0)
-  , m_nEvents(0)
+  , m_nEventsTileMon(0)
   , m_calibUnit(TileRawChannelUnit::Invalid)
   , m_drawHists(true)
   , m_tileInfo(0)
@@ -98,7 +98,7 @@ StatusCode TileRawChannelMonTool::initialize()
 
   CHECK(m_tileToolEmscale.retrieve());
 
-  m_nEvents = 0;
+  m_nEventsTileMon = 0;
 
   memset(m_data->m_timeCov, 0, sizeof(m_data->m_timeCov));
   memset(m_data->m_timeCovCorr, 0, sizeof(m_data->m_timeCovCorr));
@@ -485,11 +485,11 @@ StatusCode TileRawChannelMonTool::fillHists()
 
   ATH_MSG_DEBUG("in fillHists()");
 
-  if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
+  if (m_nEventsTileMon % 1000 == 0) ATH_MSG_INFO(m_nEventsTileMon<<" events processed so far");
   // array of 16 CIS parameters
   const TileDQstatus* dqStatus = SG::makeHandle (m_DQstatusKey).get();
   m_cispar = dqStatus->cispar();
-  ++m_nEvents;
+  ++m_nEventsTileMon;
 
   m_efitMap.clear();
   m_tfitMap.clear();
@@ -749,7 +749,7 @@ StatusCode TileRawChannelMonTool::fillHists()
   }
 
 
-  if ((m_summaryUpdateFrequency > 0) && (m_nEvents % m_summaryUpdateFrequency == 0)) {
+  if ((m_summaryUpdateFrequency > 0) && (m_nEventsTileMon % m_summaryUpdateFrequency == 0)) {
     m_drawHists = false;
     CHECK(fillSummaryHistograms());
     if (m_resetAfterSummaryUpdate) resetSummaryHistograms();
@@ -1387,7 +1387,7 @@ StatusCode TileRawChannelMonTool::checkHists(bool /* fromFinalize */)
 }
 
 /*---------------------------------------------------------*/
-void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleName)
+void TileRawChannelMonTool::drawHists(int ros, int drawer, const std::string& moduleName)
 /*---------------------------------------------------------*/
 {
 
@@ -1667,7 +1667,7 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
 }
 
 /*---------------------------------------------------------*/
-void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
+void TileRawChannelMonTool::drawDsp(int ros, int drawer, const std::string& moduleName)
 /*---------------------------------------------------------*/
 {
   MsgStream log(msgSvc(), name());
@@ -1932,7 +1932,7 @@ bool TileRawChannelMonTool::checkDmuHeader(std::vector<uint32_t>* headerVec, int
   return err;
 }
 /*---------------------------------------------------------*/
-void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain, std::string moduleName) {
+void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain, const std::string& moduleName) {
   /*---------------------------------------------------------*/
 
   ATH_MSG_DEBUG("in LaserFancyPlotting...");

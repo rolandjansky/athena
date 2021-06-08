@@ -225,6 +225,31 @@ def CscBytestreamDecodeCfg(flags, name="CscRawDataProvider"):
 
     return acc
 
+def MuonByteStreamDecodersCfg(flags):
+    cfg=ComponentAccumulator()
+    
+    # Seem to need this to read BS properly
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg(flags ))
+
+    # Schedule Rpc data decoding
+    rpcdecodingAcc = RpcBytestreamDecodeCfg( flags ) 
+    cfg.merge( rpcdecodingAcc )
+
+    # Schedule Tgc data decoding
+    tgcdecodingAcc = TgcBytestreamDecodeCfg( flags ) 
+    cfg.merge( tgcdecodingAcc )
+
+    # Schedule Mdt data decoding
+
+    mdtdecodingAcc  = MdtBytestreamDecodeCfg( flags )
+    cfg.merge( mdtdecodingAcc )
+
+    # Schedule Csc data decoding
+    cscdecodingAcc = CscBytestreamDecodeCfg( flags ) 
+    cfg.merge( cscdecodingAcc )
+    return cfg
+
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonBytestreamDecode.py
@@ -248,28 +273,7 @@ if __name__=="__main__":
     log.setLevel(DEBUG)
     log.info('About to setup Rpc Raw data decoding')
 
-    cfg=ComponentAccumulator()
-    
-    # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
-
-    # Schedule Rpc data decoding
-    rpcdecodingAcc = RpcBytestreamDecodeCfg( ConfigFlags ) 
-    cfg.merge( rpcdecodingAcc )
-
-    # Schedule Tgc data decoding
-    tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags ) 
-    cfg.merge( tgcdecodingAcc )
-
-    # Schedule Mdt data decoding
-
-    mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags )
-    cfg.merge( mdtdecodingAcc )
-
-    # Schedule Csc data decoding
-    cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags ) 
-    cfg.merge( cscdecodingAcc )
+    cfg = MuonByteStreamDecodersCfg(ConfigFlags)
 
     # Need to add POOL converter  - may be a better way of doing this?
     from AthenaCommon import CfgMgr

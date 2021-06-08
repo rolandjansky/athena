@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
 
 
 def typeNamesToDecodeAll():
@@ -88,7 +89,7 @@ def typeNamesToDecodeAll():
     return type_names
 
 
-def typeNamesToDecodeForRerunLVL1():
+def typeNamesToDecodeForRerunLVL1(flags):
     type_names = [
     # ===== CPM ================================================================
         "xAOD::CPMTowerContainer/CPMTowers",
@@ -97,6 +98,12 @@ def typeNamesToDecodeForRerunLVL1():
         "xAOD::JetElementContainer/JetElements",
         "xAOD::JetElementAuxContainer/JetElementsAux.",
     ]
+    if flags.Trigger.enableL1CaloPhase1:
+        type_names += [
+        # ===== PPM ============================================================
+            "xAOD::TriggerTowerContainer/xAODTriggerTowers",
+            "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersAux.",
+        ]
     return type_names
 
 
@@ -119,23 +126,15 @@ def LVL1CaloRun2ReadBSCfg(flags, forRoIBResultToxAOD=False):
 
     if flags.Trigger.doLVL1 or forRoIBResultToxAOD:
         # Rerun L1Calo simulation on data or run RoIBResultToxAOD - only need a few inputs from data
-        typeNamesToDecode = typeNamesToDecodeForRerunLVL1()
+        typeNamesToDecode = typeNamesToDecodeForRerunLVL1(flags)
     else:
         # Configure the full list of objects to decode
         typeNamesToDecode = typeNamesToDecodeAll()
 
-    if flags.Trigger.Online.isPartition:
-        from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
-        servicesCfgFunction = TrigByteStreamCfg
-        toolsCfg = readOnlyToolsForRerunLVL1(flags)
-        acc.merge(toolsCfg)
-    else:
-        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        servicesCfgFunction = ByteStreamReadCfg
-        # In principle could configure all public tools for conversion
-        # explicitly here, but they all use default properties, so no need to
+    acc.merge(ByteStreamReadCfg(flags, type_names=typeNamesToDecode))
 
-    servicesCfg = servicesCfgFunction(flags, type_names=typeNamesToDecode)
-    acc.merge(servicesCfg)
+    if flags.Trigger.Online.isPartition:
+        acc.merge(readOnlyToolsForRerunLVL1(flags))
+
     return acc
 

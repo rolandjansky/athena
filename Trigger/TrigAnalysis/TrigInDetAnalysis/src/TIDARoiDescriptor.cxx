@@ -25,8 +25,8 @@ ClassImp( TIDARoiDescriptor )
 static const float  M_PIF = float(M_PI);
 #endif
 
-double TIDARoiDescriptor::maxRadius = 1000;
-double TIDARoiDescriptor::maxZed    = 2700;
+const double TIDARoiDescriptor::maxRadius = 1000;
+const double TIDARoiDescriptor::maxZed    = 2700;
 
 
 double  TIDARoiDescriptor::exitpoint( double tz0, double teta, double& zexit, double& rexit ) { 

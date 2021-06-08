@@ -6,6 +6,8 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
    m = CompFactory.HLTResultMTMaker(name)
+   m.StreamTagMaker = StreamTagMakerToolCfg()
+   m.MakerTools = [TriggerEDMSerialiserToolCfg(), TriggerBitsMakerToolCfg()]
 
    # ROBs/SubDets which are enabled but not necessarily part of the ROS-ROB map
    from libpyeformat_helper import SourceIdentifier,SubDetector
@@ -40,7 +42,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
 
    return m
 
-def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
+def TriggerEDMSerialiserToolCfg(name="Serialiser"):
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior += 1
 
@@ -69,6 +71,15 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
+
+   # Allow appending to the collections list
+   def merge_collection_list(a, b):
+      for item in b:
+         if item not in a:
+               a.append(item)
+      return a
+   serialiser._descriptors['CollectionsToSerialize'].semantics.merge = merge_collection_list
+
 
    from TrigEDMConfig.TriggerEDMRun3 import tpMap
    tpTool = CompFactory.TrigSerTPTool()

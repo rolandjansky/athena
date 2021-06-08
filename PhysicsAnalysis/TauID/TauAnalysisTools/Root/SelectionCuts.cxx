@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -513,10 +513,8 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
 //______________________________________________________________________________
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST),
-    m_sEleBDTDecorationName ("BDTEleScoreSigTrans")
+    m_sEleBDTDecorationName ("BDTEleScoreSigTrans_retuned")
 {
-  m_sEleBDTDecorationName = "BDTEleScoreSigTrans_retuned";
-
   if (m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDLOOSE) ||
      m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDMEDIUM))
   {

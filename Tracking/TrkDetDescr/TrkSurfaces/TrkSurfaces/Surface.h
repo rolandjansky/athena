@@ -363,7 +363,7 @@ public:
   template<class T>
   Intersection straightLineIntersection(const T& pars,
                                         bool forceDir = false,
-                                        Trk::BoundaryCheck bchk = false) const
+                                        const Trk::BoundaryCheck& bchk = false) const
   {
     return straightLineIntersection(
       pars.position(), pars.momentum().unit(), forceDir, bchk);

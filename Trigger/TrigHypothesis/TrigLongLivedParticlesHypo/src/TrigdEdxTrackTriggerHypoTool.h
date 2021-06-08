@@ -43,7 +43,7 @@ public:
 
 private:
    HLT::Identifier m_decisionId;
-   Gaudi::Property< std::vector<float> >  m_cutTrackPt           { this, "cutTrackPt",            { float(20.0) }, "Track pT requirement" };
+   Gaudi::Property< std::vector<float> >  m_cutTrackPtGeV        { this, "cutTrackPtGeV",         { float(20.0) }, "Track pT requirement in GeV" };
    Gaudi::Property< std::vector<float> >  m_cutTrackEta          { this, "cutTrackEta",           { float(2.5) },  "Track Eta requirement" };
    Gaudi::Property< std::vector<float> >  m_cutTracka0beam       { this, "cutTracka0beam",        { float(2.5) },  "Track a0beam requirement" };
    Gaudi::Property< std::vector<float> >  m_cutTrackdEdx         { this, "cutTrackdEdx",          { float(1.7) },  "Track dE/dx requirement" };

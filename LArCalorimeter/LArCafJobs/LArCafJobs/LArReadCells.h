@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,7 +28,8 @@ class LArReadCells: public ::AthAlgorithm {
 
  private: 
 
-   Gaudi::Property<double> m_etcut{this,"etCut",1000.,"Et cut to dump cells"};
+   Gaudi::Property<double> m_etcut{this,"etCut",7500.,"Et cut to dump cells"};
+   Gaudi::Property<double> m_etcut2{this,"etCut2",7500.,"Et cut to dump cells from second layer"};
 
    const DataHandle<CaloIdManager> m_caloIdMgr;
    const CaloCell_ID*       m_calo_id;
@@ -41,16 +42,16 @@ class LArReadCells: public ::AthAlgorithm {
    int m_bcid; 
    int m_error;
    int m_ncells;
-   std::vector<float> m_ECell     { 250000 };
-   std::vector<float> m_TCell     { 250000 };
-   std::vector<float> m_EtaCell   { 250000 };
-   std::vector<float> m_PhiCell   { 250000 };
-   std::vector<int>   m_LayerCell { 250000 };
-   std::vector<int>   m_ProvCell  { 250000 };
-   std::vector<int>   m_QuaCell   { 250000 };
-   std::vector<int>   m_GainCell  { 250000 };
-   std::vector<int>   m_HwidCell  { 250000 };
-   std::vector<int[32]> m_ADC     { 250000 };
+   std::vector<float> m_ECell    ;
+   std::vector<float> m_TCell    ;
+   std::vector<float> m_EtaCell  ;
+   std::vector<float> m_PhiCell  ;
+   std::vector<int>   m_LayerCell;
+   std::vector<int>   m_ProvCell ;
+   std::vector<int>   m_QuaCell  ;
+   std::vector<int>   m_GainCell ;
+   std::vector<int>   m_HwidCell ;
+   std::vector<std::array<float ,32> > m_ADC    ;
 
     SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal conditions object"};

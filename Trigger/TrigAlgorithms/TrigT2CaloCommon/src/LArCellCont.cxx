@@ -8,7 +8,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/EventContext.h"
@@ -101,12 +100,12 @@ makeCell.setThreshold(-100);
 makeCell.initialize( roiMap, &LArCellCorrTools, 0 ); 
 
 
-sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);
-bool doCellMasking = sc.isSuccess() && m_masker->isMaskingOn();
+//sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);
+//bool doCellMasking = sc.isSuccess() && m_masker->isMaskingOn();
 
-if(!sc.isSuccess()) //not a critical error. LArCellCont can proceed as usual, without masking.
-    std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
-std::cout << "doCellMasking "<<doCellMasking<<std::endl;
+//if(!sc.isSuccess()) //not a critical error. LArCellCont can proceed as usual, without masking.
+//    std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
+//std::cout << "doCellMasking "<<doCellMasking<<std::endl;
 
 sc = toolSvc->retrieveTool("LArBadFebMasker", m_badFebMasker);
 bool toolAvailable = sc.isSuccess(); 
@@ -202,19 +201,19 @@ m_hashSym.resize(onlineId->febHashMax());
 		for(std::vector<LArCell*>::const_iterator it
 		  = mapIt->second.begin(); it != mapIt->second.end(); it++)
 		{
-			if(doCellMasking && m_masker->cellShouldBeMasked((*it)->ID()) )
-			{  //Print a detailed message for the record. Alternatively, could print this in the Masker tool.
-#ifdef TRIGLARCELLDEBUG
-				Identifier offID = (*it)->ID();
-				HWIdentifier hwID = m_larCablingSvc->createSignalChannelID(offID);
-				std::cout << "LArCellCont \t\t LArCell with OfflineID = " 
-					<< offID.get_compact() << " = 0x" << std::hex 
-					<< offID.get_compact() << std::dec << ", HardwareID = "
-					<< hwID.get_compact() << " has been masked." << std::endl;
-#endif
-			}
-			else 
-				vec->push_back(*it);
+		// 	if(doCellMasking && m_masker->cellShouldBeMasked((*it)->ID()) )
+// 			{  //Print a detailed message for the record. Alternatively, could print this in the Masker tool.
+// #ifdef TRIGLARCELLDEBUG
+// 				Identifier offID = (*it)->ID();
+// 				HWIdentifier hwID = m_larCablingSvc->createSignalChannelID(offID);
+// 				std::cout << "LArCellCont \t\t LArCell with OfflineID = " 
+// 					<< offID.get_compact() << " = 0x" << std::hex 
+// 					<< offID.get_compact() << std::dec << ", HardwareID = "
+// 					<< hwID.get_compact() << " has been masked." << std::endl;
+// #endif
+// 			}
+// 			else  
+		  vec->push_back(*it);
 		}
         	(*this)[idx]->setTT(mapIt->first,vec->begin(),vec->end());
 		m_vecs.push_back(vec);

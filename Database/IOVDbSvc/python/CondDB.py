@@ -85,7 +85,7 @@ class CondDB:
             if self.isMC:
                 # Monte Carlo
                 self.dbname=self.dbmc
-                self.poolcats=[]
+                self.poolcats=['oflcond']
             else:
                 # real data
                 if (self.dbdata=='auto'):
@@ -93,7 +93,7 @@ class CondDB:
                     self.dbdata=self._InstanceFromProjectName(rec.projectName())
                     self.msg.info("Configuring database instance %s based on project tag %s", self.dbdata, rec.projectName())
                 self.dbname=self.dbdata
-                self.poolcats=[]
+                self.poolcats=['comcond','oflcond']
         elif (globalflags.DetGeo() in ['ctbh8','ctbh6']):
             self.dbmc='TMCP200'
             self.dbdata='TBDP200'
@@ -193,9 +193,7 @@ class CondDB:
             if not hasattr (svcMgr, 'PoolSvc'):
                 svcMgr+=PoolSvc()
             # add the standard catalogues
-            for i in self.poolcats:
-                svcMgr.PoolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_%s.xml" % i]
-            # also add entries which will be resolved using ATLAS_POOLCOND_PATH
+            # Set entries which will be resolved using ATLAS_POOLCOND_PATH
             # (if set) - the actual resolution is done inside PoolSvc C++
             for i in self.poolcats:
                 svcMgr.PoolSvc.ReadCatalog+=["apcfile:poolcond/PoolCat_%s.xml" % i]

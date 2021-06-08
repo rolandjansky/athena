@@ -1,12 +1,8 @@
 # Define ONE LArBadChannelMask for all Monitoring tools
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBadChannelsMasker=LArBadChannelMasker("LArBadChannelsMasker")
-theLArBadChannelsMasker.DoMasking=True
-theLArBadChannelsMasker.ProblemsToMask=[
+ProblemsToMask=[
     "deadReadout","deadPhys","short","almostDead",
     "highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"
     ]
-ToolSvc+=theLArBadChannelsMasker
 
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 

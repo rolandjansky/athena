@@ -36,7 +36,7 @@ DataReader *reader;
 
 void test_nsw_common_decoder_help (char *progname)
 {
-  std::cout << "Usage: " << progname << " [-p] [-h] file1, file2, ..." << std::endl;
+  std::cout << "Usage: " << progname << " [-v] [-h] file1, file2, ..." << std::endl;
 }
 
 int test_nsw_common_decoder_opt (int argc, char **argv)
@@ -49,7 +49,7 @@ int test_nsw_common_decoder_opt (int argc, char **argv)
     if (argv[i][0] == '-')
       switch (argv[i][1])
       {
-        case 'p':
+        case 'v':
 	  g_printout = true;
 	  break;
         case 'h':
@@ -96,6 +96,8 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
 
   for (auto r = robs.begin (); r != robs.end (); ++r)
   {
+    bool is_nsw = false, is_mmg = false, is_stg = false;
+
     // check fragment for errors
 
     try
@@ -115,8 +117,12 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
     if (s == 0)    // NSW data written before end of March 2021 have wrong source Id
       s = static_cast <eformat::SubDetector> ((sid >> 24) & 0xff);
 
-    if (s == eformat::MUON_MMEGA_ENDCAP_A_SIDE || s == eformat::MUON_MMEGA_ENDCAP_C_SIDE ||
-	s == eformat::MUON_STGC_ENDCAP_A_SIDE  || s == eformat::MUON_STGC_ENDCAP_C_SIDE)
+    if (s == eformat::MUON_MMEGA_ENDCAP_A_SIDE || s == eformat::MUON_MMEGA_ENDCAP_C_SIDE)
+      is_nsw = is_mmg = true;
+    else if (s == eformat::MUON_STGC_ENDCAP_A_SIDE  || s == eformat::MUON_STGC_ENDCAP_C_SIDE)
+      is_nsw = is_stg = true;
+
+    if (is_nsw)
     {
       // Decode the ROB fragment (including sanity check)
 
@@ -141,31 +147,60 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
         if (! (*i)->isNull ())
         {
           uint16_t l1Id  = (*i)->l1Id ();
-          uint16_t bcId  = (*i)->rocId ();
+          uint16_t bcId  = (*i)->bcId ();
 
           uint8_t sector = (*i)->elinkId ()->sector (); // (*i)->elinkId () returns a pointer to a Muon::nsw::ResourceId object
           uint8_t layer  = (*i)->elinkId ()->layer ();
 	  uint8_t radius = (*i)->elinkId ()->radius ();
           uint8_t elink  = (*i)->elinkId ()->elink ();  // elink number is not needed to decode channel position
 
+          // Offline ID components
+
+          std::string station_name;
+
+          if (is_mmg)
+            station_name = (*i)->elinkId ()->is_large_station () ? "MML" : "MMS";
+          else
+            station_name = (*i)->elinkId ()->is_large_station () ? "STL" : "STS";
+
+          int8_t   station_eta    = (*i)->elinkId ()->station_eta ();
+          uint8_t  station_phi    = (*i)->elinkId ()->station_phi ();
+          uint8_t  multi_layer    = (*i)->elinkId ()->multi_layer ();
+          uint8_t  gas_gap        = (*i)->elinkId ()->gas_gap ();
+
           const std::vector <Muon::nsw::VMMChannel *> channels = (*i)->get_channels ();
           for (auto j = channels.begin (); j != channels.end (); ++j)
           {
-            uint16_t vmm_number = (*j)->vmm ();
-            uint16_t channel    = (*j)->channel ();
-            uint16_t rel_bcid   = (*j)->rel_bcid ();
-            uint16_t pdo        = (*j)->pdo ();
-            uint16_t tdo        = (*j)->tdo ();
-            bool     parity     = (*j)->parity ();
-            bool     neighbor   = (*j)->neighbor ();
+            uint16_t vmm_number  = (*j)->vmm ();
+            uint16_t vmm_channel = (*j)->vmm_channel ();
+            uint16_t rel_bcid    = (*j)->rel_bcid ();
+            uint16_t pdo         = (*j)->pdo ();
+            uint16_t tdo         = (*j)->tdo ();
+            bool     parity      = (*j)->parity ();
+            bool     neighbor    = (*j)->neighbor ();
+
+            // Get offline information
+
+            uint8_t  channel_type   = (*j)->channel_type ();
+            uint16_t channel_number = (*j)->channel_number ();
 
             if (g_printout)
             {
+              std::cout << "Online decoding or hit word 0x" << std::hex << (*j)->vmm_word ()
+                        << " on link 0x" << (*i)->elinkWord () << std::dec << std::endl;
+              std::cout << "Parity " << parity << " Calculated parity " << (*j)->calculate_parity () << std::endl;
               std::cout << "L1ID " << l1Id << " BCID " << bcId << " Sector " << static_cast <unsigned int> (sector)
                         << " Layer " << static_cast <unsigned int> (layer) << " Radius " << static_cast <unsigned int> (radius)
                         << " Elink " << static_cast <unsigned int> (elink) << std::endl;
-              std::cout << "VMM " << vmm_number << " Channel " << channel << " Relative BCID " << rel_bcid 
+              std::cout << "VMM " << vmm_number << " Channel " << vmm_channel << " Relative BCID " << rel_bcid 
                         << " Pdo " << pdo << " Tdo " << tdo << " Parity " << parity << " Neighbor " << neighbor << std::endl;
+              std::cout << "Offline decoding or hit word 0x" << std::hex << (*j)->vmm_word ()
+                        << " on link 0x" << (*i)->elinkWord () << std::dec << std::endl;
+              std::cout << "Station name " << station_name << " Station eta " << static_cast <int> (station_eta)
+                        << " Station phi " << static_cast <unsigned int> (station_phi) << std::endl;
+              std::cout << "Multilayer " << static_cast <unsigned int> (multi_layer) << " Gas gap " << static_cast <unsigned int> (gas_gap)
+                        << " Channel type " << static_cast <unsigned int> (channel_type)
+                        << " Channel Number " << channel_number << std::endl;
             }
           }
         }
@@ -179,28 +214,51 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
         Muon::nsw::NSWElink *link = const_cast <Muon::nsw::NSWElink *> ((*j)->elink ());
 
         uint16_t l1Id  = link->l1Id ();
-        uint16_t bcId  = link->rocId ();
+        uint16_t bcId  = link->bcId ();
 
         uint8_t sector = link->elinkId ()->sector (); // (*i)->elinkId () returns a pointer to a Muon::nsw::ResourceId object
         uint8_t layer  = link->elinkId ()->layer ();
 	uint8_t radius = link->elinkId ()->radius ();
         uint8_t elink  = link->elinkId ()->elink ();  // elink number is not needed to decode channel position
 
-        uint16_t vmm_number = (*j)->vmm ();
-        uint16_t channel    = (*j)->channel ();
-        uint16_t rel_bcid   = (*j)->rel_bcid ();
-        uint16_t pdo        = (*j)->pdo ();
-        uint16_t tdo        = (*j)->tdo ();
-        bool     parity     = (*j)->parity ();
-        bool     neighbor   = (*j)->neighbor ();
+        uint16_t vmm_number  = (*j)->vmm ();
+        uint16_t vmm_channel = (*j)->vmm_channel ();
+        uint16_t rel_bcid    = (*j)->rel_bcid ();
+        uint16_t pdo         = (*j)->pdo ();
+        uint16_t tdo         = (*j)->tdo ();
+        bool     parity      = (*j)->parity ();
+        bool     neighbor    = (*j)->neighbor ();
+
+        // Offline ID components
+
+        std::string station_name;
+        if (is_mmg)
+          station_name = (*j)->is_large_station () ? "MML" : "MMS";
+        else
+          station_name = (*j)->is_large_station () ? "STL" : "STS";
+
+        int8_t   station_eta    = (*j)->station_eta ();
+        uint8_t  station_phi    = (*j)->station_phi ();
+        uint8_t  multi_layer    = (*j)->multi_layer ();
+        uint8_t  gas_gap        = (*j)->gas_gap ();
+        uint8_t  channel_type   = (*j)->channel_type ();
+        uint16_t channel_number = (*j)->channel_number ();
 
         if (g_printout)
         {
+          std::cout << "Online decoding or hit word 0x" << std::hex << (*j)->vmm_word () << " on link 0x" << link->elinkWord () << std::dec << std::endl;
+          std::cout << "Parity " << parity << " Calculated parity " << (*j)->calculate_parity () << std::endl;
           std::cout << "L1ID " << l1Id << " BCID " << bcId << " Sector " << static_cast <unsigned int> (sector)
                     << " Layer " << static_cast <unsigned int> (layer) << " Radius " << static_cast <unsigned int> (radius)
                     << " Elink " << static_cast <unsigned int> (elink) << std::endl;
-          std::cout << "VMM " << vmm_number << " Channel " << channel << " Relative BCID " << rel_bcid 
+          std::cout << "VMM " << vmm_number << " Channel " << vmm_channel << " Relative BCID " << rel_bcid 
                     << " Pdo " << pdo << " Tdo " << tdo << " Parity " << parity << " Neighbor " << neighbor << std::endl;
+          std::cout << "Offline decoding or hit word 0x" << std::hex << (*j)->vmm_word () << " on link 0x" << link->elinkWord () << std::dec << std::endl;
+          std::cout << "Station name " << station_name << " Station eta " << static_cast <int> (station_eta)
+                    << " Station phi " << static_cast <unsigned int> (station_phi) << std::endl;
+          std::cout << "Multilayer " << static_cast <unsigned int> (multi_layer) << " Gas gap " << static_cast <unsigned int> (gas_gap)
+                    << " Channel type " << static_cast <unsigned int> (channel_type)
+                    << " Channel Number " << channel_number << std::endl;
         }
       }
     }

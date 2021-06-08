@@ -7,6 +7,7 @@
 
 #include "PhysicalVolumeAccessor.h"
 #include <string>
+#include <mutex>
 
 class LArCoudeElectrodes {
 private:
@@ -16,6 +17,7 @@ private:
   double m_phirot[1024][15];
   bool m_filled;
   static LArCoudeElectrodes* s_instance;
+  static std::once_flag s_flag;
 public:
   static LArCoudeElectrodes* GetInstance(const std::string& strDetector="") ;
   double XCentCoude(int stackid, int cellid) const;

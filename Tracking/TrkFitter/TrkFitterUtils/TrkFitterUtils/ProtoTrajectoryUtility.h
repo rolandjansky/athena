@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,80 +38,80 @@ namespace Trk {
 
     /** @brief method returning the first measurement (non-outlier) element
         from a trajectory. Gives end() if none found. */
-    Trajectory::iterator firstFittableState  (Trajectory&) const;
+    static Trajectory::iterator firstFittableState  (Trajectory&) ;
 
     /** @brief method returning the last measurement (non-outlier) element
         from a trajectory. Gives end() if none found. */
-    Trajectory::iterator lastFittableState   (Trajectory&) const;
+    static Trajectory::iterator lastFittableState   (Trajectory&) ;
 
     /** @brief method returning the previous measurement (non-outlier)
         element from a trajectory. Gives end() if not found. */
-    Trajectory::iterator         previousFittableState(const Trajectory&,
-                                                       Trajectory::iterator) const;
+    static Trajectory::iterator         previousFittableState(const Trajectory&,
+                                                       Trajectory::iterator) ;
 
     /** @brief method returning the next measurement (non-outlier) element
         from a trajectory as the previous element of the reversely iterated
         trajectory. Gives rend() if not found. */
-    Trajectory::reverse_iterator previousFittableState(const Trajectory&,
-                                                       Trajectory::reverse_iterator) const;
+    static Trajectory::reverse_iterator previousFittableState(const Trajectory&,
+                                                       Trajectory::reverse_iterator) ;
 
     /** @brief method returning the next measurement (non-outlier) element
         from a trajectory. Gives end() if not found. */
-    Trajectory::iterator         nextFittableState    (const Trajectory&,
-                                                       Trajectory::iterator) const;
+    static Trajectory::iterator         nextFittableState    (const Trajectory&,
+                                                       Trajectory::iterator) ;
 
     /** @brief method returning the previous measurement (non-outlier)
         element from a trajectory as the next element of the reversely
         iterated trajectory. Gives rend() if not found. */
-    Trajectory::reverse_iterator nextFittableState    (const Trajectory&,
-                                                       Trajectory::reverse_iterator) const;
+    static Trajectory::reverse_iterator nextFittableState    (const Trajectory&,
+                                                       Trajectory::reverse_iterator) ;
 
     //! method returning the number of measurements up to element number i.
-    int            numberOfMeasurements(const Trajectory&, int i=0) const;
+    static int            numberOfMeasurements(const Trajectory&, int i=0) ;
     
 
     //! method returning the number of measurements x their rank.
-    int            rankedNumberOfMeasurements(const Trajectory&) const;
+    static int            rankedNumberOfMeasurements(const Trajectory&) ;
 
     //! method returning the number of outliers up to element number i.
-    int            numberOfOutliers(const Trajectory&, int i=0) const;
+    static int            numberOfOutliers(const Trajectory&, int i=0) ;
 
     //! method returning the number of new outliers up to element number i.
-    int            numberOfNewOutliers(const Trajectory&, int i=0) const;
+    static int            numberOfNewOutliers(const Trajectory&, int i=0) ;
 
     //! method returning the number of new outliers for detector, type and iteration
-    int            numberOfSpecificStates
+    static int            numberOfSpecificStates
       (const Trajectory&,
        const TrackState::MeasurementType& mt=TrackState::unidentified,
        const TrackState::TrackStateType&  tt=TrackState::AnyState,
-       const int&             it=0) const;
+       const int&             it=0) ;
 
     //! returns true if a DNA_Mat'Eff' object is contained in the actual trajectory 
-    bool           trajectoryHasMefot(const Trajectory&) const;
+    static bool           trajectoryHasMefot(const Trajectory&) ;
 
     /** @brief method to remove all fit results but keep all measurements, material
         layers, reference parameters and jacobians.
         The states 1, ... firststate-1 keep their forwardParameters so that the
         can resume the filtering procedure from there. */
-    void           clearFitResultsAfterOutlier(Trajectory&, FitQuality*&,
-                                               int firststate=1) const;
+    static void           clearFitResultsAfterOutlier(Trajectory&, FitQuality*&,
+                                               int firststate=1) ;
 
     /** @brief method to remove all fit results, the reference track with jacobians
          but keep measurements+material as they define the trajectory. The full
          removal can be done with a simple .clear() instead. Again the states
          1...(firstate-1) keep the reference and forward trajectories. */
-    void           clearFitResultsAndReference(Trajectory&, FitQuality*&,
-                                               int firststate=1) const;
+    static void           clearFitResultsAndReference(Trajectory&, FitQuality*&,
+                                               int firststate=1) ;
 
     /** @brief put all 'new outliers' back to measurements.
 
         if argument outlierState is >0, then apart from the state number N
     */
-    void                 defineMeasurementsExceptThis(Trajectory&, int outlierState=0) const;
+    static void                 defineMeasurementsExceptThis(Trajectory&, int outlierState=0) ;
 
     /** @brief sum up FQoS values from forward filter */
-    FitQuality           forwardFilterQuality(const Trajectory&,
-      Trk::TrackState::MeasurementType=Trk::TrackState::unidentified) const;
+    static FitQuality           forwardFilterQuality(const Trajectory&,
+      Trk::TrackState::MeasurementType=Trk::TrackState::unidentified) ;
 
     /** @brief make a screen output of the trajectory contents. Uses the
         AtlasIdHelper to print the hit type in readable form. */

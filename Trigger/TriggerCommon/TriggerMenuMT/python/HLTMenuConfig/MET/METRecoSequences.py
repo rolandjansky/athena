@@ -1,4 +1,3 @@
-#
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
@@ -86,7 +85,7 @@ class ClusterInputConfig(AlgInputConfig):
             LCCaloClusterRecoSequence,
         )
         from ..Jet.JetRecoConfiguration import defineJetConstit
-        from JetRecConfig.ConstModHelpers import getConstitModAlg, aliasToInputDef
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         calib = recoDict["calib"]
         if calib == "em":
@@ -105,10 +104,9 @@ class ClusterInputConfig(AlgInputConfig):
             recoDict = copy.copy(recoDict)
             recoDict["constitType"] = "tc"
             jetRecoDict = jetRecoDictForMET(**recoDict)
-            constit = aliasToInputDef(
-                defineJetConstit(jetRecoDict, clustersKey=clusterName)
-            )
-            constit_mod_seq = getConstitModAlg(constit)
+            constit = defineJetConstit(jetRecoDict, clustersKey=clusterName)
+            # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkopt
+            constit_mod_seq = getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default"))
             sequences.append(constit_mod_seq)
             # Update the name to the modified container name
             clusterName = constit.containername
@@ -119,7 +117,7 @@ class ClusterInputConfig(AlgInputConfig):
         from ..CommonSequences.CaloConfig import CaloClusterCfg
         from ..CommonSequences.FullScanDefs import em_clusters, lc_clusters
         from ..Jet.JetRecoConfiguration import defineJetConstit
-        from JetRecConfig.ConstModHelpers import getConstitModAlg, aliasToInputDef
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         if recoDict["calib"] == "em":
             doLC = False
@@ -138,10 +136,10 @@ class ClusterInputConfig(AlgInputConfig):
             # Force the datatype to topoclusters
             recoDict = copy.copy(recoDict)
             recoDict["constitType"] = "tc"
-            constit = aliasToInputDef(
-                defineJetConstit(jetRecoDictForMET(**recoDict), clustersKey=clustername)
-            )
-            acc.addEventAlgo(getConstitModAlg(constit))
+            jetRecoDict = jetRecoDictForMET(**recoDict)
+            constit = defineJetConstit(jetRecoDict, clustersKey=clustername)
+            for a in getConstitModAlg_nojetdef(constit, context=jetRecoDict.get("trkopt","default")):                
+                acc.addEventAlgo(a)
             clustername = constit.containername
 
         return acc, {"Clusters": clustername}
@@ -186,10 +184,9 @@ default_inputs.add_input(EMClusterInputConfig())
 
 class TrackingInputConfig(AlgInputConfig):
     def __init__(self):
-        from ..Jet.JetTrackingConfig import trkcollskeys
-
+        from JetRecConfig.StandardJetContext import jetContextDic
         super().__init__(
-            produces=copy.copy(trkcollskeys),
+            produces=copy.copy(jetContextDic['trackKeys']),
             step=1,
         )
 
@@ -230,7 +227,7 @@ class PFOInputConfig(AlgInputConfig):
     def create_sequence(self, inputs, RoIs, recoDict):
         from eflowRec.PFHLTSequence import PFHLTSequence
         from ..Jet.JetRecoConfiguration import defineJetConstit
-        from JetRecConfig.ConstModHelpers import getConstitModAlg, aliasToInputDef
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         pfSeq, pfoPrefix = RecoFragmentsPool.retrieve(
             PFHLTSequence,
@@ -246,8 +243,9 @@ class PFOInputConfig(AlgInputConfig):
         # Force the jet data type to the correct thing
         recoDict["constitType"] = "pf"
         jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
-        constit = aliasToInputDef(defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix))
-        constit_mod_seq = getConstitModAlg(constit)
+        constit = defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix)
+        # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkop
+        constit_mod_seq = getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default"))
         # Update the PFO prefix
         pfoPrefix = constit.containername
         if pfoPrefix.endswith("ParticleFlowObjects"):
@@ -267,7 +265,7 @@ class PFOInputConfig(AlgInputConfig):
     def create_accumulator(self, flags, inputs, RoIs, recoDict):
         from eflowRec.PFHLTConfig import PFCfg
         from ..Jet.JetRecoConfiguration import defineJetConstit
-        from JetRecConfig.ConstModHelpers import getConstitModAlg, aliasToInputDef
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         acc = PFCfg(
             flags,
@@ -284,13 +282,10 @@ class PFOInputConfig(AlgInputConfig):
         recoDict = copy.copy(recoDict)
         # Force the jet data type to the correct thing
         recoDict["constitType"] = "pf"
-        constit = aliasToInputDef(
-            defineJetConstit(
-                jetRecoDictForMET(trkopt="ftf", **recoDict),
-                pfoPrefix="HLT_ftf",
-            )
-        )
-        acc.addEventAlgo(getConstitModAlg(constit))
+        jetRecoDict=jetRecoDictForMET(trkopt="ftf", **recoDict)
+        constit = defineJetConstit(jetRecoDict, pfoPrefix="HLT_ftf")
+        # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkop        
+        acc.addEventAlgo( getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default")) ) # WARNING getConstitModAlg_nojetdef could return None, however this won't happen for PFlow
         # Update the PFO prefix
         pfoPrefix = constit.containername
         if pfoPrefix.endswith("ParticleFlowObjects"):

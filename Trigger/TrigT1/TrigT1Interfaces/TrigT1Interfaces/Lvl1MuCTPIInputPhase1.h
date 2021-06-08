@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_LVL1MUCTPIINPUTPHASE1_H
 #define TRIGT1INTERFACES_LVL1MUCTPIINPUTPHASE1_H
@@ -29,8 +29,6 @@ namespace LVL1MUONIF {
     *    @see LVL1MUONIF::Lvl1MuEndcapSectorLogicDataPhase1
     *    @see LVL1MUONIF::Lvl1MuForwardSectorLogicDataPhase1
     *
-    * $Revision: 782811 $
-    * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
     */
    class Lvl1MuCTPIInputPhase1 {
 
@@ -74,7 +72,7 @@ namespace LVL1MUONIF {
       std::shared_ptr<Lvl1MuSectorLogicDataPhase1> getSectorLogicDataPtr( size_t systemAddress,
 									  size_t subSystemAddress,
 									  size_t sectorAddress,
-									  int    bcid=0        );
+									  int    bcid=0        ) const;
       
       void setSectorLogicData( const Lvl1MuSectorLogicDataPhase1& data,
                                size_t systemAddress,

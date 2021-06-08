@@ -176,8 +176,8 @@ namespace FlavorTagDiscriminants {
   DL2HighLevel::~DL2HighLevel() = default;
   DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
 
-  void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
-    m_dl2->decorate(jet);
+  void DL2HighLevel::decorate(const xAOD::BTagging& btag) const {
+    m_dl2->decorate(btag);
   }
 
   DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const

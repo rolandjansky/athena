@@ -48,6 +48,9 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
   trigCostAnalysis.ROSToROBMap = ROSToROBMap().get_mapping()
   trigCostAnalysis.DoMonitorChainAlgorithm = args.monitorChainAlgorithm
 
+  if args.joFile:
+    trigCostAnalysis.AdditionalHashList = readHashes(args.joFile)
+
   acc.addEventAlgo(trigCostAnalysis)
 
   return acc
@@ -63,6 +66,27 @@ def readMCpayload(args):
 
   return payload
 
+# Read algorithm and class names from HLTJobOptions file
+def readHashes(joFileName):
+  namesList = set()
+
+  with open(joFileName, "r") as joFile:
+    import json
+    joData = json.load(joFile)
+
+    log.info("Reading additional names...")
+
+    for entry in joData["properties"]:
+      namesList.add(entry.split('.')[0])
+
+      # Read algorithm names with classes
+      entryObj = joData["properties"][entry]
+      if "Members" in entryObj:
+        membersList = entryObj["Members"].strip('][').replace("'", "").split(', ')
+        namesList.update(membersList)
+
+  log.info("Retrieved {0} names".format(len(namesList)))
+  return list(namesList)
 
 # Configure deserialisation
 def decodingCfg(flags):
@@ -152,6 +176,7 @@ if __name__=='__main__':
   parser.add_argument('--monitorChainAlgorithm', action='store_true', help='Turn on Chain Algorithm monitoring')
   parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
   parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
+  parser.add_argument('--joFile', type=str, help='Optional HLTJobOptions file to add more hashes')
 
   parser.add_argument('--smk', type=int, help='SuperMasterKey to retrieve menu file')
   parser.add_argument('--dbAlias', type=str, help='Database alias to retrieve menu file')

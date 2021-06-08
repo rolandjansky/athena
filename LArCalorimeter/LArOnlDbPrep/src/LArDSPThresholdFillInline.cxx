@@ -26,7 +26,6 @@
 LArDSPThresholdFillInline::LArDSPThresholdFillInline(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_onlineID(0),
-  m_badChannelMasker("LArBadChannelMasker"),
   m_workmode (FIXED)
 {
 
@@ -51,7 +50,6 @@ LArDSPThresholdFillInline::LArDSPThresholdFillInline(const std::string& name, IS
 
   //For channel masking
   declareProperty("MaskBadChannels",m_maskBadChannels=false);
-  declareProperty("BadChannelMasker",m_badChannelMasker);
   declareProperty("MaskedtQThreshold",m_maskedtqThrsh=static_cast<float>(0x7fffffff));
   declareProperty("MaskedsamplesThreshold",m_maskedsamplesThrsh=static_cast<float>(0x7fffffff));
 
@@ -70,9 +68,9 @@ StatusCode LArDSPThresholdFillInline::initialize() {
   ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
   ATH_CHECK( m_cablingKey.initialize() );
 
-  if(m_maskBadChannels){
-    ATH_CHECK( m_badChannelMasker.retrieve() );
-  }
+  ATH_CHECK(m_bcContKey.initialize(m_maskBadChannels));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
 
   if (m_mode.compare("fixed")==0) {
     m_workmode=FIXED;
@@ -176,6 +174,14 @@ StatusCode LArDSPThresholdFillInline::stop() {
       elecNoise = elecNoiseH.cptr();
     }
 
+    //retrieve BadChannel info:
+    const LArBadChannelCont* bcCont=nullptr;
+    if (m_maskBadChannels) {
+      SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+      bcCont=(*bcContHdl);
+    }
+
+
     for (unsigned hs=0;hs<hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
       const Identifier id=cabling->cnvToIdentifier(chid);
@@ -190,7 +196,7 @@ StatusCode LArDSPThresholdFillInline::stop() {
 	continue;
       }
 
-      if(m_maskBadChannels && m_badChannelMasker->cellShouldBeMasked(chid)){ // Default gain is CaloGain::UNKNOWNGAIN
+      if(m_maskBadChannels && m_bcMask.cellShouldBeMasked(bcCont,chid)){ // Default gain is CaloGain::UNKNOWNGAIN
 	ATH_MSG_DEBUG ( "cell id: " << id << " is masked; set thresholds to " << m_maskedtqThrsh << ", " << m_maskedsamplesThrsh );
 	ptQThrBlob[hs]=m_maskedtqThrsh;
 	psamplesBlob[hs]=m_maskedsamplesThrsh;

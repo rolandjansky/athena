@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -218,33 +218,33 @@ namespace InDet{
       const Trk::TrackParameters*                            addNoise(double,double,double,double,const Trk::TrackParameters*,int) const;
 
       /** Get better track theta initial estimate using the SPs from the seed */
-      double                                                 getNewTheta(std::vector<const Trk::SpacePoint*>&) const;
+      static double                                                 getNewTheta(std::vector<const Trk::SpacePoint*>&) ;
 
       /** Check consistency of seed and TRT track segment */
       bool                                                   checkSeed(std::vector<const Trk::SpacePoint*>&,const Trk::TrackSegment&,const Trk::TrackParameters*) const;
 
       /** Modify track parameters if brem correction  */
-      const Trk::TrackParameters*                            modifyTrackParameters(const Trk::TrackParameters&,int) const;
+      static const Trk::TrackParameters*                            modifyTrackParameters(const Trk::TrackParameters&,int) ;
 
       /** Set the track quality cuts for combinatorial track finding   */
       void                                                   setTrackQualityCuts();
 
       /** Map PRDs-tracks */
-      void                                                   clusterTrackMap(Trk::Track*,
+      static void                                                   clusterTrackMap(Trk::Track*,
                                                                              InDet::TRT_SeededTrackFinder_ATL::EventData &event_data)
-                                                                            const;
+                                                                            ;
 
       /** Seed used by another track?  */
-      bool                                                   newClusters(const std::vector<const Trk::SpacePoint*>&,
-                                                                         InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
+      static bool                                                   newClusters(const std::vector<const Trk::SpacePoint*>&,
+                                                                         InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) ;
 
       /** Seed SPs used by other high quality tracks? */
-      bool                                                   newSeed(const std::vector<const Trk::SpacePoint*>&,
-                                                                     InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
+      static bool                                                   newSeed(const std::vector<const Trk::SpacePoint*>&,
+                                                                     InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) ;
 
       /** Clean-up duplicate tracks  */
-      bool                                                   isNewTrack(Trk::Track*,
-                                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
+      static bool                                                   isNewTrack(Trk::Track*,
+                                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) ;
 
       /** Eliminate spurious Pixel clusters in track  */
       std::list<Trk::Track*>                                 cleanTrack(std::list<Trk::Track*>) const;

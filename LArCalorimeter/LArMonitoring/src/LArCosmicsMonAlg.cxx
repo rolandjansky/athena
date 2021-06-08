@@ -29,11 +29,7 @@ LArCosmicsMonAlg::LArCosmicsMonAlg(const std::string& name, ISvcLocator* pSvcLoc
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
     m_LArHEC_IDHelper(0),
-    m_LArFCAL_IDHelper(0),
-    m_badChannelMask("BadLArRawChannelMask",this)
-{
-  declareProperty("LArBadChannelMask",m_badChannelMask); 
-}
+    m_LArFCAL_IDHelper(0) {}
 
 /*---------------------------------------------------------*/
 LArCosmicsMonAlg::~LArCosmicsMonAlg()
@@ -80,11 +76,8 @@ LArCosmicsMonAlg::initialize()
   ATH_CHECK(m_LArDigitContainerKey.initialize());
 
   /** Get bad-channel mask */
-  StatusCode sc=m_badChannelMask.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
  return AthMonitorAlgorithm::initialize();  
 }
@@ -114,6 +107,11 @@ LArCosmicsMonAlg::fillHistograms(const EventContext& ctx)  const {
   //retrieve cabling
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling=*cablingHdl;
+
+  //retrieve BadChannel info:
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+  const LArBadChannelCont* bcCont{*bcContHdl};
+
 
   /** retrieve det. description manager */
   const CaloDetDescrManager* ddman = nullptr;
@@ -159,7 +157,7 @@ LArCosmicsMonAlg::fillHistograms(const EventContext& ctx)  const {
     if(pedestal <= (1.0+LArElecCalib::ERRORCODE)) continue;      
     
     // Remove problematic channels
-    if (m_badChannelMask->cellShouldBeMasked(id)) continue;
+    if (m_bcMask.cellShouldBeMasked(bcCont,id)) continue;
     
     //
     // HEC 

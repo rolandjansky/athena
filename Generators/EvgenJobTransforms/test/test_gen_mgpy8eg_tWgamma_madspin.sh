@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: Generation test MG+Py8+EG pp->ttbar+W+a with MadSpin
 # art-type: build
-# art-include: 21.6/master
+# art-include: master/AthGeneration
 # art-output: *.root
 # art-output: log.generate
 

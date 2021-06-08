@@ -42,9 +42,7 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
     m_LArCellEthreshold(-100.),
     m_larCell(false), 
     m_readtdc(false),
-    m_onlineHelper(0),
-    m_doBadChanMasking(false),
-    m_badChannelMasker(0)
+    m_onlineHelper(0)
  {
   declareInterface< LArRodDecoder  >( this );
   declareProperty("IgnoreCheckFEBs",m_IgnoreCheckFEBs);
@@ -94,14 +92,7 @@ LArRodDecoder::initialize ATLAS_NOT_THREAD_SAFE ()
     {msg(MSG::ERROR) << "Unable to get ToolSvc" << endmsg;
     return sc;
    }
-  
- sc = toolSvc->retrieveTool("LArBadChannelMasker/LArRodDecoder_Masker", m_badChannelMasker);
- if(sc.isFailure()) {
-   msg(MSG::ERROR) << "Failed to retrieve the LArBadChannelMasker named 'LArRodDecoder_Masker'." << endmsg;
-   return sc;
- }
- m_doBadChanMasking = m_badChannelMasker->isMaskingOn();
-  
+    
  ATH_CHECK( m_evt.initialize() );
 
  std::vector<std::string>::const_iterator it = m_LArCellCorrNames.begin(); 

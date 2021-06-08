@@ -81,8 +81,9 @@ LArCoverageAlg::initialize()
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
+
   /** retrieve bad channel tool */
-  ATH_CHECK( m_badChannelMask.retrieve() );
+   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   /** Initialize cabling key */
   ATH_CHECK(m_cablingKey.initialize());
@@ -191,6 +192,11 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   }
 
 
+  /** Retrieve BadChannels */
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey,ctx};
+  const LArBadChannelCont* bcCont{*bch};  
+
+
   ATH_MSG_DEBUG( "collect known faulty FEBs" );
   SG::ReadCondHandle<LArBadFebCont> bf{m_BFKey,ctx};
   const LArBadFebCont* mfCont{*bf};
@@ -261,7 +267,7 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
 
 
       /** Fill Bad Channels histograms  */
-      flag = DBflag(id);
+      flag = DBflag(id,bcCont);
       if (flag!=0) {//only fill bad channels
 	std::string the_side= (etaChan >= 0 ? "A" : "C");
 	if(m_LArOnlineIDHelper->isEMBchannel(id)){
@@ -288,7 +294,7 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
      */
     if ( (provenanceChan&0x00ff) == 0x00a5 || (provenanceChan&0x1000) == 0x1000 ){
 
-      if(m_badChannelMask->cellShouldBeMasked(id)) cellContent=2;
+      if(m_bcMask.cellShouldBeMasked(bcCont,id)) cellContent=2;
       else if(energyChan != 0) cellContent=3;
     }
 
@@ -403,10 +409,8 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
 
 
 /*---------------------------------------------------------*/
-int LArCoverageAlg::DBflag(HWIdentifier onID) const
+int LArCoverageAlg::DBflag(HWIdentifier onID, const LArBadChannelCont* bcCont) const
 {
-  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
-  const LArBadChannelCont* bcCont{*bch};
   if(!bcCont) {
     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
     return -1;

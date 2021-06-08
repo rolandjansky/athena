@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTXAODBphysMonTool.cxx
@@ -52,7 +52,7 @@
 
 
 // TrigBphysMonitoring
-#include "TrigBphysMonitoring/HLTXAODBphysMonTool.h"
+#include "HLTXAODBphysMonTool.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
@@ -1129,7 +1129,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         // check for, and access, the decorated quantities
         bool hasAccessorVariables(true);
         //static Accessor< float > acc("");
-#define createAccesor(name) static SG::AuxElement::Accessor< float > acc_##name(#name)
+#define createAccesor(name) static const SG::AuxElement::Accessor< float > acc_##name(#name)
         createAccesor(Lxy_bs);
         createAccesor(LxyError_bs);
         createAccesor(Tau_bs);
@@ -2053,9 +2053,9 @@ TVector3 HLTXAODBphysMonTool::trackMomentum(const xAOD::Vertex * vxCandidate, ui
 {
     float px(0.), py(0.), pz(0.);
     
-    static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
-    static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
-    static SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
+    static const SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
+    static const SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
+    static const SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
     const std::vector<float>& refTrackPx = refTrackPxAcc(*vxCandidate);
     const std::vector<float>& refTrackPy = refTrackPyAcc(*vxCandidate);
     const std::vector<float>& refTrackPz = refTrackPzAcc(*vxCandidate);

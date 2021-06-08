@@ -1,10 +1,6 @@
-#include <fstream.h>
-#include <sstream>
-#include <iomanip.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <iostream>
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 #include <TNtuple.h>
 #include <TFile.h>
 #include <TKey.h>
@@ -17,39 +13,44 @@
 #include <THStack.h>
 #include <TROOT.h>
 #include <map>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <cstdlib>
+#include <cmath>
+#include <iostream>
 using namespace std;
 
 int Simple1dHist(float min, float max, int nbins, float value)
 {
-  if ( value<min | value>max ) return -1;
-  int binno=(int)(nbins*((value-min)/(max-min)));
+  if ( (value<min) or (value>max) ) return -1;
+  int binno=(nbins*((value-min)/(max-min)));
   return binno;
 }
 
 int Simple2dHist(float minx, float maxx, int nbinsx, float miny, float maxy, int nbinsy, float valuex, float valuey)
 {
-  if ( valuex<minx | valuex>maxx |  valuey<miny | valuey>maxy ) return -1;
-  int binnox=(int)(nbinsx*((valuex-minx)/(maxx-minx)));
-  int binnoy=(int)(nbinsy*((valuey-miny)/(maxy-miny)));
+  if ( (valuex<minx) or (valuex>maxx) or  (valuey<miny) or (valuey>maxy) ) return -1;
+  int binnox=(nbinsx*((valuex-minx)/(maxx-minx)));
+  int binnoy=(nbinsy*((valuey-miny)/(maxy-miny)));
   return binnoy*nbinsx+binnox;
 }
 
-class databundle{
-public:
-  int det, lay, mod, brd, chp, stl, stw, sid, ievt;
-  float tres, weight, res, t, r, t0, x, y, z, rt0;
+struct databundle{
+  int det{}, lay{}, mod{}, brd{}, chp{}, stl{}, stw{}, sid{}, ievt{};
+  float tres{}, weight{}, res{}, t{}, r{}, t0{}, x{}, y{}, z{}, rt0{};
 };
 
-class caldata{
-public:
-  int det, lay, mod, brd, chp, stl, stw, sid, nres, minntres, maxntres, minnres, maxnres, minnrt, maxnrt, t0fittype;
-  float ntres,nrt,res,reserr,tres,t0,oldt0,reft0,t0err,t0off,rtt0,rtpar[4],nhits,treshist[100],reshist[100],rthist[640],x,y,z;
-  bool calflag,rtflag,t0flag;
+struct caldata{
+  int det{}, lay{}, mod{}, brd{}, chp{}, stl{}, stw{};
+  int sid{}, nres{}, minntres{}, maxntres{}, minnres{}, maxnres{}, minnrt{}, maxnrt{}, t0fittype{};
+  float ntres{},nrt{},res{},reserr{},tres{},t0{},oldt0{},reft0{},t0err{},t0off{},rtt0{};
+  float rtpar[4]{},nhits{},treshist[100]{},reshist[100]{},rthist[640]{},x{},y{},z{};
+  bool calflag{},rtflag{},t0flag{};
 };
 
-class epdata{
-public:
-  float run,event,track,nhits,ephase1,ephase2,t0,traw;
+struct epdata{
+  float run{},event{},track{},nhits{},ephase1{},ephase2{},t0{},traw{};
 };
 
 class Calibrator{
@@ -64,50 +65,34 @@ public:
   void WriteStat(TDirectory*);
   map<string,caldata> data;
 private:
-  TH1F* resHist;
-  string name;
-  int level,minrtstat,mint0stat,nbinsr,nbinst,nbinstres,nbinsres;
-  float minr,maxr,mint,maxt,mintres,maxtres,minres,maxres;
-  bool isdines;
+  TH1F* resHist{};
+  string name{};
+  int level{},minrtstat{},mint0stat{},nbinsr{20},nbinst{32},nbinstres{},nbinsres{100};
+  float minr{0.},maxr{2.},mint{-10},maxt{80},mintres{-25},maxtres{25},minres{-1},maxres{1};
+  bool isdines{};
 };
 
 
-Calibrator::Calibrator(int lev, string nme, int mint0, int minrt, string rtr){
-  level=lev;
-  name=nme;
-  minrtstat=minrt;
-  mint0stat=mint0;
-  mint=-10;
-  maxt=80;
-  nbinst=32;
-  minr=0;
-  maxr=2;
-  nbinsr=20;
-  mintres=-25;
-  maxtres=25;
-  nbinstres=100;
-  minres=-1;
-  maxres=1;
-  nbinsres=100;
+Calibrator::Calibrator(int lev, const string & nme, int mint0, int minrt, const string & rtr):
+    name(nme), level(lev), minrtstat(minrt), mint0stat(mint0){
   isdines = rtr.find("dines")!=string::npos;
 
 }
 
 Calibrator::~Calibrator(){
 
-  //resHist->Delete();
 }
 
-float Calibrator::FitRt(string key, string opt, TH2F* rtHist){
+float Calibrator::FitRt(const string & key, const string & opt, TH2F* rtHist){
   
   float mintime=999.0;
   float mindistance = 0.0; //0.1 
   int npoints=rtHist->GetNbinsY();
-  char chname[100], chtit[100];
+  char chname[100]{}, chtit[100]{};
   float tbinsize=3.125, width=2.5*tbinsize, mean;
-  int maxbin;
-  float maxval;
-  float rtpars[4];
+  int maxbin{};
+  float maxval{};
+  float rtpars[4]{};
 
   TGraphErrors rtgr(npoints);
   TGraphErrors trgr(npoints);
@@ -127,8 +112,8 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist){
     for (int j=1;j<=hslize->GetNbinsX()+1;j++) {
       float val=hslize->GetBinContent(j);
       if (val>maxval){
- 	maxval=val;
- 	maxbin=j;
+ 	      maxval=val;
+ 	      maxbin=j;
       }
     }
     
@@ -138,22 +123,15 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist){
     dtfitfunc.SetParameter(1,mean); 
     dtfitfunc.SetParameter(2,5);
     
-    //hslize->Fit(dtfitfunc,"QR");
     hslize->Fit(&dtfitfunc,"QRI");
-    
-    //hslize->GetListOfFunctions()->Add(dtfitfunc);
-    
+        
     float d = rtHist->GetYaxis()->GetBinCenter(i+1);
     float t = dtfitfunc.GetParameter(1);
-    //cout << i << " " << t << " " << d << endl;
     rtgr.SetPoint(i,t,d);
     rtgr.SetPointError(i,dtfitfunc.GetParError(1),rtHist->GetYaxis()->GetBinWidth(1)/sqrt(12.0)); 
     trgr.SetPoint(i,d,t);
-    //trgr.SetPointError(i,rtHist->GetYaxis()->GetBinWidth(1)/(sqrt(12.0)),dtfitfunc.GetParError(1));
     trgr.SetPointError(i,0,dtfitfunc.GetParError(1));
     if(d>=mindistance && t<mintime) mintime = t;
-    
-    //hslize->Delete();
   }	
   rtgr.SetMarkerStyle(1) ;
   rtgr.SetMarkerColor(2) ;
@@ -218,37 +196,7 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist){
   if (isdines) tdrift = trfunc2.GetParameter(1); 
   else         tdrift = trfunc2.GetParameter(0); 
     
-  /*
-  if (isdines) {
-    //ǵet the t0 from the rt relation
-    tdrift = trfunc2.GetParameter(1);
-  }
-  else {
-    //ǵet the t0 from the rt relation
-    float rdrift = 0.0;
-    int ntries = 0;
-    float precision = 0.0001;
-    int maxtries = 500; 
-    float drdt;
-    float driftradius = rtpars[0]+tdrift*(rtpars[1]+tdrift*(rtpars[2]));
-    float residual = fabs(rdrift) - driftradius;
-    while (fabs(residual) > precision) {
-      
-      drdt = rtpars[1]+tdrift*(2*rtpars[2]);
-      tdrift = tdrift + residual/drdt;
-      
-      driftradius = rtpars[0]+tdrift*(rtpars[1]+tdrift*(rtpars[2]));
-      residual = rdrift - driftradius; 
-      
-      ntries = ntries + 1;
-      //cout << "RES " << residual << endl;
-      if (ntries>maxtries){
-	break;
-      }
-    }
-  }
-  */
-  
+ 
   data[key].rtpar[0]=rtpars[0];
   data[key].rtpar[1]=rtpars[1];
   data[key].rtpar[2]=rtpars[2];
@@ -343,7 +291,6 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
   //Fit also the residual if an rt or t0 calibration is made
   if ((int)data[key].nres>50 && ((enough_rt && calrt) | (enough_t0 && calt0))) {    
 
-    //TH1F* resHist = new TH1F("residual","residual",nbinsres,minres,maxres);
     resHist = new TH1F("residual","residual",nbinsres,minres,maxres);
     for (int i=0;i<100;i++) {
       resHist->SetBinContent(i+1,data[key].reshist[i]);
@@ -441,7 +388,7 @@ int Calibrator::AddHit(string key, databundle d){
 
     caldata* hist=(caldata*)malloc(sizeof(caldata));
 
-    if (hist == NULL){
+    if (not hist){
       cout << "OUT OF MEMORY!" << endl;
       return -1;
     }
@@ -516,9 +463,6 @@ int Calibrator::AddHit(string key, databundle d){
 
     //increment hit counts
     data[key].nhits++;
-
-    //printf("%30s %i\n",key.data(),data[key].nhits);
-
   }    
 
   return 0;
@@ -529,10 +473,8 @@ void Calibrator::WriteStat(TDirectory* dir){
   dir->cd();
 
   TNtuple* stattup = new TNtuple(Form("%stuple",name.data()),"statistics","det:lay:mod:brd:chp:rtflag:t0flag:t0:oldt0:rt0:dt0:t0offset:ftype:nhits:nt0:nrt:res:dres:tres:x:y:z");
-  for(map<string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ihist++){
-    
+  for(map<string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ++ihist){
     if ((ihist->second).calflag) {
-    
       float const ntvar[22]={
 	(ihist->second).det,
 	(ihist->second).lay,
@@ -562,50 +504,9 @@ void Calibrator::WriteStat(TDirectory* dir){
       
   }
 
-  //   stattup->Draw(Form("nhits>>test0(100,%f,%f)",stattup->GetMinimum("nhits")-10,stattup->GetMaximum("nhits")+10));
-  //   stattup->Draw(Form("nhits>>test1(100,%f,%f)",stattup->GetMinimum("nhits")-10,stattup->GetMaximum("nhits")+10),Form("nhits<%d",mint0stat));
-  //   stattup->Draw(Form("nhits>>test2(100,%f,%f)",stattup->GetMinimum("nhits")-10,stattup->GetMaximum("nhits")+10),Form("nhits>=%d",mint0stat,"same"));
-
-  //   TH1F* myhist0 = (TH1F*)gROOT->FindObject("test0");
-  //   TH1F* myhist1 = (TH1F*)gROOT->FindObject("test1");
-  //   TH1F* myhist2 = (TH1F*)gROOT->FindObject("test2");
-
-  //   myhist0->SetDirectory(0);
-  //   myhist1->SetDirectory(0);
-  //   myhist2->SetDirectory(0);
-
-  //   TCanvas* c1 = new TCanvas();
-  //   c1->Divide(1,2);
-  //   c1->SetName(name.data());
-  
-  //   c1->cd(1);
-
-
-  //   myhist0->SetTitle(Form("%s-hits",name.data()));
-  //   myhist0->Draw();
-  //   myhist1->SetFillColor(2);
-  //   myhist1->Draw("same");
-
-  //   myhist2->SetFillColor(3);
-  //   myhist2->Draw("same");
-
-  //   c1->cd(2);
-  
-
-//   stattup->Draw(Form("nhits>>%s",name.data()));
-//   TH1F* myhist0 = (TH1F*)gROOT->FindObject(Form("%s",name.data()));
-//   myhist0->SetTitle(Form("t0limit=%i rtlimit=%i",mint0stat,minrtstat));
-
-  //  c1->Write();
-
   stattup->Write();
   stattup->Delete();
 }
-
-
-
-
-
 
 
 //dictionary 
@@ -624,7 +525,7 @@ string TkeyBD,DkeyBD,LkeyBD,MkeyBD,BkeyBD,CkeyBD,SkeyBD;
 
 bool IncludedLevels(string opt0, int* levinc){
 
-  string popts[7];
+  string popts[7]{};
 
   string opt1=opt0.substr(0,opt0.rfind("_"));
   string opt2=opt1.substr(0,opt1.rfind("_"));
@@ -669,7 +570,7 @@ string SubLev(string pat, int lev){
 }
 
 
-bool IsSubLev(string key, int lev, string sublev){  
+bool IsSubLev(const string &key, int lev, const string &sublev){  
   
   string sl=sublev;
 
@@ -708,8 +609,8 @@ int main(int argc, char *argv[]){
   sscanf(argv[7],"%i",&nevents);
 
   string outfile="calibout";
-  string rtrel=argv[5];
-  string infile=argv[6];
+  string rtrel=argv[5]{};
+  string infile=argv[6]{};
 
   cout << endl;
   cout << "INPUT FILE       : " << infile << endl; 
@@ -729,17 +630,18 @@ int main(int argc, char *argv[]){
   Calibrator Chip(5,"Chip",mint0,minrt,rtrel);
   Calibrator Straw(6,"Straw",mint0,minrt,rtrel);
   
-  float run,evt,trk,det,lay,mod,stl,stw,brd,chp,sid,locx,locy,locz,x,y,z,r,dr,t,rtrack,ttrack,t0,ephase;
+  float run{},evt{},trk{},det{},lay{},mod{},stl{},stw{};
+  float brd{},chp{},sid{},locx{},locy{},locz{};
+  float x{},y{},z{},r{},dr{},t{},rtrack{},ttrack{},t0{},ephase{};
 
-  int rbrd, rchp, rdet, dum;
-  float rt0;
-  char rkey[10];
+  int rbrd{}, rchp{}, rdet{}, dum{};
+  float rt0{};
+  char rkey[10]{};
   map<string,float> reft0map;
   ifstream t0ref("finedelays.txt",ios::in);
   for(int iref=0;iref<208;iref++){
     t0ref >> rbrd >> rchp >> rdet >> dum >> rt0;
     reft0map[string(Form("_%i_%i_%i",rdet,rbrd,rchp))]=rt0;
-    //cout << rdet << " " <<  rbrd << " " <<  rchp << " " << reft0map[string(Form("_%i_%i_%i",rdet,rbrd,rchp))] << endl;
   }
   t0ref.close();
 
@@ -747,7 +649,7 @@ int main(int argc, char *argv[]){
   IncludedLevels(selection,levinc);
 
   bool isdines = rtrel.find("dines")!=string::npos;
-  int rtint;
+  int rtint{};
   if (isdines) rtint=2;
   else rtint=0;
 
@@ -781,9 +683,9 @@ int main(int argc, char *argv[]){
     hittuple->SetBranchAddress("t0",&t0);
     hittuple->SetBranchAddress("ephase",&ephase);
       
-    int ievt;
+    int ievt{};
 
-    map<string,epdata> ephasemap;
+    map<string,epdata> ephasemap{};
     //map<string,epdata> ephasemap2;
 
     if (nevents==-1) nevents = hittuple->GetEntries();
@@ -799,28 +701,27 @@ int main(int argc, char *argv[]){
       string epkey=string(Form("_%i_%i_%i",(int)run,(int)evt,(int)trk));
       
       if (ephasemap.find(epkey) == ephasemap.end()){
-	ephasemap[epkey].run=run;
-	ephasemap[epkey].event=evt;
-	ephasemap[epkey].track=trk;
-	ephasemap[epkey].ephase1=(t+ephase)-t0-ttrack;
-	ephasemap[epkey].ephase2=ephase;
-	ephasemap[epkey].nhits=1.0;
-	ephasemap[epkey].t0=t0;
-	ephasemap[epkey].traw=t;
+        ephasemap[epkey].run=run;
+        ephasemap[epkey].event=evt;
+        ephasemap[epkey].track=trk;
+        ephasemap[epkey].ephase1=(t+ephase)-t0-ttrack;
+        ephasemap[epkey].ephase2=ephase;
+        ephasemap[epkey].nhits=1.0;
+        ephasemap[epkey].t0=t0;
+        ephasemap[epkey].traw=t;
       }
       else {
-	ephasemap[epkey].ephase1+=(t+ephase)-t0-ttrack;
-	ephasemap[epkey].t0+=t0;
-	ephasemap[epkey].traw+=t;
-	ephasemap[epkey].nhits++;
+        ephasemap[epkey].ephase1+=(t+ephase)-t0-ttrack;
+        ephasemap[epkey].t0+=t0;
+        ephasemap[epkey].traw+=t;
+        ephasemap[epkey].nhits++;
       }
-      //printf("... %f ... %f\n",ephasemap[epkey].nhits,ephasemap[epkey].ephase);
     }
 
 
     TFile* hfile = new TFile("histograms.root","RECREATE");
-    map<string,TH1F*> T0Histmap;
-    map<string,TH2F*> RtHistmap;
+    map<string,TH1F*> T0Histmap{};
+    map<string,TH2F*> RtHistmap{};
 
     //main loop
     cout << "MAIN LOOP!" << endl;
@@ -894,17 +795,17 @@ int main(int argc, char *argv[]){
     caldata startdata;
     startdata.t0=20.0;
 
-    for (map<string,BDdetector>::iterator it = trt.t.begin(); it != trt.t.end(); it++){
+    for (map<string,BDdetector>::iterator it = trt.t.begin(); it != trt.t.end(); ++it){
       TDirectory* dir1 = TRT.Calibrate(file,it->first,SubLev(options,1),startdata);
       if (SubLev(options,1).find("F")!=string::npos && TRT.data[it->first].t0flag) t0calfile << Form("-3 -1 -1 -1 -1 : %e %e",TRT.data[it->first].t0,TRT.data[it->first].t0err) << endl;
       if (SubLev(options,1).find("F")!=string::npos && TRT.data[it->first].rtflag) rtcalfile << Form("-3 -1 -1 -1 -1 : %i %e %e %e %e",rtint,TRT.data[it->first].rtpar[0],TRT.data[it->first].rtpar[1],TRT.data[it->first].rtpar[2],TRT.data[it->first].rtpar[3]) << endl;
       
-      for (map<string,BDlayer>::iterator id = (it->second.d).begin() ; id != (it->second.d).end(); id++){
+      for (map<string,BDlayer>::iterator id = (it->second.d).begin() ; id != (it->second.d).end(); ++id){
 	if(SubLev(selection,2).compare("-")==0) {
 	  // create tracktuple only once (on top level)
 	  file->cd();
 	  TNtuple* tracktup = new TNtuple("tracktuple","track data","run:evt:track:ep1:ep2:nhits:t0:traw");
-	  for (map<string,epdata>::iterator iep = ephasemap.begin(); iep != ephasemap.end(); iep++){
+	  for (map<string,epdata>::iterator iep = ephasemap.begin(); iep != ephasemap.end(); ++iep){
 	    tracktup->Fill(iep->second.run, iep->second.event, iep->second.track,  iep->second.ephase1/iep->second.nhits, iep->second.ephase2, iep->second.nhits, iep->second.t0/iep->second.nhits, iep->second.traw/iep->second.nhits);
 	  }
 	  break; //only calibrate to this level
@@ -914,26 +815,26 @@ int main(int argc, char *argv[]){
 	if (SubLev(options,2).find("F")!=string::npos && Detector.data[id->first].t0flag) t0calfile << Form("%i -1 -1 -1 -1 : %e %e",Detector.data[id->first].det,Detector.data[id->first].t0,Detector.data[id->first].t0err) << endl;
 	if (SubLev(options,2).find("F")!=string::npos && Detector.data[id->first].rtflag) rtcalfile << Form("%i -1 -1 -1 -1 : %i %e %e %e %e",Detector.data[id->first].det,rtint,Detector.data[id->first].rtpar[0],Detector.data[id->first].rtpar[1],Detector.data[id->first].rtpar[2],Detector.data[id->first].rtpar[3]) << endl;
 	
-	for (map<string,BDmodule>::iterator il = (id->second.l).begin(); il != (id->second.l).end(); il++){
+	for (map<string,BDmodule>::iterator il = (id->second.l).begin(); il != (id->second.l).end(); ++il){
 	  if(SubLev(selection,3).compare("-")==0) break;
 	  if(SubLev(selection,3).compare("*")!=0 && !IsSubLev(il->first,2,SubLev(selection,3))) continue;
 	  TDirectory* dir3 = Layer.Calibrate(dir2,il->first,SubLev(options,3),Detector.data[id->first]);
 	  if (SubLev(options,3).find("F")!=string::npos && Layer.data[il->first].t0flag) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
 	  if (SubLev(options,3).find("F")!=string::npos && Layer.data[il->first].rtflag) rtcalfile << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
 	  
-	  for (map<string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); im++){
+	  for (map<string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); ++im){
 	    if(SubLev(selection,4).compare("-")==0) break;
 	    if(SubLev(selection,4).compare("*")!=0 && !IsSubLev(im->first,3,SubLev(selection,4))) continue;
 	    TDirectory* dir4 = Module.Calibrate(dir3,im->first,SubLev(options,4),Layer.data[il->first]);
 	    if (SubLev(options,4).find("F")!=string::npos && Module.data[im->first].t0flag) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.data[im->first].t0,Module.data[im->first].t0err) << endl;
 	    if (SubLev(options,4).find("F")!=string::npos && Module.data[im->first].rtflag) rtcalfile << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,rtint,Module.data[im->first].rtpar[0],Module.data[im->first].rtpar[1],Module.data[im->first].rtpar[2],Module.data[im->first].rtpar[3]) << endl;
 	    
- 	    for (map<string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ib++){
+ 	    for (map<string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ++ib){
 	      if(SubLev(selection,5).compare("-")==0) break;
 	      if(SubLev(selection,5).compare("*")!=0 && !IsSubLev(ib->first,4,SubLev(selection,5))) continue;
 	      TDirectory* dir5 = Board.Calibrate(dir4,ib->first,SubLev(options,5),Module.data[im->first]);
 	      
- 	      for (map<string,BDstraw>::iterator ic = (ib->second.c).begin(); ic != (ib->second.c).end(); ic++){
+ 	      for (map<string,BDstraw>::iterator ic = (ib->second.c).begin(); ic != (ib->second.c).end(); ++ic){
 		if(SubLev(selection,6).compare("-")==0) break;
 		if(SubLev(selection,6).compare("*")!=0 && !IsSubLev(ic->first,5,SubLev(selection,6))) continue;
 
@@ -941,7 +842,7 @@ int main(int argc, char *argv[]){
 		  
 		  TDirectory* dir6 = Chip.Calibrate(dir5,ic->first,SubLev(options,6),Board.data[ib->first]);
 		  
-		  for (map<string,zero>::iterator is = (ic->second.s).begin(); is != (ic->second.s).end(); is++){
+		  for (map<string,zero>::iterator is = (ic->second.s).begin(); is != (ic->second.s).end(); ++is){
 		    if(SubLev(selection,7).compare("-")==0) break;
 		    if(SubLev(selection,7).compare("*")!=0 && !IsSubLev(is->first,6,SubLev(selection,7))) continue;
 		    TDirectory* dir7 = Straw.Calibrate(dir6,is->first,SubLev(options,7),Chip.data[ic->first]);
@@ -962,15 +863,6 @@ int main(int argc, char *argv[]){
 	}
       }      
     }
-    
-
-//     map<string,caldata> cdat=Chip.data;
-//     for (map<string,caldata>::iterator ic = cdat.begin(); ic != cdat.end(); ic++){
-//       //if ((ic->second).nhits>200 && (ic->second).t0!=-99){
-//       if ((ic->second).t0!=-99){
-// 	cout << (ic->second).mod  << " " << (ic->second).brd << " " << (ic->second).chp << " " << (ic->second).t0 << " " << (ic->second).t0err << endl;
-//       }
-//     }
 
     
     if ((SubLev(options,1).find("F")!=string::npos)) TRT.WriteStat(file);

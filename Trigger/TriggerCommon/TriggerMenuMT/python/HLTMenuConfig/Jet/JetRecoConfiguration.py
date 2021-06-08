@@ -7,9 +7,9 @@
 # and translate it into the python configuration objects used by
 # jet reco code.
 
-from JetRecConfig.JetDefinition import JetConstitSeq,JetConstitSource, xAODType, JetDefinition
+from JetRecConfig.JetDefinition import JetInputConstitSeq,JetInputConstit, xAODType, JetDefinition
 # this is to define trigger specific JetModifiers (ex: ConstitFourMom_copy) : 
-from .TriggerJetMods import jetmoddict  # noqa: F401
+from .TriggerJetMods import stdJetModifiers  # noqa: F401
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
@@ -67,6 +67,7 @@ def extractRecoDict(chainParts):
 
     return recoDict
 
+
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
     strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}_{cleaning}"
@@ -110,11 +111,7 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         if pfoPrefix is None:
             raise RuntimeError("JetRecoConfiguration: Cannot define PF jets without pfo prefix!")
 
-        trkopt = jetRecoDict['trkopt']
-        from JetRecConfig.ConstModHelpers import constitModWithAlternateTrk
-        # Generate a new JetConstitModifier with track proterties setup according to trkopt
-        constitModWithAlternateTrk("CorrectPFO", trkopt) 
-        constitMods = ["CorrectPFO"+trkopt]
+        constitMods = ["CorrectPFO"] 
         # apply constituent pileup suppression
         if "vs" in jetRecoDict["constitMod"]:
             constitMods.append("Vor")
@@ -122,9 +119,7 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             constitMods.append("CS")
         if "sk" in jetRecoDict["constitMod"]:
             constitMods.append("SK")
-        # Generate a new JetConstitModifier with track proterties setup according to trkopt
-        constitModWithAlternateTrk("CHS", trkopt) # 
-        constitMods += ["CHS"+trkopt]
+        constitMods += ["CHS"]
         
         inputPFO = pfoPrefix+"ParticleFlowObjects"
         modstring = ''.join(constitMods[1:-1])
@@ -132,9 +127,9 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             modstring='CHS'
         
         if not constitMods:
-            jetConstit = JetConstitSeq( "HLT_EMPFlow", xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow")
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow", xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow")
         else:
-            jetConstit = JetConstitSeq( "HLT_EMPFlow"+modstring, xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else '') )
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow"+modstring, xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else '') )
 
             
     if jetRecoDict["constitType"] == "tc":
@@ -153,11 +148,11 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         elif jetRecoDict["clusterCalib"] == "lcw":
             constitMods = ["LC"] + constitMods
 
-        jetConstit = JetConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
+        jetConstit = JetInputConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
 
-    # declare our new JetConstitSeq in the standard dictionary
-    from JetRecConfig.StandardJetConstits import jetconstitdic
-    jetconstitdic.setdefault(jetConstit.name, jetConstit)
+    # declare our new JetInputConstitSeq in the standard dictionary
+    from JetRecConfig.StandardJetConstits import stdConstitDic
+    stdConstitDic.setdefault(jetConstit.name, jetConstit)
 
     return jetConstit
 
@@ -183,11 +178,11 @@ def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
         suffix += "_{}".format(jetRecoDict["trkopt"])
     
 
-    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix)
+    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix, context=jetRecoDict["trkopt"])
     return jetDef
 
 def defineReclusteredJets(jetRecoDict,smallRjets,inputlabel,prefix,suffix):
-    rcJetConstit = JetConstitSource("RCJet", xAODType.Jet, smallRjets, label=inputlabel+'RC')
+    rcJetConstit = JetInputConstit("RCJet", xAODType.Jet, smallRjets, label=inputlabel+'RC')
     rcJetDef = JetDefinition( "AntiKt", 1.0, rcJetConstit, prefix=prefix, suffix=suffix)
     return rcJetDef
 
@@ -210,7 +205,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
 
 # Make generating the list a bit more comprehensible
 def getModSpec(modname,modspec=''):
-    return (jetmoddict[modname],str(modspec))
+    return (stdJetModifiers[modname],str(modspec))
 
 def defineTrackMods(trkopt):
     trkmods = [

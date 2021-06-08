@@ -213,7 +213,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
     Transformation (rit constructor or rit's base() method) needs offset by +/- 1.
   */
   Trk::Trajectory::reverse_iterator lastPredictedState
-    = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(trajectory)));
+    = Trk::Trajectory::reverse_iterator(++(Trk::ProtoTrajectoryUtility::lastFittableState(trajectory)));
   const MeasurementBase*	   fittableMeasurement = lastPredictedState->measurement();
   const TrackParameters*     forwardTPar  = lastPredictedState->forwardTrackParameters();
   int    previousStatePosOnTraj = lastPredictedState->positionOnTrajectory();
@@ -280,7 +280,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
   Trk::Trajectory::reverse_iterator rit = lastPredictedState + 1;
   Trk::Trajectory::reverse_iterator lastSmoothableState
-    = Trk::Trajectory::reverse_iterator(m_utility->firstFittableState(trajectory)) - 1; // this takes outliers into account
+    = Trk::Trajectory::reverse_iterator(Trk::ProtoTrajectoryUtility::firstFittableState(trajectory)) - 1; // this takes outliers into account
   for( ; rit!=trajectory.rend(); rit++) {
     if (!rit->isOutlier()) {
       smooPar_eta_for_monitoring = 1000.;
@@ -345,7 +345,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       // adjust the momentum + error according to target measurement (brem fit)
       const Trk::DNA_MaterialEffects* detectedMomentumNoise = nullptr;
       Trk::Trajectory::reverse_iterator stateWithNoise
-        = m_utility->previousFittableState(trajectory, rit);
+        = Trk::ProtoTrajectoryUtility::previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
         const TrackParameters *predPar_temp=predPar.release();
         const TrackParameters *updatedPar_temp=updatedPar.release();
@@ -473,7 +473,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
     Transformation (rit constructor or rit's base() method) needs offset by +/- 1.
   */
   Trk::Trajectory::reverse_iterator lastPredictedState
-    = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(trajectory)));
+    = Trk::Trajectory::reverse_iterator(++(Trk::ProtoTrajectoryUtility::lastFittableState(trajectory)));
   if (!lastPredictedState->measurement() || !lastPredictedState->parametersDifference() ||
       !lastPredictedState->referenceParameters()) {
     m_utility->dumpTrajectory(trajectory, "code inconsistency");
@@ -539,7 +539,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   // now do the rest of the forward trajectory by means of a reverse iterated loop
   Trk::Trajectory::reverse_iterator rit = lastPredictedState + 1; // go to one-but-last state
   Trk::Trajectory::reverse_iterator lastSmoothableState
-    = Trk::Trajectory::reverse_iterator(m_utility->firstFittableState(trajectory)) - 1; // this takes outliers into account
+    = Trk::Trajectory::reverse_iterator(Trk::ProtoTrajectoryUtility::firstFittableState(trajectory)) - 1; // this takes outliers into account
   for( ; rit!=trajectory.rend(); rit++) {
 
     smooPar_eta_for_monitoring=1000.;

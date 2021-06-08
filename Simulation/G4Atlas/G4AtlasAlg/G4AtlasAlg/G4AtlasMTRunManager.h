@@ -68,12 +68,7 @@ public:
     m_physListSvc.setTypeAndName(typeAndName);
   }
 
-  
-    void SetVolumeSmartlessLevel(const std::map<std::string,double>& nameAndValue){
-    m_volumeSmartlessLevel = nameAndValue;
-  }
-
-protected:
+ protected:
 
   /// Initialize the G4 geometry on the master
   void InitializeGeometry() override final;
@@ -112,10 +107,6 @@ private:
   /// Handle to the fast sim tool.
   /// Not ideal, because we can't configure this.
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
-
-  //Property to allow an arbitrary volume (named by string) to have its
-  //"smartless" value set
-  std::map<std::string, double> m_volumeSmartlessLevel;
 
 }; // class G4AtlasMTRunManager
 

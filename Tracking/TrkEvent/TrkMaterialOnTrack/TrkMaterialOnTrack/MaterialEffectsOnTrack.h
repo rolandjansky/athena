@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKMATERIALEFFECTSONTRACK_MATERIALEFFECTSONTRACK_H
 #define TRKMATERIALEFFECTSONTRACK_MATERIALEFFECTSONTRACK_H
 
-#include <iostream>
+#include <iosfwd>
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
+#include <memory>
 
 class MsgStream;
 class TrackCollectionCnv;
@@ -52,7 +53,7 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
                           const ScatteringAngles* scat, 
                           const Trk::EnergyLoss* eloss,
                           const Surface& assocSurf,
-                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
    
    /** @brief partial constructor passing (with ownership) a scattering angle object
     @param[in] tInX0 layer thickness in terms of rad length
@@ -63,7 +64,7 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
    MaterialEffectsOnTrack(const double tInX0,
                           const ScatteringAngles* scat,
                           const Surface& assocSurf,
-                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
 
    /** @brief partial constructor passing (with ownership) an energy loss object
     @param[in] tInX0 layer thickness in terms of rad length
@@ -74,7 +75,7 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
    MaterialEffectsOnTrack(const double tInX0,
                           const EnergyLoss* eloss,
                           const Surface& assocSurf,
-                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
+                          const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern=std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
 
    /** @brief partial constructor with only a thickness, input to ME-Updator
     @param[in] tInX0 layer thickness in terms of rad length
@@ -103,6 +104,11 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
 	
    //! Virtual constructor 
    virtual MaterialEffectsOnTrack* clone() const;
+   
+   //! NVI uniqueClone
+   std::unique_ptr<MaterialEffectsOnTrack> uniqueClone() const {
+     return std::unique_ptr<MaterialEffectsOnTrack>(clone());
+   }
 
    //! Interface method for output, implemented in child class
    virtual MsgStream&    dump( MsgStream& sl ) const;

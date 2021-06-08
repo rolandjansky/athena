@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -102,7 +102,7 @@ StatusCode TileTBMonTool:: initialize() {
     while (std::getline(channels, channel, ',')) {
       if (!channel.empty()) {
 	int chan = std::stoi(channel);
-	if (chan < 0 || chan > 48) {
+	if (chan < 0 || chan >= 48) {
 	  ATH_MSG_WARNING("There no such channel: " << chan << " in channels: " << channels.str() 
 			  << " => skip because of bad format: " << maskedModuleChannels);
 	  continue;

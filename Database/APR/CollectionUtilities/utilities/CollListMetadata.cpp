@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,6 +20,7 @@
 #include "CollectionUtilities/SrcInfo.h"
 #include "CollectionUtilities/CatalogInfo.h"
 #include "CollectionUtilities/CollectionMetadataParser.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <xercesc/dom/DOM.hpp> 
 #include <xercesc/dom/DOMImplementation.hpp> 
@@ -37,6 +38,8 @@
 #include <xercesc/util/PlatformUtils.hpp> 
 #include <xercesc/util/OutOfMemoryException.hpp> 
 #include <xercesc/util/TransService.hpp> 
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 XERCES_CPP_NAMESPACE_USE 
 

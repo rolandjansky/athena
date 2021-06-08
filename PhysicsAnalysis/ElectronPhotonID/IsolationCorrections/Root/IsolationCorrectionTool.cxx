@@ -31,7 +31,7 @@ namespace CP {
     declareProperty("IsMC",                        m_is_mc                          = true);
     declareProperty("Correct_etcone",              m_correct_etcone                 = false);
     declareProperty("Trouble_categories",          m_trouble_categories             = true);
-    declareProperty("LogLogFitForLekage",          m_useLogLogFit                   = false);
+    declareProperty("LogLogFitForLeakage",         m_useLogLogFit                   = false);
     declareProperty("ForcePartType",               m_forcePartType                  = false);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault                = true);
     declareProperty("Apply_SC_leakcorr",           m_apply_SC_leak_corr             = false);

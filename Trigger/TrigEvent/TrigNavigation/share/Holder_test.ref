@@ -12,7 +12,6 @@ JobOptionsSvc        INFO # (7,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (8,1): StoreGateSvc.OutputLevel = 0
 JobOptionsSvc        INFO # (9,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 0
-JobOptionsSvc        INFO # (26,1): ToolSvc.Navigation.ReferenceAllClasses = 1
 JobOptionsSvc        INFO # (27,1): ToolSvc.Navigation.ClassesToPreregister = ["TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#", "TrigNavTest::TestBContainer#BContainer1", "TrigNavTest::TestBContainer#BContainer2", "TestDContainer#DContainer1"]
 JobOptionsSvc        INFO # (30,1): ToolSvc.Navigation.OutputLevel = 1
 JobOptionsSvc        INFO # (31,1): Holder_test.OutputLevel = 1

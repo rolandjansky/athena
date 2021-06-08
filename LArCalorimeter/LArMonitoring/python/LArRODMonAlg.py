@@ -62,20 +62,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
     #from AthenaCommon.Constants import VERBOSE
     #larRODMonAlg.OutputLevel=VERBOSE
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg() :
-        # adding BadChan masker private tool
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"],ToolName="BadLArChannelMask")
-        larRODMonAlg.LArBadChannelMask=acc.popPrivateTools()
-        helper.resobj.merge(acc)
-    else :
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-        theLArBadChannelsMasker.DoMasking=True
-        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
-        larRODMonAlg.LArBadChannelMask=theLArBadChannelsMasker
-    
+    larRODMonAlg.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"]
 
     Group = helper.addGroup(
         larRODMonAlg,

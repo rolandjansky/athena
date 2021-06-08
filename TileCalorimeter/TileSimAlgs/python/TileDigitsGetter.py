@@ -66,9 +66,6 @@ class TileDigitsGetter ( Configured )  :
         # Save integer numbers in digits vector if pile-up presampling not enabled
         theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPresampling()
 
-        from TileConditions.TileConditionsConf import TileCondToolNoiseSample
-        theTileDigitsMaker.TileCondToolNoiseSample = TileCondToolNoiseSample (TileOnlineSampleNoise = '')
-
         # sets output key  
         if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
             from OverlayCommonAlgs.OverlayFlags import overlayFlags

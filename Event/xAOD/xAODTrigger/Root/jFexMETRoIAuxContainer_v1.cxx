@@ -11,6 +11,8 @@ namespace xAOD{
       : AuxContainerBase() {
   
       AUX_VARIABLE(word0);
+      AUX_VARIABLE(jFexNumber);
+      AUX_VARIABLE(fpgaNumber);
       AUX_VARIABLE(E_x);
       AUX_VARIABLE(E_y); 
       AUX_VARIABLE(Res);

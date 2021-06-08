@@ -327,11 +327,14 @@ namespace MuonCombined {
         // useless low-pT SA muons with 2 precision layers that would never make it
         // into analyses, though
         std::unique_ptr<Trk::CaloExtension> caloExtension =
-            m_caloExtTool->caloExtension(**muon->extrapolatedMuonSpectrometerTrackParticleLink());
+          m_caloExtTool->caloExtension(
+            Gaudi::Hive::currentContext(),
+            **muon->extrapolatedMuonSpectrometerTrackParticleLink());
         if (!caloExtension) {
-            ATH_MSG_DEBUG("failed to get a calo extension for this SA muon, discard it");
-            outputData.muonContainer->pop_back();
-            return nullptr;
+          ATH_MSG_DEBUG(
+            "failed to get a calo extension for this SA muon, discard it");
+          outputData.muonContainer->pop_back();
+          return nullptr;
         }
         if (caloExtension->caloLayerIntersections().empty()) {
             ATH_MSG_DEBUG("failed to retrieve any calo layers for this SA muon, discard it");
@@ -1085,12 +1088,17 @@ namespace MuonCombined {
                                         ATH_MSG_WARNING("MuGirl combtp is nullptr, continue");
                                         continue;
                                     }
-                                    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
+                                    std::unique_ptr<Trk::CaloExtension>
+                                      caloExtension =
+                                        m_caloExtTool->caloExtension(
+                                          Gaudi::Hive::currentContext(),
+                                          *combtp);
                                     if (!caloExtension) {
-                                        ATH_MSG_WARNING(
-                                            "failed to get a calo extension for this "
-                                            "MuGirl muon, don't use it");
-                                        continue;
+                                      ATH_MSG_WARNING(
+                                        "failed to get a calo extension for "
+                                        "this "
+                                        "MuGirl muon, don't use it");
+                                      continue;
                                     }
                                     if (caloExtension->caloLayerIntersections().empty()) {
                                         ATH_MSG_WARNING(
@@ -1114,12 +1122,17 @@ namespace MuonCombined {
                                         ATH_MSG_WARNING("MuidCo combtp is nullptr, continue");
                                         continue;
                                     }
-                                    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
+                                    std::unique_ptr<Trk::CaloExtension>
+                                      caloExtension =
+                                        m_caloExtTool->caloExtension(
+                                          Gaudi::Hive::currentContext(),
+                                          *combtp);
                                     if (!caloExtension) {
-                                        ATH_MSG_WARNING(
-                                            "failed to get a calo extension for this "
-                                            "combined muon, don't use it");
-                                        continue;
+                                      ATH_MSG_WARNING(
+                                        "failed to get a calo extension for "
+                                        "this "
+                                        "combined muon, don't use it");
+                                      continue;
                                     }
                                     if (caloExtension->caloLayerIntersections().empty()) {
                                         ATH_MSG_WARNING(
@@ -1281,7 +1294,7 @@ namespace MuonCombined {
                                                   const Trk::Track& indetTrack) const {
         ATH_MSG_VERBOSE("Creating dummy tracks from segments...");
 
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+        auto  trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
         for (const auto* seg : segments) {
             // create pars for muon and loop over hits
@@ -1310,7 +1323,10 @@ namespace MuonCombined {
         Trk::TrackInfo info(Trk::TrackInfo::Unknown, Trk::muon);
         Trk::TrackInfo::TrackPatternRecoInfo author = Trk::TrackInfo::MuTag;
         info.setPatternRecognitionInfo(author);
-        Trk::Track* newtrack = new Trk::Track(info, trackStateOnSurfaces, (indetTrack.fitQuality())->clone());
+        Trk::Track* newtrack =
+          new Trk::Track(info,
+                         std::move(trackStateOnSurfaces),
+                         (indetTrack.fitQuality())->clone());
 
         // create a track summary for this track
         if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*newtrack, nullptr, false); }
@@ -1634,12 +1650,14 @@ namespace MuonCombined {
             std::unique_ptr<Trk::CaloExtension> caloExtension;
             if (muon.muonType() == xAOD::Muon::SegmentTagged || muon.muonType() == xAOD::Muon::CaloTagged) {
                 ATH_MSG_DEBUG("use the ID track extension tool");
-                caloExtension = m_caloExtToolID->caloExtension(*tp);
+                caloExtension = m_caloExtToolID->caloExtension(
+                  Gaudi::Hive::currentContext(), *tp);
             } else
-                caloExtension = m_caloExtTool->caloExtension(*tp);
+              caloExtension = m_caloExtTool->caloExtension(
+                Gaudi::Hive::currentContext(), *tp);
             if (!caloExtension) {
-                ATH_MSG_WARNING("Can not get caloExtension.");
-                return;
+              ATH_MSG_WARNING("Can not get caloExtension.");
+              return;
             }
 
             if (caloExtension->caloLayerIntersections().empty())

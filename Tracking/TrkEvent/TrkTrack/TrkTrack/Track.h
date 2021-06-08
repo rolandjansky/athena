@@ -28,6 +28,7 @@ namespace Trk
     class TrackSummary;
     class TrackSummaryTool;
     class FitQuality;
+    using TrackStates = DataVector<const TrackStateOnSurface>;
     /**
      * @brief The ATLAS Track class.
      * 
@@ -119,10 +120,10 @@ namespace Trk
         * @param[in] info Information about who created this track, and its properties.			            
         * @param[in] trackStateOnSurfaces Vector of TrackStateOnSurface objects.            
         * @param[in] fitQuality Fit quality of the tracks. *			                    
-        */									            
-       Track( const TrackInfo& info,						            
-              DataVector<const TrackStateOnSurface>* trackStateOnSurfaces,	            
-              const FitQuality* fitQuality);  		            
+        */
+       Track(const TrackInfo& info,
+             std::unique_ptr<TrackStates> trackStateOnSurfaces,
+             const FitQuality* fitQuality);
 
        Track( const Track& rhs); //!< copy constructor				            
 
@@ -287,8 +288,7 @@ namespace Trk
         * These objects link the various parameters related to a surface,	   
         * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
         */
-       std::unique_ptr<DataVector<const TrackStateOnSurface>>
-         m_trackStateVector{ nullptr };
+       std::unique_ptr<TrackStates>  m_trackStateVector{ nullptr };
 
        /**
         * A vector of TrackParameters: these can be any of the classes that

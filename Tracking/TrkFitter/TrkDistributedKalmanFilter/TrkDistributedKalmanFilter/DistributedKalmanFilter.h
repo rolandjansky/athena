@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -146,9 +146,9 @@ private:
                         double*,
                         MagField::AtlasFieldCache& fieldCache) const;
 
-  void matrixInversion5x5(double a[5][5]) const;
+  static void matrixInversion5x5(double a[5][5]) ;
 
-  Perigee* createMeasuredPerigee(TrkTrackState*) const;
+  static Perigee* createMeasuredPerigee(TrkTrackState*) ;
 
 
   double integrate(double Rk[5],

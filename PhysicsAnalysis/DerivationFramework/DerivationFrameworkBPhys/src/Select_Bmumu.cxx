@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -491,7 +491,7 @@ namespace DerivationFramework {
   // Helper to check whether an element is marked as passing a specific
   // hypothesis.
   //---------------------------------------------------------------------------
-  bool Select_Bmumu::pass(const SG::AuxElement& em, std::string hypo) const {
+  bool Select_Bmumu::pass(const SG::AuxElement& em, const std::string& hypo) const {
 
     SG::AuxElement::Accessor<Char_t> flagAcc("passed_"+hypo);
     return flagAcc.isAvailable(em) && flagAcc(em) != 0;
@@ -499,7 +499,7 @@ namespace DerivationFramework {
   //---------------------------------------------------------------------------
   // Helper to set an element marked as passing a specific hypothesis.
   //---------------------------------------------------------------------------
-  bool Select_Bmumu::setPass(const SG::AuxElement& em, std::string hypo,
+  bool Select_Bmumu::setPass(const SG::AuxElement& em, const std::string& hypo,
                              bool passVal) const {
 
     SG::AuxElement::Decorator<Char_t> flagDec("passed_"+hypo);
@@ -511,7 +511,7 @@ namespace DerivationFramework {
   // if the element doesn't have the specific flag yet.
   // Returns true if action had to be taken.
   //---------------------------------------------------------------------------
-  bool Select_Bmumu::setPassIfNotAvailable(SG::AuxElement& em, std::string hypo,
+  bool Select_Bmumu::setPassIfNotAvailable(SG::AuxElement& em, const std::string& hypo,
                                            bool passVal) const {
     
     SG::AuxElement::Accessor<Char_t> flagAcc("passed_"+hypo);

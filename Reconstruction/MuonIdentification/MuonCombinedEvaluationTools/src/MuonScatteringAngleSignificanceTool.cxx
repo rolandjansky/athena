@@ -15,7 +15,7 @@ namespace Rec {
 
     MuonScatteringAngleSignificanceTool::MuonScatteringAngleSignificanceTool(const std::string& type, const std::string& name,
                                                                              const IInterface* parent) :
-        AthAlgTool(type, name, parent), m_calorimeterVolume(0), m_indetVolume(0), m_inDetOnly(true), m_refitInDetOnly(true) {
+        AthAlgTool(type, name, parent), m_calorimeterVolume(nullptr), m_indetVolume(nullptr), m_inDetOnly(true), m_refitInDetOnly(true) {
         declareInterface<IMuonScatteringAngleSignificance>(this);
         declareProperty("InDetOnly", m_inDetOnly);
         declareProperty("RefitInDetOnly", m_refitInDetOnly);
@@ -52,15 +52,15 @@ namespace Rec {
         if (muon.muonType() == xAOD::Muon::MuonStandAlone) return ScatteringAngleSignificance(0);
 
         const Trk::Track* theTrack =
-            muon.trackParticle(xAOD::Muon::CombinedTrackParticle) ? muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track() : 0;
+            muon.trackParticle(xAOD::Muon::CombinedTrackParticle) ? muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track() : nullptr;
 
-        if (theTrack == NULL) {
+        if (theTrack == nullptr) {
             theTrack = muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)
                            ? muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->track()
-                           : 0;
+                           : nullptr;
         }
 
-        if (theTrack == NULL) {
+        if (theTrack == nullptr) {
             ATH_MSG_DEBUG("No track, returning empty scatterer-significance object.");
             return ScatteringAngleSignificance(0);
         } else
@@ -70,7 +70,7 @@ namespace Rec {
     ScatteringAngleSignificance MuonScatteringAngleSignificanceTool::scatteringAngleSignificance(const Trk::Track& track) const {
         // provide refit for slimmed tracks
         const Trk::Track* fullTrack = &track;
-        const Trk::Track* refittedTrack = 0;
+        const Trk::Track* refittedTrack = nullptr;
         //  if (track.info().trackProperties(Trk::TrackInfo::SlimmedTrack)) {
         if (isSlimmed(track)) {  // TrackInfo::SlimmedTrack wouldn't detect STACO tracks as (half-)slimmed
 

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from VrtSecInclusiveConf import VKalVrtAthena__VrtSecInclusive
+from VrtSecInclusive.VrtSecInclusiveConf import VKalVrtAthena__VrtSecInclusive
 
 class VrtSecInclusive ( VKalVrtAthena__VrtSecInclusive )  :
 

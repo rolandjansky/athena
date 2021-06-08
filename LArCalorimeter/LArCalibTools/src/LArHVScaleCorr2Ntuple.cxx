@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArHVScaleCorr2Ntuple.h"
@@ -8,8 +8,9 @@
 #include "CaloIdentifier/CaloGain.h"
 
 LArHVScaleCorr2Ntuple::LArHVScaleCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
-  LArCond2NtupleBase(name, pSvcLocator) { 
-  m_contKey = "LArHVScaleCorr";
+  LArCond2NtupleBase(name, pSvcLocator),
+  m_contKey ("LArHVScaleCorr")
+{ 
   declareProperty("ContainerKey",m_contKey);
 
   m_ntTitle="HV Scale Correction";

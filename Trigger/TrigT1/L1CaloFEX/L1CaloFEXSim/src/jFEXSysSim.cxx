@@ -66,6 +66,8 @@ namespace LVL1 {
     ATH_CHECK(m_jFexSRJetOutKey.initialize());
     ATH_CHECK(m_jFexLRJetOutKey.initialize());
     ATH_CHECK(m_jFexTauOutKey.initialize());
+    ATH_CHECK(m_jFexSumETOutKey.initialize());
+    ATH_CHECK(m_jFexMETOutKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -276,6 +278,7 @@ namespace LVL1 {
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -364,6 +367,7 @@ namespace LVL1 {
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -474,6 +478,7 @@ namespace LVL1 {
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -581,6 +586,7 @@ namespace LVL1 {
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -663,6 +669,7 @@ namespace LVL1 {
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -808,6 +815,7 @@ namespace LVL1 {
     m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
     m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
 
     
@@ -821,12 +829,13 @@ namespace LVL1 {
     for( auto const& [jfex, MODULE_tobs] : m_allSmallRJetTobs ) {
         uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
-      	    for(auto &tob: FPGA_tob){		
-            	ATH_MSG_DEBUG("fillSRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
-            	ATH_CHECK(fillSRJetEDM(jfex,fpgaNum,tob, jSRJetContainer));
-	    }
+            for(auto &tob: FPGA_tob) {
+                ATH_MSG_DEBUG("fillSRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+                ATH_CHECK(fillSRJetEDM(jfex,fpgaNum,tob, jSRJetContainer));
+            }
+            fpgaNum++;
         }
-	fpgaNum++;
+        
     }
     
     SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexSRJetHandle(m_jFexSRJetOutKey/*, ctx*/);
@@ -841,13 +850,14 @@ namespace LVL1 {
     // iterate over all LRJEt Tobs and fill EDM with them
     for(auto const& [jfex, MODULE_tobs] : m_allLargeRJetTobs ) {
         uint8_t fpgaNum =0;
-        for(auto &FPGA_tob : MODULE_tobs) { 
-     	    for(auto&tob: FPGA_tob){
-   	//	ATH_MSG_DEBUG("fillLRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto&tob: FPGA_tob) {
+                //	ATH_MSG_DEBUG("fillLRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
                 ATH_CHECK(fillLRJetEDM(jfex,fpgaNum, tob, jLRJetContainer));
-	    }
-	}
-        fpgaNum++;
+            }        
+            fpgaNum++;
+        }
+
     }
 
     SG::WriteHandle<xAOD::jFexLRJetRoIContainer_v1> outputjFexLRJetHandle(m_jFexLRJetOutKey/*, ctx*/);
@@ -867,8 +877,9 @@ namespace LVL1 {
                 //ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
                 ATH_CHECK(fillTauEDM(jfex,fpgaNum, tob, jTauContainer));
             }
+            fpgaNum++;
         }
-	fpgaNum++;
+        
     }
 
     SG::WriteHandle<xAOD::jFexTauRoIContainer_v1> outputjFexTauHandle(m_jFexTauOutKey/*, ctx*/);
@@ -877,18 +888,45 @@ namespace LVL1 {
     
     
     //---SumET EDM
-    //for( auto const& [jfex, MODULE_tobs] : m_allsumEtTobs ) {
-        //for(auto &FPGA_tob : MODULE_tobs) {
-            //for(auto &tob : FPGA_tob) {
-                //std::cout<<"Module: "<<+jfex<<"\t\t TOB: "<<tob<<std::endl;
-            //}
-        //}
-    //}    
+    auto jSumETContainer = std::make_unique<xAOD::jFexSumETRoIContainer> ();
+    std::unique_ptr< xAOD::jFexSumETRoIAuxContainer > jSumETAuxContainer = std::make_unique<xAOD::jFexSumETRoIAuxContainer> ();
+    jSumETContainer->setStore(jSumETAuxContainer.get());    
     
+    for( auto const& [jfex, MODULE_tobs] : m_allsumEtTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob : FPGA_tob) {
+                ATH_CHECK(fillSumEtEDM(jfex,fpgaNum, tob, jSumETContainer));
+            }
+            fpgaNum+=2;
+        }
+        
+    }   
 
-    // ToDo
-    // To implement
-    // {--Implement--}
+    SG::WriteHandle<xAOD::jFexSumETRoIContainer_v1> outputjFexSumETHandle(m_jFexSumETOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexSumETHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexSumETHandle.record(std::move(jSumETContainer),std::move(jSumETAuxContainer)));    
+    
+    //---MET EDM 
+    auto jMETContainer = std::make_unique<xAOD::jFexMETRoIContainer> ();
+    std::unique_ptr< xAOD::jFexMETRoIAuxContainer > jMETAuxContainer = std::make_unique<xAOD::jFexMETRoIAuxContainer> ();
+    jMETContainer->setStore(jMETAuxContainer.get());    
+    
+    for( auto const& [jfex, MODULE_tobs] : m_allMetTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob : FPGA_tob) {
+                ATH_CHECK(fillMetEDM(jfex,fpgaNum, tob, jMETContainer));
+            }
+            fpgaNum+=2;
+        }
+        
+    }     
+
+    SG::WriteHandle<xAOD::jFexMETRoIContainer_v1> outputjFexMETHandle(m_jFexMETOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexMETHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexMETHandle.record(std::move(jMETContainer),std::move(jMETAuxContainer)));   
+
 
 
     //Send TOBs to bytestream?
@@ -942,6 +980,35 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
 
   }
+
+
+    StatusCode jFEXSysSim::fillSumEtEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) {
+
+        uint8_t jFEXNumber = (uint8_t) jFexNum;
+        uint32_t tobWord0 = tobWord;
+
+        xAOD::jFexSumETRoI* my_EDM = new xAOD::jFexSumETRoI();
+        jContainer->push_back( my_EDM );
+        my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
+        ATH_MSG_DEBUG(" setting SumET jFEX Number:  " << +my_EDM->jFexNumber() << " Et_up: " << my_EDM->getEt_upper() << " Et_down: " << my_EDM->getEt_lower() <<  " dat_low: " << my_EDM->getSat_upper()<<  " sat_up: " << my_EDM->getSat_lower() <<" tob: " << my_EDM->gettob());
+        return StatusCode::SUCCESS;
+
+    }   
+
+
+    StatusCode jFEXSysSim::fillMetEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) {
+
+        uint8_t jFEXNumber = (uint8_t) jFexNum;
+        uint32_t tobWord0 = tobWord;
+
+        xAOD::jFexMETRoI* my_EDM = new xAOD::jFexMETRoI();
+        jContainer->push_back( my_EDM );
+        my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
+        ATH_MSG_DEBUG(" setting MET jFEX Number:  " << +my_EDM->jFexNumber() << " etX: " << my_EDM->getE_x() << " etY: " << my_EDM->getE_y() <<  " sat: " << my_EDM->getSat()<<  " res: " << my_EDM->getRes() );
+        return StatusCode::SUCCESS;
+
+    }
+
 
   
 } // end of namespace bracket

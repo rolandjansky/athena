@@ -35,6 +35,10 @@ if DetFlags.overlay.Truth_on():
             outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.']
             outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt4TruthJets']
             outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.']
+            outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt6TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux.']
+            outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt6TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux.']
         if 'xAOD::TruthParticleContainer' in overlayFlags.optionalContainerMap():
             outStream.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles"]
             outStream.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]

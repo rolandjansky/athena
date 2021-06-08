@@ -8,20 +8,20 @@ related objects for configuring jet reconstruction
 Various classes encode definitions of different types of components used in Jet Reco.
 They are : 
 
- - JetInputDef : describes how to build a source container, typically external to the jet domain. This includes input to jet finding  (ex: CaloCluster, Track) but also other sources like EventDensity...
+ - JetInputExternal : describes how to build a source container, typically external to the jet domain. This includes input to jet finding  (ex: CaloCluster, Track) but also other sources like EventDensity...
 
- - JetConstitSource : describes specifically a input constituents source (an input to a PseudoJetAlgorithm), thus referring to a JetInputDef. 
- - JetConstitSeq : a subclass of JetConstitSource, describing how the constituents are modified by a JetConstituentModSequence (ex: PU or Origin correction).
+ - JetInputConstit :  describes specifically an input constituents container (an input to a PseudoJetAlgorithm), thus referring to a JetInputExternal as the primary source.
+ - JetInputConstitSeq : a subclass of JetInputConstit, describing how a constituents container is build from a JetConstituentModSequence (ex: PU or Origin correction).
  - JetConstitModifier : describes a constituent modifier tool to be used in a JetConstituentModSequence
 
- - JetDefinition : describes a full jet reco sequence. Uses a JetConstitSource and a list of JetModifier
+ - JetDefinition : describes a full jet reco sequence. Uses a JetInputConstit and a list of JetModifier
  - JetModifier : describes a JetModifier c++ tool. 
 
 Author: TJ Khoo, P-A Delsart                                         
                                                                      
 """
 
-__all__ =  [  "JetDefinition","xAODType", "JetModifier", "JetConstitModifier" , "JetConstitSeq", "JetInputDef"] 
+__all__ =  [  "JetDefinition","xAODType", "JetModifier", "JetConstitModifier" , "JetInputConstitSeq", "JetInputExternal"] 
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
@@ -43,12 +43,15 @@ def formatRvalue(parameter):
     else:
         return "{0:.1g}".format(10*parameter).replace('.','')
 
+
 # Could also split off a VR name builder
-def buildJetAlgName(finder, mainParam, variableRMassScale=None, variableRMinRadius=None):  # variableRMassScale (Rho) in MeV
+def buildJetAlgName(finder, mainParam,
+                    variableRMassScale=None, variableRMinRadius=None):
+    """variableRMassScale (Rho) in MeV """
     if ( variableRMassScale and variableRMinRadius ):
         rmaxstr = formatRvalue(mainParam)
         rminstr = formatRvalue(variableRMinRadius)
-        return finder + "VR" + str(int(variableRMassScale/1000)) + "Rmax" + rmaxstr + "Rmin" + rminstr
+        return f"{finder}VR{str(int(variableRMassScale/1000))}Rmax{rmaxstr}Rmin{rminstr}"
     return finder + formatRvalue(mainParam)
 
 
@@ -72,6 +75,7 @@ class JetDefinition(object):
                  standardRecoMode = False, # 
                  prefix = "",         # allows to tune the full JetContainer name
                  suffix = "",         # allows to tune the full JetContainer name
+                 context = "default", # describe a context for which this definition will be used. See StandardJetContext
                  lock = False,        # lock the properties of this instance to avoid accidental overwrite after __init__
     ):     
 
@@ -87,6 +91,7 @@ class JetDefinition(object):
         self._inputdef = inputdef
         self._prefix = prefix
         self._suffix = suffix
+        self._context = context
         self._defineName()
         
         self.ptmin = ptmin # The pt down to which FastJet is run
@@ -172,6 +177,9 @@ class JetDefinition(object):
     def VRMinRadius(self): pass
     @make_lproperty
     def VRMassScale(self): pass
+
+    @make_lproperty
+    def context(self): pass
     
 
     def fullname(self):
@@ -188,7 +196,7 @@ class JetDefinition(object):
 
     # Define a string conversion for printing
     def __str__(self):
-        return "JetDefinition({0}, ptmin: {1} MeV)".format(self.basename,self.ptmin)
+        return f"JetDefinition({self.fullname()})"
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
 
@@ -298,12 +306,12 @@ class JetModifier(object):
     
 @clonable
 @onlyAttributesAreProperties
-class JetInputDef(object):
-    """This describes an input source to jet finding, typically a container build outside the jet domain.
-    Sources can be container of constituents or ghost constituents (ex: clusters, tracks,...) but also
-    other object needed by JetModifier (ex: EventDensity or track-vertex association map).
+class JetInputExternal(object):
+    """This class allows to declare primary data sources to jet finding which are typically outside of jet domain.
+    Such sources can be container of particles (ex: clusters, selection of tracks,...) but also
+    other object needed by some JetModifier (ex: EventDensity or track-vertex association map).
 
-    Currently this class is mainly here to hold a helper (algoBuilder) function in charge of creating an algorithm to build the source. 
+    The class is mainly here to hold a helper function (algoBuilder) in charge of configuring the proper algorithm to build the source. 
     If this function is None, then we expect the container pre-exists in the evt store. 
 
     Arguments to the constructor :
@@ -318,7 +326,7 @@ class JetInputDef(object):
      - filterfn : a function taking a CondFlags as argument and deciding if this JetModifier is compatible
                   with the conditions (same as JetModifier.filterfn )
                   The function must return a tuple : (bool, "reason of failure")
-     - prereqs : a list of prerequisites (str) for this input definition.
+     - prereqs : a list of prerequisites (str) for this input definition. If any, these str must match the name of other existing JetInputExternal instances. 
     """
     def __init__(self, name, objtype, algoBuilder=None, specs=None, containername=None, filterfn= _condAlwaysPass, prereqs=[]):
         self.name = name
@@ -338,9 +346,6 @@ class JetInputDef(object):
         self.filterfn = filterfn 
         self.prereqs = prereqs
 
-        # # make outputname an alias of name, so JetInputDef shares an interface with JetConstitSeq.
-        # # we set the hidden attribute because the real one is unsettable (see below)
-        # self._outputname = name # Set outputname as an alias to name.
         
 
     @make_lproperty
@@ -356,39 +361,15 @@ class JetInputDef(object):
     @make_lproperty
     def prereqs(self):pass
 
-    # make outputname an alias of name so JetInputDef shares an interface with JetConstitSeq.
+    # make outputname an alias of name so JetInputExternal shares an interface with JetInputConstitSeq.
     outputname = make_alias("name")
 
+    # Define a string conversion for printing
+    def __str__(self):
+        return f"JetInputExternal({self.name},type={str(self.basetype)})"
+    
 
 ########################################################################    
-
-@clonable
-@onlyAttributesAreProperties
-class JetConstitModifier(object):
-    """Configuration for  a constituent modifier tool to be used in a JetConstituentModSequence.
-    See StandardJetConstits.py for usage of this class.
-    
-    the properties argument in __init__ defines directly the properties of the final tool :
-    if the tool has the property "PtMin" then passing 'dict(PtMin=10*GeV)' will result in 'tool.PtMin = 10*GeV'
-    IMPORTANT : If a property is itself an other tool, we can pass a function returning the tool like in 'dict(TheSubTool = mySubToolFunc)'
-    The function will be called only when appropriate in the form 'tool.TheSubTool = mySubToolFunc(constitseq)'
-    """
-    def __init__(self,
-                 name,
-                 tooltype,
-                 properties={}):
-        self.name = name
-        self.tooltype = tooltype
-        self.properties = properties
-
-    @make_lproperty
-    def name(self): pass
-    @make_lproperty
-    def tooltype(self): pass
-    @make_lproperty
-    def properties(self): pass
-
-
 
 
 from enum import IntEnum, auto
@@ -456,42 +437,47 @@ class JetInputType(IntEnum):
         
 @clonable
 @onlyAttributesAreProperties
-class JetConstitSource(object):
-    """Configuration for simplest constituents (or ghost constituents) to jets. 
-    This describes what can be the input to a PseudoJetAlgorithm. 
-    The containername attribute must correspond to an existing JetInputDef so the system knows how to build this
+class JetInputConstit(object):
+    """Configuration for simplest constituents (or ghost constituents) to jets.
+    This describes what can be the input to a PseudoJetAlgorithm.
+    The containername attribute must correspond to an existing JetInputExternal so the system knows how to build this
     source container (if necessary).
     """
-    def __init__(self,
-                 name,            # identifies this constit source, must be unique.  
-                 objtype,         # The type of xAOD object from which to build the jets
-                 containername,   # The key of the source container in the event store. 
-                 prereqs = [],    # will contain references to JetInputDef 
-                 label = None,    # used to describe a category for these constits. if None, will default to name
-                 jetinputtype=None, # The JetInputType category. Can be passed as a string.
-                                    #  if None, set according to objtype. 
-                 filterfn=_condAlwaysPass,                 
-                 lock = False,    # lock all properties of this instance
-                 ):    
 
-        self.name = name 
+    def __init__(
+        self,
+        name,               # identifies this constit source, must be unique.
+        objtype,            # The type of xAOD object from which to build the jets
+        containername,      # The key of the source container in the event store.
+        prereqs=[],         # will contain references to JetInputExternal
+        label=None,         # used to describe a category for these constits. if None, will default to name
+        jetinputtype=None,  # The JetInputType category. Can be passed as a string.
+                            #    if None, set according to objtype.
+        filterfn=_condAlwaysPass,
+        lock=False,  # lock all properties of this instance
+    ):
+
+        self.name = name
         self.containername = containername
-        #self.inputname = containername  # will act as an alias to containername (and immutable since it's not a property)
         self.prereqs = prereqs
         self.label = label or name
-        
-        self.basetype = objtype
-        self.filterfn = filterfn 
 
-        jetinputtype = jetinputtype or JetInputType.fromxAODType( objtype )
-        if isinstance(jetinputtype, str): jetinputtype = JetInputType[jetinputtype]
+        self.basetype = objtype
+        self.filterfn = filterfn
+
+        jetinputtype = jetinputtype or JetInputType.fromxAODType(objtype)
+        if isinstance(jetinputtype, str):
+            jetinputtype = JetInputType[jetinputtype]
         self.jetinputtype = jetinputtype
-        
+
         self._locked = lock
 
     @make_lproperty
     def basetype(self): pass
         
+    @make_lproperty
+    def name(self): pass
+
     @make_lproperty
     def containername(self): pass
     
@@ -504,12 +490,18 @@ class JetConstitSource(object):
     @make_lproperty
     def jetinputtype(self): pass
     
-    # make an alias on containername so JetConstitSource and JetConstitSeq share an interface
+    # make an alias on containername so JetInputConstit and JetInputConstitSeq share an interface
     inputname = make_alias("containername")
 
+    # Define a string conversion for printing
+    def __str__(self):
+        return f"JetInputConstit({self.name},type={str(self.basetype)})"
+    
+
+    
 @clonable
 @onlyAttributesAreProperties
-class JetConstitSeq(JetConstitSource):
+class JetInputConstitSeq(JetInputConstit):
     """Configuration for JetConstituentModSequence. 
     Describes the constituents which need to be build with a JetConstituentModSequence.
     Uses a list of aliases to JetConstitModifier to describe the modif steps.
@@ -520,14 +512,14 @@ class JetConstitSeq(JetConstitSource):
                  modifiers=[],    # Modifications to be applied to constituents prior to jet finding
                  inputname=None,    # input collection which will be transformed into the source constituents
                  outputname=None,  #  output collection, will be set to self.containername
-                 prereqs = [],     # will contain references to JetInputDef 
+                 prereqs = [],     # will contain references to JetInputExternal 
                  label = None,
                  jetinputtype=None,
                  filterfn=_condAlwaysPass,                 
                  lock = False,    # lock all properties of this instance
     ):    
         
-        JetConstitSource.__init__(self,name, objtype, outputname, prereqs=prereqs, jetinputtype=jetinputtype, filterfn=filterfn,label=label,lock=False, finalinit=False, )
+        JetInputConstit.__init__(self,name, objtype, outputname, prereqs=prereqs, jetinputtype=jetinputtype, filterfn=filterfn,label=label,lock=False, finalinit=False, )
         self.inputname  = inputname or name
         self.modifiers = modifiers
 
@@ -555,10 +547,40 @@ class JetConstitSeq(JetConstitSource):
         return (not self.__eq__(rhs))
 
     
-
     # Define a string conversion for printing
     def __str__(self):
-        return "JetConstitSeq({0}: {1})".format(self.name,self.inputname)
+        return f"JetInputConstitSeq({self.name}, {self.inputname} , {self.outputname})"
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
+    
+
+
+@clonable
+@onlyAttributesAreProperties
+class JetConstitModifier(object):
+    """Configuration for  a constituent modifier tool to be used in a JetConstituentModSequence.
+    See StandardJetConstits.py for usage of this class.
+    
+    the properties argument in __init__ defines directly the properties of the final tool :
+    if the tool has the property "PtMin" then passing 'dict(PtMin=10*GeV)' will result in 'tool.PtMin = 10*GeV'
+    IMPORTANT : If a property is itself an other tool, we can pass a function returning the tool like in 'dict(TheSubTool = mySubToolFunc)'
+    The function will be called only when appropriate in the form 'tool.TheSubTool = mySubToolFunc(constitseq)'
+    """
+    def __init__(self,
+                 name,
+                 tooltype,
+                 properties={}):
+        self.name = name
+        self.tooltype = tooltype
+        self.properties = properties
+
+    @make_lproperty
+    def name(self): pass
+    @make_lproperty
+    def tooltype(self): pass
+    @make_lproperty
+    def properties(self): pass
+
+
+
     

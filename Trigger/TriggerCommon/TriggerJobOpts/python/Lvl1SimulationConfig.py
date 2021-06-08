@@ -86,8 +86,8 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
             from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
             from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
             l1CaloSimSeq += [
-              LVL1__TrigT1MBTS(),
-              LVL1__TrigT1ZDC()
+              LVL1__TrigT1MBTS(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON),
+              LVL1__TrigT1ZDC(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON)
             ]
 
     if ConfigFlags.Trigger.enableL1CaloPhase1:
@@ -199,6 +199,10 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
+
+    if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Input.isMC:  # this is to allow the simulation of cosmics triggers in MC
+        ctp.ForceBunchGroupPattern = False
+
     # muon input
     if not isMUCTPIOutputProvided:
         ctp.MuctpiInput = ""

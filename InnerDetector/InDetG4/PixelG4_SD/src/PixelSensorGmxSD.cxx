@@ -82,13 +82,13 @@ G4bool PixelSensorGmxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist
   G4ThreeVector localPosition2 = transformation.TransformPoint(coord2);
 
   HepGeom::Point3D<double> lP1,lP2;
-  lP1[SiHit::xEta] = localPosition1[0]*CLHEP::mm;
+  lP1[SiHit::xEta] = localPosition1[2]*CLHEP::mm;
   lP1[SiHit::xPhi] = localPosition1[1]*CLHEP::mm;
-  lP1[SiHit::xDep] = localPosition1[2]*CLHEP::mm;
+  lP1[SiHit::xDep] = localPosition1[0]*CLHEP::mm;
 
-  lP2[SiHit::xEta] = localPosition2[0]*CLHEP::mm;
+  lP2[SiHit::xEta] = localPosition2[2]*CLHEP::mm;
   lP2[SiHit::xPhi] = localPosition2[1]*CLHEP::mm;
-  lP2[SiHit::xDep] = localPosition2[2]*CLHEP::mm;
+  lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
 
   int id = myTouch->GetVolume()->GetCopyNo();
   // ignore hits from invalid detectors for now

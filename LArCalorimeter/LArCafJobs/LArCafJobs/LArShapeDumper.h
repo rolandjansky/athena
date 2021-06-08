@@ -39,14 +39,13 @@
 
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LumiBlockData/BunchCrossingCondData.h"
-
+#include "LArRecConditions/LArBadChannelMask.h"
 
 
 class MsgStream;
 class StoreGateSvc;
 class ILArPedestal;
 class CaloDetDescrManager;
-class ILArBadChannelMasker;
 class ILArShape;
 class ILArAutoCorr;
 class HWIdentifier;
@@ -100,7 +99,11 @@ class LArShapeDumper : public AthAlgorithm
   std::vector<std::string> m_triggerNames;
 
   ToolHandle<ILArShapeDumperTool> m_dumperTool{this,"LArShapeDumperTool","LArShapeDumperTool"};
-  ToolHandle<ILArBadChannelMasker> m_badChannelMasker;
+
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to patch"};
+
+
 
   SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
  

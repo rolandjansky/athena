@@ -177,7 +177,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
     std::vector<Identifier> holeIdentifiers;
     std::vector<Identifier> holeIdentifiersWithHits; // holes on straws that have hits, it is just that the hit was not associalted to a track
-    for ( DataVector<Trk::Track>::const_iterator trackIt = trkCollection->begin(); trackIt != trkCollection->end(); trackIt++ ) {
+    for ( DataVector<Trk::Track>::const_iterator trackIt = trkCollection->begin(); trackIt != trkCollection->end(); ++trackIt) {
         const Trk::Track *track = *trackIt;
         //=== select track
         const Trk::Perigee* perigee = (*trackIt)->perigeeParameters();
@@ -188,7 +188,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         if ( not trackStates  ) { ATH_MSG_ERROR( "Trk::TrackStateOnSurface empty" ); continue; }
 
         int n_pixel_hits(0), n_sct_hits(0), n_trt_hits(0);  // count hits, require minimal number of all hits
-        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); trackStatesIt++ ) {
+        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); ++trackStatesIt ) {
             if ( *trackStatesIt == 0 ) { ATH_MSG_ERROR( "*trackStatesIt == 0" ); continue; }
 
             if ( !((*trackStatesIt)->type(Trk::TrackStateOnSurface::Measurement)) ) continue; // this skips outliers
@@ -203,7 +203,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
         //=== loop over all hits on track, accumulate them
 
-        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); trackStatesIt++ ) {
+        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); ++trackStatesIt ) {
 
             if ( *trackStatesIt == 0 ) { ATH_MSG_ERROR( "*trackStatesIt == 0" ); continue; }
 
@@ -235,7 +235,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
         const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack( *track );
         if ( holes==0 ) continue; // no holes found
-        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = holes->begin(); trackStatesIt != holes->end(); trackStatesIt++ ) {
+        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = holes->begin(); trackStatesIt != holes->end(); ++trackStatesIt ) {
 
             if ( !(*trackStatesIt)->type(   Trk::TrackStateOnSurface::Hole  )  ) { ATH_MSG_ERROR( "m_trt_hole_finder returned something that is not a hole" ); continue; }
 
@@ -260,7 +260,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
     for (TRT_RDO_Container::const_iterator rdoIt = rdoContainer->begin(); rdoIt != rdoContainer->end(); ++rdoIt) {
         const InDetRawDataCollection<TRT_RDORawData>* TRTCollection(*rdoIt);
         if (TRTCollection==0) continue;
-        for (DataVector<TRT_RDORawData>::const_iterator trtIt = TRTCollection->begin(); trtIt != TRTCollection->end(); trtIt++) {
+        for (DataVector<TRT_RDORawData>::const_iterator trtIt = TRTCollection->begin(); trtIt != TRTCollection->end(); ++trtIt) {
             Identifier id = (*trtIt)->identify();
             int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index
             (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][0]++; // accumulate all hits
@@ -351,7 +351,7 @@ void InDet::TRT_StrawStatus::printDetailedInformation() {
     char fileName[300];
     snprintf(fileName, 299,"%s.%07d_printDetailedInformation.txt", m_fileName.c_str(), m_runNumber);
     FILE *f = fopen(fileName, "w");
-    for (std::vector<Identifier>::const_iterator it = m_TRTHelper->straw_layer_begin(); it != m_TRTHelper->straw_layer_end(); it++  ) {
+    for (std::vector<Identifier>::const_iterator it = m_TRTHelper->straw_layer_begin(); it != m_TRTHelper->straw_layer_end(); ++it  ) {
         for (int i=0; i<=m_TRTHelper->straw_max( *it); i++) {
             Identifier id = m_TRTHelper->straw_id( *it, i);
             int index[6];

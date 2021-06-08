@@ -28,8 +28,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    Trk::Track* MuonCandidateTrackBuilderTool::buildCombinedTrack(const Trk::Track& idTrack, const MuonCandidate& candidate) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
+    std::unique_ptr<Trk::Track> MuonCandidateTrackBuilderTool::buildCombinedTrack(const EventContext& ctx,const Trk::Track& idTrack, const MuonCandidate& candidate) const {
         ATH_MSG_DEBUG("Building track from candidate with " << candidate.layerIntersections.size() << " layers ");
         // copy and sort layerIntersections according to their distance to the IP
         std::vector<MuonLayerIntersection> layerIntersections = candidate.layerIntersections;
@@ -45,11 +44,11 @@ namespace Muon {
         // loop over sorted layers and extract measurements
         std::vector<const Trk::MeasurementBase*> measurements;
         int intersec = 0;
-        bool isEndcap = false;
-        bool isBarrel = false;
-        bool isSmall = false;
-        bool isLarge = false;
-        for (const auto& layerIntersection : layerIntersections) {
+        bool isEndcap { false},
+         isBarrel  {false},
+         isSmall  {false},
+         isLarge  {false};
+        for (const MuonLayerIntersection& layerIntersection : layerIntersections) {
             intersec++;
             ATH_MSG_VERBOSE(" layerIntersection " << intersec << " perp "
                                                   << layerIntersection.intersection.trackParameters->position().perp() << " z "
@@ -65,16 +64,14 @@ namespace Muon {
             // first check whether it is a Barrel or Endcap segment
 
             std::vector<const Trk::MeasurementBase*> containedMeasurements = layerIntersection.segment->containedMeasurements();
-            std::vector<const Trk::MeasurementBase*>::const_iterator mit = containedMeasurements.begin();
-            std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = containedMeasurements.end();
-            for (; mit != mit_end; ++mit) {
+            for (const Trk::MeasurementBase* mit : containedMeasurements) {
                 // get Identifier
                 Identifier id;
-                const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(*mit);
+                const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(mit);
                 if (rio)
                     id = rio->identify();
                 else {
-                    const Trk::CompetingRIOsOnTrack* crio = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(*mit);
+                    const Trk::CompetingRIOsOnTrack* crio = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(mit);
                     if (crio)
                         id = crio->rioOnTrack(0).identify();
                     else
@@ -108,6 +105,35 @@ namespace Muon {
             measurements.insert(measurements.end(), containedMeasurements.begin(), containedMeasurements.end());
         }
 
+	//check for rare case in which 2 layers are large/small and one segment contains the other only with the opposite assignment of radius signs
+	if(candidate.layerIntersections.size()==2 && isSmall && isLarge){
+	    if(m_idHelperSvc->stationIndex(m_edmHelperSvc->chamberId(*candidate.layerIntersections.at(0).segment))==
+	       m_idHelperSvc->stationIndex(m_edmHelperSvc->chamberId(*candidate.layerIntersections.at(1).segment))){
+	         const Muon::MuonSegment* seg1=candidate.layerIntersections.at(0).segment.get();
+	         const Muon::MuonSegment* seg2=candidate.layerIntersections.at(1).segment.get();
+	         if(seg1->containedMeasurements().size()>seg2->containedMeasurements().size()){
+		     seg2=candidate.layerIntersections.at(0).segment.get();
+		     seg1=candidate.layerIntersections.at(1).segment.get();
+		 }
+		 bool found=false;
+		 for(const auto& meas1 : seg1->containedMeasurements()){
+		     found=false;
+		     for(const auto& meas2 : seg2->containedMeasurements()){
+		         if(m_edmHelperSvc->getIdentifier(*meas1)==m_edmHelperSvc->getIdentifier(*meas2)){
+			     found=true;
+			     break;
+		         }
+		     }
+		     //if any hit isn't found we're off the hook
+		     if(!found) break;
+		 }
+		 if(found){
+		     ATH_MSG_DEBUG("S/L overlap where one segment contains the other, don't use");
+		     return std::unique_ptr<Trk::Track>();
+		 }
+	     }
+	}
+
         // reorder in case of Small Large overlaps in Barrel or Endcap ONLY
 
         bool reorderAllMeasurements = false;
@@ -116,17 +142,17 @@ namespace Muon {
 
         if (m_reOrderMeasurements && reorderAllMeasurements) {
             // reorder measurements using SortMeas (defined in header file)
-            ATH_MSG_VERBOSE(" reorder all measurements before " << m_printer->print(measurements));
+            ATH_MSG_VERBOSE(" reorder all measurements before "<<std::endl << m_printer->print(measurements));
             std::stable_sort(measurements.begin(), measurements.end(), SortMeas(&*m_edmHelperSvc, &*m_idHelperSvc, isEndcap));
         }
 
-        ATH_MSG_VERBOSE("final measurement list: " << m_printer->print(measurements));
+        ATH_MSG_VERBOSE("final measurement list: "<<std::endl << m_printer->print(measurements));
 
         ATH_MSG_DEBUG("Extracted hits from candidate: " << measurements.size());
         std::unique_ptr<Trk::Track> refittedTrack{m_trackFitter->indetExtension(idTrack, measurements, ctx)};
         if (refittedTrack) {
             ATH_MSG_DEBUG("got Track: " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
         }
-        return refittedTrack.release();
+        return refittedTrack;
     }
 }  // namespace Muon

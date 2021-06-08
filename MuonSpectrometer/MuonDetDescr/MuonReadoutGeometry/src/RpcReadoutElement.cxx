@@ -1033,7 +1033,7 @@ __attribute__ ((flatten))
     if( phipanel > (int)m_phiDesigns.size() ) {
       MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
       log << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
-      return 0;
+      return nullptr;
     }
     return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];
   }

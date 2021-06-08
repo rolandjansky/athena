@@ -170,7 +170,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = mdtPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = mdtPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr) { continue; }
 
             // reserve space for the new PRDs
@@ -196,7 +196,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = mdtPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = mdtPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -222,7 +222,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = rpcPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = rpcPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -248,7 +248,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = tgcPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = tgcPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -279,7 +279,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = cscPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = cscPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
 
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
@@ -313,7 +313,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = stgcPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = stgcPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -345,7 +345,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            const auto *collptr = mmPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = mmPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());

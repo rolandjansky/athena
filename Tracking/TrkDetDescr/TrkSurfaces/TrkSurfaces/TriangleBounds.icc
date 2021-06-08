@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -88,6 +88,7 @@ TriangleBounds::inside(const Amg::Vector2D& locpo,
   AmgMatrix(2, 2) rotMatrix;
   rotMatrix << scResult.cosC, scResult.sinC, -scResult.sinC, scResult.cosC;
   AmgMatrix(2, 2) normal;
+  // cppcheck-suppress constStatement
   normal << 0, -1, 1, 0;
   // ellipse is always at (0,0), surface is moved to ellipse position and then
   // rotated

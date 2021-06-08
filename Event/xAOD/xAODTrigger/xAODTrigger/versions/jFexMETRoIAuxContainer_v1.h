@@ -23,8 +23,10 @@ namespace xAOD{
 
   private:
     std::vector<uint32_t> word0;
-    std::vector<uint16_t> E_x;
-    std::vector<uint16_t> E_y;
+    std::vector<uint8_t> jFexNumber;
+    std::vector<uint8_t> fpgaNumber;
+    std::vector<int16_t> E_x;
+    std::vector<int16_t> E_y;
     std::vector<uint8_t> Res;
     std::vector<uint8_t> Sat;
 }; // class jFexMETRoIAuxContainer_v1

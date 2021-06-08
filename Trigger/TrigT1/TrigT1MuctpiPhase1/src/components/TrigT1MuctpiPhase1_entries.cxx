@@ -1,6 +1,6 @@
-#include "../../TrigT1MuctpiPhase1/MUCTPI_AthAlg.h"
-#include "../../TrigT1MuctpiPhase1/MUCTPI_AthTool.h"
-#include "../../TrigT1MuctpiPhase1/TrigThresholdDecisionTool.h"
+#include "../MUCTPI_AthAlg.h"
+#include "../MUCTPI_AthTool.h"
+#include "../TrigThresholdDecisionTool.h"
 
 DECLARE_COMPONENT( LVL1MUCTPIPHASE1::MUCTPI_AthAlg )
 DECLARE_COMPONENT( LVL1MUCTPIPHASE1::MUCTPI_AthTool )

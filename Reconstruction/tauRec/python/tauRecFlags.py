@@ -116,7 +116,7 @@ class tauRecMvaTESConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='MVATES_r22_mar1.weights.root'
+    StoredValue='MvaTES_Round2_v1.root'
 
 class tauRecCombinedTESConfig(JobProperty):
     """Config file for TauCombinedTES

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CollectionUtilities )
@@ -28,7 +28,7 @@ atlas_add_library( CollectionUtilities
   PUBLIC_HEADERS CollectionUtilities
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel
+  LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel CxxUtils
   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${Boost_LIBRARIES}
   FileCatalog POOLCore )
 

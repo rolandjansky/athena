@@ -52,7 +52,7 @@ public:
     // default constructor
     IdContext();
     // constructor with full initialization
-    IdContext(const ExpandedIdentifier& prefix, 
+    IdContext(ExpandedIdentifier prefix, 
 	      size_type begin_index, 
 	      size_type end_index);
 
@@ -91,11 +91,11 @@ inline IdContext::IdContext()
     m_end_index(0)
 {}
 
-inline IdContext::IdContext(const ExpandedIdentifier& prefix, 
+inline IdContext::IdContext(ExpandedIdentifier prefix, 
 			    size_type begin_index, 
 			    size_type end_index)
     :
-    m_prefix(prefix),
+    m_prefix(std::move(prefix)),
     m_begin_index(begin_index),
     m_end_index(end_index)
 {}

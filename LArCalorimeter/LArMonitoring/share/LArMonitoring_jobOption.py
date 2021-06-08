@@ -12,7 +12,7 @@ if 'ESD' not in DQMonFlags.monManEnvironment():
     include ("LArCellRec/LArCollisionTime_jobOptions.py")
     from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
     topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
-    if globalflags.DataSource()=='data':
+    if globalflags.DataSource()=='data' and 'online' not in DQMonFlags.monManEnvironment():
         from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
         topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
 
@@ -20,17 +20,18 @@ if 'ESD' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
     topSequence += LArNoisyROMonConfigOld(DQMonFlags)
 
-if globalflags.DataSource == 'data' and 'online' not in DQMonFlags.monManEnvironment():
+if globalflags.DataSource() == 'data' and 'online' not in DQMonFlags.monManEnvironment():
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
     topSequence += LArHVCorrMonConfigOld(DQMonFlags)
 
-if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource == 'data':
+if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource() == 'data':
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfigOld
     topSequence +=LArDigitMonConfigOld(DQMonFlags)
 
 #    if not DQMonFlags.doLArMon():
     from LArMonitoring.LArRODMonAlg import LArRODMonConfigOld
-    topSequence +=LArRODMonConfigOld(DQMonFlags)
+    if LArMonFlags.doLArRODMonTool():
+       topSequence +=LArRODMonConfigOld(DQMonFlags)
 
     from LArMonitoring.LArFEBMonAlg import LArFEBMonConfigOld
     topSequence +=LArFEBMonConfigOld(DQMonFlags)
@@ -39,5 +40,6 @@ if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource == 'da
     topSequence +=LArCoverageConfigOld(DQMonFlags)
 
     from LArMonitoring.LArCosmicsMonAlg import LArCosmicsMonConfigOld
-    topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
+    if LArMonFlags.doLArCosmicsMonTool():
+       topSequence +=LArCosmicsMonConfigOld(DQMonFlags)
 

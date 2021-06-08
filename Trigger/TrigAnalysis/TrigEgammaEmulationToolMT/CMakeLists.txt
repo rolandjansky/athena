@@ -9,21 +9,22 @@ find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_library( TrigEgammaEmulationToolMTLib
-   TrigEgammaEmulationToolMT/*.h Root/*.cxx
+   Root/*.cxx
    PUBLIC_HEADERS TrigEgammaEmulationToolMT
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthContainers 
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigSteeringEvent xAODRootAccess
+   LINK_LIBRARIES AsgTools AthContainers 
    EgammaAnalysisInterfacesLib InDetTrackSelectionToolLib 
    LumiBlockCompsLib PATCoreLib RecoToolInterfaces 
    TrigNavStructure TrigDecisionToolLib TrigEgammaMatchingToolLib 
    xAODBase xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo 
    xAODTrigRinger xAODTrigger RingerSelectorToolsLib
    AthOnnxruntimeServiceLib
-   PRIVATE_LINK_LIBRARIES StoreGateLib TrigSteeringEvent )
+    )
 
 atlas_add_component( TrigEgammaEmulationToolMT
-   src/*.cxx src/components/*.cxx
+   src/*.cxx 
+   src/components/*.cxx
    LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigEgammaEmulationToolMTLib )
 
 # Install files from the package:

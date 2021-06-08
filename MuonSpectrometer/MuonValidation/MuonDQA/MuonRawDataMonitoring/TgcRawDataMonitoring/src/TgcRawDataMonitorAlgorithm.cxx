@@ -5,6 +5,7 @@
 #include "TgcRawDataMonitorAlgorithm.h"
 
 #include "TObjArray.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace {
   // Cut values on pt bein exploited throughout the monitoring
@@ -373,13 +374,10 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     if (muon == nullptr) continue;
 
     // standard quality cuts for muons
+    if (muon->pt() < 1000.) continue;
     if (muon->muonType() != xAOD::Muon::Combined) continue;
     if (muon->author() != xAOD::Muon::MuidCo && muon->author() != xAOD::Muon::STACO) continue;
     if (muon->quality() != xAOD::Muon::Tight && muon->quality() != xAOD::Muon::Medium) continue;
-
-    // set 4-vectors of probe muons for the following checks
-    TLorentzVector muonvec;
-    muonvec.SetPtEtaPhiM(muon->pt(),muon->eta(),muon->phi(),m_muonMass.value());
 
     // initialize for muon-isolation check
     bool isolated = true;
@@ -392,17 +390,19 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     for(const auto muon2 : *muons){
 
       // skip if muon is empty
-      if (muon == nullptr) continue;
+      if (muon2 == nullptr) continue;
 
       // skip the same muon candidate
       if( muon == muon2 )continue;
 
-      // set 4-vectors of the second muons for the following checks
-      TLorentzVector muon2vec;
-      muon2vec.SetPtEtaPhiM(muon2->pt(),muon2->eta(),muon2->phi(),m_muonMass.value());
+      // skip possible mismeasured muons
+      if( muon2->pt() < 1000. ) continue;
 
       // check muon-muon isolation using the loosest-quality muons
-      if ( muon2vec.DeltaR( muonvec ) < m_isolationWindow.value() ) isolated = false;
+      if ( isolated ){
+	double dr = xAOD::P4Helpers::deltaR(muon,muon2,false);
+	if( dr < m_isolationWindow.value() ) isolated = false;
+      }
 
       // no need to check further if probeOK is already True
       // 0) if muon-orthogonal triggers are avaialble/fired
@@ -435,12 +435,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	      for(auto hltmu : *mucont.cptr()){
 		if (hltmu == nullptr) continue; // skip if hltmu is empty
 		if (hltmu->pt() < 1000.)continue; // skip if pT is very small
-		TLorentzVector hltmuvec;
-		hltmuvec.SetPtEtaPhiM(hltmu->pt(),hltmu->eta(),hltmu->phi(),m_muonMass.value());
-		if( hltmuvec.DeltaR(muon2vec) < m_trigMatchWindow.value() ){
-		  ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << hltmuvec.DeltaR(muon2vec) <<
-			       ", offl(pt,eta,phi)=("<<muon2vec.Pt()<<","<<muon2vec.Eta()<<","<<muon2vec.Phi()<<
-			       "), onl(pt,eta,phi)=("<<hltmuvec.Pt()<<","<<hltmuvec.Eta()<<","<<hltmuvec.Phi()<<")");
+		double dr = xAOD::P4Helpers::deltaR(muon2,hltmu,false);
+		if( dr < m_trigMatchWindow.value() ){
+		  ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << dr );
 		  probeOK = true;
 		}
 		if(probeOK) break; // no need to check further if probeOK is already True
@@ -459,12 +456,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	    auto hltmu = *hltmu_link;
 	    if (hltmu == nullptr) continue; // skip if hltmu is empty
 	    if (hltmu->pt() < 1000.)continue; // skip if pT is very small
-	    TLorentzVector hltmuvec;
-	    hltmuvec.SetPtEtaPhiM(hltmu->pt(),hltmu->eta(),hltmu->phi(),m_muonMass.value());
-	    if ( hltmuvec.DeltaR(muon2vec) < m_trigMatchWindow.value()){
-	      ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << hltmuvec.DeltaR(muon2vec) <<
-			   ", offl(pt,eta,phi)=("<<muon2vec.Pt()<<","<<muon2vec.Eta()<<","<<muon2vec.Phi()<<
-			   "), onl(pt,eta,phi)=("<<hltmuvec.Pt()<<","<<hltmuvec.Eta()<<","<<hltmuvec.Phi()<<")");
+	    double dr = xAOD::P4Helpers::deltaR(muon2,hltmu,false);
+	    if( dr < m_trigMatchWindow.value() ){
+	      ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << dr );
 	      probeOK = true;
 	    }
 	    if(probeOK) break; // no need to check further if probeOK is already True
@@ -474,11 +468,13 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       } // end loop of single muon triggers
       // check if the second muon matches the single muon trigger
       if(!probeOK) continue;
+      ATH_MSG_DEBUG("Basic Tag-and-Probe is OK");
       // check further if this muon pair satisfies Z->mumu criteria
-      if(m_TagAndProbeZmumu.value()){
-	if( muon->charge() == muon2->charge() ||
-	    std::abs( (muonvec + muon2vec).M() - m_zMass.value()) > m_zMassWindow.value() )
-	  probeOK=false;
+      if( m_TagAndProbeZmumu.value() && muon->charge() != muon2->charge() ){
+	double m2 = 2. * muon->pt() * muon2->pt() * ( std::cosh(muon->eta() - muon2->eta()) - std::cos(muon->phi() - muon2->phi()) );
+	double m = (m2>0.) ? ( std::sqrt(m2) ) : (0.);
+	double mdiff = std::abs( m - m_zMass.value() );
+	probeOK = mdiff < m_zMassWindow.value();
 	ATH_MSG_DEBUG("Checking Zmumu cut: " << probeOK);
       }
       ATH_MSG_DEBUG("Final condition of probleOK for this muon is: " << probeOK);
@@ -511,9 +507,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       continue;
     }
     for(const auto roi : *rois){
-      TLorentzVector roivec;
-      roivec.SetPtEtaPhiM(1,roi->eta(),roi->phi(),1);
-      double dr = roivec.DeltaR( muonvec );
+      double dr = xAOD::P4Helpers::deltaR(*muon,roi->eta(),roi->phi(),false);
       if( dr < max_dr ){
 	mymuon.matchedL1ThrExclusive.insert( roi->getThrNumber() );
 	if(muon->charge()<0 && roi->getCharge()==xAOD::MuonRoI::Neg)mymuon.matchedL1Charge|=true;
