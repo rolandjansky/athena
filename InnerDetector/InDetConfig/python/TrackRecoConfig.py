@@ -272,6 +272,10 @@ def TrackRecoCfg(flags):
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
     result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
 
+    if flags.InDet.doVertexFinding:
+        from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
+        result.merge(primaryVertexFindingCfg(flags))
+
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
     toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
     toESD = []
