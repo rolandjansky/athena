@@ -156,7 +156,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
         preselJetParts.update(preselRecoDict)
         preselJetParts.update(
-            {'L1threshold': 'J',
+            {'L1threshold': 'FSNOSEED',
              'chainPartName': chainPartName,
              'multiplicity': multiplicity,
              'threshold': threshold,
