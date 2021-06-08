@@ -123,7 +123,7 @@ namespace Muon {
         Amg::Vector3D refPos = perigee->position() + refDistance * dir;
 
         // find closest measured parameters
-        double minDist = 1e6;
+        double minDist = -1e6;
         const Trk::TrackParameters* closestPars = nullptr;
         tsit = states->begin();
         tsit_end = states->end();
