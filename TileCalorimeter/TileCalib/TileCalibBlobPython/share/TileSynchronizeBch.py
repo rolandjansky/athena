@@ -167,14 +167,23 @@ for ros in range(1,5):
                         mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
 
-                    #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
-                    if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
-                        mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
-                        mgr2.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+                    #--- add OnlineTimingDmuBcOffsetPos if either of the ADCs has isTimingDmuBcOffsetPos
+                    if statlo.isTimingDmuBcOffsetPos() or stathi.isTimingDmuBcOffsetPos():
+                        mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
+                        mgr2.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
                     else:
-                        #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
-                        mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
-                        mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        #--- delete OnlineTimingDmuBcOffsetPos if the both ADCs has not isTimingDmuBcOffsetPos
+                        mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
+                        mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
+
+                    #--- add OnlineTimingDmuBcOffsetNeg if either of the ADCs has isTimingDmuBcOffsetNeg
+                    if statlo.isTimingDmuBcOffsetNeg() or stathi.isTimingDmuBcOffsetNeg():
+                        mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
+                        mgr2.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
+                    else:
+                        #--- delete OnlineTimingDmuBcOffsetNeg if the both ADCs has not isTimingDmuBcOffsetNeg
+                        mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
+                        mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
             else:
                 if copyall or (statlo.isBad() and not mgr2.getAdcStatus(ros, mod, chn, 0).isBad()):
                     mgr2.setAdcStatus(ros,mod,chn,0,statlo)
