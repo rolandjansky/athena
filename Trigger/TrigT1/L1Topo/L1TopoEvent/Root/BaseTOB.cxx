@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoCommon/Exception.h"
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-TCS::BaseTOB::BaseTOB(uint32_t roiWord, std::string tobName) :
+TCS::BaseTOB::BaseTOB(uint32_t roiWord, const std::string& tobName) :
   m_roiWord(roiWord),
   m_tobName(tobName)
 {}
