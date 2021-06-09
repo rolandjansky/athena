@@ -9,7 +9,7 @@
  * @brief Forward iterator to traverse the main components of the trigger configuration
  */
 
-#include "CxxUtils/checker_macros.h"
+#include "CxxUtils/CachedValue.h"
 
 #include <iostream>
 #include <functional>
@@ -55,7 +55,6 @@ namespace TrigConf {
          m_buf(buf),
          m_offset(offset),
          m_data(),
-         m_valid(false),
          m_f(f),
          m_bufIt(buf.begin())
       {}
@@ -78,7 +77,7 @@ namespace TrigConf {
       ConstIter & operator++() {
          ++m_offset;
          ++m_bufIt;
-         m_valid = false;
+         m_data.reset();
          return *this;
       }
 
@@ -86,18 +85,16 @@ namespace TrigConf {
        * Creates object of type @c T from the current object in the container on the fly using the creation function @c m_f
        */
       const T & operator*() const {
-         if( ! m_valid ) {
-            m_data = m_f(*m_bufIt);
-            m_valid = true;
+         if( ! m_data.isValid() ) {
+            m_data.set (m_f(*m_bufIt));
          }
-         return m_data;
+         return *m_data.ptr();
       }
 
    private:
       const V & m_buf; //!< Const reference to the underlying data container
-      std::size_t m_offset; //!< Current position of the iterator 
-      mutable T m_data ATLAS_THREAD_SAFE; //!< Holder of the transformed data
-      mutable bool m_valid ATLAS_THREAD_SAFE; //!< indicates if data got transformed for current position
+      std::size_t m_offset; //!< Current position of the iterator
+      CxxUtils::CachedValue<T> m_data; //!< Holder of the transformed data
       std::function<T(const typename V::value_type &)> m_f; //!< Function to turn a single datum from the container into the output type 
       typename V::const_iterator m_bufIt; //!< Iterator over the container
 
