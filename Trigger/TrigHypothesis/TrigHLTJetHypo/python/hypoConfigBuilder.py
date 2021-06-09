@@ -209,7 +209,7 @@ def process_nonsimple(scenario, chainPartInd):
 def make_fastreduction_configurers(chain_dict):
     """Create HelperToolConfigTool  instances. Each instance
     configures a FastReduction tree. Chain parts with the 'simple' scenario
-    use used to form a single HelperToolConfigTool. The information 
+    are used to form a single HelperToolConfigTool. The information 
     may be spread over a number of chain parts. 
 
     There is at most one chain part with a non-simple scenario. 
@@ -226,31 +226,54 @@ def make_fastreduction_configurers(chain_dict):
     simple_chainparts = [
         cp for cp in chain_parts if cp['hypoScenario'] == 'simple']
 
+    simple_cpis = [cp['chainPartIndex'] for cp in simple_chainparts]
+
+    # check that all the simple scenario parts occur before 
+    # non-simple scenario chain parts
+
+    if simple_cpis:
+        assert simple_cpis == sorted(simple_cpis), "disordered chain parts" 
+        assert simple_cpis[-1] - simple_cpis[0] == len(simple_cpis) - 1, "nonsequential chainParts"
     helperToolConfigTools = []
 
+    # check for SHARED markers (chainPart['tboundary'] = 'SHARED')
+    # in the list of simple chain parts.
+    # Get a tree configuration each time SHARED == 1 is encountered.
     if simple_chainparts:
-        helperToolConfigTools.extend(process_simple(simple_chainparts))
+
+        assert simple_chainparts[-1]['tboundary'] == ''
+
+        tree_cps = []
+        for cp in simple_chainparts:
+            tree_cps.append(cp)
+            if cp['tboundary'] == 'SHARED':
+                helperToolConfigTools.extend(process_simple(tree_cps))
+                tree_cps = []
+
+        # tree_cps  cannot be empty here
+        assert tree_cps
+        helperToolConfigTools.extend(process_simple(tree_cps))
 
     scenario_chainparts =[
         cp for cp in chain_parts if cp['hypoScenario'] != 'simple']
 
     if scenario_chainparts:
-        assert len(scenario_chainparts) == 1
-        scenario_chainpart = scenario_chainparts[0]
-
-        # We only allow threshold != 0 for the simple scenario.
-        assert scenario_chainpart['threshold'] == '0'
+        for scenario_chainpart in scenario_chainparts:
+            # scenario_chainpart = scenario_chainparts[0]
+            
+            # We only allow threshold != 0 for the simple scenario.
+            assert scenario_chainpart['threshold'] == '0'
         
-        scenario = scenario_chainparts[0]['hypoScenario']
-        # find the chain part index for a non-simple scenario.
-        # assume simple is processed before non-simple, and that
-        # there is at most one non-simple chainpart.
-        # chainPartInd is needed to report passing jets to the
-        # trigger framework.
-        chainPartInd = scenario_chainpart['chainPartIndex']
-
-        helperToolConfigTools.extend(process_nonsimple(scenario,
-                                                       chainPartInd))
+            scenario = scenario_chainparts[0]['hypoScenario']
+            # find the chain part index for a non-simple scenario.
+            # assume simple is processed before non-simple, and that
+            # there is at most one non-simple chainpart.
+            # chainPartInd is needed to report passing jets to the
+            # trigger framework.
+            chainPartInd = scenario_chainpart['chainPartIndex']
+            
+            helperToolConfigTools.extend(process_nonsimple(scenario,
+                                                           chainPartInd))
         
     return helperToolConfigTools
 

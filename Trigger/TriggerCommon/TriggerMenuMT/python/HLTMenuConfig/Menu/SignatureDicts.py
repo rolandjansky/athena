@@ -239,7 +239,8 @@ JetChainParts = {
                       'bdl1r60','bdl1r70','bdl1r77','bdl1r85'],
     'bTracking'    : [],
     'bConfig'      : ['split',],
-    'bMatching'    : ['antimatchdr05mu']
+    'bMatching'    : ['antimatchdr05mu'],
+    'tboundary'    : ['SHARED'], # simple scenario tree boundary marker
 }
 
 # ---- Jet Dictionary of default Values ----
@@ -277,6 +278,8 @@ JetChainParts_Default = {
     'bTracking'     : '',
     'bConfig'       : [],
     'bMatching'     : [],
+    #
+    'tboundary'     : '',
 }
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----

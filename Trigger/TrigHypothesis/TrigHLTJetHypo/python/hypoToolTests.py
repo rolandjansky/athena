@@ -228,6 +228,11 @@ class HypoToolStructure(unittest.TestCase):
         
         for td in testData:
             chain_dict =chain_dict = dictFromChainName(td['prop'])
+            # set chain part indices (kludge)
+            cpi = 0
+            for cp in chain_dict['chainParts']:
+                cp['chainPartIndex'] = cpi
+                cpi += 1
             chain_name = chain_dict['chainName']
             tool = hypotool_from_chaindict(chain_dict)
             
