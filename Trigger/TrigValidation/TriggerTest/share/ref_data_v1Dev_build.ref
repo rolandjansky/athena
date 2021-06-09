@@ -2192,6 +2192,8 @@ HLT_mu10_L1MU10:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu10_bJpsi_MuonTrkPEB_L1MU10:
+  eventCount: 0
 HLT_mu10_ivarmedium_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
   eventCount: 0
 HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:
@@ -2242,6 +2244,8 @@ HLT_mu20_2mu4noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu20_bJpsi_MuonTrkPEB_L1MU20:
+  eventCount: 0
 HLT_mu20_ivarloose_tau20_medium1_tracktwo_03dRAB_L1MU20:
   eventCount: 0
   stepFeatures:
@@ -2490,6 +2494,8 @@ HLT_mu28_ivarmedium_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu4_bJpsi_MuonTrkPEB_L1MU4:
+  eventCount: 0
 HLT_mu4_j70_0eta320_j50_0eta490_j0_DJMASS1000j50_L1MJJ-500-NFF:
   eventCount: 0
 HLT_mu4_l2io_L1MU4:
@@ -2552,6 +2558,8 @@ HLT_mu6_LRT_idperf_l2lrt_L1MU6:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu6_bJpsi_MuonTrkPEB_L1MU6:
+  eventCount: 0
 HLT_mu6_idperf_L1MU6:
   eventCount: 0
   stepCounts:

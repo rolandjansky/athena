@@ -58,6 +58,14 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.SCT_ENDCAP_C_SIDE,
             SubDetector.TDAQ_CTP
         ])
+    elif 'MuonTrkPEB' == eventBuildType:
+        tool = RoIPEBInfoWriterToolCfg(name)
+        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'MDT', 'RPC', 'TGC', 'CSC', 'MM', 'sTGC'])
+        tool.MaxRoIs = 99
+        tool.EtaWidth= 0.75#values from run2 check later
+        tool.PhiWidth= 0.75#values from run2 check later
+        tool.addHLTResultToROBList()
+        tool.addCTPResultToROBList()  # add the CTP result to the list
     elif 'LArPEBCalib' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.LAR_EM_BARREL_A_SIDE,
@@ -138,6 +146,8 @@ def pebInfoWriterTool(name, eventBuildType):
 def pebInputMaker(chain, eventBuildType):
     maker = DecisionHandlingConf.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
+    if eventBuildType=="MuonTrkPEB":
+        maker.mergeUsingFeature = True
     if len(chain.steps) == 0:
         # Streamers: use initial RoI
         maker.RoITool = DecisionHandlingConf.ViewCreatorInitialROITool()

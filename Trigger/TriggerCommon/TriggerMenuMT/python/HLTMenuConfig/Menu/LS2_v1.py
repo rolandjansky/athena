@@ -738,6 +738,10 @@ def setupMenu():
         #ATR-21003
         ChainProp(name='HLT_2mu6_bJpsimumul2io_L12MU6', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6',     groups=BphysicsGroup),
+        ChainProp(name='HLT_mu4_bJpsi_MuonTrkPEB_L1MU4', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
+        ChainProp(name='HLT_mu6_bJpsi_MuonTrkPEB_L1MU6', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
+        ChainProp(name='HLT_mu10_bJpsi_MuonTrkPEB_L1MU10', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
+        ChainProp(name='HLT_mu20_bJpsi_MuonTrkPEB_L1MU20', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
