@@ -6,11 +6,9 @@
 #define TRKTRACK_ALIGNMENTEFFECTSONTRACK_H
 
 #include "Identifier/Identifier.h"
+#include "TrkSurfaces/SurfaceHolders.h"
 #include <iostream>
 #include <vector>
-
-//#include "TrkTrack/TrackStateOnSurface.h" // Can't be forward declared because
-//of ElementLink
 
 class MsgStream;
 
@@ -22,7 +20,7 @@ class TrackStateOnSurface;
 /// Class to represent misalignments or 'discontinuities' on tracks
 /// These have a surface where the z axis is aligned with the direction of the
 /// translation, and the angle of the rotation is with respect to this.
-class AlignmentEffectsOnTrack
+class AlignmentEffectsOnTrack : public SurfacePtrHolder
 {
 public:
   AlignmentEffectsOnTrack(
@@ -32,11 +30,19 @@ public:
     float sigmaDeltaAngle,
     const std::vector<Identifier>& identifiersOfAffectedTSOS,
     const Trk::Surface*);
-  AlignmentEffectsOnTrack(const Trk::AlignmentEffectsOnTrack& rhs);
-  Trk::AlignmentEffectsOnTrack& operator=(
-    const Trk::AlignmentEffectsOnTrack& rhs);
 
-  ~AlignmentEffectsOnTrack();
+  AlignmentEffectsOnTrack(const Trk::AlignmentEffectsOnTrack& rhs) = default;
+
+  Trk::AlignmentEffectsOnTrack& operator=(
+    const Trk::AlignmentEffectsOnTrack& rhs) = default;
+
+  AlignmentEffectsOnTrack(Trk::AlignmentEffectsOnTrack&& rhs) noexcept =
+    default;
+
+  Trk::AlignmentEffectsOnTrack& operator=(
+    Trk::AlignmentEffectsOnTrack&& rhs) noexcept = default;
+
+  ~AlignmentEffectsOnTrack() = default;
 
   /// returns the \f$ \Delta X \f$
   float deltaTranslation() const;
@@ -70,7 +76,6 @@ private:
   float m_deltaAngle;
   float m_sigmaDeltaAngle;
   std::vector<Identifier> m_affectedTSOS;
-  const Trk::Surface* m_surface;
 };
 
 /**Overload of << operator for MsgStream for debug output*/
@@ -122,7 +127,7 @@ Trk::AlignmentEffectsOnTrack::updateVectorOfAffectedTSOS(
 inline const Trk::Surface&
 Trk::AlignmentEffectsOnTrack::associatedSurface() const
 {
-  return *m_surface;
+  return *m_associatedSurface;
 }
 
 #endif

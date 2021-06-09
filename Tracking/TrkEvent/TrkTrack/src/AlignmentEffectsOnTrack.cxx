@@ -13,50 +13,13 @@ Trk::AlignmentEffectsOnTrack::AlignmentEffectsOnTrack(
   float sigmaDeltaAngle,
   const std::vector<Identifier>& affectedTSOS,
   const Trk::Surface* surface)
-  : m_deltaTranslation(deltaTranslation)
+  : SurfacePtrHolder(surface)
+  , m_deltaTranslation(deltaTranslation)
   , m_sigmaDeltaTranslation(sigmaDeltaTranslation)
   , m_deltaAngle(deltaAngle)
   , m_sigmaDeltaAngle(sigmaDeltaAngle)
   , m_affectedTSOS(affectedTSOS)
-  , m_surface(surface)
 {}
-
-Trk::AlignmentEffectsOnTrack::AlignmentEffectsOnTrack(
-  const Trk::AlignmentEffectsOnTrack& rhs)
-  : m_deltaTranslation(rhs.m_deltaTranslation)
-  , m_sigmaDeltaTranslation(rhs.m_sigmaDeltaTranslation)
-  , m_deltaAngle(rhs.m_deltaAngle)
-  , m_sigmaDeltaAngle(rhs.m_sigmaDeltaAngle)
-  , m_affectedTSOS(rhs.m_affectedTSOS)
-  , m_surface(
-      (rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface))
-{}
-
-Trk::AlignmentEffectsOnTrack&
-Trk::AlignmentEffectsOnTrack::operator=(const Trk::AlignmentEffectsOnTrack& rhs)
-{
-  if (this != &rhs) {
-    m_deltaTranslation = rhs.m_deltaTranslation;
-    m_sigmaDeltaTranslation = rhs.m_sigmaDeltaTranslation;
-    m_deltaAngle = rhs.m_deltaAngle;
-    m_sigmaDeltaAngle = rhs.m_sigmaDeltaAngle;
-    m_affectedTSOS = rhs.m_affectedTSOS;
-    if (m_surface->isFree()) {
-      delete m_surface;
-    }
-    m_surface =
-      (rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface);
-  }
-  return *this;
-}
-
-Trk::AlignmentEffectsOnTrack::~AlignmentEffectsOnTrack()
-{
-  if (m_surface && m_surface->isFree()) {
-    delete m_surface;
-    m_surface = nullptr;
-  }
-}
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug
  * output*/
