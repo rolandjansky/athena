@@ -879,7 +879,7 @@ namespace Trk
     // reorder if necessary
     if (reorder) { m_materialAllocator->orderMeasurements(measurements, startDirection, startPosition); }
     if (measurementsFlipped) {
-      m_messageHelper->printWarning(25);
+      ATH_MSG_VERBOSE("flipped track measurement order");
     }
 
     // flag whether material has already been allocated
