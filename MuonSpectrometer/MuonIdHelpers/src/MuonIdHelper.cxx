@@ -983,3 +983,270 @@ int MuonIdHelper::stationRegion(const Identifier& id) const {
   return -1;
 }
 
+/*******************************************************************************/
+ Identifier MuonIdHelper::muon() const
+{
+  return AtlasDetectorID::muon();
+}
+/*******************************************************************************/
+// Print method
+ void MuonIdHelper::print(const Identifier& id) const
+{
+  AtlasDetectorID::print(id);
+}
+/*******************************************************************************/
+ IdContext MuonIdHelper::technology_context (void) const {
+  ExpandedIdentifier id;
+  return (IdContext(id, 0, m_TECHNOLOGY_INDEX));
+
+}
+/*******************************************************************************/
+ IdContext MuonIdHelper::module_context (void) const {
+  ExpandedIdentifier id;
+  return (IdContext(id, 0, m_MODULE_INDEX));
+
+}
+/*******************************************************************************/
+ IdContext MuonIdHelper::detectorElement_context (void) const {
+  ExpandedIdentifier id;
+  return (IdContext(id, 0, m_DETECTORELEMENT_INDEX));
+
+}
+/*******************************************************************************/
+ IdContext MuonIdHelper::channel_context (void) const {
+  ExpandedIdentifier id;
+  return (IdContext(id, 0, m_CHANNEL_INDEX));
+
+}
+/*******************************************************************************/
+ MultiRange MuonIdHelper::multiRange(void) const {
+  return m_full_module_range;
+}
+/*******************************************************************************/
+ MuonIdHelper::size_type MuonIdHelper::module_hash_max(void) const {
+  return  m_module_hash_max;
+}
+/*******************************************************************************/
+ MuonIdHelper::size_type MuonIdHelper::channel_hash_max(void) const {
+  return  m_channel_hash_max;
+}
+/*******************************************************************************/
+ std::vector<Identifier> MuonIdHelper::idVector(void) const {
+  return m_module_vec;
+}
+/*******************************************************************************/
+ MuonIdHelper::const_id_iterator    MuonIdHelper::module_begin        (void) const
+{
+  return (m_module_vec.begin());
+}
+/*******************************************************************************/
+ MuonIdHelper::const_id_iterator    MuonIdHelper::module_end        (void) const
+{
+  return (m_module_vec.end());
+}
+/*******************************************************************************/
+ MuonIdHelper::const_id_iterator    MuonIdHelper::detectorElement_begin        (void) const
+{
+  return (m_detectorElement_vec.begin());
+}
+/*******************************************************************************/
+ MuonIdHelper::const_id_iterator    MuonIdHelper::detectorElement_end        (void) const
+{
+  return (m_detectorElement_vec.end());
+}
+
+ MuonIdHelper::const_id_iterator    MuonIdHelper::channel_begin        (void) const
+{
+  return (m_channel_vec.begin());
+}
+/*******************************************************************************/
+ MuonIdHelper::const_id_iterator    MuonIdHelper::channel_end        (void) const
+{
+  return (m_channel_vec.end());
+}
+/*******************************************************************************/
+// Check common station fields
+ bool MuonIdHelper::validStation(int stationName, int technology) const
+{
+  if ((stationName <  0) || (stationName > stationNameIndexMax())) return false;
+  if ((technology  <  0) || (technology  > technologyNameIndexMax())) return false;
+  return true;
+}
+/*******************************************************************************/
+ void  MuonIdHelper::addStationID(ExpandedIdentifier& id, int stationName, int stationEta, int stationPhi, int technology) const {
+
+  id << stationName << stationEta << stationPhi << technology;
+}
+/*******************************************************************************/
+// Check if ID for muon system
+ bool MuonIdHelper::is_muon(const Identifier& id) const
+{
+  return AtlasDetectorID::is_muon(id);
+}
+/*******************************************************************************/
+// Check if ID for MDT
+ bool MuonIdHelper::is_mdt(const Identifier& id) const
+{
+  return AtlasDetectorID::is_mdt(id);
+}
+/*******************************************************************************/
+// Check if ID for CSC
+ bool MuonIdHelper::is_csc(const Identifier& id) const
+{
+  return AtlasDetectorID::is_csc(id);
+}
+/*******************************************************************************/
+// Check if ID for RPC
+ bool MuonIdHelper::is_rpc(const Identifier& id) const
+{
+  return AtlasDetectorID::is_rpc(id);
+}
+/*******************************************************************************/
+// Check if ID for TGC
+ bool MuonIdHelper::is_tgc(const Identifier& id) const
+{
+  return AtlasDetectorID::is_tgc(id);
+}
+/*******************************************************************************/
+// Check if ID for sTGC
+ bool MuonIdHelper::is_stgc(const Identifier& id) const
+{
+  return AtlasDetectorID::is_stgc(id);
+}
+/*******************************************************************************/
+// Check if ID for MicroMegas
+ bool MuonIdHelper::is_mm(const Identifier& id) const
+{
+  return AtlasDetectorID::is_mm(id);
+}
+/*******************************************************************************/
+// Access to components of the ID
+ int MuonIdHelper::stationName(const Identifier& id) const
+{
+  int result = m_sta_impl.unpack(id);
+  return result;
+}
+/*******************************************************************************/
+ int MuonIdHelper::stationEta(const Identifier& id) const
+{
+  int result = m_eta_impl.unpack(id);
+  return result;
+}
+/*******************************************************************************/
+ int MuonIdHelper::stationPhi(const Identifier& id) const
+{
+  int result = m_phi_impl.unpack(id);
+  return result;
+}
+/*******************************************************************************/
+ int MuonIdHelper::technology(const Identifier& id) const
+{
+  int result = m_tec_impl.unpack(id);
+  return result;
+}
+/*******************************************************************************/
+ int MuonIdHelper::stationNameIndexMax() const
+{
+  return (m_stationNameVector.size() - 1);
+}
+/*******************************************************************************/
+ int MuonIdHelper::technologyNameIndexMax() const
+{
+  return (m_technologyNameVector.size() - 1);
+}
+/*******************************************************************************/
+// Methods used by Moore
+ bool MuonIdHelper::isBarrel(const Identifier& id) const
+{
+  return isBarrel(stationName(id));
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isEndcap(const Identifier& id) const
+{
+  return isEndcap(stationName(id));
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isForward(const Identifier& id) const
+{
+  return isForward(stationName(id));
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isSmall(const Identifier& id) const
+{
+  return isSmall(stationName(id));
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isBarrel(const int& stationNameIndex) const
+{
+  return (m_isBarrel.count(stationNameIndex) == 1);
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isEndcap(const int& stationNameIndex) const
+{
+  return (m_isBarrel.count(stationNameIndex) == 0);
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isForward(const int& stationNameIndex) const
+{
+  return (m_isForward.count(stationNameIndex) == 1);
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isSmall(const int& stationNameIndex) const
+{
+  return (m_isSmall.count(stationNameIndex) == 1);
+}
+/*******************************************************************************/
+// Access to name and technology maps
+ int MuonIdHelper::stationNameIndex(const std::string& name) const {
+  int counter = 0;
+  for  (const std::string& station_name : m_stationNameVector) {
+    if (name.compare(station_name) == 0) {
+      return counter;
+    }
+    ++counter;
+  }
+  return -1;
+}
+/*******************************************************************************/
+ int MuonIdHelper::technologyIndex(const std::string& name) const {
+  int counter = 0;
+  for  (const std::string& technology_name : m_technologyNameVector) {
+    if (name.compare(technology_name) == 0) {
+      return counter;
+    }
+    ++counter;
+  }
+  return -1;
+}
+/*******************************************************************************/
+ const std::string& MuonIdHelper::stationNameString(const int& index) const{
+  assert ( index >= 0 && index <= stationNameIndexMax() );
+  if ( index >= 0 && index <= stationNameIndexMax() ) {
+    if (!m_stationNameVector[index].empty()) {
+      return m_stationNameVector[index];
+    }
+  }
+  return BAD_NAME;
+}
+/*******************************************************************************/
+ const std::string& MuonIdHelper::technologyString(const int& index) const
+{
+  assert ( index >= 0 && index <= technologyNameIndexMax() );
+  if (index >= 0 && index <= technologyNameIndexMax()) {
+    if (!m_technologyNameVector[index].empty()) {
+      return m_technologyNameVector[index];
+    }
+  }
+  return BAD_NAME;
+}
+/*******************************************************************************/
+ int MuonIdHelper::nStationNames() const
+{
+  return (int)m_isSmall.size();
+}
+/*******************************************************************************/
+ bool MuonIdHelper::isInitialized() const
+{
+  return m_init;
+}
+/*******************************************************************************/

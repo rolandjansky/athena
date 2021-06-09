@@ -413,6 +413,14 @@ StatusCode MdtCalibDbAlg::loadRt() {
                 }
             }
             athenaId = m_idToFixedIdTool->fixedIdToId(id);
+            if (!m_idHelperSvc->isMuon(athenaId)){
+                ATH_MSG_WARNING("The translation from the calibration ID with station: "
+                                <<id.stationNameString()<<"("<<id.stationName()<<") "
+                                <<" eta:"<<id.eta()<<" phi: "<<id.phi()
+                                <<" failed. Please check carefully the geometry tag provided and whether the previous printout also makes sense");
+                
+                continue;
+            }
             // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
             if (m_regionSvc->RegionType() == ONEPERCHAMBER && m_idHelperSvc->mdtIdHelper().multilayer(athenaId) == 2) {
                 ATH_MSG_VERBOSE(

@@ -945,3 +945,243 @@ bool MdtIdHelper::barrelChamber(int stationName) const
   std::string name = stationNameString(stationName);
   return ('B' == name[0]);
 }
+
+
+ Identifier MdtIdHelper::elementID(int stationName,
+					 int stationEta, int stationPhi, bool check, bool* isValid) const
+{
+  bool val = false;
+  if (stationName<0) {
+      if (check && isValid) *isValid = val;
+      return Identifier{-1};
+  }
+  // pack fields independently
+  Identifier result((Identifier::value_type)0);
+  m_muon_impl.pack(muon_field_value(),result);
+  m_sta_impl.pack (stationName,result);
+  m_eta_impl.pack (stationEta,result);
+  m_phi_impl.pack (stationPhi,result);
+  m_tec_impl.pack (mdt_field_value(),result);
+  if ( check ) { 
+    val = this->validElement(result, stationName, stationEta, stationPhi);
+    if ( isValid ) *isValid = val;
+  }
+  return result;
+}
+
+ Identifier MdtIdHelper::elementID(const std::string& stationNameStr,
+					 int stationEta, int stationPhi, bool check, bool* isValid) const
+{
+  Identifier id;
+  int stationName = stationNameIndex(stationNameStr);
+  id =  elementID(stationName, stationEta, stationPhi, check, isValid);
+  return id;
+}
+
+ Identifier MdtIdHelper::elementID(const Identifier& id) const
+{
+  return parentID(id);
+}
+
+ Identifier MdtIdHelper::channelID(int stationName,
+					 int stationEta, int stationPhi,
+					 int multilayer, int tubeLayer, int tube,
+					 bool check, bool* isValid) const {
+
+ bool val {false};  
+ if (stationName<0) {
+      if (check && isValid) *isValid = val;
+      return Identifier{-1};
+  }
+ 
+  // pack fields independently
+  Identifier result((Identifier::value_type)0);
+  m_muon_impl.pack(muon_field_value(),result);
+  m_sta_impl.pack (stationName,result);
+  m_eta_impl.pack (stationEta,result);
+  m_phi_impl.pack (stationPhi,result);
+  m_tec_impl.pack (mdt_field_value(),result);
+  m_mla_impl.pack (multilayer,result);
+  m_lay_impl.pack (tubeLayer,result);
+  m_tub_impl.pack (tube,result);
+  if ( check ) { 
+    val = this->validChannel(result, stationName, stationEta, stationPhi, 
+			     multilayer, tubeLayer, tube);
+    if ( isValid ) *isValid = val;
+  }
+  return result;
+}
+
+ Identifier MdtIdHelper::channelID(const std::string& stationNameStr,
+					 int stationEta, int stationPhi,
+					 int multilayer, int tubeLayer, int tube,
+					 bool check, bool* isValid) const {
+  Identifier id{-1};
+  int stationName = stationNameIndex(stationNameStr);
+  id = channelID(stationName, stationEta, stationPhi, multilayer,
+		 tubeLayer, tube, check, isValid);
+  return id;
+}
+
+ Identifier MdtIdHelper::channelID(const Identifier& id,
+					 int multilayer, int tubeLayer, int tube,
+					 bool check, bool* isValid) const {
+  Identifier result(id);
+  bool val = false;
+  m_mla_impl.pack (multilayer,result);
+  m_lay_impl.pack (tubeLayer,result);
+  m_tub_impl.pack (tube,result);
+  if ( check ) {
+    val = this->valid(result);
+    if ( isValid ) *isValid = val;
+  }
+  return result;
+}
+
+/// get parent id from channel id
+
+ Identifier MdtIdHelper::parentID(const Identifier& id) const
+{
+  assert(is_mdt(id));
+  Identifier result(id);
+  m_mla_impl.reset(result);
+  m_lay_impl.reset(result);
+  m_tub_impl.reset(result);
+  return result;
+}
+
+/// Access to components of the ID
+
+ int MdtIdHelper::multilayer(const Identifier& id) const
+{
+
+  return m_mla_impl.unpack(id);
+
+}
+
+ int MdtIdHelper::tubeLayer(const Identifier& id) const
+{
+ 
+  return m_lay_impl.unpack(id);
+
+}
+
+ int MdtIdHelper::tube(const Identifier& id) const
+{
+
+  return m_tub_impl.unpack(id);
+
+}
+
+  int MdtIdHelper::gasGap(const Identifier& id) const 
+{
+
+ return tubeLayer(id); 
+
+}
+
+ bool MdtIdHelper::measuresPhi(const Identifier& /*id*/) const 
+{
+
+ return false; 
+
+} 
+
+ bool MdtIdHelper::isBME(const Identifier& id) const
+{
+  int index=stationName(id);
+  if(stationNameIndex("BME")==index) return true;
+  else return false;
+}
+
+ bool MdtIdHelper::isBMG(const Identifier& id) const
+{
+  int index=stationName(id);
+  if(stationNameIndex("BMG")==index) return true;
+  else return false;
+}
+
+ int MdtIdHelper::channel(const Identifier& id) const
+{
+
+  return tube(id);
+
+}
+
+/// Access to min and max of level ranges
+
+ int MdtIdHelper::stationEtaMin(bool barrel) const
+{
+  if (barrel)
+    {
+      return StationEtaBarrelMin;
+    }
+  else
+    {
+      return StationEtaEndcapMin;
+    }
+}
+
+ int MdtIdHelper::stationEtaMax(bool barrel) const
+{
+  if (barrel)
+    {
+      return StationEtaBarrelMax;
+    }
+  else
+    {
+      return StationEtaEndcapMax;
+    }
+}
+
+ int MdtIdHelper::stationPhiMin() const
+{
+  return StationPhiMin;
+}
+
+ int MdtIdHelper::stationPhiMax() const
+{
+  return StationPhiMax;
+}
+
+ int MdtIdHelper::multilayerMin() const
+{
+  return MultilayerMin;
+}
+
+ int MdtIdHelper::multilayerMax() const
+{
+  return MultilayerMax;
+}
+
+ int MdtIdHelper::tubeLayerMin() const
+{
+  return TubeLayerMin;
+}
+
+ int MdtIdHelper::tubeLayerMax() const
+{
+  return TubeLayerMax;
+}
+
+ int MdtIdHelper::tubeMin() const
+{
+  return TubeMin;
+}
+
+ int MdtIdHelper::tubeMax() const
+{
+  return m_tubesMax;
+}
+/// Utility methods
+
+ int MdtIdHelper::mdtTechnology() const
+{
+  
+  int mdtField = technologyIndex("MDT");
+  if (m_dict)
+    {
+      mdtField =  mdt_field_value(); 
+    }
+  return mdtField;
+}
