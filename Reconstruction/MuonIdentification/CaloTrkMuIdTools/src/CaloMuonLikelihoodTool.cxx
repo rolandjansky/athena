@@ -306,7 +306,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
     vars["eeme3_wrtGroup"] = eeme3_wrtGroup;
     vars["ehec0_wrtTotal"] = ehec0_wrtTotal;
 
-    ATH_MSG_ALWAYS("likelihood discriminant variables values: " << dR_CUT);
+    ATH_MSG_DEBUG("likelihood discriminant variables values: " << dR_CUT);
     if (msgLevel(MSG::DEBUG)) {
         std::map<std::string, double>::const_iterator iter;
         for (iter = vars.begin(); iter != vars.end(); ++iter) ATH_MSG_DEBUG("  - " << iter->first << ": " << iter->second);
