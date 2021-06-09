@@ -29,11 +29,11 @@ def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
 
 
 def ITkStripSensorSDCfg(ConfigFlags, name="ITkStripSensorSD", **kwargs):
-
     kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
                                              "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
                                              "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
-    kwargs.setdefault("GmxSensor", True )
+    kwargs.setdefault("OutputCollectionNames", ["ITkStripHits"])
+    kwargs.setdefault("GmxSensor", True)
     return SctSensorSDCfg(ConfigFlags, name, **kwargs)
 
 

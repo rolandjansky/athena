@@ -39,6 +39,8 @@ else:
 print()
 
 # Configure
+from AthenaConfiguration.Enums import ProductionStep
+ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
 ConfigFlags.Input.Files = [args.input]
 if args.localgeo:
     ConfigFlags.GeoModel.useLocalGeometry = True

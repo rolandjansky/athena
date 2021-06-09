@@ -34,7 +34,7 @@ def ITkStripHitAnalysisCfg(flags):
     acc = ITkStripGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('ITkStripHitAnalysis')
-    alg.CollectionName = 'SCT_Hits'
+    alg.CollectionName = 'ITkStripHits'
     alg.HistPath='/SiHitAnalysis/Histos/'
     alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
     acc.addEventAlgo(alg)
