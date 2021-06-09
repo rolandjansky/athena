@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfStorage_Helper
@@ -38,10 +38,8 @@ std::string pathresolve(const std::string& filename, const std::string & searchp
    std::string fullname = findInPath(filename,".");
    if( fullname != "" ) { return fullname; }
    std::vector<std::string> listofpaths = splitpath(searchpath);
-   std::vector<std::string>::const_iterator path    = listofpaths.begin();
-   std::vector<std::string>::const_iterator pathEnd = listofpaths.end();
-   for(;path!=pathEnd;path++) {
-      fullname = findInPath(filename,*path);
+   for (const std::string& path : listofpaths) {
+      fullname = findInPath(filename,path);
       if( fullname != "" ) { return fullname; }      
    }
    return "";
@@ -49,7 +47,7 @@ std::string pathresolve(const std::string& filename, const std::string & searchp
 
 std::string xmlpathresolve(const std::string& filename) {
    // if path starts with '/' then it is absolute
-   if( filename.find('/') == 0 ) return filename;
+   if( !filename.empty() && filename[0] == '/' ) return filename;
 
    std::string xmlpath = ::getenv("XMLPATH");
    if(filename.find('/')==std::string::npos) {

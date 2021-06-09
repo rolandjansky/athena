@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -77,10 +77,8 @@ std::string pathresolve(const std::string& filename, const std::string & searchp
    std::string fullname = findInPath(filename,".");
    if( fullname != "" ) { return fullname; }
    std::vector<std::string> listofpaths = splitpath(searchpath);
-   std::vector<std::string>::const_iterator path    = listofpaths.begin();
-   std::vector<std::string>::const_iterator pathEnd = listofpaths.end();
-   for(;path!=pathEnd;path++) {
-      fullname = findInPath(filename,*path);
+   for (const std::string& path : listofpaths) {
+      fullname = findInPath(filename,path);
       if( fullname != "" ) { return fullname; }      
    }
    return "";
@@ -88,7 +86,7 @@ std::string pathresolve(const std::string& filename, const std::string & searchp
 
 std::string xmlpathresolve(const std::string& filename) {
    // if path starts with '/' then it is absolute
-   if( filename.find('/') == 0 ) return filename;
+   if (!filename.empty() && filename[0] == '/') return filename;
 
    std::string xmlpath = ::getenv("XMLPATH");
    if(filename.find('/')==std::string::npos) {
@@ -145,7 +143,7 @@ void printhelp(std::ostream & o) {
 
 class TrigConfError {
 public:
-   TrigConfError(std::string s, uint c) : what(s), code(c) {};
+   TrigConfError(const std::string& s, uint c) : what(s), code(c) {};
    ~TrigConfError(){};
    std::string what;
    uint code;
@@ -395,7 +393,7 @@ namespace {
 }
 
 std::vector<string>
-getExceptions(const ExcMap_t exc, const string& testname, const string& l1menu, const string& hltmenu) {
+getExceptions(const ExcMap_t& exc, const string& testname, const string& l1menu, const string& hltmenu) {
    std::vector<string> combined;
    for(ExcMapPair_t e: exc) {
       if(e.first.first!=testname) continue;

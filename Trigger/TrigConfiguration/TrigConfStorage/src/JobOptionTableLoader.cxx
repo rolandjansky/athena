@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfJobOptData/JobOption.h"
@@ -271,7 +271,7 @@ TrigConf::JobOptionTableLoader::buildCond_IN_(const std::string& field, const st
    ss << "(" << field << " IN (";
 
    unsigned int count(0), totalCount(0);
-   set<int>::iterator last = IDs.end(); last--;
+   set<int>::iterator last = IDs.end(); --last;
    for(; current!=last && totalCount!=batchSize-1; ++current) {
       totalCount++;
       ss << *current;
