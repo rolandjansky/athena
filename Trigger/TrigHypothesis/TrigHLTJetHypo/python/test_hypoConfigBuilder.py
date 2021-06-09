@@ -78,7 +78,11 @@ chains = [
     ChainProp(name='HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', groups=SingleJetGroup),
 
     ChainProp(name='HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_PTRANGE2r3_L1J20', groups=SingleJetGroup),
-    
+
+    ChainProp(name='HLT_j80_j60_SHARED_j40__L1J15', groups=[MultiJetGroup], l1SeedThresholds=['FSNOSEED']*3,),
+
+    ChainProp(name='HLT_j0_HT1000_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+
 ]
 
 def testChainDictMaker(idict):

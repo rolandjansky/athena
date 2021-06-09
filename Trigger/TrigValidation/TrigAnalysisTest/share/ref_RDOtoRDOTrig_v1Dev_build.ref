@@ -3771,6 +3771,8 @@ HLT_j0_HT1000XX30et_L1J20:
   eventCount: 0
 HLT_j0_HT1000_L1J20:
   eventCount: 0
+HLT_j0_HT1000_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20:
+  eventCount: 0
 HLT_j0_HT500XX30et_L1J20:
   eventCount: 1
   stepCounts:
@@ -4625,6 +4627,12 @@ HLT_j80_j60_L1J15:
     0: 8
   stepFeatures:
     0: 66
+HLT_j80_j60_SHARED_j40__L1J15:
+  eventCount: 8
+  stepCounts:
+    0: 8
+  stepFeatures:
+    0: 98
 ? HLT_j80_pf_ftf_0eta240_020jvt_bdl1r60_j55_pf_ftf_0eta240_020jvt_bdl1r60_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA21_3J15p0ETA25
 : eventCount: 0
   stepCounts:
