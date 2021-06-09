@@ -47,6 +47,10 @@ namespace InDetDDSLHC {
     //    Create the detector manager... should allow the name to be set
     //
     m_detectorManager = new InDetDD::PixelDetectorManager(detStore(),m_options->detectorName());
+
+    //TODO - For now this is always assuemd to be present as a default.
+    //To be revisited once the ITk alignment scheme is a bit clearer
+    m_detectorManager->addFolder("/Indet/Align");
     //
     //   Set Detector Manager pixel version information
     //

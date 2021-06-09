@@ -31,8 +31,8 @@ public:
                              std::map<std::string, std::string> parameters) override final;
   virtual void addSensor(std::string typeName,
                          std::map<std::string, int> &index,
-                         int sequentialId, 
-		                     GeoVFullPhysVol *fpv) override final;
+                         int sequentialId,
+                         GeoVFullPhysVol *fpv) override final;
   // virtual void addAlignable(int level,
   //                           std::map<std::string, int> &index,
   //                           GeoVFullPhysVol *fpv,
