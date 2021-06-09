@@ -11,12 +11,12 @@ TCS::jJetTOB::jJetTOB(uint32_t roiWord, std::string tobName) :
 {}
 
 // constructor with initial values
-TCS::jJetTOB::jJetTOB(unsigned int Et, int eta, int phi, uint32_t roiWord, std::string tobName) :
+TCS::jJetTOB::jJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, std::string tobName) :
    BaseTOB( roiWord,tobName )
    , m_Et(Et)
    , m_eta(eta)
    , m_phi(phi)
-   , m_EtDouble(Et)
+   , m_EtDouble(Et/10.)
    , m_etaDouble(eta/40.)
    , m_phiDouble(phi/20.)
 {}

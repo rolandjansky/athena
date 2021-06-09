@@ -1,10 +1,26 @@
+Tue Jun  1 20:21:23 CEST 2021
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [WorkDir-22.0.37] [x86_64-centos7-gcc8-dbg] [atlas-work3/e3ed65c80d6] -- built on [2021-06-01T1750]
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthExHelloWorld/HelloWorldOptions.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+Py:ConfigurableDb    INFO Read module info for 5048 configurables from 35 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 MessageSvc           INFO Activating in a separate thread
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r1)
+                                          running on lxplus714.cern.ch on Tue Jun  1 20:21:56 2021
+====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc                                                  INFO in initialize...
 AthDictLoaderSvc                                                  INFO acquired Dso-registry
+ClassIDSvc                                                        INFO getRegistryEntries: read 3038 CLIDRegistry entries for module ALL
 CoreDumpSvc                                                       INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                                            INFO Initializing AthenaHiveEventLoopMgr
 HelloWorld                                                   0    INFO initialize()
@@ -36,7 +52,7 @@ HelloWorld                                                   0    INFO MyPrivate
 HelloWorld                                                   0    INFO MyPublicHelloTool: Retrieved tool HelloTool
 ThreadPoolSvc                                                0    INFO no thread init tools attached
 AvalancheSchedulerSvc                                        0    INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                                        0    INFO Found 6 algorithms
+AvalancheSchedulerSvc                                        0    INFO Found 8 algorithms
 AvalancheSchedulerSvc                                        0    INFO No unmet INPUT data dependencies were found
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                                0    INFO PrecedenceSvc initialized successfully
@@ -162,8 +178,13 @@ ToolSvc.PublicHello                                    9     0    INFO my messag
 HelloWorld                                             9     0    INFO Let the tool MyPrivateHelloTool say something:
 HelloWorld.HelloTool                                   9     0    INFO my message to the world: A Private Message!
 AthenaHiveEventLoopMgr                                 9     0    INFO   ===>>>  done processing event #10, run #1 on slot 0,  10 events processed so far  <<<===
+AthenaHiveEventLoopMgr                                 9     0    INFO ---> Loop Finished (seconds): 0.0544856
 HelloWorld                                                        INFO stop()
 ApplicationMgr                                                    INFO Application Manager Stopped successfully
+SGInputLoader                                                     INFO Finalizing SGInputLoader...
+HelloWorld                                                        INFO finalize()
+AvalancheSchedulerSvc                                             INFO Joining Scheduler thread
+EventDataSvc                                                      INFO Finalizing EventDataSvc
 AthDictLoaderSvc                                                  INFO in finalize...
 ToolSvc                                                           INFO Removing all tools created by ToolSvc
 ApplicationMgr                                                    INFO Application Manager Finalized successfully

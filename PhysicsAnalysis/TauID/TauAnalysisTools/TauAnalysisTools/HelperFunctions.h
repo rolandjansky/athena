@@ -45,6 +45,7 @@ void split(const std::string& sInput, const char cDelim, std::vector<std::string
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<std::string>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<size_t>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<int>& vOut);
+void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<unsigned>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<float>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<double>& vOut);
 /** return tau pt in GeV*/

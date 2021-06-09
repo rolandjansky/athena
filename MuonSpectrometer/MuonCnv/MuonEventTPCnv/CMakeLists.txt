@@ -56,17 +56,17 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       CscStripPrepDataCnv_p1_test MdtPrepDataCnv_p1_test
       MdtPrepDataCnv_p2_test RpcPrepDataCnv_p1_test RpcPrepDataCnv_p2_test
       RpcPrepDataCnv_p3_test TgcPrepDataCnv_p1_test TgcPrepDataCnv_p2_test
-      TgcPrepDataCnv_p3_test TgcPrepDataCnv_p4_test MMPrepDataCnv_p1_test sTgcPrepDataCnv_p1_test
+      TgcPrepDataCnv_p3_test MMPrepDataCnv_p1_test sTgcPrepDataCnv_p1_test
       CscPrepDataContainerCnv_p1_test CscPrepDataContainerCnv_p2_test
       CscStripPrepDataContainerCnv_p1_test MdtPrepDataContainerCnv_p1_test
       MdtPrepDataContainerCnv_p2_test RpcPrepDataContainerCnv_p1_test
       RpcPrepDataContainerCnv_p2_test RpcPrepDataContainerCnv_p3_test
       TgcPrepDataContainerCnv_p1_test TgcPrepDataContainerCnv_p2_test
-      TgcPrepDataContainerCnv_p3_test TgcPrepDataContainerCnv_p4_test sTgcPrepDataContainerCnv_p1_test
+      TgcPrepDataContainerCnv_p3_test sTgcPrepDataContainerCnv_p1_test
       MMPrepDataContainerCnv_p1_test RpcCoinDataCnv_p1_test
-      TgcCoinDataCnv_p1_test TgcCoinDataCnv_p2_test TgcCoinDataCnv_p3_test TgcCoinDataCnv_p4_test
+      TgcCoinDataCnv_p1_test TgcCoinDataCnv_p2_test TgcCoinDataCnv_p3_test
       RpcCoinDataContainerCnv_p1_test TgcCoinDataContainerCnv_p1_test
-      TgcCoinDataContainerCnv_p2_test TgcCoinDataContainerCnv_p3_test TgcCoinDataContainerCnv_p4_test
+      TgcCoinDataContainerCnv_p2_test TgcCoinDataContainerCnv_p3_test
       MM_DigitCnv_p1_test
       MM_DigitCnv_p2_test
       MM_DigitContainerCnv_p1_test

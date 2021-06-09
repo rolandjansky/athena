@@ -48,8 +48,10 @@ namespace Trig{
       ToolHandle<Trig::ITrigEgammaEmulationBaseHypoTool> m_fastTool{this,"FastTool", "Step 2"};    
       /*! Precision Calo hypo tool  (step 3)*/
       ToolHandle<Trig::ITrigEgammaEmulationBaseHypoTool> m_precisionCaloTool{this,"PrecisionCaloTool", "Step 3"};    
-      /*! Precision Electron/Photon hypo tool (step 4)*/
-      ToolHandle<Trig::ITrigEgammaEmulationBaseHypoTool> m_precisionTool{this,"PrecisionTool", "Step 4"};          
+       /*! Precision Tracking hypo tool  (step 4)*/
+      ToolHandle<Trig::ITrigEgammaEmulationBaseHypoTool> m_precisionTrackingTool{this,"PrecisionTrackingTool", "Step 4"};    
+      /*! Precision Electron/Photon hypo tool (step 5)*/
+      ToolHandle<Trig::ITrigEgammaEmulationBaseHypoTool> m_precisionTool{this,"PrecisionTool", "Step 5"};          
 
 
       /* chain name */

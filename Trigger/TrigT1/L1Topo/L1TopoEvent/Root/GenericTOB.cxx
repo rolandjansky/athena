@@ -40,6 +40,30 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
 {}
 
 // constructor from small R jet
+TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
+   BaseTOB(tau)
+   , m_Et(tau.Et())
+   , m_eta(tau.eta())
+   , m_phi(tau.phi())
+   , m_EtDouble(tau.EtDouble())
+   , m_etaDouble(tau.etaDouble())
+   , m_phiDouble(tau.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from large R jet
+TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
+   BaseTOB(jet)
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(jet.phi())
+   , m_EtDouble(jet.EtDouble())
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from small R jet
 TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
    BaseTOB(jet)
    , m_Et(jet.Et())
@@ -61,6 +85,18 @@ TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    , m_etaDouble(cluster.etaDouble())
    , m_phiDouble(cluster.phiDouble())
    , m_tobType(cluster.tobType())
+{}
+
+// constructor from eEm
+TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
+   BaseTOB(eem)
+   , m_Et(eem.Et())
+   , m_eta(eem.eta())
+   , m_phi(eem.phi())
+   , m_EtDouble(eem.EtDouble())
+   , m_etaDouble(eem.etaDouble())
+   , m_phiDouble(eem.phiDouble())
+   , m_tobType(eem.tobType())
 {}
 
 // constructor from muon

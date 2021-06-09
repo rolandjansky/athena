@@ -48,8 +48,8 @@ public:
 
 //____________________________________________________________________
 TrackSysCommonData::TrackSysCommonData(VP1TrackSystem * sys,TrackSystemController * controller)
-  : VP1HelperClassBase(sys,"TrackSysCommonData"), m_textSep(0), m_d(new Imp),
-    m_ascObjSelectionManager(0), m_controller(controller), m_lastSelectedTrack(0)
+  : VP1HelperClassBase(sys,"TrackSysCommonData"), m_textSep(nullptr), m_d(new Imp),
+    m_ascObjSelectionManager(nullptr), m_controller(controller), m_lastSelectedTrack(nullptr)
 {
   m_3dsystem = sys;
   m_muonChamberProjectionHelper = new MuonChamberProjectionHelper(sys);
@@ -67,7 +67,7 @@ TrackSysCommonData::TrackSysCommonData(VP1TrackSystem * sys,TrackSystemControlle
   m_singlePoint->numPoints=1;
   m_singlePoint->vertexProperty.setValue(vertices);
 
-  m_trackLODManager = new TrackLODManager(0,sys);
+  m_trackLODManager = new TrackLODManager(nullptr,sys);
   QObject::connect( m_controller,SIGNAL(assocObjDetailLevelChanged(TrackCommonFlags::DETAILLEVEL)),
 		    m_trackLODManager,SLOT(setDetailLevel(TrackCommonFlags::DETAILLEVEL)) );
   m_trackLODManager->setDetailLevel(m_controller->assocObjDetailLevel());
@@ -75,8 +75,8 @@ TrackSysCommonData::TrackSysCommonData(VP1TrackSystem * sys,TrackSystemControlle
   QObject::connect(m_touchedMuonChamberHelper,SIGNAL(touchedMuonChambersChanged(const std::set<GeoPVConstLink>&)),
 		   sys,SLOT(emitTouchedMuonChambersChanged(const std::set<GeoPVConstLink>&)));//Fixme: need track sys!!
 
-  m_visTrkTracksToMaterialHelper = new VisibleObjectToMaterialHelper<Trk::Track>(0,sys);
-  m_visTrkSegmentsToMaterialHelper = new VisibleObjectToMaterialHelper<Trk::Segment>(0,sys);
+  m_visTrkTracksToMaterialHelper = new VisibleObjectToMaterialHelper<Trk::Track>(nullptr,sys);
+  m_visTrkSegmentsToMaterialHelper = new VisibleObjectToMaterialHelper<Trk::Segment>(nullptr,sys);
   QObject::connect(m_visTrkTracksToMaterialHelper,SIGNAL(visibleObjectsChanged()),sys,SLOT(visibleObjectsChanged()));
   QObject::connect(m_visTrkSegmentsToMaterialHelper,SIGNAL(visibleObjectsChanged()),sys,SLOT(visibleObjectsChanged()));
 }
@@ -97,7 +97,7 @@ TrackSysCommonData::~TrackSysCommonData()
   m_singlePoint->unref();
   if (m_textSep) {
     m_textSep->unref();
-    m_textSep = 0;
+    m_textSep = nullptr;
   }
   delete m_d;
 }
@@ -113,7 +113,7 @@ void TrackSysCommonData::clearEventData()
 {
   m_ascObjSelectionManager->aboutTodelete();//To allow to emit signals.
   delete m_ascObjSelectionManager;
-  m_ascObjSelectionManager = 0;
+  m_ascObjSelectionManager = nullptr;
   m_touchedMuonChamberHelper->eraseEventData();
   m_trackLODManager->eraseEventData();
   m_visTrkTracksToMaterialHelper->setNoVisibleObjects();
@@ -157,40 +157,40 @@ void TrackSysCommonData::unregisterTrack(SoNode*node)
 TrackHandleBase* TrackSysCommonData::trackHandle(SoNode*n)
 {
   if (!n)
-    return 0;
+    return nullptr;
   std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.find(n);
   if (it!=m_d->nodeToTrackHandle.end())
     return it->second;
-  return 0;
+  return nullptr;
 }
 
 //____________________________________________________________________
 SoNode* TrackSysCommonData::node(TrackHandleBase* h)
 {
   if (!h)
-    return 0;
+    return nullptr;
   std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.begin(), itEnd=m_d->nodeToTrackHandle.end();
   for (; it!=itEnd;++it)
     if (it->second==h) return it->first;
-  return 0;
+  return nullptr;
 }
 
 //____________________________________________________________________
 SoNode* TrackSysCommonData::node(QTreeWidgetItem* item)
 {
   if (!item)
-    return 0;
+    return nullptr;
   std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.begin(), itEnd=m_d->nodeToTrackHandle.end();
   for (; it!=itEnd;++it)
     if (it->second->browserTreeItem()==item) return it->first;
-  return 0;
+  return nullptr;
 }
 
 const TrackHandleBase* TrackSysCommonData::getHandle(const Trk::Track* trk)
 {
   if (!trk) {
     messageVerbose("TrackSysCommonData::getHandle(): Received null pointer!");
-    return 0;
+    return nullptr;
   }
 //  messageVerbose("TrackSysCommonData::getHandle(): about to loop over this many elements:"+QString::number(m_d->nodeToTrackHandle.size()));
 
@@ -199,5 +199,5 @@ const TrackHandleBase* TrackSysCommonData::getHandle(const Trk::Track* trk)
     const TrackHandle_TrkTrack* trkHandle = dynamic_cast<const TrackHandle_TrkTrack*>(it->second);
     if (trkHandle && trkHandle->trkTrackPointer()==trk) return trkHandle;
   }
-  return 0;  
+  return nullptr;  
 }

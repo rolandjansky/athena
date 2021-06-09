@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+import re
 import json
 from collections import OrderedDict as odict
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTMenuFileName
@@ -9,6 +10,16 @@ __log = logging.getLogger( __name__ )
 
 def getChildrenIfSequence( s ):
     return  getSequenceChildren( s ) if isSequence( s ) else []
+
+# remove prescale suffixes
+def __getMenuBaseName(menuName):
+    pattern = re.compile(r'_v\d+|DC14')
+    patternPos = pattern.search(menuName)
+    if patternPos:
+        menuName=menuName[:patternPos.end()]
+    else:
+        __log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+    return menuName  
 
 def __getStepsDataFromAlgSequence(HLTAllSteps):
     """ Generates a list where the index corresponds to a Step number and the stored object is a list of Sequencers making up the Step 
@@ -67,7 +78,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
     # Menu dictionary that is used to create the JSON content
-    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", odict()), ("streams", odict()), ("sequencers", odict()) ])
+    menuDict = odict([ ("filetype", "hltmenu"), ("name", __getMenuBaseName(menuName)), ("chains", odict()), ("streams", odict()), ("sequencers", odict()) ])
 
     # List of steps data for sequencers
     stepsData = __getStepsDataFromAlgSequence(HLTAllSteps)

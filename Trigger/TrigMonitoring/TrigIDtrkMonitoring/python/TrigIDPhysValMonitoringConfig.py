@@ -79,7 +79,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElectronLRT_IDTrig:HLT_Roi_FastElectron_LRT"
       ]
     else:
       chainnames = [
@@ -121,7 +123,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
         "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
         "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
-        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT"
+        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"
       ]
     else:
       chainnames = [

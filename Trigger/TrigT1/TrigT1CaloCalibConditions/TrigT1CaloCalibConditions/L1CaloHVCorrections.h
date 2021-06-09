@@ -15,21 +15,21 @@
  * @author Peter Faulkner
  */
 
-class L1CaloHVCorrections
+class L1CaloHVCorrections final
 {
  public:
 
     L1CaloHVCorrections();
     L1CaloHVCorrections(unsigned int channelId,
                         float rxMean,
-			const std::vector<int>& affectedCells,
-			const std::vector<float>& layerMeans);
+			std::vector<int> &&affectedCells,
+			std::vector<float> &&layerMeans);
     L1CaloHVCorrections(const L1CaloRxCoolChannelId& channelId,
                         float rxMean,
-			const std::vector<int>& affectedCells,
-			const std::vector<float>& layerMeans);
+			std::vector<int> &&affectedCells,
+			std::vector<float> &&layerMeans);
     
-    virtual ~L1CaloHVCorrections() {}
+    ~L1CaloHVCorrections() = default;
 
     const L1CaloRxCoolChannelId& channelId() const { return m_channelId; }
     float rxMean()                           const { return m_rxMean; }

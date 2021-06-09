@@ -40,6 +40,9 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
                 # Be the very first service to be initialized
                 theApp.CreateSvc = [ handleName ] + theApp.CreateSvc
 
+        ## Configure the output file name
+        handle.jsonFileName = jobproperties.PerfMonFlags.OutputJSON()
+
         ## Set the job start time
         import os,psutil
         handle.wallTimeOffset = psutil.Process(os.getpid()).create_time() * 1000

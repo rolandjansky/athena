@@ -282,6 +282,13 @@ class doDetailedPerfMon(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 #
+class doDetailedPerfMonMT(JobProperty):
+    """ If True monitor software performance, using doFullMonMT=True.
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+#
 class doSemiDetailedPerfMon(JobProperty):
     """ If True monitor software performance, with doFastMon=False.
     See https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
@@ -1011,7 +1018,7 @@ jobproperties.add_Container(Rec)
 _list_Rec=[TAGFromRDO, doTagRawSummary , doBeamBackgroundFiller, \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
-doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
+doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doDetailedPerfMonMT, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
 doDumpTDS, doDumpTES, doFloatingPointException, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\

@@ -159,7 +159,12 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # and then import them!
         log.debug("[getSignaturesInMenu]signaturesToGenerate: %s",  self.signaturesToGenerate)
 
-        extendedSignatureToGenerate = self.signaturesToGenerate+['Streaming'] # always import the Streaming sig because noalg chains are moved to StreamingSlice
+        # Extend the list to satisfy certain requirements
+        extendedSignatureToGenerate = self.signaturesToGenerate
+        # always import the Streaming sig because noalg chains are moved to StreamingSlice
+        extendedSignatureToGenerate += ['Streaming']
+        # always import the Combined sig to handle topo ComboHypos
+        extendedSignatureToGenerate += ['Combined'] 
 
         for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
@@ -550,6 +555,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # Having built the Menu add prescales for disabling items (e.g. MC production)
         applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
 
+        log.info("Checking the L1HLTConsistency...")
+        from TriggerMenuMT.HLTMenuConfig.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+        checkL1HLTConsistency()
+        
         log.info("Generating HLT menu JSON...")
         
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON

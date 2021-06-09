@@ -21,10 +21,16 @@ if not overlayFlags.isDataOverlay():
     if 'xAOD::JetContainer' in overlayFlags.optionalContainerMap():
         inputContainer = prefix + "InTimeAntiKt4TruthJets"
         if inputContainer in overlayFlags.optionalContainerMap()['xAOD::JetContainer']:
-            job += CfgGetter.getAlgorithm("CopyInTimeJetTruthInfo")
+            job += CfgGetter.getAlgorithm("CopyInTimeAntiKt4JetTruthInfo")
         inputContainer = prefix + "OutOfTimeAntiKt4TruthJets"
         if inputContainer in overlayFlags.optionalContainerMap()['xAOD::JetContainer']:
-            job += CfgGetter.getAlgorithm("CopyOutOfTimeJetTruthInfo")
+            job += CfgGetter.getAlgorithm("CopyOutOfTimeAntiKt4JetTruthInfo")
+        inputContainer = prefix + "InTimeAntiKt6TruthJets"
+        if inputContainer in overlayFlags.optionalContainerMap()['xAOD::JetContainer']:
+            job += CfgGetter.getAlgorithm("CopyInTimeAntiKt6JetTruthInfo")
+        inputContainer = prefix + "OutOfTimeAntiKt6TruthJets"
+        if inputContainer in overlayFlags.optionalContainerMap()['xAOD::JetContainer']:
+            job += CfgGetter.getAlgorithm("CopyOutOfTimeAntiKt6JetTruthInfo")
     if 'xAOD::TruthParticleContainer' in overlayFlags.optionalContainerMap():
         inputContainer = prefix + "TruthPileupParticles"
         if inputContainer in overlayFlags.optionalContainerMap()['xAOD::TruthParticleContainer']:

@@ -19,8 +19,8 @@ Digi_tf.py \
 --maxEvents 10 \
 --skipEvents 0 \
 --numberOfCavernBkg 1 \
---preExec 'all:rec.doHIP.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useFcalHighGain.set_Value_and_Lock(True)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["PhysicsList"]' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py' \
+--preExec 'all:rec.doHIP.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["PhysicsList"]' \
+--preInclude 'all:LArConfiguration/LArConfigRun2Old_NoPileup.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon import CfgGetter;mergeMcEventCollTool=CfgGetter.getPublicTool("MergeMcEventCollTool").DoSlimming=False' \
 --postInclude 'all:PyJobTransforms/UseFrontier.py,SimulationJobOptions/postInclude.HijingPars.py' \
 --geometryVersion ATLAS-R2-2015-03-01-00 \

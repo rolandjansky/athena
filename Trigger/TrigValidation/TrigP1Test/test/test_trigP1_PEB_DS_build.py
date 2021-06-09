@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: athenaHLT test of partial event building and data scouting
 # art-type: build                                                                  
@@ -15,7 +15,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TrigP1Test/PEBDSTest.py'
 ex.input = 'data'
 ex.args = '-o ' + output_name_base
-ex.args += ' -c "forceEnableAllChains=True;"'
+ex.args += ' -c "doL1Sim=True;rewriteLVL1=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

@@ -70,8 +70,6 @@ def readMCpayload(args):
 def readHashes(joFileName):
   namesList = set()
 
-  print(joFileName)
-
   with open(joFileName, "r") as joFile:
     import json
     joData = json.load(joFile)
@@ -81,7 +79,13 @@ def readHashes(joFileName):
     for entry in joData["properties"]:
       namesList.add(entry.split('.')[0])
 
-  log.info("Retrieved {0} names".format(namesList))
+      # Read algorithm names with classes
+      entryObj = joData["properties"][entry]
+      if "Members" in entryObj:
+        membersList = entryObj["Members"].strip('][').replace("'", "").split(', ')
+        namesList.update(membersList)
+
+  log.info("Retrieved {0} names".format(len(namesList)))
   return list(namesList)
 
 # Configure deserialisation

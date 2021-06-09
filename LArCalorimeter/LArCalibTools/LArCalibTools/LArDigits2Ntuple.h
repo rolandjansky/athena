@@ -54,7 +54,7 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
   NTuple::Array<unsigned short> m_bcidVec_ET_ID;
   NTuple::Array<bool> m_saturVec_ET_ID;
 
-  bool m_isSC;
+  bool m_isSCFlag;
   bool m_fillBCID;
   bool m_overwriteEventNumber;
 

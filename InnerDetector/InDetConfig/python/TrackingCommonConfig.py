@@ -400,10 +400,9 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
         acc.merge(tmpAcc)
 
     if 'PixelSummaryTool' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import PixelConditionsSummaryToolCfg
-        PixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryToolCfg(flags))
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+        PixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
         kwargs.setdefault( "PixelSummaryTool", PixelConditionsSummaryTool)
-        acc.merge(tmpAcc)
 
     InDetTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name=the_name, **kwargs)
     acc.setPrivateTools(InDetTestBLayerTool)

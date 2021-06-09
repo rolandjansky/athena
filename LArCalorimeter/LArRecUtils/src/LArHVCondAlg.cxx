@@ -751,7 +751,7 @@ std::vector<unsigned int> LArHVCondAlg::getElecList(const Identifier& id, const 
 
 
 
-StatusCode LArHVCondAlg::dcs2LineVoltage(voltagePerLine_t& result, const std::vector<const CondAttrListCollection* > fldvec) const {
+StatusCode LArHVCondAlg::dcs2LineVoltage(voltagePerLine_t& result, const std::vector<const CondAttrListCollection* >& fldvec) const {
 
 
   result.clear();

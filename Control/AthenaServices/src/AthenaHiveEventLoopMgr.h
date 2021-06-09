@@ -130,20 +130,11 @@ protected:
   /// property update handler:sets up the Pre-selection tools
   void setupPreSelectTools(Gaudi::Details::PropertyBase&);
 
-  /// @property configure the policy wrt handling of when 'clear-event-store'
-  /// has to happen: BeginEvent xor EndEvent.
-  /// Default is to clear the store at the end of the event
-  StringProperty m_clearStorePolicy;
-
   /// require input attribute list
   bool m_requireInputAttributeList{};
 
   /// read event number from secondary input
   bool m_useSecondaryEventNumber{};
-
-  /// property update handler:set the clear-store policy value and check its
-  /// value.
-  void setClearStorePolicy(Gaudi::Details::PropertyBase& clearStorePolicy);
 
   /// Dump out histograms as needed
   virtual StatusCode writeHistograms(bool force=false);

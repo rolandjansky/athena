@@ -162,6 +162,7 @@ bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) cons
 }
 
 
+
 asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo info) const {
     
     ATH_MSG_DEBUG("setAccept");
@@ -185,20 +186,26 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
 
         if(!info.trigL1 && passedL1Calo ){ // HLT item get full decision
             // Step 2
-            passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, match()->key("L2Calo"), condition);  
+            passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, match()->key("FastCalo"), condition);  
           
             if(passedL2Calo){
 
                 // Step 3
                 if(info.trigType == "electron"){
-                    passedL2 = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons", condition);
+                    std::string key = match()->key("FastElectrons");
+                    if(info.isLRT)  key = match()->key("FastElectrons_LRT");
+                    passedL2 = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, key, condition);
                 }else if(info.trigType == "photon"){
-                    passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons", condition);
+                    passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, match()->key("FastPhotons"), condition);
                 }
 
                 if(passedL2){
+
+
                     // Step 4
-                    passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters", condition);
+                    std::string key = match()->key("PrecisionCalo");
+                    if(info.isLRT)  key = match()->key("PrecisionCalo_LRT");
+                    passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, key, condition);
 
                     if(passedEFCalo){
 
@@ -210,15 +217,17 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
                             if( info.trigEtcut || info.trigPerf){// etcut or idperf
                                 passedEF = true; // since we dont run the preciseElectron step
                             }else{
-                                passedEF = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, 
-                                                match()->key( (info.isGSF? "ElectronGSF": "Electron") ), condition);
+                                std::string key = match()->key("Electrons");
+                                if(info.isLRT)  key = match()->key("Electrons_LRT");
+                                if(info.isGSF)  key = match()->key("Electrons_GSF");
+                                passedEF = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, key, condition);
                             }
    
                         }else if(info.trigType == "photon"){
                             if (info.trigEtcut){
                                 passedEF = true; // since we dont run the precisePhoton step
                             }else{
-                                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons", condition);
+                                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, match()->key("Photons"), condition);
                             }
                         }
                     } // EFCalo

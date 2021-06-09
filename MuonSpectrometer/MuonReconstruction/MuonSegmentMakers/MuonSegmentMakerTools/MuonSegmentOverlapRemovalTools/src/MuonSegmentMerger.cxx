@@ -154,11 +154,11 @@ MuonSegmentMerger::resolveClusterOverlaps(const MuonSegmentMerger::SegVec& segme
 
                     const RpcPrepData* rpc = dynamic_cast<const RpcPrepData*>(cl);
                     if (rpc) {
-                        rpcsPerCollection[rpc->collectionHash()].push_back(const_cast<RpcPrepData*>(rpc));
+                        rpcsPerCollection[rpc->collectionHash()].push_back(rpc);
                     } else {
                         const TgcPrepData* tgc = dynamic_cast<const TgcPrepData*>(cl);
                         if (tgc) {
-                            tgcsPerCollection[tgc->collectionHash()].push_back(const_cast<TgcPrepData*>(tgc));
+                            tgcsPerCollection[tgc->collectionHash()].push_back(tgc);
                         }
                     }
                 }
@@ -178,11 +178,11 @@ MuonSegmentMerger::resolveClusterOverlaps(const MuonSegmentMerger::SegVec& segme
 
                             const RpcPrepData* rpc = dynamic_cast<const RpcPrepData*>(cl);
                             if (rpc) {
-                                rpcsPerCollection[rpc->collectionHash()].push_back(const_cast<RpcPrepData*>(rpc));
+                                rpcsPerCollection[rpc->collectionHash()].push_back(rpc);
                             } else {
                                 const TgcPrepData* tgc = dynamic_cast<const TgcPrepData*>(cl);
                                 if (tgc) {
-                                    tgcsPerCollection[tgc->collectionHash()].push_back(const_cast<TgcPrepData*>(tgc));
+                                    tgcsPerCollection[tgc->collectionHash()].push_back(tgc);
                                 }
                             }
                         }

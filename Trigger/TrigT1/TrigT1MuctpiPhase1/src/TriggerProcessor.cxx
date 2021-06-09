@@ -3,15 +3,13 @@
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/TriggerProcessor.h"
-#include "TrigT1MuctpiPhase1/BitOp.h"
+#include "TriggerProcessor.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
-#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
-#include "TrigT1MuctpiPhase1/Configuration.h"
+#include "Configuration.h"
 #include "TrigConfData/L1ThrExtraInfo.h"
 #include "TrigConfData/L1Threshold.h"
 #include "TrigConfData/L1Menu.h"
@@ -25,31 +23,17 @@
 const static std::map<unsigned int,unsigned int> pow2 { {1,2}, {2,4}, {3,8} };
 
 namespace LVL1MUCTPIPHASE1 {
-  TriggerProcessor::TriggerProcessor()
-    :
-    m_mergedInputs(new LVL1MUONIF::Lvl1MuCTPIInputPhase1()),
-    m_l1menu(nullptr),
-    m_trigThresholdDecisionTool(nullptr)
-  {
-    
-  }
-  
-  TriggerProcessor::~TriggerProcessor()
-  {
-    delete m_mergedInputs;
-  }
-
 
   void TriggerProcessor::setMenu(const TrigConf::L1Menu* l1menu)
   {
     m_l1menu = l1menu;
   }
   
-  void TriggerProcessor::mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
+  void TriggerProcessor::mergeInputs(std::vector<const LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
   {
-    m_mergedInputs->clearAll();
+    m_mergedInputs.clearAll();
     int nrInputs = inputs.size();
-    for (int i=0;i<nrInputs;i++) m_mergedInputs->merge(*inputs[i]);
+    for (int i=0;i<nrInputs;i++) m_mergedInputs.merge(*inputs[i]);
   }
   
   std::string TriggerProcessor::computeMultiplicities(int bcid)
@@ -73,7 +57,7 @@ namespace LVL1MUCTPIPHASE1 {
         // A+C sides
         for (size_t isub=0;isub<2;isub++)
         {
-          const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_mergedInputs->getSectorLogicData(isys, isub, isec, bcid);
+          const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_mergedInputs.getSectorLogicData(isys, isub, isec, bcid);
           if (!sectorData) continue;
 
           const unsigned int& ncand_max = LVL1MUONIF::NCAND[isys];

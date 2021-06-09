@@ -8,8 +8,17 @@ TCS::MuonTOB::MuonTOB(uint32_t roiWord, std::string tobName) :
   BaseTOB( roiWord,tobName )
 {}
 
-// constructor with initial values
+// constructor with initial values (int phi, legacy)
 TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord, std::string tobName) :
+  BaseTOB( roiWord,tobName )
+   , m_Et( sizeCheck(et, nBitsEt()) )
+   , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
+   , m_eta( sizeCheck(eta, nBitsEta()) )
+   , m_phi( sizeCheck(phi, nBitsPhi()) )
+{}
+
+// constructor with initial values (unsigned int phi, phase-1)
+TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord, std::string tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
@@ -25,8 +34,8 @@ TCS::MuonTOB::~MuonTOB() = default;
 
 
 TCS::MuonTOB*
-TCS::MuonTOB::createOnHeap(const MuonTOB& cl) {
-   return fg_heap.create(cl);
+TCS::MuonTOB::createOnHeap(const MuonTOB& muon) {
+   return fg_heap.create(muon);
 }
 
 void
@@ -35,5 +44,5 @@ TCS::MuonTOB::clearHeap() {
 }
 
 void TCS::MuonTOB::print(std::ostream &o) const {
-    o << "cluster energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", bw2or3: " << bw2or3() << ", innerCoin: " << innerCoin() << ", goodMF: " << goodMF() << ", charge: " << charge() << ", is2cand: " << is2cand();
+    o << "muon energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", bw2or3: " << bw2or3() << ", innerCoin: " << innerCoin() << ", goodMF: " << goodMF() << ", charge: " << charge() << ", is2cand: " << is2cand();
 }

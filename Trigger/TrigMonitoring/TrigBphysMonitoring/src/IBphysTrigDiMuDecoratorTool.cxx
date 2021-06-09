@@ -13,7 +13,7 @@
 //#include "GaudiKernel/MsgStream.h"
 
 // TrigBphysMonitoring includes
-#include "TrigBphysMonitoring/IBphysTrigDiMuDecoratorTool.h"
+#include "IBphysTrigDiMuDecoratorTool.h"
 
 
 

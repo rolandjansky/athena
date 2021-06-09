@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -91,7 +91,7 @@ namespace DerivationFramework {
             return link.isValid() ? *link : nullptr;
         }
 
-        std::vector<const xAOD::TrackParticle*> trackParticles(std::string specify) {
+        std::vector<const xAOD::TrackParticle*> trackParticles(const std::string& specify) {
             std::vector<const xAOD::TrackParticle*> theTracks;
             bool oppCh(false);
             if (muons.at(0)->charge()*muons.at(1)->charge() < 0) oppCh=true;

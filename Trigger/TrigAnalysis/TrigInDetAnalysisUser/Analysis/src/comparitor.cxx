@@ -1110,11 +1110,26 @@ int main(int argc, char** argv) {
 
 	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
 	
+	std::vector<string> panel_columns;
+
+	if ( rc.isTagDefined("panel_columns") ) { 
+	  panel_columns = rc.GetStringVector( "panel_columns" );
+	  if ( panel_columns.size()%2 ) return usage( argv[0], -1, "incorrect panel settings" );  
+	}
+
+
 	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
 	  
 	  std::vector<std::string> raw_input = rc.GetStringVector( panel_config[ipanel] );
+
+	  int tncols = ncols;
 	  
-	  Panel p( panel_config[ipanel], ncols );
+	  if ( panel_columns.size() ) { 
+	    std::vector<string>::iterator itr = find( panel_columns.begin(), panel_columns.end(), panel_config[ipanel] );
+	    if ( itr!=panel_columns.end() ) tncols = std::atoi( (++itr)->c_str() );
+	  }
+  
+	  Panel p( panel_config[ipanel], tncols );
 	  
 	  if ( raw_input.empty() ) throw std::exception();
 	  for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6 ) p.push_back( HistDetails( &(raw_input[iraw]) ) );

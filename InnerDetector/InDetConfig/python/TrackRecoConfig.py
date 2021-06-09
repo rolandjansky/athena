@@ -98,11 +98,8 @@ def MergedPixelsToolCfg(flags, **kwargs) :
       acc.merge(accbuf)
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
-      from InDetConfig.InDetRecToolConfig import PixelConditionsSummaryToolCfg
-      accbuf = PixelConditionsSummaryToolCfg(flags)
-      conditionssummarytool = accbuf.popPrivateTools()
-      kwargs.setdefault("PixelConditionsSummaryTool", conditionssummarytool ) 
-      acc.merge(accbuf)
+      from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+      kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) ) 
 
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
@@ -251,10 +248,8 @@ def TrackRecoCfg(flags):
     # needed for brem/seeding, TODO decided if needed here
     from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
     result.merge(LArBadFebCfg(flags))
-    from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg
-    result.merge(CaloCellMakerCfg(flags))
-    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(flags, doLCCalib=False))
+    from CaloRec.CaloRecoConfig import CaloRecoCfg
+    result.merge(CaloRecoCfg(flags,doLCCalib=True))
     from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
     result.merge(egammaTopoClusterCopierCfg(flags))
     from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
@@ -271,6 +266,10 @@ def TrackRecoCfg(flags):
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
     result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
+
+    if flags.InDet.doVertexFinding:
+        from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
+        result.merge(primaryVertexFindingCfg(flags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
     toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]

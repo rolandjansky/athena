@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <iomanip>
@@ -61,7 +61,7 @@ namespace LVL1MUONIF {
   std::shared_ptr<Lvl1MuSectorLogicDataPhase1> Lvl1MuCTPIInputPhase1::getSectorLogicDataPtr( size_t systemAddress,
 											     size_t subSystemAddress,
 											     size_t sectorAddress,
-											     int    bcid             ) {
+											     int    bcid             ) const {
     for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
       int bc=((m_data[systemAddress]).at(ip)).first;
       if (bc != bcid) continue;

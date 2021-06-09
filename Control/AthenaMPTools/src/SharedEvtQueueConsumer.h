@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_SHAREDEVTQUEUECONSUMER_H
@@ -59,6 +59,7 @@ class SharedEvtQueueConsumer final : public AthenaMPToolBase
   bool m_isPileup;        // Are we doing pile-up digitization?
   bool m_isRoundRobin;    // Are we running in the "reproducible mode"?
   int  m_nEventsBeforeFork;
+  int  m_nSkipEvents;
   bool m_debug;
 
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 

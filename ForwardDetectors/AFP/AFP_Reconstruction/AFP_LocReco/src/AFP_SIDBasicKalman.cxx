@@ -302,10 +302,10 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	if (m_listResults.size()!=0)
 	{
                 std::list<SIDRESULT>::const_iterator iter7;
-		LogStream << MSG::INFO << "Filtered tracks parameters : X, DX, Y, DY, Z, quality: " << endmsg;
+		LogStream << MSG::DEBUG << "Filtered tracks parameters : X, DX, Y, DY, Z, quality: " << endmsg;
 		for (iter7=m_listResults.begin(); iter7!=m_listResults.end(); iter7++)
 		{
-		LogStream << MSG::INFO << std::fixed << std::setprecision(6) \
+		LogStream << MSG::DEBUG << std::fixed << std::setprecision(6) \
 		<< (*iter7).x_pos << "\t" << (*iter7).x_slope << "\t" << (*iter7).y_pos << "\t" << (*iter7).y_slope <<"\t"<< (*iter7).z_pos << "\t" << (*iter7).fChi2 << endmsg;
 		}
 		LogStream << endmsg;

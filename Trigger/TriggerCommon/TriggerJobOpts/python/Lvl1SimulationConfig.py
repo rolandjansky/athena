@@ -86,8 +86,8 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
             from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
             from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
             l1CaloSimSeq += [
-              LVL1__TrigT1MBTS(),
-              LVL1__TrigT1ZDC()
+              LVL1__TrigT1MBTS(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON),
+              LVL1__TrigT1ZDC(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON)
             ]
 
     if ConfigFlags.Trigger.enableL1CaloPhase1:
@@ -107,6 +107,12 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
         l1CaloSimSeq.eFEXDriver.eSuperCellTowerMapperTool.SCell=SCellType
         l1CaloSimSeq.eFEXDriver.eFEXSysSimTool.SCell=SCellType
 
+        # jFEX part
+        l1CaloSimSeq += CfgMgr.LVL1__jFEXDriver('jFEXDriver',
+            SCell=SCellType )
+        l1CaloSimSeq.jFEXDriver.jSuperCellTowerMapperTool.SCell=SCellType
+        l1CaloSimSeq.jFEXDriver.jFEXSysSimTool.SCell=SCellType
+
     ##################################################
     # Muons
     ##################################################
@@ -125,10 +131,13 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     l1Phase1TopoSimSeq = L1TopoSimulation('L1Phase1TopoSimulation')
     l1LegacyTopoSimSeq = L1TopoSimulation('L1LegacyTopoSimulation')
+    # Need to switch true (probably will change the counts)
+    l1Phase1TopoSimSeq.UseBitwise = False
+    l1LegacyTopoSimSeq.UseBitwise = False
     l1LegacyTopoSimSeq.InputDumpFile = 'inputdump_legacy.txt'
     l1Phase1TopoSimSeq.InputDumpFile = 'inputdump_phase1.txt'
     # Generic flag can be put for enabling l1topo input file
-    EnableInputDump = False
+    EnableInputDump = ConfigFlags.Trigger.enableL1TopoDump
     l1LegacyTopoSimSeq.EnableInputDump = EnableInputDump
     l1Phase1TopoSimSeq.EnableInputDump = EnableInputDump
     l1Phase1TopoSimSeq.IsLegacyTopo = False
@@ -141,8 +150,8 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
     # Calo inputs
     if ConfigFlags.Trigger.enableL1CaloPhase1:
         l1Phase1TopoSimSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
-        #TThis can be implemented when appropriate EDM available.
-        #l1Phase1TopoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        # Need further test from inputs.
+        l1Phase1TopoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
 
     # Muon inputs
     from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
@@ -199,6 +208,10 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
     ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
+
+    if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Input.isMC:  # this is to allow the simulation of cosmics triggers in MC
+        ctp.ForceBunchGroupPattern = False
+
     # muon input
     if not isMUCTPIOutputProvided:
         ctp.MuctpiInput = ""

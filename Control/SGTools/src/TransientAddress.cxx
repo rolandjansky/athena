@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/TransientAddress.h"
@@ -47,9 +47,11 @@ TransientAddress::TransientAddress(CLID id, const std::string& key,
     m_clearAddress(clearAddress),
     m_consultProvider(consultProvider),
     m_address(nullptr),
-    m_name(key), 
     m_pAddressProvider(nullptr)
-{ 
+{
+  if (!key.empty()) {
+    m_name.store (key);
+  }
   if (id != CLID_NULL)
     m_transientID.push_back(id);
   if (addr) {
@@ -64,10 +66,10 @@ TransientAddress::TransientAddress (const TransientAddress& other)
     m_storeID (other.m_storeID),
     m_clearAddress (other.m_clearAddress),
     m_consultProvider (other.m_consultProvider),
+    m_pAddressProvider (other.m_pAddressProvider),
     m_name (other.m_name),
     m_transientID (other.m_transientID),
-    m_transientAlias (other.m_transientAlias),
-    m_pAddressProvider (other.m_pAddressProvider)
+    m_transientAlias (other.m_transientAlias)
 {
   m_address = nullptr;
   setAddress (other.m_address);
@@ -80,10 +82,10 @@ TransientAddress::TransientAddress (TransientAddress&& other)
     m_storeID (other.m_storeID),
     m_clearAddress (other.m_clearAddress),
     m_consultProvider (other.m_consultProvider),
+    m_pAddressProvider (other.m_pAddressProvider),
     m_name (std::move (other.m_name)),
     m_transientID (std::move (other.m_transientID)),
-    m_transientAlias (std::move (other.m_transientAlias)),
-    m_pAddressProvider (other.m_pAddressProvider)
+    m_transientAlias (std::move (other.m_transientAlias))
 {
   m_address = other.m_address;
   other.m_address = nullptr;
@@ -158,10 +160,10 @@ void TransientAddress::setTransientID(CLID id)
  */
 void TransientAddress::setID (CLID id, const std::string& key)
 {
-  assert (m_clid == CLID_NULL && m_name.empty() && m_transientID.empty() &&
+  assert (m_clid == CLID_NULL && !m_name.isValid() && m_transientID.empty() &&
           m_transientAlias.empty());
   m_clid = id;
-  m_name = key;
+  m_name.set (key);
   if (id != CLID_NULL)
     m_transientID.push_back(id);
 }

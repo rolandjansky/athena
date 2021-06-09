@@ -1,4 +1,4 @@
-//Dear emacs, this is -*-c++-*-
+// Dear emacs, this is -*-c++-*-
 
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
@@ -11,47 +11,44 @@
 #ifndef MUONALIGNMENTERRORDATA_H
 #define MUONALIGNMENTERRORDATA_H
 
-#include <vector>
 #include <boost/regex.hpp>
+#include <vector>
+
 #include "GeoPrimitives/GeoPrimitives.h"
 
 namespace Trk {
-  class RIO_OnTrack;
+    class RIO_OnTrack;
 }
 
-// Struct for per-Station Deviations Information 
+// Struct for per-Station Deviations Information
 
 struct deviationStr {
-  deviationStr();
-  ~deviationStr();
-  double traslation;
-  double rotation;
-  boost::regex stationName;
-  boost::regex multilayer;
-};    
+    deviationStr();
+    ~deviationStr();
+    double traslation;
+    double rotation;
+    boost::regex stationName;
+    boost::regex multilayer;
+};
 
 class MuonAlignmentErrorData {
-  
-  friend class MuonAlignmentErrorDbAlg; 
-  
-public:
+    friend class MuonAlignmentErrorDbAlg;
 
-  MuonAlignmentErrorData();
-  virtual ~MuonAlignmentErrorData();
-  void setVec(const std::vector<deviationStr> vec);
-  void getVec(std::vector<deviationStr>& vec) const;
-  void clearVec();
-  
+public:
+    MuonAlignmentErrorData();
+    virtual ~MuonAlignmentErrorData();
+    void setVec(const std::vector<deviationStr> vec);
+    void getVec(std::vector<deviationStr>& vec) const;
+    void clearVec();
+
 private:
-  
-  int m_test;
-  std::vector<deviationStr> m_vec;
-    
+    int m_test;
+    std::vector<deviationStr> m_vec;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"
-CLASS_DEF( MuonAlignmentErrorData, 115867308, 1)
+CLASS_DEF(MuonAlignmentErrorData, 115867308, 1)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<MuonAlignmentErrorData>, 265772564, 0)
+CLASS_DEF(CondCont<MuonAlignmentErrorData>, 265772564, 0)
 
 #endif

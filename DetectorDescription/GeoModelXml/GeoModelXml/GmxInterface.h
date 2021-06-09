@@ -33,6 +33,21 @@ public:
 
     // helpers
     template <typename T>
+    bool checkParameter(const std::string /* &typeName */,  
+                        const std::map<std::string, std::string> &parameters,
+                        const std::string &name,
+                        T &value)
+    {
+        // Needs some kind of versioning to stop this being abused...
+        auto it = parameters.find(name);
+        if (it != parameters.end()) {
+            std::istringstream(it->second) >> value;
+            return true;
+        }
+        return false;
+    }
+
+    template <typename T>
     void getParameter(const std::string &typeName,
                       const std::map<std::string, std::string> &parameters,
                       const std::string &name,

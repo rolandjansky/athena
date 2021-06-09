@@ -45,7 +45,7 @@ def main():
     sys.exit(trf.exitCode)
 
 def getTransform():
-    trf = transform(executor = athenaExecutor(name = 'FilterHitTf', substep="filthits", skeletonFile = 'SimuJobTransforms/skeleton.FilterHit.py',
+    trf = transform(executor = athenaExecutor(name = 'FilterHitTf', substep="filthits", skeletonFile = 'SimuJobTransforms/skeleton.FilterHit.py', skeletonCA = 'SimuJobTransforms.FilterHit_Skeleton',
                                               tryDropAndReload = False))
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)

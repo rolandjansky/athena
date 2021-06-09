@@ -10,11 +10,11 @@
 #define TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
 
 #include "TrkMeasurementBase/MeasurementBase.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "EventPrimitives/EventPrimitives.h"  
 #include "GeoPrimitives/GeoPrimitives.h" 
 #include "TrkSurfaces/Surface.h"
-#include <ostream>
+#include <iosfwd>
+#include <memory>
 
 class MsgStream;
 class TrackCollectionCnv;
@@ -63,6 +63,11 @@ namespace Trk{
 
       //! virtual constructor, not absolutely needed but given for EDM symmetry 
       virtual PseudoMeasurementOnTrack* clone() const override final;
+      
+      //! NVI unique_ptr version of clone 
+      std::unique_ptr<PseudoMeasurementOnTrack> uniqueClone() const{
+        return std::unique_ptr<PseudoMeasurementOnTrack>(clone());
+      };
 
       //! move constructor
       PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&& pmot) noexcept;

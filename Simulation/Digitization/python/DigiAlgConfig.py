@@ -43,8 +43,10 @@ def getStandardTruthPileUpTools():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_HaloGas" ]
         else:
             PileUpToolsList += [ "MergeMcEventCollTool" ]
-        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
-            PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt4TruthJetsTool" ]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
         if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
@@ -63,8 +65,10 @@ def getStandardSignalOnlyTruthPileUpTools():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
         else:
             PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
-        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
-            PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt4TruthJetsTool" ]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
         if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
@@ -91,8 +95,10 @@ def getStandardInTimeOnlyTruthPileUpTools():
                 PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_HaloGas" ]
         else:
             PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
-        if 'PileUpTruthJets' in digitizationFlags.experimentalDigi():
-            PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt4TruthJetsTool" ]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
         if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()

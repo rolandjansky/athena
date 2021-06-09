@@ -70,14 +70,10 @@ namespace xAODMaker {
    TrigDecisionCnvTool::TrigDecisionCnvTool( const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent )
-      : AthAlgTool( type, name, parent ),
-        m_tdt( "Trig::TrigDecisionTool/TrigDecisionTool" ),
-        m_trigconf( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ) {
+      : AthAlgTool( type, name, parent ) {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< ITrigDecisionCnvTool >( this );
-
-      declareProperty ("TrigDecisionTool", m_tdt);
    }
 
    
@@ -87,8 +83,7 @@ namespace xAODMaker {
 
    StatusCode TrigDecisionCnvTool::initialize() {
 
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing" );
+      ATH_MSG_INFO( "Using TrigConfigSvc: " << m_trigconf.typeAndName() );
 
       // Retrieve the needed component(s):
       CHECK( m_tdt.retrieve() );

@@ -30,7 +30,7 @@ def precisionTrackingSequence(ConfigFlags, ion=False):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
     
     # calling precision tracking
-    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackSequences import precisionTracking
+    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackingSequences import precisionTracking
     precisionTrackInViewSequence, trackparticles = precisionTracking(InViewRoIs, precisionCaloMenuDefs.caloClusters(ion), ion)
 
     precisionEtcutInViewAlgs = parOR(tag(ion) + "InViewAlgs", [precisionTrackInViewSequence])

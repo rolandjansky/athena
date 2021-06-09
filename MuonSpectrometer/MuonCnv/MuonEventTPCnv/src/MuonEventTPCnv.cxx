@@ -15,7 +15,6 @@
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp1.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp2.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp3.h"
-#include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp4.h"
 #include "MuonEventTPCnv/TgcPrepDataContainerCnv_tlp1.h"
 
 DECLARE_TPCNV_FACTORY(ChamberT0sCnv_p1,
@@ -61,11 +60,6 @@ DECLARE_TPCNV_FACTORY(TgcCoinDataContainerCnv_tlp2,
 DECLARE_TPCNV_FACTORY(TgcCoinDataContainerCnv_tlp3,
                       Muon::TgcCoinDataContainer,
                       Muon::TgcCoinDataContainer_tlp3,
-                      Athena::TPCnvVers::Current)
-
-DECLARE_TPCNV_FACTORY(TgcCoinDataContainerCnv_tlp4,
-                      Muon::TgcCoinDataContainer,
-                      Muon::TgcCoinDataContainer_tlp4,
                       Athena::TPCnvVers::Current)
 
 DECLARE_TPCNV_FACTORY(TgcPrepDataContainerCnv_tlp1,

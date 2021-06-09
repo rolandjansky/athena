@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -698,16 +698,14 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
        if (sc.isFailure() || !hit_container) {
           return StatusCode::FAILURE;
        }
-       LArHitFloatContainer::const_iterator hititer;
-       for(hititer=hit_container->begin();
-           hititer != hit_container->end();hititer++)
+       for (const LArHitFloat& hit : *hit_container)
        {
          m_nhit_tot++;
-         Identifier cellId = (*hititer).cellID();
-         float energy = (float) (*hititer).energy();
+         Identifier cellId = hit.cellID();
+         float energy = (float) hit.energy();
          float time;
          if (m_ignoreTime) time=0.;
-         else time   = (float) ((*hititer).time() - m_trigtime);
+         else time   = (float) (hit.time() - m_trigtime);
          time = time + bunchTime;
 
          if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
@@ -729,7 +727,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
        }
        LArHitContainer::const_iterator hititer;
        for(hititer=hit_container->begin();
-           hititer != hit_container->end();hititer++)
+           hititer != hit_container->end();++hititer)
        {
          m_nhit_tot++;
          Identifier cellId = (*hititer)->cellID();
@@ -774,16 +772,14 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 	return StatusCode::FAILURE;
       }
 
-      LArHitFloatContainer::const_iterator hititer;
-      for(hititer=hit_container->begin();
-	  hititer != hit_container->end();hititer++)
+      for (const LArHitFloat& hit : *hit_container)
 	{
 	  m_nhit_tot++;
-	  Identifier cellId = (*hititer).cellID();
-	  float energy = (float) (*hititer).energy();
+	  Identifier cellId = hit.cellID();
+	  float energy = (float) hit.energy();
 	  float time;
 	  if (m_ignoreTime) time=0.;
-	  else time   = (float) ((*hititer).time() - m_trigtime);
+	  else time   = (float) (hit.time() - m_trigtime);
 	  time = time + bunchTime;
 
          if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
@@ -801,7 +797,7 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 
       LArHitContainer::const_iterator hititer;
       for(hititer=hit_container->begin();
-	  hititer != hit_container->end();hititer++)
+	  hititer != hit_container->end();++hititer)
 	{
 	  m_nhit_tot++;
 	  Identifier cellId = (*hititer)->cellID();

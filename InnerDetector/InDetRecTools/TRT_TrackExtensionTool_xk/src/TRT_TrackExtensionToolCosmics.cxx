@@ -155,7 +155,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) 
 {
 
   return out;
@@ -165,7 +165,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out 
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) 
 {
   return out;
 }

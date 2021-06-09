@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/QCDTruthJetFilter.h"
@@ -29,6 +29,9 @@ QCDTruthJetFilter::QCDTruthJetFilter(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MinEta",m_MinEta = m_StartMinEta);
   declareProperty("TruthJetContainer", m_TruthJetContainerName = "AntiKt6TruthJets");
   declareProperty("DoShape",m_doShape = false);
+  declareProperty("MinPhi",m_MinPhi = -999.0);
+  declareProperty("MaxPhi",m_MaxPhi = 999.0);
+
 }
 
 
@@ -40,7 +43,7 @@ StatusCode QCDTruthJetFilter::filterInitialize() {
   if (m_SymEta){
     ATH_MSG_INFO("Configured with " << m_MinPt << "<p_T<" << m_MaxPt << " GeV and " << m_MinEta << "<abs(eta)<" << m_MaxEta << " for jets in " << m_TruthJetContainerName);
   } else {
-    ATH_MSG_INFO("Configured with " << m_MinPt << "<p_T<" << m_MaxPt << " GeV and " << m_MinEta << "<eta and abs(eta)<" << m_MaxEta << " for jets in " << m_TruthJetContainerName);
+    ATH_MSG_INFO("Configured with " << m_MinPt << "<p_T<" << m_MaxPt << " GeV and " << m_MinEta << "<eta<" << m_MaxEta << " for jets in " << m_TruthJetContainerName);
   }
 
   // Special cases: min pT is above 2 TeV or max pT is below 20 GeV, use no weighting - hard-coded range of the fit in this filter
@@ -53,6 +56,12 @@ StatusCode QCDTruthJetFilter::filterInitialize() {
     ATH_MSG_INFO("Requested shaping with bounds of " << m_MinPt << " , " << m_MaxPt << " which cannot be done.  Turning off shaping (sorry).");
     m_doShape=false;
   }
+
+if (m_MinPhi > -998.0 || m_MaxPhi < 998.0) {
+    ATH_MSG_INFO("Configured phi as well with min = " << m_MinPhi << " and max = " << m_MaxPhi);
+  }
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -84,12 +93,17 @@ StatusCode QCDTruthJetFilter::filterEvent() {
   }
 
   // Get pT of leading jet
-  double pt_lead = -1;
+  double pt_lead = -1, phi_lead = 0;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
-    if ((*it_truth)->eta()>m_MaxEta || ( (*it_truth)->eta()<=m_MinEta && !m_SymEta) || ((*it_truth)->eta()<=m_MinEta && (*it_truth)->eta()>=-m_MinEta && m_SymEta)) continue;
-    if (pt_lead < (*it_truth)->pt()) pt_lead = (*it_truth)->pt();
+    if ( ( m_SymEta && !(std::abs((*it_truth)->eta())>=m_MinEta && std::abs((*it_truth)->eta())<m_MaxEta) )
+	 || ( !m_SymEta && !((*it_truth)->eta()>=m_MinEta && (*it_truth)->eta()<m_MaxEta) )) continue;
+    if (pt_lead < (*it_truth)->pt()) {
+      pt_lead = (*it_truth)->pt();
+      phi_lead = (*it_truth)->phi();
+    }
   }
+
   pt_lead /= Gaudi::Units::GeV; // Make sure we're in GeV
 
   // See if the leading jet is in the right range
@@ -99,6 +113,20 @@ StatusCode QCDTruthJetFilter::filterEvent() {
     ATH_MSG_DEBUG("Failed filter on jet pT: " << pt_lead << " is not between " << m_MinPt << " and " << m_MaxPt);
     return StatusCode::SUCCESS;
   }
+
+// If appropriate, check the phi of the lead jet as well
+  if (m_MinPhi > -999.0 || m_MaxPhi < 999.0) {
+    setFilterPassed(false);
+
+    if (phi_lead < m_MinPhi || phi_lead > m_MaxPhi) {
+      ATH_MSG_DEBUG("Failed filter on jet phi: " << phi_lead << " not between " << m_MinPhi << " and " << m_MaxPhi);
+      return StatusCode::SUCCESS;
+    }
+    else {
+      setFilterPassed(true);
+    }
+  }
+
 
   // Unweight the pT spectrum
   double w = 1.;
@@ -116,7 +144,7 @@ StatusCode QCDTruthJetFilter::filterEvent() {
 
   // Get MC event collection for setting weight
   const DataHandle<McEventCollection> mecc = 0;
-  CHECK(evtStore()->retrieve(mecc));
+  CHECK(evtStore()->retrieve(mecc, m_mcEventKey));
   ATH_MSG_DEBUG("Event passed.  Will mod event weights by " << w*m_norm << " for pt_lead of " << pt_lead << " norm " << m_norm << " w " << w << " high " << m_high << " rnd " << rnd);
   double orig = 1.;
   McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -40,15 +40,18 @@ namespace DerivationFramework {
     class IsoItem : public BaseItem {
     
   public:
-    IsoItem(std::string Name="_none_", std::string Bname="iso",
-	    std::string Prefix="",
+    IsoItem(const std::string& Name="_none_",
+            const std::string& Bname="iso",
+	    const std::string& Prefix="",
 	    double IsoValue=-1., int NTracks=0);
     virtual ~IsoItem();
     
-    virtual void setup(std::string Name, std::string Bname="iso",
-		       std::string Prefix="");
-    virtual void setup(std::string Name, std::string Bname,
-		       std::string Prefix,
+    virtual void setup(const std::string& Name,
+                       const std::string& Bname="iso",
+		       const std::string& Prefix="");
+    virtual void setup(const std::string& Name,
+                       const std::string& Bname,
+		       const std::string& Prefix,
 		       double IsoValue, int NTracks=0);
     virtual void resetVals();
     virtual void copyVals(const BaseItem& item);

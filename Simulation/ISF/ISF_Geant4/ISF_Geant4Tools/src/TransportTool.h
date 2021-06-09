@@ -153,9 +153,6 @@ namespace iGeant4
     PublicToolHandle<IFastSimulationMasterTool> m_fastSimTool{this, "FastSimMasterTool", "FastSimulationMasterTool", ""};
     /// @}
 
-    Gaudi::Property<std::map<std::string,double>> m_volumeSmartlessLevel{this, "VolumeSmartlessLevel", {}, "Allow setting of indivial volumes' smartless level"};
-
-
   };
 
 

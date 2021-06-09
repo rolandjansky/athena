@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArDigits2Ntuple.h"
@@ -34,9 +34,9 @@ StatusCode LArDigits2Ntuple::initialize()
 {
   ATH_MSG_INFO( "in initialize" ); 
 
-  m_isSC = ( std::any_of(m_contKeys.begin(), m_contKeys.end(),[&](std::string const &s) {return s.find("SC") != std::string::npos;} ) );
+  m_isSCFlag = ( std::any_of(m_contKeys.begin(), m_contKeys.end(),[&](std::string const &s) {return s.find("SC") != std::string::npos;} ) );
 
-  ATH_MSG_DEBUG(" IS it SC?? " << m_isSC );
+  ATH_MSG_DEBUG(" IS it SC?? " << m_isSCFlag );
   
   StatusCode sc=LArCond2NtupleBase::initialize();
   if (sc!=StatusCode::SUCCESS) {
@@ -70,7 +70,7 @@ StatusCode LArDigits2Ntuple::initialize()
     }
   }
 
-  if (m_isSC){
+  if (m_isSCFlag){
     sc=m_nt->addItem("latomeChannel",m_latomeChannel);
     if (sc!=StatusCode::SUCCESS) {
       ATH_MSG_ERROR( "addItem 'latomeChannel' failed" );
@@ -176,7 +176,7 @@ StatusCode LArDigits2Ntuple::initialize()
   
   ATH_CHECK(m_evtInfoKey.initialize() );
   
-  if( !m_isSC ) ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
+  if( !m_isSCFlag ) ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
   
   
   m_ipass = 0;
@@ -202,7 +202,7 @@ StatusCode LArDigits2Ntuple::execute()
   thisevent = evt->eventNumber();
 
   // Get BCID from FEB header
-  if ( !m_isSC ){ // we are not processing SC data, Feb header could be accessed
+  if ( !m_isSCFlag ){ // we are not processing SC data, Feb header could be accessed
     SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_LArFebHeaderContainerKey);
     if (! hdrCont.isValid()) {
       ATH_MSG_WARNING( "No LArFEB container found in TDS" );
@@ -232,7 +232,7 @@ StatusCode LArDigits2Ntuple::execute()
   const LArRawSCContainer* etcontainer1 = NULL;
   const LArLATOMEHeaderContainer* headcontainer = NULL;
   std::map<unsigned int, const LArLATOMEHeader*> LATOMEHeadMap;
-  if (m_isSC){
+  if (m_isSCFlag){
     if ((std::find(m_contKeys.begin(), m_contKeys.end(), "SC_ADC_BAS") != m_contKeys.end()) ){
       sc=evtStore()->retrieve(DigitContainer1,"SC_ADC_BAS");  
       if (sc!=StatusCode::SUCCESS) {
@@ -269,14 +269,12 @@ StatusCode LArDigits2Ntuple::execute()
 	ATH_MSG_DEBUG( "Got LArDigitContainer with key SC_LATOME_HEADER " ); 
     }
     
-    if (headcontainer){ // loop through header container and fill map 
-      LArLATOMEHeaderContainer::const_iterator hit=headcontainer->begin();
-      LArLATOMEHeaderContainer::const_iterator hit_e=headcontainer->end();
-      for (;hit!=hit_e;hit++) {
-	LATOMEHeadMap.insert ( std::pair<unsigned int, const LArLATOMEHeader*>( (*hit)->SourceId(), (*hit) ) );
+    if (headcontainer){ // loop through header container and fill map
+      for (const LArLATOMEHeader* head : *headcontainer) {
+	LATOMEHeadMap.insert ( std::pair<unsigned int, const LArLATOMEHeader*>( head->SourceId(), head ) );
       }
     }
-  } // end if m_isSC
+  } // end if m_isSCFlag
 
   /// set container pointers to 0 if size is 0 (avoid checking again the size in many places)
   if( DigitContainer && DigitContainer->size() == 0 )DigitContainer=0;
@@ -323,7 +321,7 @@ StatusCode LArDigits2Ntuple::execute()
        unsigned int trueMaxSample = digi->nsamples();
        m_ntNsamples = trueMaxSample;
 
-       if (!m_isSC){
+       if (!m_isSCFlag){
 	 m_gain=digi->gain();
 	 if(m_gain < CaloGain::INVALIDGAIN || m_gain > CaloGain::LARNGAIN) m_gain=CaloGain::LARNGAIN;
        }
@@ -346,7 +344,7 @@ StatusCode LArDigits2Ntuple::execute()
 
        for(unsigned i=0; i<trueMaxSample;++i) m_samples[i]=digi->samples().at(i);
 
-       if (m_isSC){ // LArSCDigit stuff
+       if (m_isSCFlag){ // LArSCDigit stuff
 	 const LArSCDigit* scdigi = dynamic_cast<const LArSCDigit*>(digi);
 	 if(!scdigi){ ATH_MSG_DEBUG(" CAN'T CAST ");
 	 }else{

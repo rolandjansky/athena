@@ -22,7 +22,8 @@ jetContextDic = ldict(
         TVA =              "JetTrackVtxAssoc",
         GhostTracks =      "PseudoJetGhostTrack",
         GhostTracksLabel = "GhostTrack",
-        GhostTrackCutLevel = 'NoCut',
+
+        GhostTrackCutLevel = 'NoCut', # The track selection level for ghost-associated tracks. This is different from the cutlevel we apply when performing actual calculations such as JVT or tack moments.
 
         # options passed to InDet::InDetTrackSelectionTool.
         #   Note : these are the standard options used for track calculations. Tracks selected for ghost-associaton have CutLevel=NoCut by default : see ghostTrackCutLevel above

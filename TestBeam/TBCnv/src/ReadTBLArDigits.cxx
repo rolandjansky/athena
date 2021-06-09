@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCnv/ReadTBLArDigits.h"
@@ -112,18 +112,16 @@ StatusCode ReadTBLArDigits::execute()
  
  log << MSG::DEBUG << "Finished sorting" << endmsg; 
  unsigned cellCounter=0;
- TBLArDigitContainer::const_iterator it=larDigitCont->begin();
- TBLArDigitContainer::const_iterator it_end=larDigitCont->end();
  if (larDigitCont->size()>0)
-   m_Nsamples=(*it)->samples().size();
+   m_Nsamples=larDigitCont->front()->samples().size();
  else                       
    m_Nsamples=0;
- log << MSG::DEBUG << "Now loop over digits" << endmsg; 
- for (;it!=it_end;it++) {
-   HWIdentifier chid=(*it)->hardwareID();
+ log << MSG::DEBUG << "Now loop over digits" << endmsg;
+ for (const LArDigit* digit : *larDigitCont) {
+   HWIdentifier chid=digit->hardwareID();
    log << MSG::DEBUG << "Get offline ID" << endmsg; 
    const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
-   const std::vector<short>& vSamples=(*it)->samples();
+   const std::vector<short>& vSamples=digit->samples();
    m_cellIndex=cellCounter;
    log << MSG::DEBUG << "Now find eta/phi (EM only right now)" << endmsg; 
    if (m_emId->is_lar_em(id)) {
@@ -149,7 +147,7 @@ StatusCode ReadTBLArDigits::execute()
    m_FT[m_cellIndex] = m_onlineHelper->feedthrough(chid);
    m_slot[m_cellIndex] = m_onlineHelper->slot(chid);
    m_channel[m_cellIndex]   = m_onlineHelper->channel(chid);
-   m_gain[m_cellIndex]=(*it)->gain();
+   m_gain[m_cellIndex]=digit->gain();
    
    log << MSG::DEBUG << "Loop over samples" << endmsg; 
    int nSamples=vSamples.size();

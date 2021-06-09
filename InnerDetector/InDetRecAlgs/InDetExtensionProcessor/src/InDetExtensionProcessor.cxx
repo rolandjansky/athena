@@ -438,7 +438,7 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
   const std::vector<const Trk::MeasurementBase*>& extension) const
 {
   const auto& trackStatesOnSurfaces{ *(siTrack->trackStateOnSurfaces()) };
-  auto *pExtendedTrajectory = new DataVector<const Trk::TrackStateOnSurface>;
+  auto pExtendedTrajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
 
   pExtendedTrajectory->reserve(trackStatesOnSurfaces.size() + extension.size());
   int nSiStates = 0, nExtStates = 0;
@@ -480,7 +480,7 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
   nExtStates += pExtendedTrajectory->size();
   const auto& pFitQuality {siTrack->fitQuality()};
   Trk::Track* extTrack =
-    new Trk::Track(siTrack->info(), pExtendedTrajectory, (pFitQuality ? pFitQuality->clone() : nullptr));
+    new Trk::Track(siTrack->info(), std::move(pExtendedTrajectory), (pFitQuality ? pFitQuality->clone() : nullptr));
   if (m_trackSummaryTool.isEnabled()) {
     m_trackSummaryTool->computeAndReplaceTrackSummary(ctx,*extTrack, nullptr, m_suppressHoleSearch);
   }

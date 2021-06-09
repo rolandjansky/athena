@@ -34,7 +34,7 @@ StatusCode TrigdEdxTrackTriggerHypoAlg::initialize()
    CHECK( m_hypoTools.retrieve() );
    CHECK( m_dEdxTrkKey.initialize() );
    CHECK( m_dEdxHitKey.initialize() );
-   CHECK( m_hPtdEdxKey.initialize());
+   CHECK( m_HPtdEdxTrkKey.initialize());
    return StatusCode::SUCCESS;
 }
 
@@ -84,13 +84,13 @@ StatusCode TrigdEdxTrackTriggerHypoAlg::execute( const EventContext& context ) c
    }
 
    // output EDM object
-   auto hPtdEdxContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto hPtdEdxContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   hPtdEdxContainer->setStore(hPtdEdxContainerAux.get());
+   auto HPtdEdxTrkContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
+   auto HPtdEdxTrkContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
+   HPtdEdxTrkContainer->setStore(HPtdEdxTrkContainerAux.get());
 
    // create decision
    auto d = newDecisionIn( decisions , previousDecision, hypoAlgNodeName(), context );
-   TrigdEdxTrackTriggerHypoTool::TrackInfo trkInfo{ d, dEdxTrksContainer, dEdxHitsContainer, *hPtdEdxContainer, previousDecisionIDs };
+   TrigdEdxTrackTriggerHypoTool::TrackInfo trkInfo{ d, dEdxTrksContainer, dEdxHitsContainer, *HPtdEdxTrkContainer, previousDecisionIDs };
 
    // Loop over all hypoToolinputs and get their decisions
    for ( auto & tool: m_hypoTools ) {
@@ -110,9 +110,9 @@ StatusCode TrigdEdxTrackTriggerHypoAlg::execute( const EventContext& context ) c
 
    // record link to EDM object if it is passed
    if( isPassed ) {
-      SG::WriteHandle<xAOD::TrigCompositeContainer> hPtdEdxHandle(m_hPtdEdxKey, context);
-      ATH_CHECK( hPtdEdxHandle.record( std::move( hPtdEdxContainer ), std::move( hPtdEdxContainerAux ) ) );
-      ATH_CHECK( d->setObjectLink( featureString(), ElementLink<xAOD::TrigCompositeContainer>( m_hPtdEdxKey.key(), 0) ) );
+      SG::WriteHandle<xAOD::TrigCompositeContainer> HPtdEdxTrkHandle(m_HPtdEdxTrkKey, context);
+      ATH_CHECK( HPtdEdxTrkHandle.record( std::move( HPtdEdxTrkContainer ), std::move( HPtdEdxTrkContainerAux ) ) );
+      ATH_CHECK( d->setObjectLink( featureString(), ElementLink<xAOD::TrigCompositeContainer>( m_HPtdEdxTrkKey.key(), 0) ) );
    }
 
    ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );

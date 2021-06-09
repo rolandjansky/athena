@@ -65,8 +65,8 @@ namespace Trk
      * (every neutral track in the second vector MUST correspond to a two track vertex 
      * in the first vector)
      */                               
-    TwoTrackVerticesInJet(const std::vector<const xAOD::Vertex*> & twoTrackVertices,
-                          const std::vector<const TrackParticleBase*> & neutralTrackOfVertex);
+    TwoTrackVerticesInJet(std::vector<const xAOD::Vertex*> twoTrackVertices,
+                          std::vector<const TrackParticleBase*>  neutralTrackOfVertex);
     
     /**
      * Copy constructor and assignement operator
@@ -75,15 +75,21 @@ namespace Trk
     TwoTrackVerticesInJet &operator= (const TwoTrackVerticesInJet &);  
 
     /**
+     * Move constructor and assignement operator
+     */  
+    TwoTrackVerticesInJet(TwoTrackVerticesInJet&& ) noexcept = default;
+    TwoTrackVerticesInJet &operator= (TwoTrackVerticesInJet &&) noexcept = default;
+
+    /**
      * Set the two track vertices (takes ownership of pointers)
      */
-    void setTwoTrackVertices(std::vector<const xAOD::Vertex*> & twoTrackVertices);
+    void setTwoTrackVertices(std::vector<const xAOD::Vertex*>  twoTrackVertices);
 
 
     /**
      * Set the neutral tracks of Vertices (takes ownership also of TrackParticleBase pointers, VxCandidates must be already in the twoTrackVertices list)
      */
-    void setNeutralTrackOfVertices(std::vector<const TrackParticleBase*> & neutralTrackOfVertex);
+    void setNeutralTrackOfVertices(std::vector<const TrackParticleBase*>  neutralTrackOfVertex);
 
     /**
      * Get the two track vertices (please do not delete the pointers)
@@ -98,8 +104,8 @@ namespace Trk
     
    private:
 
-    void deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex);
-    void deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices);
+    void deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex) noexcept;
+    void deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices) noexcept;
 
     std::vector<const xAOD::Vertex*> m_twoTrackVertices;
     std::vector<const TrackParticleBase*> m_neutralTrackOfVertex;

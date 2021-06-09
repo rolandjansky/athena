@@ -13,6 +13,7 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloUtils/CaloCellList.h"
 
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
@@ -25,6 +26,16 @@
 
 
 LArReadCells::LArReadCells( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator ){
+   m_ECell.reserve(250000);
+   m_TCell.reserve(250000);
+   m_EtaCell.reserve(250000);
+   m_PhiCell.reserve(250000);
+   m_LayerCell.reserve(250000);
+   m_ProvCell.reserve(250000);
+   m_QuaCell.reserve(250000);
+   m_GainCell.reserve(250000);
+   m_HwidCell.reserve(250000);
+   m_ADC.reserve(250000);
 }
 
 
@@ -53,7 +64,7 @@ StatusCode LArReadCells::initialize() {
   m_tree->Branch("QuaCell", m_QuaCell.data(),"quaCell[ncells]/I");
   m_tree->Branch("GainCell", m_GainCell.data(),"gainCell[ncells]/I");
   m_tree->Branch("HwidCell", m_HwidCell.data(),"hwidCell[ncells]/I");
-  m_tree->Branch("ADC",m_ADC.data(),"ADC[ncells][32]/I");
+  m_tree->Branch("ADC",m_ADC.data(),"ADC[ncells][32]/F");
 
   ATH_CHECK(detStore()->retrieve(m_caloIdMgr));
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
@@ -121,16 +132,42 @@ StatusCode LArReadCells::execute() {
  const CaloCellContainer* cell_container;
  CHECK( evtStore()->retrieve(cell_container,"AllCalo"));
 
+ std::vector<int> iflag_cell;
+ iflag_cell.resize(nCell,0);
+
  CaloCellContainer::const_iterator first_cell = cell_container->begin();
  CaloCellContainer::const_iterator end_cell   = cell_container->end();
  m_ncells=0;
  for (; first_cell != end_cell; ++first_cell)
  {
      Identifier cellID = (*first_cell)->ID();
+     int index = (int) (m_calo_id->calo_cell_hash(cellID));
      double et    =  (*first_cell)->et();
 
      if (et > m_etcut && !(m_calo_id->is_tile(cellID)) ){
+        iflag_cell[index]=1;
 
+        if ((m_calo_id->calo_sample(cellID)==CaloSampling::CaloSample::EMB2 || m_calo_id->calo_sample(cellID)==CaloSampling::CaloSample::EME2) 
+              && et>m_etcut2) {
+
+           CaloCellList myList(cell_container);
+           myList.select((*first_cell)->eta(),(*first_cell)->phi(),0.10);
+           for (const CaloCell* cell : myList) {
+             Identifier cellID2 =cell->ID();
+             int index2 = (int)(m_calo_id->calo_cell_hash(cellID2));
+             iflag_cell[index2]=1;
+           }
+       }// second layer
+     }// above first etcut
+ }// over cells
+
+ first_cell = cell_container->begin();
+ for  (; first_cell != end_cell; ++first_cell) {
+
+     Identifier cellID = (*first_cell)->ID();
+     int index = (int) (m_calo_id->calo_cell_hash(cellID));
+
+     if (iflag_cell[index]==1 ){
         m_ECell[m_ncells]= (*first_cell)->energy();
         m_TCell[m_ncells]= (*first_cell)->time();
         m_EtaCell[m_ncells]= (*first_cell)->eta();
@@ -140,45 +177,41 @@ StatusCode LArReadCells::execute() {
         m_QuaCell[m_ncells]=(*first_cell)->quality();
         m_GainCell[m_ncells]=(*first_cell)->gain();
 
-        HWIdentifier hwid =  cabling->createSignalChannelID(cellID);
-        int barrel_ec = m_lar_online_id->barrel_ec(hwid);
-        int pos_neg   = m_lar_online_id->pos_neg(hwid);
-        int FT        = m_lar_online_id->feedthrough(hwid);
-        int slot      = m_lar_online_id->slot(hwid);
-        int channel   = m_lar_online_id->channel(hwid);
-        int myid=0;
-        if (barrel_ec<2 && pos_neg<2 && FT<32 && slot<16 && channel<128) 
-         myid = (channel) | (slot << 7) | (FT<<11) | (pos_neg << 16) | (barrel_ec << 17);
-
+        for (int i=0;i<32;i++)  m_ADC[m_ncells][i]=0.;
         float pedestal=0.;
-        if (larPedestal) {
-         pedestal =  larPedestal->pedestal(hwid,(*first_cell)->gain());
-        }
-   
-        m_HwidCell[m_ncells]=myid;
-
-        int index = (int) (m_calo_id->calo_cell_hash(cellID));
-        if (IndexDigit[index]) {
-            const std::vector<short>& vSamples=(IndexDigit[index])->samples();
-            int nsamples = vSamples.size();
-            for (int i=0;i<std::min(32,nsamples);i++) {
-              m_ADC[m_ncells][i]=vSamples[i]-pedestal;
-            }
-        }
+        int myid=0;
+        if (!(m_calo_id->is_tile(cellID))) {
+           HWIdentifier hwid =  cabling->createSignalChannelID(cellID);
+           int barrel_ec = m_lar_online_id->barrel_ec(hwid);
+           int pos_neg   = m_lar_online_id->pos_neg(hwid);
+           int FT        = m_lar_online_id->feedthrough(hwid);
+           int slot      = m_lar_online_id->slot(hwid);
+           int channel   = m_lar_online_id->channel(hwid);
+           if (barrel_ec<2 && pos_neg<2 && FT<32 && slot<16 && channel<128) 
+            myid = (channel) | (slot << 7) | (FT<<11) | (pos_neg << 16) | (barrel_ec << 17);
+ 
+           if (larPedestal) {
+            pedestal =  larPedestal->pedestal(hwid,(*first_cell)->gain());
+           }
+      
+           m_HwidCell[m_ncells]=myid;
+           int index = (int) (m_calo_id->calo_cell_hash(cellID));
+           if (IndexDigit[index]) {
+               const std::vector<short>& vSamples=(IndexDigit[index])->samples();
+               int nsamples = vSamples.size();
+               for (int i=0;i<std::min(32,nsamples);i++) {
+                 m_ADC[m_ncells][i]=(float)(vSamples[i])-pedestal;
+               }
+           }
+        } // not Tile
         m_ncells++;
+     }// iflag
+ } // over cells
 
-     }
+ ATH_MSG_INFO("Number of cells read " << m_ncells );
 
-    if (m_ncells>=250000) {
-       ATH_MSG_WARNING(" --- too many cells ");
-       break;
-    }
- }
+ m_tree->Fill();
 
-  ATH_MSG_INFO("Number of cells read " << m_ncells );
-
-  m_tree->Fill();
-
-  return StatusCode::SUCCESS;
+ return StatusCode::SUCCESS;
 }
 

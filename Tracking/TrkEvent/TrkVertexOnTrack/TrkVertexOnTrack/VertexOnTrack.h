@@ -12,13 +12,13 @@
 // Trk
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/PerigeeSurface.h"
-#include <ostream>
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "GaudiKernel/GaudiException.h"
+#include <iosfwd>
 
 class MsgStream;
 class TrackCollectionCnv;
@@ -66,6 +66,12 @@ namespace Trk{
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
       VertexOnTrack* clone() const override final;
+      
+       /** NVI clone returning unique_ptr*/
+      std::unique_ptr<VertexOnTrack> uniqueClone() const{
+        return std::unique_ptr<VertexOnTrack>(clone());
+      }
+
 
       /** returns the surface for the local to global transformation
       - interface from MeasurementBase */

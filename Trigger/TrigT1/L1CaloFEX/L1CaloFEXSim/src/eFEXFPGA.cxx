@@ -193,6 +193,8 @@ StatusCode eFEXFPGA::execute(){
       tmp_tob->setPhi(iphi);
 
       // for plotting
+      eFEXOutputs->addeFexNumber(m_efexid);
+      eFEXOutputs->addEMtob(tobword);
       eFEXOutputs->addValue_eg("WstotNum", tmp_tob->getWstotNum());
       eFEXOutputs->addValue_eg("WstotDen", tmp_tob->getWstotDen());
       eFEXOutputs->addValue_eg("RetaNum", tmp_tob->getRetaNum());

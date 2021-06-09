@@ -30,8 +30,8 @@ typedef struct _trigdata
     const xAOD::TrigEMCluster *emCluster;
     const xAOD::TrigRingerRings *rings;
     const xAOD::TrigPhoton* trigPhoton;
-    const xAOD::CaloCluster* cluster;
-
+    
+    std::vector<const xAOD::CaloCluster*> clusters;
     std::vector<const xAOD::TrigElectron*> trigElectrons;
     std::vector<const xAOD::Electron*> electrons;
     std::vector<const xAOD::Photon*> photons;
@@ -44,6 +44,7 @@ typedef struct _trigdata
     ToolHandleArray<IAsgPhotonIsEMSelector> photonIsEMTools;
     ToolHandleArray<Ringer::IAsgRingerSelectorTool> ringerTools;
 
+    bool isValid;
 
      
 } TrigData;

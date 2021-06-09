@@ -2,6 +2,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <memory>
+
+
+
 #include "MuonStauRecoTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -274,12 +278,12 @@ namespace MuonCombined {
 
         // store RPC prds for clustering
         typedef std::vector<const Muon::MuonClusterOnTrack*> RpcClVec;
-        typedef std::map<Identifier, std::tuple<const Trk::TrackParameters*, RpcClVec, RpcClVec> > RpcClPerChMap;
+        using RpcClPerChMap = std::map<Identifier, std::tuple<const Trk::TrackParameters *, RpcClVec, RpcClVec> >;
         RpcClPerChMap rpcPrdsPerChamber;
 
-        typedef std::pair<const Trk::TrackParameters*, const Muon::MdtDriftCircleOnTrack*> MdtTubeData;
-        typedef std::vector<MdtTubeData> MdtTubeDataVec;
-        typedef std::map<int, MdtTubeDataVec> MdtChamberLayerData;
+        using MdtTubeData = std::pair<const Trk::TrackParameters *, const Muon::MdtDriftCircleOnTrack *>;
+        using MdtTubeDataVec = std::vector<MdtTubeData>;
+        using MdtChamberLayerData = std::map<int, MdtTubeDataVec>;
         MdtChamberLayerData mdtDataPerChamberLayer;
 
         // loop over TSOSs
@@ -329,9 +333,9 @@ namespace MuonCombined {
                     float driftTime = mdt->driftTime();  // we need to add beta seed as it was subtracted when calibrating the hits
                     float locR = pars->parameters()[Trk::locR];
                     float errR = pars->covariance() ? Amg::error(*pars->covariance(), Trk::locR) : 0.3;
-                    auto detEl = mdt->detectorElement();
+                    const auto *detEl = mdt->detectorElement();
                     auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(), detEl->detectorElementHash());
-                    auto rtRelation = data.rtRelation;
+                    const auto *rtRelation = data.rtRelation;
                     bool out_of_bound_flag = false;
                     float drdt = rtRelation->rt()->driftvelocity(driftTime);
                     float rres = rtRelation->rtRes()->resolution(driftTime);
@@ -422,14 +426,14 @@ namespace MuonCombined {
             if (clusters.empty()) return;
 
             std::vector<const Muon::MuonClusterOnTrack*> calibratedClusters;
-            for (auto cluster : clusters) {
+            for (const auto *cluster : clusters) {
                 const Muon::MuonClusterOnTrack* cl = m_muonPRDSelectionTool->calibrateAndSelect(pars, *cluster->prepRawData());
                 if (cl) calibratedClusters.push_back(cl);
             }
             if (calibratedClusters.empty()) return;
 
             Muon::IMuonHitTimingTool::TimingResult result = m_hitTimingTool->calculateTimingResult(calibratedClusters);
-            for (auto cl : calibratedClusters) delete cl;
+            for (const auto *cl : calibratedClusters) delete cl;
             if (!result.valid) return;
 
             Identifier id = clusters.front()->identify();
@@ -551,7 +555,7 @@ namespace MuonCombined {
                 TrkDriftCircleMath::DCOnTrack dcOnTrack(dc, 1., 1.);
 
                 dcs.push_back(dcOnTrack);
-                indexLookUp.push_back(std::make_pair(calibratedMdt, &pars));
+                indexLookUp.emplace_back(calibratedMdt, &pars);
                 ++index;
             }
 
@@ -622,9 +626,9 @@ namespace MuonCombined {
                 float driftTime = calibratedMdt->driftTime();  // we need to add beta seed as it was subtracted when calibrating the hits
                 float locR = rline;
                 float errR = dc.errorTrack();
-                auto detEl = mdt->detectorElement();
+                const auto *detEl = mdt->detectorElement();
                 auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(), detEl->detectorElementHash());
-                auto rtRelation = data.rtRelation;
+                const auto *rtRelation = data.rtRelation;
                 bool out_of_bound_flag = false;
                 float drdt = rtRelation->rt()->driftvelocity(driftTime);
                 float rres = rtRelation->rtRes()->resolution(driftTime);
@@ -869,7 +873,7 @@ namespace MuonCombined {
 
             // create new candidates from the beta seeds of the maximum
             CandidateVec newCandidates;
-            for (const auto& betaSeed : (*sit)->betaSeeds) { newCandidates.push_back(std::shared_ptr<Candidate>(new Candidate(betaSeed))); }
+            for (const auto& betaSeed : (*sit)->betaSeeds) { newCandidates.push_back(std::make_shared<Candidate>(betaSeed)); }
             // extend the candidates
             extendCandidates(newCandidates, usedMaximumData, associatedData.layerData.begin(), associatedData.layerData.end());
 
@@ -935,7 +939,7 @@ namespace MuonCombined {
                 Muon::TimePointBetaFitter::HitVec newhits;  // create new hits vector and add the ones from the maximum
                 if (extractTimeHits(*maximumData, newhits, &candidate->betaSeed)) {
                     // decide which candidate to update, create a new candidate if a maximum was already selected in the layer
-                    Candidate* theCandidate = 0;
+                    Candidate* theCandidate = nullptr;
                     if (nextensions == 0)
                         theCandidate = candidate.get();
                     else {
@@ -1108,7 +1112,7 @@ namespace MuonCombined {
 
         ATH_MSG_DEBUG(" fitting beta for maximum: time measurements " << hits.size() << " status " << result.status << " beta "
                                                                       << result.beta << " chi2/ndof " << chi2ndof);
-        if (result.status != 0) maximumData.betaSeeds.push_back(BetaSeed(result.beta, 1.));
+        if (result.status != 0) maximumData.betaSeeds.emplace_back(result.beta, 1.);
     }
 
     void MuonStauRecoTool::findSegments(const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData,
@@ -1137,33 +1141,42 @@ namespace MuonCombined {
         std::vector<const Muon::MuonClusterOnTrack*> clusters;
 
         // insert phi hits, clone them
-        for (const auto& phiClusterOnTrack : phiClusterOnTracks) { clusters.push_back(phiClusterOnTrack->clone()); }
+        clusters.reserve(phiClusterOnTracks.size());
+
+        for (const auto& phiClusterOnTrack : phiClusterOnTracks) {
+          clusters.push_back(phiClusterOnTrack->clone());
+        }
 
         ATH_MSG_DEBUG("About to loop over Hough::Hits");
 
         std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
         std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
         for (; hit != hit_end; ++hit) {
-            ATH_MSG_DEBUG("hit x,y_min,y_max,w = " << (*hit)->x << "," << (*hit)->ymin << "," << (*hit)->ymax << "," << (*hit)->w);
-            // treat the case that the hit is a composite TGC hit
-            if ((*hit)->tgc) {
-                for (const auto& prd : (*hit)->tgc->etaCluster.hitList) handleCluster(*prd, clusters);
-            } else if ((*hit)->prd) {
-                Identifier id = (*hit)->prd->identify();
-                if (m_idHelperSvc->isMdt(id))
-                    handleMdt(static_cast<const Muon::MdtPrepData&>(*(*hit)->prd), mdts);
-                else
-                    handleCluster(static_cast<const Muon::MuonCluster&>(*(*hit)->prd), clusters);
-            }
+          ATH_MSG_DEBUG("hit x,y_min,y_max,w = "
+                        << (*hit)->x << "," << (*hit)->ymin << ","
+                        << (*hit)->ymax << "," << (*hit)->w);
+          // treat the case that the hit is a composite TGC hit
+          if ((*hit)->tgc) {
+            for (const auto& prd : (*hit)->tgc->etaCluster.hitList)
+              handleCluster(*prd, clusters);
+          } else if ((*hit)->prd) {
+            Identifier id = (*hit)->prd->identify();
+            if (m_idHelperSvc->isMdt(id))
+              handleMdt(static_cast<const Muon::MdtPrepData&>(*(*hit)->prd),
+                        mdts);
+            else
+              handleCluster(static_cast<const Muon::MuonCluster&>(*(*hit)->prd),
+                            clusters);
+          }
         }
 
         ATH_MSG_DEBUG("About to loop over calibrated hits");
 
         ATH_MSG_DEBUG("Dumping MDTs");
-        for (auto it : mdts) ATH_MSG_DEBUG(*it);
+        for (const auto *it : mdts) ATH_MSG_DEBUG(*it);
 
         ATH_MSG_DEBUG("Dumping clusters");
-        for (auto it : clusters) ATH_MSG_DEBUG(*it);
+        for (const auto *it : clusters) ATH_MSG_DEBUG(*it);
 
         // require at least 2 MDT hits
         if (mdts.size() > 2) {
@@ -1183,8 +1196,8 @@ namespace MuonCombined {
             }
         }
         // clean-up memory
-        for (auto hit : mdts) delete hit;
-        for (auto hit : clusters) delete hit;
+        for (const auto *hit : mdts) delete hit;
+        for (const auto *hit : clusters) delete hit;
     }
 
     void MuonStauRecoTool::extractRpcTimingFromMaximum(const Muon::MuonSystemExtension::Intersection& intersection,
@@ -1237,7 +1250,7 @@ namespace MuonCombined {
                                                                  const std::vector<Muon::RpcClusterObj>& clusterObjects,
                                                                  MuonStauRecoTool::RpcTimeMeasurementVec& rpcTimeMeasurements) const {
         // loop over the clusters
-        for (auto& cluster : clusterObjects) {
+        for (const auto & cluster : clusterObjects) {
             if (cluster.hitList.empty() || !cluster.hitList.front()) {
                 ATH_MSG_WARNING("Cluster without hits: " << cluster.hitList.size());
                 continue;
@@ -1247,7 +1260,7 @@ namespace MuonCombined {
 
             // create the ROTs
             std::vector<const Muon::MuonClusterOnTrack*> clusters;
-            for (auto rpc : cluster.hitList) {
+            for (const auto *rpc : cluster.hitList) {
                 const Muon::MuonClusterOnTrack* rot(m_muonPRDSelectionTool->calibrateAndSelect(intersection, *rpc));
                 if (rot) {
                     clusters.push_back(rot);
@@ -1262,14 +1275,14 @@ namespace MuonCombined {
                 RpcTimeMeasurement rpcTimeMeasurement;
                 rpcTimeMeasurement.time = result.time;
                 rpcTimeMeasurement.error = result.error;
-                for (auto cl : clusters) {
+                for (const auto *cl : clusters) {
                     const Muon::RpcClusterOnTrack* rcl = dynamic_cast<const Muon::RpcClusterOnTrack*>(cl);
                     if (rcl) rpcTimeMeasurement.rpcClusters.push_back(std::shared_ptr<const Muon::RpcClusterOnTrack>(rcl));
                 }
                 rpcTimeMeasurements.push_back(rpcTimeMeasurement);
             } else {
                 // if no time measurement was created we need to clean up the memory
-                for (auto cl : clusters) delete cl;
+                for (const auto *cl : clusters) delete cl;
             }
         }
     }

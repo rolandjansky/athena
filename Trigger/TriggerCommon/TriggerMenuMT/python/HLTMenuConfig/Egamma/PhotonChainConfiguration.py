@@ -13,9 +13,8 @@ from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from .FastPhotonMenuSequences import fastPhotonMenuSequence
 from .PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
-
-
-from TriggerMenuMT.HLTMenuConfig.Egamma.TLAPhotonSequenceSetup import TLAPhotonMenuSequence
+from .TLAPhotonMenuSequences import TLAPhotonMenuSequence
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -27,12 +26,11 @@ def fastPhotonCaloSequenceCfg( flags ):
     return fastCaloMenuSequence('Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
-
     return fastPhotonMenuSequence()
 
-def TLAPhotonSequenceCfg( flags ):
+def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     photonsIn = "HLT_egamma_Photons"
-    return TLAPhotonMenuSequence(flags, photonsIn)
+    return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
@@ -40,7 +38,6 @@ def precisionPhotonCaloSequenceCfg( flags ):
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 def _diPhotonComboHypoToolFromDict(chainDict, lowermass=80000,uppermass=-999,dphi=1.5,applymass=False,applydphi=False): 
     name = chainDict['chainName']
     monTool = GenericMonitoringTool("MonTool_"+name)
@@ -64,6 +61,7 @@ def diphotonDPhiHypoToolFromDict(chainDict):
 
 def diphotonDPhiMassHypoToolFromDict(chainDict):
     return _diPhotonComboHypoToolFromDict(chainDict,lowermass=80000,uppermass=-999,dphi=1.5,applymass=True,applydphi=True)
+
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -147,7 +145,14 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
     def getTLAPhoton(self):
         stepName = "TLAPhoton"
-        return self.getStep(5, stepName, [ TLAPhotonSequenceCfg])
+        HLT_threshold = 0
+       
+        for cPart in self.dict['chainParts']:
+            if 'Photon' in cPart['signature']:
+                HLT_threshold = float(cPart['threshold'])
+            
+        #print("MARCOLOG ", HLT_threshold)    
+        return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
@@ -164,3 +169,4 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         else:
             stepName = "precision_photon"
             return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
+    

@@ -10,13 +10,15 @@ namespace TCS {
    enum inputTOBType_t { NONE=0,
                          CLUSTER=0, 
                          JET=1,
-                         JJET=2,
-                         MET=3,
-                         MUON=4, 
-                         TAU=5,
-			 LATEMUON=6, 
-			 MUONNEXTBC=7  };
-   
+                         JTAU=2,
+                         JLARGERJET=3,
+                         JJET=4,
+                         MET=5,
+                         MUON=6, 
+                         TAU=7,
+			 LATEMUON=8, 
+			 MUONNEXTBC=9,
+                         EEM=10 }; 
 
    std::string inputTypeAsString(inputTOBType_t type);
 

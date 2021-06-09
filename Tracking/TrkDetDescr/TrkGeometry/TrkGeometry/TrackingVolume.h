@@ -400,10 +400,10 @@ namespace Trk {
       void interlinkLayers ATLAS_NOT_THREAD_SAFE();
 
       /** Helper method - find closest of two layers */
-      const Layer* closest(const Amg::Vector3D& pos,
+      static const Layer* closest(const Amg::Vector3D& pos,
                                 const Amg::Vector3D& dir,
                                 const Layer& first,
-                                const Layer& second) const;
+                                const Layer& second) ;
                                 
       
       /** move the Tracking Volume*/

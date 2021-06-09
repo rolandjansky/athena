@@ -68,7 +68,8 @@ def DigitizationMainCfg(flags):
     if flags.Digitization.PileUp:
         from MCTruthSimAlgs.MCTruthSimAlgsConfigNew import (
             SignalOnlyMcEventCollCfg,
-            MergeTruthJetsCfg,
+            MergeAntiKt4TruthJetsCfg,
+            MergeAntiKt6TruthJetsCfg,
             MergeTruthParticlesCfg,
             MergeMuonEntryLayerCfg,
             MergeCalibHitsCfg,
@@ -77,7 +78,9 @@ def DigitizationMainCfg(flags):
         acc.merge(SignalOnlyMcEventCollCfg(flags))
         puCollections = pileupInputCollections(flags.Digitization.PU.LowPtMinBiasInputCols)
         if "AntiKt4TruthJets" in puCollections:
-            acc.merge(MergeTruthJetsCfg(flags))
+            acc.merge(MergeAntiKt4TruthJetsCfg(flags))
+        if "AntiKt6TruthJets" in puCollections:
+            acc.merge(MergeAntiKt6TruthJetsCfg(flags))
         if "TruthPileupParticles" in puCollections:
             acc.merge(MergeTruthParticlesCfg(flags))
         acc.merge(MergeMuonEntryLayerCfg(flags))

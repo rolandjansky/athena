@@ -2,6 +2,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
@@ -40,7 +41,7 @@ class TrigEgammaFastCaloHypoToolConfig:
   def __init__(self, name, chain, cand, threshold, sel, trackinfo, noringerinfo):
 
     from AthenaCommon.Logging import logging
-    self.__log = logging.getLogger('TrigEgammaFastCaloHypoTool')
+    self.__log = logging.getLogger('Trig__TrigEgammaEmulationFastCaloHypoTool')
      
     self.__useRun3 = False
     self.__chain = chain
@@ -50,8 +51,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__trackinfo  = trackinfo
     self.__noringerinfo = noringerinfo
 
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationToolMTConf import Trig__TrigEgammaEmulationFastCaloHypoTool
-    tool = Trig__TrigEgammaEmulationFastCaloHypoTool( name )
+    tool = CompFactory.Trig.TrigEgammaEmulationFastCaloHypoTool( name )
     tool.AcceptAll      = False
     tool.UseRinger      = False
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
@@ -133,12 +133,12 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringer(self):
 
     self.__log.debug( 'Configure noringer' )
-    from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
+    from TrigEgammaHypo.TrigEgammaFastCutDefs import TrigFastCaloElectronCutMaps
     self.tool().UseRinger   = False
     self.tool().ETthr       = same( ( self.etthr()  - 3 )*GeV , self.tool())
-    self.tool().HADETthr    = L2CaloCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
-    self.tool().CARCOREthr  = L2CaloCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
-    self.tool().CAERATIOthr = L2CaloCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
+    self.tool().HADETthr    = TrigFastCaloElectronCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
+    self.tool().CARCOREthr  = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
+    self.tool().CAERATIOthr = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
 
 
   def ringer(self):
@@ -170,17 +170,32 @@ class TrigEgammaFastCaloHypoToolConfig:
 
  
 
-def createFastCalo(name, info):
 
-    cpart = info['chainParts'][0]
-    sel = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-    etthr = int(cpart['threshold'])
-    chain = info['chainName']
-    trackinfo = cpart['trkInfo'] if cpart['trkInfo'] else ''
-    noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
-    cand = cpart['trigType']
+def _IncTool(name, chain, cand, threshold, sel, trackinfo, noringerinfo):
+  config = TrigEgammaFastCaloHypoToolConfig(name, chain, cand, threshold, sel, trackinfo, noringerinfo )
+  config.compile()
+  return config.tool()
 
-    hypo = TrigEgammaFastCaloHypoToolConfig(name, chain, cand, etthr, sel, trackinfo, noringerinfo)
-    hypo.compile()
-    return hypo.tool()
 
+def TrigEgammaFastCaloHypoToolFromDict( name, d ):
+    """ Use menu decoded chain dictionary to configure the tool """
+    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
+
+    def __th(cpart):
+        return cpart['threshold']
+
+    def __sel(cpart):
+        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+
+    def __cand(cpart):
+        return cpart['trigType']
+
+    def __trackinfo(cpart):
+        return cpart['trkInfo'] if cpart['trkInfo'] else ''
+
+    def __noringer(cpart):    
+        return cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
+
+    chain = d['chainName']
+
+    return _IncTool( name, chain, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]), __trackinfo(cparts[0]), __noringer(cparts[0]))

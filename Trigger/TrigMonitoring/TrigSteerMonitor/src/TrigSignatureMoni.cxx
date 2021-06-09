@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include <regex>
@@ -618,11 +618,11 @@ StatusCode TrigSignatureMoni::RateHistogram::init( const std::string& histoName,
   return StatusCode::SUCCESS;
 }
 
-LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getHistogram() const {
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getHistogram ATLAS_NOT_CONST_THREAD_SAFE () const {
   return m_histogram;
 }
 
-LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getBuffer() const {
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getBuffer ATLAS_NOT_CONST_THREAD_SAFE () const {
   return m_bufferHistogram;
 }
 
@@ -658,7 +658,7 @@ void TrigSignatureMoni::RateHistogram::updatePublished(unsigned int duration) co
 }
 
 
-void TrigSignatureMoni::RateHistogram::callback() const {
+void TrigSignatureMoni::RateHistogram::callback() {
   // Ask time divider if we need to switch to new interval
   time_t t = time(0);
   unsigned int newinterval;

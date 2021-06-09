@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGORITHMS_PIXELALIGNCONDALG_H
@@ -48,6 +48,8 @@ class PixelAlignCondAlg : public AthReentrantAlgorithm
     this, "WriteKey", "PixelAlignmentStore", "Output pixel alignment data"};
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+
+  StringProperty m_detManagerName{this, "DetManagerName", "Pixel", "Name of the DeterctorManager to retrieve"};
   const InDetDD::PixelDetectorManager* m_detManager{nullptr};
 };
 

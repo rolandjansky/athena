@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -157,7 +157,7 @@ public:
   const Amg::MatrixX* perigeeWeight(void) const;
   const Amg::Vector3D& position(void) const;
   void print(MsgStream& log) const;
-  void printHeading(MsgStream& log) const;
+  static void printHeading(MsgStream& log) ;
   double qOverP(void) const;
   void qOverP(double value);
   double radiationThickness(void) const;

@@ -15,12 +15,11 @@
 
 // Trk
 #include "TrkEventPrimitives/LocalParameters.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/ErrorMatrix.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include <atomic>
-#include <ostream>
+#include <iosfwd>
 #include <cassert>
+#include <memory>
 
 class MsgStream;
 class CompetingRIOsOnTrackCnv_p1;
@@ -82,6 +81,11 @@ public:
 
     //! Pseudo-constructor:  needed to avoid excessive RTTI
     virtual CompetingRIOsOnTrack* clone() const override = 0;
+    
+    //! NVI Clone
+    std::unique_ptr<CompetingRIOsOnTrack> uniqueClone() const{
+      return std::unique_ptr<CompetingRIOsOnTrack>(clone());
+    }
 
     /** @brief Number of RIO_OnTracks to be contained by this CompetingRIOsOnTrack.
      - extends MeasurementBase */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -125,7 +125,7 @@ namespace InDet {
   }
 
 
-  std::vector<std::string> VertexPointEstimator::decorKeys() const
+  std::vector<std::string> VertexPointEstimator::decorKeys() 
   {
     return {"deltaPhiTracks", "DR1R2"};
   }
@@ -498,7 +498,7 @@ namespace InDet {
   }
 
   // ----------------------------------
-  bool VertexPointEstimator::secondDegree(double a, double b, double c, double& y1, double& y2) const
+  bool VertexPointEstimator::secondDegree(double a, double b, double c, double& y1, double& y2) 
   {
     y1 = -999999999;
     y2 = -999999999;
@@ -513,7 +513,7 @@ namespace InDet {
   // ----------------------------------
   double VertexPointEstimator::areaTriangle(double a, double b,  // double c,
 					    double d, double e,  // double f,
-					    double g, double h) const { // double i)
+					    double g, double h) { // double i)
     double c = 1;
     double f = 1;
     double i = 1;

@@ -56,43 +56,44 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         from .AthenaMPFlags import jobproperties as jp
         import AthenaCommon.ConcurrencyFlags # noqa: F401
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
+        from PyUtils.MetaReaderPeeker import metadata
         if (jp.AthenaMPFlags.ChunkSize() > 0):
             chunk_size = jp.AthenaMPFlags.ChunkSize()
             msg.info('Chunk size set to %i', chunk_size)
+        #Don't use auto flush for shared reader
+        elif (jp.AthenaMPFlags.UseSharedReader()):
+            chunk_size = 1
+            msg.info('Shared Reader in use, chunk_size set to default (%i)', chunk_size)
         #Use auto flush only if file is compressed with LZMA, else use default chunk_size
         elif (jp.AthenaMPFlags.ChunkSize() == -1):
-            from PyUtils.MetaReaderPeeker import metadata
             if (metadata['file_comp_alg'] == 2):
                 chunk_size = metadata['auto_flush']
                 msg.info('Chunk size set to auto flush (%i)', chunk_size)
             else:
-                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue
+                chunk_size = 1
                 msg.info('LZMA algorithm not in use, chunk_size set to default (%i)', chunk_size)
         #Use auto flush only if file is compressed with LZMA or ZLIB, else use default chunk_size
         elif (jp.AthenaMPFlags.ChunkSize() == -2):
-            from PyUtils.MetaReaderPeeker import metadata
             if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2):
                 chunk_size = metadata['auto_flush']
                 msg.info('Chunk size set to auto flush (%i)', chunk_size)
             else:
-                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+                chunk_size = 1
                 msg.info('LZMA nor ZLIB in use, chunk_size set to default (%i)', chunk_size)
         #Use auto flush only if file is compressed with LZMA, ZLIB or LZ4, else use default chunk_size
         elif (jp.AthenaMPFlags.ChunkSize() == -3):
-            from PyUtils.MetaReaderPeeker import metadata
             if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2 or metadata['file_comp_alg'] == 4):
                 chunk_size = metadata['auto_flush']
                 msg.info('Chunk size set to auto flush (%i)', chunk_size)
             else:
-                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
-                msg.info('LZMA, ZLIB nor LZ4 in use, chunk_size set to default (%i)', chunk_size)
+                chunk_size = 1
+                msg.info('LZMA, ZLIB nor LZ4 in use, chunk_size set to (%i)', chunk_size)
         #Use auto flush value for chunk_size, regarldess of compression algorithm
         elif (jp.AthenaMPFlags.ChunkSize() <= -4):
-            from PyUtils.MetaReaderPeeker import metadata
             chunk_size = metadata['auto_flush']
             msg.info('Chunk size set to auto flush (%i)', chunk_size)
         else:
-            chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+            chunk_size = 1
             msg.warning('Invalid ChunkSize, Chunk Size set to default (%i)', chunk_size)
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()

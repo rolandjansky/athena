@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArAverages2Ntuple.h"
@@ -144,30 +144,27 @@ StatusCode LArAverages2Ntuple::execute()
  
  if (accuDigitContainer) { 
    
-   LArAccumulatedCalibDigitContainer::const_iterator it=accuDigitContainer->begin();
-   LArAccumulatedCalibDigitContainer::const_iterator it_e=accuDigitContainer->end();
-
-    if(it == it_e) {
-      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
-      return StatusCode::SUCCESS;
-    }else{
-      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
-    }
+   if(accuDigitContainer->empty()) {
+     ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
+     return StatusCode::SUCCESS;
+   }else{
+     ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
+   }
 
    unsigned cellCounter=0;
-   for (;it!=it_e;it++) {   
+   for (const LArAccumulatedCalibDigit* digit : *accuDigitContainer) {
      // Add protection - Modif from JF. Marchand
-     if ( !(*it) ) continue;
+     if ( !digit ) continue;
 
-     m_isPulsed = (long)(*it)->isPulsed();
-     if(m_keepPulsed && !(*it)->isPulsed()) continue;
-     m_DAC = (*it)->DAC();
-     m_Nsteps = (*it)->nSteps();
-     m_Ntrigger = (*it)->nTriggers();
-     m_delay = (*it)->delay();
-     m_StepIndex=(*it)->stepIndex();
+     m_isPulsed = (long)digit->isPulsed();
+     if(m_keepPulsed && !digit->isPulsed()) continue;
+     m_DAC = digit->DAC();
+     m_Nsteps = digit->nSteps();
+     m_Ntrigger = digit->nTriggers();
+     m_delay = digit->delay();
+     m_StepIndex=digit->stepIndex();
      //unsigned int max = (m_Nsteps == 1) ? 1 : (m_Nsteps+1);
-     unsigned int trueMaxSample = (*it)->nsamples();
+     unsigned int trueMaxSample = digit->nsamples();
      m_ntNsamples = trueMaxSample;
 
      if(trueMaxSample>m_Nsamples){
@@ -178,13 +175,13 @@ StatusCode LArAverages2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
    
-     // std::cout << " ==> DAC Nsteps Ntrigger max " << m_DAC << " " << m_Nsteps << " " << m_Ntrigger << " " << max << " m_ntNsamples " << trueMaxSample << "/" << (*it)->nSamples() << std::endl;
+     // std::cout << " ==> DAC Nsteps Ntrigger max " << m_DAC << " " << m_Nsteps << " " << m_Ntrigger << " " << max << " m_ntNsamples " << trueMaxSample << "/" << digit->nSamples() << std::endl;
 
   
-     const std::vector<uint32_t>& sampleSum = (*it)->sampleSum();
-     const std::vector<uint32_t>& sampleSum2 = (*it)->sample2Sum();
-     const std::vector<float>& mean = (*it)->mean();
-     const std::vector<float>& RMSv = (*it)->RMS();
+     const std::vector<uint32_t>& sampleSum = digit->sampleSum();
+     const std::vector<uint32_t>& sampleSum2 = digit->sample2Sum();
+     const std::vector<float>& mean = digit->mean();
+     const std::vector<float>& RMSv = digit->RMS();
 
      for(unsigned int j=0;j<trueMaxSample;j++){
        m_Sum[j]   = sampleSum[j];
@@ -194,7 +191,7 @@ StatusCode LArAverages2Ntuple::execute()
        //std::cout << " i/j=" << i << "/" << j << " " << mean[j] << std::endl; 
      }
 
-     HWIdentifier chid=(*it)->channelID();
+     HWIdentifier chid=digit->channelID();
      m_onlChanId = chid.get_identifier32().get_compact();
      m_channel=m_onlineHelper->channel(chid);
      m_slot=m_onlineHelper->slot(chid);

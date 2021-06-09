@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -46,9 +46,9 @@ namespace DerivationFramework {
   //-------------------------------------------------------------------------
   //
   // helper class
-  BVertexTrackIsoTool::IsoItem::IsoItem(std::string Name,
-					std::string Bname,
-					std::string Prefix,
+  BVertexTrackIsoTool::IsoItem::IsoItem(const std::string& Name,
+					const std::string& Bname,
+					const std::string& Prefix,
 					double IsoValue,
 					int NTracks) :
     BaseItem(Name, Bname, Prefix), isoValue(IsoValue), nTracks(NTracks) {
@@ -57,17 +57,17 @@ namespace DerivationFramework {
   BVertexTrackIsoTool::IsoItem::~IsoItem() {
   }
 
-  void BVertexTrackIsoTool::IsoItem::setup(std::string Name,
-					   std::string Bname,
-					   std::string Prefix) {
+  void BVertexTrackIsoTool::IsoItem::setup(const std::string& Name,
+					   const std::string& Bname,
+					   const std::string& Prefix) {
     BaseItem::setup(Name, Bname, Prefix);
     isoValue = -1.;
     nTracks  =  0;
   }
   
-  void BVertexTrackIsoTool::IsoItem::setup(std::string Name,
-					   std::string Bname,
-					   std::string Prefix,
+  void BVertexTrackIsoTool::IsoItem::setup(const std::string& Name,
+					   const std::string& Bname,
+					   const std::string& Prefix,
 					   double      IsoValue,
 					   int         NTracks) {
     BaseItem::setup(Name, Bname, Prefix);

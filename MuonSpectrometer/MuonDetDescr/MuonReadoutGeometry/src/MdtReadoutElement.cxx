@@ -63,7 +63,7 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
     m_nlayers(-1), m_tubepitch(-9999.), m_tubelayerpitch(-9999.), m_ntubesperlayer(-1),
     m_nsteps(-1), m_ntubesinastep(-1), m_tubelenStepSize(-9999.), m_cutoutShift(-9999.),
     m_endpluglength(-9999.), m_deadlength(-9999.), m_innerRadius(-9999.), m_tubeWallThickness(-9999.),
-    m_BLinePar(0)
+    m_BLinePar(nullptr)
 {
   m_multilayer = 0;
 
@@ -192,9 +192,9 @@ double MdtReadoutElement::getTubeLengthForCaching(const int tubeLayer, const int
 	}
       PVConstLink physChild = cv->getChildVol(ii);
       const GeoShape* shape = physChild->getLogVol()->getShape();
-      if (shape==0)  return tlength;
+      if (shape==nullptr)  return tlength;
       const GeoTube* theTube = dynamic_cast<const GeoTube*> (shape);
-      if(theTube!=0) tlength = 2.*theTube->getZHalfLength();
+      if(theTube!=nullptr) tlength = 2.*theTube->getZHalfLength();
       else log << MSG::WARNING << "PhysChild with index "<<ii<<" out of (tubelayer-1)*m_ntubesperlayer+tube with tl="
 		   <<tubeLayer<<" tubes/lay="<<m_ntubesperlayer<<" t="<<tube<<" for  MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		   << " stPhi " << getStationPhi() << " ml = "<<getMultilayer()<<endmsg;

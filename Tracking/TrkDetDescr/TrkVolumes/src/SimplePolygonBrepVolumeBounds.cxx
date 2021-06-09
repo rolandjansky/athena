@@ -322,7 +322,7 @@ Trk::SimplePolygonBrepVolumeBounds::dump(std::ostream& sl) const
 //////////////////////////////////////////////////////////////////////////
 
 bool
-Trk::SimplePolygonBrepVolumeBounds::Xor(bool x, bool y) const
+Trk::SimplePolygonBrepVolumeBounds::Xor(bool x, bool y) 
 // XOR: Arguments are negated to ensure that they are 0/1. Then the bitwise Xor
 // operator may apply.
 {

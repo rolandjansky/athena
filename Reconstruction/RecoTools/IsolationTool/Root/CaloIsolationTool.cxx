@@ -38,8 +38,9 @@
 
 #include "boost/format.hpp"
 #include <cmath>
-#include <map>
 
+#include "PathResolver/PathResolver.h"
+#include <TFile.h>
 
 namespace {
 #if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
@@ -119,6 +120,34 @@ namespace xAOD {
     ATH_CHECK(m_tpEDveryForward.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDCentral.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDForward.initialize(m_InitializeReadHandles));
+
+    if (m_useEtaDepPU) {
+      std::string filename = PathResolverFindCalibFile(m_puZetaCorrectionFileName);
+      if (filename.empty()){
+	ATH_MSG_ERROR ( "Could NOT resolve file name " << m_puZetaCorrectionFileName );
+	return StatusCode::FAILURE ;
+      }
+      ATH_MSG_INFO("Path found for pileup correction = "<< filename);
+      std::unique_ptr<TFile> f(TFile::Open(filename.c_str(), "READ"));
+      m_puZetaCorrection[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone20"));
+      m_puZetaCorrection[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30"));
+      m_puZetaCorrection[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone40"));
+      f->Close();
+
+      if (m_isMC) {
+	filename = PathResolverFindCalibFile(m_puZetaMCCorrectionFileName);
+	if (filename.empty()){
+	  ATH_MSG_ERROR ( "Could NOT resolve file name " << m_puZetaMCCorrectionFileName );
+	  return StatusCode::FAILURE ;
+	}
+	ATH_MSG_INFO("Path found for mc additional correction of pileup correction = "<< filename);
+	std::unique_ptr<TFile> g(TFile::Open(filename.c_str(), "READ"));
+	m_puZetaMCCorrection[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)g->Get("topoetcone20"));
+	m_puZetaMCCorrection[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)g->Get("topoetcone30"));
+	m_puZetaMCCorrection[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)g->Get("topoetcone40"));
+	g->Close();
+      }
+    }
 
     // Exit function
     return StatusCode::SUCCESS;
@@ -354,7 +383,6 @@ namespace xAOD {
     float phi = eg.caloCluster()->phi();
     float eta = eg.caloCluster()->eta();
 
-    // JB
     const CaloCluster* fwdClus = eg.author(xAOD::EgammaParameters::AuthorFwdElectron) ? eg.caloCluster() : nullptr;
 
     if (!topoConeIsolation(result, eta, phi, coneSizes, true, container, fwdClus, &eg, coneCoreSize)) {
@@ -1412,7 +1440,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
   {
     // assume two densities for the time being
-    const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5) ? &m_tpEDCentral : &m_tpEDForward;
+    const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5 || m_useEtaDepPU) ? &m_tpEDCentral : &m_tpEDForward;
     if (type == "PFlow") {
       esKey = (fabs(eta) < 1.5) ? &m_efEDCentral : &m_efEDForward;
     } else if (fwdClus != nullptr) {
@@ -1453,6 +1481,25 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
       float dR    = Iso::coneSize(isoTypes.at(i));
       float toSub = rho*(dR*dR*M_PI - areacore);
+      // The improved PU correction is only for central EGamma objects, and topoetcone
+      if (m_useEtaDepPU && fwdClus == nullptr && Iso::isolationFlavour(isoTypes.at(i)) == Iso::topoetcone) {
+	double areaCorr = 0;
+	auto puZeta = m_puZetaCorrection.find(isoTypes.at(i));
+	if (puZeta != m_puZetaCorrection.end()) {
+	  areaCorr = puZeta->second->Eval(std::abs(eta)); // CW might have done it vs etaBE(2). This eta here is caloCluster eta...
+	} else {
+	  ATH_MSG_WARNING("Requested refined eta dependent pileup correction but no zeta correction provided " << Iso::toCString(isoTypes.at(i)));
+	}
+	if (m_isMC) {
+	  auto puZetaMC = m_puZetaMCCorrection.find(isoTypes.at(i));
+	  if (puZetaMC != m_puZetaMCCorrection.end()) {
+	    areaCorr -= puZetaMC->second->Eval(std::abs(eta));
+	  } else {
+	    ATH_MSG_WARNING("Requested refined eta dependent pileup correction for mc but no zeta correction provided " << Iso::toCString(isoTypes.at(i)));
+	  }
+	}
+	toSub *= areaCorr;
+      }
       corrvec[i] = toSub;
       if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))){
 	result.etcones[i] -= toSub;

@@ -87,7 +87,7 @@ namespace Rec {
         std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> caloTSOS;
         caloTSOS.reserve(3);
 
-        std::unique_ptr<const Trk::TrackStateOnSurface> innerTS, middleTS, outerTS;
+        std::unique_ptr<Trk::TrackStateOnSurface> innerTS, middleTS, outerTS;
         std::unique_ptr<const Trk::TrackParameters> inParams, midParams;
         const Trk::TrackParameters* innerParams = nullptr;
         const Trk::TrackParameters* middleParams = nullptr;
@@ -126,7 +126,7 @@ namespace Rec {
                 }
                 if (middleParams) {
                     // get calo energy deposit
-                    middleTS.reset(m_caloEnergyParam->trackStateOnSurface(ctx, *midParams, innerParams, outerParams));
+                    middleTS = m_caloEnergyParam->trackStateOnSurface(ctx, *midParams, innerParams, outerParams);
                     if (!middleTS) { middleParams = nullptr; }
                 }
 
@@ -179,9 +179,9 @@ namespace Rec {
                         if (!params) {
                             middleTS.reset();
                         } else if (params->momentum().perp() > m_paramPtCut) {
-                            middleTS.reset(m_caloEnergyDeposit->trackStateOnSurface(ctx, *params, innerParams, outerParams));
+                            middleTS = m_caloEnergyDeposit->trackStateOnSurface(ctx, *params, innerParams, outerParams);
                         } else {
-                            middleTS.reset(m_caloEnergyParam->trackStateOnSurface(ctx, *params, innerParams, outerParams));
+                            middleTS = m_caloEnergyParam->trackStateOnSurface(ctx, *params, innerParams, outerParams);
                         }
                         ////
                         if (middleTS) { outerTS = outerTSOS(ctx, *params); }
@@ -204,9 +204,9 @@ namespace Rec {
                     if (inParams) {
                         // get calo energy deposit
                         if (middleParams->momentum().perp() > m_paramPtCut) {
-                            middleTS.reset(m_caloEnergyDeposit->trackStateOnSurface(ctx, *middleParams, inParams.get(), outerParams));
+                            middleTS = m_caloEnergyDeposit->trackStateOnSurface(ctx, *middleParams, inParams.get(), outerParams);
                         } else {
-                            middleTS.reset(m_caloEnergyParam->trackStateOnSurface(ctx, *middleParams, inParams.get(), outerParams));
+                            middleTS = m_caloEnergyParam->trackStateOnSurface(ctx, *middleParams, inParams.get(), outerParams);
                         }
                         // apply energy deposit
                         const Trk::MaterialEffectsOnTrack* meot =
@@ -241,7 +241,7 @@ namespace Rec {
                                     ATH_MSG_WARNING(" caloTSOS: unexpected TrackParameters type ");
                                 }
                             }
-                            if (params && middleTS) innerTS = innerTSOS(ctx, *params);
+                            if (params && middleTS) { innerTS = innerTSOS(ctx, *params); }
                         }
                     } else {
                         ATH_MSG_VERBOSE(" fail tracking inwards: no intersect at inner surface");
@@ -279,27 +279,27 @@ namespace Rec {
     const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::innerTSOS(const Trk::TrackParameters& parameters) const {
         return innerTSOS(Gaudi::Hive::currentContext(), parameters).release();
     }
-    std::unique_ptr<const Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::innerTSOS(const EventContext& ctx,
-                                                                                           const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::innerTSOS(const EventContext& ctx,
+                                                                                     const Trk::TrackParameters& parameters) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, parameters, SurfaceLayer::Inner);
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" innerTSOS:  extrapolation fails ");
             return nullptr;
         }
-        return std::unique_ptr<const Trk::TrackStateOnSurface>{m_caloMaterialParam->trackStateOnSurface(extrapolation.release())};
+        return m_caloMaterialParam->trackStateOnSurface(*extrapolation);
     }
     const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::outerTSOS(const Trk::TrackParameters& parameters) const {
         return outerTSOS(Gaudi::Hive::currentContext(), parameters).release();
     }
 
-    std::unique_ptr<const Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::outerTSOS(const EventContext& ctx,
-                                                                                           const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::outerTSOS(const EventContext& ctx,
+                                                                                     const Trk::TrackParameters& parameters) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, parameters, SurfaceLayer::Outer);
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" outerTSOS:  extrapolation fails ");
             return nullptr;
         }
-        return std::unique_ptr<const Trk::TrackStateOnSurface>{m_caloMaterialParam->trackStateOnSurface(extrapolation.release())};
+        return m_caloMaterialParam->trackStateOnSurface(*extrapolation);
     }
 
     const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::middleTSOS(const Trk::TrackParameters& middleParams,
@@ -307,24 +307,22 @@ namespace Rec {
                                                                             const Trk::TrackParameters* outerParams) const {
         return middleTSOS(Gaudi::Hive::currentContext(), middleParams, innerParams, outerParams).release();
     }
-    std::unique_ptr<const Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::middleTSOS(const EventContext& ctx,
-                                                                                            const Trk::TrackParameters& middleParams,
-                                                                                            const Trk::TrackParameters* innerParams,
-                                                                                            const Trk::TrackParameters* outerParams) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::middleTSOS(const EventContext& ctx,
+                                                                                      const Trk::TrackParameters& middleParams,
+                                                                                      const Trk::TrackParameters* innerParams,
+                                                                                      const Trk::TrackParameters* outerParams) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, middleParams, SurfaceLayer::Middle);
 
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" middleTSOS:  extrapolation fails ");
             return nullptr;
         }
-
-        std::unique_ptr<const Trk::TrackStateOnSurface> TSOS;
+        std::unique_ptr<Trk::TrackStateOnSurface> TSOS;
         if (extrapolation->momentum().perp() > m_paramPtCut) {
-            TSOS.reset(m_caloEnergyDeposit->trackStateOnSurface(ctx, *extrapolation, innerParams, outerParams));
+            TSOS = m_caloEnergyDeposit->trackStateOnSurface(ctx, *extrapolation, innerParams, outerParams);
         } else {
-            TSOS.reset(m_caloEnergyParam->trackStateOnSurface(ctx, *extrapolation, innerParams, outerParams));
+            TSOS = m_caloEnergyParam->trackStateOnSurface(ctx, *extrapolation, innerParams, outerParams);
         }
-
         return TSOS;
     }
 
@@ -343,7 +341,7 @@ namespace Rec {
         Trk::PropDirection momentumDirection = Trk::alongMomentum;
         Trk::PropDirection oppositeDirection = Trk::oppositeMomentum;
         Trk::PropDirection propDirection = Trk::anyDirection;
-
+        const std::string surf_layer_str = layer == SurfaceLayer::Inner ? "Inner" : (layer == SurfaceLayer::Middle ? "Middle" : "Outer");
         // initial surface at track eta -
         //   using position or direction according to distance from origin
         double startingPhi = 0.;
@@ -377,7 +375,7 @@ namespace Rec {
 
         // phi flip means track has crossed beam-axis (so quit)
         double deltaPhi = xAOD::P4Helpers::deltaPhi(extrapolation->position().phi(), startingPhi);
-        if (std::abs(deltaPhi) > 0.5 * M_PI && std::abs(deltaPhi) < 1.5 * M_PI) { return nullptr; }
+        if (std::abs(deltaPhi) > M_PI_2) { return nullptr; }
 
         // also quit wrong rz-direction in endcap
         if (surface->type() != Trk::SurfaceType::Cylinder) {
@@ -393,6 +391,10 @@ namespace Rec {
         bool restart = false;
         const Trk::Surface* oldSurface = surface;
         const Trk::Surface* extrapolatedSurface = getCaloSurface(extrapolation->position().eta(), layer);
+        /// The TrackParameters own their dedicated instance of the track surface... In cases,
+        /// where the loop below resets the extrapolation we need to clone the surface as well
+        /// this pointer is just the surface garbage collection
+        std::unique_ptr<const Trk::Surface> reset_surface;
         while (++extrapolations < 5 && extrapolatedSurface != oldSurface) {
             // take care to get correct solution for cylinder when starting from inside
             if (surface->type() == Trk::SurfaceType::Cylinder) {
@@ -404,7 +406,6 @@ namespace Rec {
             } else {
                 propDirection = Trk::anyDirection;
             }
-            // tidy up ownership later
             std::unique_ptr<const Trk::TrackParameters> oldParameters = std::move(extrapolation);
             extrapolation = m_propagator->propagate(ctx, *oldParameters, *extrapolatedSurface, propDirection, false, m_magFieldProperties,
                                                     Trk::nonInteracting);
@@ -416,13 +417,15 @@ namespace Rec {
                     return nullptr;
                 }
                 if (restart) {
-                    ATH_MSG_DEBUG(" innerParameters:  oscillating => arbitrary solution chosen");
+                    ATH_MSG_DEBUG(surf_layer_str << " Parameters:  oscillating => arbitrary solution chosen");
                     ++m_countArbitrarySolution;
                     extrapolation = std::move(oldParameters);
-                    extrapolatedSurface = &extrapolation->associatedSurface();
+                    reset_surface.reset(extrapolation->associatedSurface().clone());
+                    extrapolatedSurface = reset_surface.get();
                     surface = extrapolatedSurface;
+                    restart = false;
                 } else {
-                    ATH_MSG_VERBOSE(" innerParameters:  restart extrap after " << extrapolations << " extrapolations");
+                    ATH_MSG_VERBOSE(surf_layer_str << " Parameters:  restart extrap after " << extrapolations << " extrapolations");
                     restart = true;
                     extrapolations -= 2;
                     extrapolation = parameters.uniqueClone();
@@ -430,6 +433,7 @@ namespace Rec {
                 }
             } else {
                 // update surface
+                ATH_MSG_DEBUG(surf_layer_str << " Parameters: Extrapolation succeeded go to next iteration");
                 oldSurface = surface;
                 surface = extrapolatedSurface;
                 extrapolatedSurface = getCaloSurface(extrapolation->position().eta(), layer);
@@ -438,14 +442,15 @@ namespace Rec {
 
         // final check for phi flip
         deltaPhi = xAOD::P4Helpers::deltaPhi(extrapolation->position().phi(), startingPhi);
-        if (std::abs(deltaPhi) > 0.5 * M_PI && std::abs(deltaPhi) < 1.5 * M_PI) { return nullptr; }
+        if (std::abs(deltaPhi) > M_PI_2) { return nullptr; }
 
-        ATH_MSG_VERBOSE(" innerParameters:  success after "
-                        << extrapolations << " extrapolation step(s). " << std::setiosflags(std::ios::fixed)
-                        << "  Intersection at: r,phi,z " << std::setw(7) << std::setprecision(1) << extrapolation->position().perp()
-                        << std::setw(7) << std::setprecision(3) << extrapolation->position().phi() << std::setw(8) << std::setprecision(1)
-                        << extrapolation->position().z() << "  Direction: eta,phi " << std::setw(7) << std::setprecision(3)
-                        << extrapolation->momentum().eta() << std::setw(7) << std::setprecision(3) << extrapolation->momentum().phi());
+        ATH_MSG_VERBOSE(surf_layer_str << " Parameters:  success after " << extrapolations << " extrapolation step(s). "
+                                       << std::setiosflags(std::ios::fixed) << "  Intersection at: r,phi,z " << std::setw(7)
+                                       << std::setprecision(1) << extrapolation->position().perp() << std::setw(7) << std::setprecision(3)
+                                       << extrapolation->position().phi() << std::setw(8) << std::setprecision(1)
+                                       << extrapolation->position().z() << "  Direction: eta,phi " << std::setw(7) << std::setprecision(3)
+                                       << extrapolation->momentum().eta() << std::setw(7) << std::setprecision(3)
+                                       << extrapolation->momentum().phi());
 
         return extrapolation;
     }

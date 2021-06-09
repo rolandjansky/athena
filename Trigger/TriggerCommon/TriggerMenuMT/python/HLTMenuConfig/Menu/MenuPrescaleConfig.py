@@ -29,16 +29,20 @@ def MenuPrescaleConfig(triggerConfigHLT):
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'Primary_prescale' in menu_name:
+            enableChains(TriggerFlags, Prescales.HLTPrescales_primary_prescale, ['Primary:L1Muon','Primary:Legacy','Primary:PhaseI','Primary:CostAndRate'])
+            L1Prescales = Prescales.L1Prescales_trigvalid_prescale
+            HLTPrescales = Prescales.HLTPrescales_primary_prescale
         elif 'TriggerValidation_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_prescale, "PS:Online")
+            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_prescale, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
         elif 'BulkMCProd_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_bulkmcprod_prescale, "PS:Online")
+            disableChains(TriggerFlags, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales_bulkmcprod_prescale
             HLTPrescales = Prescales.HLTPrescales_bulkmcprod_prescale
         elif 'CPSampleProd_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_cpsampleprod_prescale, "PS:Online")
+            disableChains(TriggerFlags, Prescales.HLTPrescales_cpsampleprod_prescale, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales_cpsampleprod_prescale
             HLTPrescales = Prescales.HLTPrescales_cpsampleprod_prescale
         else:
@@ -117,7 +121,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     return (L1Prescales, HLTPrescales)
 
-def disableChains(flags, type_prescales, type_group):
+def disableChains(flags, type_prescales, type_groups):
     signatures = []
     slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
     for slice_prop in slice_props:
@@ -127,14 +131,39 @@ def disableChains(flags, type_prescales, type_group):
         else:
             log.debug('SKIPPING %s', slice_prop)
 
-    chain_online_list=[]
+    chain_disable_list=[]
 
     for chain in signatures:
-        if type_group in chain.groups:
-            chain_online_list.append(chain.name)
+        toKeep = True
+        for group in type_groups:
+            if group in chain.groups:
+                toKeep = False
+        if not toKeep:
+            chain_disable_list.append(chain.name)
 
-    type_prescales.update(zip(chain_online_list,len(chain_online_list)*[ [-1] ]))
+    type_prescales.update(zip(chain_disable_list,len(chain_disable_list)*[ [-1] ]))
 
+def enableChains(flags, type_prescales, type_groups):
+    signatures = []
+    slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
+    for slice_prop in slice_props:
+        slice = getattr(flags, slice_prop)
+        if slice.signatures():
+            signatures.extend(slice.signatures())
+        else:
+            log.debug('SKIPPING %s', slice_prop)
+
+    chain_disable_list=[]
+
+    for chain in signatures:
+        toKeep = False
+        for group in type_groups:
+            if group in chain.groups:
+                toKeep = True
+        if not toKeep:
+            chain_disable_list.append(chain.name)
+
+    type_prescales.update(zip(chain_disable_list,len(chain_disable_list)*[ [-1] ]))
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
     for item, prescales in HLTPrescale.items():
@@ -161,6 +190,9 @@ class PrescaleClass(object):
     #   - Chains only need adding if have a Prescale value different from 1 (default)
     #----------------------------------------------------------
     HLTPrescales = {}
+
+    L1Prescales_primary_prescale  = {}
+    HLTPrescales_primary_prescale = {}
 
     L1Prescales_trigvalid_prescale  = {}
     HLTPrescales_trigvalid_prescale = {}

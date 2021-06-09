@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -7,6 +7,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkSurfaces/Surface.h"
+#include <ostream>
 #include <cassert>
 #include <string>
 
@@ -23,7 +24,7 @@ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
         const Trk::ScatteringAngles* scat,
         const Trk::EnergyLoss*       eloss,
         const Trk::Surface&          sf,
-        const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern) 
+        const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern) 
   :   Trk::MaterialEffectsBase(tInX0, sf,
                                (typePattern==0 ? 3 : typePattern) ),
         m_scatteringAngles(scat), // take ownership
@@ -36,7 +37,7 @@ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
         const double                 tInX0,
         const Trk::ScatteringAngles* scat, 
         const Trk::Surface&          sf,
-        const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>  typePattern) 
+        const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&  typePattern) 
   :   Trk::MaterialEffectsBase(tInX0, sf,
                                (typePattern==0?1<<static_cast<int>(Trk::MaterialEffectsBase::ScatteringEffects):typePattern) ),
         m_scatteringAngles(scat), // take ownership
@@ -49,7 +50,7 @@ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
         const double                 tInX0,
         const Trk::EnergyLoss*       eloss, 
         const Trk::Surface&          sf,
-        const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>  typePattern )
+        const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&  typePattern )
   :   Trk::MaterialEffectsBase(tInX0, sf,
                                (typePattern==0 ? 1<<static_cast<int>(Trk::MaterialEffectsBase::EnergyLossEffects) : typePattern)),
         m_scatteringAngles(nullptr),

@@ -131,11 +131,36 @@ JetChainParts = {
     'trkopt'       : # Tracking configuration
       ['notrk','ftf'],
     'trkpresel'    : # Tracking preselection
-      ['nopresel','preselj20'],
+      ['nopresel',
+       #Loose
+       'preselj20',  #L1J15, L1J20
+       'preselj60',  #L1J30
+       'preselj135', #L1J50, #L1J100
+       'presel2j135', #L1J50, L1J100
+       'presel4j33', #L13J50
+       'presel5j24', #L14J15
+       'presel6j36', #L14J15
+       'presel7j21', #L14J15
+       #Medium
+       'preselj180',  #L1J100
+       'presel2j180', #L1J100
+       'presel4j55',  #L13J50
+       'presel5j35',  #L14J15
+       'presel6j40',  #L14J15
+       'presel7j28',  #L14J15
+       #Tight
+       'preselj225', #L1J100
+       'presel2j225', #L1J100
+       'presel4j85', #L13J50
+       'presel5j50', #L14J15
+       'presel6j45', #L14J15
+       'presel7j35', #L14j15
+     ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
     #   other dict contents. If it is not 'simple', then the configuration is 100%
     #   from the hypoScenario specification, and all other hypo entries are ignored.
+    #   Complete scenario names for aliases can be found in Trigger/TrigHypothesis/TrigHLTJetHypo/python/hypoConfigBuilder.py
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
                       # 'fbdj' (forward-backward + dijet) scenario:
                       #   default eta selection for dijet mass cut is 0eta490
@@ -162,15 +187,20 @@ JetChainParts = {
                       'DIJET35j12etXX1000djmass',
                       'DIJET20j12etXX110djmass',  # very loose cuts for testing
                       # pt threshold cuts
+                      'DJMASS500j35', # alias
+                      'DJMASS700j35', # alias
+                      'DJMASS1000j35', # alias
+                      'DJMASS700j40', # alias
+                      'DJMASS700j50x0eta240', # alias
+                      'DJMASS700j80x0eta240', # alias
+                      'DJMASS900j50', # alias
+                      'DJMASS1000j50', # alias
+                      'DJMASS1000j50dphi240', # alias
+                      'DJMASS1000j50dphi200x400deta', # alias
                       'DIJET80j12ptXX0j12eta240XX700djmass', # Test dijet mass sel
                       'DIJET80j12ptXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
                       'DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
-                      'DIJET50j12ptXX1000djmass',
-                      'DIJET50j12ptXX1000djmassXXdjdphi240',
-                      'DIJET50j12ptXX900djmass',
-                      'DIJET35j12ptXX1000djmass',
                       'DIJET20j12ptXX110djmass',  # very loose cuts for testing
-                      'DIJETaliasExample',        # example of an alias for a dijet scenario with very loose cuts for testing
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'HT1000',
                       'HT500',
@@ -269,7 +299,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'l2io','l2lrt','l2mt'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'l2io','l2lrt','l2mt','noL2Comb'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
@@ -467,7 +497,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight'],
+    'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight', 'mergedtight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['idperf', 'gsf'],
     'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],
@@ -589,7 +619,7 @@ MinBiasChainParts = {
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',
                         'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf','afprec'],
     'addInfo'        : ['peb'],
     'sigFolder'     : 'MinBias',
     'subSigs'       : ['MinBias'],
@@ -955,7 +985,7 @@ UnconventionalTrackingChainParts = {
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack", "fslrt"],
+    'extra'          : ["isohpttrack", "fslrt", "dedx"],
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
     'subSigs'       : ['UnconventionalTracking'],

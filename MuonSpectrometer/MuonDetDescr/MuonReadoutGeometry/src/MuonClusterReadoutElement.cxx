@@ -12,7 +12,7 @@ namespace MuonGM {
   MuonClusterReadoutElement::MuonClusterReadoutElement(GeoVFullPhysVol* pv, std::string,
 						       int zi, int fi, bool is_mirrored,
 						       MuonDetectorManager* mgr)
-    : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr), m_surfaceData(0)
+    : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr), m_surfaceData(nullptr)
   {
     
   }

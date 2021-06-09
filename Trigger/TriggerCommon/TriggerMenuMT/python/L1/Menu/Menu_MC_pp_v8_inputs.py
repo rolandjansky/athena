@@ -50,7 +50,7 @@ def defineInputsMenu():
                 ('MBTS_A',3),         # 1x MBTS_A
                 'NIML1A',             # L1A for CTP monitoring itself
                 'NIMLHCF',            # LHCF
-                'AFP_NSC', 'AFP_NSA', 'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG', 'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF'   # 2xAFP
+                'AFP_NSA', 'AFP_FSA', 'AFP_FSA_TOF_T0', 'AFP_FSA_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSA_TOF_T3'   # 2xAFP
             ]
         },
         {
@@ -65,7 +65,8 @@ def defineInputsMenu():
                 ('MBTS_C',3), # 1x MBTS_C
                 'NIMTGC',     # TGC
                 'NIMRPC',     # RPC
-                'NIMTRT'      # TRT
+                'NIMTRT',     # TRT
+                'AFP_NSC', 'AFP_FSC', 'AFP_FSC_TOF_T0', 'AFP_FSC_TOF_T1', 'AFP_FSC_TOF_T2', 'AFP_FSC_TOF_T3'   # 2xAFP
             ]
         }
     ]

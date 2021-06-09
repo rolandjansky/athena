@@ -41,12 +41,6 @@
   <class name="std::vector<TgcRdo_p3>" />
   <class name="TgcRdoContainer_p3" id="E7D45D90-CB92-4A7D-B5FE-2791CE34FFEE" />
 
-  <class name="TgcRawData_p4" />
-  <class name="std::vector<TgcRawData_p4>" />
-  <class name="TgcRdo_p4" />
-  <class name="std::vector<TgcRdo_p4>" />
-  <class name="TgcRdoContainer_p4" id="E09932A7-FC72-4265-842A-659B816C0EEA" />
-
   <class name = "RpcFiredChannel_p1" />
   <class name = "RpcCoinMatrix_p1" />
   <class name="std::vector<RpcFiredChannel_p1>" />

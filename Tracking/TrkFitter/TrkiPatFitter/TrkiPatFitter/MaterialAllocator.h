@@ -105,8 +105,8 @@ public:
     void    addSpectrometerDelimiters (std::vector<FitMeasurement*>&    measurements) const;
 
     // memory management
-    void    deleteMaterial (const std::vector<const TrackStateOnSurface*>* material,
-                                Garbage_t& garbage) const;
+    static void    deleteMaterial (const std::vector<const TrackStateOnSurface*>* material,
+                                Garbage_t& garbage) ;
 
     // extrapolateM wrapper
     const std::vector<const TrackStateOnSurface*>*    extrapolatedMaterial (
@@ -133,9 +133,9 @@ public:
                                  double particleMass) const;
 
     // material measurement corresponding to TrackStateOnSurface
-    FitMeasurement*    measurementFromTSOS (const TrackStateOnSurface&    tsos,
+    static FitMeasurement*    measurementFromTSOS (const TrackStateOnSurface&    tsos,
                                             double outwardsEnergy,
-                                            double particleMass) const;
+                                            double particleMass) ;
     
     // VERBOSE print of measurements 
     void    printMeasurements(std::vector<FitMeasurement*>& measurements) const;

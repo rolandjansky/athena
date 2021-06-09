@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCnv/ReadTBLArCalibDigits.h"
@@ -59,20 +59,17 @@ StatusCode ReadTBLArCalibDigits::execute() {
     return StatusCode::FAILURE;
   }
   
-  TBLArCalibDigitContainer::const_iterator it=larCalibDigitCont->begin();
-  TBLArCalibDigitContainer::const_iterator it_end=larCalibDigitCont->end();
-  
   log << MSG::VERBOSE << "Now loop over container " << endmsg;
-  
-  for (;it!=it_end;it++) {
+
+  for (const LArCalibDigit* digit : *larCalibDigitCont) {
 
     log << MSG::VERBOSE << " Get hardware ID " << endmsg;
     
-    HWIdentifier chid=(*it)->hardwareID();
+    HWIdentifier chid=digit->hardwareID();
     
     log << MSG::VERBOSE << "  chid =  " << chid << endmsg;
 
-    const std::vector<short>& vSamples=(*it)->samples();    
+    const std::vector<short>& vSamples=digit->samples();    
     int nSamples=vSamples.size();
     
     log << MSG::VERBOSE << "  nSamples =  " << nSamples << endmsg;
@@ -84,7 +81,7 @@ StatusCode ReadTBLArCalibDigits::execute() {
       for(int i=0; i<nSamples; i++) {
         m_outfile << " " << vSamples[i];
       }
-      m_outfile << " G=" << (*it)->gain() << std::endl;
+      m_outfile << " G=" << digit->gain() << std::endl;
     }
 
     cellCounter++;

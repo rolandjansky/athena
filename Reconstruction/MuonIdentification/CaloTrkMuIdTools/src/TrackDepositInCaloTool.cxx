@@ -93,7 +93,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
     }
 
     // --- Iterate over all the detector regions ---
-    for (const std::pair<double, const CaloDetDescriptor*>& detDescrIt : caloInfo) {
+    for (const std::pair<const double, const CaloDetDescriptor*>& detDescrIt : caloInfo) {
         const CaloDetDescriptor* descr = detDescrIt.second;
         // ---- extrapolate to entrance of layer ---
         std::unique_ptr<const Trk::TrackParameters> parEntrance = extrapolateToEntranceOfLayer(ctx, currentPar.get(), descr);
@@ -503,7 +503,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
     }
     // --- Loop over the cells from preselection ---
     std::vector<Amg::Vector3D>::iterator itP = extrapolations.begin();
-    for (const std::pair<double, const CaloDetDescriptor*>& it : caloInfo) {
+    for (const std::pair<const double, const CaloDetDescriptor*>& it : caloInfo) {
         // --- Initialization of variables to be determined below ---
         double energyEntrance{0}, energyExit{0}, energyDeposit{0}, ETDeposit{0}, energyLoss{0};
         bool eLossFound = false;
@@ -765,7 +765,7 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const Trk::TrackParameters
         double phi0 = parAtSolenoid->momentum().phi();
 
         // --- This Code fragment determines the Barrel crossings ---
-        for (const std::pair<double, std::vector<const CaloDetDescriptor*>>& mapIt : m_barrelLayerMap) {
+        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : m_barrelLayerMap) {
             const double& radius = mapIt.first;
             std::unique_ptr<Amg::Vector3D> extrapolation = extrapolateR(positionAtSolenoid, phi0, theta0, radius);
             if (!extrapolation) { continue; }
@@ -780,7 +780,7 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const Trk::TrackParameters
         }
 
         // This code fragment determines the EndCap crossings
-        for (const std::pair<double, std::vector<const CaloDetDescriptor*>>& mapIt : m_endCapLayerMap) {
+        for (const std::pair<const double, std::vector<const CaloDetDescriptor*>>& mapIt : m_endCapLayerMap) {
             const double& zCenter = mapIt.first;
             for (const CaloDetDescriptor* descr : mapIt.second) {
                 double z = zCenter * descr->calo_sign();
@@ -957,7 +957,7 @@ const CaloCell* TrackDepositInCaloTool::getClosestCellTile(
     // --- Show deposits near this track (only if debugMode is on) ---
     if (msgLevel(MSG::VERBOSE)) {
         ATH_MSG_INFO("SAMPLE = " << sample);
-        for (const std::pair<double, const CaloCell*>& mapIt : neighbourMap) {
+        for (const std::pair<const double, const CaloCell*>& mapIt : neighbourMap) {
             const CaloCell* cell = mapIt.second;
             double distance = mapIt.first;
             if (cell) {

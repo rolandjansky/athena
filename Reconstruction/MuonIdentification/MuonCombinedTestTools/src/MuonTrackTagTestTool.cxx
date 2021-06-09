@@ -55,11 +55,11 @@ namespace MuonCombined {
             ATH_MSG_ERROR("No MS entrance available");
             return dummy_chi2;
         }
-        if (idTrack.perigeeParameters() == 0) {
+        if (idTrack.perigeeParameters() == nullptr) {
             ATH_MSG_WARNING("Skipping track combination - no perigee parameters for ID track");
             return dummy_chi2;
         }
-        if (msTrack.perigeeParameters() == 0) {
+        if (msTrack.perigeeParameters() == nullptr) {
             ATH_MSG_WARNING("Skipping track combination - no perigee parameters for MS track");
             return dummy_chi2;
         }
@@ -114,18 +114,18 @@ namespace MuonCombined {
         }
         if (!(std::abs(thetaID - thetaMS) < thetalimit && std::abs(phidiff) < philimit)) return 0;
 
-        const Trk::TrackParameters *lastmeasidpar = 0;
+        const Trk::TrackParameters *lastmeasidpar = nullptr;
         int index = (int)idTrack.trackParameters()->size();
         while (!lastmeasidpar && index > 0) {
             index--;
-            lastmeasidpar = (*idTrack.trackParameters())[index]->covariance() ? (*idTrack.trackParameters())[index] : 0;
+            lastmeasidpar = (*idTrack.trackParameters())[index]->covariance() ? (*idTrack.trackParameters())[index] : nullptr;
         }
         if (!lastmeasidpar) {
             ATH_MSG_WARNING("ID track parameters don't have error matrix!");
             return 0;
         }
 
-        const Trk::TrackParameters *mspar = 0;
+        const Trk::TrackParameters *mspar = nullptr;
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosit = msTrack.trackStateOnSurfaces()->begin();
 
         while (tsosit != msTrack.trackStateOnSurfaces()->end() && !mspar) {

@@ -48,29 +48,41 @@ asg::AcceptData TrigEgammaEmulationChain::emulate(const Trig::TrigData &input) c
 {
   asg::AcceptData acceptData (&m_accept);
 
-  bool L1CaloAccept, L2CaloAccept, L2Accept, EFCaloAccept, HLTAccept=false;
+  ATH_MSG_INFO( "Emulate " << m_chain);
+  bool passedL1Calo, passedL2Calo, passedL2, passedEFCalo, passedEFTrack, passedHLT=false;
 
-  m_l1caloTool->emulate(input, L1CaloAccept);
-  acceptData.setCutResult("L1Calo", L1CaloAccept);
-  if (L1CaloAccept){
-    m_fastCaloTool->emulate(input, L2CaloAccept);
-    acceptData.setCutResult("L2Calo", L2CaloAccept);
-    if (L2CaloAccept){
-      m_fastTool->emulate(input, L2Accept);
-      acceptData.setCutResult("L2", L2Accept);
-      if (L2Accept){
-        m_precisionCaloTool->emulate(input, EFCaloAccept);    
-        acceptData.setCutResult("EFCalo", EFCaloAccept);
-        if( EFCaloAccept ){
-          m_precisionTool->emulate(input, HLTAccept);
-          acceptData.setCutResult("HLT", HLTAccept);
+  m_l1caloTool->emulate(input, passedL1Calo);
+  acceptData.setCutResult("L1Calo", passedL1Calo);
+  if (passedL1Calo){
+    m_fastCaloTool->emulate(input, passedL2Calo);
+    acceptData.setCutResult("L2Calo", passedL2Calo);
+    if (passedL2Calo){
+      m_fastTool->emulate(input, passedL2);
+      acceptData.setCutResult("L2", passedL2);
+      if (passedL2){
+        m_precisionCaloTool->emulate(input, passedEFCalo);    
+        acceptData.setCutResult("EFCalo", passedEFCalo);
+        if( passedEFCalo ){
+          m_precisionTrackingTool->emulate(input, passedEFTrack);
+          acceptData.setCutResult("EFTrack", passedEFTrack);
+          if (passedEFTrack){
+            m_precisionTool->emulate(input, passedHLT);
+            acceptData.setCutResult("HLT", passedHLT);
+          }
         }
       }
     }
   }
+
+  ATH_MSG_INFO("Accept results:");
+  ATH_MSG_INFO("L1     : " << passedL1Calo );
+  ATH_MSG_INFO("L2Calo : " << passedL2Calo );
+  ATH_MSG_INFO("L2     : " << passedL2     );
+  ATH_MSG_INFO("EFCalo : " << passedEFCalo );
+  ATH_MSG_INFO("HLT    : " << passedHLT    );
+  
   return acceptData;
 }
-
 //!==========================================================================
 
 

@@ -4,7 +4,6 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
@@ -59,11 +58,8 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
-    if "GetT0FromBD" in kwargs and kwargs["GetT0FromBD"]:
-        calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
-        kwargs.setdefault("CalibrationDbTool", calibDbTool)
-    else:
-        kwargs.setdefault("CalibrationDbTool", '')
+    calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+    kwargs.setdefault("CalibrationDbTool", calibDbTool)
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
@@ -101,7 +97,6 @@ def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MDT_SDO")
-    kwargs.setdefault("GetT0FromBD", flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Input.isMC)
     return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 

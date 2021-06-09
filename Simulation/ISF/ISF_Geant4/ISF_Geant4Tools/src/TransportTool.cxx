@@ -123,13 +123,11 @@ void iGeant4::G4TransportTool::initializeOnce()
     std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
       std::make_unique<G4AtlasUserWorkerThreadInitialization>();
     workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
     workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
     runMgr->SetUserInitialization( workerInit.release() );
     std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
       std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
     runMgr->SetUserInitialization(actionInitialization.release());
-    runMgr->SetVolumeSmartlessLevel(m_volumeSmartlessLevel);
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
@@ -141,13 +139,11 @@ void iGeant4::G4TransportTool::initializeOnce()
     runMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
     runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
     std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
       std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
     runMgr->SetUserInitialization(actionInitialization.release());
-    runMgr->SetVolumeSmartlessLevel(m_volumeSmartlessLevel);
   }
 
   G4UImanager *ui = G4UImanager::GetUIpointer();

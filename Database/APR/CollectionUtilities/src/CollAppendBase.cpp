@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -70,7 +70,7 @@ void CollAppendBase::setMetaInfo( MetaInfo* minfo )
       m_log << coral::Error
             << "CollAppendBase::setMetaInfo() can not be used after init()"
             <<  coral::MessageStream::endmsg;
-      exit(51);
+      std::abort();
    }
    delete m_metainfo;
    m_metainfo = minfo;

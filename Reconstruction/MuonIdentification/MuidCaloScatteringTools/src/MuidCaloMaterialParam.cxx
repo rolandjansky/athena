@@ -163,12 +163,15 @@ namespace Rec {
         return m_radiationThickness[0];
     }
 
-    const Trk::TrackStateOnSurface* MuidCaloMaterialParam::trackStateOnSurface(const Trk::TrackParameters* trackParameters) const {
+    std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloMaterialParam::trackStateOnSurface(
+        const Trk::TrackParameters& trackParameters) const {
         // find radiationThickness corresponding to surface
         // FIXME: use Surface* look-up method for execution speed
-        double thickness = radiationThickness(trackParameters->position().eta());
+
+        std::unique_ptr<const Trk::TrackParameters> param_clone = trackParameters.uniqueClone();
+        double thickness = radiationThickness(trackParameters.position().eta());
         const Trk::MaterialEffectsBase* materialEffects =
-            new const Trk::MaterialEffectsOnTrack(thickness, trackParameters->associatedSurface());
+            new const Trk::MaterialEffectsOnTrack(thickness, param_clone->associatedSurface());
 
         // create TSOS
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -176,7 +179,7 @@ namespace Rec {
 
         ATH_MSG_VERBOSE(" trackStateOnSurface::Scatterer with radiationThickness " << thickness);
 
-        return new const Trk::TrackStateOnSurface(nullptr, trackParameters, nullptr, materialEffects, pattern);
+        return std::make_unique<Trk::TrackStateOnSurface>(nullptr, param_clone.release(), nullptr, materialEffects, pattern);
     }
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>

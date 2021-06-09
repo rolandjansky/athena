@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -51,9 +51,9 @@ public:
     public:
       Parameters (const SolenoidParametrization& spar,
                   const double r, const double z, const double cotTheta);
-      double m_fieldAtOrigin;
-      double m_quadraticTerm;
-      double m_cubicTerm;
+      double m_fieldAtOrigin{};
+      double m_quadraticTerm{};
+      double m_cubicTerm{};
     };
 
     SolenoidParametrization		(const AtlasFieldCacheCondObj &field_cond_obj);	// configuration from Intersector
@@ -115,8 +115,8 @@ private:
     static const double		s_zOuter;
 
     const AtlasFieldCacheCondObj *m_fieldCondObj;
-    double                      m_currentMin;
-    double                      m_currentMax;
+    double                      m_currentMin{};
+    double                      m_currentMax{};
     double		        m_centralField;
     double		        m_parameters[14688];
     

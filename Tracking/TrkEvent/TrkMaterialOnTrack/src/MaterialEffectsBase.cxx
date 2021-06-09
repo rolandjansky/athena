@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,6 +9,7 @@
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
 #include <string>
 
 Trk::MaterialEffectsBase::MaterialEffectsBase() :
@@ -20,7 +21,7 @@ Trk::MaterialEffectsBase::MaterialEffectsBase() :
 
 Trk::MaterialEffectsBase::MaterialEffectsBase(double tInX0,
                                               const Surface& sf,
-                                              const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern)  :
+                                              const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern)  :
   m_tInX0(tInX0),
   m_associatedSurface(sf.associatedDetectorElement() ?
                       &sf                            :

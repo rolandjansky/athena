@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -485,7 +485,7 @@ LArDigitMon::fillHistograms()
     if((*maxSam-pedestal)>pedestalRMS*m_SigmaCut)
     {
       /** Loop over the samples and get signal shape:*/
-      for(int i=0;i<pLArDigit->nsamples();i++,iterSam++)FillSignShape(ThisPartition,i,(*iterSam-pedestal),(*maxSam-pedestal));
+      for(int i=0;i<pLArDigit->nsamples();++i,++iterSam)FillSignShape(ThisPartition,i,(*iterSam-pedestal),(*maxSam-pedestal));
       
       /** Then fill histo about max sample:*/
       FillAverMaxDig(ThisPartition,maxPos,(*maxSam-pedestal),l1Trig,LBN);

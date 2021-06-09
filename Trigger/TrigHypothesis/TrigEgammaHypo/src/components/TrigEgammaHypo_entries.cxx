@@ -15,11 +15,9 @@
 #include "../TrigEgammaTLAPhotonHypoAlg.h"
 #include "../combos/TrigEgammaTopoHypoTool.h"
 #include "../TrigEgammaTLAPhotonHypoTool.h"
-#include "../TrigEgammaTLAPhotonFex.h"
 
 DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoAlg )
 DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoTool )
-DECLARE_COMPONENT( TrigEgammaTLAPhotonFex )
 DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlg )
 DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlg )
 DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlg )

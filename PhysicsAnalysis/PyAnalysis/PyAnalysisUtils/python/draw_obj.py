@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: draw_obj.py
@@ -54,7 +54,7 @@ get_pad() returns the pad currently being used for drawing.
 from __future__ import division
 
 
-from ROOT import gROOT, TCanvas, TVirtualPad, TH1, TH2
+from ROOT import gROOT, TCanvas, TVirtualPad, TH1, TH2, TObject
 import string
 
 
@@ -187,7 +187,10 @@ Returns:
         if rescale_p and max is None:
             # Find the first hist already plotted.
             hfirst = None
-            for obj in pad.GetListOfPrimitives():
+            prims = pad.GetListOfPrimitives()
+            # Avoids RecursiveRemove crash...
+            prims.ResetBit(TObject.kMustCleanup)
+            for obj in prims:
                 if isinstance (obj, TH1):
                     hfirst = obj
                     break

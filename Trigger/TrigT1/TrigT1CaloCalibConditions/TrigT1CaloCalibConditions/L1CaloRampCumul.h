@@ -17,12 +17,12 @@
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
 
-class L1CaloRampCumul
+class L1CaloRampCumul final
 {
 public:
     L1CaloRampCumul() {};
     L1CaloRampCumul(L1CaloRampRunPlan* pRampRunPlan);
-    virtual ~L1CaloRampCumul() {};
+    ~L1CaloRampCumul() = default;
 
     void addEvent(double step, int energy);
 

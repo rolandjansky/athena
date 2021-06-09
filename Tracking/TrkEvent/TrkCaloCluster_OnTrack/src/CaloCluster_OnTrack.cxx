@@ -61,6 +61,8 @@ Trk::CaloCluster_OnTrack* Trk::CaloCluster_OnTrack::clone() const
   return  new Trk::CaloCluster_OnTrack ( *this );
 }
 
+
+
 // assignment operator:
 Trk::CaloCluster_OnTrack& Trk::CaloCluster_OnTrack::operator=(const Trk::CaloCluster_OnTrack& cot)
 {

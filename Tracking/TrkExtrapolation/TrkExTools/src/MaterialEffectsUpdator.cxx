@@ -819,7 +819,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 }
 
 void
-Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache) const
+Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache) 
 {
   cache.validationEta = 0.;
   cache.validationPhi = 0.;
@@ -827,7 +827,7 @@ Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache) const
 }
 
 void
-Trk::MaterialEffectsUpdator::modelActionImpl(Cache& cache, const Trk::TrackParameters* /*parm*/) const
+Trk::MaterialEffectsUpdator::modelActionImpl(Cache& cache, const Trk::TrackParameters* /*parm*/) 
 {
   cache.accumulatedElossSigma = 0;
 }

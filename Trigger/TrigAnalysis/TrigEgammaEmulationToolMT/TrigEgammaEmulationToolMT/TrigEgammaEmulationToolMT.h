@@ -23,7 +23,6 @@
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "RingerSelectorTools/IAsgRingerSelectorTool.h"
 
-
 namespace Trig{
 
 class TrigEgammaEmulationToolMT: public asg::AsgTool 
@@ -66,16 +65,13 @@ class TrigEgammaEmulationToolMT: public asg::AsgTool
 
 
     const ToolHandle<TrigEgammaMatchingToolMT>& match() const {return m_matchTool;}
-
-
-    Trig::TrigData match( const TrigCompositeUtils::Decision *dec , 
-                          const std::vector<std::string> &triggerList,
-                          std::string trigType ) const;
+    bool matchElectron( const TrigCompositeUtils::Decision *dec , Trig::TrigData & ) const;
+    bool matchPhoton( const TrigCompositeUtils::Decision *dec , Trig::TrigData & ) const;
 
 
 
 };
+}
 
-}//namespace
 
 #endif

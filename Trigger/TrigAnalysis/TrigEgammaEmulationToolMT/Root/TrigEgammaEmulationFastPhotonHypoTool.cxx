@@ -48,7 +48,6 @@ bool TrigEgammaEmulationFastPhotonHypoTool::decide(  const Trig::TrigData &input
   float Eratio       = -99.0;
   float f1           = -99.0;
   float HadET        = -99.0;
-  float dEta, dPhi   = -99.0;
   int cutCounter     = 0;
 
   const xAOD::TrigPhoton* photon = input.trigPhoton;
@@ -58,13 +57,9 @@ bool TrigEgammaEmulationFastPhotonHypoTool::decide(  const Trig::TrigData &input
   float absEta = std::abs( photon->eta() );
 
   
-  int etaBin = -1;
-  for (std::size_t iBin = 0; iBin < m_etabin.size()-1; iBin++)
-    if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) etaBin = iBin;
+  int etaBin = findCutIndex(absEta);
   
-  // getting photon variable                                                                                                                                                                                
-  dEta       = photon->dEta();
-  dPhi       = photon->dPhi();
+  // getting photon variable                                                                                                           
   Eratio     = photon->eratio();
   Reta       = photon->rcore();
   EmET       = photon->pt();
@@ -75,19 +70,12 @@ bool TrigEgammaEmulationFastPhotonHypoTool::decide(  const Trig::TrigData &input
   HadEmRatio = (EmET!=0) ? HadET/EmET : -1.0;
 
 
-   
-  if ( std::abs(dEta) < m_detacluster ){
-    ATH_MSG_VERBOSE( "Fails dEta cut " << std::abs(dEta) << " < " << m_detacluster );
-    return  false;
+  if(m_acceptAll) {
+    ATH_MSG_DEBUG ( "Accept all property is set: TrigPhoton: ET_em=" << EmET << " cut in etaBin " 
+                    << etaBin << " is ET_em >= " << m_eTthr[0] );
+    return true;
   }
-  cutCounter++;
-  
-  if ( std::abs(dPhi) < m_dphicluster ){
-    ATH_MSG_VERBOSE( "Fails dphi cut " << std::abs(dPhi) << " < " << m_dphicluster );
-    return  false;
-  }
-  cutCounter++;
-  
+
   // eta range                                                                                                                                                                                              
   if ( etaBin==-1 ) {
     ATH_MSG_VERBOSE( "Photon eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] );
@@ -144,6 +132,18 @@ bool TrigEgammaEmulationFastPhotonHypoTool::decide(  const Trig::TrigData &input
   
   return true;
   
+}
+
+
+//==================================================================
+
+int TrigEgammaEmulationFastPhotonHypoTool::findCutIndex( float eta ) const {
+  const float absEta = std::abs(eta);
+  auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
+  if ( binIterator == m_etabin.end() ) {
+    return -1;
+  }
+  return  binIterator - m_etabin.begin();
 }
 
 

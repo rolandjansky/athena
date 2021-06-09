@@ -215,7 +215,7 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const
+MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -707,7 +707,7 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
 // Trk::Track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(SiCombinatorialTrackFinderData_xk& data) const
+Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(SiCombinatorialTrackFinderData_xk& data) 
 {
   if (!data.simpleTrack()) {
     return new Trk::Track(data.trackinfo(),
@@ -726,12 +726,12 @@ Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(SiCombinatorial
 // Next Trk::Track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) const
+Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) 
 {
-  DataVector<const Trk::TrackStateOnSurface>* tsos{data.trajectory().convertToNextTrackStateOnSurface()};
+  auto tsos = data.trajectory().convertToNextTrackStateOnSurface();
   if (tsos==nullptr) return nullptr;
   return new Trk::Track(data.trackinfo(),
-                        tsos,
+                        std::move(tsos),
                         data.trajectory().convertToFitQuality());
 }
 
@@ -753,7 +753,7 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
-(const std::vector<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc) const
+(const std::vector<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc) 
 {
   /// loop over all SP
   for (const Trk::SpacePoint* s: Sp) {
@@ -829,7 +829,7 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
-(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts& Cuts) const
+(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts& Cuts) 
 {
   // Integer cuts
   //

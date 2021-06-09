@@ -30,7 +30,9 @@ public:
 
   StatusCode initialize();
 
-  void Dump();
+  void Dump() override;
+
+  void Construct() override;
 
 private:
    Gaudi::Property<std::string> m_regionName{this, "RegionName", "", "Region name (same as the Tool name if not set)"};

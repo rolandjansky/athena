@@ -21,7 +21,7 @@ if __name__ == "__main__":
         #Muon::MuonPRD_Container_p2<Muon::RpcCoinData_p1>
         'RPC_triggerHits',
 
-        #Muon::MuonPRD_Container_p2<Muon::TgcPrepData_p4>
+        #Muon::MuonPRD_Container_p2<Muon::TgcPrepData_p1>
         'TGC_MeasurementsAllBCs',
 
         #Muon::MuonPRD_Container_p2<Muon::RpcPrepData_p3>
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         #Muon::MuonPRD_Container_p2<Muon::MdtPrepData_p2>
         'MDT_DriftCircles',
 
-        #Muon::TgcCoinDataContainer_tlp4
+        #Muon::TgcCoinDataContainer_tlp3
         'TrigT1CoinDataCollectionNextBC',
         'TrigT1CoinDataCollectionPriorBC',
         'TrigT1CoinDataCollection',

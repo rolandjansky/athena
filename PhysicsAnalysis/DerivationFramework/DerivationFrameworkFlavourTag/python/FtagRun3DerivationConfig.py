@@ -20,7 +20,7 @@ def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
-    taggerlist = ['IP2D', 'IP3D', 'SV1', 'SoftMu']
+    taggerlist = ['IP2D', 'IP3D', 'SV1']
 
     setupCondDb(cfgFlags, taggerlist)
 
@@ -58,12 +58,19 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
 
     kwargs = {}
     kwargs['Release'] = '22'
+    track_collection = 'InDetTrackParticles'
 
     cfgFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
 
     acc = ComponentAccumulator()
 
-    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, "InDetTrackParticles", 'BTagTrackToJetAssociator', **kwargs))
+    acc.merge(JetParticleAssociationAlgCfg(
+        cfgFlags,
+        jetcol_name_without_Jets,
+        track_collection,
+        'BTagTrackToJetAssociator',
+        **kwargs
+    ))
 
     SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
     for k, v in SecVertexingAndAssociators.items():
@@ -81,25 +88,43 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
             'BTagging/201903/rnnip/antikt4empflow/network.json',
             'BTagging/201903/dl1r/antikt4empflow/network.json',
             'BTagging/201903/dl1/antikt4empflow/network.json',
+            'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
+            'BTagging/20210517/dips/antikt4empflow/network.json',
+            'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
+            'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
         ],
         'AntiKt4EMTopo': [
             'BTagging/201903/rnnip/antikt4empflow/network.json',
             'BTagging/201903/dl1r/antikt4empflow/network.json',
             'BTagging/201903/dl1/antikt4empflow/network.json',
+            'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
+            'BTagging/20210517/dips/antikt4empflow/network.json',
+            'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
+            'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
         ],
         'AntiKtVR30Rmax4Rmin02Track': [
             'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
             'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
             'BTagging/201903/dl1/antiktvr30rmax4rmin02track/network.json',
+            'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
+            'BTagging/20210517/dips/antikt4empflow/network.json',
+            'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
+            'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
         ]
     }
 
     acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags))
 
-    acc.merge(BTagHighLevelAugmenterAlgCfg(cfgFlags, JetCollection=jetcol_name_without_Jets, BTagCollection=BTaggingCollection, Associator='BTagTrackToJetAssociator'))
+    acc.merge(BTagHighLevelAugmenterAlgCfg(
+        cfgFlags,
+        JetCollection=jetcol_name_without_Jets,
+        BTagCollection=BTaggingCollection,
+        TrackCollection=track_collection,
+        Associator='BTagTrackToJetAssociator',
+    ))
 
     for jsonfile in postTagDL2JetToTrainingMap[jetcol_name_without_Jets]:
-        acc.merge(HighLevelBTagAlgCfg(cfgFlags, BTaggingCollection=BTaggingCollection, TrackCollection='InDetTrackParticles', NNFile=jsonfile) )
+        acc.merge(HighLevelBTagAlgCfg(cfgFlags, BTaggingCollection=BTaggingCollection, TrackCollection=track_collection, NNFile=jsonfile) )
 
     return acc
 

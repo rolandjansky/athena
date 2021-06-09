@@ -21,6 +21,7 @@ def MDT_LastXing():
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    import MuonCondAlg.MdtCondDbAlgConfig # noqa: F401 MT-safe conditions access 
    from MuonCnvExample import MuonCalibConfig
+   MuonCalibConfig.setupMdtCondDB() # add MdtCalibDbAlg for MdtCalibrationDbTool
 
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
@@ -97,7 +98,6 @@ def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
         kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+MDT_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+MDT_SDO")
-    kwargs.setdefault("GetT0FromBD", overlayFlags.isDataOverlay())
     return MdtDigitizationTool(name,**kwargs)
 
 def getMDT_OverlayDigitizer(name="MDT_OverlayDigitizer", **kwargs):

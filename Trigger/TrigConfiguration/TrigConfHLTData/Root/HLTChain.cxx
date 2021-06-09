@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTChain.h"
@@ -172,16 +172,15 @@ HLTChain::shiftStepCounter(int shift) {
 
 void
 TrigConf::HLTChain::createSignatureLabels() {
-   vector<HLTSignature*>::iterator signature = m_HLTSignatureList.begin();
-   for (; signature != m_HLTSignatureList.end(); signature++) {
+   for (HLTSignature* signature : m_HLTSignatureList) {
       std::stringstream os;
-      os << chain_name() << "_" << (*signature)->signature_counter();
-      (*signature)->set_label( os.str() );
+      os << chain_name() << "_" << signature->signature_counter();
+      signature->set_label( os.str() );
    }
 }
 
 namespace {
-   TrigConf::HLTStreamTag * findStreamTag(const vector<HLTStreamTag*> & streams, string streamName) {
+   TrigConf::HLTStreamTag * findStreamTag(const vector<HLTStreamTag*> & streams, const std::string& streamName) {
       for(auto stream : streams) {
          if(stream->name() == streamName)
             return stream;

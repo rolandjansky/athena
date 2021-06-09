@@ -105,7 +105,7 @@ Trk::TrackParameters * SimHitHandle_ForwardHit::createTrackParameters() const
 
   if (!surf) {
     VP1Msg::message("SimHitHandle_ForwardHit::createTrackParameters ERROR: could not get Trk::StraightLineSurface");
-    return 0;
+    return nullptr;
   }
 
   double c;

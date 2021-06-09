@@ -73,7 +73,7 @@ Trk::SlidingCylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
   double radius = 0.;
   const double inttol = std::max(bounds().r() * 0.0001, 0.01);
   // realign to find local eta bin
-  Amg::Vector3D loc3D0 = glopos;
+  const Amg::Vector3D& loc3D0 = glopos;
   float offset = m_depth[m_etaBin.bin(loc3D0)];
   // do the transformation or not
   if (Trk::Surface::m_transforms) {
@@ -96,7 +96,7 @@ Trk::SlidingCylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
                                          double tol1,
                                          double tol2) const
 {
-  Amg::Vector3D loc3D0 = glopo;
+  const Amg::Vector3D& loc3D0 = glopo;
   Amg::Vector3D loc3Dframe = m_transforms ? (transform().inverse()) * glopo : glopo;
   float offset = m_depth[m_etaBin.bin(loc3D0)];
   // recalculate r to match bounds
@@ -114,7 +114,7 @@ Trk::SlidingCylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& p
   double tol = 0.001;
 
   // retrieve localEta bin using current position
-  Amg::Vector3D loc3D0 = pos; // used to retrieve localEta bin
+  const Amg::Vector3D& loc3D0 = pos; // used to retrieve localEta bin
   float offset = m_depth[m_etaBin.bin(loc3D0)];
 
   const Amg::Vector3D& X = Trk::Surface::center(); // point

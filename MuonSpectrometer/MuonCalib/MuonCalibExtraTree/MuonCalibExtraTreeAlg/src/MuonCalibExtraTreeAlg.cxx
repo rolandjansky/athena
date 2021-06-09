@@ -22,7 +22,7 @@ namespace MuonCalib{
   
 MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_patterns(0),
+  m_patterns(nullptr),
   m_dir(nullptr),
   m_tree(nullptr),
   m_init(false) {
@@ -102,7 +102,7 @@ StatusCode MuonCalibExtraTreeAlg::finalize() {
 bool MuonCalibExtraTreeAlg::retrievePatterns(){
   if(m_patternLocation.size()==0) return true;
   StatusCode  sc = evtStore()->retrieve(m_patterns,m_patternLocation);
-  if( !sc.isSuccess() || 0 == m_patterns)
+  if( !sc.isSuccess() || nullptr == m_patterns)
     ATH_MSG_WARNING("Could not find Pattern Combination  " << m_patternLocation);
   else
     ATH_MSG_DEBUG("Found Pattern Combination "<< m_patternLocation << " with size " << m_patterns->size());

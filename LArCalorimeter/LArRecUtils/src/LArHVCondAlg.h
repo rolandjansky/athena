@@ -137,7 +137,7 @@ private:
   void addHV(voltageCell_t& v, float hv, float weight) const;
 
   /// Read HV from DCS, store them in internal data structure per HV-line (Step 1)
-  StatusCode  dcs2LineVoltage(voltagePerLine_t& result, const std::vector<const CondAttrListCollection* > fldvec) const;
+  StatusCode  dcs2LineVoltage(voltagePerLine_t& result, const std::vector<const CondAttrListCollection* >& fldvec) const;
 
   /// Read the voltage per HV line and store it in structure per readout-cell (resolve the many-HV-lines-to-many-cells mapping). Simulanitously fill the pathologies
   StatusCode fillPathAndCellHV(voltagePerCell_t& hvdata

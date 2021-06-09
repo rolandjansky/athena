@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOL_COLLUTILITIES_COLLAPPENDBASE_H
@@ -48,7 +48,7 @@ namespace pool
    class MetaInfo;
    class CollectionService;
    
-   class CollAppendBase
+   class ATLAS_NOT_THREAD_SAFE CollAppendBase
    {
   public:
 
@@ -138,7 +138,7 @@ namespace pool
 
      bool		m_committed;
      pool::CollectionService* m_collectionService;
-     mutable coral::MessageStream m_log;
+     coral::MessageStream m_log;
 
      // Vector of args
      Args2Container     m_argsVec;

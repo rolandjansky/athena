@@ -46,17 +46,18 @@ TCS::jJetSelect::initialize() {
 
 TCS::StatusCode
 TCS::jJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
-   const jJetTOBArray & jets = dynamic_cast<const jJetTOBArray&>(input);
 
-   // fill output array with GenericTOBs builds from jets
-   for(jJetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
-     unsigned int Et = parType_t((*cl)->Et()); 
-     if( Et <= m_et ) continue; // ET cut
-     if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) < m_minEta)) continue; 
-     if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) > m_maxEta)) continue;      	
+  const jJetTOBArray & jets = dynamic_cast<const jJetTOBArray&>(input);
 
-     output.push_back( GenericTOB(**cl) );
-   }
+  // fill output array with GenericTOBs builds from jets
+  for(jJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+    unsigned int Et = parType_t((*jet)->Et()); 
+    if( Et <= m_et ) continue; // ET cut
+    if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) < m_minEta)) continue; 
+    if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) > m_maxEta)) continue;      	
+
+    output.push_back( GenericTOB(**jet) );
+  }
 
    // keep only max number of jets
    int par = m_numberOfJets ;

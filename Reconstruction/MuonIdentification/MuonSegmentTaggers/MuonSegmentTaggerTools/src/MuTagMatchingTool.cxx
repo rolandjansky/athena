@@ -167,10 +167,7 @@ bool MuTagMatchingTool::surfaceMatch(const Trk::TrackParameters* atSurface, cons
     } else if (surfaceName[0] == 'E' && segStation[0] == 'E') {
         if (surfaceName[1] != segStation[1]) return false;
         double exTrkZ(atSurface->position().z());
-        if (((surfaceName[2] == 'A') && (exTrkZ < 0)) || ((surfaceName[2] == 'C') && (exTrkZ > 0)))
-            return false;
-        else
-            return true;
+        return !(((surfaceName[2] == 'A') && (exTrkZ < 0)) || ((surfaceName[2] == 'C') && (exTrkZ > 0)));
     } else if (surfaceName[0] == 'E' && segStation[0] == 'T') {
         double segZ(segment->globalPosition().z());
         if (surfaceName.find('A') != std::string::npos) {
@@ -188,10 +185,7 @@ bool MuTagMatchingTool::surfaceMatch(const Trk::TrackParameters* atSurface, cons
     } else if (surfaceName[0] == 'E' && segStation[0] == 'C') {
         double segZ(segment->globalPosition().z());
         double exTrkZ(atSurface->position().z());
-        if (segZ * exTrkZ < 0.)
-            return false;
-        else
-            return true;
+        return segZ * exTrkZ >= 0.;
     }
     //  else ATH_MSG_DEBUG( "NOT Passing surface match, couldn't find reason not to." << surfaceName << " and " <<
     //  segStation );
@@ -414,11 +408,7 @@ bool MuTagMatchingTool::matchSegmentDirection(MuonCombined::MuonSegmentInfo* inf
     //  if(info->stationLayer==12) scale = 5./3.;
 
     if (idHasEtaHits) {
-        if (std::abs(info->pullYZ) < m_MATCH_THETAANGLE || std::abs(info->pullCY) < scale * m_combinedPullCut) {
-            return true;
-        } else {
-            return false;
-        }
+        return std::abs(info->pullYZ) < m_MATCH_THETAANGLE || std::abs(info->pullCY) < scale * m_combinedPullCut;
     } else {
         return true;        
     }

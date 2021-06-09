@@ -126,7 +126,7 @@ int run(int argc, const char* argv[]) {
 
    // instantiate steering
    TCS::TopoSteering steering;
-   steering.setUseBitwise(true);
+   steering.setUseBitwise(false);
    steering.setLegacyMode(isLegacy);
    steering.setupFromConfiguration(l1menu);
 

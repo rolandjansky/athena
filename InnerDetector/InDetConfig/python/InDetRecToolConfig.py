@@ -163,26 +163,6 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     result.addPublicTool(extrapolator, primary=True)
     return result
 
-def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
-    #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelDeadMapCondAlgCfg
-
-    kwargs.setdefault( "UseByteStreamFEI4", not flags.Input.isMC)
-    kwargs.setdefault( "UseByteStreamFEI3", not flags.Input.isMC)
-
-    if flags.InDet.usePixelDCS:
-        kwargs.setdefault( "IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ] )
-        kwargs.setdefault( "IsActiveStatus", [ 'OK', 'WARNING', 'ERROR', 'FATAL' ] )
-    
-    result = ComponentAccumulator()
-    result.merge(PixelConfigCondAlgCfg(flags))
-    result.merge(PixelDCSCondStateAlgCfg(flags))
-    result.merge(PixelDCSCondStatusAlgCfg(flags))
-    result.merge(PixelDeadMapCondAlgCfg(flags))
-
-    result.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name, **kwargs))
-    return result
-
 
 def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   result = ComponentAccumulator()
@@ -510,9 +490,8 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
   if 'PixelSummaryTool' not in kwargs :
-      tmpAcc = PixelConditionsSummaryToolCfg(flags)
-      kwargs.setdefault( "PixelSummaryTool", tmpAcc.getPrimary())
-      result.merge(tmpAcc)
+    from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+    kwargs.setdefault("PixelSummaryTool", result.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
 
   if 'Extrapolator' not in kwargs :
     tmpAcc =  InDetExtrapolatorCfg(flags)

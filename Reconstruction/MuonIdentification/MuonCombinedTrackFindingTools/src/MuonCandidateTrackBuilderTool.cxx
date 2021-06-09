@@ -105,6 +105,35 @@ namespace Muon {
             measurements.insert(measurements.end(), containedMeasurements.begin(), containedMeasurements.end());
         }
 
+	//check for rare case in which 2 layers are large/small and one segment contains the other only with the opposite assignment of radius signs
+	if(candidate.layerIntersections.size()==2 && isSmall && isLarge){
+	    if(m_idHelperSvc->stationIndex(m_edmHelperSvc->chamberId(*candidate.layerIntersections.at(0).segment))==
+	       m_idHelperSvc->stationIndex(m_edmHelperSvc->chamberId(*candidate.layerIntersections.at(1).segment))){
+	         const Muon::MuonSegment* seg1=candidate.layerIntersections.at(0).segment.get();
+	         const Muon::MuonSegment* seg2=candidate.layerIntersections.at(1).segment.get();
+	         if(seg1->containedMeasurements().size()>seg2->containedMeasurements().size()){
+		     seg2=candidate.layerIntersections.at(0).segment.get();
+		     seg1=candidate.layerIntersections.at(1).segment.get();
+		 }
+		 bool found=false;
+		 for(const auto& meas1 : seg1->containedMeasurements()){
+		     found=false;
+		     for(const auto& meas2 : seg2->containedMeasurements()){
+		         if(m_edmHelperSvc->getIdentifier(*meas1)==m_edmHelperSvc->getIdentifier(*meas2)){
+			     found=true;
+			     break;
+		         }
+		     }
+		     //if any hit isn't found we're off the hook
+		     if(!found) break;
+		 }
+		 if(found){
+		     ATH_MSG_DEBUG("S/L overlap where one segment contains the other, don't use");
+		     return std::unique_ptr<Trk::Track>();
+		 }
+	     }
+	}
+
         // reorder in case of Small Large overlaps in Barrel or Endcap ONLY
 
         bool reorderAllMeasurements = false;

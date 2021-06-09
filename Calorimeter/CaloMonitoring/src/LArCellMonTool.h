@@ -165,7 +165,7 @@ private:
 
 
   // Trigger Awareness:
-  bool m_useTrigger;
+  bool m_useTriggerCaloMon;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< TDT handle
   std::array<std::string,NOTA> m_triggerNames; 
   std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};

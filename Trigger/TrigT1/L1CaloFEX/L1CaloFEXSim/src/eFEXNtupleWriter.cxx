@@ -2,13 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//***************************************************************************
-//                           eFEXNtupleWriter.cxx  -  
-//                              -------------------
-//     begin                : 28 02 2020
-//     email                : tong.qiu@cern.ch
-//  **************************************************************************
-
 #include <L1CaloFEXSim/eFEXNtupleWriter.h>
 #include "StoreGate/StoreGateSvc.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
@@ -67,13 +60,24 @@ StatusCode LVL1::eFEXNtupleWriter::initialize () {
   m_myTree->Branch ("eg_retaden",  &m_eg_RetaDen);
   m_myTree->Branch ("eg_rhadnum",  &m_eg_RhadNum);
   m_myTree->Branch ("eg_rhadden",  &m_eg_RhadDen);
-  m_myTree->Branch ("eg_nTOBs",  &m_eg_nTOBs, "nTOBs");
-  m_myTree->Branch ("eg_haveseed",  &m_eg_haveseed);
-
+  m_myTree->Branch ("eg_haveSeed",  &m_eg_haveseed);
   m_myTree->Branch ("tau_Iso",  &m_tau_Iso);
   m_myTree->Branch ("tau_Et",  &m_tau_Et);
   m_myTree->Branch ("tau_isCentralTowerSeed",  &m_tau_isCentralTowerSeed);
+  m_myTree->Branch ("eFEXnumber",  &m_eFex_number);
+  m_myTree->Branch ("eg_nTOBs",  &m_eg_nTOBs);
 
+  m_myTree->Branch ("eg_TOB_FP", &m_eg_TOB_FP);
+  m_myTree->Branch ("eg_TOB_Eta", &m_eg_TOB_Eta);
+  m_myTree->Branch ("eg_TOB_Phi", &m_eg_TOB_Phi);
+  m_myTree->Branch ("eg_TOB_ha", &m_eg_TOB_ha);
+  m_myTree->Branch ("eg_TOB_f3", &m_eg_TOB_f3);
+  m_myTree->Branch ("eg_TOB_Re", &m_eg_TOB_Re);
+  m_myTree->Branch ("eg_TOB_Sd", &m_eg_TOB_Sd);
+  m_myTree->Branch ("eg_TOB_UnD", &m_eg_TOB_UnD);
+  m_myTree->Branch ("eg_TOB_Max", &m_eg_TOB_Max);
+  m_myTree->Branch ("eg_TOB_zeros", &m_eg_TOB_zeros);
+  m_myTree->Branch ("eg_TOB_energy", &m_eg_TOB_energy);
   return StatusCode::SUCCESS;
 }
 
@@ -87,6 +91,7 @@ StatusCode LVL1::eFEXNtupleWriter::execute () {
   CHECK(evtStore->retrieve(m_eFEXOutputCollection, "eFEXOutputCollection"));
 
   CHECK(loadegAlgoVariables());
+  CHECK(loadegAlgoTOBs());
   CHECK(loadtauAlgoVariables());
   CHECK(loadTruthElectron());
   CHECK(loadTruthTau());
@@ -128,9 +133,10 @@ StatusCode LVL1::eFEXNtupleWriter::loadegAlgoVariables() {
   m_eg_RetaDen.clear();
   m_eg_RhadNum.clear();
   m_eg_RhadDen.clear();
-
+  m_eFex_number.clear();
   m_em.clear();
   m_had.clear();
+
   m_eg_nTOBs = m_eFEXOutputCollection->size();
   for (int i = 0; i < m_eFEXOutputCollection->size(); i++)
   {
@@ -141,13 +147,56 @@ StatusCode LVL1::eFEXNtupleWriter::loadegAlgoVariables() {
     m_eg_RetaDen.push_back(eFEXegvalue_tem["RetaDen"]);
     m_eg_RhadNum.push_back(eFEXegvalue_tem["RhadNum"]);
     m_eg_RhadDen.push_back(eFEXegvalue_tem["RhadDen"]);
-    m_eg_haveseed.push_back(eFEXegvalue_tem["haveseed"]);
+    m_eg_haveseed.push_back(eFEXegvalue_tem["haveSeed"]);
     m_eg_ET.push_back(eFEXegvalue_tem["ET"]);
     m_eg_eta.push_back(eFEXegvalue_tem["eta"]);
     m_eg_phi.push_back(eFEXegvalue_tem["phi"]);
     m_em.push_back(eFEXegvalue_tem["em"]);
     m_had.push_back(eFEXegvalue_tem["had"]);
   }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode LVL1::eFEXNtupleWriter::loadegAlgoTOBs() {
+  m_eg_TOB_FP.clear();
+  m_eg_TOB_Eta.clear();
+  m_eg_TOB_Phi.clear();
+  m_eg_TOB_ha.clear();
+  m_eg_TOB_f3.clear();
+  m_eg_TOB_Re.clear();
+  m_eg_TOB_Sd.clear();
+  m_eg_TOB_UnD.clear();
+  m_eg_TOB_Max.clear();
+  m_eg_TOB_zeros.clear();
+  m_eg_TOB_energy.clear();
+  for (int i = 0; i < m_eFEXOutputCollection->size(); i++)
+  {
+    uint32_t TOB = m_eFEXOutputCollection->getEMtob()[i];
+    uint32_t FP = getbits(TOB, 1, 2);
+    uint32_t Eta = getbits(TOB, 3, 5);
+    uint32_t Phi = getbits(TOB, 6, 8);
+    uint32_t ha = getbits(TOB, 9, 10);
+    uint32_t f3 = getbits(TOB, 11, 12);
+    uint32_t Re = getbits(TOB, 13, 14);
+    uint32_t Sd = getbits(TOB, 15, 16);
+    uint32_t UnD = getbits(TOB, 17, 17);
+    uint32_t Max = getbits(TOB, 18, 18);
+    uint32_t zeros = getbits(TOB, 19, 20);
+    uint32_t energy = getbits(TOB, 21, 32);
+
+    m_eg_TOB_FP.push_back(FP);
+    m_eg_TOB_Eta.push_back(Eta);
+    m_eg_TOB_Phi.push_back(Phi);
+    m_eg_TOB_ha.push_back(ha);
+    m_eg_TOB_f3.push_back(f3);
+    m_eg_TOB_Re.push_back(Re);
+    m_eg_TOB_Sd.push_back(Sd);
+    m_eg_TOB_UnD.push_back(UnD);
+    m_eg_TOB_Max.push_back(Max);
+    m_eg_TOB_zeros.push_back(zeros);
+    m_eg_TOB_energy.push_back(energy * 100);
+  }
+  m_eFex_number = m_eFEXOutputCollection->geteFexNumber();
   return StatusCode::SUCCESS;
 }
 
@@ -299,4 +348,10 @@ const xAOD::TruthParticle* LVL1::eFEXNtupleWriter::getMother(const xAOD::TruthPa
       if (grandmother) return grandmother;
    }
    return NULL;
+}
+
+uint32_t LVL1::eFEXNtupleWriter::getbits(uint32_t in, int start, int end) {
+    in <<= start - 1;
+    in >>= 32 - end + start - 1;
+    return in;
 }

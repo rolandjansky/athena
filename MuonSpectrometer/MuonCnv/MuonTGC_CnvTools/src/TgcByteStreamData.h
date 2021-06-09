@@ -204,10 +204,7 @@ struct TGC_BYTESTREAM_NSW_POS
 {
   unsigned eta:       8;
   unsigned phi:       6;
-  unsigned fill1:     3;
-  unsigned input:     3;
-  unsigned cand:      2;
-  unsigned bcBitmap:  2;
+  unsigned fill1:    10;
   unsigned sector:    4;
   unsigned fwd:       1;
   unsigned type:      3;
@@ -237,9 +234,7 @@ struct TGC_BYTESTREAM_RPCBIS78_POS
 {
   unsigned eta:       6;
   unsigned phi:       6;
-  unsigned fill1:     8;
-  unsigned cand:      2;
-  unsigned bcBitmap:  2;
+  unsigned fill1:    12;
   unsigned sector:    4;
   unsigned fwd:       1;
   unsigned type:      3;
@@ -249,9 +244,9 @@ struct TGC_BYTESTREAM_RPCBIS78_POS
 struct TGC_BYTESTREAM_RPCBIS78_COIN
 {
   unsigned fill1:     4;
-  unsigned deta:      3;
-  unsigned dphi:      3;
   unsigned flag:      2;
+  unsigned dphi:      3;
+  unsigned deta:      3;
   unsigned fill2:     1;
   unsigned bcid:      4;
   unsigned fill3:     3;
@@ -268,8 +263,7 @@ struct TGC_BYTESTREAM_NSL_EIFI
 {
   unsigned ei:        8;
   unsigned fi:        8;
-  unsigned chamber:   2;
-  unsigned fill1:     4;
+  unsigned fill1:     6;
   unsigned bcBitmap:  2;
   unsigned sector:    4;
   unsigned fwd:       1;

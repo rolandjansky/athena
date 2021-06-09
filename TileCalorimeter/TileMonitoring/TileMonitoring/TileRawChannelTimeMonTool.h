@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -75,7 +75,7 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
     int32_t m_deltaLumiblock;
 
     bool m_bigain;
-    int m_nEvents;
+    int m_nEventsTileMon;
 
     std::vector<bool> m_bookProfHistOnce;
 

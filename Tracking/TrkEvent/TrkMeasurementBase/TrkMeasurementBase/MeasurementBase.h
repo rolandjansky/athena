@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,9 +14,10 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 //Trk
 #include "TrkEventPrimitives/LocalParameters.h"
-#include "GaudiKernel/MsgStream.h"
+
 // I/O
-#include <iostream>
+#include <iosfwd>
+#include <memory>
 class MsgStream;
 
 namespace Trk {
@@ -31,8 +32,7 @@ namespace Trk {
     It holds the minimal information, such as LocalParameters, ErrorMatrix, 
     a Surface and a GlobalPosition.
     
-    The associatedSurface and the globalPosition are returned by pointers,
-    as they may be undefined (NULL pointer)
+    The associatedSurface and the globalPosition are returned by const reference
     
     @author Andreas.Salzburger@cern.ch
   
@@ -71,6 +71,11 @@ enum Type{
     
        /**Pseudo-Constructor */
        virtual MeasurementBase* clone() const = 0;
+       
+       /**NVI Clone giving up unique pointer */
+       std::unique_ptr<MeasurementBase> uniqueClone() const{
+         return std::unique_ptr<MeasurementBase>(clone());
+       }
     
        /**Interface method to get the LocalParameters*/
        const LocalParameters& localParameters() const;
@@ -88,7 +93,7 @@ enum Type{
        virtual bool type(MeasurementBaseType::Type type) const =0;  
        
        /**Interface method for output, to be overloaded by child classes* */
-       virtual MsgStream&    dump( MsgStream& out ) const = 0;  
+       virtual MsgStream& dump( MsgStream& out ) const = 0;  
 
        /**Interface method for output, to be overloaded by child classes* */
        virtual std::ostream& dump( std::ostream& out ) const = 0;

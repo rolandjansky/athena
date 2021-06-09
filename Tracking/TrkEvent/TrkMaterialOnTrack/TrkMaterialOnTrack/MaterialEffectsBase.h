@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,8 +9,9 @@
 #ifndef TRKMATERIALONTRACK_MATERIALEFFECTSBASE_H
 #define TRKMATERIALONTRACK_MATERIALEFFECTSBASE_H
 
-#include <iostream>
+#include <iosfwd>
 #include <bitset>
+#include <memory>
 
 class MsgStream;
 class TrackCollectionCnv;
@@ -67,16 +68,22 @@ class MaterialEffectsBase
   */
   MaterialEffectsBase (double thicknessInX0,
                        const Surface& assocSurf,
-                       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern);
+                       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern);
   //! copy constructor 
   MaterialEffectsBase(const MaterialEffectsBase& meba);
   //! Assignment operator
   MaterialEffectsBase& operator= (const MaterialEffectsBase& rhs);
+  
   //! destructor. Being virtual forces derived classes to call also this base destructor
   virtual ~MaterialEffectsBase();
   
   //! Virtual constructor 
   virtual MaterialEffectsBase* clone() const = 0;
+  
+  //! NVI uniqueClone  
+  std::unique_ptr<MaterialEffectsBase> uniqueClone() const{
+    return std::unique_ptr<MaterialEffectsBase>(clone());
+  }
     
   //! returns the actually traversed material @f$ t/X_0 @f$. Leave 0.0 for external ME. 
   double thicknessInX0() const;
@@ -113,7 +120,7 @@ class MaterialEffectsBase
   friend class ::ScatteringAngleOnTrackCnv_p1;
 
   //! @f$ t/X_0    @f$  - the traversed thickness in RadiationLengths
-  double  m_tInX0;
+  double  m_tInX0{};
     
   /** @brief holds the associated surface at which the MEOT are defined.
 
@@ -122,10 +129,10 @@ class MaterialEffectsBase
       two cases are distinguished by the presence of a pointer from
       the Trk::Surface to a Trk::DetectorElement, if not present it is
       a custom-made surface. */
-  const Surface* m_associatedSurface;
+  const Surface* m_associatedSurface{};
   
   //! the flags (bits) telling what information this ME are based on
-  long m_typeFlags;
+  long m_typeFlags{};
   
 };
 
@@ -149,8 +156,9 @@ inline double Trk::MaterialEffectsBase::thicknessInX0() const
 
 inline bool Trk::MaterialEffectsBase::type(const Trk::MaterialEffectsBase::MaterialEffectsType& type) const
 {
-    if (type==NumberOfMaterialEffectsTypes) { return false;
-}
+    if (type==NumberOfMaterialEffectsTypes) { 
+      return false;
+    }
     return ((1<<static_cast<int>(type))&m_typeFlags) != 0;
 }
 

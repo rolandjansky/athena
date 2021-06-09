@@ -414,7 +414,7 @@ AdaptiveMultiVertexFitter::prepareCompatibility(xAOD::Vertex* newvertex) const
 bool
 AdaptiveMultiVertexFitter::findAmongVertices(
   const xAOD::Vertex* vertex,
-  const std::vector<xAOD::Vertex*>& previousVertices) const
+  const std::vector<xAOD::Vertex*>& previousVertices) 
 {
   return (std::find(previousVertices.begin(), previousVertices.end(), vertex) !=
           previousVertices.end());

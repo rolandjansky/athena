@@ -112,10 +112,10 @@ namespace Trk{
     void removeMS(std::vector<const Trk::TrackStateOnSurface*>* caloTSOS) const;
 
     /** Helper to update entries in the vector*/
-    void updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
+    static void updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
 		      DataVector<const Trk::TrackStateOnSurface>::iterator lastID, 
 		      DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
-		      DataVector<const Trk::TrackStateOnSurface>* caloTSOS) const;
+		      DataVector<const Trk::TrackStateOnSurface>* caloTSOS) ;
 
     /** update the TSOS vector for the Muon Spectrometer applying X0 and Eloss scaling*/
     void updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
@@ -127,8 +127,8 @@ namespace Trk{
 
     /* Helper to delete TSOS (data)vectors 
        Note that DataVector ownership is taken and elements deleted!*/
-    void deleteTSOS(const std::vector<const Trk::TrackStateOnSurface*>* vecTSOS) const;
-    void deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) const;
+    static void deleteTSOS(const std::vector<const Trk::TrackStateOnSurface*>* vecTSOS) ;
+    static void deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) ;
 
     //** Helper to printout TSOS details*/
     void printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const;

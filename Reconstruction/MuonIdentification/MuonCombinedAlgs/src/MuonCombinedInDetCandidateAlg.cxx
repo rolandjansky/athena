@@ -25,7 +25,7 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize() {
 StatusCode MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const {
     auto collection = std::make_unique<InDetCandidateCollection>(SG::OWN_ELEMENTS);
 
-    for (auto location : m_indetTrackParticleLocation) {
+    for (const auto& location : m_indetTrackParticleLocation) {
         if (create(ctx, m_trackSelector, location, collection).isFailure()) {
             ATH_MSG_FATAL("Could not create InDetCandidateCollection");
             return StatusCode::FAILURE;
@@ -65,7 +65,7 @@ void MuonCombinedInDetCandidateAlg::create(const ToolHandle<Trk::ITrackSelectorT
     unsigned int ntracks = 0;
     int trackIndex = -1;
 
-    for (auto* tp : indetTrackParticles) {
+    for (const auto * tp : indetTrackParticles) {
         ++trackIndex;
         if (!currentTrackSelector.empty()) {
             if (!isValidTrackParticle(currentTrackSelector, tp)) continue;
@@ -96,7 +96,7 @@ void MuonCombinedInDetCandidateAlg::create(const ToolHandle<Trk::ITrackSelectorT
         if (flagCandidateAsSiAssociated)
             candidate->setSiliconAssociated(true);  // Si-associated candidates don't need these
         else if (tp->pt() > m_extThreshold) {       // MuGirl only operates on ID tracks with pt at least this high
-            const Muon::MuonSystemExtension* muonSystemExtension = 0;
+            const Muon::MuonSystemExtension* muonSystemExtension = nullptr;
             m_muonSystemExtensionTool->muonSystemExtension(candidate->indetTrackParticle(), muonSystemExtension);
             candidate->setExtension(muonSystemExtension);
         }

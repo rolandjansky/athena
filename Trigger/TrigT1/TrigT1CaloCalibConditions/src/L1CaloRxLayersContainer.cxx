@@ -149,8 +149,8 @@ void L1CaloRxLayersContainer::makeTransient(const std::map<std::string, CondAttr
 	      ncells.push_back((int)attrList[ this->specificationName(eNCells4) ].data<unsigned char>());
             }
 
-            L1CaloRxLayers l1CaloRxLayers(chanNum, names, ncells);
-            m_mRxLayersMap[chanNum] = l1CaloRxLayers;
+            L1CaloRxLayers l1CaloRxLayers(chanNum, std::move(names), std::move(ncells));
+            m_mRxLayersMap[chanNum] = std::move(l1CaloRxLayers);
         }
     } else {
         std::cout << "L1CaloRxLayersContainer : Could not find requested CondAttrListCollection "
@@ -168,12 +168,12 @@ const L1CaloRxLayers* L1CaloRxLayersContainer::rxLayers(const L1CaloRxCoolChanne
     return this->rxLayers(channelId.id());
 }
 
-void L1CaloRxLayersContainer::addRxLayers(unsigned int channelId, const L1CaloRxLayers& rxLayers) {
-    m_mRxLayersMap[channelId] = rxLayers;
+void L1CaloRxLayersContainer::addRxLayers(unsigned int channelId, L1CaloRxLayers&& rxLayers) {
+    m_mRxLayersMap[channelId] = std::move(rxLayers);
 }
 
-void L1CaloRxLayersContainer::addRxLayers(const L1CaloRxCoolChannelId& channelId, const L1CaloRxLayers& rxLayers) {
-    this->addRxLayers(channelId.id(), rxLayers);
+void L1CaloRxLayersContainer::addRxLayers(const L1CaloRxCoolChannelId& channelId, L1CaloRxLayers&& rxLayers) {
+    this->addRxLayers(channelId.id(), std::move(rxLayers));
 }
 
 void L1CaloRxLayersContainer::clear() {

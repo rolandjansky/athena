@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-class L1CaloModuleType {
+class L1CaloModuleType final {
 public:
 
   // Values: L1Calo trigger modules, common CERN modules and test modules.
@@ -22,7 +22,7 @@ public:
   L1CaloModuleType(const std::string& mTypeName);
   L1CaloModuleType(const L1CaloModuleType& mType);
   L1CaloModuleType& operator=(const L1CaloModuleType& mType);
-  virtual ~L1CaloModuleType() {};
+  ~L1CaloModuleType() = default;
 
   // Information
   const std::string toString() const;

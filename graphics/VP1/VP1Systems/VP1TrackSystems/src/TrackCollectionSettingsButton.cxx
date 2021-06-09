@@ -32,7 +32,7 @@
 //____________________________________________________________________
 class TrackCollectionSettingsButton::Imp {
 public:
-  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0),
+  Imp():theclass(nullptr),editwindow(nullptr),matButton(nullptr), trackDrawStyle(nullptr), trackLightModel(nullptr),
   last_trackTubeRadius(0.0),last_cutTruthFromIROnly{}, last_cutExcludeBarcodeZero{}, 
   last_cutTruthExcludeNeutrals{},last_cutOnlyVertexAssocTracks{},last_useDefaultCuts{},
   dim(0), serialization_version(0){
@@ -74,7 +74,7 @@ void TrackCollectionSettingsButton::Imp::initEditWindow()
   if (editwindow)
     return;
   theclass->messageVerbose("Initialising material editor dialog");
-  editwindow = new QWidget(0,Qt::WindowStaysOnTopHint);
+  editwindow = new QWidget(nullptr,Qt::WindowStaysOnTopHint);
   editwindow_ui.setupUi(editwindow);
   matButton = editwindow_ui.pushButton_matButton;  
 }
@@ -89,7 +89,7 @@ void TrackCollectionSettingsButton::setText(const QString& t)
 
 //____________________________________________________________________
 TrackCollectionSettingsButton::TrackCollectionSettingsButton(QWidget * parent,int dim)
-  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
+  : VP1MaterialButtonBase(parent,nullptr,"VP1MaterialButton"), m_d(new Imp)
 {
   m_d->dim = dim;
   

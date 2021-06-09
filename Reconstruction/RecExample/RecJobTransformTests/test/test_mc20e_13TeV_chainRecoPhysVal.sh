@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# art-description: Run mc20e reco with pileup, and then run phys val on the output AOD.
+# art-output: log.*
+# art-athena-mt: 8
+# art-type: grid
+# art-include: master/Athena
+
+#Used by HITtoRDO step to configure AthenaMP
+declare -i ATHENA_CORE_NUMBER=8
+
+export TRF_ECHO=True;
+Reco_tf.py --AMI=r12689 --outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --inputHITSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/mc16_13TeV/valid1/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3227/HITS.12560240._000287.pool.root.1 --inputHighPtMinbiasHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/mc16_13TeV/mc16_13TeV.429884.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_highjetphoton.simul.HITS.e8314_e7400_s3508/HITS.24109349._010870.pool.root.1 --inputLowPtMinbiasHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/mc16_13TeV/mc16_13TeV.429885.Epos_minbias_inelastic_lowjetphoton.simul.HITS.e8314_e7400_s3508/HITS.24109354._011911.pool.root.1 --maxEvents=500 --jobNumber=1 --imf False --athenaopts "RAWtoESD:--threads=1" "ESDtoAOD:--threads=1" 
+RES=$?
+echo "art-result: $RES Reco"
+if [ $RES -ne 0 ];then
+return $RES
+fi
+
+Reco_tf.py --inputAODFile=myAOD.pool.root --outputNTUP_PHYSVALFile physval.root  --validationFlags 'doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doTopoCluster,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau, doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult'
+RES=$?
+echo "art-result: $RES Reco"
+
+

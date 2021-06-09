@@ -28,7 +28,7 @@ namespace TCS {
 
    private:
 
-      parType_t      m_numberOfClusters = { 0 };
+      parType_t      m_numberOfeEms = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
       parType_t      m_et = { 0 };

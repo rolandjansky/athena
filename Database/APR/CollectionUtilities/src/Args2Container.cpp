@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <xercesc/dom/DOM.hpp>
@@ -452,7 +452,9 @@ void Args2Container::writeXMLContent(std::vector<std::string>& argv)
       toolBase->setAttribute(XMLString::transcode("toolID"),
                              XMLString::transcode(m_name.c_str()));
       time_t tm = time(NULL);
-      char * date = asctime(localtime(&tm));
+      struct tm tm_result;
+      char tbuf[32];
+      char * date = asctime_r(localtime_r(&tm, &tm_result), tbuf);
       toolBase->setAttribute(XMLString::transcode("date"),
                              XMLString::transcode(date));
       newDocument->getDocumentElement()->appendChild(toolBase);

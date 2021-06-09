@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -44,17 +44,17 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     virtual StatusCode checkHists(bool fromFinalize) override;
 
     void bookHists(int ros, int drawer);
-    void drawHists(int ros, int drawer, std::string moduleName);
+    void drawHists(int ros, int drawer, const std::string& moduleName);
     void ratioErrorBar(TH1S* hist, double& xmin, double& xmax, double mean);
     void rangeErrorBar(double& xmin, double& max, double mean);
     void bookDsp(int ros, int drawer);
     StatusCode fillDsp(std::map<int, std::vector<double> > &efitMap, std::map<int, std::vector<double> > &tfitMap);
     StatusCode finalDsp(int ros, int drawer);
 
-    void drawDsp(int ros, int drawer, std::string moduleName);
-    void drawOptFilt(int ros, int drawer, std::string moduleName);
+    void drawDsp(int ros, int drawer, const std::string& moduleName);
+    void drawOptFilt(int ros, int drawer, const std::string& moduleName);
     TF1* GetTimeFitFunc(TH2S* hist2d);
-    void LaserFancyPlotting(int ros, int drawer, int maxgain, std::string moduleName);
+    void LaserFancyPlotting(int ros, int drawer, int maxgain, const std::string& moduleName);
 
   private:
 
@@ -136,7 +136,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     const uint32_t* m_cispar;
 
     bool m_bigain;
-    int m_nEvents;
+    int m_nEventsTileMon;
     struct Data {
       float m_rangeQ[2][2][3][48];
       double m_timeCov[5][64][48][2][2][6];

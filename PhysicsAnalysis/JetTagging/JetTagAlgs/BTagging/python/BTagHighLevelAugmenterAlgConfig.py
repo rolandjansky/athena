@@ -3,26 +3,25 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__BTagHighLevelAugmenterAlg=CompFactory.Analysis.BTagHighLevelAugmenterAlg
+def BTagHighLevelAugmenterAlgCfg(ConfigFlags, JetCollection, BTagCollection, Associator,  TrackCollection, doFlipTagger=False):
 
-def BTagHighLevelAugmenterAlgCfg(ConfigFlags, JetCollection, BTagCollection, Associator, doFlipTagger=False, **options):
-    """Adds a SecVtxTool instance and registers it.
+    name = (BTagCollection + 'augment').lower()
+    flip_config = 'FLIP_SIGN' if doFlipTagger else 'STANDARD'
 
-    input: name:               The algorithm's name.
-           BTaggingCollectionName       The name of the btagging collections.
-           options:            Python dictionary of options to be passed to the algorithm.
-    output: The tool."""
+    btagAug = CompFactory.FlavorTagDiscriminants.BTagAugmenterTool(
+        name=name,
+        flipTagConfig=flip_config,
+        trackAssociator=Associator,
+    )
 
-    options = {}
-    options['JetCollectionName'] = JetCollection.replace('Track', 'PV0Track') + 'Jets'
-    options['BTaggingCollectionName'] = BTagCollection
-    options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
-    options['BTagTrackToJetAssociatorName'] = Associator
-    options['name'] = (BTagCollection + '_Augment').lower()
-    if doFlipTagger: options['FlipTagConfig'] = 'FLIP_SIGN'
-
+    decorAlg = CompFactory.FlavorTagDiscriminants.BTagDecoratorAlg(
+        name=f'{name}_alg',
+        btagContainer=BTagCollection,
+        trackContainer=TrackCollection,
+        decorator=btagAug,
+    )
     # -- create the augmentation algorithm
     acc = ComponentAccumulator()
-    acc.addEventAlgo(Analysis__BTagHighLevelAugmenterAlg(**options))
+    acc.addEventAlgo(decorAlg)
 
     return acc

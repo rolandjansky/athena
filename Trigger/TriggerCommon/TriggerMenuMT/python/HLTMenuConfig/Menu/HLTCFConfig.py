@@ -314,7 +314,6 @@ def sequenceScanner( HLTNode ):
     from collections import defaultdict
     _seqMapInStep = defaultdict(set)
     _status = True
-
     def _mapSequencesInSteps(seq, stepIndex, childInView):
         """ Recursively finds the steps in which sequences are used"""
         if not isSequence(seq):
@@ -402,7 +401,7 @@ def createDataFlow(chains, allDicts):
     NSTEPS = len(chainWithMaxSteps.steps)
 
     log.info("[createDataFlow] creating DF for %d chains and total %d steps", len(chains), NSTEPS)
-
+    
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     # initialize arrays for monitor
     finalDecisions = [ [] for n in range(NSTEPS) ]
@@ -423,17 +422,23 @@ def createDataFlow(chains, allDicts):
                     filterInput = chain.L1decisions
             else:
                 filterInput = lastDecisions
-
             if len(filterInput) == 0 :
                 log.error("[createDataFlow] Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
 
             #  adapt multiplicity  between two steps:
+            hasHiddenLeg = False
+            chainSignatures = list(filter(lambda x : (x['chainName']==chain.name), allDicts))[0]['signatures']
+            if chainSignatures.count('Jet') > 1 and len(set(chainSignatures)) > 1:
+                hasHiddenLeg = True
+
             if  len(filterInput) < len(chainStep.multiplicity):
                 oldlen=len(filterInput)
                 if  len(filterInput)  == 1:
                     filterInput = filterInput * len(chainStep.multiplicity)                   
                     log.info("Adapted Multiplicity at step %d of chain %s: %d -> %d",nstep, chain.name, oldlen, len(filterInput))
+                elif hasHiddenLeg:
+                    pass
                 else:
                     log.error("Found  %d inputs to step %s having multiplicity %d", len(filterInput), chainStep.name, len(chainStep.multiplicity))
                     raise Exception("[createDataFlow] Cannot proceed, exiting.")
@@ -474,12 +479,19 @@ def createDataFlow(chains, allDicts):
 
             # add chains to the filter:
             chainLegs = chainStep.getChainLegs()
-            if len(chainLegs) != len(filterInput):
+            if len(chainLegs) != len(filterInput) and not hasHiddenLeg:
                 log.error("[createDataFlow] lengths of chainlegs = %s differ from inputs=%s", str(chainLegs), str(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
             for finput, leg in zip(filterInput, chainLegs):
                 sequenceFilter.addChain(leg, finput)
                 log.debug("Adding chain %s to input %s of %s", leg, finput,sequenceFilter.Alg.name())
+
+            # add hiden legs appended in MenuComponents to filter 
+            if hasHiddenLeg:
+                for leg in chainLegs[len(filterInput):]:
+                    sequenceFilter.addChain(leg, filterInput[chainSignatures.index('Jet')])
+                    log.debug("Adding hidden chain %s to input %s of %s", leg, filterInput[chainSignatures.index('Jet')], sequenceFilter.Alg.name())
+
             log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
             log.debug("Now Filter has chains/input: %s", sequenceFilter.getChainsPerInput())
 

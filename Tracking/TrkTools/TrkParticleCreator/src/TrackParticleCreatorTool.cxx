@@ -1052,20 +1052,20 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
   }
 
-  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) const {
+  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) {
     tp.setBeamlineTiltX(tiltx);
     tp.setBeamlineTiltY(tilty);
   }
 
-  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) const {
+  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) {
     tp.setHitPattern(hitpattern);
   }
 
-  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) const {
+  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) {
     tp.setNumberOfUsedHitsdEdx(hits);
   }
 
-  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) const {
+  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) {
     tp.setNumberOfIBLOverflowsdEdx(overflows);
   }
 

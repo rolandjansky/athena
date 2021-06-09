@@ -25,7 +25,7 @@ namespace TCS {
       jJetTOB(const jJetTOB & jet);
 
       // constructor with initial values
-      jJetTOB(unsigned int Et, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "jJetTOB" );
+      jJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, std::string tobName = "jJetTOB" );
 
       // destructor
       virtual ~jJetTOB();
@@ -36,7 +36,7 @@ namespace TCS {
       
       // accessors
       int eta() const { return m_eta; }
-      int phi() const { return m_phi; }
+      unsigned phi() const { return m_phi; }
       
       double EtDouble() const { return m_EtDouble; }
       double etaDouble() const { return m_etaDouble; }
@@ -67,7 +67,7 @@ namespace TCS {
 
       unsigned int m_Et { 0 };
       int m_eta { 0 };
-      int m_phi { 0 };
+      unsigned m_phi { 0 };
 
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };

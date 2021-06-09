@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "IAFPProtonTransportTool.h"
 #include "AFPProtonTransportTool.h"
 
 #include "DecisionHandling/ComboHypoToolBase.h"
@@ -33,11 +34,15 @@ private:
   ///Boolean corresponding to the decision to record the event based on the selection being met.
   //HLT::Identifier m_decisionId;
  
+  //Proton transport parameterizaton file for A side
+  Gaudi::Property<std::string> m_protonTransportParamFileNameA{this,"protonTransportParamFileName1","final_parameterization_b1.txt","Name of the file with proton transport parameterization for A side"};
+  //Proton transport parameterizaton file for C side 
+  Gaudi::Property<std::string> m_protonTransportParamFileNameC{this,"protonTransportParamFileName2","final_parameterization_b2.txt","Name of the file with proton transport parameterization C side"};
+
   //Proton transport parameterizaton object used in the proton position prediction for ATLAS A side
-  AFPProtonTransportTool* m_transportBeam1;
-  //ToolHandleArray< IAFPProtonTransportTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
+  ToolHandle<IAFPProtonTransportTool> m_transportBeamA;
   ///Proton transport parameterizaton object used in the proton position prediction for ATLAS C side
-  AFPProtonTransportTool* m_transportBeam2;
+  ToolHandle<IAFPProtonTransportTool> m_transportBeamC;
 
   ///Threshold for the radius distance between parameterization and measurements 
   Gaudi::Property<float> m_maxProtonDist{this,"maxProtonDist",2.0,"Cut on distance between measured and extrapolated proton"};
@@ -62,7 +67,7 @@ private:
   ///Variable to convert from MeV to GeV
   const float m_GeV = 0.001;
 
-  SG::ReadHandleKey< xAOD::AFPTrackContainer > m_AFPtrackCollectionReadKey {this, "AFPTrackCollecion", "AFPTrackCollection", "xAOD AFP track collection"};
+  SG::ReadHandleKey< xAOD::AFPTrackContainer > m_AFPtrackCollectionReadKey {this, "AFPTrackContainer", "AFPTrackContainer", "xAOD AFP track collection"};
 
   // monitoring
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };

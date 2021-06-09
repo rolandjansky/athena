@@ -118,7 +118,7 @@ setup:
 
    * - ``CutNTrack``
      - ``NTracks``
-     - ``std::vector<size_t>``
+     - ``std::vector<unsigned int>``
      - accepting taus with a set of track multiplicities, each value in the vector will be accepted
      -
 

@@ -19,18 +19,10 @@ TriggerConfigGetter("ReadPool")
 
 print(svcMgr.getAllChildren())
 
-from TrigNavTools.TrigNavToolsConf import Run2ToRun3TrigNavConverter
-alg = Run2ToRun3TrigNavConverter("TrigNavCnv", OutputLevel=2, HLTConfigSvc=svcMgr.xAODConfigSvc)
+from TrigNavTools.NavConverterConfig import createNavConverterAlg
+alg = createNavConverterAlg("TrigNavCnv")
+alg.HLTConfigSvc = svcMgr.xAODConfigSvc
 alg.doPrint = False
-
-# examples of collections
-alg.Collections = ["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer"]
-    
-# examples of chains
-alg.Chains = ["HLT_mu4"]
-alg.Rois = ["forID","forID1","forID2","forMS","forSA","forTB","forMT","forCB"]
-
-# need to insert algoritm before the outputAODFile
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
 */
 
-#include "TrigT1MuctpiPhase1/TrigThresholdDecisionTool.h"
+#include "TrigThresholdDecisionTool.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 namespace LVL1

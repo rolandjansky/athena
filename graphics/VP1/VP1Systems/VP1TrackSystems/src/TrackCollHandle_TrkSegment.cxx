@@ -105,7 +105,7 @@ void TrackCollHandle_TrkSegment::setupSettingsFromControllerSpecific(TrackSystem
 bool TrackCollHandle_TrkSegment::load()
 {
   //Get collection:
-  const Trk::SegmentCollection *segmentColl(0);
+  const Trk::SegmentCollection *segmentColl(nullptr);
   if (!VP1SGAccessHelper(systemBase()).retrieve(segmentColl, name())) {
     common()->systemBase()->message("Error: Could not retrieve segment collection with key="+name());
     return false;
@@ -141,5 +141,5 @@ bool TrackCollHandle_TrkSegment::cut(TrackHandleBase* handle)
 //____________________________________________________________________
 void TrackCollHandle_TrkSegment::visibleStateUpdated(TrackHandle_TrkSegment* handle)
 {
-  common()->visTrkSegmentsToMaterialHelper()->setState(handle->trkSegmentPointer(), (handle->visible() ? handle->currentMaterial() : 0 ));
+  common()->visTrkSegmentsToMaterialHelper()->setState(handle->trkSegmentPointer(), (handle->visible() ? handle->currentMaterial() : nullptr ));
 }

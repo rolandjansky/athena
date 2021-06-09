@@ -97,7 +97,7 @@ class ChunkSize(JobProperty):
     """
     statusOn = True
     allowedTypes = ['int']
-    StoredValue  = 1
+    StoredValue  = -1
 
 class ReadEventOrders(JobProperty):
     """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility

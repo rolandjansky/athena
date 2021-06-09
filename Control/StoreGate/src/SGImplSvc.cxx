@@ -1886,10 +1886,10 @@ void SG_dump (SGImplSvc* sg, const char* fname)
  *
  *        The default version always returns an empty string.
  */
-SG::SourceID SGImplSvc::sourceID() const
+SG::SourceID SGImplSvc::sourceID (const std::string& key /*= "EventSelector"*/) const
 {
   lock_t lock (m_mutex);
-  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), "EventSelector", true);
+  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), key, true);
   if (dp) {
     const DataHeader* dh = SG::DataProxy_cast<DataHeader> (dp);
     if (dh) {

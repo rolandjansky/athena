@@ -50,10 +50,6 @@
     <class name="std::vector<Muon::TgcPrepData_p3>" />
     <class name="Muon::TgcPrepDataContainer_p3" id="215726D6-15F4-41D2-B808-1B9E9FD84166"/>
 
-    <class name="Muon::TgcPrepData_p4" />
-    <class name="std::vector<Muon::TgcPrepData_p4>" />
-    <class name="Muon::TgcPrepDataContainer_p4" id="3A3FA33A-50B8-4580-90F2-F72E6949BF54"/>
-
     <class name="Muon::MdtTwinPrepData_p1" />
     <class name="std::vector<Muon::MdtTwinPrepData_p1>" />
 
@@ -73,13 +69,10 @@
 
     <class name="Muon::TgcCoinData_p2" />
     <class name="Muon::TgcCoinData_p3" />
-    <class name="Muon::TgcCoinData_p4" />
     <class name="std::vector<Muon::TgcCoinData_p2>" />
     <class name="std::vector<Muon::TgcCoinData_p3>" />
-    <class name="std::vector<Muon::TgcCoinData_p4>" />
     <class name="Muon::TgcCoinDataContainer_tlp2" id="524775D8-A66F-4AD3-912E-7D05389C1011"/>
     <class name="Muon::TgcCoinDataContainer_tlp3" id="95BF89C7-1FFC-464F-A14D-742F9E874E56"/>
-    <class name="Muon::TgcCoinDataContainer_tlp4" id="50580B9C-95DB-4501-88EE-14E1CB0C41D6"/>
 
     <class name="Muon::RpcCoinData_p1" />
     <class name="std::vector<Muon::RpcCoinData_p1>" />

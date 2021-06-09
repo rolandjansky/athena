@@ -506,10 +506,12 @@ bool psc::Psc::prepareForRun (const ptree& args)
     return false;
   }
 
-  // After prepareForRun the HLTMPPU will fork the workers. Tell the Python
-  // interpreter this is happening to avoid deadlocks (ATR-23428).
-  ERS_DEBUG(1, "Pre-fork initialization of Python interpreter");
-  PyOS_BeforeFork();
+  if ( Py_IsInitialized() ) {
+    // After prepareForRun the HLTMPPU will fork the workers. Tell the Python
+    // interpreter this is happening to avoid deadlocks (ATR-23428).
+    ERS_DEBUG(1, "Pre-fork initialization of Python interpreter");
+    PyOS_BeforeFork();
+  }
 
   return true;
 }

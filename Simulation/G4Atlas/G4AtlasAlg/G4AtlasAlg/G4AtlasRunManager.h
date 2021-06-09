@@ -46,11 +46,6 @@ public:
     m_detGeoSvc.setTypeAndName(typeAndName);
   }
 
-  /// Configure the Sensitive Detector Master Tool handle
-  void SetSDMasterTool(const std::string& typeAndName) {
-    m_senDetTool.setTypeAndName(typeAndName);
-  }
-
   /// Configure the Fast Simulation Master Tool handle
   void SetFastSimMasterTool(const std::string& typeAndName) {
     m_fastSimTool.setTypeAndName(typeAndName);
@@ -95,7 +90,6 @@ private:
 
   bool m_recordFlux;
 
-  ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
   ServiceHandle<IPhysicsListSvc> m_physListSvc;
 

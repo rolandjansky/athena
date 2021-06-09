@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -348,12 +348,12 @@ void TileDQFragLWMonTool::bookErrorsHistograms(unsigned int ros, unsigned int dr
   histlbName = "FracTileDigiErrors" + moduleName;
  
    
-  m_errors[ros][drawer] = book2ILW("", histName.c_str(), histTitle.c_str(), 
+  m_errors[ros][drawer] = book2ILW("", histName, histTitle, 
                                    16, 0.0, 16.0, NERROR + NCORRUPTED, 0., NERROR + NCORRUPTED);
   m_errors[ros][drawer]->GetXaxis()->SetTitle("DMU");
   SetBinLabel(m_errors[ros][drawer]->GetYaxis(), m_errorsLabels);  
 
-  m_errorsLB[ros][drawer] = bookProfileLW("", histlbName.c_str(), histlbTitle.c_str(), m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, -1.1, 1.1);
+  m_errorsLB[ros][drawer] = bookProfileLW("", histlbName, histlbTitle, m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, -1.1, 1.1);
   m_errorsLB[ros][drawer]->GetXaxis()->SetTitle("LumiBlock");
 
   m_errorsLB[ros][drawer]->GetYaxis()->SetTitle("Fraction of Digital errors");

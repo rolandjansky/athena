@@ -1,0 +1,160 @@
+"""Define functions to configure Pixel conditions algorithms
+
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+"""
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
+from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+
+def ITkPixelConfigCondAlgCfg(flags, name="ITkPixelConfigCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelConfigCondAlg for ITk"""
+    kwargs.setdefault("WriteKey", "ITkPixelModuleData")
+    # This one has the highest chance of premature divergence so just take the default Pixel for now
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
+    return PixelConfigCondAlgCfg(flags, name, **kwargs)
+
+def ITkPixelAlignCondAlgCfg(flags, name="ITkPixelAlignCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelAlignCondAlg for ITk"""
+    acc = ComponentAccumulator()
+
+    if flags.GeoModel.Align.Dynamic:
+        raise RuntimeError("Dynamic alignment not supported for ITk yet")
+    else:
+        if flags.Common.Project != "AthSimulation" and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay):
+            acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align", className="AlignableTransformContainer"))
+        else:
+            acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align"))
+
+    kwargs.setdefault("DetManagerName", "ITkPixel")
+    kwargs.setdefault("UseDynamicAlignFolders", flags.GeoModel.Align.Dynamic)
+    kwargs.setdefault("ReadKeyStatic", "/Indet/Align")
+    # kwargs.setdefault("ReadKeyDynamicL1", "/Indet/AlignL1/ID")
+    # kwargs.setdefault("ReadKeyDynamicL2", "/Indet/AlignL2/PIX")
+    # kwargs.setdefault("ReadKeyDynamicL3", "/Indet/AlignL3")
+    kwargs.setdefault("ReadKeyIBLDist", "")
+    kwargs.setdefault("WriteKey", "ITkPixelAlignmentStore")
+
+    acc.addCondAlgo(CompFactory.PixelAlignCondAlg(name, **kwargs))
+    return acc
+
+def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
+    kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
+    kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
+    kwargs.setdefault("WriteKey", "ITkPixelChargeCalibCondData")
+    acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
+    return acc
+
+def ITkPixelChargeLUTCalibCondAlgCfg(flags, name="ITkPixelChargeLUTCalibCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
+    kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
+    kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")
+    kwargs.setdefault("WriteKey", "ITkPixelChargeCalibCondData")
+    acc.addCondAlgo(CompFactory.PixelChargeLUTCalibCondAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDCSCondHVAlgCfg(flags, name="ITkPixelDCSCondHVAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDCSCondHVAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    if flags.Common.isOnline:
+        kwargs.update( ReadKey="/PIXEL/HLT/DCS/HV")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
+    else:
+        # kwargs.update( ReadKey="/PIXEL/DCS/HV")
+        # acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.update(ReadKey="")  # disable for ITk for now
+    kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
+    kwargs.setdefault("WriteKey", "ITkPixelDCSHVCondData")
+    acc.addCondAlgo(CompFactory.PixelDCSCondHVAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDCSCondStateAlgCfg(flags, name="ITkPixelDCSCondStateAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDCSCondStateAlg for ITk"""
+    acc = ComponentAccumulator()
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.InDet.usePixelDCS:
+        acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATE", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
+    else:
+        kwargs.setdefault("ReadKeyState", "")
+    kwargs.setdefault("WriteKeyState", "ITkPixelDCSStateCondData")
+    acc.addCondAlgo(CompFactory.PixelDCSCondStateAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDCSCondStatusAlgCfg(flags, name="ITkPixelDCSCondStatusAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDCSCondStatusAlg for ITk"""
+    acc = ComponentAccumulator()
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.InDet.usePixelDCS:
+        acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATUS", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
+    else:
+        kwargs.setdefault("ReadKeyStatus", "")
+    kwargs.setdefault("WriteKeyStatus", "ITkPixelDCSStatusCondData")
+    acc.addCondAlgo(CompFactory.PixelDCSCondStatusAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDCSCondTempAlgCfg(flags, name="ITkPixelDCSCondTempAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDCSCondTempAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    if flags.Common.isOnline:
+        kwargs.setdefault("ReadKey", "/PIXEL/HLT/DCS/TEMPERATURE")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
+    else:
+        kwargs.setdefault("ReadKey", "/PIXEL/DCS/TEMPERATURE")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
+    kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
+    kwargs.setdefault("WriteKey", "ITkPixelDCSTempCondData")
+    acc.addCondAlgo(CompFactory.PixelDCSCondTempAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDeadMapCondAlgCfg(flags, name="ITkPixelDeadMapCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDeadMapCondAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+
+    # TODO: not enabled for ITk for now
+    kwargs.setdefault("ReadKey", "")
+    kwargs.setdefault("WriteKey", "ITkPixelDeadMapCondData")
+    acc.addCondAlgo(CompFactory.PixelDeadMapCondAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDetectorElementCondAlgCfg(flags, name="ITkPixelDetectorElementCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDetectorElementCondAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelAlignCondAlgCfg(flags))
+    kwargs.setdefault("DetManagerName", "ITkPixel")
+    kwargs.setdefault("PixelAlignmentStore", "ITkPixelAlignmentStore")
+    kwargs.setdefault("WriteKey", "ITkPixelDetectorElementCollection")
+    acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))
+    return acc
+
+def ITkPixelDistortionAlgCfg(flags, name="ITkPixelDistortionAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDistortionAlg for ITk"""
+    acc = ComponentAccumulator()
+    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(addFoldersSplitOnline(flags,"INDET", "/Indet/Onl/PixelDist", "/Indet/PixelDist", className="DetCondCFloat"))
+    kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
+    kwargs.setdefault("ReadKey", "/Indet/PixelDist")
+    kwargs.setdefault("WriteKey", "ITkPixelDistortionData")
+    acc.addCondAlgo(CompFactory.PixelDistortionAlg(name, **kwargs))
+    return acc
+
+def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured ITkPixelOfflineCalibCondAlg"""
+    acc = ComponentAccumulator()
+    acc.merge(addFolders(flags, "/PIXEL/ITkClusterError", "PIXEL_OFL", className="CondAttrListCollection"))
+    kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
+    kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")
+    kwargs.setdefault("InputSource", 2)
+    acc.addCondAlgo(CompFactory.ITkPixelOfflineCalibCondAlg(name, **kwargs))
+    return acc

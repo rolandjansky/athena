@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParamsProperties.h"
@@ -135,7 +135,7 @@ const std::string & LArParamsProperties::getClassName(unsigned index)
 
 // get class index from class name :
 //----------------------------------
-unsigned LArParamsProperties::getClassIndex(std::string className) 
+unsigned LArParamsProperties::getClassIndex(const std::string& className) 
 { 
   const std::vector<std::string> & names = ClassNames() ;
   unsigned N =  names.size() ;
@@ -147,12 +147,12 @@ unsigned LArParamsProperties::getClassIndex(std::string className)
 
 // number of parameters contained in each data class
 //---------------------------------------------------
-unsigned LArParamsProperties::numberOfParams(std::string className) { return numberOfParams(getClassIndex(className)) ; } 
+unsigned LArParamsProperties::numberOfParams(const std::string& className) { return numberOfParams(getClassIndex(className)) ; } 
 
 
 // gain dependance of data class
 //-------------------------------  
-bool LArParamsProperties::isGainDependent(std::string className) { return isGainDependent(getClassIndex(className)) ; } 
+bool LArParamsProperties::isGainDependent(const std::string& className) { return isGainDependent(getClassIndex(className)) ; } 
 
 
 // keyword for detector store

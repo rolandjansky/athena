@@ -68,7 +68,8 @@ TrigConf::L1TopoAlgorithm::load()
            unsigned int val = p.getAttribute<unsigned int>("value");
            // Work around overflow in the database...
            if (val >= 1u<<31) {
-             val = 999;
+	     // Expected maximum value of Inv M^2 in 100 MeV unit
+             val = 1024*1024*10*10*10;
            }
            m_parameters.emplace_back(p["name"], val, p.getAttribute_optional<unsigned int>("selection"));
          }

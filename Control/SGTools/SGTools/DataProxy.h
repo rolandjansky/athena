@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGTOOLS_DATAPROXY_H
@@ -319,19 +319,11 @@ class DataStore;
 
     IConverter* m_dataLoader;
 
+    T2pMap* m_t2p;
+
     /// list of bound DataHandles
     typedef std::vector<IResetable*> handleList_t;
     handleList_t m_handles;
-
-    T2pMap* m_t2p;
-    Athena::IMessageSvcHolder m_ims;
-    
-    /// errno-style error code for accessData
-    enum ErrNo m_errno;
-
-    /// The store of which we are a part.
-    IProxyDict* m_store;
-
 
     // Needs to be recursive since updateAddress can call back
     // into the DataProxy.
@@ -343,6 +335,15 @@ class DataStore;
     typedef std::recursive_mutex objMutex_t;
     typedef std::lock_guard<objMutex_t> objLock_t;
     mutable objMutex_t m_objMutex; // For m_dObject.
+
+    
+    Athena::IMessageSvcHolder m_ims;
+    
+    /// The store of which we are a part.
+    IProxyDict* m_store;
+
+    /// errno-style error code for accessData
+    enum ErrNo m_errno;
 
     
     bool isValidAddress (lock_t&) const;
@@ -414,28 +415,24 @@ class DataStore;
 //  + d:  bool m_consultProvider
 //  + e:  padding
 //  +10:  IOpaqueAddress* m_address
-//  +18:  std::string m_name         <== 2nd cache line starts at +20
-//  +38:  vector m_transientID 
-//  +50:  set m_transientAlias       <== 3rd cache line starts at +60
-//  +80:  IAddressProvider* m_pAddressProvider 
-//  +88.. 
+//  +18:  IAddressProvider* m_pAddressProvider
+//  +20:  SG::CachedValue<std::string> m_name <== 2nd cache line starts at +20
+//  +48:  vector m_transientID 
+//  +60:  set m_transientAlias       <== 3rd cache line starts at +60
+//  +90.. 
 
-// DP+a8: IConverter* m_dataLoader
-// DP+b0: vector m_handles           <== 4th cache line starts at +c0
-// DP+c8: T2PMap* m_t2p
-// DP+d0: IMessageSvc* m_ims
-// DP+d8: ErrNo m_errno
-// DP+dc: padding
-// DP+e0: m_store
-// DP+e8: m_mutex                    <== 5th cache line starts at +100
-// DP+110: m_objMutex
-// DP+138: end
+// DP+b0: IConverter* m_dataLoader
+// DP+b8: T2PMap* m_t2p
+// DP+c0: vector m_handles           <== 4th cache line starts at +c0
+// DP+d8: m_mutex
+// DP+100: m_objMutex                <== 5th cache line starts at +100
+// DP+128: IMessageSvc* m_ims
+// DP+130: IProxyDict* m_store
+// DP+138: ErrNo m_errno
+// DP+13c: padding
+// DP+140: end
 
 
 #include "SGTools/DataProxy.icc"
 
 #endif // SGTOOLS_DATAPROXY
-
-
-
-

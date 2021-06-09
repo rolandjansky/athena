@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigCaloMonitoring/HLTCaloESD_xAODTrigEMClusters.h"
+#include "HLTCaloESD_xAODTrigEMClusters.h"
 
-#include "TrigCaloMonitoring/HLTCaloMonTool.h"
+#include "CxxUtils/phihelper.h"
 
 #include <TProfile2D.h>
 
@@ -232,8 +232,9 @@ StatusCode HLTCaloESD_xAODTrigEMClusters::fill()
     for(; HLT_itr != HLT_end; ++HLT_itr) { // find HLT match to OFF
 
       if((*HLT_itr)->et() < m_HLT_min_et) continue;
-      
-      float delta_r = DeltaR((*OFF_itr)->eta(), (*OFF_itr)->phi(), (*HLT_itr)->eta(), (*HLT_itr)->phi());
+
+      const float delta_r = std::sqrt(std::pow((*OFF_itr)->eta()-(*HLT_itr)->eta(),2) +
+                                      std::pow((*OFF_itr)->phi()-(*HLT_itr)->phi(),2));
 
       if(delta_r < min_delta_r) { 
 	
@@ -278,7 +279,7 @@ StatusCode HLTCaloESD_xAODTrigEMClusters::fill()
       
       float delta_et  = (((*OFF_itr)->et() - (*HLT_match)->et()) / (*OFF_itr)->et()) * 100;
       float delta_eta = (*OFF_itr)->eta() - (*HLT_match)->eta(); 
-      float delta_phi = DeltaPhi((*OFF_itr)->phi(), (*HLT_match)->phi());
+      float delta_phi = std::abs(CxxUtils::deltaPhi((*OFF_itr)->phi(), static_cast<double>((*HLT_match)->phi())));
       
       hist ("HLT_vs_OFF_delta_eta")->Fill(delta_eta);    
       hist ("HLT_vs_OFF_delta_phi")->Fill(delta_phi);

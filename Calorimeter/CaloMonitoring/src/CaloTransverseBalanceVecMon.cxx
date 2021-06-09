@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -33,7 +33,7 @@
 void CaloTransverseBalanceVecMon::findLeadingPhoton(const PhotonContainer* userPhotonContainer,PhotonContainer::const_iterator& leadingPhPr){
   PhotonContainer::const_iterator photonItr;
   float ptmax=-1;
-  for(photonItr=userPhotonContainer->begin();photonItr<userPhotonContainer->end();photonItr++){
+  for(photonItr=userPhotonContainer->begin();photonItr<userPhotonContainer->end();++photonItr){
    if((*photonItr)->pt()>ptmax) {ptmax=(*photonItr)->pt();leadingPhPr= photonItr;}
   }
 }
@@ -42,17 +42,16 @@ void CaloTransverseBalanceVecMon::findleadingANDsubleadingjets
    Jet const* & leadingJetPr,
    Jet const* & subleadingJetPr)
 {
-  std::vector<const Jet*>::const_iterator jetItr;
   float ptmax=-1;
   float ptsubmax=-2;
-  for(jetItr=userJetContainer.begin();jetItr<userJetContainer.end();jetItr++){
-   if((*jetItr)->pt()>ptmax){
+  for (const Jet* jet : userJetContainer) {
+   if(jet->pt()>ptmax){
      ptsubmax=ptmax;
      subleadingJetPr=leadingJetPr;
-     ptmax=(*jetItr)->pt();
-     leadingJetPr=*jetItr;
+     ptmax=jet->pt();
+     leadingJetPr=jet;
    }
-   else if((*jetItr)->pt()>ptsubmax) {ptsubmax=(*jetItr)->pt();subleadingJetPr=*jetItr;}
+   else if(jet->pt()>ptsubmax) {ptsubmax=jet->pt();subleadingJetPr=jet;}
   }
 }
 void CaloTransverseBalanceVecMon::getmissingEt_phi(float missingEx,float missingEy,float& missingEt_phi_t){
@@ -303,27 +302,21 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
 
   m_userPhotonContainer = new ConstDataVector<PhotonContainer>(SG::VIEW_ELEMENTS);
   std::vector<const Jet*> userJetContainer;
-  PhotonContainer::const_iterator photonItrB  = photonTES->begin();
-  PhotonContainer::const_iterator photonItrE = photonTES->end();
-  PhotonContainer::const_iterator photonItr;
-  JetCollection::const_iterator jetItrB = jetTES->begin();
-  JetCollection::const_iterator jetItrE = jetTES->end();
-  JetCollection::const_iterator jetItr;
 
   bool flag_j_1 =false;
   bool flag_j_2 =false;
   bool flag_j_3 =false;
   int njet_c_beforeoverlap= 0;
   int njet_c_afteroverlap = 0;
-  for(photonItr=photonItrB;photonItr!=photonItrE;photonItr++){
-    float ph_pt = (*photonItr)->pt();
-    float ph_eta = (*photonItr)->eta();
-    float ph_phi = (*photonItr)->phi();
-    bool  ph_isTight = ((*photonItr)->isem(egammaPIDObs::PhotonTight)==0);
+  for (const Analysis::Photon* gam : *photonTES) {
+    float ph_pt = gam->pt();
+    float ph_eta = gam->eta();
+    float ph_phi = gam->phi();
+    bool  ph_isTight = (gam->isem(egammaPIDObs::PhotonTight)==0);
  //   if( ph_pt <  m_photonPtCut)  continue; 
     if( !(fabs(ph_eta)<2.47 && (fabs(ph_eta)>=1.52 || fabs(ph_eta)<=1.37))) continue;
     if( !ph_isTight) continue;
-    m_userPhotonContainer->push_back( *photonItr );
+    m_userPhotonContainer->push_back( gam );
     m_h_photon_pt->Fill(ph_pt);
     m_h_photon_eta->Fill(ph_eta);
     m_h_photon_phi->Fill(ph_phi);
@@ -337,10 +330,10 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
   else leadingPhPr=m_userPhotonContainer->begin();
 
   //****************   jet selection   ***************
-  for(jetItr=jetItrB;jetItr<jetItrE;jetItr++){
-    float jet_pt = (*jetItr)->pt();
-    float jet_eta= (*jetItr)->eta();
-    float jet_phi =(*jetItr)->phi();
+  for (const Jet* jet : *jetTES) {
+    float jet_pt = jet->pt();
+    float jet_eta= jet->eta();
+    float jet_phi =jet->phi();
     bool j_cut1 = (fabs(jet_eta) <2.47 && (fabs(jet_eta)>=1.8 || fabs(jet_eta)<=1.3));
     bool j_cut2 = (jet_pt >15*GeV);
     if(!j_cut1) continue;
@@ -364,7 +357,7 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     m_h_jet_pt_afteroverlap->Fill(jet_pt);
     m_h_jet_eta_afteroverlap->Fill(jet_eta);
     m_h_jet_phi_afteroverlap->Fill(jet_phi);
-    userJetContainer.push_back(*jetItr);
+    userJetContainer.push_back(jet);
   }  
   if(flag_j_1) m_cutflow_j_1++;
   if(flag_j_2) m_cutflow_j_2++;

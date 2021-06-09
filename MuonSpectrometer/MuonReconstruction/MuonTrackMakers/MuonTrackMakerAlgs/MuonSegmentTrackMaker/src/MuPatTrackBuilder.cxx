@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatTrackBuilder.h"
@@ -85,8 +85,8 @@ StatusCode MuPatTrackBuilder::execute() {
         auto mstrks_phi = Monitored::Collection("mstrks_phi", *track_raw_ptr,
                                                 [](auto const& mstrk) { return mstrk->perigeeParameters()->parameters()[Trk::phi0]; });
         auto mssegs_n = Monitored::Scalar<int>("mssegs_n", msc.size());
-        auto mssegs_eta = Monitored::Collection("mssegs_eta", msc, [](auto const& seg) { return seg->globalDirection().eta(); });
-        auto mssegs_phi = Monitored::Collection("mssegs_phi", msc, [](auto const& seg) { return seg->globalDirection().phi(); });
+        auto mssegs_eta = Monitored::Collection("mssegs_eta", msc, [](auto const& seg) { return seg->globalPosition().eta(); });
+        auto mssegs_phi = Monitored::Collection("mssegs_phi", msc, [](auto const& seg) { return seg->globalPosition().phi(); });
 
         auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi, mssegs_n, mssegs_eta, mssegs_phi);
     }

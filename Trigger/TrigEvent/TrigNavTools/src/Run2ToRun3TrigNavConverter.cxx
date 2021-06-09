@@ -7,6 +7,7 @@
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigNavStructure/TriggerElement.h"
+#include "TrigNavStructure/StandaloneNavigation.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/versions/TrackParticle_v1.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -23,12 +24,20 @@ Run2ToRun3TrigNavConverter::~Run2ToRun3TrigNavConverter()
 StatusCode Run2ToRun3TrigNavConverter::initialize()
 {
 
-  ATH_CHECK(m_trigNavKey.initialize());
+
   ATH_CHECK(m_trigNavWriteKey.initialize());
   ATH_CHECK(m_trigSummaryWriteKey.initialize());
   ATH_CHECK(m_configSvc.retrieve());
   ATH_CHECK(m_clidSvc.retrieve());
-
+  ATH_CHECK( m_tdt.empty() != m_trigNavKey.key().empty() ); //either of the two has to be enabled but not both
+  if ( !m_tdt.empty() ) {
+    ATH_CHECK(m_tdt.retrieve());
+    m_tdt->ExperimentalAndExpertMethods()->enable();
+    ATH_MSG_INFO( "Will use Trigger Navigation from TrigDecisionTool");
+  } else { 
+    ATH_CHECK(m_trigNavKey.initialize(SG::AllowEmpty));
+    ATH_MSG_INFO( "Will use Trigger Navigation decoded from TrigNavigation object");
+  }
   // retrievig CLID from names and storing to set
   for (const auto &name : m_collectionsToSave)
   {
@@ -66,15 +75,20 @@ StatusCode Run2ToRun3TrigNavConverter::finalize()
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) const
 {
-  SG::ReadHandle navReadHandle(m_trigNavKey, context);
-
-  ATH_CHECK(navReadHandle.isValid());
-
-  HLT::StandaloneNavigation navDecoder = HLT::StandaloneNavigation();
-
-  navDecoder.deserialize(navReadHandle->serialized());
+  const HLT::TrigNavStructure* navDecoderPtr = nullptr;
+  HLT::StandaloneNavigation standaloneNav;
+  if (!m_trigNavKey.key().empty()) {    
+    SG::ReadHandle navReadHandle(m_trigNavKey, context);
+    ATH_CHECK(navReadHandle.isValid());
+    standaloneNav.deserialize(navReadHandle->serialized());
+    navDecoderPtr = &standaloneNav;
+  } else {
+    navDecoderPtr = m_tdt->ExperimentalAndExpertMethods()->getNavigation();
+  }
+  const HLT::TrigNavStructure& navDecoder = *navDecoderPtr;
 
   if (m_onlyFeaturePriting)
     return printFeatures(navDecoder);
@@ -155,7 +169,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
   // @@@@@@@@@@@@@@@@@@@@@@@@@@ begin of chain loop @@@@@@@@@@@@@@@@@@@@@@@@@@
   for (auto p : m_configSvc->chains())
   {
-    if (m_setChainName.find(p->name()) != m_setChainName.end())
+    if (m_convertAllChains || m_setChainName.find(p->name()) != m_setChainName.end())
     {
       std::string chainName = p->name();
       auto c = p;
@@ -438,7 +452,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getSgKey @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(const HLT::StandaloneNavigation& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const
+std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const
 {
   const std::string hltLabel = navigationDecoder.label(helper.getCLID(), helper.getIndex().subTypeIndex());
 
@@ -468,7 +482,7 @@ std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverter::getSgKey(con
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTEROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-StatusCode Run2ToRun3TrigNavConverter::addTEROIfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr) const
+StatusCode Run2ToRun3TrigNavConverter::addTEROIfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr) const
 {
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
 
@@ -478,7 +492,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTEROIfeatures(const HLT::StandaloneNav
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-StatusCode Run2ToRun3TrigNavConverter::addROIfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr, int idx, L1ObjMap *om) const
+StatusCode Run2ToRun3TrigNavConverter::addROIfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr, int idx, L1ObjMap *om) const
 {
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
 
@@ -500,7 +514,7 @@ StatusCode Run2ToRun3TrigNavConverter::addROIfeatures(const HLT::StandaloneNavig
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTRACKfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr, ElementLink<TrigRoiDescriptorCollection> &rLink) const
+StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, TrigCompositeUtils::Decision *&decisionPtr, ElementLink<TrigRoiDescriptorCollection> &rLink) const
 {
   SG::AuxElement::Decorator<ElementLink<TrigRoiDescriptorCollection>> viewBookkeeper("viewIndex");
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
@@ -527,7 +541,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::StandaloneNav
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ addTEfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-StatusCode Run2ToRun3TrigNavConverter::addTEfeatures(const HLT::StandaloneNavigation &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, std::pair<TrigCompositeUtils::Decision *, TrigCompositeUtils::Decision *> &decisionPtr, int idx, DecisionObjMap *om) const
+StatusCode Run2ToRun3TrigNavConverter::addTEfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper &helper, std::pair<TrigCompositeUtils::Decision *, TrigCompositeUtils::Decision *> &decisionPtr, int idx, DecisionObjMap *om) const
 {
   auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
 
@@ -549,7 +563,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTEfeatures(const HLT::StandaloneNaviga
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getTEfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const
+const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const
 {
   std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
   for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
@@ -565,7 +579,7 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getTEROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTEROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const
+const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getTEROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const
 {
   // @@@@@@@@@@@@@@@@@@@@@@@@@@ ordered_sorter @@@@@@@@@@@@@@@@@@@@@@@@@@
   auto ordered_sorter = [&](const auto& left, const auto& right) -> bool {
@@ -606,7 +620,7 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getROIfeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::StandaloneNavigation &navigationDecoder) const
+const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::getROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const
 {
 
   std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
@@ -625,7 +639,7 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ printFeatures @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-StatusCode Run2ToRun3TrigNavConverter::printFeatures(const HLT::StandaloneNavigation &nav) const
+StatusCode Run2ToRun3TrigNavConverter::printFeatures(const HLT::TrigNavStructure &nav) const
 {
   std::set<std::string> totset;
 

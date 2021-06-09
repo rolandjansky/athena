@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETCONVERSIONFINDERTOOLS_VERTEXPOINTESTIMATOR_H
@@ -54,7 +54,7 @@ namespace InDet {
                                               Values_t& decors) const;
 
     /** Return list of keys used for decorations. */
-    std::vector<std::string> decorKeys() const;
+    static std::vector<std::string> decorKeys() ;
 
 
   private:
@@ -72,8 +72,8 @@ namespace InDet {
 			      double, double, double, 
 			      double&, double&, 
 			      double&, double&) const;
-    bool   secondDegree(double, double, double, double&, double&) const;
-    double areaTriangle(double, double, double, double, double, double) const;
+    static bool   secondDegree(double, double, double, double&, double&) ;
+    static double areaTriangle(double, double, double, double, double, double) ;
     
     static const double s_bmagnt;
     std::vector<double> m_maxDR;         /**maximum XY separation, non-intersecting circles*/

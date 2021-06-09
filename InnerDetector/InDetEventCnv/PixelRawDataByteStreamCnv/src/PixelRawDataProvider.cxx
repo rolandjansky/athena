@@ -83,7 +83,7 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
   // write into StoreGate
 
   SG::WriteHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey, ctx);
-  if( m_rdoCacheKey.empty() ) rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max());
+  if( m_rdoCacheKey.empty() ) rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max(), EventContainers::Mode::OfflineFast);
   else{
     SG::UpdateHandle<PixelRDO_Cache> updateh(m_rdoCacheKey, ctx);
     if( ! updateh.isValid() ) {
@@ -113,6 +113,7 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
      TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
      TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
      TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+     superRoI.reserve(roiCollection->size());
      superRoI.setComposite(true);
      superRoI.manageConstituents(false);
      for (; roi!=roiE; ++roi) {
