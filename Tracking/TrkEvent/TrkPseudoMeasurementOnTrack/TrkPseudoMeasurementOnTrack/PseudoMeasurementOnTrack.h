@@ -9,19 +9,20 @@
 #ifndef TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
 #define TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
 
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "EventPrimitives/EventPrimitives.h"  
-#include "GeoPrimitives/GeoPrimitives.h" 
 #include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/SurfaceHolders.h"
 #include <iosfwd>
 #include <memory>
 
 class MsgStream;
 class TrackCollectionCnv;
 
-namespace Trk{
+namespace Trk {
 
-  class Surface;
+class Surface;
 
 /**
  @brief Class to handle pseudo-measurements in fitters and on track objects.
@@ -31,88 +32,99 @@ namespace Trk{
  Inherits from the common Trk::MeasurementBase but NOT from Trk::RIO_OnTrack
  since it is not necessarily connected to a "real" identifier, PRD
  or detectorElement. Through the Trk::MeasurementBase inheritance this
- class is stored and persistified on ESD.
+ class can be stored and persistified.
 
  @author Common Tracking SW Group
 
  */
 
-  class PseudoMeasurementOnTrack final: public MeasurementBase {
+class PseudoMeasurementOnTrack final
+  : public MeasurementBase
+  , public SurfacePtrHolder
+{
 
-    friend class ::TrackCollectionCnv;
+  friend class ::TrackCollectionCnv;
 
-    public:
-      //! Default Constructor for POOL 
-      PseudoMeasurementOnTrack();
-      //! Copy Constructor 
-      PseudoMeasurementOnTrack(const PseudoMeasurementOnTrack& pmot);
-      //! Assignment operator 
-      PseudoMeasurementOnTrack& operator=(const PseudoMeasurementOnTrack& pmot);
+public:
+  //! Default Constructor for POOL
+  PseudoMeasurementOnTrack();
+  PseudoMeasurementOnTrack(const PseudoMeasurementOnTrack&) = default;
+  PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&&) noexcept = default;
+  PseudoMeasurementOnTrack& operator=(const PseudoMeasurementOnTrack&) =
+    default;
+  PseudoMeasurementOnTrack& operator=(PseudoMeasurementOnTrack&&) noexcept =
+    default;
+  PseudoMeasurementOnTrack(const LocalParameters& locpars,
+                           const Amg::MatrixX& locerr,
+                           const Surface& assocSurf);
 
-      //! Constructor with (LocalParameters*, LocalErrorMatrix*, Surface&) Note: the associated surface is cloned 
-      PseudoMeasurementOnTrack( const LocalParameters& locpars,
-                                const Amg::MatrixX&     locerr,
-                                const Surface&         assocSurf);
+  PseudoMeasurementOnTrack(const LocalParameters& locpars,
+                           const Amg::MatrixX& locerr,
+                           ConstSurfaceUniquePtr assocSurf);
 
-      PseudoMeasurementOnTrack( const LocalParameters& locpars,
-                                const Amg::MatrixX&     locerr,
-                                ConstSurfaceUniquePtr   assocSurf);
+  //! Destructor
+  virtual ~PseudoMeasurementOnTrack() override final = default;
 
-      //! Destructor 
-      virtual ~PseudoMeasurementOnTrack() override final;
+  //! virtual constructor, not absolutely needed but given for EDM symmetry
+  virtual PseudoMeasurementOnTrack* clone() const override final;
 
-      //! virtual constructor, not absolutely needed but given for EDM symmetry 
-      virtual PseudoMeasurementOnTrack* clone() const override final;
-      
-      //! NVI unique_ptr version of clone 
-      std::unique_ptr<PseudoMeasurementOnTrack> uniqueClone() const{
-        return std::unique_ptr<PseudoMeasurementOnTrack>(clone());
-      };
-
-      //! move constructor
-      PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&& pmot) noexcept;
-
-      //! move assignment operator
-      PseudoMeasurementOnTrack& operator=(PseudoMeasurementOnTrack&& pmot) noexcept;   
-
-      //! returns the surface for the local to global transformation (interface from MeasurementBase)
-      virtual const Surface& associatedSurface() const override final;
-
-      //! Test to see if an associated surface exists.
-      bool hasSurface() const;
-
-      //! returns the global Position (interface from MeasurementBase)
-      virtual const Amg::Vector3D& globalPosition() const override final;
-
-      /** Extended method checking the type*/
-       virtual bool type(MeasurementBaseType::Type type) const override final{
-         return (type==MeasurementBaseType::PseudoMeasurementOnTrack);
-       }
-
-      //! produces logfile output about its content in MsgStream form. 
-      virtual MsgStream&    dump( MsgStream& out ) const override final;
-      //! produces logfile output about its content in stdout form. 
-      virtual std::ostream& dump( std::ostream& out ) const override final;
-
-    protected:
-      //! holds the surface to which the PMoT is associated. The surface is
-      //! responsible for the correct local-to-global transformation.
-      const Surface* m_associatedSurface;
-
-      //! Global position of the PMoT
-      const Amg::Vector3D* m_globalPosition;
+  //! NVI unique_ptr version of clone
+  std::unique_ptr<PseudoMeasurementOnTrack> uniqueClone() const
+  {
+    return std::unique_ptr<PseudoMeasurementOnTrack>(clone());
   };
 
-  inline PseudoMeasurementOnTrack* PseudoMeasurementOnTrack::clone() const 
-  { return new PseudoMeasurementOnTrack(*this); }
+  //! returns the surface for the local to global transformation (interface from
+  //! MeasurementBase)
+  virtual const Surface& associatedSurface() const override final;
 
-  inline const Surface& PseudoMeasurementOnTrack::associatedSurface() const
-  { return *m_associatedSurface; }
+  //! Test to see if an associated surface exists.
+  bool hasSurface() const;
 
-  inline
-  bool PseudoMeasurementOnTrack::hasSurface() const
-  { return m_associatedSurface != nullptr; }
+  //! returns the global Position (interface from MeasurementBase)
+  virtual const Amg::Vector3D& globalPosition() const override final;
+
+  /** Extended method checking the type*/
+  virtual bool type(MeasurementBaseType::Type type) const override final
+  {
+    return (type == MeasurementBaseType::PseudoMeasurementOnTrack);
+  }
+
+  //! produces logfile output about its content in MsgStream form.
+  virtual MsgStream& dump(MsgStream& out) const override final;
+  //! produces logfile output about its content in stdout form.
+  virtual std::ostream& dump(std::ostream& out) const override final;
+
+protected:
+  //! Global position of the PMoT
+  Amg::Vector3D m_globalPosition;
+};
+
+inline PseudoMeasurementOnTrack*
+PseudoMeasurementOnTrack::clone() const
+{
+  return new PseudoMeasurementOnTrack(*this);
 }
+
+inline const Surface&
+PseudoMeasurementOnTrack::associatedSurface() const
+{
+  return *m_associatedSurface;
+}
+
+inline bool
+PseudoMeasurementOnTrack::hasSurface() const
+{
+  return m_associatedSurface != nullptr;
+}
+
+inline const Amg::Vector3D&
+Trk::PseudoMeasurementOnTrack::globalPosition() const
+{
+  return m_globalPosition;
+}
+
+} // end namespace Trk
 
 #endif // TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
 
