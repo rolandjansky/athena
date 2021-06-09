@@ -327,6 +327,45 @@ private:
     TH1* m_vx_nVertices_merged;
     TH1* m_vx_nVertices_split;
 
+    TH1* m_vx_track_z0_ALL_matched;
+    TH1* m_vx_track_z0_ALL_merged;
+    TH1* m_vx_track_z0_ALL_split;
+    TH1* m_vx_track_z0_HS_matched;
+    TH1* m_vx_track_z0_HS_merged;
+    TH1* m_vx_track_z0_HS_split;
+    TH1* m_vx_track_z0_matched;
+    TH1* m_vx_track_z0_merged;
+    TH1* m_vx_track_z0_split;
+
+    TH1* m_vx_track_d0_ALL_matched;
+    TH1* m_vx_track_d0_ALL_merged;
+    TH1* m_vx_track_d0_ALL_split;
+    TH1* m_vx_track_d0_HS_matched;
+    TH1* m_vx_track_d0_HS_merged;
+    TH1* m_vx_track_d0_HS_split;
+    TH1* m_vx_track_d0_matched;
+    TH1* m_vx_track_d0_merged;
+    TH1* m_vx_track_d0_split;
+
+    TH1* m_vx_track_z0_err_ALL_matched;
+    TH1* m_vx_track_z0_err_ALL_merged;
+    TH1* m_vx_track_z0_err_ALL_split;
+    TH1* m_vx_track_z0_err_HS_matched;
+    TH1* m_vx_track_z0_err_HS_merged;
+    TH1* m_vx_track_z0_err_HS_split;
+    TH1* m_vx_track_z0_err_matched;
+    TH1* m_vx_track_z0_err_merged;
+    TH1* m_vx_track_z0_err_split;
+
+    TH1* m_vx_track_d0_err_ALL_matched;
+    TH1* m_vx_track_d0_err_ALL_merged;
+    TH1* m_vx_track_d0_err_ALL_split;
+    TH1* m_vx_track_d0_err_HS_matched;
+    TH1* m_vx_track_d0_err_HS_merged;
+    TH1* m_vx_track_d0_err_HS_split;
+    TH1* m_vx_track_d0_err_matched;
+    TH1* m_vx_track_d0_err_merged;
+    TH1* m_vx_track_d0_err_split;
 
     ///@}
 private:
