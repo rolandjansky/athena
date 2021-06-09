@@ -212,9 +212,9 @@ TrigConf::DSConfigSvc::update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_K( ke
       if( updated_SMK ) {
          ATH_MSG_INFO( "  Changed from " << old_masterkey << " to " << m_masterKey );
       }
-      if( (m_configSrc.find("TRIGGERDBREPR") == 0) || 
-          (m_configSrc.find("TRIGGERDBMC") == 0) || 
-          (m_configSrc.find("TRIGGERDBATN") == 0) ) {
+      if( (m_configSrc.compare(0, 13, "TRIGGERDBREPR") == 0) || 
+          (m_configSrc.compare(0, 11, "TRIGGERDBMC") == 0) || 
+          (m_configSrc.compare(0, 12, "TRIGGERDBATN") == 0) ) {
           /* this is for reprocessing or MC runs
            * in this case we connect to the specified TriggerDB
            * 
@@ -328,7 +328,7 @@ TrigConf::DSConfigSvc::update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_K( ke
          m_hltFrame.theHLTChainList().clear();
          m_hltFrame.theHLTSequenceList().clear();
          size_t nChains(0);
-         for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); attrListIt++ ) {
+         for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); ++attrListIt ) {
             const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
             m_hltFrame.theHLTChainList().addHLTChain( createHLTChain( attrList, &m_hltFrame.theHLTSequenceList() ) );
             nChains++;
@@ -425,7 +425,7 @@ TrigConf::DSConfigSvc::update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_K( ke
          CHECK( m_detstore->retrieve( hltgrpAtrColl, TRIGGER_CONF_HLTGRP ) );
          ATH_MSG_INFO( "Updating trigger configuration: HLT chain groups" );
          size_t nGroups(0);
-         for(CondAttrListCollection::const_iterator attrListIt = hltgrpAtrColl->begin(); attrListIt != hltgrpAtrColl->end(); attrListIt++ ) {
+         for(CondAttrListCollection::const_iterator attrListIt = hltgrpAtrColl->begin(); attrListIt != hltgrpAtrColl->end(); ++attrListIt ) {
             const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
             addGroupsToHltChain( attrList, m_hltFrame.theHLTChainList() );
             nGroups++;
