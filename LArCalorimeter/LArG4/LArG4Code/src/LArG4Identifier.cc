@@ -51,12 +51,13 @@ LArG4Identifier::LArG4Identifier ()
 }
 
 //-----------------------------------------------
-LArG4Identifier::LArG4Identifier (const LArG4Identifier& other)
+LArG4Identifier::LArG4Identifier (const LArG4Identifier& other) :
 #ifndef LARG4NOROOT
-  : TObject()
+  TObject(),
 #endif
+    m_fields(other.m_fields)
+
 {
-  m_fields = other.m_fields;
 }
 
 //-----------------------------------------------
