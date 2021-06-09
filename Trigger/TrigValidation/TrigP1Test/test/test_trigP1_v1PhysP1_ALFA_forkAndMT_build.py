@@ -27,5 +27,8 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
+# Skip ZeroCounts check because alfaperf chains reject all events by design
+test.check_steps.remove(test.get_step("ZeroCounts"))
+
 import sys
 sys.exit(test.run())
