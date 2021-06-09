@@ -91,33 +91,33 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
 
     if( info.trigType == "electron" ){
         fillEfficiency( "FastElectron"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
-        fillEfficiency( "PrecisionElectron"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec); 
+        fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec); 
     }
     else if( info.trigType == "photon" ){
         fillEfficiency( "FastPhoton"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
-        fillEfficiency( "PrecisionPhoton"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
+        fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
     }
     if( m_detailedHists ){
 
         if( info.trigType == "electron" ){
             for( const auto& pid : m_isemname ){
-                fillEfficiency( "PrecisionElectron" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-                fillEfficiency( "PrecisionElectron" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
+                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
             }
             for( const auto& pid : m_lhname ){
-                fillEfficiency( "PrecisionElectron" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-                fillEfficiency( "PrecisionElectron" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
+                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
             }
         }
         else if( info.trigType == "photon" ){
             for( const auto& pid : m_isemname ){
-                fillEfficiency( "PrecisionPhoton" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-                fillEfficiency( "PrecisionPhoton" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
+                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
             }
 
             for( const auto& pid : m_lhname ){
-                fillEfficiency( "PrecisionPhoton" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-                fillEfficiency( "PrecisionPhoton" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
+                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
+                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
             }
         }
 
