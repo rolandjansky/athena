@@ -5,8 +5,9 @@
 ##  2009/09/09       Jiri.Masik@hep.manchester.ac.uk
 ################################################################################
 
-run = 1    # set the run period to test
+run = 2    # set the run period to test
 edmCheck = False
+doStream = False
 theApp.EvtMax = 10
 
 BSFileList = {
@@ -44,13 +45,11 @@ extr = TrigBSExtraction(OutputLevel=DEBUG)
 job += extr
 if run==1:
   extr.L2ResultKey = "HLTResult_L2"
-  extr.EFResultKey = "HLTResult_EF"
-  extr.HLTResultKey = ""
+  extr.HLTResultKey = "HLTResult_EF"
   extr.NavigationForL2 = HLTNavigationOffline("NavigationForL2")
   extr.NavigationForL2.ClassesFromPayloadIgnore = ["TrigPassBits#passbits"]  # ATR-23411
 elif run==2:
   extr.L2ResultKey = ""
-  extr.EFResultKey = ""
   extr.HLTResultKey = "HLTResult_HLT"
 
 extr.Navigation = HLTNavigationOffline()
@@ -81,7 +80,6 @@ if run==1:  # for Run-1 we need the detector geometry and conditions
   DetFlags.detdescr.ALFA_setOff()
   include("RecExCond/AllDet_detDescr.py")
 
-
 svcMgr.MessageSvc.verboseLimit = 0
 svcMgr.MessageSvc.debugLimit = 0
 svcMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
@@ -90,5 +88,12 @@ svcMgr.StoreGateSvc.Dump = False
 if edmCheck:
   from TrigValAlgs.TrigValAlgsConfig import TrigEDMChecker
   job += TrigEDMChecker()
+
+if doStream:
+  from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
+  StreamESD = createOutputStream('StreamESD', 'ESD.pool.root', True)
+  # populate as needed for testing:
+  StreamESD.ItemList += ['TrigRoiDescriptorCollection#HLT_TrigRoiDescriptorCollection']
+  job += StreamESD
 
 print(job)
