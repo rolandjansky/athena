@@ -258,7 +258,7 @@ void ConfigurableAlg::registerHist(TH2 * h) {
    m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax) {
   std::string xmin_str = ToString(xmin);
   std::string xmax_str = ToString(xmax);
   std::string newTitle = xmin_str+title+xmax_str;
@@ -296,7 +296,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
   auto usPos = title.find(" vs ");
   std::string xName = title.substr(0,usPos);
   std::string yName = title.substr(usPos+4);
