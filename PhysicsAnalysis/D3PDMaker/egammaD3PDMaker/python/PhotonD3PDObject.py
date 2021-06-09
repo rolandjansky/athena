@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file egammaD3PDMaker/python/PhotonD3PDObject.py
@@ -194,12 +194,12 @@ PhotonD3PDObject.defineBlock (
     1, 'Iso',
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['rphiallcalo = r33over37allcalo',
-            'Etcone20 = etcone20',
-            'Etcone30 = etcone30',
-            'Etcone40 = etcone40',
-            'ptcone20',
-            'ptcone30',
-            'ptcone40',
+            'Etcone20 = etcone20 < float: 0',
+            'Etcone30 = etcone30 < float: 0',
+            'Etcone40 = etcone40 < float: 0',
+            'ptcone20 < float: 0',
+            'ptcone30 < float: 0',
+            'ptcone40 < float: 0',
         ])
 PhotonD3PDObject.defineBlock (
     2, 'IsoPtCorrected',
