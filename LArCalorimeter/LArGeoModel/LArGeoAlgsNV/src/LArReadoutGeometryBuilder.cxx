@@ -97,7 +97,6 @@ std::tuple<EMBDetectorManager*
     }
   }
 
-
   { // EMEC
     emecDetectorManager  = new EMECDetectorManager(&(hvManager->getEMECHVManager(EMECHVModule::INNER))
 						   ,&(hvManager->getEMECHVManager(EMECHVModule::OUTER))

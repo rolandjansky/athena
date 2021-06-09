@@ -5,6 +5,7 @@
 #include "LArDetectorFactoryLite.h"
 #include "LArReadoutGeometryBuilder.h"
 #include "LArGeoBarrel/ElStraightSectionBuilder.h"
+#include "LArGeoFcal/FCALChannelMapBuilder.h"
 #include "LArHV/LArHVManager.h"
 #include "LArGeoEndcap/MbtsReadoutBuilder.h"
 
@@ -51,6 +52,13 @@ LArGeo::LArDetectorFactoryLite::~LArDetectorFactoryLite()
 void LArGeo::LArDetectorFactoryLite::create(GeoPhysVol* world)
 {
   std::string errorMessage{""};
+
+  ATH_MSG_INFO("LArDetectorFactoryLite::create()");
+  if(LArGeo::buildFcalChannelMap(m_detStore,m_paramSvc,Athena::getMessageSvc()).isFailure()) {
+    errorMessage="Failed to build FCAL Channel Map";
+    ATH_MSG_FATAL(errorMessage);
+    throw std::runtime_error(errorMessage);
+  }
 
   // Build Electrode straight sections in the barrel
   if(LArGeo::buildElStraightSections(m_detStore
@@ -184,6 +192,7 @@ void LArGeo::LArDetectorFactoryLite::create(GeoPhysVol* world)
     if(volName.compare(0,3,"LAr")==0) {
       m_detectorManager->addTreeTop(GeoPVLink(cursor.getVolume().operator->()));
     }
+    cursor.next();
   }
 
 }
