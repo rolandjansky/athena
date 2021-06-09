@@ -6,8 +6,6 @@ atlas_subdir( LArGeoFcal )
 # External dependencies:
 find_package( GeoModel COMPONENTS GeoModelKernel )
 
-# tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
-
 # Component(s) in the package:
 atlas_add_library( LArGeoFcal
                    src/*.cxx

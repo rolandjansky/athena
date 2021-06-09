@@ -1,13 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// FCALConstruction
-// Insert the LAr FCAL into a pre-defined mother volume.
-// Author: Joe Boudreau August 204
+/**
+ * @class FCALConstruction
+ *
+ * @brief Insert the LAr FCAL into a pre-defined mother volume.
+ *
+ * @author Joe Boudreau August 2004
+ */
 
-#ifndef __FCALConstruction_H__
-#define __FCALConstruction_H__
+#ifndef LARGEOFCAL_FCALCONSTRUCTION_H
+#define LARGEOFCAL_FCALCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -35,7 +39,7 @@ namespace LArGeo {
     void setFCALVisLimit(int maxCell) {m_VisLimit    = maxCell;}
 
     // Set fullGeo flag
-    void setFullGeo(bool flag);
+    void setFullGeo(bool flag) {m_fullGeo = flag;}
 
   private: 
 

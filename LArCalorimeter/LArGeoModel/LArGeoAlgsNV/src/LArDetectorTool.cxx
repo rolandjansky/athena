@@ -147,6 +147,7 @@ StatusCode LArDetectorToolNV::create()
 						     , hvManager);
     theLArFactoryLite.setBarrelSagging(m_barrelSaggingOn);
     theLArFactoryLite.create(world);
+    m_manager = theLArFactoryLite.getDetectorManager();
   }
   else {
     // Geometry is constructed from the Geometry DB
@@ -177,13 +178,14 @@ StatusCode LArDetectorToolNV::create()
 
     theLArFactory.create(world);
     m_manager = theLArFactory.getDetectorManager();
-    ATH_CHECK(detStore()->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName()));
-    theExpt->addManager(theLArFactory.getDetectorManager());
     if(m_geometryConfig=="RECO") {
       // Release RDB Recordsets if we are inside reco job
       LArGeo::VDetectorParameters::SetInstance(0);
     }
   }
+
+  ATH_CHECK(detStore()->record(m_manager,m_manager->getName()));
+  theExpt->addManager(m_manager);
 
   return StatusCode::SUCCESS;
 }
