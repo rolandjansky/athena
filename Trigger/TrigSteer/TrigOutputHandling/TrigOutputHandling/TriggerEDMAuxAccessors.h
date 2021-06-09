@@ -19,6 +19,10 @@ constexpr auto initAccessors(U... names) {
   return std::array<SG::AuxElement::Accessor<T>, sizeof...(names)>{(SG::AuxElement::Accessor<T>(names))...};
 }
 
+auto boolAccessors = initAccessors<bool>(
+  "hasGenericRoiError", "hasGenericDaqError", "hasCrcTobError", "hasCrcFibreError",
+  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference");
+
 auto charAccessors = initAccessors<char>(
   "IP2D_isDefaults", "IP3D_isDefaults", "SV1_isDefaults", "rnnip_isDefaults",
   "JetFitterSecondaryVertex_isDefaults", "JetFitter_isDefaults", "passPFTrackPresel",
