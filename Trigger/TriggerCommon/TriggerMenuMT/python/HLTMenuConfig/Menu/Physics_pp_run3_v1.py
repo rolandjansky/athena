@@ -310,14 +310,24 @@ def setupMenu():
     ]
 
     TriggerFlags.BjetSlice.signatures = [
-        ChainProp(name='HLT_j225_subjesgscIS_ftf_bmv2c1040_split_L1J100',   l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j275_subjesgscIS_ftf_bmv2c1060_split_L1J100',   l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j300_subjesgscIS_ftf_bmv2c1070_split_L1J100',   l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j360_subjesgscIS_ftf_bmv2c1077_split_L1J100',   l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j275_pf_subjesgscIS_ftf_boffperf_split_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20',   l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',      l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
-        ChainProp(name='HLT_j275_subjesgscIS_ftf_boffperf_split_L1J100',    l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
+        # leave the MV2 chain for now since we don't have a 40% DL1r working point
+        ChainProp(name="HLT_j225_0eta290_020jvt_pf_ftf_bmv2c1040_L1J100", groups=PrimaryLegGroup+SingleBjetGroup),
+
+        # these chains are taken from the Run 2 menu for now --- likely to be loosened
+        ChainProp(name="HLT_j275_0eta290_020jvt_pf_ftf_bdl1r60_L1J100", groups=PrimaryLegGroup+SingleBjetGroup),
+        ChainProp(name="HLT_j300_0eta290_020jvt_pf_ftf_bdl1r70_L1J100", groups=PrimaryLegGroup+SingleBjetGroup),
+        ChainProp(name="HLT_j360_0eta290_020jvt_pf_ftf_bdl1r77_L1J100", groups=PrimaryLegGroup+SingleBjetGroup),
+
+
+        ChainProp(name='HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100', groups=SupportLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100', groups=SupportLegGroup+SingleBjetGroup),
+
     ]
 
     TriggerFlags.TauSlice.signatures = [
@@ -422,6 +432,11 @@ def setupMenu():
        ChainProp(name='HLT_e26_lhtight_ivarloose_tau160_mediumRNN_tracktwoMVA_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU100'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+EgammaTauGroup),
        ChainProp(name='HLT_e26_lhtight_ivarloose_tau160_mediumRNN_tracktwoMVABDT_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU100'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+EgammaTauGroup),
 
+
+        # b-jet trigger calibration chains
+        ChainProp(name='HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=TagAndProbeLegGroup+EgammaBjetGroup),
+        ChainProp(name='HLT_mu26_ivarmedium_2j20_0eta290_020jvt_pf_ftf_boffperf_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=TagAndProbeLegGroup+MuonBjetGroup),
+        # ChainProp(name='HLT_e26_lhtight_ivarloose_mu22noL1_j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], groups=TagAndProbeLegGroup+EgammaBjetGroup),
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []
