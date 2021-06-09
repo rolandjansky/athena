@@ -155,7 +155,7 @@ if __name__ == '__main__':
     acc.merge(PoolReadCfg(flags))
 
     from AthenaCommon.CFElements import seqAND
-    acc.addSequence(seqAND('L1CaloLegacySimSeq'))
+    acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='AthAlgSeq')
     acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
     acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
