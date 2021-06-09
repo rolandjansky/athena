@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,20 +12,22 @@
 // Trk
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/PerigeeSurface.h"
+#include "TrkSurfaces/SurfaceHolders.h"
 
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "GaudiKernel/GaudiException.h"
 #include <iosfwd>
+#include <optional>
 
 class MsgStream;
 class TrackCollectionCnv;
 
-namespace Trk{
+namespace Trk {
 
-  class RecVertex;
+class RecVertex;
 
 /** @class VertexOnTrack
 
@@ -33,81 +35,89 @@ namespace Trk{
   it inherits from the common MeasurementBase.
 
   @author haertel@mppmu.mpg.de
+  @author christos anastopoulos (Athena MT modification)
 
  */
 
-  class VertexOnTrack final : public MeasurementBase {
+class VertexOnTrack final
+  : public MeasurementBase
+  , public PerigeeSurfacePtrHolder
+{
 
-    friend class ::TrackCollectionCnv;
+  friend class ::TrackCollectionCnv;
 
-    public:
-      /** Default Constructor for POOL */
-      VertexOnTrack();
-      /** Copy Constructor */
-      VertexOnTrack(const VertexOnTrack& vot);
-      /** Assignment operator */
-      VertexOnTrack& operator=(const VertexOnTrack& vot);
+public:
+  /** Default Constructor for POOL */
+  VertexOnTrack() = default;
 
-      /** Constructor with (LocalParameters&, LocalErrorMatrix&, PerigeeSurface&)
-      The associated PerigeeSurface is cloned*/
-      VertexOnTrack( const LocalParameters& locpars,
-                     const Amg::MatrixX& locerr,
-                     const PerigeeSurface& assocSurf);
+  // default copy move dtor
+  VertexOnTrack(const VertexOnTrack&) = default;
+  VertexOnTrack(VertexOnTrack&&) noexcept = default;
+  VertexOnTrack& operator=(const VertexOnTrack&) = default;
+  VertexOnTrack& operator=(VertexOnTrack&&) noexcept = default;
+  virtual ~VertexOnTrack() = default;
 
-      VertexOnTrack( const LocalParameters& locpars,
-                     const Amg::MatrixX& locerr,
-                     SurfaceUniquePtrT<const PerigeeSurface> assocSurf);
+  /** Constructor with (LocalParameters&, LocalErrorMatrix&, PerigeeSurface&)
+  The associated PerigeeSurface is cloned*/
+  VertexOnTrack(const LocalParameters& locpars,
+                const Amg::MatrixX& locerr,
+                const PerigeeSurface& assocSurf);
 
-      /** Constructor from: RedVertex, Perigee - the perigee is needed for the measurement frame */
-      VertexOnTrack( const Trk::RecVertex& rvertex, const Trk::Perigee& mperigee);
+  VertexOnTrack(const LocalParameters& locpars,
+                const Amg::MatrixX& locerr,
+                SurfaceUniquePtrT<const PerigeeSurface> assocSurf);
 
-      /** Destructor */
-      virtual ~VertexOnTrack();
-
-      /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      VertexOnTrack* clone() const override final;
-      
-       /** NVI clone returning unique_ptr*/
-      std::unique_ptr<VertexOnTrack> uniqueClone() const{
-        return std::unique_ptr<VertexOnTrack>(clone());
-      }
+  /** Constructor from: RedVertex, Perigee - the perigee is needed for the
+   * measurement frame */
+  VertexOnTrack(const Trk::RecVertex& rvertex, const Trk::Perigee& mperigee);
 
 
-      /** returns the surface for the local to global transformation
-      - interface from MeasurementBase */
-      virtual const PerigeeSurface& associatedSurface() const override final;
+  /** Pseudo-constructor, needed to avoid excessive RTTI*/
+  VertexOnTrack* clone() const override final;
 
-      /**Interface method to get the global Position
-      - interface from MeasurementBase */
-      virtual const Amg::Vector3D& globalPosition() const override final;
+  /** NVI clone returning unique_ptr*/
+  std::unique_ptr<VertexOnTrack> uniqueClone() const
+  {
+    return std::unique_ptr<VertexOnTrack>(clone());
+  }
 
-      /** Extended method checking the type*/
-      virtual bool type(MeasurementBaseType::Type type) const override final
-      {
-        return (type==MeasurementBaseType::VertexOnTrack);
-      }
+  /** returns the surface for the local to global transformation
+  - interface from MeasurementBase */
+  virtual const PerigeeSurface& associatedSurface() const override final;
 
-      /**returns the some information about this VertexOnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const override final;
-      /**returns the some information about this VertexOnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const override final;
+  /**Interface method to get the global Position
+  - interface from MeasurementBase */
+  virtual const Amg::Vector3D& globalPosition() const override final;
 
-     // perhaps return Vertex Object
+  /** Extended method checking the type*/
+  virtual bool type(MeasurementBaseType::Type type) const override final
+  {
+    return (type == MeasurementBaseType::VertexOnTrack);
+  }
 
-    protected:
-      /** Perigee surface of the VoT*/
-      const PerigeeSurface* m_associatedSurface;
+  /**returns the some information about this VertexOnTrack. */
+  virtual MsgStream& dump(MsgStream& out) const override final;
+  /**returns the some information about this VertexOnTrack. */
+  virtual std::ostream& dump(std::ostream& out) const override final;
 
-      /** Global position of the VoT*/
-      const Amg::Vector3D*  m_globalPosition;
-  };
+  // perhaps return Vertex Object
 
-  inline VertexOnTrack* VertexOnTrack::clone() const
-  { return new VertexOnTrack(*this); }
+protected:
+  /** Global position of the VoT*/
+  std::optional<Amg::Vector3D> m_globalPosition = std::nullopt;
+};
 
-  inline const PerigeeSurface& VertexOnTrack::associatedSurface() const
-  { return *m_associatedSurface; }
+inline VertexOnTrack*
+VertexOnTrack::clone() const
+{
+  return new VertexOnTrack(*this);
+}
 
+inline const PerigeeSurface&
+VertexOnTrack::associatedSurface() const
+{
+  return *m_associatedSurface;
+}
 
 }
 
