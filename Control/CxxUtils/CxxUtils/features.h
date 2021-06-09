@@ -12,6 +12,8 @@
 #ifndef CXXUTILS_FEATURES_H
 #define CXXUTILS_FEATURES_H
 
+#include <features.h>
+
 /// Do we have function multiversioning?  GCC and clang > 7 support
 /// the target attribute
 #if ( defined(__i386__) || defined(__x86_64__) ) &&                            \
@@ -73,5 +75,10 @@
 #else
 #define HAVE_VECTOR_TERNARY_OPERATOR 0
 #endif
+
+// Do we have mallinfo2?  Present in glibc 2.33,
+// in which mallinfo is deprecated.
+#define HAVE_MALLINFO2 (__GLIBC_PREREQ(2, 33))
+
 
 #endif // not CXXUTILS_FEATURES_H
