@@ -41,10 +41,12 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     alg = CompFactory.Run2ToRun3TrigNavConverter("TrigNavCnv", OutputLevel=DEBUG, TrigConfigSvc=confSvc)
     alg.doPrint = False
-    alg.Collections = ["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer"]
+    #alg.Collections = ["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer"]
+    alg.Collections = ["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer","xAOD::CaloCluster","xAOD::CaloClusterContainer"]
     
     # EXAMPLES OF CHAINS 
-    alg.Chains = ["HLT_mu4"]
+    #alg.Chains = ["HLT_mu4"]
+    alg.Chains = ["HLT_e5_lhvloose_nod0","HLT_e9_etcut","HLT_e26_lhtight_nod0","HLT_e28_lhtight_nod0"]
     alg.Rois = ["forID","forID1","forID2","forMS","forSA","forTB","forMT","forCB"]
 
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")

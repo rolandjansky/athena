@@ -12,6 +12,7 @@
 #include "xAODTracking/versions/TrackParticle_v1.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include <functional>
+#include <random>
 
 Run2ToRun3TrigNavConverter::Run2ToRun3TrigNavConverter(const std::string &name, ISvcLocator *pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
 {
@@ -113,6 +114,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
   std::vector<TrigCompositeUtils::Decision *> decisionLast; // storing "last" decision in a chain
 
   DecisionObjMap decisionObj;
+  DecisionObjMap decisionObjFeatureless;
   L1ObjMap l1Obj;
   TEObjMap teObj;
   FElessObjMap feObj; // this is only for FEless H nodes -> pair(IM node, TEptr)
@@ -227,6 +229,58 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                 return; 
             };
 
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@ featureFinder @@@@@@@@@@@@@@@@@@@@@@@@@@
+            std::function<uint32_t(HLT::TriggerElement*,uint32_t&)> featureFinder = [&](HLT::TriggerElement* ptrTE, uint32_t& deepLvl) {
+                auto  vecTEpred = navDecoder.getDirectPredecessors(ptrTE);
+                if (vecTEpred.empty()) // no TE predecessor, no FE at all                    
+                { 
+                  return (uint32_t)0;
+                } else {
+                  for (auto pred : vecTEpred) { // vector predecessors TE
+                    auto vectorTEfeatures_ptr = getTEfeatures( pred, navDecoder );
+                    if (vectorTEfeatures_ptr.size()==1 && (vectorTEfeatures_ptr.front().getIndex().objectsBegin()==vectorTEfeatures_ptr.front().getIndex().objectsEnd())) {
+                      break; // this is empty FE, treat it is as zero FE
+                    }
+                    if (vectorTEfeatures_ptr.empty()==false) 
+                    {
+                      auto featureBegin = 1000*vectorTEfeatures_ptr.front().getIndex().objectsBegin();
+                      auto [sgKey, sgCLID, sgName] = getSgKey(navDecoder,vectorTEfeatures_ptr.front());
+                      return sgKey+featureBegin+deepLvl; // first found 
+                    } 
+                  }
+                  // if no success after scan of TE predecessors we go one level up
+                  ++deepLvl;
+                  uint32_t keySearch { 0 };
+                  for (auto pred : vecTEpred) { 
+                    keySearch = featureFinder(pred,deepLvl); // recursive call
+                    if (keySearch != 0) return keySearch; // first found
+                  }
+                }
+                return (uint32_t)0; 
+            };
+
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@ getTEObject @@@@@@@@@@@@@@@@@@@@@@@@@@
+            auto getTEObject = [&](HLT::TriggerElement* ptrTE, uint32_t& deepLevel, TrigCompositeUtils::DecisionContainer *dOutput) {
+                // this is featureless case
+                uint32_t sgKeyProxy = featureFinder(ptrTE,deepLevel);
+                if (sgKeyProxy != 0) {
+                  auto it = decisionObjFeatureless.find(sgKeyProxy);
+                  if (it != decisionObjFeatureless.end()) return it->second;
+                }
+                
+                auto d1 = TrigCompositeUtils::newDecisionIn(dOutput);
+                d1->setName(TrigCompositeUtils::hypoAlgNodeName());
+                auto d2 = TrigCompositeUtils::newDecisionIn(dOutput);
+                d2->setName(TrigCompositeUtils::inputMakerNodeName());
+                if (sgKeyProxy==0) { // let us random it
+                  std::random_device rd;
+                  std::mt19937_64 gen(rd());
+                  std::uniform_int_distribution<uint32_t> dis;
+                  sgKeyProxy = 1000000 + dis(gen);
+                }
+                return decisionObjFeatureless[sgKeyProxy] = std::make_pair(d1, d2);
+            };
+
 
             if (vectorTEROIfeatures_ptr.empty()) {
               roiFinder(teptr);
@@ -236,11 +290,18 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
             }
 
 
-            if (vectorTEfeatures_ptr.empty())
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@ vector TE - EMPTY @@@@@@@@@@@@@@@@@@@@@@@@@@
+            if ( vectorTEfeatures_ptr.empty() || 
+               ( vectorTEfeatures_ptr.size() == 1 && 
+                 (vectorTEfeatures_ptr[0].getIndex().objectsBegin() == vectorTEfeatures_ptr[0].getIndex().objectsEnd()) )
+               ) 
             {
 
-              auto decisionFeature = TrigCompositeUtils::newDecisionIn(decisionOutput);
-              decisionFeature->setName(TrigCompositeUtils::hypoAlgNodeName());
+
+              uint32_t dLevel { 0 };
+              auto [ decisionFeature, decisionPtr ] = getTEObject(teptr,dLevel,decisionOutput);
+              auto decision = decisionPtr;
+
               tempDecisionVector.push_back(decisionFeature);
 
               if (teptr->getActiveState())
@@ -248,8 +309,6 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
               ElementLink<xAOD::TrigCompositeContainer> linkToSelf = TrigCompositeUtils::decisionToElementLink(decisionFeature, context);
               decisionFeature->setObjectLink<xAOD::TrigCompositeContainer>(TrigCompositeUtils::featureString(), linkToSelf);
               mapTEtoDecision[teptr].push_back(decisionFeature);
-              auto decision = TrigCompositeUtils::newDecisionIn(decisionOutput);
-              decision->setName(TrigCompositeUtils::inputMakerNodeName());
               TrigCompositeUtils::addDecisionID(chainId, decision);
 
               TrigCompositeUtils::Decision *l1_decision{nullptr};
@@ -305,7 +364,6 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
             }
 
 
-
             for (const auto &elemFE : vectorTEfeatures_ptr)
             {
               TrigCompositeUtils::Decision *decision{nullptr};
@@ -330,30 +388,6 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
                 {
                   auto mp = std::make_pair(decisionFeature, decision);
                   ATH_CHECK(addTEfeatures(navDecoder, elemFE, mp, i, &decisionObj));
-                }
-                mapTEtoDecision[teptr].push_back(decisionFeature);
-                mapTEtoDecisionActive[teptr].push_back(decision);
-              }
-
-              if (elemFE.getIndex().objectsBegin() == elemFE.getIndex().objectsEnd())
-              {
-                size_t kInsert{0};
-                auto [decisionFeature, decisionPtr] = getDecisionObject(elemFE, elemFE.getIndex().objectsBegin(), decisionOutput, kInsert);
-                decision = decisionPtr;
-
-                if (mp.empty() == false) {
-                    ATH_CHECK(addTEROIfeatures(navDecoder, (mp.begin())->second, decision)); // updated roi on the way
-                }
-
-                if (teptr->getActiveState()) TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
-                TrigCompositeUtils::addDecisionID(chainId, decision);
-                TrigCompositeUtils::linkToPrevious(decisionFeature, decision, context);
-
-                tempDecisionVector.push_back(decisionFeature);
-                if (kInsert)
-                {
-                  auto mp = std::make_pair(decisionFeature, decision);
-                  ATH_CHECK(addTEfeatures(navDecoder, elemFE, mp, -1, &decisionObj));
                 }
                 mapTEtoDecision[teptr].push_back(decisionFeature);
                 mapTEtoDecisionActive[teptr].push_back(decision);
