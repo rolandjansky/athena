@@ -20,7 +20,7 @@ namespace LArSamples {
 
   class SimpleShape;
   
-  class ShapeInfo {
+  class ShapeInfo final {
   
    public:
    
@@ -30,7 +30,7 @@ namespace LArSamples {
   
     ShapeInfo(const ShapeInfo& other);
 
-    virtual ~ShapeInfo();
+    ~ShapeInfo();
     
     /** @return size */
     unsigned int   nPoints()    const { return m_values.size() + 1; } // add one more point by extrapolation
@@ -58,7 +58,7 @@ namespace LArSamples {
     //SimpleShape* sampleShape(double scale = 1, double shift = 0) const;
     //void Draw() const;
 
-    static const unsigned int nBuckets = 24;
+    static constexpr unsigned int nBuckets = 24;
 
     static double timeShift() { return m_timeShift; }
     static void setTimeShift(double shift = 0) { m_timeShift = shift; }
