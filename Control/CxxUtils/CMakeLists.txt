@@ -62,7 +62,9 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( stacktrace_test
       SOURCES test/stacktrace_test.cxx
       LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS}
-      LOG_IGNORE_PATTERN "DebugAids::stacktrace|CxxUtils::backtraceByUnwind")
+      # With clang12 i see DWARF error messages from addr2line.
+      # It still works ok, though.
+      LOG_IGNORE_PATTERN "DebugAids::stacktrace|CxxUtils::backtraceByUnwind|DWARF error")
 endif()
 
 atlas_add_test( MD5_test
