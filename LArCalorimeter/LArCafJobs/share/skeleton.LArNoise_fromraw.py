@@ -242,10 +242,9 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
    EventCnvSuperTool.DoID = False
    ToolSvc += EventCnvSuperTool
 
-   # --- BunchCrossing Tool configuration ---
-   from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-   theBCTool = BunchCrossingTool()
-   ToolSvc += theBCTool
+   # BunchCrossing info
+   from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+   BunchCrossingCondAlgDefault()
 
 
 #

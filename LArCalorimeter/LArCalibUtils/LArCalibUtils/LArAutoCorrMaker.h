@@ -31,10 +31,9 @@
 #include "LArRawEvent/LArAutoCorr.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-namespace Trig {
-  class IBunchCrossingTool;
-}
 //-----------------------------------------------------------------------
 class LArAutoCorrMaker : public AthAlgorithm
 //-----------------------------------------------------------------------
@@ -59,7 +58,7 @@ class LArAutoCorrMaker : public AthAlgorithm
   
  private:
 
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
   int m_bunchCrossingsFromFront;
 

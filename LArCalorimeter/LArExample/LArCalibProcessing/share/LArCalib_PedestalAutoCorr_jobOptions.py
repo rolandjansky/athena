@@ -509,7 +509,6 @@ if runAccumulator:
       #LArAutoCorrMaker.Nsamples     = NSamples
       LArAutoCorrMaker.KeyOutput  = KeyOutputAC
       LArAutoCorrMaker.GroupingType = GroupingType
-      LArAutoCorrMaker.BunchCrossingTool = ""
       topSequence += LArAutoCorrMaker
 
 else :

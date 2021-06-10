@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -75,8 +75,10 @@ def CaloBaselineMonConfig(inputFlags, isTopLevel=True):
 
     caloBaselineMonAlg.useBadLBTool = tmp_CaloBaselineMon["useBadLBTool"]
     caloBaselineMonAlg.BadLBTool = cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
-    # FIXME Do not have yet new config for BunchCrossingTool, shoulkd be put back once available
-    #caloBaselineMonAlg.BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
+
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    cfg.merge(BunchCrossingCondAlgCfg(inputFlags))
+
     caloBaselineMonAlg.useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"]
     caloBaselineMonAlg.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
     caloBaselineMonAlg.useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"]

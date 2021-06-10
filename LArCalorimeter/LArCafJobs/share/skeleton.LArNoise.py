@@ -155,10 +155,9 @@ triggerGetter = T0TriggerGetter()
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')
 
-# --- BunchCrossing Tool configuration ---
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-theBCTool = BunchCrossingTool()
-ToolSvc += theBCTool
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 

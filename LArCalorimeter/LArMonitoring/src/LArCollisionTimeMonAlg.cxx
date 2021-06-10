@@ -89,7 +89,6 @@ LArCollisionTimeMonAlg::fillHistograms( const EventContext& ctx ) const
   }
   
   const int bcid_distance = bcData->distanceFromFront(bunch_crossing_id, BunchCrossingCondData::BunchCrossings);
-//m_bunchCrossingTool->distanceFromFront(bunch_crossing_id, Trig::IBunchCrossingTool::BunchCrossings);
   ATH_MSG_DEBUG("BCID distance: "<<bcid_distance );
 
   // Retrieve LArCollision Timing information

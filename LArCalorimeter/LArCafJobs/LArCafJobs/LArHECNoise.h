@@ -18,7 +18,6 @@
 //LAr services:
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -29,6 +28,7 @@
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
+
 
 //STL:
 #include <string>
@@ -64,7 +64,6 @@ class LArHECNoise : public AthAlgorithm  {
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    SG::ReadCondHandleKey<ILArPedestal> m_pedKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal obj"};
    /*Tools*/
-   ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
 
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
