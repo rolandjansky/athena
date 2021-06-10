@@ -62,10 +62,108 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   m_extZposition.push_back(-m_EI_Z.value());
   m_extZposition.push_back(-m_FI_Z.value());
 
+  if(m_ctpDecMonList.value()!=""){
+    m_CtpDecMonObj.clear();
+    TString Str = m_ctpDecMonList.value();
+    auto monTrigs = Str.Tokenize(";");
+    for(int i = 0 ; i < monTrigs->GetEntries() ; i++){
+      CtpDecMonObj monObj;
+      monObj.trigItem = monObj.title = "dummy";
+      monObj.rpcThr=monObj.tgcThr=monObj.multiplicity=0;
+      monObj.tgcF=monObj.tgcC=monObj.tgcH=monObj.rpcR=monObj.rpcM=false;
+      TString monTrig = monTrigs->At(i)->GetName();
+      if(monTrig=="")continue;
+      auto monElement = monTrig.Tokenize(",");
+      for(int j = 0 ; j < monElement->GetEntries() ; j++){
+	TString sysItem = monElement->At(j)->GetName();
+	if(sysItem=="")continue;
+	TString item = sysItem;
+	item.Remove(0,4); // remove "Tit:", "CTP:", "HLT:", "RPC:", "TGC:"
+	if(sysItem.BeginsWith("Tit")){
+	  monObj.title = item;
+	}else if(sysItem.BeginsWith("Mul")){
+	  monObj.multiplicity = item.Atoi();
+	}else if(sysItem.BeginsWith("CTP") || sysItem.BeginsWith("HLT")){
+	  monObj.trigItem = item;
+	}else if(sysItem.BeginsWith("RPC")){
+	  monObj.rpcThr = item.Atoi();
+	  monObj.rpcR = item.Contains("R");
+	  monObj.rpcM = item.Contains("M");
+	}else if(sysItem.BeginsWith("TGC")){
+	  monObj.tgcThr = item.Atoi();
+	  monObj.tgcF = item.Contains("F");
+	  monObj.tgcC = item.Contains("C");
+	  monObj.tgcH = item.Contains("H");
+	}
+      }
+      m_CtpDecMonObj.push_back(monObj);
+      monElement->Clear();
+      monElement->Delete();
+      delete monElement;
+    }
+    monTrigs->Clear();
+    monTrigs->Delete();
+    delete monTrigs;
+  }
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
+
+  // Print out all available muon triggers
+  // This is to be used when making a list of triggers
+  // to be monitored, and writted in .py config file
+  // The defult should be FALSE
+  if( m_printAvailableMuonTriggers.value() ){
+    if( getTrigDecisionTool().empty() ){
+      ATH_MSG_ERROR("TDT is not availeble");
+      return StatusCode::FAILURE;
+    }else{
+      std::set<TString> available_muon_triggers;
+      auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_.*");
+      if( chainGroup != nullptr ){
+	auto triggerList = chainGroup->getListOfTriggers();
+	if( !triggerList.empty() ){
+	  for(const auto &trig : triggerList) {
+	    TString thisTrig = trig;
+	    if( !thisTrig.Contains("mu") && !thisTrig.Contains("MU"))continue;
+	    if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
+	      auto fc = getTrigDecisionTool()->features(thisTrig.Data(),TrigDefs::alsoDeactivateTEs);
+	      for(const auto& comb : fc.getCombinations()){
+		auto initRoIs = comb.get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+		for(const auto& roi : initRoIs){
+		  if( roi.empty() )continue;
+		  if( roi.cptr()==nullptr ) continue;
+		  // found an available muon trigger here
+		  available_muon_triggers.insert(thisTrig);
+		}
+	      }
+	    }else{ // run 3 access
+	      auto features =getTrigDecisionTool()->features<xAOD::MuonContainer>(thisTrig.Data(), TrigDefs::includeFailedDecisions);
+	      for(const auto& muLinkInfo : features) {
+		if( !muLinkInfo.isValid() )continue;
+		auto roiLinkInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(muLinkInfo.source, "initialRoI");
+		if( !roiLinkInfo.isValid() )continue;
+		auto roiEL = roiLinkInfo.link;
+		if( !roiEL.isValid() )continue;
+		auto roi = *roiEL;
+		if( roi==nullptr ) continue;
+		// found an available muon trigger here
+		available_muon_triggers.insert(thisTrig);
+	      }
+	    }
+	  }
+	}
+      }
+      for(const auto& trig : available_muon_triggers){
+	ATH_MSG_INFO("Available Muon Trigger: " << trig);
+      }
+      available_muon_triggers.clear();
+      return StatusCode::SUCCESS;
+    }
+  } ///////////////End of printing out available muon triggers
+
   MonVariables variables;
 
   auto bcid = Monitored::Scalar<int>("bcid", GetEventInfo(ctx)->bcid());
@@ -304,10 +402,133 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       });
     roi_variables.push_back(roi_negCharge);
     fill(m_packageName, roi_variables);
+    roi_variables.clear();
   }
   if (!m_anaOfflMuon.value()) {
     fill(m_packageName, variables);
+    variables.clear();
     return StatusCode::SUCCESS;
+  }
+
+  if ( !getTrigDecisionTool().empty() && rois != nullptr ) {
+    std::set<unsigned int> allCands;
+    std::set<unsigned int> ctpMuonCands;
+    std::set<unsigned int> inputMuonCands;
+    std::map<unsigned int,double> roiEta;
+    std::map<unsigned int,double> roiPhi;
+    MonVariables  ctpMonVariables;
+    std::vector<double> roiEta_inOk_outOk;
+    std::vector<double> roiEta_inNg_outOk;
+    std::vector<double> roiEta_inOk_outNg;
+    std::vector<double> roiPhi_inOk_outOk;
+    std::vector<double> roiPhi_inNg_outOk;
+    std::vector<double> roiPhi_inOk_outNg;
+    std::vector<int> roiMatching_CTPin;
+    std::vector<int> roiMatching_CTPout;
+    for(const auto& monObj : m_CtpDecMonObj){
+      // collecting roiWords out of the CTP decision
+      if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
+	auto fc = getTrigDecisionTool()->features(monObj.trigItem.Data(),TrigDefs::alsoDeactivateTEs);
+	for(const auto& comb : fc.getCombinations()){
+	  auto initRoIs = comb.get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+	  for(const auto& roi : initRoIs){
+	    if( roi.empty() )continue;
+	    if( roi.cptr()==nullptr ) continue;
+	    ctpMuonCands.insert(roi.cptr()->roiWord());
+	    allCands.insert(roi.cptr()->roiWord());
+	    roiEta[roi.cptr()->roiWord()] = roi.cptr()->eta();
+	    roiPhi[roi.cptr()->roiWord()] = roi.cptr()->phi();
+	  }
+	}
+      }else{ // run 3 access
+	auto features =getTrigDecisionTool()->features<xAOD::MuonContainer>(monObj.trigItem.Data(), TrigDefs::includeFailedDecisions);
+	for(const auto& muLinkInfo : features) {
+	  if( !muLinkInfo.isValid() )continue;
+	  auto roiLinkInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(muLinkInfo.source, "initialRoI");
+	  if( !roiLinkInfo.isValid() )continue;
+	  auto roiEL = roiLinkInfo.link;
+	  if( !roiEL.isValid() )continue;
+	  auto roi = *roiEL;
+	  if( roi==nullptr ) continue;
+	  ctpMuonCands.insert(roi->roiWord());
+	  allCands.insert(roi->roiWord());
+	  roiEta[roi->roiWord()] = roi->eta();
+	  roiPhi[roi->roiWord()] = roi->phi();
+	}
+      }
+      // collecting roiWords out of RPC/TGC
+      for(const auto roi : *rois){
+	if(roi->getSource()==xAOD::MuonRoI::Barrel){
+	  if(roi->getThrNumber()<monObj.rpcThr)continue;
+	  if(monObj.rpcM && !roi->isMoreCandInRoI())continue;
+	}else{
+	  if(roi->getThrNumber()<monObj.tgcThr)continue;
+	  if(monObj.tgcF && !roi->getBW3Coincidence())continue;
+	  if(monObj.tgcC && !roi->getInnerCoincidence())continue;
+	  if(monObj.tgcH && !roi->getGoodMF())continue;
+	}
+	inputMuonCands.insert(roi->roiWord());
+	allCands.insert(roi->roiWord());
+	roiEta[roi->roiWord()] = roi->eta();
+	roiPhi[roi->roiWord()] = roi->phi();
+      }
+
+      if(ctpMuonCands.size()>=monObj.multiplicity || inputMuonCands.size()>=monObj.multiplicity){
+	for(const auto& roiWord : allCands){
+	  bool ctp_in  = inputMuonCands.find(roiWord)!=inputMuonCands.end();
+	  bool ctp_out = ctpMuonCands.find(roiWord)!=ctpMuonCands.end();
+	  roiMatching_CTPin.push_back(ctp_in?1:0);
+	  roiMatching_CTPout.push_back(ctp_out?1:0);
+	  if(ctp_in && ctp_out){ // good
+	    roiEta_inOk_outOk.push_back(roiEta[roiWord]);
+	    roiPhi_inOk_outOk.push_back(roiPhi[roiWord]);
+	  }else if(!ctp_in && ctp_out){ // fake output from CTP (must be a bug)
+	    roiEta_inNg_outOk.push_back(roiEta[roiWord]);
+	    roiPhi_inNg_outOk.push_back(roiPhi[roiWord]);
+	  }else if(ctp_in && !ctp_out){ // event dripped at CTP (overlap removal? bug?)
+	    roiEta_inOk_outNg.push_back(roiEta[roiWord]);
+	    roiPhi_inOk_outNg.push_back(roiPhi[roiWord]);
+	  }
+	}
+	auto ctpMultiplicity = Monitored::Scalar<int>(Form("ctpMultiplicity_%s",monObj.title.Data()),ctpMuonCands.size());
+	ctpMonVariables.push_back(ctpMultiplicity);
+	auto rawMultiplicity = Monitored::Scalar<int>(Form("rawMultiplicity_%s",monObj.title.Data()),inputMuonCands.size());
+	ctpMonVariables.push_back(rawMultiplicity);
+	auto countDiff = Monitored::Scalar<int>(Form("countDiff_%s",monObj.title.Data()),ctpMuonCands.size()-inputMuonCands.size());
+	ctpMonVariables.push_back(countDiff);
+	auto val_roiEta_inOk_outOk = Monitored::Collection(Form("roiEta_inOk_outOk_%s",monObj.title.Data()), roiEta_inOk_outOk);
+	auto val_roiEta_inNg_outOk = Monitored::Collection(Form("roiEta_inNg_outOk_%s",monObj.title.Data()), roiEta_inNg_outOk);
+	auto val_roiEta_inOk_outNg = Monitored::Collection(Form("roiEta_inOk_outNg_%s",monObj.title.Data()), roiEta_inOk_outNg);
+	auto val_roiPhi_inOk_outOk = Monitored::Collection(Form("roiPhi_inOk_outOk_%s",monObj.title.Data()), roiPhi_inOk_outOk);
+	auto val_roiPhi_inNg_outOk = Monitored::Collection(Form("roiPhi_inNg_outOk_%s",monObj.title.Data()), roiPhi_inNg_outOk);
+	auto val_roiPhi_inOk_outNg = Monitored::Collection(Form("roiPhi_inOk_outNg_%s",monObj.title.Data()), roiPhi_inOk_outNg);
+	ctpMonVariables.push_back(val_roiEta_inOk_outOk);
+	ctpMonVariables.push_back(val_roiEta_inNg_outOk);
+	ctpMonVariables.push_back(val_roiEta_inOk_outNg);
+	ctpMonVariables.push_back(val_roiPhi_inOk_outOk);
+	ctpMonVariables.push_back(val_roiPhi_inNg_outOk);
+	ctpMonVariables.push_back(val_roiPhi_inOk_outNg);
+	auto val_roiMatching_CTPin = Monitored::Collection(Form("roiMatching_CTPin_%s",monObj.title.Data()), roiMatching_CTPin);
+	auto val_roiMatching_CTPout = Monitored::Collection(Form("roiMatching_CTPout_%s",monObj.title.Data()), roiMatching_CTPout);
+	ctpMonVariables.push_back(val_roiMatching_CTPin);
+	ctpMonVariables.push_back(val_roiMatching_CTPout);
+	fill(m_packageName, ctpMonVariables);
+      }
+      ctpMuonCands.clear();
+      inputMuonCands.clear();
+      allCands.clear();
+      roiEta.clear();
+      roiPhi.clear();
+      ctpMonVariables.clear();
+      roiEta_inOk_outOk.clear();
+      roiEta_inNg_outOk.clear();
+      roiEta_inOk_outNg.clear();
+      roiPhi_inOk_outOk.clear();
+      roiPhi_inNg_outOk.clear();
+      roiPhi_inOk_outNg.clear();
+      roiMatching_CTPin.clear();
+      roiMatching_CTPout.clear();
+    }
   }
 
   SG::ReadHandle < xAOD::MuonContainer > muons(m_MuonContainerKey, ctx);
@@ -324,7 +545,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     if( chainGroup != nullptr ){
       auto triggerList = chainGroup->getListOfTriggers();
       if( !triggerList.empty() ){
-	for(auto &trig : triggerList) {
+	for(const auto &trig : triggerList) {
 	  TString thisTrig = trig;
 	  if( thisTrig.BeginsWith("HLT_mu") ){ // muon triggers
 	    // look for only single-muon triggers
@@ -425,14 +646,14 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
 	  ATH_MSG_DEBUG("Trying Run2-style feature access");
 	  auto fc = getTrigDecisionTool()->features(trigName.Data(),TrigDefs::Physics);
-	  for(auto comb : fc.getCombinations()){
+	  for(const auto& comb : fc.getCombinations()){
 	    if(!comb.active())continue;
-	    auto MuFeatureContainers = fc.get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::Physics);
-	    for(auto mucont : MuFeatureContainers){
+	    auto MuFeatureContainers = comb.get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::Physics);
+	    for(const auto& mucont : MuFeatureContainers){
 	      if(mucont.empty())continue;
 	      if(mucont.te()==nullptr)continue;
 	      if(!mucont.te()->getActiveState())continue;
-	      for(auto hltmu : *mucont.cptr()){
+	      for(const auto hltmu : *mucont.cptr()){
 		if (hltmu == nullptr) continue; // skip if hltmu is empty
 		if (hltmu->pt() < 1000.)continue; // skip if pT is very small
 		double dr = xAOD::P4Helpers::deltaR(muon2,hltmu,false);
@@ -449,7 +670,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	}else{ // run 3 access
 	  ATH_MSG_DEBUG("Trying Run3-style feature access");
 	  auto features = getTrigDecisionTool()->features < xAOD::MuonContainer > (trigName.Data(), TrigDefs::Physics, "HLT_MuonsCB_RoI");
-	  for (auto aaa : features) {
+	  for (const auto& aaa : features) {
 	    if (!aaa.isValid()) continue;
 	    auto hltmu_link = aaa.link;
 	    if (!hltmu_link.isValid()) continue;
@@ -533,6 +754,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     /* store MyMuon */
     mymuons.push_back(mymuon);
   }
+
+  list_of_single_muon_triggers.clear();
 
   auto muon_eta4gev = Monitored::Collection("muon_eta4gev",mymuons,[](const MyMuon& m){
       return (m.muon->pt()>pt_4_cut)?m.muon->eta():-10;
@@ -662,6 +885,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   if (!m_anaTgcPrd.value()) {
     fill(m_packageName, variables);
     variables.clear();
+    for(auto& aa : mymuons)aa.clear();
+    mymuons.clear();
     return StatusCode::SUCCESS;
   }
 
@@ -687,8 +912,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   std::vector <int> vec_bwtiming;
   std::vector <int> vec_bwtiming_wire;
   std::vector <int> vec_bwtiming_strip;
-  for (auto tgccnt : *tgcPrd) {
-    for (auto data : *tgccnt) {
+  for (const auto tgccnt : *tgcPrd) {
+    for (const auto data : *tgccnt) {
       TgcHit tgcHit;
       int bunch = -10;
       if ((data->getBcBitMap() & Muon::TgcPrepData::BCBIT_PREVIOUS) == Muon::TgcPrepData::BCBIT_PREVIOUS) bunch = -1;
@@ -929,6 +1154,28 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     fill(m_packageName, x, y, z);
   }
 
+  tgcHits.clear();
+  chamber_list.clear();
+  for(auto& aa : tgcHitsMap)aa.second.clear();
+  tgcHitsMap.clear();
+  for(auto& aa : tgcHitPhiMap)aa.second.clear();
+  tgcHitPhiMap.clear();
+  for(auto& aa : tgcHitEtaMap)aa.second.clear();
+  tgcHitEtaMap.clear();
+  for(auto& aa : tgcHitPhiMapGlobal)aa.second.clear();
+  tgcHitPhiMapGlobal.clear();
+  for(auto& aa : tgcHitTiming)aa.second.clear();
+  tgcHitTiming.clear();
+  vec_bw24sectors.clear();
+  vec_bw24sectors_wire.clear();
+  vec_bw24sectors_strip.clear();
+  vec_bwfulleta.clear();
+  vec_bwfulleta_wire.clear();
+  vec_bwfulleta_strip.clear();
+  vec_bwtiming.clear();
+  vec_bwtiming_wire.clear();
+  vec_bwtiming_strip.clear();
+
   SG::ReadHandle < Muon::TgcCoinDataContainer > tgcCoinCurr(m_TgcCoinDataContainerCurrBCKey, ctx);
   if (!tgcCoinCurr.isValid()) {
     ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name " << m_TgcCoinDataContainerCurrBCKey);
@@ -967,7 +1214,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   int n_TgcCoin_postOutPtrIsNull = 0;
   for (auto thisCoin : tgcCoin) {
     int bunch = thisCoin.first;
-    for (auto tgccnt : *(thisCoin.second)) {
+    for (const auto tgccnt : *(thisCoin.second)) {
       for (const auto data : *tgccnt) {
 
 	if ( data->detectorElementOut() == nullptr ) n_TgcCoin_detElementIsNull++;
@@ -1095,6 +1342,27 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   fillTgcCoin(tgcTrigs_LPT_Forward_Strip,"LPT_Forward_Strip");
 
   fill(m_packageName, variables);
+  variables.clear();
+  for(auto& aa : mymuons)aa.clear();
+  mymuons.clear();
+
+  tgcCoin.clear();
+  tgcTrigs_SL.clear();
+  tgcTrigs_SL_Endcap.clear();
+  tgcTrigs_SL_Forward.clear();
+  tgcTrigs_HPT_Wire.clear();
+  tgcTrigs_HPT_Endcap_Wire.clear();
+  tgcTrigs_HPT_Forward_Wire.clear();
+  tgcTrigs_HPT_Strip.clear();
+  tgcTrigs_HPT_Endcap_Strip.clear();
+  tgcTrigs_HPT_Forward_Strip.clear();
+  tgcTrigs_LPT_Wire.clear();
+  tgcTrigs_LPT_Endcap_Wire.clear();
+  tgcTrigs_LPT_Forward_Wire.clear();
+  tgcTrigs_LPT_Strip.clear();
+  tgcTrigs_LPT_Endcap_Strip.clear();
+  tgcTrigs_LPT_Forward_Strip.clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -1209,7 +1477,7 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
   variables.push_back(coin_cutmask_pt15);
 
   fill(m_packageName, variables);
-
+  variables.clear();
 }
 ///////////////////////////////////////////////////////////////
 void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon *muon, MyMuon &mymuon) const {

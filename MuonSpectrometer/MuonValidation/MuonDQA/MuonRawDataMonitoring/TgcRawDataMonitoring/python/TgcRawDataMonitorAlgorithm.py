@@ -31,6 +31,38 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
 
+    tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
+
+    tgcRawDataMonAlg.CtpDecisionMoniorList  = "Tit:Run2_L1_MU4,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_MU6,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_MU10,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_MU20,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:5,TGC:5;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_2MU4,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_2MU6,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_2MU10,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_3MU4,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_3MU6,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:2;"
+
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU4,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU6,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU10,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:6F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU20,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:6,TGC:12FCH;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_2MU4,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_2MU6,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_2MU10,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:6F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_3MU4,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_3MU6,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:3F;"
+
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU4,Mul:1,HLT:HLT_mu4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU6,Mul:1,HLT:HLT_mu6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU10,Mul:1,HLT:HLT_mu10,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU20,Mul:1,HLT:HLT_mu26_ivarmedium,RPC:5,TGC:5;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_2MU6,Mul:2,HLT:HLT_2mu6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_2MU10,Mul:2,HLT:HLT_2mu14,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_3MU4,Mul:3,HLT:HLT_3mu4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_3MU6,Mul:3,HLT:HLT_3mu6,RPC:2,TGC:2;"
+
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
     tgcRawDataMonAlg.UseNonMuonTriggers = False
@@ -45,9 +77,28 @@ def TgcRawDataMonitoringConfig(inputFlags):
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
     import math
 
-    trigPath = 'Trig/'
-
     myGroup = helper.addGroup(tgcRawDataMonAlg,'TgcRawDataMonitor',mainDir)
+
+    trigMultiPath = 'TrigMultiplicity/'
+    for monTrig in tgcRawDataMonAlg.CtpDecisionMoniorList.split(';'):
+        tmp = monTrig.split(',')[0]
+        objname = tmp.replace('Tit:','')
+        myGroup.defineHistogram('ctpMultiplicity_'+objname+';ctpMultiplicity_'+objname,title='ctpMultiplicity '+objname+';Ctp Output Multiplicity;Number of events',
+                                path=trigMultiPath,xbins=11,xmin=-0.5,xmax=10.5)
+        myGroup.defineHistogram('rawMultiplicity_'+objname+';rawMultiplicity_'+objname,title='rawMultiplicity '+objname+';Raw Input Multiplicity;Number of events',
+                                path=trigMultiPath,xbins=11,xmin=-0.5,xmax=10.5)
+        myGroup.defineHistogram('countDiff_'+objname+';L1CountDiff_'+objname,title='L1CountDiff '+objname+';Event-by-event N(CTP out)-N(CTP in);Number of events',
+                                path=trigMultiPath,xbins=11,xmin=-5.5,xmax=5.5)
+        myGroup.defineHistogram('roiEta_inOk_outOk_'+objname+',roiPhi_inOk_outOk_'+objname+';L1Count_inOk_outOk_EtaVsPhi_'+objname,title='L1Count_inOk_outOk_EtaVsPhi_'+objname+';MuonRoI Eta;MuonRoI Phi',
+                                path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram('roiEta_inNg_outOk_'+objname+',roiPhi_inNg_outOk_'+objname+';L1Count_inNg_outOk_EtaVsPhi_'+objname,title='L1Count_inNg_outOk_EtaVsPhi_'+objname+';MuonRoI Eta;MuonRoI Phi',
+                                path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram('roiEta_inOk_outNg_'+objname+',roiPhi_inOk_outNg_'+objname+';L1Count_inOk_outNg_EtaVsPhi_'+objname,title='L1Count_inOk_outNg_EtaVsPhi_'+objname+';MuonRoI Eta;MuonRoI Phi',
+                                path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram('roiMatching_CTPin_'+objname+',roiMatching_CTPout_'+objname+';RoiMatching_'+objname,title='RoiMatching_'+objname+';Input;Output',
+                                path=trigMultiPath,type='TH2F',xbins=2,xmin=-0.5,xmax=1.5,ybins=2,ymin=-0.5,ymax=1.5,xlabels=['NotExist','Exist'],ylabels=['NotExist','Exist'])
+
+    trigPath = 'Trig/'
 
     myGroup.defineHistogram('roi_charge;MuonRoI_Charge',title='MuonRoI Charge;Charge;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=3,xmin=-1.5,xmax=1.5)
