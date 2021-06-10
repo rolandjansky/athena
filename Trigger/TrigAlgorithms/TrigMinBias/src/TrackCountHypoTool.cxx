@@ -62,7 +62,7 @@ StatusCode TrackCountHypoTool::decide(TrkCountsInfo &trkinfo) const
 	const bool minTrkPassed = (m_minNtrks == -1) or (countForConfiguredPtThreshold >= m_minNtrks);
 	const bool maxTrkPassed = (m_maxNtrks == -1) or (countForConfiguredPtThreshold < m_maxNtrks);
 
-	if ( minTrkPassed and maxTrkPassed ) {		
+	if ( minTrkPassed and maxTrkPassed ) {
 		addDecisionID(m_decisionId.numeric(), trkinfo.decision);
 		ATH_MSG_DEBUG("REGTEST event accepted");
 	}

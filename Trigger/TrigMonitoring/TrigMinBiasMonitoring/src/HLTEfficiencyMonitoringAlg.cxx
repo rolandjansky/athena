@@ -16,7 +16,8 @@ StatusCode HLTEfficiencyMonitoringAlg::initialize()
   ATH_CHECK(m_offlineTrkKey.initialize());
   ATH_CHECK(m_trkCountsKey.initialize());
   ATH_CHECK(m_refTriggerList.size() == m_triggerList.size());
-
+  std::set<std::string> temp( m_triggerList.begin(), m_triggerList.end());
+  m_uniqueTriggerList.insert(m_uniqueTriggerList.end(), temp.begin(), temp.end());
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -70,12 +71,13 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext &contex
     }
   }
 
-  for (auto &trig : m_triggerList)
+  for (auto &trig : m_uniqueTriggerList)
   {
     if (trigDecTool->isPassed(trig, TrigDefs::requireDecision))
     {
       auto whichtrigger = Scalar<std::string>("TrigCounts", trig);
-      fill("TrigAll", whichtrigger);
+      auto nTrkOffline = Scalar("nTrkOffline_counts_"+trig, countPassing);
+      fill("TrigAll", whichtrigger, nTrkOffline);
     }
   }
 

@@ -17,7 +17,7 @@ def TrigSPTRK(configFlags, highGranularity=False):
 
     alg = monConfig.addAlgorithm(CompFactory.HLTMinBiasTrkMonAlg, "HLTMBSPTRKMonAlg")
     trkSel = CompFactory.InDet.InDetTrackSelectionTool(
-        "InDetTrackSelectionTool_TightPrimary", CutLevel="TightPrimary"
+        "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
     )
 
     alg.TrackSelectionTool = trkSel
