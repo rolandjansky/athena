@@ -108,7 +108,10 @@ def TrigComboHypoToolFromDict(chainDict):
     l_min = re.findall(r"\d+"+obs_to_use[0], topoInfo)
     if len(l_min)==1:
         l_min[0] = l_min[0].replace(obs_to_use[0],"")
-        cut_min  = float(l_min[0])/10.
+        if obs_to_use[0] in ['dR','dPhi']:
+            cut_min = float(l_min[0])/10.
+        else:
+            cut_min = float(l_min[0])
     if len(l_min)>1:
         log.error("[TrigComboHypoToolFromDict] unable to get min value: N min = %d, l_min = %d", len(l_min), l_min)
         raise Exception("[TrigComboHypoToolFromDict] cannot set min value")
@@ -121,7 +124,11 @@ def TrigComboHypoToolFromDict(chainDict):
         log.error("[TrigComboHypoToolFromDict] unable to get max value: N max = %d, l_max = %d", len(l_max), l_max)
         raise Exception("[TrigComboHypoToolFromDict] cannot set max value")
     if len(l_max)==1:
-        cut_max = float(l_max[0])/10.
+        if obs_to_use[0] in ['dR','dPhi']:
+            cut_max = float(l_max[0])/10.
+        else:
+            cut_max = float(l_min[0])
+        
     
     #get the legs
     l_names = topoInfo.replace(obs_to_use[0], "")

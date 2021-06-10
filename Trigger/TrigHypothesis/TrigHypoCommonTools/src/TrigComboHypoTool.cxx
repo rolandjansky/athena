@@ -171,7 +171,7 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
     }
   case comboHypoVars::INVM:
     {
-      value = std::sqrt(2.*pt1*pt2*(std::cosh(eta1 - eta2) - std::cos(phi1 - phi2) ) );
+      value = std::sqrt(2.*pt1*pt2*(std::cosh(eta1 - eta2) - std::cos(phi1 - phi2) ) )*1e-3; // Convert to GeV
       break;
     }
   case comboHypoVars::DPHI:
