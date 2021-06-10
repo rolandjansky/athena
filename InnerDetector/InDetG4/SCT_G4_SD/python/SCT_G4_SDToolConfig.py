@@ -2,10 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
-
-SctSensorSDTool=CompFactory.SctSensorSDTool
-SctSensor_CTBTool=CompFactory.SctSensor_CTBTool
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 
 def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
@@ -25,6 +22,7 @@ def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result.merge(acc)
+    SctSensorSDTool = CompFactory.SctSensorSDTool
     return result, SctSensorSDTool(name, **kwargs)
 
 
@@ -40,4 +38,5 @@ def ITkStripSensorSDCfg(ConfigFlags, name="ITkStripSensorSD", **kwargs):
 def SctSensor_CTBCfg(name="SctSensor_CTB", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["SCT::ECSensor0"])
     kwargs.setdefault("OutputCollectionNames", ["SCT_Hits"])
+    SctSensor_CTBTool = CompFactory.SctSensor_CTBTool
     return SctSensor_CTBTool(name, **kwargs)

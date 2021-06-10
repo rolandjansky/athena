@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
-from AthenaConfiguration.ComponentFactory import CompFactory
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 CSCSensitiveDetectorCosmicsTool,CSCSensitiveDetectorTool, GenericMuonSensitiveDetectorTool,MDTSensitiveDetectorCosmicsTool, MDTSensitiveDetectorTool, MicromegasSensitiveDetectorTool, RPCSensitiveDetectorCosmicsTool, RPCSensitiveDetectorTool, TGCSensitiveDetectorCosmicsTool, TGCSensitiveDetectorTool, sTGCSensitiveDetectorTool=CompFactory.getComps("CSCSensitiveDetectorCosmicsTool","CSCSensitiveDetectorTool","GenericMuonSensitiveDetectorTool","MDTSensitiveDetectorCosmicsTool","MDTSensitiveDetectorTool","MicromegasSensitiveDetectorTool","RPCSensitiveDetectorCosmicsTool","RPCSensitiveDetectorTool","TGCSensitiveDetectorCosmicsTool","TGCSensitiveDetectorTool","sTGCSensitiveDetectorTool",)
 

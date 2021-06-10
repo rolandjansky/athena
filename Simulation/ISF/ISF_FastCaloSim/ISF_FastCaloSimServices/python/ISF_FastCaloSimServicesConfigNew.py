@@ -110,7 +110,7 @@ def PileupFastShowerCellBuilderToolCfg(flags, name="ISF_PileupFastShowerCellBuil
 
 
 def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
-    from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
+    from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
     acc = ComponentAccumulator()
     mergeable_collection_suffix = "_FastCaloSim"

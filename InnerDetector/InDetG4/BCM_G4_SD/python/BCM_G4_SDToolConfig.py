@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
-BCMSensorSDTool=CompFactory.BCMSensorSDTool
 
 def BCMSensorSDCfg(ConfigFlags, name="BCMSensorSD", **kwargs):
 
@@ -22,6 +21,5 @@ def BCMSensorSDCfg(ConfigFlags, name="BCMSensorSD", **kwargs):
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result.merge(acc)
+    BCMSensorSDTool = CompFactory.BCMSensorSDTool
     return result, BCMSensorSDTool(name, **kwargs)
-
-

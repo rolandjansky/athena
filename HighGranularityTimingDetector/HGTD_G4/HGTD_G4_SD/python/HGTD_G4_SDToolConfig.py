@@ -2,9 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
-HGTDSensorSDTool=CompFactory.HGTDSensorSDTool
 
 def HgtdSensorSDCfg(ConfigFlags, name="HgtdSensorSD", **kwargs):
 
@@ -22,4 +21,5 @@ def HgtdSensorSDCfg(ConfigFlags, name="HgtdSensorSD", **kwargs):
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result.merge(acc)
+    HGTDSensorSDTool = CompFactory.HGTDSensorSDTool
     return result, HGTDSensorSDTool(name, **kwargs)
