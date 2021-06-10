@@ -49,8 +49,9 @@ namespace Rec{
 //
 //  impact parameters with sign calculations
 //
+      uint8_t nPixelHits;
       double signifR=0.,signifZ=0.;
-      std::vector<int> hitIBL(NTracks,0), hitBL(NTracks,0);
+      std::vector<int> nPixHits(NTracks,0);
       std::vector<double> trackSignif(NTracks),dRdZratio(NTracks);
       for (i=0; i<NTracks; i++) {
          m_fitSvc->VKalGetImpact(selectedTracks[i], primVrt.position(), 1, impact, impactError);
@@ -58,6 +59,8 @@ namespace Rec{
          signifZ = impact[1]/ sqrt(impactError[2]);
          trackSignif[i] = sqrt( signifR*signifR + signifZ*signifZ);
          dRdZratio[i] = std::abs(signifR/signifZ);
+         if( !(selectedTracks[i]->summaryValue(nPixelHits,xAOD::numberOfPixelHits)) ) nPixelHits=0;
+         nPixHits[i]=nPixelHits;
          if(m_fillHist){
             m_hb_impactR->Fill( signifR, m_w_1);
             m_hb_impactZ->Fill( signifZ, m_w_1);
@@ -95,7 +98,7 @@ namespace Rec{
                  std::abs(selectedTracks[i]->pt() -selectedTracks[j]->pt())==0 ) continue; //remove duplicated tracks
              float ihitR  = selectedTracks[i]->radiusOfFirstHit();
              float jhitR  = selectedTracks[j]->radiusOfFirstHit();
-             if(std::abs(ihitR-jhitR)>60.)continue;                         //- FMPs are in very different layers
+             if(std::abs(ihitR-jhitR)>50.)continue;                         //- FMPs are in very different layers
              
              tracksForFit[0]=selectedTracks[i];
              tracksForFit[1]=selectedTracks[j];
@@ -108,7 +111,8 @@ namespace Rec{
                 if( cosMomVrtDir>0. ) iniVrt=tmpVrt.fitVertex;                /* Good initial estimation */ 
                 else                  iniVrt=primVrt.position();
              }
-             if(minDZ>m_fastZSVCut) continue; // Drop SV candidates with big Z track-track distance. They will get big Chi2 in full fit.
+             if(nPixHits[i]>0 && nPixHits[j]>0){ if(minDZ>   m_fastZSVCut) continue; } // Drop SV candidates with big Z track-track distance.
+             else{                               if(minDZ>2.*m_fastZSVCut) continue; } // Drop SV candidates with big Z track-track distance.  
              m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z(),*state);
              sc=m_fitSvc->VKalVrtFit(tracksForFit, neutralPartDummy, tmpVrt.fitVertex, tmpVrt.momentum, Charge,
                                   tmpVrt.errorMatrix, tmpVrt.chi2PerTrk, tmpVrt.trkAtVrt, tmpVrt.chi2, *state, false );
@@ -162,8 +166,8 @@ namespace Rec{
 //
 // Debugging and BDT
              double minPtT = std::min(tracksForFit[0]->pt(),tracksForFit[1]->pt());
-             double Sig3D=0.,Sig2D=0., Dist2D=0.; 
              if( m_fillHist && m_curTup ){
+                double Sig3D=0.,Sig2D=0., Dist2D=0.; 
                 int idisk1=0,idisk2=0,idisk3=0,jdisk1=0,jdisk2=0,jdisk3=0;
                 int sumIBLHits =  std::max(ihitIBL,0)+std::max(jhitIBL,0);
                 int sumBLHits  =  std::max(ihitBL, 0)+std::max(jhitBL, 0);
@@ -200,13 +204,11 @@ namespace Rec{
              }
 //-------------------BDT based rejection
              if(tmpVrt.momentum.Pt() > m_vrt2TrPtLimit) continue;
-             vrtVrtDist(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Sig3D);
-             Dist2D=vrtVrtDist2D(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Sig2D);
              std::vector<float> VARS(10);
              VARS[0]=Prob2v;
              VARS[1]=log(tmpVrt.momentum.Pt());
              VARS[2]=log(std::max(minPtT,m_cutPt));
-             VARS[3]=log(vrtR<20. ? Dist2D : vrtR);
+             VARS[3]=log(vrtR<20. ? SVPV.Perp() : vrtR);
              VARS[4]=log(std::max(std::min(trackSignif[i],trackSignif[j]),m_trkSigCut));
              VARS[5]=log(std::max(trackSignif[i],trackSignif[j]));
              VARS[6]=tmpVrt.momentum.M();

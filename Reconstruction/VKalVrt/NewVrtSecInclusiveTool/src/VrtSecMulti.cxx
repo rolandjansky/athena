@@ -119,10 +119,10 @@ namespace Rec{
     if(msgLvl(MSG::DEBUG))printWrkSet(wrkVrtSet.get(),"Initial Vertices");
     //
     //--Count track participation in different vertices
-    std::unique_ptr<std::vector<int>> trkNPairs = std::make_unique<std::vector<int>>(nTracks,0);
+    std::vector<int> trkNPairs(nTracks,0);
     for(auto &vrt : (*wrkVrtSet)){
        int ntInV=vrt.selTrk.size()-1;
-       for(auto &trk : vrt.selTrk)(*trkNPairs).at(trk) +=  ntInV;
+       for(auto &trk : vrt.selTrk)trkNPairs.at(trk) +=  ntInV;
     }
 //
 //- Resolve all overlapped vertices
@@ -132,12 +132,20 @@ namespace Rec{
     while(true){
       int nSoluI=(*wrkVrtSet).size();
       vrtWithCommonTrk.clear();
-      for(int iv=0; iv<nSoluI-1; iv++ ){  for(int jv=iv+1; jv<nSoluI; jv++){
-          if(!(*wrkVrtSet)[iv].Good || !(*wrkVrtSet)[jv].Good)    continue;
-          int nTCom=nTrkCommon( wrkVrtSet.get(), iv, jv);     if(!nTCom)continue;
+      unsigned int nTComMax=0;
+      for(int iv=0; iv<nSoluI-1; iv++ ){  
+        if(!(*wrkVrtSet)[iv].Good)                      continue;
+        if( (*wrkVrtSet)[iv].selTrk.size()<nTComMax)    continue;  // Optimisation. Only biggest overlap matters
+        for(int jv=iv+1; jv<nSoluI; jv++){
+          if(!(*wrkVrtSet)[jv].Good)                    continue;
+          if( (*wrkVrtSet)[jv].selTrk.size()<nTComMax)  continue;  // Optimisation. Only biggest overlap matters
+          unsigned int nTCom=nTrkCommon( wrkVrtSet.get(), iv, jv);
+          if(!nTCom)         continue;
+          if(nTCom<nTComMax) continue;
           double sumChi2=(*wrkVrtSet)[iv].chi2+(*wrkVrtSet)[jv].chi2;
           sumChi2=std::min(sumChi2,999.)*1.e-3;
           vrtWithCommonTrk.emplace(nTCom+sumChi2,std::make_pair(iv,jv));
+          nTComMax=std::max(nTComMax,nTCom);
       } }
       if(vrtWithCommonTrk.size()==0)break;
       //============================== DEBUG output
@@ -160,7 +168,7 @@ namespace Rec{
              v1.Good = false;  v2.Good = false;
              newvrt.Good         = true;
              newvrt.projectedVrt=MomProjDist(newvrt.vertex, primVrt, newvrt.vertexMom); //3D SV-PV distance
-             wrkVrtSet->push_back(newvrt);
+             std::swap(v1,newvrt); //Replace v1 by new vertex
              continue;
        }  }
        //--If not mergeable - refine them
@@ -175,7 +183,7 @@ namespace Rec{
       for(auto &v1t : (*wrkVrtSet)){
         if(v1t.selTrk.size()!=1 || !v1t.Good)continue;
         int ind_t=v1t.selTrk[0];
-        if((*trkNPairs)[ind_t]<2){ v1t.Good=false; continue; } //Remove 1tr-vertex if track crosses only one other track
+        if(trkNPairs[ind_t]<2){ v1t.Good=false; continue; } //Remove 1tr-vertex if track crosses only one other track
         if( xAODwrk->listSelTracks[ind_t]->pt()<m_cutPt*2){ v1t.Good=false; continue; }; //Tighten track_pt cut for 1-track vertex
         for(auto &vrt :(*wrkVrtSet)){   // Check if the track is present in another vertex, including other 1-track ones
           if(!vrt.Good || &v1t==&vrt)continue;
@@ -345,13 +353,11 @@ namespace Rec{
              float curVrtPt=std::min(curVrt.vertexMom.Pt(), (double)m_vrt2TrPtLimit);
              float rhit0=xAODwrk->listSelTracks[curVrt.selTrk[0]]->radiusOfFirstHit();
              float rhit1=xAODwrk->listSelTracks[curVrt.selTrk[1]]->radiusOfFirstHit();
-             vrtVrtDist(primVrt,curVrt.vertex, curVrt.vertexCov, signif3D); 
-             float Dist2D=vrtVrtDist2D(primVrt,curVrt.vertex, curVrt.vertexCov, signif2D); 
              std::vector<float> VARS(10);
              VARS[0]=vProb;
              VARS[1]=log(curVrtPt);
              VARS[2]=log(std::max(minPtT,m_cutPt));
-             VARS[3]=log(vrtR<20. ? Dist2D : vrtR);
+             VARS[3]=log(vrtR<20. ? SVPV.Perp() : vrtR);
              VARS[4]=log(std::max(minSig3DT,m_trkSigCut));
              VARS[5]=log(maxSig3DT);
              VARS[6]=curVrt.vertexMom.M();
@@ -379,7 +385,7 @@ namespace Rec{
         float dist2D=vrtVrtDist2D(primVrt,vrt.vertex, vrt.vertexCov, signif2D); 
         m_curTup->NVrtTrk   [m_curTup->nNVrt] = 1;
         m_curTup->NVrtTrkHF [m_curTup->nNVrt] = getIdHF(xaodtp);
-        m_curTup->NVrtProb  [m_curTup->nNVrt] = (*trkNPairs)[vrt.selTrk[0]];
+        m_curTup->NVrtProb  [m_curTup->nNVrt] = trkNPairs[vrt.selTrk[0]];
         m_curTup->NVrtSig3D [m_curTup->nNVrt] = 0.;
         m_curTup->NVrtSig2D [m_curTup->nNVrt] = signif2D;
         m_curTup->NVrtDist2D[m_curTup->nNVrt] = dist2D;
