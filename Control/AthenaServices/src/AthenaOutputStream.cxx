@@ -755,8 +755,21 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
    // For MetaData objects of type T that are kept in MetaContainers get the MetaCont<T> ID
    const CLID remapped_item_id = m_metaDataSvc->remapMetaContCLID( item_id );
    SG::ConstProxyIterator iter, end;
+   SG::ProxyMap map;
+   bool gotProxies = false;
    // Look for the clid in storegate
-   if (((*m_currentStore)->proxyRange(remapped_item_id, iter, end)).isSuccess()) {
+   SG::DataProxy* match = (*m_currentStore)->proxy(remapped_item_id, item_key, true);
+   if (match != nullptr) {
+      map.insert({item_key, match});
+      iter = map.begin();
+      end = map.end();
+      gotProxies = true;
+   }
+   // Look for the clid in storegate
+   if (!gotProxies && ((*m_currentStore)->proxyRange(remapped_item_id, iter, end)).isSuccess()) {
+      gotProxies = true;
+   }
+   if (gotProxies) {
       bool added = false, removed = false;
       // For item list entry
       // Check for wildcard within string, i.e. 'xxx*yyy', and save the matching parts
