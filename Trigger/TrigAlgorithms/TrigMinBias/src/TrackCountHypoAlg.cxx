@@ -139,6 +139,6 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
   SG::WriteHandle<xAOD::TrigCompositeContainer> trackCountHandle(m_trackCountKey, context);
   ATH_CHECK(trackCountHandle.record(std::move(trackCountContainer), std::move(trackCountContainerAux)));
   d->setObjectLink(featureString(), ElementLink<xAOD::TrigCompositeContainer>(m_trackCountKey.key(), 0));
-  //ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;
 }

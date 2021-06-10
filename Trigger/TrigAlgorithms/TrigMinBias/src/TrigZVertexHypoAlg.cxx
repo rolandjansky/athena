@@ -68,7 +68,7 @@ StatusCode TrigZVertexHypoAlg::execute(const EventContext& context) const
   for (const auto& tool : m_hypoTools) {
     ATH_CHECK(tool->decide(info));
   }
-
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;
 }
 
