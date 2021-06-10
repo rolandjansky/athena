@@ -673,8 +673,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(Muon::MdtPrepDataContainer
     }
 
     Amg::Vector2D driftRadius(radius,0);
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-    (*cov)(0,0) = errRadius*errRadius;
+    auto cov = Amg::MatrixX(1,1);
+    (cov)(0,0) = errRadius*errRadius;
     // Create new PrepData
 
     // Check that the hit does not belong to the second chamber which might be connected to
@@ -696,7 +696,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(Muon::MdtPrepDataContainer
       MdtPrepData* newPrepData = new MdtPrepData(channelId,
                                                  hashId,
                                                  driftRadius,
-                                                 cov,
+                                                 std::move(cov),
                                                  descriptor,
                                                  newDigit->tdc(),
                                                  newDigit->adc(),
@@ -957,14 +957,14 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
         }
 	  
         Amg::Vector2D driftRadius(radius,0);
-        Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-        (*cov)(0,0) = errRadius*errRadius;
+        auto cov = Amg::MatrixX(1,1);
+        (cov)(0,0) = errRadius*errRadius;
 	  
         // Create new PrepData
         MdtPrepData *newPrepData = new MdtPrepData(channelId,
                                                    mdtHashId,
                                                    driftRadius,
-                                                   cov,
+                                                   std::move(cov),
                                                    descriptor,
                                                    digit->tdc(),
                                                    digit->adc(),
@@ -1033,11 +1033,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
           
         Amg::Vector2D driftRadiusZTwin(radius,zTwin);
         // make a 2x2 matrix with all values initialized at 0
-        Amg::MatrixX* cov = new Amg::MatrixX(2,2);
-        (*cov)(0,0) = errRadius*errRadius;
-        (*cov)(1,1) = errZTwin*errZTwin;
-        (*cov)(0,1) = 0;
-        (*cov)(1,0) = 0;
+        auto cov = Amg::MatrixX(2,2);
+        (cov)(0,0) = errRadius*errRadius;
+        (cov)(1,1) = errZTwin*errZTwin;
+        (cov)(0,1) = 0;
+        (cov)(1,0) = 0;
           
           
         // Create new PrepData either w/ or w/o twin hit info depending on m_use1DPrepDataTwin flag
@@ -1046,7 +1046,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
                                                                   //promptHit_channelHash,
                                                                   mdtHashId,  
                                                                   driftRadiusZTwin,
-                                                                  cov,
+                                                                  std::move(cov),
                                                                   descriptor,
                                                                   promptHit_Digit->tdc(),
                                                                   promptHit_Digit->adc(),
@@ -1079,13 +1079,13 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
         else{
           Amg::Vector2D driftRadius(radius,0);
           // make a 2x2 matrix with all values initialized at 0
-          Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-          (*cov)(0,0) = errRadius*errRadius;
+          auto cov = Amg::MatrixX(1,1);
+          (cov)(0,0) = errRadius*errRadius;
 	    
           MdtPrepData *twin_newPrepData = new MdtPrepData(promptHit_channelId,
                                                           promptHit_channelHash,  
                                                           driftRadius,
-                                                          cov,
+                                                          std::move(cov),
                                                           descriptor,
                                                           promptHit_Digit->tdc(),
                                                           promptHit_Digit->adc(),
@@ -1143,15 +1143,15 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
         }
 	  
         Amg::Vector2D driftRadius(radius,0);
-        Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-        (*cov)(0,0) = errRadius*errRadius;
+        auto cov = Amg::MatrixX(1,1);
+        (cov)(0,0) = errRadius*errRadius;
 
 	  
         // Create new PrepData
         MdtPrepData *newPrepData = new MdtPrepData(channelId,
                                                    mdtHashId,
                                                    driftRadius,
-                                                   cov,
+                                                   std::move(cov), 
                                                    descriptor,
                                                    digit->tdc(),
                                                    digit->adc(),
@@ -1234,20 +1234,20 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
         }
 	  
         Amg::Vector2D driftRadius(radius,0);
-        Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-        (*cov)(0,0) = errRadius*errRadius;
+        auto cov = Amg::MatrixX(1,1);
+        (cov)(0,0) = errRadius*errRadius;
 
 	  
         //second_digit
         Amg::Vector2D second_driftRadius(second_radius,0);
-        Amg::MatrixX* cov2 = new Amg::MatrixX(1,1);
-        (*cov2)(0,0) = second_errRadius*second_errRadius;
+        auto cov2 = Amg::MatrixX(1,1);
+        (cov2)(0,0) = second_errRadius*second_errRadius;
 
         // Create new PrepData
         MdtPrepData *newPrepData = new MdtPrepData(channelId,
                                                    mdtHashId,
                                                    driftRadius,
-                                                   cov,
+                                                   std::move(cov),
                                                    descriptor,
                                                    digit->tdc(),
                                                    digit->adc(),
@@ -1261,7 +1261,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
         MdtPrepData *second_newPrepData = new MdtPrepData(second_channelId,
                                                           mdtHashId,
                                                           second_driftRadius,
-                                                          cov2,
+                                                          std::move(cov2),
                                                           second_descriptor,
                                                           second_digit->tdc(),
                                                           second_digit->adc(),

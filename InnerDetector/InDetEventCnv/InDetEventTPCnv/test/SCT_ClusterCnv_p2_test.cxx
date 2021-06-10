@@ -62,7 +62,7 @@ void compare (const InDet::SCT_Cluster& p1,
 
 void testit (const SCT_ID& sct_id, const InDet::SCT_Cluster& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   SCT_ClusterCnv_p2 cnv (&sct_id);
   InDet::SCT_Cluster_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -97,7 +97,7 @@ void test1 ATLAS_NOT_THREAD_SAFE (const SCT_ID& sct_id)
                              rdoList,
                              width,
                              nullptr,
-                             new Amg::MatrixX(cov));
+                             Amg::MatrixX(cov));
   trans1.setHitsInThirdTimeBin (543);
   testit (sct_id, trans1);
 }

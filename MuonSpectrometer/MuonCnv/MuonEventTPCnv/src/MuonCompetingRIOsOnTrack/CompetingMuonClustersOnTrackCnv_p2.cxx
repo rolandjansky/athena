@@ -22,7 +22,7 @@ CompetingMuonClustersOnTrackCnv_p2::persToTrans( const Muon::CompetingMuonCluste
   auto containedChildRots = std::make_unique<std::vector< const Muon::MuonClusterOnTrack * > >();
 
   for (const TPObjRef& ref : persObj->m_containedChildRots) {
-    ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
+    ITPConverterFor<Trk::MeasurementBase>  *rotCnv = nullptr;
     const Muon::MuonClusterOnTrack* mcot = dynamic_cast<const Muon::MuonClusterOnTrack*>(createTransFromPStore(&rotCnv, ref, log));
     containedChildRots->push_back( mcot );
   }
@@ -47,7 +47,7 @@ CompetingMuonClustersOnTrackCnv_p2::transToPers( const Muon::CompetingMuonCluste
   persObj->m_competingROT = baseToPersistent( &m_cRotCnv,  transObj, log );
 
   for (const Muon::MuonClusterOnTrack* p : transObj->containedROTs()) {
-    ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
+    ITPConverterFor<Trk::MeasurementBase>  *rotCnv = nullptr;
     persObj->m_containedChildRots.push_back( toPersistent(&rotCnv, p, log) );
   }
     

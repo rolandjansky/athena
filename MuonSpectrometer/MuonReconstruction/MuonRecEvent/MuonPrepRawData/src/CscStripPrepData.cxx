@@ -23,7 +23,7 @@ namespace Muon
   CscStripPrepData::CscStripPrepData( const Identifier& RDOId,
                       const IdentifierHash& collectionHash,
                       const Amg::Vector2D& locpos,
-                      const Amg::MatrixX* locErrMat,
+                      const Amg::MatrixX& locErrMat,
                       const MuonGM::CscReadoutElement* detEl,
                       const std::vector<float>& sampleCharges,
                       float timeOfFirstSample,
@@ -51,7 +51,7 @@ namespace Muon
     PrepRawData(),
     m_collectionHash(),
     m_globalPosition(),
-    m_detEl(0),
+    m_detEl(nullptr),
     m_sampleCharges(),
     m_timeOfFirstSample(0),
     m_samplingTime(0),
@@ -76,14 +76,14 @@ namespace Muon
     if (&RIO !=this)
       {
 	if (m_globalPosition) m_globalPosition.release().reset();
-        PrepRawData::operator=(RIO);
         m_collectionHash   = RIO.m_collectionHash;
         m_detEl  = RIO.m_detEl ;
         m_sampleCharges = RIO.m_sampleCharges;
         m_timeOfFirstSample = RIO.m_timeOfFirstSample;
         m_samplingTime = RIO.m_samplingTime;
         m_samplingPhase = RIO.m_samplingPhase;
-      }
+        PrepRawData::operator=(RIO);
+     }
     return *this;
   }
 

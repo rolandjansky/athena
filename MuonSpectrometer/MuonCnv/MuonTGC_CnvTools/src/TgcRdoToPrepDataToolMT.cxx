@@ -241,14 +241,14 @@ void Muon::TgcRdoToPrepDataToolMT::printPrepData() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  const TgcPrepDataContainer* tgcPrepDataContainer[NBC+1] = {0};
+  const TgcPrepDataContainer* tgcPrepDataContainer[NBC+1] = {nullptr};
   for(int ibc=0; ibc<NBC+1; ibc++) {
     SG::ReadHandleKey<TgcPrepDataContainer> k (m_outputprepdataKeys[ibc].key());
     k.initialize().ignore();
     tgcPrepDataContainer[ibc] = SG::makeHandle(k, ctx).get();
   }
 
-  const TgcCoinDataContainer* tgcCoinDataContainer[NBC] = {0};
+  const TgcCoinDataContainer* tgcCoinDataContainer[NBC] = {nullptr};
   for(int ibc=0; ibc<NBC; ibc++) {
     SG::ReadHandleKey<TgcCoinDataContainer> k (m_outputCoinKeys[ibc].key());
     k.initialize().ignore();

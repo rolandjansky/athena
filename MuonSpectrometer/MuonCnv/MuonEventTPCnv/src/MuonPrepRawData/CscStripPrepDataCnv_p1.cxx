@@ -23,7 +23,7 @@ persToTrans( const Muon::CscStripPrepData_p1 *persObj, Muon::CscStripPrepData *t
     *transObj = Muon::CscStripPrepData (transObj->identify(),
                                         persObj->m_collectionHash,
                                         locpos,
-                                        nullptr, // locerrmat
+                                        {}, // locerrmat
                                         transObj->detectorElement(),
                                         persObj->m_sampleCharges,
                                         persObj->m_timeOfFirstSample,

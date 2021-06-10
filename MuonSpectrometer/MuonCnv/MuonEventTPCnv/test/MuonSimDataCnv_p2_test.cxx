@@ -62,7 +62,7 @@ void compare (const MuonSimData& p1,
 
 void testit (const MuonSimData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MuonSimDataCnv_p2 cnv;
   Muon::MuonSimData_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

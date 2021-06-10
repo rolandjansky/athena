@@ -10,16 +10,16 @@
 #define TRKPREPRAWDATA_PREPRAWDATA_H
 
 #include "Identifier/Identifier.h"
-
+//
 #include "AthLinks/tools/IdentContIndex.h"
 
-// Eigen
+// Eigen ATLAS helpers
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-
+//
 #include <atomic>
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 class MsgStream;
@@ -69,7 +69,7 @@ public:
   PrepRawData& operator=(const PrepRawData&);
   PrepRawData& operator=(PrepRawData&&) noexcept;
 
-  /** Full Constructor (with references)
+  /** Full Constructor using lvalue references
       @param clusId Identifier of the tube, strip etc which has produced this
      Trk::PrepRawData.
       @param locpos LocalPosition of the measurement (see Trk::LocalPosition for
@@ -81,12 +81,14 @@ public:
   PrepRawData(const Identifier& clusId,
               const Amg::Vector2D& locpos,
               const std::vector<Identifier>& rdoList,
-              const Amg::MatrixX* locerr);
+              const Amg::MatrixX& locerr);
 
+  /** Full Constructor with r-value references
+   * */
   PrepRawData(const Identifier& clusId,
               const Amg::Vector2D& locpos,
               std::vector<Identifier>&& rdoList,
-              std::unique_ptr<const Amg::MatrixX> locerr);
+              Amg::MatrixX&& locerr);
 
   /** Constructor - same as above, but no need to pass a vector of Identifiers
      (i.e. for DriftCircles)
@@ -99,7 +101,12 @@ public:
   */
   PrepRawData(const Identifier& clusId,
               const Amg::Vector2D& locpos,
-              const Amg::MatrixX* locerr);
+              const Amg::MatrixX& locerr);
+
+  PrepRawData(const Identifier& clusId,
+              const Amg::Vector2D& locpos,
+              Amg::MatrixX&& locerr);
+
 
   /** Destructor:*/
   virtual ~PrepRawData();
@@ -113,8 +120,10 @@ public:
   /** return the List of rdo identifiers (pointers) */
   const std::vector<Identifier>& rdoList() const;
 
-  /** return the error matrix reference */
+  /** return const ref to the  error matrix */
   const Amg::MatrixX& localCovariance() const;
+  /** returns localCovariance().size()!=0 */
+  bool hasLocalCovariance() const;
 
   /** return the detector element corresponding to this PRD
       The pointer will be zero if the det el is not defined (i.e. it was not
@@ -143,14 +152,14 @@ private:
   friend class Muon::RpcPrepDataContainerCnv_p1;
 
   /**PrepRawData ID, not const because of DataPool*/
-  Identifier m_clusId;
+  Identifier m_clusId{ 0 };
   /**see derived classes for definition of meaning of LocalPosition*/
   // Need to force proper alignment; otherwise cling gets it wrong.
-  alignas(16) Amg::Vector2D m_localPos;
+  alignas(16) Amg::Vector2D m_localPos{};
   /**Stores the identifiers of the RDOs.*/
-  std::vector<Identifier> m_rdoList;
+  std::vector<Identifier> m_rdoList{};
   /**See derived classes for definition of ErrorMatrix */
-  std::unique_ptr<const Amg::MatrixX> m_localCovariance;
+  Amg::MatrixX m_localCovariance{};
 
   /**Stores its own position (index) in collection plus the hash id for the
      collection (needed for the EL to IDC) */

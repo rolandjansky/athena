@@ -471,7 +471,7 @@ namespace InDet {
       const SiWidth siWidth(Amg::Vector2D(nStrips, 1), Amg::Vector2D(clusterDim.width, stripLength));
       
       SCT_Cluster* cluster = (m_clusterMaker) ? (m_clusterMaker->sctCluster(clusterId, localPos, stripGroup, siWidth, element, m_errorStrategy))
-        : (new SCT_Cluster(clusterId, localPos, stripGroup, siWidth, element, nullptr));
+        : (new SCT_Cluster(clusterId, localPos, stripGroup, siWidth, element,{}));
       cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
       if (tbinIter != tbinGroups.end()) {
         cluster->setHitsInThirdTimeBin(*tbinIter);
@@ -701,12 +701,12 @@ namespace InDet {
         V[3]           = sn2*v0+cs2*v1;
       }
 
-      Amg::MatrixX* errorMatrix(new Amg::MatrixX(2,2));
-      *errorMatrix<<V[0],V[1],V[2],V[3];
+      auto errorMatrix = Amg::MatrixX(2,2);
+      errorMatrix<<V[0],V[1],V[2],V[3];
 
       SiWidth siWidth{Amg::Vector2D(dnStrips,1.), Amg::Vector2D(width,stripL)};
 
-      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, errorMatrix};
+      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, std::move(errorMatrix)};
 
       cluster->setHashAndIndex(idHash, clusterNumber);
 

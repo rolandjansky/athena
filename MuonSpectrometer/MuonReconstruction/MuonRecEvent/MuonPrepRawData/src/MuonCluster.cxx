@@ -23,7 +23,7 @@ namespace Muon
                 const IdentifierHash & /**collectionHash*/, //FIXME! Should be removed.
                 const Amg::Vector2D& locpos,
                 const std::vector<Identifier>& rdoList,
-                const Amg::MatrixX* locErrMat
+                const Amg::MatrixX& locErrMat
                 ) :
       PrepRawData(RDOId, locpos, rdoList, locErrMat), //call base class constructor
       m_globalPosition()

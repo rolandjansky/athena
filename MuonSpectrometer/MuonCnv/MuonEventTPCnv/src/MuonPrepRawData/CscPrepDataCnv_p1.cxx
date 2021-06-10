@@ -23,7 +23,7 @@ persToTrans( const Muon::CscPrepData_p1 *persObj, Muon::CscPrepData *transObj,Ms
                                   0, // idDE,
                                   locPos,
                                   std::vector<Identifier>(), //rdoList
-                                  nullptr, // locErrMat
+                                  {}, // locErrMat
                                   nullptr, // detEl
                                   persObj->m_charge,
                                   persObj->m_time,

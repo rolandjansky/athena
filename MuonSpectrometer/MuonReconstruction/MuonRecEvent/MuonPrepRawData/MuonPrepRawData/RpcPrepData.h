@@ -68,7 +68,7 @@ public:
                  const IdentifierHash &idDE,
                  const Amg::Vector2D& locpos,
                  const std::vector<Identifier>& rdoList,
-                 const Amg::MatrixX* locErrMat,
+                 const Amg::MatrixX& locErrMat,
                  const MuonGM::RpcReadoutElement* detEl,
                  const float time,
                  const int triggerInfo,
@@ -78,7 +78,7 @@ public:
                  const IdentifierHash &idDE,
                  const Amg::Vector2D& locpos,
                  const std::vector<Identifier>& rdoList,
-                 const Amg::MatrixX* locErrMat,
+                 const Amg::MatrixX& locErrMat,
                  const MuonGM::RpcReadoutElement* detEl,
                  const float time,
                  const int ambiguityFlag);

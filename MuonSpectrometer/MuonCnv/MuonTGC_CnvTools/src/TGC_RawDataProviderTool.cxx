@@ -38,11 +38,11 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
 
   SG::WriteHandle<TgcRdoContainer> rdoContainerHandle(m_rdoContainerKey, ctx); 
 
-  TgcRdoContainer* rdoContainer = 0;
+  TgcRdoContainer* rdoContainer = nullptr;
 
   // if the container is already in store gate, then we have to retrieve from SG
   if (rdoContainerHandle.isPresent()) {
-    const TgcRdoContainer* rdoContainer_c = 0;
+    const TgcRdoContainer* rdoContainer_c = nullptr;
     ATH_CHECK( evtStore()->retrieve( rdoContainer_c, m_rdoContainerKey.key() ) );
     rdoContainer = const_cast<TgcRdoContainer*>(rdoContainer_c);
   } else {

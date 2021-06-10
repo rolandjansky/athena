@@ -118,7 +118,7 @@ void Muon::RpcPrepDataContainerCnv_p2::transToPers(const Muon::RpcPrepDataContai
         persCont->m_PRD.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const Muon::RpcPrepData* chan = collection[i];
-            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
     log << MSG::DEBUG  << " ***  Writing RpcPrepDataContainer ***" << endmsg;
@@ -142,7 +142,7 @@ void  Muon::RpcPrepDataContainerCnv_p2::persToTrans(const Muon::MuonPRD_Containe
     // from the vector.
 
 
-    Muon::RpcPrepDataCollection* coll = 0;
+    Muon::RpcPrepDataCollection* coll = nullptr;
 
     RpcPrepDataCnv_p2  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
@@ -165,7 +165,7 @@ void  Muon::RpcPrepDataContainerCnv_p2::persToTrans(const Muon::MuonPRD_Containe
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
-            Muon::RpcPrepData* chan = dynamic_cast<Muon::RpcPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            Muon::RpcPrepData* chan = dynamic_cast<Muon::RpcPrepData*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
             if (!chan) {
                log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get RpcPrepData!" << endmsg;
                continue;
@@ -197,7 +197,7 @@ Muon::RpcPrepDataContainer* Muon::RpcPrepDataContainerCnv_p2::createTransient(co
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize RpcPrepDataContainerCnv_p2 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::RpcPrepDataContainer> trans(new Muon::RpcPrepDataContainer(m_RpcId->module_hash_max()));

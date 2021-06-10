@@ -27,7 +27,7 @@ void compare (const InDet::SiWidth& p1,
 
 void testit (const InDet::SiWidth& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   InDet::SiWidthCnv_p2 cnv;
   InDet::SiWidth_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

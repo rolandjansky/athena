@@ -70,7 +70,7 @@ class CscPrepData final:   public MuonCluster
                const IdentifierHash &idDE,
                const Amg::Vector2D& locpos,
                const std::vector<Identifier>& rdoList,
-               const Amg::MatrixX* locErrMat,
+               const Amg::MatrixX& locErrMat,
                const MuonGM::CscReadoutElement* detEl,
                const int charge,
                const double time,

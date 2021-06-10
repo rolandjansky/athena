@@ -20,7 +20,7 @@ namespace Muon
 			     const IdentifierHash &idDE,
 			     const Amg::Vector2D& locpos,
 			     const std::vector<Identifier>& stripList,
-			     const Amg::MatrixX* locErrMat,
+			     const Amg::MatrixX& locErrMat,
 			     const MuonGM::RpcReadoutElement* detEl,
 			     const float time,
 			     const unsigned short ambiguityFlag,
@@ -104,7 +104,6 @@ RpcCoinData& RpcCoinData::operator=(RpcCoinData&& RIO)
 {
   if(&RIO !=this)
     {
-      RpcPrepData::operator=(std::move(RIO));
       m_ijk            = RIO.m_ijk;
       m_threshold      = RIO.m_threshold;
       m_overlap        = RIO.m_overlap;
@@ -112,6 +111,7 @@ RpcCoinData& RpcCoinData::operator=(RpcCoinData&& RIO)
       m_parentPadId    = RIO.m_parentPadId; 
       m_parentSectorId = RIO.m_parentSectorId;
       m_lowPtCm        = RIO.m_lowPtCm;
+      RpcPrepData::operator=(std::move(RIO));
     }
   return *this;
 }

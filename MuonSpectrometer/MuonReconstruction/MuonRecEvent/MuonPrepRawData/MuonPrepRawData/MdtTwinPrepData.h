@@ -61,7 +61,7 @@ namespace Muon
 		    const Identifier &id,
 		    const IdentifierHash &collectionHash,
 		    const Amg::Vector2D& driftRadiusXTwin,
-		    const Amg::MatrixX* errDriftRadiusXTwin,
+		    const Amg::MatrixX& errDriftRadiusXTwin,
 		    const MuonGM::MdtReadoutElement* detEl,
 		    const int tdc,
 		    const int adc,

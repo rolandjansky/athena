@@ -62,7 +62,7 @@ namespace InDet{
                   const std::vector<Identifier>& rdoList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -79,7 +79,7 @@ namespace InDet{
                   const std::vector<int>& totList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -97,7 +97,7 @@ namespace InDet{
                   const std::vector<float>& chargeList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -108,14 +108,14 @@ namespace InDet{
     PixelCluster( 
                   const Identifier& RDOId,
                   const Amg::Vector2D& locpos, 
-		  const Amg::Vector3D& globpos,
+                  const Amg::Vector3D& globpos,
                   const std::vector<Identifier>& rdoList,
                   const int lvl1a,
                   const std::vector<int>& totList,
                   const std::vector<float>& chargeList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -134,7 +134,7 @@ namespace InDet{
                   float totalCharge,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  std::unique_ptr<const Amg::MatrixX> locErrMat,
+                  Amg::MatrixX&& locErrMat,
                   const float omegax,
                   const float omegay,
                   int splitInfoRaw
@@ -186,7 +186,7 @@ namespace InDet{
     bool  m_fake;
     bool  m_ambiguous;
     int   m_lvl1;
-    unsigned int m_splitInfo;
+    unsigned int m_splitInfo{};
     bool  m_tooBigToBeSplit;    
   };
 

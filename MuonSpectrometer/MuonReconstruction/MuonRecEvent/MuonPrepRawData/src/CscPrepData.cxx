@@ -23,7 +23,7 @@ namespace Muon
                             const IdentifierHash& idDE,
                             const Amg::Vector2D& locpos,
                             const std::vector<Identifier>& rdoList,
-                            const Amg::MatrixX* locErrMat,
+                            const Amg::MatrixX& locErrMat,
                             const MuonGM::CscReadoutElement* detEl,
                             const int charge,
                             const double time,
@@ -46,7 +46,7 @@ namespace Muon
   // Default constructor:
   CscPrepData::CscPrepData():
     MuonCluster(),
-    m_detEl(0),
+    m_detEl(nullptr),
     m_charge(0),
     m_time(0),
     m_status(CscStatusUndefined),

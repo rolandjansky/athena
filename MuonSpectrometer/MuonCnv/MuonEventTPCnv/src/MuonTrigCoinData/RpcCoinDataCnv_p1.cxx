@@ -28,14 +28,14 @@ createRpcCoinData( const Muon::RpcCoinData_p1 *persObj,
   for (short x : persObj->m_rdoList)
     rdoList.emplace_back ((unsigned int) x+id32);
 
-  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
-  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+  auto cmat = Amg::MatrixX(1,1);
+  cmat(0,0) = static_cast<double>(persObj->m_errorMat);
 
   Muon::RpcCoinData data (id,
                           0, // collectionHash
                           localPos,
                           std::move(rdoList),
-                          cmat.release(),
+                          std::move(cmat),
                           detEl,
                           persObj->m_time,
                           persObj->m_ambiguityFlag,

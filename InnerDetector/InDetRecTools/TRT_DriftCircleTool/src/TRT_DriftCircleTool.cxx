@@ -298,34 +298,32 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       }
 
       // Fill the RIO collection with TRT_DriftCircle's
-      Amg::MatrixX* errmat = new Amg::MatrixX(1,1);
-      (*errmat)(0,0) = error*error;
-      Amg::Vector2D loc(radius,0.);
-      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word);
-      if(tdc) {
-          tdc->setHashAndIndex(rio->identifyHash(), rio->size());
-          rio->push_back(tdc);
+      auto errmat = Amg::MatrixX(1,1);
+      errmat(0,0) = error*error;
+      Amg::Vector2D loc(radius, 0.);
+      InDet::TRT_DriftCircle* tdc =
+        new InDet::TRT_DriftCircle(id, loc, std::move(errmat), pE, word);
+      if (tdc) {
+        tdc->setHashAndIndex(rio->identifyHash(), rio->size());
+        rio->push_back(tdc);
 
-           ATH_MSG_VERBOSE( " accept hit id "
-  		  << m_trtid->barrel_ec(id) << " " 
-                  << m_trtid->layer_or_wheel(id) << " "
-                  << m_trtid->phi_module(id) << " "  
-                  << m_trtid->straw_layer(id) << " " 
-                  << m_trtid->straw(id) 
-                  << " data word " << MSG::hex<<tdc->getWord() <<MSG::dec
-                  << " data word raw " << MSG::hex<<(*r)->getWord() <<MSG::dec 
-                  << " radius " << radius
-			       << " err " << error);
+        ATH_MSG_VERBOSE(
+          " accept hit id "
+          << m_trtid->barrel_ec(id) << " " << m_trtid->layer_or_wheel(id) << " "
+          << m_trtid->phi_module(id) << " " << m_trtid->straw_layer(id) << " "
+          << m_trtid->straw(id) << " data word " << MSG::hex << tdc->getWord()
+          << MSG::dec << " data word raw " << MSG::hex << (*r)->getWord()
+          << MSG::dec << " radius " << radius << " err " << error);
 
-	   ATH_MSG_VERBOSE( " driftTime "
-                  << tdc->rawDriftTime() << " t0 " << t0
-                  << " raw time " << (0.5+LTbin)*3.125
-                  << " ToT " << tdc->timeOverThreshold()  
-                  << " OK? " << isOK << " Noise? " 
-			      << tdc->isNoise() << " isArgon? " << isArgonStraw);
-	} else{
-           ATH_MSG_ERROR("Could not create InDet::TRT_DriftCircle object !");
-        }
+        ATH_MSG_VERBOSE(" driftTime " << tdc->rawDriftTime() << " t0 " << t0
+                                      << " raw time " << (0.5 + LTbin) * 3.125
+                                      << " ToT " << tdc->timeOverThreshold()
+                                      << " OK? " << isOK << " Noise? "
+                                      << tdc->isNoise() << " isArgon? "
+                                      << isArgonStraw);
+      } else {
+        ATH_MSG_ERROR("Could not create InDet::TRT_DriftCircle object !");
+      }
     } // end loop over rdo's in the rdo collection
 
   return rio;

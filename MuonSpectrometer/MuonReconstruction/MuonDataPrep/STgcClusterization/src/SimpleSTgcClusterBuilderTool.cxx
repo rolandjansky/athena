@@ -132,18 +132,28 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         }
         sigmaSq = sigmaSq/(totalCharge*totalCharge);
         ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sqrt(sigmaSq));         
-        Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-        (*covN)(0,0) = sigmaSq + m_addError*m_addError;
+        auto covN = Amg::MatrixX(1,1);
+        covN(0,0) = sigmaSq + m_addError*m_addError;
 
         //
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
-        ATH_MSG_DEBUG("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
-        
-        sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
-            rdoList, covN, cluster.at(0).detectorElement(),
-            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);
-        clustersVect.push_back(prdN);   
+        ATH_MSG_DEBUG("error on cluster " << sqrt((covN)(0,0)) << " added error " <<  m_addError);
+
+        sTgcPrepData* prdN = new sTgcPrepData(
+          clusterId,
+          hash,
+          localPosition,
+          rdoList,
+          std::move(covN),
+          cluster.at(0).detectorElement(),
+          std::accumulate(elementsCharge.begin(), elementsCharge.end(), 0),
+          (short int)0,
+          (uint16_t)0,
+          elementsChannel,
+          elementsTime,
+          elementsCharge);
+        clustersVect.push_back(prdN);
       }
     }
   }

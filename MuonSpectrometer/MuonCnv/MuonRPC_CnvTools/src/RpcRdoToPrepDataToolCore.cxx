@@ -789,8 +789,8 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
   Identifier oldId;
   Identifier oldIdTrg;
   ATH_MSG_VERBOSE("Init pointer to RpcPrepDataCollection ");
-  RpcPrepDataCollection * collection(0);
-  RpcCoinDataCollection * collectionTrg(0);
+  RpcPrepDataCollection * collection(nullptr);
+  RpcCoinDataCollection * collectionTrg(nullptr);
   IdentifierHash rpcHashId;
 
   SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
@@ -947,19 +947,19 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 	  bool hasAMatchingEtaHit = 0;
 	  // current collection has Id "parentId"; get it from the container !
 	  if (triggerHit) {	    
-	    if ( (oldIdTrg != parentId) || collectionTrg == 0 ) {
+	    if ( (oldIdTrg != parentId) || collectionTrg == nullptr ) {
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_idHelperSvc->rpcIdHelper().show_to_string(parentId)<<" hash = "
 			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<state.m_rpcCoinDataContainer);
               collectionTrg = getCoinCollection (parentId);
-	      if ( collectionTrg ==0 ) ATH_MSG_WARNING("Failed to get/create RpcCoinData collection");
+	      if ( collectionTrg ==nullptr ) ATH_MSG_WARNING("Failed to get/create RpcCoinData collection");
 	      oldIdTrg = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_idHelperSvc->rpcIdHelper().show_to_string(oldIdTrg));
 	    }
 	  }
 	  else {
-	    if ( (oldId    != parentId) || collection    == 0 ) {	      
+	    if ( (oldId    != parentId) || collection    == nullptr ) {	      
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_idHelperSvc->rpcIdHelper().show_to_string(parentId)<<" hash = "
@@ -1176,7 +1176,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 							   rpcHashId,
 							   pointLocPos,
 							   identifierList,
-							   new Amg::MatrixX(mat),
+							   Amg::MatrixX(mat),
 							   descriptor,
 							   (float)time,
 							   ambiguityFlag,
@@ -1200,7 +1200,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 							   rpcHashId,
 							   pointLocPos,
 							   identifierList,
-							   new Amg::MatrixX(mat),
+							   Amg::MatrixX(mat),
 							   descriptor,
 							   (float)time,
 							   ambiguityFlag);		

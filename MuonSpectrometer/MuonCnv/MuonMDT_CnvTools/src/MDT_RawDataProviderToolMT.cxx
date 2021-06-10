@@ -105,7 +105,7 @@ StatusCode Muon::MDT_RawDataProviderToolMT::convert( const std::vector<const OFF
     
   SG::WriteHandle<MdtCsmContainer> rdoContainerHandle(m_rdoContainerKey, ctx);
 
-  MdtCsmContainer* rdoContainer = 0;
+  MdtCsmContainer* rdoContainer = nullptr;
 
   // here we have two paths. The first one we do not use an external cache, so just create
   // the MDT CSM container and record it. For the second path, we create the container

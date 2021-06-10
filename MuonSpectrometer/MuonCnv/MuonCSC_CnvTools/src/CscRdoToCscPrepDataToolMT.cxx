@@ -274,13 +274,13 @@ StatusCode CscRdoToCscPrepDataToolMT::decodeImpl(Muon::CscStripPrepDataContainer
       AmgSymMatrix(2) covariance;
       covariance.setIdentity();
       covariance *= errPos*errPos;
-      Amg::MatrixX * errClusterPos = new Amg::MatrixX(covariance);
+      Amg::MatrixX  errClusterPos = Amg::MatrixX(covariance);
 
       /** new CscStripPrepRawData */
       CscStripPrepData * newPrepData = new CscStripPrepData(channelId,
                                                             cscHashId,
                                                             localWirePos1,
-                                                            errClusterPos,
+                                                            std::move(errClusterPos),
                                                             descriptor,
                                                             charges,
                                                             timeOfFirstSample,
@@ -471,13 +471,13 @@ StatusCode CscRdoToCscPrepDataToolMT::decodeImpl(Muon::CscStripPrepDataContainer
           AmgSymMatrix(2) covariance;
           covariance.setIdentity();
           covariance *= errPos*errPos;
-          Amg::MatrixX * errClusterPos = new Amg::MatrixX(covariance);
+          auto errClusterPos =  Amg::MatrixX(covariance);
 
           /** new CscPrepRawData */
           CscStripPrepData * newPrepData = new CscStripPrepData(  channelId,
                                                                   cscHashId,
                                                                   localWirePos1,
-                                                                  errClusterPos,
+                                                                  std::move(errClusterPos),
                                                                   descriptor,
                                                                   charges,
                                                                   timeOfFirstSample,

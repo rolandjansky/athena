@@ -39,7 +39,7 @@ persToTrans( const Muon::RpcClusterOnTrack_p3 *persObj,
 
    // Attempt to call supertool to fill in detElements
    m_eventCnvTool->recreateRIO_OnTrack(transObj);
-   if (transObj->detectorElement()==0) 
+   if (transObj->detectorElement()==nullptr) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
             << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;   

@@ -17,7 +17,7 @@
 
 /** constructor 
 */ 
-CscROD_Encoder::CscROD_Encoder() : m_cscRdo(0)
+CscROD_Encoder::CscROD_Encoder() : m_cscRdo(nullptr)
 {}
 
 /** convert CSC RDO to a vector of 32bit words

@@ -110,10 +110,10 @@ Muon::TgcPrepDataReplicationToolAllBCto3BC::makeTgcPrepData(Muon::TgcPrepDataCol
   const Amg::MatrixX* errHitPos = &(*itr)->localCovariance();
   const MuonGM::TgcReadoutElement* descriptor = (*itr)->detectorElement();
 
-  const Amg::MatrixX* newErrHitPos = new Amg::MatrixX(*errHitPos);
+  auto newErrHitPos = Amg::MatrixX(*errHitPos);
 
   Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, (*itr)->localPosition(),
-                                                   identifierList, newErrHitPos, descriptor);
+                                                   identifierList, std::move(newErrHitPos), descriptor);
   newPrepData->setBcBitMap(bcBitMap);
 
   return newPrepData;

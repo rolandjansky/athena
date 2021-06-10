@@ -58,7 +58,7 @@ namespace Muon
                  const IdentifierHash &idDE,
                  const Amg::Vector2D& locpos,
                  const std::vector<Identifier>& rdoList,
-                 const Amg::MatrixX* locErrMat,
+                 const Amg::MatrixX& locErrMat,
                  const MuonGM::TgcReadoutElement* detEl,
                  const uint16_t bcBitMap=0);
 

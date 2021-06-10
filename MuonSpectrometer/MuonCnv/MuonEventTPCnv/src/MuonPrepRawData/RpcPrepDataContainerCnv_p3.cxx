@@ -177,7 +177,7 @@ void  Muon::RpcPrepDataContainerCnv_p3::persToTrans(const Muon::RpcPrepDataConta
     // So here we loop over all collection and extract their channels
     // from the vector.
 
-    Muon::RpcPrepDataCollection* coll = 0;
+    Muon::RpcPrepDataCollection* coll = nullptr;
 
     RpcPrepDataCnv_p3  chanCnv;
     unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop 
@@ -251,7 +251,7 @@ Muon::RpcPrepDataContainer* Muon::RpcPrepDataContainerCnv_p3::createTransient(co
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize RpcPrepDataContainerCnv_p3 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::RpcPrepDataContainer> trans(new Muon::RpcPrepDataContainer(m_RpcId->module_hash_max()));

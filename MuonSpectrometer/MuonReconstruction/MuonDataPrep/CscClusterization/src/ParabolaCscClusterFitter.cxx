@@ -172,7 +172,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
 
     // Check the input array for NULL pointers.
     for (unsigned int istrip = 0; istrip < nstrip; istrip++) {
-        if (sfits[istrip].strip == 0) {
+        if (sfits[istrip].strip == nullptr) {
             ATH_MSG_WARNING("Strip pointer is null.");
             results.push_back(Result(2));
             return results;

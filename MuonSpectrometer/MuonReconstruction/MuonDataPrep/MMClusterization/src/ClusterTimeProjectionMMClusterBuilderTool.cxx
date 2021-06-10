@@ -221,15 +221,15 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
         stripDriftDistErrors.push_back(MMPrdsOfLayer.at(idx).localCovariance());
     }
 
-    Amg::MatrixX* covN = new Amg::MatrixX(1, 1);
-    covN -> coeffRef(0, 0) = clusterPositionErrorSq;
+    auto covN =Amg::MatrixX(1, 1);
+    covN.coeffRef(0, 0) = clusterPositionErrorSq;
     Amg::Vector2D localClusterPositionV(clusterPosition,
             MMPrdsOfLayer.at(idxCluster.at(0)).localPosition().y());
     Identifier idStrip0 = MMPrdsOfLayer.at(idxCluster.at(0)).identify();
 
     std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(idStrip0,
                    MMPrdsOfLayer.at(idxCluster.at(0)).collectionHash(),
-                   localClusterPositionV, rdoList, covN,
+                   localClusterPositionV, rdoList, std::move(covN),
                    MMPrdsOfLayer.at(idxCluster.at(0)).detectorElement(),
                    (short int) 0,  // drift dist
                    std::accumulate(stripCharges.begin(), stripCharges.end(), 0),

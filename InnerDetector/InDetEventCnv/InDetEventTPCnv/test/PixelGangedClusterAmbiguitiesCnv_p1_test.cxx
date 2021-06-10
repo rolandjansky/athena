@@ -33,7 +33,7 @@ void compare (const InDet::PixelGangedClusterAmbiguities& p1,
 
 void testit (const InDet::PixelGangedClusterAmbiguities& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   PixelGangedClusterAmbiguitiesCnv_p1 cnv;
   InDet::PixelGangedClusterAmbiguities_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -95,7 +95,7 @@ const InDet::PixelClusterContainer& makeclusts (StoreGateSvc* sg)
          chargeList,
          width,
          nullptr,
-         new Amg::MatrixX(cov),
+         Amg::MatrixX(cov),
          offs+10.5,
          offs+11.5,
          i&1,
@@ -125,7 +125,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
   }  
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* sg = 0;
+  StoreGateSvc* sg = nullptr;
   assert ( svcLoc->service("StoreGateSvc", sg).isSuccess() );
 
   const InDet::PixelClusterContainer& cont = makeclusts (sg);

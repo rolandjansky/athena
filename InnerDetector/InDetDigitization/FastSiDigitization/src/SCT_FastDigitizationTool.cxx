@@ -918,11 +918,14 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                   mat(Trk::locY,Trk::locX) = (Sn*sqrt(Cs2)*(V0-V1));
                   mat(Trk::locY,Trk::locY) = (Sn2*V0+Cs2*V1);
                 }
-              // covariance matrix && error description
-              const Amg::MatrixX *potentialClusterErr = new Amg::MatrixX(mat);
 
               // create a custom cluster
-              potentialCluster = new InDet::SCT_Cluster(potentialClusterId,lcorrectedPosition,potentialClusterRDOList,siWidth,hitSiDetElement,potentialClusterErr);
+              potentialCluster = new InDet::SCT_Cluster(potentialClusterId,
+                                                        lcorrectedPosition,
+                                                        potentialClusterRDOList,
+                                                        siWidth,
+                                                        hitSiDetElement,
+                                                        Amg::MatrixX(mat));
             }
 
           (void) SCT_DetElClusterMap.insert(SCT_detElement_RIO_map::value_type(waferID, potentialCluster));

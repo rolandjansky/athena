@@ -470,7 +470,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   CscRODReadOutV1 rodReadOut;
 
   // Csc Id Helper not needed :: initialize pointer to 0!
-  rodReadOut.set(0);
+  rodReadOut.set(nullptr);
 
   // get some information
   SourceIdentifier sid (robFrag.rod_source_id()); 
@@ -611,7 +611,7 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   CscRODReadOutV0 rodReadOut;
 
   // Csc Id Helper not needed :: initialize pointer to 0!
-  rodReadOut.set(0);
+  rodReadOut.set(nullptr);
 
   const unsigned int size = robFrag.rod_ndata();
   ATH_MSG_DEBUG ( "CscROD_Decoder Total words received = " << size );
