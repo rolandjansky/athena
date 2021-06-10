@@ -5,7 +5,7 @@
 #ifndef TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H
 #define TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H 1
 
-#include "AthenaBaseComps/AthHistogramAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigConfData/HLTMenu.h"
@@ -14,12 +14,14 @@
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
 #include "Gaudi/Parsers/Factory.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "MonitoredRange.h"
 
 #include <unordered_map>
 
-class TH1; //!< Forward reference
+#include "TH1.h"
+#include "TTree.h"
 
 /**
  * @class TrigCostAnalysis
@@ -29,7 +31,7 @@ class TH1; //!< Forward reference
  * config service, identify the time Range that the event falls into, and dispatches monitoring to the
  * correct time range. Time ranges, their monitors, and their monitor's counters are all instantiated on-demand.
  */
-class TrigCostAnalysis: public ::AthHistogramAlgorithm { 
+class TrigCostAnalysis: public ::AthAlgorithm { 
   public: 
 
     /**
@@ -70,7 +72,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      * @param[in] tDir Histogram name & directory.
      * @return Cached pointer to histogram. Used to fill histogram without having to perform THishSvc lookup. 
      */
-    TH1* bookGetPointer_fwd(TH1* hist, const std::string& tDir = "");
+    TH1* bookGetPointer(TH1* hist, const std::string& tDir = "");
+
+    ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
 
     Gaudi::Property<bool> m_singleTimeRange { this, "UseSingleTimeRange", false,
       "Use a single time range rather than splitting by LB" };
