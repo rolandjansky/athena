@@ -96,7 +96,8 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
     }
     
     ATH_MSG_DEBUG("Get the input PDFs in the tool ");
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
    
     // Get the input PDFs in the tool.
     ATH_MSG_DEBUG("Get the input PDFs in the tool ");
