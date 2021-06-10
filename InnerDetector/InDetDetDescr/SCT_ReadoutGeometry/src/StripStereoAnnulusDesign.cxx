@@ -342,21 +342,21 @@ double StripStereoAnnulusDesign::length() const {
 
 double StripStereoAnnulusDesign::width() const {
 // Return approximate width between the two central rows
-    int middleRow = m_stripStartRadius.size()*0.5 - 1;
-    if (middleRow < 0) {
-        throw std::runtime_error(
-         "StripStereoAnnulusDesign::width: the sensor had one or less rows of strips. Code assumes two or more.");
-    }
+float middleRow = m_stripStartRadius.size() * 0.5 - 1;
+if (middleRow < 0) {
+  //single-row version
+  return 2. * tan((m_pitch[0] * m_nStrips[0])*0.5) * ((m_stripStartRadius[0] + m_stripEndRadius[0])*0.5);
+  }
+else return 2. * tan((m_pitch[middleRow] * m_nStrips[middleRow]) * 0.5) * m_stripEndRadius[middleRow];
 
-    return 2. * tan((m_pitch[middleRow] * m_nStrips[middleRow])*0.5) * m_stripEndRadius[middleRow];
 }
 
 double StripStereoAnnulusDesign::minWidth() const {
-    return 2. * tan((m_pitch[0] * m_nStrips[0]) *0.5) * m_stripStartRadius[0];
+    return 2. * tan((m_pitch[0] * m_nStrips[0]) * 0.5 ) * m_stripStartRadius[0];
 }
 
 double StripStereoAnnulusDesign::maxWidth() const {
-    return 2. * tan((m_pitch.back() * m_nStrips.back()) *0.5) * m_stripEndRadius.back();
+    return 2. * tan((m_pitch.back() * m_nStrips.back()) * 0.5) * m_stripEndRadius.back();
 }
 
 double StripStereoAnnulusDesign::etaPitch() const {
