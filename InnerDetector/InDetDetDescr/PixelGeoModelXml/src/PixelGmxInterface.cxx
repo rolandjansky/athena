@@ -42,9 +42,11 @@ int PixelGmxInterface::sensorId(std::map<std::string, int> &index) const
   Identifier id = pixelIdHelper->wafer_id(index["barrel_endcap"],
                                           index["layer_wheel"],
                                           index["phi_module"],
-					                                index["eta_module"]);
+                                          index["eta_module"]);
   IdentifierHash hashId = pixelIdHelper->wafer_hash(id);
   if (!hashId.is_valid()) {
+    ATH_MSG_WARNING("Invalid hash for Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " "
+                    << index["eta_module"] << " " << index["phi_module"] << " " << index["side"]);
     return -1;
   }
 
@@ -52,7 +54,7 @@ int PixelGmxInterface::sensorId(std::map<std::string, int> &index) const
   int hitIdOfModule = SiHitIdHelper::GetHelper()->buildHitId(PixelHitIndex,
                                                              index["barrel_endcap"],
                                                              index["layer_wheel"],
-							                                               index["eta_module"],
+                                                             index["eta_module"],
                                                              index["phi_module"],
                                                              index["side"]);
 
@@ -178,7 +180,7 @@ void PixelGmxInterface::addSensor(std::string typeName,
   Identifier id = pixelIdHelper->wafer_id(index["barrel_endcap"],
                                           index["layer_wheel"],
                                           index["phi_module"],
-					                                index["eta_module"]);
+                                          index["eta_module"]);
   IdentifierHash hashId = pixelIdHelper->wafer_hash(id);
   //
   //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
@@ -215,7 +217,7 @@ void PixelGmxInterface::addSensor(std::string typeName,
   if (!m_moduleTree->add(index["barrel_endcap"],
                          index["layer_wheel"],
                          index["eta_module"],
-			                   index["phi_module"],
+                         index["phi_module"],
                          module,
                          errorMessage)) {
     ATH_MSG_ERROR(errorMessage);

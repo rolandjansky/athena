@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -68,7 +68,7 @@ StatusCode ReadSiDetectorElements::initialize(){
   //  const SCT_DetectorManager  * manager;
 
   ATH_CHECK( detStore()->retrieve(m_manager,m_managerName));
-  if (m_managerName == "Pixel") {
+  if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
     //
     // Get Pixel ID helper
     //
@@ -189,7 +189,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // Make some consistency tests for the identifier.
         Identifier idTest;
         IdentifierHash idHashTest;
-        if (m_managerName == "Pixel") {
+        if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
           idTest = m_pixelIdHelper->wafer_id(hashId);
           idHashTest = m_pixelIdHelper->wafer_hash(idTest);
         } else if (m_sctIdHelper) {
@@ -200,7 +200,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         const SiDetectorElement * elementtest2 = nullptr;
         if (useConditionStore) {
           // SiDetectorElementCollection::getDetectorElement supports only IdentifierHash as the argument.
-          if (m_managerName == "Pixel") {
+          if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
             elementtest1 = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(element->identify()));
           } else {
             elementtest1 = elements->getDetectorElement(m_sctIdHelper->wafer_hash(element->identify()));
@@ -244,7 +244,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
           if (!iEta && siNumerology.skipEtaZeroForLayer(iLayer)) continue;
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
-            if (m_managerName == "Pixel"){
+            if (m_managerName == "Pixel" || m_managerName == "ITkPixel"){
               id = m_pixelIdHelper->wafer_id(iBarrel,iLayer,iPhi,iEta);
             } else {
               id = m_sctIdHelper->wafer_id(iBarrel,iLayer,iPhi,iEta,iSide);
@@ -252,7 +252,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
             const SiDetectorElement * element = nullptr;
             if (useConditionStore) {
               // SiDetectorElementCollection::getDetectorElement supports only IdentifierHash as the argument.
-              if (m_managerName == "Pixel") {
+              if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
                 element = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(id));
               } else {
                 element = elements->getDetectorElement(m_sctIdHelper->wafer_hash(id));
@@ -292,7 +292,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         for (int iPhi = 0; iPhi < siNumerology.numPhiModulesForDiskRing(iDisk,iEta); iPhi++) {
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
-            if (m_managerName == "Pixel"){
+            if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
               id = m_pixelIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta);
             } else {
               id = m_sctIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta,iSide);
@@ -345,7 +345,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
   }
 
   // Some random access
-  if (m_managerName == "Pixel") {
+  if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
     //const PixelID * idHelper = dynamic_cast<const PixelID *>(m_manager->getIdHelper());
     const PixelID * idHelper = m_pixelIdHelper;
     if (idHelper) {
@@ -421,10 +421,10 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       cellIds.push_back(SiCellId(32)); // phi,eta
       cellIds.push_back(SiCellId(1)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      if(m_managerName == "SCT"){
-	cellIds.push_back(SiCellId(-1)); // phi,eta
-	cellIds.push_back(SiCellId(-2)); // phi,eta
-	cellIds.push_back(SiCellId(-3)); // phi,eta
+      if (m_managerName == "SCT") {
+        cellIds.push_back(SiCellId(-1)); // phi,eta
+        cellIds.push_back(SiCellId(-2)); // phi,eta
+        cellIds.push_back(SiCellId(-3)); // phi,eta
       }
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
@@ -549,7 +549,7 @@ ReadSiDetectorElements::testElement(const Identifier & id,
   ATH_MSG_ALWAYS("----------------------------------------------");
   const SiDetectorElement * element = nullptr;
   if (elements) {
-    if (m_managerName == "Pixel") {
+    if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
       element = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(id));
     } else {
       element = elements->getDetectorElement(m_sctIdHelper->wafer_hash(id));

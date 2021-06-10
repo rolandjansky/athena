@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetDescrExample_PrintSiElements_h
@@ -43,6 +43,7 @@ private:
   ServiceHandle<IGeoModelSvc> m_geoModelSvc;
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_ITkPixelDetEleCollKey{this, "ITkPixelDetEleCollKey", "ITkPixelDetectorElementCollection", "Key of SiDetectorElementCollection for ITkPixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_ITkStripDetEleCollKey{this, "ITkStripDetEleCollKey", "ITkStripDetectorElementCollection", "Key of SiDetectorElementCollection for ITkStrip"};
   std::vector<std::string> m_detManagerNames;
 };
