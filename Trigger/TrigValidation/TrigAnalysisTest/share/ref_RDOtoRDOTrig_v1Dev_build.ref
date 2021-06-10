@@ -4913,6 +4913,18 @@ HLT_larnoiseburst_L1XE60:
     0: 6
   stepFeatures:
     0: 6
+HLT_larpsall_L1J15:
+  eventCount: 14
+  stepCounts:
+    0: 14
+  stepFeatures:
+    0: 14
+HLT_larpsallem_L1EM3:
+  eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 166
 HLT_mb_afprec_2j20_L1RD0_FILLED:
   eventCount: 20
   stepCounts:

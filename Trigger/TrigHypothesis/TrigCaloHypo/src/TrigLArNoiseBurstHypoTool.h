@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOLINC_H
-#define TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOLINC_H 1
+#ifndef TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOL_H
+#define TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOL_H 1
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
@@ -16,9 +16,9 @@
  * @brief 
  **/
 
-class TrigLArNoiseBurstHypoToolInc : public extends<AthAlgTool, ITrigLArNoiseBurstHypoTool> { 
+class TrigLArNoiseBurstHypoTool : public extends<AthAlgTool, ITrigLArNoiseBurstHypoTool> { 
  public: 
-  TrigLArNoiseBurstHypoToolInc( const std::string& type, 
+  TrigLArNoiseBurstHypoTool( const std::string& type, 
              const std::string& name, 
              const IInterface* parent );
 
@@ -44,4 +44,4 @@ class TrigLArNoiseBurstHypoToolInc : public extends<AthAlgTool, ITrigLArNoiseBur
   
 }; 
 
-#endif //> !TRIGCALOHYPO_TRIGLARNOISEBURSTHYPOTOOLINC_H
+#endif //> !TRIGCALOHYPO_TRIGLARNOISEBURSTHYPOTOOL_H

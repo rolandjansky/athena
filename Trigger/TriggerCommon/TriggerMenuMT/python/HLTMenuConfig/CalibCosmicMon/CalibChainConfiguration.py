@@ -5,7 +5,10 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-
+from AthenaConfiguration.ComponentFactory import CompFactory
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool # ChainStep,
+from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
+from AthenaCommon.CFElements import seqAND
 
 # --------------------
 # LArNoiseBurst configuration
@@ -13,8 +16,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 
 def getLArNoiseBurst(self):
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool # ChainStep,
     hypoAlg = CompFactory.TrigLArNoiseBurstAlg("NoiseBurstAlg")
     from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstHypoToolGen
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -35,7 +36,67 @@ def getLArNoiseBurst(self):
             Maker       = noiseBurstInputMakerAlg,
             Hypo        = hypoAlg,
             HypoToolGen = TrigLArNoiseBurstHypoToolGen)
-        
+
+#----------------------------------------------------------------
+
+# --------------------
+# LArPS Noise Detection EM configuration
+# --------------------
+def LArPSAllEMSequence(flags, name="LArPSSequence_AllEM"):
+
+    from TrigT2CaloCommon.CaloDef import fastCalo_AllEM_EVCreator
+ 
+    (LArPSViewsMaker_AllEM, InViewRoIs) = fastCalo_AllEM_EVCreator()
+    (LArPSAllEMInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs,doRinger=False, ClustersName="HLT_LArPS_AllCaloEMClusters",doAllEm=True,doAll=False)
+    LArPSViewsMaker_AllEM.ViewNodeName = LArPSAllEMInViewSequence.name()
+    LArPSAllEMSequence = seqAND(name,[LArPSViewsMaker_AllEM, LArPSAllEMInViewSequence])
+    return (LArPSAllEMSequence, LArPSViewsMaker_AllEM, sequenceOut)
+
+def getCaloAllEMLayersPS(self):
+
+    sequence, viewsmaker, sequenceOut =  RecoFragmentsPool.retrieve(LArPSAllEMSequence,flags=None)
+    
+    from TrigCaloHypo.TrigCaloHypoConfig import TrigL2CaloLayersHypoToolGen
+    TrigL2CaloLayersAlg = CompFactory.TrigL2CaloLayersAlg("TrigL2CaloLayersAlg_AllEM")
+    TrigL2CaloLayersAlg.TrigClusterContainerKey = sequenceOut
+
+    return MenuSequence(
+        Sequence    = sequence,
+        Maker       = viewsmaker,
+        Hypo        = TrigL2CaloLayersAlg,
+        HypoToolGen = TrigL2CaloLayersHypoToolGen)
+
+#----------------------------------------------------------------
+
+# --------------------
+# LArPS Noise Detection all configuration
+# --------------------
+
+def LArPSAllSequence( flags,  name="LArPSSequence_All"):
+
+    from TrigT2CaloCommon.CaloDef import fastCalo_All_EVCreator
+    
+    (LArPSViewsMaker_All, InViewRoIs) = fastCalo_All_EVCreator()
+    (LArPSAllInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs,doRinger=False, ClustersName="HLT_LArPS_AllCaloClusters",doAllEm=False,doAll=True)
+    LArPSViewsMaker_All.ViewNodeName = LArPSAllInViewSequence.name()
+    LArPSAllSequence = seqAND(name,[LArPSViewsMaker_All, LArPSAllInViewSequence])
+    return (LArPSAllSequence, LArPSViewsMaker_All, sequenceOut)
+
+
+def getCaloAllLayersPS(self):
+
+    sequence, viewsmaker, sequenceOut =  RecoFragmentsPool.retrieve(LArPSAllSequence,flags=None)
+
+    from TrigCaloHypo.TrigCaloHypoConfig import TrigL2CaloLayersHypoToolGen
+    TrigL2CaloLayersAlg = CompFactory.TrigL2CaloLayersAlg("TrigL2CaloLayersAlg_All")
+    TrigL2CaloLayersAlg.TrigClusterContainerKey = sequenceOut
+
+    return MenuSequence(
+        Sequence    = sequence,
+        Maker       = viewsmaker,
+        Hypo        = TrigL2CaloLayersAlg,
+        HypoToolGen = TrigL2CaloLayersHypoToolGen)
+
 #----------------------------------------------------------------
 class CalibChainConfiguration(ChainConfigurationBase):
 
@@ -52,11 +113,15 @@ class CalibChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = self.getStepDictionary()
                 
-        if self.chainPartName == 'larnoiseburst':
+        if self.chainPart['purpose'][0] == 'larnoiseburst':
             steps=stepDictionary['LArNoiseBurst']
-            for i, step in enumerate(steps): 
-                chainstep = getattr(self, step)(i)
-                chainSteps+=[chainstep]
+        elif self.chainPart['purpose'][0] == 'larpsallem':
+            steps=stepDictionary['LArPSAllEM']
+        elif self.chainPart['purpose'][0] == 'larpsall':
+            steps=stepDictionary['LArPSAll']
+        for i, step in enumerate(steps): 
+            chainstep = getattr(self, step)(i)
+            chainSteps+=[chainstep]
 
         myChain = self.buildChain(chainSteps)
         return myChain
@@ -68,10 +133,18 @@ class CalibChainConfiguration(ChainConfigurationBase):
         # --------------------
         stepDictionary = {
             "LArNoiseBurst": ['getAllTEStep'],
-            
+            "LArPSAllEM" : ['getCaloAllEMStep'],
+            "LArPSAll" : ['getCaloAllStep'],
         }
         return stepDictionary
 
 
     def getAllTEStep(self, i):
         return self.getStep(1, 'LArNoiseBurst', [getLArNoiseBurst])
+
+    def getCaloAllEMStep(self, i):
+        return self.getStep(1, 'LArPSALLEM', [getCaloAllEMLayersPS])
+
+    def getCaloAllStep(self, i):
+        return self.getStep(1, 'LArPSALL', [getCaloAllLayersPS])
+
