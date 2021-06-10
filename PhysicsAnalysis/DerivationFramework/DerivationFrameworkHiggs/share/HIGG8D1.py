@@ -198,6 +198,8 @@ HIGG8D1DSIDList=[
                  504342,#aMC@NLO+P8 refined ttZ
                  700000,#Sherpa 2.2.8 ttW
                  700168,#Sherpa 2.2.10 ttW
+                 700205,#Sherpa 2.2.10 ttW
+                 700309,#Sherpa 2.2.11 ttZ
                 ]
 
 import PyUtils.AthFile as af
