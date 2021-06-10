@@ -110,6 +110,8 @@ namespace DerivationFramework{
           ||  m_DSID==413023 // sherpa 2.2.1 ttZ 
           ||  m_DSID==700000 // Sherpa 2.2.8 ttW
           ||  m_DSID==700168 // Sherpa 2.2.10 ttW
+          ||  m_DSID==700205 // Sherpa 2.2.10 ttW EWK
+          ||  m_DSID==700309 // Sherpa 2.2.11 ttZ
           || (m_DSID>=700051 && m_DSID<=700054) //Sherpa2.2.8 ttbb
           || (m_DSID>=700121 && m_DSID<=700124) //Sherpa2.2.10 ttbar
           || (m_DSID>=700164 && m_DSID<=700167) //Sherpa2.2.10 ttbb
