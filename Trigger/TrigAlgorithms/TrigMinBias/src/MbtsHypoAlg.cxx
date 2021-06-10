@@ -10,6 +10,7 @@ using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::featureString;
 
 MbtsHypoAlg::MbtsHypoAlg(const std::string &name, ISvcLocator *pSvcLocator)
     : ::HypoBase(name, pSvcLocator)
@@ -40,7 +41,7 @@ StatusCode MbtsHypoAlg::execute(const EventContext &context) const
   auto decisions = outputHandle.ptr();
   auto d = newDecisionIn(decisions, hypoAlgNodeName());
   linkToPrevious(d, decisionInput().key(), 0);
-
+  d->setObjectLink(featureString(), ElementLink<xAOD::TrigT2MbtsBitsContainer>(*bitsHandle, 0, context));
   MbtsHypoTool::MbtsHypoInfo info = {prev, bitsHandle.cptr()->at(0), d};
 
   for (const auto &tool : m_hypoTools)
