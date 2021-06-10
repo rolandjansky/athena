@@ -13,7 +13,7 @@ Muon::TgcPrepDataReplicationTool::TgcPrepDataReplicationTool
   (const std::string& t, const std::string& n, const IInterface* p)
   : base_class(t, n, p)
 {
-  for(int ibc = 0; ibc < BC_NUM; ibc++) m_tgcPrepDataContainer[ibc] = 0;
+  for(int ibc = 0; ibc < BC_NUM; ibc++) m_tgcPrepDataContainer[ibc] = nullptr;
 }  
 
 //================ Initialization ==============================================
@@ -85,7 +85,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::replicate() const
 StatusCode Muon::TgcPrepDataReplicationTool::convertAllBCto3BC() const
 {
 
-  const Muon::TgcPrepDataContainer* tgcAll = 0;
+  const Muon::TgcPrepDataContainer* tgcAll = nullptr;
 
   StatusCode sc = evtStore()->retrieve(tgcAll, "TGC_MeasurementsAllBCs");
   if(sc.isFailure()) {
@@ -98,7 +98,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::convertAllBCto3BC() const
 
   // convert
   uint16_t bcBitMap = 0;
-  Muon::TgcPrepDataCollection* collections[BC_ALL] = {0};
+  Muon::TgcPrepDataCollection* collections[BC_ALL] = {nullptr};
 
   Muon::TgcPrepDataContainer::const_iterator tgcAllItr   = tgcAll->begin();
   Muon::TgcPrepDataContainer::const_iterator tgcAllItrE  = tgcAll->end();
@@ -157,8 +157,8 @@ StatusCode Muon::TgcPrepDataReplicationTool::convert3BCtoAllBC() const
   m_tgcPrepDataContainer[BC_ALL]->cleanup();
 
   // convert
-  const Muon::TgcPrepDataContainer* tgc3BCs[BC_ALL] = {0};
-  Muon::TgcPrepDataCollection* collection = 0;
+  const Muon::TgcPrepDataContainer* tgc3BCs[BC_ALL] = {nullptr};
+  Muon::TgcPrepDataCollection* collection = nullptr;
 
   for (int ibc = 0; ibc < BC_ALL; ibc++) {
     uint16_t bcBitMap = 0;
@@ -234,10 +234,10 @@ Muon::TgcPrepDataReplicationTool::makeTgcPrepData(Muon::TgcPrepDataCollection::c
   const Amg::MatrixX* errHitPos = &(*itr)->localCovariance();
   const MuonGM::TgcReadoutElement* descriptor = (*itr)->detectorElement();
 
-  const Amg::MatrixX* newErrHitPos = new Amg::MatrixX(*errHitPos);
+  auto newErrHitPos = Amg::MatrixX(*errHitPos);
 
   Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, (*itr)->localPosition(),
-                                                   identifierList, newErrHitPos, descriptor);
+                                                   identifierList, std::move(newErrHitPos), descriptor);
   newPrepData->setBcBitMap(bcBitMap);
 
   return newPrepData;

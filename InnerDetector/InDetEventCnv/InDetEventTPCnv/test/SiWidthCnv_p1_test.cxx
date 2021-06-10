@@ -29,7 +29,7 @@ void compare (const InDet::SiWidth& p1,
 
 void testit (const InDet::SiWidth& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   SiWidthCnv_p1 cnv;
   PixelClusterContainerCnv_tlp1 tlcnv;
   tlcnv.setUseDetectorElement(false);

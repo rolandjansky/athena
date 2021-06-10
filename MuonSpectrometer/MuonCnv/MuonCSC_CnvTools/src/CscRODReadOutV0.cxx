@@ -5,7 +5,7 @@
 #include "CscRODReadOutV0.h"
 
 // constructor
-CscRODReadOutV0::CscRODReadOutV0() : m_cscHelper(0), m_sourceID(0),
+CscRODReadOutV0::CscRODReadOutV0() : m_cscHelper(nullptr), m_sourceID(0),
   m_moduleType(0), m_rodId(0), m_subDetectorId(0), m_amp1(0), m_amp2(0),
   m_amp3(0), m_amp4(0), m_address(0) {  
 

@@ -173,7 +173,7 @@ StatusCode CscRdoToCscPrepDataTool::decodeImpl(Muon::CscStripPrepDataContainer* 
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //************************************************
   Identifier oldId;
-  CscStripPrepDataCollection * collection = 0;
+  CscStripPrepDataCollection * collection = nullptr;
   IdentifierHash cscHashId;
 
   unsigned int samplingTime = rawCollection->rate();
@@ -286,13 +286,13 @@ StatusCode CscRdoToCscPrepDataTool::decodeImpl(Muon::CscStripPrepDataContainer* 
       AmgSymMatrix(2) covariance;
       covariance.setIdentity();
       covariance *= errPos*errPos;
-      Amg::MatrixX * errClusterPos = new Amg::MatrixX(covariance);
+      auto errClusterPos = Amg::MatrixX(covariance);
 
       /** new CscStripPrepRawData */
       CscStripPrepData * newPrepData = new CscStripPrepData(channelId,
                                                             cscHashId,
                                                             localWirePos1,
-                                                            errClusterPos,
+                                                            std::move(errClusterPos),
                                                             descriptor,
                                                             charges,
                                                             timeOfFirstSample,
@@ -337,7 +337,7 @@ StatusCode CscRdoToCscPrepDataTool::decodeImpl(Muon::CscStripPrepDataContainer* 
   samples.reserve(4);
 
   Identifier oldId;
-  CscStripPrepDataCollection * collection = 0;
+  CscStripPrepDataCollection * collection = nullptr;
   IdentifierHash cscHashId;
   for (; rdoColl!=lastRdoColl; ++rdoColl) {
     if ( (*rdoColl)->size() > 0 ) {
@@ -467,30 +467,35 @@ StatusCode CscRdoToCscPrepDataTool::decodeImpl(Muon::CscStripPrepDataContainer* 
           }
           if (IsThisStripDecoded) continue;
 
-	  int measuresPhi    = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
+          int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
 
-          Amg::Vector2D localWirePos1( descriptor->xCoordinateInTrackingFrame(channelId ),0.);
- 
-          int chamberLayer   = m_idHelperSvc->cscIdHelper().chamberLayer(channelId);
-          float stripWidth   = descriptor->cathodeReadoutPitch( chamberLayer, measuresPhi );
-          double errPos      = stripWidth / sqrt(12.0);
-          
-	  AmgSymMatrix(2) covariance;
-	  covariance.setIdentity();
-	  covariance *= errPos*errPos;
-	  Amg::MatrixX * errClusterPos = new Amg::MatrixX(covariance);
+          Amg::Vector2D localWirePos1(
+            descriptor->xCoordinateInTrackingFrame(channelId), 0.);
+
+          int chamberLayer =
+            m_idHelperSvc->cscIdHelper().chamberLayer(channelId);
+          float stripWidth =
+            descriptor->cathodeReadoutPitch(chamberLayer, measuresPhi);
+          double errPos = stripWidth / sqrt(12.0);
+
+          AmgSymMatrix(2) covariance;
+          covariance.setIdentity();
+          covariance *= errPos * errPos;
+          auto errClusterPos = Amg::MatrixX(covariance);
 
           /** new CscPrepRawData */
-          CscStripPrepData * newPrepData = new CscStripPrepData(  channelId,
-                                                                  cscHashId,
-                                                                  localWirePos1,
-                                                                  errClusterPos,
-                                                                  descriptor,
-                                                                  charges,
-                                                                  timeOfFirstSample,
-                                                                  samplingTime);
-          
-          if (samplingPhase) newPrepData->set_samplingPhase();
+          CscStripPrepData* newPrepData =
+            new CscStripPrepData(channelId,
+                                 cscHashId,
+                                 localWirePos1,
+                                 std::move(errClusterPos),
+                                 descriptor,
+                                 charges,
+                                 timeOfFirstSample,
+                                 samplingTime);
+
+          if (samplingPhase)
+            newPrepData->set_samplingPhase();
           newPrepData->setHashAndIndex(collection->identifyHash(), collection->size());
           collection->push_back(newPrepData);
           

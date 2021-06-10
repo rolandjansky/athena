@@ -22,7 +22,7 @@ using Muon::CscStripPrepDataContainer;
 //**********************************************************************
 
 CscClusterUtilTool::CscClusterUtilTool(const std::string& type, const std::string& aname, const IInterface* parent) :
-    AthAlgTool(type, aname, parent), m_phelper(0), m_cscStripLocation("CSC_Measurements") {
+    AthAlgTool(type, aname, parent), m_phelper(nullptr), m_cscStripLocation("CSC_Measurements") {
     declareInterface<ICscClusterUtilTool>(this);
     declareProperty("CscStripPrepDataLocation", m_cscStripLocation);
 }

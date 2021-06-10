@@ -93,7 +93,7 @@ uint32_t MdtRODReadOut::makeRODId(uint16_t subdet, uint16_t mrod)
 uint32_t* MdtRODReadOut::encodeFooter()
 {
 
-  return 0;
+  return nullptr;
 }
 
 void MdtRODReadOut::setZero()

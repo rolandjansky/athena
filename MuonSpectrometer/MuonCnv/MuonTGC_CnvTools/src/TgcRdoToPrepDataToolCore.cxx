@@ -381,8 +381,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
   const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
 
-  TgcPrepDataCollection* collection = 0;
-  TgcPrepDataCollection* collectionAllBcs = 0;
+  TgcPrepDataCollection* collection = nullptr;
+  TgcPrepDataCollection* collectionAllBcs = nullptr;
   IdentifierHash tgcHashId;
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
@@ -537,7 +537,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
     Amg::MatrixX mat(1,1);
     mat.setIdentity();
     mat *= errPos*errPos;
-    const Amg::MatrixX* errHitPos = new Amg::MatrixX(mat);
+    auto errHitPos = Amg::MatrixX(mat);
 
     // add the digit to the collection
     // new TgcPrepRawData
@@ -573,12 +573,12 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
       uint16_t bcBitMap_tmp = prd->getBcBitMap();
       prd->setBcBitMap(bcBitMap_tmp | bcBitMap);
     } else {
-      const Amg::MatrixX* errHitPosAllBcs = new Amg::MatrixX(*errHitPos);
+      auto errHitPosAllBcs = Amg::MatrixX(errHitPos);
       TgcPrepData* newPrepDataAllBcs = new TgcPrepData(channelId, // Readout ID -> Offline ID
 						       tgcHashId, // Readout ID -> Element ID -> Hash 
 						       hitPos, // determined from channelId
 						       identifierList, // holds channelId only
-						       errHitPosAllBcs, // determined from channelId
+						       std::move(errHitPosAllBcs), // determined from channelId
 						       descriptor,
 						       bcBitMap);
       newPrepDataAllBcs->setHashAndIndex(collectionAllBcs->identifyHash(), collectionAllBcs->size());
@@ -1003,7 +1003,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(getCoinCollection_func& ge
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
   const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
 
-  TgcCoinDataCollection* coincollection = 0;
+  TgcCoinDataCollection* coincollection = nullptr;
   IdentifierHash tgcHashId;
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
@@ -1042,8 +1042,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(getCoinCollection_func& ge
   double hit_position_o = 0.;
   Amg::Vector2D tmp_hitPos_o(0., 0.);
 
-  const MuonGM::TgcReadoutElement* descriptor_ii = 0;
-  const MuonGM::TgcReadoutElement* descriptor_oo = 0;
+  const MuonGM::TgcReadoutElement* descriptor_ii = nullptr;
+  const MuonGM::TgcReadoutElement* descriptor_oo = nullptr;
 
   //*** TGC3 start ***//
   // RDOHighPtID --> (Sim)HighPtID --> OfflineID --> ReadoutID --> getSLBID
@@ -1271,7 +1271,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeInner(getCoinCollection_func& g
 
   bool isInner = ((rd.sector() & 4) != 0 ); // Inner flag for EIFI and Tilecal
 
-  TgcCoinDataCollection* coincollection = 0;
+  TgcCoinDataCollection* coincollection = nullptr;
   IdentifierHash tgcHashId;
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
  
@@ -1293,8 +1293,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeInner(getCoinCollection_func& g
   const Amg::Vector2D* hitPos_o = new Amg::Vector2D(tmp_hitPos_o);
   const Amg::Vector2D* hitPos_i = new Amg::Vector2D(tmp_hitPos_i);
   
-  const MuonGM::TgcReadoutElement* descriptor_ii = 0;
-  const MuonGM::TgcReadoutElement* descriptor_oo = 0;
+  const MuonGM::TgcReadoutElement* descriptor_ii = nullptr;
+  const MuonGM::TgcReadoutElement* descriptor_oo = nullptr;
 
   std::string stationName = "T3E"; 
   int stationEta = isAside ? 1 : -1;
@@ -1357,7 +1357,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(getCoinCollection_func& getC
     return StatusCode::SUCCESS;
   }
   
-  TgcCoinDataCollection* coincollection = 0;
+  TgcCoinDataCollection* coincollection = nullptr;
   IdentifierHash tgcHashId;
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
@@ -3187,7 +3187,7 @@ Muon::TgcRdoToPrepDataToolCore::getCabling() const
 
 const Amg::Vector2D* Muon::TgcRdoToPrepDataToolCore::getSLLocalPosition(const MuonGM::TgcReadoutElement* readout, const Identifier identify,  
                                                                     const double eta, const double phi) const { 
-  if(!readout) return 0;  
+  if(!readout) return nullptr;  
   
   // Obtain the local coordinate by the secant method
   constexpr double length = 100.; // 100 mm

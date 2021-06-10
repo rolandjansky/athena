@@ -592,7 +592,7 @@ ClusterInfo SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA, C
   covariance.setIdentity();
   covariance(Trk::locX,Trk::locX) = sigmaX*sigmaX;
   covariance(Trk::locY,Trk::locY) = sigmaY*sigmaY;
-  Amg::MatrixX* clusterErr = new Amg::MatrixX(covariance);
+  Amg::MatrixX clusterErr = covariance;
 
   return ClusterInfo( intersection, siWidth, clusterErr );
 
@@ -630,7 +630,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Pixel_detElement_RIO_map * c
 
             Amg::Vector2D intersection;
             InDet::SiWidth siWidth;
-            Amg::MatrixX *clusterErr;
+            Amg::MatrixX clusterErr;
             std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
 
             const InDetDD::SiDetectorElement* hitSiDetElement = (((*inner_iter).second)->detectorElement());
@@ -641,7 +641,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Pixel_detElement_RIO_map * c
             InDetDD::SiCellId currentCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 
             if ( !currentCellId.isValid() ) {
-              delete clusterErr;
               continue;
             }
 
@@ -650,7 +649,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Pixel_detElement_RIO_map * c
                                                                         rdoList,
                                                                         siWidth,
                                                                         hitSiDetElement,
-                                                                        clusterErr);
+                                                                        std::move(clusterErr));
             ((*inner_iter).second) = pixelCluster;
 
             cluster_map->erase(iter);
@@ -698,7 +697,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(SCT_detElement_RIO_map * clu
 
             Amg::Vector2D intersection;
             InDet::SiWidth siWidth;
-            Amg::MatrixX *clusterErr;
+            Amg::MatrixX clusterErr;
             std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
 
             const InDetDD::SiDetectorElement* hitSiDetElement = (((*inner_iter).second)->detectorElement());
@@ -709,7 +708,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(SCT_detElement_RIO_map * clu
             InDetDD::SiCellId currentCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 
             if ( !currentCellId.isValid() ) {
-              delete clusterErr;
               continue;
             }
 
@@ -718,7 +716,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(SCT_detElement_RIO_map * clu
                                                                     rdoList,
                                                                     siWidth,
                                                                     hitSiDetElement,
-                                                                    clusterErr);
+                                                                    std::move(clusterErr));
             ((*inner_iter).second) = sctCluster;
 
             cluster_map->erase(iter);
@@ -995,7 +993,6 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         covariance.setIdentity();
         covariance(Trk::locX,Trk::locX) = sigmaX*sigmaX;
         covariance(Trk::locY,Trk::locY) = sigmaY*sigmaY;
-        Amg::MatrixX* clusterErr = new Amg::MatrixX(covariance);
 
         // create the cluster
         pixelCluster = new InDet::PixelCluster(intersectionId,
@@ -1003,7 +1000,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
                                                rdoList,
                                                siWidth,
                                                hitSiDetElement,
-                                               clusterErr);
+                                               Amg::MatrixX(covariance));
         m_pixelClusterMap->insert(std::pair<IdentifierHash, InDet::PixelCluster* >(waferID, pixelCluster));
 
         if (FillTruthMap(m_pixelPrdTruth, pixelCluster, hit).isFailure()) {
@@ -1096,14 +1093,13 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
           mat(Trk::locY, Trk::locY) = (sn2*v0+cs2*v1);
         }  // End of rotation endcap SCT
 
-        Amg::MatrixX* clusterErr = new Amg::MatrixX(mat);
 
         sctCluster = new InDet::SCT_Cluster(intersectionId,
                                              intersection,
                                              rdoList,
                                              siWidth,
                                              hitSiDetElement,
-                                             clusterErr);
+                                             Amg::MatrixX(mat));
 
         m_sctClusterMap->insert(std::pair<IdentifierHash, InDet::SCT_Cluster* >(waferID, sctCluster));
 

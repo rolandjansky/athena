@@ -87,7 +87,7 @@ namespace Muon {
       TgcPrepData* prd = new TgcPrepData( first->identify(), first->collectionHash(), 
 					  first->localPosition(),
 					  rdoList, 
-					  new Amg::MatrixX( first->localCovariance() ),
+					  Amg::MatrixX( first->localCovariance()),
 					  first->detectorElement());
       //TgcPrepData::BC_CURRENT); add bc id
       collection->push_back(prd);
@@ -147,7 +147,7 @@ namespace Muon {
       RpcPrepData* prd = new RpcPrepData( first->identify(), first->collectionHash(), 
 					  first->localPosition(),
 					  rdoList, 
-					  new Amg::MatrixX(first->localCovariance() ),
+					  Amg::MatrixX(first->localCovariance() ),
 					  first->detectorElement(),
 					  first->time(),
 					  first->triggerInfo(),

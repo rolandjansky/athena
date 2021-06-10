@@ -88,7 +88,7 @@ namespace Muon
     m_collectionIdHash(collectionIdHash),
     m_indexAndHash(),
     m_detElIn(detElIn),
-    m_detElOut(0),
+    m_detElOut(nullptr),
     m_type(type),
     m_isAside(isAside),
     m_phi(phi),
@@ -98,8 +98,8 @@ namespace Muon
     m_trackletId(0),
     m_trackletIdStrip(0),
     m_posIn(posIn),
-    m_posOut(0),
-    m_errMat(0),
+    m_posOut(nullptr),
+    m_errMat(nullptr),
     m_widthIn(widthIn),
     m_widthOut(0),
     m_delta(0),
@@ -133,7 +133,7 @@ namespace Muon
     m_channelIdOut(channelIdOut),
     m_collectionIdHash(collectionIdHash),
     m_indexAndHash(),
-    m_detElIn(0),
+    m_detElIn(nullptr),
     m_detElOut(detElOut),
     m_type(type),
     m_isAside(isAside),
@@ -143,7 +143,7 @@ namespace Muon
     m_isStrip(false),
     m_trackletId(trackletId),
     m_trackletIdStrip(trackletIdStrip),
-    m_posIn(0),
+    m_posIn(nullptr),
     m_posOut(posOut),
     m_errMat(errMat),
     m_widthIn(0),
@@ -162,9 +162,9 @@ namespace Muon
 // Destructor:
 TgcCoinData::~TgcCoinData()
 {
-  if(m_posIn) { delete m_posIn; m_posIn=0;}
-  if(m_posOut) { delete m_posOut; m_posOut=0;}
-  if(m_errMat) { delete m_errMat; m_errMat=0;}
+  if(m_posIn) { delete m_posIn; m_posIn=nullptr;}
+  if(m_posOut) { delete m_posOut; m_posOut=nullptr;}
+  if(m_errMat) { delete m_errMat; m_errMat=nullptr;}
  }
 
 // Default constructor:
@@ -173,8 +173,8 @@ TgcCoinData::TgcCoinData():
     m_channelIdOut(0),
     m_collectionIdHash(),
     m_indexAndHash(),
-    m_detElIn(0),
-    m_detElOut(0),
+    m_detElIn(nullptr),
+    m_detElOut(nullptr),
     m_type(TgcCoinData::TYPE_UNKNOWN),
     m_isAside(true),
     m_phi(0),
@@ -183,9 +183,9 @@ TgcCoinData::TgcCoinData():
     m_isStrip(false),
     m_trackletId(0),
     m_trackletIdStrip(0),
-    m_posIn(0),
-    m_posOut(0),
-    m_errMat(0),
+    m_posIn(nullptr),
+    m_posOut(nullptr),
+    m_errMat(nullptr),
     m_widthIn(0),
     m_widthOut(0),
     m_delta(0),
@@ -227,9 +227,9 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_globalposIn(),
     m_globalposOut()
 {
-  m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
-  m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : 0 );
-  m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : 0 );
+  m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : nullptr );
+  m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : nullptr );
+  m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : nullptr );
   if (RIO.m_globalposIn) m_globalposIn.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
   if (RIO.m_globalposOut) m_globalposOut.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
 }
@@ -256,11 +256,11 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_trackletId = RIO.m_trackletId;
       m_trackletIdStrip = RIO.m_trackletIdStrip;
       delete m_posIn;
-      m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
+      m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : nullptr );
       delete m_posOut;
-      m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : 0 );
+      m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : nullptr );
       delete m_errMat;
-      m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : 0 );
+      m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : nullptr );
       m_widthIn = RIO.m_widthIn;
       m_widthOut = RIO.m_widthOut;
       m_delta = RIO.m_delta;

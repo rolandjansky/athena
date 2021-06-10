@@ -25,7 +25,7 @@ RpcPrepData::RpcPrepData( const Identifier& RDOId,
                           const IdentifierHash &idDE,
                           const Amg::Vector2D& locpos,
                           const std::vector<Identifier>& rdoList,
-                          const Amg::MatrixX* locErrMat,
+                          const Amg::MatrixX& locErrMat,
                           const MuonGM::RpcReadoutElement* detEl,
                           const float time,
                           const int triggerInfo,
@@ -41,7 +41,7 @@ RpcPrepData::RpcPrepData( const Identifier& RDOId,
                           const IdentifierHash &idDE,
                           const Amg::Vector2D& locpos,
                           const std::vector<Identifier>& rdoList,
-                          const Amg::MatrixX* locErrMat,
+                          const Amg::MatrixX& locErrMat,
                           const MuonGM::RpcReadoutElement* detEl,
                           const float time,
                           const int ambiguityFlag) :
@@ -63,7 +63,7 @@ RpcPrepData::~RpcPrepData()
 // Default constructor:
 RpcPrepData::RpcPrepData():
         MuonCluster(),
-        m_detEl(0),
+        m_detEl(nullptr),
         m_time(0),
         m_triggerInfo(0),
         m_ambiguityFlag(0)

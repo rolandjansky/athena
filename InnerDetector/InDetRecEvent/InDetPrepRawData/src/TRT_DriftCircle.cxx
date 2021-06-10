@@ -22,23 +22,23 @@ TRT_DriftCircle::TRT_DriftCircle(
 	const Identifier &Id, 
 	const Amg::Vector2D& driftRadius,
 	const std::vector<Identifier>& rdoList,
-	const Amg::MatrixX* errDriftRadius,
+	const Amg::MatrixX& errDriftRadius,
 	const InDetDD::TRT_BaseElement* detEl,
-        const unsigned int word
+  const unsigned int word
 	)
 	:
 	PrepRawData(Id, driftRadius, rdoList, errDriftRadius), //call base class constructor
 	m_detEl(detEl),
-        m_word(word)
+  m_word(word)
 {
 }
 
 TRT_DriftCircle::TRT_DriftCircle( 
 	const Identifier &Id, 
 	const Amg::Vector2D& driftRadius,
-	const Amg::MatrixX* errDriftRadius,
+	const Amg::MatrixX& errDriftRadius,
 	const InDetDD::TRT_BaseElement* detEl,
-        const unsigned int word
+  const unsigned int word
 	)
 	:
 	PrepRawData(Id, driftRadius, errDriftRadius), //call base class constructor
@@ -51,9 +51,9 @@ TRT_DriftCircle::TRT_DriftCircle(
 	const Identifier &Id, 
 	const Amg::Vector2D& driftRadius,
 	std::vector<Identifier>&& rdoList,
-	std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+	Amg::MatrixX&& errDriftRadius,
 	const InDetDD::TRT_BaseElement* detEl,
-        const unsigned int word
+  const unsigned int word
 	)
 	:
 	PrepRawData(Id, driftRadius,
@@ -65,10 +65,7 @@ TRT_DriftCircle::TRT_DriftCircle(
 }
 
 // Destructor:
-TRT_DriftCircle::~TRT_DriftCircle()
-{
-	//don't delete detector element as it does not belong to this class.
-}
+TRT_DriftCircle::~TRT_DriftCircle() = default;
 
 
 // Default constr
@@ -90,58 +87,50 @@ double TRT_DriftCircle::driftTime(bool& valid) const
   return rawDriftTime();
 }
 
-
-/**assignment operator
-TRT_DriftCircle& TRT_DriftCircle::operator=(const TRT_DriftCircle& RIO)
+MsgStream&
+TRT_DriftCircle::dump(MsgStream& stream) const
 {
-  if (&RIO !=this) {
-    m_word = RIO.m_word;
-    *static_cast<Trk::PrepRawData*>(this) = RIO;
-  }
-	
-  return *this;
+  stream << "TRT_DriftCircle object" << endmsg;
+  stream << "Level (true/false)		 " << highLevel() << endmsg;
+  stream << "Valid (true/false)		 " << driftTimeValid() << endmsg;
+  stream << "timeOverThreshold:               " << timeOverThreshold()
+         << endmsg;
+  stream << "driftTime:                       " << rawDriftTime() << endmsg;
+  stream << "dataWord:                        " << m_word << endmsg;
+  stream << "Base class (PrepRawData):" << endmsg;
+  this->PrepRawData::dump(stream);
+
+  return stream;
 }
-**/
 
+std::ostream&
+TRT_DriftCircle::dump(std::ostream& stream) const
+{
+  stream << "TRT_DriftCircle object" << std::endl;
+  stream << "Level (true/false)		 " << highLevel() << std::endl;
+  stream << "Valid (true/false)		 " << driftTimeValid() << std::endl;
+  stream << "timeOverThreshold:               " << timeOverThreshold()
+         << std::endl;
+  stream << "driftTime:                       " << rawDriftTime() << std::endl;
+  stream << "dataWord:                        " << m_word << std::endl;
 
-    MsgStream& TRT_DriftCircle::dump( MsgStream&    stream) const
-    {
-        stream << "TRT_DriftCircle object"<<endmsg;
-        stream << "Level (true/false)		 "  << highLevel() << endmsg;
-        stream << "Valid (true/false)		 "  << driftTimeValid() << endmsg;
-        stream << "timeOverThreshold:               "  << timeOverThreshold()  << endmsg;
-        stream << "driftTime:                       "  << rawDriftTime() << endmsg;
-        stream << "dataWord:                        "  << m_word       << endmsg;
-        stream << "Base class (PrepRawData):" << endmsg;
-        this->PrepRawData::dump(stream);
+  stream << "Base class (PrepRawData):" << std::endl;
+  this->PrepRawData::dump(stream);
 
-        return stream;
-    }
+  return stream;
+}
 
-    std::ostream& TRT_DriftCircle::dump( std::ostream&    stream) const
-    {
-        stream << "TRT_DriftCircle object"<<std::endl;
-        stream << "Level (true/false)		 "  << highLevel() << std::endl;
-        stream << "Valid (true/false)		 "  << driftTimeValid() << std::endl;
-        stream << "timeOverThreshold:               "  << timeOverThreshold()  << std::endl;
-        stream << "driftTime:                       "  << rawDriftTime() << std::endl;
-        stream <<  "dataWord:                        "  <<m_word  << std::endl;
+MsgStream&
+operator<<(MsgStream& stream, const TRT_DriftCircle& prd)
+{
+  return prd.dump(stream);
+}
 
-        stream <<  "Base class (PrepRawData):" << std::endl;
-        this->PrepRawData::dump(stream);
-
-        return stream;
-    } 
-
-    MsgStream&    operator << (MsgStream& stream,    const TRT_DriftCircle& prd)
-    {
-        return prd.dump(stream);
-    }
-
-    std::ostream& operator << (std::ostream& stream, const TRT_DriftCircle& prd)
-    {
-        return prd.dump(stream);
-    }
+std::ostream&
+operator<<(std::ostream& stream, const TRT_DriftCircle& prd)
+{
+  return prd.dump(stream);
+}
 
 }//end of ns
 

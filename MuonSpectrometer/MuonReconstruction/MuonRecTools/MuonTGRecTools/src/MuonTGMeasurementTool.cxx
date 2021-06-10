@@ -659,11 +659,20 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         // create (fake!) rio ( rio image on TG layer )
         IdentifierHash idHash(0);
         const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(id);
-        Amg::MatrixX* cov = new Amg::MatrixX();
-        *cov = A_ND * A_ND * rio->localCovariance();
+        auto cov = Amg::MatrixX();
+        cov = A_ND * A_ND * rio->localCovariance();
         Muon::MdtDriftCircleStatus status = Muon::MdtStatusDriftTime;
-        const Muon::MdtPrepData* mdtPrd = new Muon::MdtPrepData(id, idHash, Amg::Vector2D(locLay, 0.), cov, mdtROE, 0, 0, status);
-        Muon::MuonDriftCircleErrorStrategyInput stratbits(MuonDriftCircleErrorStrategy::UnknownStrategy);
+        const Muon::MdtPrepData* mdtPrd =
+          new Muon::MdtPrepData(id,
+                                idHash,
+                                Amg::Vector2D(locLay, 0.),
+                                std::move(cov),
+                                mdtROE,
+                                0,
+                                0,
+                                status);
+        Muon::MuonDriftCircleErrorStrategyInput stratbits(
+          MuonDriftCircleErrorStrategy::UnknownStrategy);
         Muon::MuonDriftCircleErrorStrategy strat(stratbits);
         const Muon::MdtDriftCircleOnTrack* mdtRio =
             new Muon::MdtDriftCircleOnTrack(mdtPrd, Trk::LocalParameters(Trk::DefinedParameter(locLay, Trk::locY)),
@@ -693,7 +702,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         std::vector<Identifier> rdoList;
         rdoList.push_back(id);
         const Muon::RpcPrepData* rpcPrd = new Muon::RpcPrepData(id, idHash, Amg::Vector2D(locPos, 0.), rdoList,
-                                                                new Amg::MatrixX(rio->localCovariance()), rpcROE, float(0.), 0, 0);
+                                                                Amg::MatrixX(rio->localCovariance()), rpcROE, float(0.), 0, 0);
         const Muon::RpcClusterOnTrack* rpcRio = 0;
         if (m_idHelperSvc->rpcIdHelper().measuresPhi(id))
             rpcRio = new Muon::RpcClusterOnTrack(rpcPrd, Trk::LocalParameters(Trk::DefinedParameter(locPos, Trk::locX)),
@@ -731,8 +740,16 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         std::vector<Identifier> rdoList;
         rdoList.push_back(id);
         Muon::CscClusterStatus status = Muon::CscStatusSimple;
-        const Muon::CscPrepData* cscPrd = new Muon::CscPrepData(id, idHash, Amg::Vector2D(locPos, 0.), rdoList,
-                                                                new Amg::MatrixX(rio->localCovariance()), cscROE, 0, 0., status);
+        const Muon::CscPrepData* cscPrd =
+          new Muon::CscPrepData(id,
+                                idHash,
+                                Amg::Vector2D(locPos, 0.),
+                                rdoList,
+                                Amg::MatrixX(rio->localCovariance()),
+                                cscROE,
+                                0,
+                                0.,
+                                status);
         const Muon::CscClusterOnTrack* cscRio = 0;
         if (m_idHelperSvc->cscIdHelper().measuresPhi(id))
             cscRio = new Muon::CscClusterOnTrack(cscPrd, Trk::LocalParameters(Trk::DefinedParameter(locPos, Trk::locX)),
@@ -752,7 +769,12 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         std::vector<Identifier> rdoList;
         rdoList.push_back(id);
         const Muon::TgcPrepData* tgcPrd =
-            new Muon::TgcPrepData(id, idHash, Amg::Vector2D(locPos, 0.), rdoList, new Amg::MatrixX(rio->localCovariance()), tgcROE);
+          new Muon::TgcPrepData(id,
+                                idHash,
+                                Amg::Vector2D(locPos, 0.),
+                                rdoList,
+                                Amg::MatrixX(rio->localCovariance()),
+                                tgcROE);
         const Muon::TgcClusterOnTrack* tgcRio = 0;
         if (m_idHelperSvc->tgcIdHelper().isStrip(id)) {
             Amg::Vector2D loc(locPos, parm->localPosition()[Trk::locY]);

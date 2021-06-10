@@ -66,7 +66,7 @@ namespace Muon
     CscStripPrepData( const Identifier& RDOId,
                       const IdentifierHash &collectionHash,
                       const Amg::Vector2D& locpos,
-                      const Amg::MatrixX* locErrMat,
+                      const Amg::MatrixX& locErrMat,
                       const MuonGM::CscReadoutElement* detEl,
                       const std::vector<float>& sampleCharges,
                       float timeOfFirstSample,

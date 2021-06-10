@@ -26,7 +26,7 @@ persToTrans( const InDet::PixelCluster_p1 *persObj, InDet::PixelCluster *transOb
                          0, // totalCharge
                          InDet::SiWidth(),
                          nullptr, //detEl
-                         nullptr, // cmat
+                         {}, // cmat
                          persObj->m_omegax,
                          persObj->m_omegay,
                          0 //splitInfo

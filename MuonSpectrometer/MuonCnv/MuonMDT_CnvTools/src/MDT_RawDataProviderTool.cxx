@@ -109,12 +109,12 @@ StatusCode Muon::MDT_RawDataProviderTool::convert ( const std::vector<const OFFL
 
   SG::WriteHandle<MdtCsmContainer> rdoContainerHandle(m_rdoContainerKey, ctx);
 
-  MdtCsmContainer* rdoContainer = 0;
+  MdtCsmContainer* rdoContainer = nullptr;
 
   // here we have to check if the container is already present and if it is we retrieve from SG
   if (rdoContainerHandle.isPresent()) {
 
-    const MdtCsmContainer* rdoContainer_c = 0;
+    const MdtCsmContainer* rdoContainer_c = nullptr;
     ATH_CHECK( evtStore()->retrieve( rdoContainer_c, m_rdoContainerKey.key() ) );
     rdoContainer = const_cast<MdtCsmContainer*>(rdoContainer_c);
       

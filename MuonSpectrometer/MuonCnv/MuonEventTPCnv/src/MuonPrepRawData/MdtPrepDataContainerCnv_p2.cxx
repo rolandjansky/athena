@@ -155,7 +155,7 @@ void  Muon::MdtPrepDataContainerCnv_p2::persToTrans(const Muon::MdtPrepDataConta
     // So here we loop over all collection and extract their channels
     // from the vector.
 
-    Muon::MdtPrepDataCollection* coll = 0;
+    Muon::MdtPrepDataCollection* coll = nullptr;
 
     MdtPrepDataCnv_p2  chanCnv;
     unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop 
@@ -226,7 +226,7 @@ Muon::MdtPrepDataContainer* Muon::MdtPrepDataContainerCnv_p2::createTransient(co
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize MdtPrepDataContainerCnv_p2 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::MdtPrepDataContainer> trans(new Muon::MdtPrepDataContainer(m_MdtId->module_hash_max()));

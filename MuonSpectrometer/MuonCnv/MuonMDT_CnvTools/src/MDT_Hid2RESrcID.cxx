@@ -40,7 +40,7 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) const {
   // this method returns a RESrcID for the ROD, for a 
   // given MDT ID offline ID
 
-  IMessageSvc* msgSvc = 0;
+  IMessageSvc* msgSvc = nullptr;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
   if (sc==StatusCode::FAILURE)  

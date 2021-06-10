@@ -41,7 +41,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include <tuple>
-typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
+typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX> ClusterInfo;
 
 class PixelID;
 class SCT_ID;

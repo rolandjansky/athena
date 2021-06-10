@@ -146,7 +146,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRo
   }
   RpcPadContainer* pad = rdoContainerHandle.ptr();
   
-  RpcSectorLogicContainer* logic = 0;
+  RpcSectorLogicContainer* logic = nullptr;
   if(m_WriteOutRpcSectorLogic) {
     ATH_MSG_DEBUG("Writing out RpcSectorLogicContainer");
     ATH_CHECK( logicHandle.record (std::make_unique<RpcSectorLogicContainer>()) );

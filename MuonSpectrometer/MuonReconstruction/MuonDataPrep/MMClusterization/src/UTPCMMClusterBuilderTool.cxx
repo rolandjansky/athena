@@ -167,20 +167,20 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
                 stripsOfClusterDriftDists.push_back(MMprdsOfLayer.at(idx).driftDist());
                 stripsOfClusterDriftDistErrors.push_back(MMprdsOfLayer.at(idx).localCovariance());
             }
-            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-            covN->coeffRef(0,0)=sigmaLocalClusterPosition;
+            auto covN = Amg::MatrixX(1,1);
+            covN.coeffRef(0,0)=sigmaLocalClusterPosition;
             ATH_MSG_DEBUG("Did set covN Matrix");
             int idx = idx_goodStrips[0];
             ATH_MSG_DEBUG("idx_goodStrips[0]: "<<idx << " size: " <<MMprdsOfLayer.size());
             Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
             ATH_MSG_DEBUG("Did set local position");
 
-	    float driftDist = 0.0;
+            float driftDist = 0.0;
 
             std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprdsOfLayer.at(idx).identify(),
 					    MMprdsOfLayer.at(idx).collectionHash(),
 					    localClusterPositionV,stripsOfCluster,
-					    covN,MMprdsOfLayer.at(idx).detectorElement(),
+					   std::move(covN),MMprdsOfLayer.at(idx).detectorElement(),
 					    (short int)0,
 					    std::accumulate(stripsOfClusterCharges.begin(),
 							    stripsOfClusterCharges.end(),0),

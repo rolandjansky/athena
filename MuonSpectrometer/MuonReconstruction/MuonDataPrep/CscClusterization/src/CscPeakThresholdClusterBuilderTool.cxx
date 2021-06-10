@@ -206,7 +206,7 @@ StatusCode CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenH
         // First entry for a cathode plane, initialize.
         if (maxstrip[idx] == 0) {
             maxstrip[idx] = pro->maxNumberOfStrips(measphi);
-            for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(0);
+            for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(nullptr);
         }
         int istrip = m_idHelperSvc->cscIdHelper().strip(did) - 1;
         if (istrip < 0 || istrip >= maxstrip[idx]) {
@@ -217,7 +217,7 @@ StatusCode CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenH
     }
 
     // Cluster.
-    CscPrepDataCollection* newCollection = 0;
+    CscPrepDataCollection* newCollection = nullptr;
     for (int measphi = 0; measphi < 2; ++measphi) {
         for (int wlay = 1; wlay < 5; ++wlay) {
             int idx = 2 * (wlay - 1) + measphi;
@@ -287,7 +287,7 @@ StatusCode CscPeakThresholdClusterBuilderTool::getClusters(std::vector<Identifie
             // First entry for a cathode plane, initialize.
             if (maxstrip[idx] == 0) {
                 maxstrip[idx] = pro->maxNumberOfStrips(measphi);
-                for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(0);
+                for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(nullptr);
             }
             int istrip = m_idHelperSvc->cscIdHelper().strip(did) - 1;
             if (istrip < 0 || istrip >= maxstrip[idx]) {
@@ -298,7 +298,7 @@ StatusCode CscPeakThresholdClusterBuilderTool::getClusters(std::vector<Identifie
         }
 
         // Cluster.
-        CscPrepDataCollection* newCollection = 0;
+        CscPrepDataCollection* newCollection = nullptr;
         for (int measphi = 0; measphi < 2; ++measphi) {
             for (int wlay = 1; wlay < 5; ++wlay) {
                 int idx = 2 * (wlay - 1) + measphi;
@@ -509,7 +509,7 @@ int CscPeakThresholdClusterBuilderTool::make_clusters(bool measphi, const vector
                 return 1;
             }
             // Fetch the strip used to identify this cluster.
-            const CscStripPrepData* pstrip_id = 0;
+            const CscStripPrepData* pstrip_id = nullptr;
             if (id_strip < clusterStrips.size()) pstrip_id = clusterStrips[id_strip];
             if (!pstrip_id) {
                 ATH_MSG_WARNING("        Fit ID check failed: ");
@@ -525,15 +525,15 @@ int CscPeakThresholdClusterBuilderTool::make_clusters(bool measphi, const vector
             //      const CscReadoutElement* pro = pstrip_id->detectorElement();
             const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(cluster_id);
             Amg::Vector3D local_pos = pro->nominalLocalClusterPos(zsec, wlay, measphi, pos);
-            Amg::MatrixX* cov = new Amg::MatrixX(1, 1);
-            (*cov)(0, 0) = err * err;
+            auto cov = Amg::MatrixX(1, 1);
+            (cov)(0, 0) = err * err;
             Amg::Vector2D plpos(measphi ? local_pos.y() : local_pos.z(), measphi ? local_pos.z() : local_pos.y());
 
             if (msgLvl(MSG::DEBUG)) {
                 ATH_MSG_DEBUG("        Cluster parameters: " << nresults);
                 ATH_MSG_DEBUG("                ID strip: " << first_strip + id_strip << "(" << first_strip << ":" << id_strip << ")");
                 ATH_MSG_DEBUG("          local position: " << plpos.x() << " " << plpos.y());
-                ATH_MSG_DEBUG("                  error: " << Amg::toString(*cov));
+                ATH_MSG_DEBUG("                  error: " << Amg::toString(cov));
                 ATH_MSG_DEBUG("                  charge: " << cluster_charge);
                 ATH_MSG_DEBUG("                    time: " << cluster_time);
                 ATH_MSG_DEBUG("                  status: " << Muon::toString(clustatus));
@@ -549,9 +549,18 @@ int CscPeakThresholdClusterBuilderTool::make_clusters(bool measphi, const vector
                     prd_digit_ids_submit.push_back(prd_digit_ids[ids_index]);
             }
 
-            CscPrepData* pclus = new CscPrepData(cluster_id, cluster_hash, plpos, prd_digit_ids_submit, cov, pro, int(cluster_charge + 0.5),
-                                                 cluster_time, clustatus, timeStatus);
-            pclus->setHashAndIndex(newCollection->identifyHash(), newCollection->size());
+            CscPrepData* pclus = new CscPrepData(cluster_id,
+                                                 cluster_hash,
+                                                 plpos,
+                                                 prd_digit_ids_submit,
+                                                 std::move(cov),
+                                                 pro,
+                                                 int(cluster_charge + 0.5),
+                                                 cluster_time,
+                                                 clustatus,
+                                                 timeStatus);
+            pclus->setHashAndIndex(newCollection->identifyHash(),
+                                   newCollection->size());
 
             newCollection->push_back(pclus);
         }

@@ -28,7 +28,7 @@ Muon::TGC_RodDecoderReadout::TGC_RodDecoderReadout(
 						   const std::string& n,
 						   const IInterface*  p) :
   base_class(t, n, p),
-  m_tgcIdHelper(0)
+  m_tgcIdHelper(nullptr)
 {
   declareProperty("ShowStatusWords", m_showStatusWords=false);
   declareProperty("SkipCoincidence", m_skipCoincidence=false);

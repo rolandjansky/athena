@@ -49,7 +49,7 @@ class RpcCoinData : public RpcPrepData
                  const IdentifierHash &idDE,
                  const Amg::Vector2D& locpos,
                  const std::vector<Identifier>& stripList,
-                 const Amg::MatrixX* locErrMat,
+                 const Amg::MatrixX& locErrMat,
                  const MuonGM::RpcReadoutElement* detEl,
                  const float time,
                  const unsigned short ambiguityFlag,

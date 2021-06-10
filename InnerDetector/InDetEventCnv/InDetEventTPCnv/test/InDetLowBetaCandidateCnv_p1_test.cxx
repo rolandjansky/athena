@@ -33,7 +33,7 @@ void compare (const InDet::InDetLowBetaCandidate& p1,
 
 void testit (const InDet::InDetLowBetaCandidate& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   InDetLowBetaCandidateCnv_p1 cnv;
   InDetLowBetaCandidate_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

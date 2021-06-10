@@ -98,12 +98,12 @@ Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
     return StatusCode::FAILURE;
   }
 
-  CscRawDataContainer* container = 0;
+  CscRawDataContainer* container = nullptr;
 
   SG::WriteHandle<CscRawDataContainer> rdoContainerHandle(m_containerKey, ctx);
   // here we have to check if the container is already present and if it is we retrieve from SG and then add to it
   if (rdoContainerHandle.isPresent()) {
-    const CscRawDataContainer* rdoContainer_c = 0;
+    const CscRawDataContainer* rdoContainer_c = nullptr;
     ATH_CHECK( evtStore()->retrieve( rdoContainer_c, m_containerKey.key() ) );
     container = const_cast<CscRawDataContainer*>(rdoContainer_c);
 

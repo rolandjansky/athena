@@ -60,7 +60,7 @@ namespace Muon
                  const IdentifierHash& collectionHash,
                  const Amg::Vector2D& locpos,
                  const std::vector<Identifier>& rdoList,
-                 const Amg::MatrixX* locErrMat
+                 const Amg::MatrixX& locErrMat
          );
 
     /** @brief Destructor*/

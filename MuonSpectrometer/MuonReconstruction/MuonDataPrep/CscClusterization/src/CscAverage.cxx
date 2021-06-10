@@ -17,7 +17,7 @@
 #include <vector>
 
 CscAverage::CscAverage() {
-    m_msgSvc = 0;
+    m_msgSvc = nullptr;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
     if (sc.isFailure()) std::cout << "CscAverage::Fail to locate Message Service" << std::endl;

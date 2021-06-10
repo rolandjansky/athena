@@ -136,7 +136,7 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
         }
     }
 
-    InDet::SCT_ClusterCollection* coll = 0;
+    InDet::SCT_ClusterCollection* coll = nullptr;
 
     //SCT_ClusterCnv_p2  chanCnv;
     SCT_ClusterCnv_p2  chanCnv(m_sctId);

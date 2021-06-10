@@ -29,7 +29,7 @@ void compare (const sTgcDigit& p1,
 
 void testit (const sTgcDigit& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   STGC_DigitCnv_p1 cnv;
   Muon::STGC_Digit_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

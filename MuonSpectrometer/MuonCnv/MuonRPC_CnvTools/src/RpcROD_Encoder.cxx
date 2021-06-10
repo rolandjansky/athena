@@ -15,7 +15,7 @@
 /** constructor 
 */ 
 
-RpcROD_Encoder::RpcROD_Encoder():m_hid2re(0) {
+RpcROD_Encoder::RpcROD_Encoder():m_hid2re(nullptr) {
 
 }
 

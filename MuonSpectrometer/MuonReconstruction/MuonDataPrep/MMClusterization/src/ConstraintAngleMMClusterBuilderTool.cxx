@@ -309,31 +309,37 @@ const{
     float driftDist=0;
 
 
-    Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-    covN->coeffRef(0,0)=0.3*0.3;
+    auto covN = Amg::MatrixX(1,1);
+    covN.coeffRef(0,0)=0.3*0.3;
     Amg::Vector2D localClusterPositionV(clusterPos,prdPerLayer.at(idxCluster.at(0)).localPosition().y()); // y position is the same for all strips
 
-    std::unique_ptr<MMPrepData> prdN=std::make_unique<MMPrepData>(prdPerLayer.at(idxCluster.at(0)).identify(),
-		prdPerLayer.at(idxCluster.at(0)).collectionHash(),
-		localClusterPositionV,stripsOfCluster,
-		covN,prdPerLayer.at(0).detectorElement(),
-		(short int)0,
-		std::accumulate(stripsOfClusterCharges.begin(),
-		  stripsOfClusterCharges.end(),0),
-		driftDist,
-		stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
+    std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(
+      prdPerLayer.at(idxCluster.at(0)).identify(),
+      prdPerLayer.at(idxCluster.at(0)).collectionHash(),
+      localClusterPositionV,
+      stripsOfCluster,
+      std::move(covN),
+      prdPerLayer.at(0).detectorElement(),
+      (short int)0,
+      std::accumulate(
+        stripsOfClusterCharges.begin(), stripsOfClusterCharges.end(), 0),
+      driftDist,
+      stripsOfClusterChannels,
+      stripsOfClusterTimes,
+      stripsOfClusterCharges);
 
+    prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
+    prdN->setAuthor(Muon::MMPrepData::Author::ConstraintuTPCClusterBuilder);
+    ATH_MSG_DEBUG("Did create new prd");
 
-     prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
-     prdN->setAuthor(Muon::MMPrepData::Author::ConstraintuTPCClusterBuilder);
-     ATH_MSG_DEBUG("Did create new prd");
+    ATH_MSG_DEBUG("Setting prd angle: " << fitResults[0]
+                                        << " chi2 Prob: " << 0);
 
-     ATH_MSG_DEBUG("Setting prd angle: "<< fitResults[0] <<" chi2 Prob: "<<0);
-
-     prdN->setMicroTPC(fitResults[0],0);
-     ATH_MSG_DEBUG("Reading back prd angle: "<< prdN->angle() <<" chi2 Prob: "<<prdN->chisqProb());
-     clustersVec.push_back(std::move(prdN));
-     ATH_MSG_DEBUG("pushedBack  prdN");
+    prdN->setMicroTPC(fitResults[0], 0);
+    ATH_MSG_DEBUG("Reading back prd angle: " << prdN->angle() << " chi2 Prob: "
+                                             << prdN->chisqProb());
+    clustersVec.push_back(std::move(prdN));
+    ATH_MSG_DEBUG("pushedBack  prdN");
 
 
 

@@ -150,8 +150,8 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   SG::WriteHandle<RpcPadContainer> rdoContainerHandle(m_containerKey, ctx);
   SG::WriteHandle<RpcSectorLogicContainer> logicHandle(m_sec, ctx);
 
-  RpcPadContainer* pad = 0;
-  RpcSectorLogicContainer* logic = 0;
+  RpcPadContainer* pad = nullptr;
+  RpcSectorLogicContainer* logic = nullptr;
 
   // here we have to check if the container is already present and if it is we retrieve from SG
   if (rdoContainerHandle.isPresent()) {

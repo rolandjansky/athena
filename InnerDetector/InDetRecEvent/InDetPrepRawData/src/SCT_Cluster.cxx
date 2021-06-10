@@ -20,72 +20,75 @@
 
 namespace InDet{
 
-	SCT_Cluster::SCT_Cluster( 
-							const Identifier& RDOId,
-							const Amg::Vector2D& locpos, 
-							const std::vector<Identifier>& rdoList,
-							const InDet::SiWidth& width,
-							const InDetDD::SiDetectorElement* detEl,
-							const Amg::MatrixX* locErrMat
-						) : SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) 
-	{
-		m_hitsInThirdTimeBin=0;
-	}
+SCT_Cluster::SCT_Cluster(const Identifier& RDOId,
+                         const Amg::Vector2D& locpos,
+                         const std::vector<Identifier>& rdoList,
+                         const InDet::SiWidth& width,
+                         const InDetDD::SiDetectorElement* detEl,
+                         const Amg::MatrixX& locErrMat)
+  : SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat)
+{
+  m_hitsInThirdTimeBin = 0;
+}
 
-SCT_Cluster::SCT_Cluster( 
-            const Identifier& RDOId,
-            const Amg::Vector2D& locpos, 
-            std::vector<Identifier>&& rdoList,
-            const InDet::SiWidth& width,
-            const InDetDD::SiDetectorElement* detEl,
-            std::unique_ptr<const Amg::MatrixX> locErrMat
-          ) : SiCluster(RDOId, locpos,
-                        std::move(rdoList), width, detEl,
-                        std::move(locErrMat)),
-              m_hitsInThirdTimeBin(0)
-        {
-        }
+SCT_Cluster::SCT_Cluster(const Identifier& RDOId,
+                         const Amg::Vector2D& locpos,
+                         std::vector<Identifier>&& rdoList,
+                         const InDet::SiWidth& width,
+                         const InDetDD::SiDetectorElement* detEl,
+                         Amg::MatrixX&& locErrMat)
+  : SiCluster(RDOId,
+              locpos,
+              std::move(rdoList),
+              width,
+              detEl,
+              std::move(locErrMat))
+  , m_hitsInThirdTimeBin(0)
+{}
 
-	// Default constructor:
-	SCT_Cluster::SCT_Cluster():SiCluster()
-	{
-	  m_hitsInThirdTimeBin=0;
-	}
+// Default constructor:
+SCT_Cluster::SCT_Cluster()
+  : SiCluster()
+{
+  m_hitsInThirdTimeBin = 0;
+}
 
-	//copy constructor:
-	SCT_Cluster::SCT_Cluster(const SCT_Cluster& RIO):
-		SiCluster(RIO)
-	{
-		m_hitsInThirdTimeBin = RIO.hitsInThirdTimeBin();
-	}
+// copy constructor:
+SCT_Cluster::SCT_Cluster(const SCT_Cluster& RIO)
+  : SiCluster(RIO)
+{
+  m_hitsInThirdTimeBin = RIO.hitsInThirdTimeBin();
+}
 
-        //move constructor:
-        SCT_Cluster::SCT_Cluster(SCT_Cluster&& RIO) noexcept :
-          SiCluster(std::move(RIO)),
-          m_hitsInThirdTimeBin (RIO.m_hitsInThirdTimeBin)
-        {
-        }
+// move constructor:
+SCT_Cluster::SCT_Cluster(SCT_Cluster&& RIO) noexcept
+  : SiCluster(std::move(RIO))
+  , m_hitsInThirdTimeBin(RIO.m_hitsInThirdTimeBin)
+{}
 
-	//assignment operator
-	SCT_Cluster& SCT_Cluster::operator=(const SCT_Cluster& RIO){
-		if(&RIO != this) {
-                  SiCluster::operator=(RIO);
-                  m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
-		}
-		return *this;
-	}
+// assignment operator
+SCT_Cluster&
+SCT_Cluster::operator=(const SCT_Cluster& RIO)
+{
+  if (&RIO != this) {
+    SiCluster::operator=(RIO);
+    m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
+  }
+  return *this;
+}
 
-        //move operator
-        SCT_Cluster& SCT_Cluster::operator=(SCT_Cluster&& RIO)  noexcept {
-          if(&RIO != this) {
-            SiCluster::operator=(std::move(RIO));
-            m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
-          }
-          return *this;
-        }
+// move operator
+SCT_Cluster&
+SCT_Cluster::operator=(SCT_Cluster&& RIO) noexcept
+{
+  if (&RIO != this) {
+    m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
+    SiCluster::operator=(std::move(RIO));
+  }
+  return *this;
+}
 
-
-	MsgStream&    operator << (MsgStream& stream,    const SCT_Cluster& prd)
+        MsgStream&    operator << (MsgStream& stream,    const SCT_Cluster& prd)
 	{
 			return prd.dump(stream);
 	}

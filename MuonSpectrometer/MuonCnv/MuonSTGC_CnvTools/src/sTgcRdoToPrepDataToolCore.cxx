@@ -160,9 +160,9 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
 
     double resolution = width/sqrt(12.); 
 
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-    cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;  
+    auto cov = Amg::MatrixX(1,1);
+    cov.setIdentity();
+    (cov)(0,0) = resolution*resolution;  
 
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType << " resolution " << resolution );
 

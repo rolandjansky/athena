@@ -120,7 +120,7 @@ void Muon::MdtPrepDataContainerCnv_p1::transToPers(const Muon::MdtPrepDataContai
         persCont->m_PRD.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const Muon::MdtPrepData* chan = collection[i];
-            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing MdtPrepDataContainer ***" << endmsg;
@@ -144,7 +144,7 @@ void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
     // from the vector.
 
 
-    Muon::MdtPrepDataCollection* coll = 0;
+    Muon::MdtPrepDataCollection* coll = nullptr;
 
     MdtPrepDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
@@ -166,8 +166,8 @@ void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
-            Muon::MdtPrepData* chan = dynamic_cast<Muon::MdtPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
-            if (chan!=0) {
+            Muon::MdtPrepData* chan = dynamic_cast<Muon::MdtPrepData*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
+            if (chan!=nullptr) {
                 const MuonGM::MdtReadoutElement * de = m_muonDetMgr->getMdtReadoutElement(chan->identify());
                 chan->m_detEl = de;
                 (*coll)[ichan] = chan;
@@ -198,7 +198,7 @@ Muon::MdtPrepDataContainer* Muon::MdtPrepDataContainerCnv_p1::createTransient(co
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize MdtPrepDataContainerCnv_p1 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::MdtPrepDataContainer> trans(new Muon::MdtPrepDataContainer(m_MdtId->module_hash_max()));

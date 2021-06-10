@@ -143,7 +143,6 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     std::vector<Muon::MMPrepData> stripsVec;
     Amg::Vector2D clusterLocalPosition;
-    Amg::MatrixX* covMatrix = nullptr;
     double totalCharge=0.0;
     if ( mergeStrips.size() > 0 ) {
       for ( unsigned int k=0 ; k<mergeStrips.size() ; ++k ) {
@@ -153,17 +152,25 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       ///
       /// memory allocated dynamically for the PrepRawData is managed by Event Store
       ///
-      covMatrix = new Amg::MatrixX(1,1);
-      ATH_CHECK(getClusterPosition(stripsVec,clusterLocalPosition,covMatrix));
+      auto covMatrix = Amg::MatrixX(1,1);
+      ATH_CHECK(getClusterPosition(stripsVec,clusterLocalPosition,&covMatrix));
 
       ///
       /// memory allocated dynamically for the PrepRawData is managed by Event Store
       ///
-      std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprds[j].identify(), hash, clusterLocalPosition,
-									    rdoList, covMatrix, MMprds[j].detectorElement(),
-									    static_cast<short int> (0), static_cast<int>(totalCharge), static_cast<float>(0.0),
-									    (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0) ),
-									    mergeStripsTime, mergeStripsCharge);
+      std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(
+        MMprds[j].identify(),
+        hash,
+        clusterLocalPosition,
+        rdoList,
+        std::move(covMatrix),
+        MMprds[j].detectorElement(),
+        static_cast<short int>(0),
+        static_cast<int>(totalCharge),
+        static_cast<float>(0.0),
+        (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0)),
+        mergeStripsTime,
+        mergeStripsCharge);
       prdN->setDriftDist(mergeStripsDriftDists, mergeStripsDriftDistErrors);
       prdN->setAuthor(Muon::MMPrepData::Author::SimpleClusterBuilder);
       

@@ -43,7 +43,7 @@ Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer (unsigned int sizeVectorRe
     m_mdtPrepDataContainer = handle.ptr();
   }
   else {
-    const Muon::MdtPrepDataContainer* outputCollection_c = 0;
+    const Muon::MdtPrepDataContainer* outputCollection_c = nullptr;
     if (evtStore()->retrieve (outputCollection_c, m_mdtPrepDataContainerKey.key()).isFailure())
     {
       return nullptr;

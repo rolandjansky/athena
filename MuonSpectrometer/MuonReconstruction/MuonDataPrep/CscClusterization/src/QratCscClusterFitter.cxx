@@ -352,7 +352,7 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
 
     // Fetch the number of strips and check the input arrays.
     for (unsigned int istrip = 0; istrip < nstrip; ++istrip) {
-        if (sfits[istrip].strip == 0) {
+        if (sfits[istrip].strip == nullptr) {
             ATH_MSG_WARNING("Strip pointer is null.");
             results.push_back(Result(2));
             return results;
@@ -507,7 +507,7 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
         stat2 = qrat_correction(plane, qrat2, scor2, dscordqrat2);
     } else if (posopt == "TABLE") {
         double qrmin = 0.0;
-        const std::vector<double>* pcor = 0;
+        const std::vector<double>* pcor = nullptr;
         if (plane == CSS_ETA) {
             qrmin = m_qratmin_css_eta;
             pcor = &m_qratcor_css_eta;

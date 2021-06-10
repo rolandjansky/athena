@@ -22,7 +22,7 @@ namespace Muon
 			    const IdentifierHash &idDE,
 			    const Amg::Vector2D& locpos,
 			    const std::vector<Identifier>& rdoList,
-			    const Amg::MatrixX* locErrMat,
+			    const Amg::MatrixX& locErrMat,
 			    const MuonGM::TgcReadoutElement* detEl,
           const uint16_t bcBitMap) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
@@ -38,7 +38,7 @@ TgcPrepData::~TgcPrepData()
 // Default constructor:
 TgcPrepData::TgcPrepData():
   MuonCluster(),
-  m_detEl(0),
+  m_detEl(nullptr),
   m_bcBitMap(0)
 { }
 

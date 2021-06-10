@@ -250,7 +250,8 @@ namespace InDet {
           << (position)[1]);
   
       if(!m_clusterMaker){
-        PixelCluster* cluster = new PixelCluster(id,position,DVid,lvl1min,totgroup,siWidth,element,nullptr);
+        PixelCluster* cluster = new PixelCluster(
+          id, position, DVid, lvl1min, totgroup, siWidth, element, {});
         return cluster;
       } else {
         ATH_MSG_VERBOSE("Cluster omega old = " << etaRow <<  " " << etaCol);       

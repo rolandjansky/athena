@@ -22,7 +22,7 @@ SiCluster::SiCluster(const Identifier& RDOId,
                      const std::vector<Identifier>& rdoList,
                      const InDet::SiWidth& width,
                      const InDetDD::SiDetectorElement* detEl,
-                     const Amg::MatrixX* locErrMat)
+                     const Amg::MatrixX& locErrMat)
   : // call base class constructor
   PrepRawData(RDOId, locpos, rdoList, locErrMat)
   , m_width(width)
@@ -35,15 +35,47 @@ SiCluster::SiCluster(const Identifier& RDOId,
   }
 }
 
+// Constructor for EF:
 SiCluster::SiCluster(const Identifier& RDOId,
                      const Amg::Vector2D& locpos,
-		     const Amg::Vector3D& globpos,
+                     const std::vector<Identifier>& rdoList,
+                     const InDet::SiWidth& width,
+                     const InDetDD::SiDetectorElement* detEl)
+  : // call base class constructor
+  PrepRawData(RDOId, locpos, rdoList, {})
+  , m_width(width)
+  , m_detEl(detEl)
+  , m_gangedPixel(false)
+{
+  if (m_detEl) {
+    m_globalPosition =
+      m_detEl->surface(identify()).localToGlobal(localPosition());
+  }
+}
+
+SiCluster::SiCluster(const Identifier& RDOId,
+                     const Amg::Vector2D& locpos,
+                     const Amg::Vector3D& globpos,
                      const std::vector<Identifier>& rdoList,
                      const InDet::SiWidth& width,
                      const InDetDD::SiDetectorElement* detEl,
-                     const Amg::MatrixX* locErrMat)
+                     const Amg::MatrixX& locErrMat)
   : // call base class constructor
   PrepRawData(RDOId, locpos, rdoList, locErrMat)
+  , m_globalPosition(globpos)
+  , m_width(width)
+  , m_detEl(detEl)
+  , m_gangedPixel(false)
+{}
+
+SiCluster::SiCluster(const Identifier& RDOId,
+                     const Amg::Vector2D& locpos,
+                     const Amg::Vector3D& globpos,
+                     const std::vector<Identifier>& rdoList,
+                     const InDet::SiWidth& width,
+                     const InDetDD::SiDetectorElement* detEl)
+  : // call base class constructor
+  PrepRawData(RDOId, locpos, rdoList,{})
   , m_globalPosition(globpos)
   , m_width(width)
   , m_detEl(detEl)
@@ -55,7 +87,7 @@ SiCluster::SiCluster(const Identifier& RDOId,
                      std::vector<Identifier>&& rdoList,
                      const InDet::SiWidth& width,
                      const InDetDD::SiDetectorElement* detEl,
-                     std::unique_ptr<const Amg::MatrixX> locErrMat)
+                     Amg::MatrixX&& locErrMat)
   : // call base class constructor
   PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat))
   , m_width(width)
@@ -70,11 +102,11 @@ SiCluster::SiCluster(const Identifier& RDOId,
 
 SiCluster::SiCluster(const Identifier& RDOId,
                      const Amg::Vector2D& locpos,
-		     const Amg::Vector3D& globpos,
+                     const Amg::Vector3D& globpos,
                      std::vector<Identifier>&& rdoList,
                      const InDet::SiWidth& width,
                      const InDetDD::SiDetectorElement* detEl,
-                     std::unique_ptr<const Amg::MatrixX> locErrMat)
+                     Amg::MatrixX&& locErrMat)
   : // call base class constructor
   PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat))
   , m_globalPosition(globpos)
@@ -88,7 +120,6 @@ SiCluster::~SiCluster()
 {
   // do not delete m_detEl since owned by DetectorStore
 }
-
 
 MsgStream&
 SiCluster::dump(MsgStream& stream) const
@@ -152,4 +183,4 @@ operator<<(std::ostream& stream, const SiCluster& prd)
   return prd.dump(stream);
 }
 
-} // end of ns
+} // end of nsk

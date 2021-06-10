@@ -304,14 +304,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 	mat(0,0) = 1.;
 	double err = theIDs.size()*width/sqrt((double)12);
 	mat *= err*err;
-	const Amg::MatrixX * errClusterPos = new Amg::MatrixX(mat);
-	//Trk::CovarianceMatrix * cov = new Trk::CovarianceMatrix(mat);
-	//const Trk::ErrorMatrix * errClusterPos = new Trk::ErrorMatrix(cov);
-
-	//DataVector<Trk::PrepRawData>* DV = new DataVector<Trk::PrepRawData>(SG::VIEW_ELEMENTS);
-	//	for(int k=0;k<digitsInCluster.size();++k){
-	//	  DV->push_back(digitsInCluster[k]);
-	//	}
+	auto  errClusterPos =  Amg::MatrixX(mat);
 
 	IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 	IdentifierHash rpcHashId;
@@ -324,7 +317,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 							      pointLocPos,
 							      theIDs,
 							      //   DV,
-							      errClusterPos,
+							      std::move(errClusterPos),
 							      //width,
 							      // new Trk::GlobalPosition(globalPosition),
 							      descriptor,
@@ -386,13 +379,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 	mat(0,0) = 1.;
 	double err = theIDs.size()*width/sqrt((double)12);
 	mat *= err*err;
-	const Amg::MatrixX * errClusterPos = new Amg::MatrixX(mat);
-	//Trk::CovarianceMatrix * cov = new Trk::CovarianceMatrix(mat); 
-	//const Trk::ErrorMatrix * errClusterPos = new Trk::ErrorMatrix(cov);
-	//	DataVector<Trk::PrepRawData>* DV = new DataVector<Trk::PrepRawData>(SG::VIEW_ELEMENTS);
-	///	for(int k=0;k<digitsInCluster.size();++k){
-	//	  DV->push_back(digitsInCluster[k]);
-	//	}
+	auto errClusterPos =  Amg::MatrixX(mat);
 	
 	Amg::Vector2D pointLocPos ;
 	descriptor->surface(panelId).globalToLocal(globalPosition,globalPosition,pointLocPos);
@@ -401,7 +388,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 							      pointLocPos,
 							      theIDs,
 							      // DV,
-							      errClusterPos,
+							      std::move(errClusterPos),
 							      // width,
 							      // new Trk::GlobalPosition(globalPosition),
 							      descriptor,

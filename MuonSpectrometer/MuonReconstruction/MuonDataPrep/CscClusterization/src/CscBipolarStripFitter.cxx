@@ -27,7 +27,7 @@ typedef ICscStripFitter::ChargeList ChargeList;
 //**********************************************************************
 
 CscBipolarStripFitter::CscBipolarStripFitter(const std::string &type, const std::string &aname, const IInterface *parent) :
-    AthAlgTool(type, aname, parent), m_phelper(0), m_n(0), m_n2(0), m_zmax(0), m_bipolarNormalization(0), m_tsampling(0) {
+    AthAlgTool(type, aname, parent), m_phelper(nullptr), m_n(0), m_n2(0), m_zmax(0), m_bipolarNormalization(0), m_tsampling(0) {
     declareInterface<ICscStripFitter>(this);
     declareProperty("chargeError", m_qerr = 5500.0);
     declareProperty("timeError", m_terr = 5.0);
