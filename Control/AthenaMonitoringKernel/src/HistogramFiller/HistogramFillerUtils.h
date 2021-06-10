@@ -94,7 +94,12 @@ namespace Monitored {
       // Rebinning requires a lock on the global ROOT directory state
       std::scoped_lock<std::mutex> dirLock(HistogramFactory::globalROOTMutex());
       do {
+        // need to unset cleanup bit of parent histogram during this operation
+        // since it gets copied to a hidden temporary (probably unintentionally)
+        bool curcleanup = hist->TestBit(TObject::kMustCleanup);
+        hist->ResetBit(TObject::kMustCleanup);
         hist->LabelsInflate(axis_name[AXIS]);
+        hist->SetBit(TObject::kMustCleanup, curcleanup);
       } while (shouldRebinHistogram(a, value));
     }
 
