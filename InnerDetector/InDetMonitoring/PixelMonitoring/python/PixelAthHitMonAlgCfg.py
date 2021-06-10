@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -13,6 +13,7 @@ from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, lumibinsx, bcidbinsx
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
 from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags ### test of 100LB histograms
 
 def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     '''
@@ -24,6 +25,8 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     doOnline  = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
     doFEPlots  = kwargs.get('doFEPlots',  False)
+
+    forceOnline = doOnline and not athenaCommonFlags.isOnline
 
     ontrack = False
 
@@ -61,11 +64,17 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     yaxistext      = ';# hits/pixel/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
 
-    if doOnline:
-        histoGroupName = addOnTrackTxt('AvgOccRatioToIBLPerLumi', ontrack)
+    histoGroupName = addOnTrackTxt('AvgOccRatioToIBLPerLumi', ontrack)
+    if not doOnline:
         title          = addOnTrackTxt('Relative to IBL pixel occupancy per event per LB', ontrack, True)
         yaxistext      = ';occ. ratio to IBL'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
+    else:
+        if forceOnline : athenaCommonFlags.isOnline = True
+        title          = addOnTrackTxt('Relative to IBL pixel occupancy per event per LB for last 100LB', ontrack, True)
+        histname       = addOnTrackTxt('AvgOccRatioToIBLPerLumiLast100LB', ontrack)
+        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, ';occ. ratio to IBL', type='TProfile', opt='kLive=100', histname=histname)
+        if forceOnline : athenaCommonFlags.isOnline = False
 
     histoGroupName = 'HitToT'
     title = 'Hit ToT'

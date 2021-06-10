@@ -222,7 +222,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   fill1DProfLumiLayers( "AvgOccActivePerLumi", lb, avgocc_active_layer );
   fill1DProfLumiLayers( "AvgOccGoodPerLumi", lb, avgocc_good_layer );
 
-  if (m_doOnline && avgocc_good_layer[PixLayers::kIBL]>0) {
+  if (avgocc_good_layer[PixLayers::kIBL]>0) {
     for (int i = 0; i < PixLayers::COUNT; i++) {
       avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
     }
