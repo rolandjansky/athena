@@ -58,10 +58,9 @@ public:
     : m_associatedSurface(s.isFree() ? s.clone() : &s)
   {}
 
-  /// ctor from const Surface ptr. If surface is free
-  /// we clone, otherwise we take its address.
+  /// ctor from const Surface ptr. Takes ownership
   explicit SurfacePtrHolderImpl(const S* s)
-    : m_associatedSurface(s && s->isFree() ? s->clone() : s)
+    : m_associatedSurface(s)
   {}
 
   /// copy ctor, if surface is free we clone/copy.
@@ -119,6 +118,13 @@ public:
     }
     m_associatedSurface = nullptr;
   }
+  /// release ala unique_ptr release
+  const S* release() noexcept
+  {
+    const S* tmp = m_associatedSurface;
+    m_associatedSurface = nullptr;
+    return tmp;
+  }
 
 protected:
   const S* m_associatedSurface = nullptr;
@@ -142,8 +148,7 @@ public:
     : m_associatedSurface(s.isFree() ? s.clone() : &s)
   {}
 
-  /// ctor from const Surface ptr. If surface is free
-  /// we clone, otherwise we take its address.
+  /// ctor from const Surface ptr. Takes ownership
   explicit SurfaceUniqHolderImpl(const S* s)
     : m_associatedSurface(s)
   {}
@@ -182,6 +187,9 @@ public:
   /// destroySurface deletes the ptr if not null and is free
   /// usefull also for testing
   void destroySurface() noexcept { m_associatedSurface.reset(); }
+
+  /// release , release the unique_ptr we hold
+  const S* release() noexcept { return m_associatedSurface.release(); }
 
 protected:
   SurfaceUniquePtrT<const S> m_associatedSurface = nullptr;
