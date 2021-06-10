@@ -6,6 +6,7 @@
 @file InDetMonitoringPixel.py
 @brief Top configuration of Pixel Monitoring in Run 3 style but in Run 2 environment
 '''
+forceOnline = False # for testing of online monitoring and 100LB histograms
 
 doHitMonAlg       = True
 doClusterMonAlg   = True
@@ -23,6 +24,7 @@ from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
 from InDetRecExample.InDetKeys import InDetKeys
 from InDetRecExample import TrackingCommon
 
+if forceOnline : athenaCommonFlags.isOnline = True
 kwargsHitMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
@@ -48,7 +50,7 @@ kwargsErrMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() els
                      'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                      'doHeavyIonMon'   : InDetFlags.doHeavyIon()
 }
-
+if forceOnline : athenaCommonFlags.isOnline = False
 
                                                                            
 from AthenaMonitoring.DQMonFlags import DQMonFlags                                                                                                                                      

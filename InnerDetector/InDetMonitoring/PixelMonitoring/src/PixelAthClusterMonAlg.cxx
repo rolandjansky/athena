@@ -346,7 +346,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
   ATH_MSG_DEBUG("Filling Cluster Monitoring Histograms");
 
 
-  auto clToTcosAlphaLB = Monitored::Scalar<float>( "ClusterToTxCosAlpha_OnTrack_lb", lb);
+  auto clToTcosAlphaLB = Monitored::Scalar<float>( "ClusterToTxCosAlphaOnTrack_lb", lb);
 
   VecAccumulator2DMap Cluster_LVL1A_Mod("ClusterLVL1AMod");
   VecAccumulator2DMap Cluster_LVL1A_SizeCut("ClusterLVL1ASizeCut");

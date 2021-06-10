@@ -397,7 +397,7 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
 
 
 
-def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile', histname=None, onlylayers=layers):
+def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile', opt='', histname=None, onlylayers=layers):
     '''
     This function configures 1D (Profile) vs lumi histograms for Pixel layers.
 
@@ -409,6 +409,7 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
          path      -- Path in ouput file for histogram
          yaxistext -- Text on the y-axis
          type      -- Type of histogram (TH1D, TProfile)
+         opt       -- history depth of a histogram e.g. 'kLBNHistoryDepth=10' or 'kLive=100'
          histname  -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way 
          onlylayers -- sublist of layers
     '''
@@ -425,9 +426,9 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
         fullvarstring += ';' + histname + '_{0}'.format(layer)
         layerGroup.defineHistogram(fullvarstring, 
                                     type=type, path=path, title=fulltitle,
-                                    xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
+                                    xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx, opt=opt)
 
-def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, type='TH2F', histname=None, onlylayers=layers):
+def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, opt='', type='TH2F', histname=None, onlylayers=layers):
     '''
     This function configures 2D histograms vs lumi for Pixel layers.
 
@@ -439,6 +440,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
          path    -- Path in ouput file for histogram
          ybins, ymin, ymax, yaxistext
                  -- Configure Y-axis
+         opt     -- history depth of a histogram e.g. 'kLBNHistoryDepth=10' or 'kLive=100'
          type    -- Type of histogram (TH2I, TH2F, TProfile2D)
          histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)
          onlylayers -- sublist of layers
@@ -459,12 +461,17 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
                                        xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
-                                       ybins=ybins[0], ymin=ymins[0], ymax=ymins[0]+binsizes[0]*ybins[0])
+                                       ybins=ybins[0], ymin=ymins[0], ymax=ymins[0]+binsizes[0]*ybins[0], opt=opt)
         elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==len(layers) and len(ylabels)==len(layers)):
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
                                        xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
-                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx], ylabels=ylabels[idx])
+                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx], ylabels=ylabels[idx], opt=opt)
+        elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==1 and ylabels is None):
+            layerGroup.defineHistogram(fullvarstring, 
+                                       type=type, path=path, title=fulltitle,
+                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+ybins[idx], opt=opt)
 
 
 def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None, onlylayers=layers):
