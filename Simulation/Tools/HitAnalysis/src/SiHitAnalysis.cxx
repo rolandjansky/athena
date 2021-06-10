@@ -72,6 +72,12 @@ StatusCode SiHitAnalysis::initialize()
     radius_up = 325;
     radius_down = 0;
     z_max = 3000;
+  } else if (detName == "ITkStrip") {
+    bin_down = -1000;
+    bin_up = 1000;
+    radius_up = 1000;
+    radius_down = 0;
+    z_max = 3000;
   }
 
   m_h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
