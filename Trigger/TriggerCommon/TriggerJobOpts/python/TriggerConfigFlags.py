@@ -112,7 +112,7 @@ def createTriggerFlags():
     # in either the run-2 or run-3 formats.
     def TrigConfMeta(flags):
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        md = GetFileMD(flags.Input.Files) if len(flags.Input.Files) > 0 else {}
+        md = GetFileMD(flags.Input.Files) if any(flags.Input.Files) else {}
         return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
 
     # Flag to sense if trigger confioguration POOL metadata is available on the job's input
