@@ -1657,3 +1657,35 @@ def bind_port(host, port):
         ret=1
     s.close()
     return ret
+
+### @brief summarize events passed the ISF_SimEventFilter
+#   @detail this function sums up all events passed the ISF_SimEventFilter
+#   out of all total events. All this inforamation is extracted from log.ReSim
+def reportEventsPassedSimFilter(log):
+
+    # Currently the pattern which contains the information for passed events is for example like:
+    # ISF_SimEventFilter   INFO  pass = 0 / 0 = 0%
+    # In case the filter name truncated by ... due to long timestamps, the pattern could still match
+    # e.g. ISF_SimEventFi... or ISF_SimEventFil...
+    regExp = re.compile(r'ISF_SimEventFi[lter|...]+\s.*INFO.*pass\s*=\s*(?P<events>[0-9]*)\s*\/\s*(?P<total>[0-9]*).*')
+    try:
+        myGen = lineByLine(log)
+    except IOError as e:
+        msg.warning('Failed to open transform logfile {0}: {1:s}'.format(log, e))
+
+    resimevents = None
+    passed_events = 0
+    total_events = 0
+    for line, lineCounter in myGen:
+        m = regExp.match(line) 
+        if m:
+            passed_events += int(m.group('events'))
+            total_events += int(m.group('total'))
+            resimevents = passed_events
+
+    if resimevents is not None:
+        msg.info("Summary of events passed the ISF_SimEventFilter: {0} events of total {1}".format(passed_events, total_events) )
+    else:
+        msg.warning("Returning null value for the resimevents. No line matched with the regExp for extracting events passed the ISF_SimEventFilter")
+
+    return resimevents
