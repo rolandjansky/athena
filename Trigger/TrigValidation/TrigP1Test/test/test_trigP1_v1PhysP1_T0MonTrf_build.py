@@ -15,7 +15,7 @@ hlt.forks = 1
 hlt.threads = 4
 hlt.concurrent_events = 4
 hlt.max_events = 50
-hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\';doL1Sim=True;rewriteLVL1=True;\\\"'
+hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\;doL1Sim=True\\;rewriteLVL1=True\\;\\\"'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
