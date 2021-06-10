@@ -36,6 +36,13 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     bool passInnerCoin;
     bool passGoodMF;
     bool passIsMoreCandInRoI;
+    void clear(){
+      extPosZ.clear();
+      extPos.clear();
+      extVec.clear();
+      matchedL1ThrExclusive.clear();
+      matchedL1ThrInclusive.clear();
+    }
   };
   struct TgcHit{
     float x;
@@ -97,6 +104,24 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int bunch;
     int inner;
   };
+  struct CtpDecMonObj{
+    TString trigItem;
+    TString title;
+    long unsigned int multiplicity;
+    int rpcThr;
+    int tgcThr;
+    int sys;//system: 1 for barrel, 2 for endcap, 3 for forward
+    int threshold;
+    int charge;
+    bool tgcF; // full-station flag
+    bool tgcC; // inner-coincidence flag
+    bool tgcH; // hot roi mask flag
+    bool rpcR; // masking feet trigger
+    bool rpcM; // isMoreCand
+    double eta;
+    double phi;
+    unsigned int roiWord;
+  };
   
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -110,7 +135,8 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerPrevBCKey{this,"TgcCoinDataContainerPrevBCName","TrigT1CoinDataCollectionPriorBC","TGC Coin Data Container PrevBC"};
   
   StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
-  StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
+  StringProperty m_ctpDecMonList{this,"CtpDecisionMoniorList","Tit:L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;","list of L1MU items to be monitored for before/after CTP decision"};
+  BooleanProperty m_printAvailableMuonTriggers{this,"PrintAvailableMuonTriggers",false,"debugging purpose. print out all available muon triggers in the event"};
   BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
   BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
   BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
@@ -138,6 +164,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_barrelPivotPlaneHalfLength{this,"barrelPivotPlaneHalfLength", 9500.,"half length of pivot plane in barrel region"};
   
   std::vector<double> m_extZposition;
+  std::vector<CtpDecMonObj> m_CtpDecMonObj;
 
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
   void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
