@@ -8,24 +8,58 @@
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
 
-def TrigEff(configFlags):
+def _TrigEff(configFlags, triggerAndRef):
     from AthenaMonitoring import AthMonitorCfgHelper
     monConfig = AthMonitorCfgHelper(
         configFlags, 'HLTEfficiencyMonitoringAlgflags')
-
-    # configure the monitoring dynamically according to the chains present in the menu
-    mbChains = [ c for c in GetFileMD(configFlags.Input.Files)['TriggerMenu']['HLTChains'] if '_mb_' in c]
-    if len(mbChains) == 0:
-        return monConfig.result()
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     alg = monConfig.addAlgorithm(
         CompFactory.HLTEfficiencyMonitoringAlg, 'HLTEfficiencyMonitoringAlg')
 
     trkSel = CompFactory.InDet.InDetTrackSelectionTool(
-        "InDetTrackSelectionTool_TightPrimary", CutLevel="TightPrimary"
+        "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
     )
     alg.TrackSelectionTool = trkSel
+
+    alg.triggerList = [ el["chain"] for el in  triggerAndRef ]
+    alg.refTriggerList = [ el["refchain"] for el in  triggerAndRef ]
+
+    length = len(alg.triggerList)
+
+    mainGroup = monConfig.addGroup(
+        alg, 'TrigAll', topPath='HLT/MinBiasMon/')
+
+    alreadyConfigured = set()
+    for cdef in triggerAndRef:
+        chain = cdef["chain"]
+        refchain = cdef["refchain"]
+        xmin  = cdef["xmin"]
+        xmax  = cdef["xmax"]
+        xbins = xmax-xmin
+        effGroup = monConfig.addGroup(
+            alg, chain+refchain, topPath='HLT/MinBiasMon/EffAll/')
+        effGroup.defineHistogram('EffPassed,nTrkOffline;' + chain + '_ref_' + refchain, type='TEfficiency',
+                                  title=chain+';Offline Good nTrk;Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
+        if chain not in alreadyConfigured:
+            alreadyConfigured.add(chain)
+            # need this protection because we can measure efficiency with several reference trigger, but want counts irrespective of ref. triggers
+            mainGroup.defineHistogram('nTrkOffline_counts_' + chain, type='TH1F',
+                                      title=chain+';Offline Good nTrk;Events', xbins=300, xmin=0, xmax=300)
+
+    mainGroup.defineHistogram('TrigCounts', title='Trigger counts;;Event rate',
+                              xbins=length, xmin=0, xmax=len(alreadyConfigured), xlabels=list(alreadyConfigured))
+
+    return monConfig.result()
+
+
+def TrigEff(ConfigFlags):
+
+    # configure the monitoring dynamically according to the chains present in the menu
+    mbChains = [ c for c in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains'] if '_mb_' in c]
+    if len(mbChains) == 0:
+        return _TrigEff(ConfigFlags, [])
+
 
     # here we keep chain with detailed settings
     def _c(chain, refchain, **kwargs):
@@ -64,32 +98,10 @@ def TrigEff(configFlags):
             return "_".join(s[:3]+s[4:])
         triggerAndRef += [  _c(chain, _dropsup(chain),  xmin=_trk(chain)-20, xmax=_trk(chain)+30) for chain in pusup ]
 
+    return _TrigEff(ConfigFlags, triggerAndRef)
 
 
 
-    alg.triggerList = [ el["chain"] for el in  triggerAndRef ]
-    alg.refTriggerList = [ el["refchain"] for el in  triggerAndRef ]
-
-    length = len(alg.triggerList)
-
-    mainGroup = monConfig.addGroup(
-        alg, 'TrigAll', topPath='HLT/')
-    mainGroup.defineHistogram('TrigCounts', title='Trigger counts;;Event rate',
-                              xbins=length, xmin=0, xmax=len(mbChains), xlabels=list(mbChains))
-
-    for cdef in triggerAndRef:
-        chain = cdef["chain"]
-        refchain = cdef["refchain"]
-        xmin  = cdef["xmin"]
-        xmax  = cdef["xmax"]
-        xbins = xmax-xmin
-        effGroup = monConfig.addGroup(
-            alg, chain+refchain, topPath='HLT/EffAll/')
-        effGroup.defineHistogram('EffPassed,nTrkOffline;' + chain + '_ref_' + refchain, cutmask="RefPassed", type='TEfficiency',
-                                  title=chain+';Offline Good nTrk;Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
-
-
-    return monConfig.result()
 
 
 if __name__ == '__main__':
@@ -108,6 +120,9 @@ if __name__ == '__main__':
 #        '/afs/cern.ch/user/k/kburka/workspace/mbts/AOD.25577237._000120.pool.root.1'
     ]
     ConfigFlags.Output.HISTFileName = 'TestEffMonitorOutput.root'
+    import sys
+    thisScriptIndex = [ i for i, option in enumerate(sys.argv) if "TrigEffMonitoring" in option][0]
+    ConfigFlags.fillFromArgs(sys.argv[thisScriptIndex+1:])
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -116,12 +131,15 @@ if __name__ == '__main__':
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(TrigEff(ConfigFlags))
+# for testing is it sometimes useful to enable also this monitoring
+#    from TrigMinBiasMonitoring.TrigSPTRKMonitoringMT import TrigSPTRK
+#    cfg.merge(TrigSPTRK(ConfigFlags))
 
     cfg.getEventAlgo('HLTEfficiencyMonitoringAlg').OutputLevel = DEBUG  # DEBUG
     cfg.printConfig(withDetails=True)  # set True for exhaustive info
     with open("cfg.pkl", "wb") as f:
         cfg.store(f)
 
-    cfg.run(20)  # use cfg.run(20) to only run on first 20 events
+    cfg.run()
     # to run:
-    # python -m TrigMinBiasMonitoring.TrigEffMonitoring
+    # python -m TrigMinBiasMonitoring.TrigEffMonitoring --filesInput=filepath --evtMax=XYZ

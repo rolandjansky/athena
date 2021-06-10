@@ -33,8 +33,7 @@ public:
 private:
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList", {}, "Add triggers to this to be monitored"};
   Gaudi::Property<std::vector<std::string>> m_refTriggerList{this, "refTriggerList", {}, "Add ref triggers to this to be monitored"};
-  Gaudi::Property<std::string> m_trigger{this, "trigger", {}, "Trigger to be monitored"};
-  Gaudi::Property<std::string> m_refTrigger{this, "refTrigger", {}, "Reference trigger"};
+  std::vector<std::string> m_uniqueTriggerList;
 
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_trkCountsKey{this, "TrkCountsKey", "HLT_TrackCount", "Name of Online track counts info object produced by the HLT track counting FEX algorithm"};
   SG::ReadHandleKey<xAOD::TrigT2MbtsBitsContainer> m_TrigT2MbtsBitsContainerKey{this, "MBTSbitsKey", "HLT_MbtsBitsContainer", "Name of MbtsBitsContainer"};
