@@ -7603,31 +7603,7 @@ HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1XE50:
   stepFeatures:
     0: 20
     1: 3
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrloose_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iaggrmedium_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_iloose_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_loose_imedium_L1XE50:
+HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50:
   eventCount: 0
   stepCounts:
     0: 9
@@ -7651,47 +7627,7 @@ HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50:
   stepFeatures:
     0: 7
     1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iloose_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_imedium_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrloose_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iaggrmedium_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_iloose_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 9
-    1: 7
-  stepFeatures:
-    0: 7
-    1: 9
-HLT_xe80_tcpufit_unconvtrk120_isohpttrack_tight_imedium_L1XE50:
+HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50:
   eventCount: 0
   stepCounts:
     0: 9
