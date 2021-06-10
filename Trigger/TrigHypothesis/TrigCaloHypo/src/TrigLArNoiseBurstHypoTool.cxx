@@ -8,12 +8,12 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
-#include "TrigLArNoiseBurstHypoToolInc.h"
+#include "TrigLArNoiseBurstHypoTool.h"
 
 
 using namespace TrigCompositeUtils;
 
-TrigLArNoiseBurstHypoToolInc::TrigLArNoiseBurstHypoToolInc( const std::string& type, 
+TrigLArNoiseBurstHypoTool::TrigLArNoiseBurstHypoTool( const std::string& type, 
             const std::string& name, 
             const IInterface* parent ) 
   : base_class( type, name, parent ),
@@ -23,7 +23,7 @@ TrigLArNoiseBurstHypoToolInc::TrigLArNoiseBurstHypoToolInc( const std::string& t
 	declareProperty( "Tool",m_noisyROTool);
 }
 
-StatusCode TrigLArNoiseBurstHypoToolInc::initialize()  {
+StatusCode TrigLArNoiseBurstHypoTool::initialize()  {
 
   
   // prepare mask
@@ -44,7 +44,7 @@ StatusCode TrigLArNoiseBurstHypoToolInc::initialize()  {
 }
 
 
-StatusCode TrigLArNoiseBurstHypoToolInc::decide( std::vector<CaloCellNoiseInfo>& input )  const {
+StatusCode TrigLArNoiseBurstHypoTool::decide( std::vector<CaloCellNoiseInfo>& input )  const {
 
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
@@ -56,7 +56,7 @@ StatusCode TrigLArNoiseBurstHypoToolInc::decide( std::vector<CaloCellNoiseInfo>&
   return StatusCode::SUCCESS;
 }
 
-bool TrigLArNoiseBurstHypoToolInc::decide( const ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo& input ) const {
+bool TrigLArNoiseBurstHypoTool::decide( const ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo& input ) const {
 
   bool monitor(true);
   if ( m_monTool.name().empty() ) monitor=false;

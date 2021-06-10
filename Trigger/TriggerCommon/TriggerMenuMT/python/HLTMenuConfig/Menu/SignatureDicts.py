@@ -803,7 +803,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'tilelarcalib',
                                 'larnoiseburst','ibllumi',
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP',
+                                'calibAFP', 'larpsallem', 'larpsall', 
                                 ]
 
 # ---- Calib Chain Dictionary of all allowed Values ----

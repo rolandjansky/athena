@@ -82,28 +82,40 @@ class T2CaloEgamma_All (CompFactory.T2CaloEgammaReFastAlgo):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_All"):
        super(T2CaloEgamma_All, self).__init__(name)
-       tool = CompFactory.EgammaAllFex("EgammaAllFex")
+      
+       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+       if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
+           from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
+           svcMgr += TrigCaloDataAccessSvc()
+       tool = CompFactory.EgammaAllFex("EgammaAllFex",trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
        tool.IncludeHad=True
+       tool.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
        self.IReAlgToolList= [tool]
        self.EtaWidth = 0.1
        self.PhiWidth = 0.1
-       self.EtaWidthForID = 0.1
-       self.PhiWidthForID = 0.1
-       self.TrigEMClusterKey="TrigT2CaloAll"
-       self.doTiming=True
+       self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ),
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ),
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+    
 
 
 class T2CaloEgamma_AllEm (CompFactory.T2CaloEgammaReFastAlgo):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_AllEm"):
        super(T2CaloEgamma_AllEm, self).__init__(name)
-       self.IReAlgToolList= [CompFactory.EgammaAllFex("EgammaAllFex")]
+       
+       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+       if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
+           from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
+           svcMgr += TrigCaloDataAccessSvc()
+       tool = CompFactory.EgammaAllFex("EgammaAllEmFex",trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
+       tool.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
+       self.IReAlgToolList= [tool]
        self.EtaWidth = 0.1
        self.PhiWidth = 0.1
-       self.EtaWidthForID = 0.1
-       self.PhiWidthForID = 0.1
-       self.TrigEMClusterKey="TrigT2CaloAll"
-       self.doTiming=True
+       self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ),
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ),
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
 
 
 
@@ -116,7 +128,7 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
         if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
             from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
             svcMgr += TrigCaloDataAccessSvc()
-
+          
         samp2 = CompFactory.EgammaReSamp2Fex(name="ReFaAlgoSamp2FexConfig", trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc, MaxDetaHotCell=0.15, MaxDphiHotCell=0.15 )
         samp1 = CompFactory.EgammaReSamp1Fex("ReFaAlgoSamp1FexConfig", trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)
         sampe = CompFactory.EgammaReEmEnFex("ReFaAlgoEmEnFexConfig", trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc)

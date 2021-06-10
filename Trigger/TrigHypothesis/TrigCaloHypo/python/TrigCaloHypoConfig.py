@@ -9,9 +9,9 @@ LArOnOffIdMapping()
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-class TrigLArNoiseBurstHypoToolIncCfg ( CompFactory.TrigLArNoiseBurstHypoToolInc ):
-     def __init__(self,name="TrigLArNoiseBurstHypoToolIncCfg", **kwargs):
-         super(TrigLArNoiseBurstHypoToolIncCfg,self).__init__(name,**kwargs)
+class TrigLArNoiseBurstHypoToolCfg ( CompFactory.TrigLArNoiseBurstHypoTool ):
+     def __init__(self,name="TrigLArNoiseBurstHypoToolCfg", **kwargs):
+         super(TrigLArNoiseBurstHypoToolCfg,self).__init__(name,**kwargs)
          from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
          from AthenaCommon.AlgSequence import AthSequencer
          condSeq = AthSequencer("AthCondSeq")
@@ -33,7 +33,33 @@ class TrigLArNoiseBurstHypoToolIncCfg ( CompFactory.TrigLArNoiseBurstHypoToolInc
 class TrigLArNoiseBurstAlgCfg ( CompFactory.TrigLArNoiseBurstAlg ):
      def __init__(self,name="TrigLArNoiseBurstAlgCfg", **kwargs):
          super(TrigLArNoiseBurstAlgCfg,self).__init__(name,**kwargs)
-         self.HypoTools = [TrigLArNoiseBurstHypoToolIncCfg()]
+         self.HypoTools = [TrigLArNoiseBurstHypoToolCfg()]
 
 def TrigLArNoiseBurstHypoToolGen(chainDict):
-     return TrigLArNoiseBurstHypoToolIncCfg(chainDict['chainName'])
+     return TrigLArNoiseBurstHypoToolCfg(chainDict['chainName'])
+
+
+class TrigL2CaloLayersHypo_PreS_092Cfg (CompFactory.TrigL2CaloLayersHypoTool):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigL2CaloLayersHypo_PreS_092Cfg, self ).__init__( name )
+        self.EnergyFractionCut=[0.92,1.0,1.0,1.0]
+        self.AcceptAll = False
+
+class TrigL2CaloLayersHypo_PreS_080Cfg (CompFactory.TrigL2CaloLayersHypoTool):
+    __slots__ = []
+    def __init__(self, name="TrigL2CaloLayersHypo_PreS_080Cfg", **kwargs):
+        super( TrigL2CaloLayersHypo_PreS_080Cfg, self ).__init__( name )
+        self.EnergyFractionCut=[0.80,1.0,1.0,1.0]
+        self.AcceptAll = False
+
+class TrigL2CaloLayersAlgCfg ( CompFactory.TrigL2CaloLayersAlg ):
+     def __init__(self,name="TrigL2CaloLayersCfg", **kwargs):
+         super(TrigL2CaloLayersAlgCfg,self).__init__(name,**kwargs)
+         self.HypoTools = [TrigL2CaloLayersHypo_PreS_092Cfg()]
+         #self.HypoTools = [TrigL2CaloLayersHypo_PreS_092Cfg(),
+         #                  TrigL2CaloLayersHypo_PreS_080Cfg()]
+
+def TrigL2CaloLayersHypoToolGen(chainDict):
+     return TrigL2CaloLayersHypo_PreS_080Cfg(chainDict['chainName'])
+

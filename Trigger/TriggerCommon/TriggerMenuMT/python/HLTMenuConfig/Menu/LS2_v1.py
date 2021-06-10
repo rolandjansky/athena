@@ -130,6 +130,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_dnntight_L1EM3', groups=SingleElectronGroup),
 
         # lrt chains
+
         # Commented out: ATR-23564
         # ChainProp(name='HLT_e5_lhloose_lrtloose_L1EM3', groups=SingleElectronGroup),
         # ChainProp(name='HLT_e5_lhmedium_lrtmedium_L1EM3', groups=SingleElectronGroup),
@@ -219,6 +220,9 @@ def setupMenu():
 
         #ATR-21882
         ChainProp(name='HLT_2g15_tight_dPhi15_m80_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryLegGroup+MultiPhotonGroup),
+        
+        # Calib Chains
+        ChainProp(name='HLT_larpsallem_L1EM3', groups=SingleElectronGroup),
 
         #Support photon chains ATR-23425
         ChainProp(name='HLT_2g15_loose_dPhi15_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=SupportLegGroup+MultiPhotonGroup),
@@ -230,6 +234,7 @@ def setupMenu():
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
+      
         ChainProp(name='HLT_xe30_cell_L1XE30', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_mht_L1XE30', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE30', groups=SingleMETGroup),
@@ -519,8 +524,10 @@ def setupMenu():
         ChainProp(name='HLT_j370_a10t_lcw_jes_35smcINF_j370_a10t_lcw_jes_L1SC111-CJ15', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+MultiJetGroup),
         # Jet-only VBF chain
         ChainProp(name="HLT_j110_subjesgscIS_ftf_j45_subjesgscIS_ftf_L1J50", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiJetGroup),
-        ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_DJMASS1000j50dphi200x400deta_L1MJJ-500-NFF', l1SeedThresholds=['FSNOSEED']*3,stream=['VBFDelayed'],groups=PrimaryLegGroup+MultiJetGroup) # previously HLT_j70_j50_0eta490_invm1000j70_dphi20_deta40_L1MJJ-500-NFF
-
+        ChainProp(name='HLT_j70_0eta320_j50_0eta490_j0_DJMASS1000j50dphi200x400deta_L1MJJ-500-NFF', l1SeedThresholds=['FSNOSEED']*3,stream=['VBFDelayed'],groups=PrimaryLegGroup+MultiJetGroup), # previously HLT_j70_j50_0eta490_invm1000j70_dphi20_deta40_L1MJJ-500-NFF
+   
+        # Calib chain
+        ChainProp(name="HLT_larpsall_L1J15", l1SeedThresholds=['J15'], stream=['CosmicCalo'],groups=['RATE:Calibration','BW:Detector']),
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
