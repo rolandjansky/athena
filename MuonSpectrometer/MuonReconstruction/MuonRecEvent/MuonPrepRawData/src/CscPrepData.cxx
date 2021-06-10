@@ -37,6 +37,24 @@ namespace Muon
     m_timeStatus(timeStatus)
   { }
 
+  CscPrepData::CscPrepData( const Identifier& RDOId,
+                            const IdentifierHash& idDE,
+                            const Amg::Vector2D& locpos,
+                            std::vector<Identifier>&& rdoList,
+                            Amg::MatrixX&& locErrMat,
+                            const MuonGM::CscReadoutElement* detEl,
+                            const int charge,
+                            const double time,
+                            const CscClusterStatus status,
+                            const CscTimeStatus timeStatus) :
+    MuonCluster(RDOId, idDE, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
+    m_detEl(detEl),
+    m_charge(charge),
+    m_time(time),
+    m_status(status),
+    m_timeStatus(timeStatus)
+  { }
+
 
   // Destructor:
   CscPrepData::~CscPrepData()

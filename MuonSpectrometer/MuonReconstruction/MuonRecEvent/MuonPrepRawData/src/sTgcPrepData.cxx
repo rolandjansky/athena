@@ -51,6 +51,50 @@ sTgcPrepData::sTgcPrepData(const Identifier& RDOId,
   , m_stripCharges()
 {}
 
+sTgcPrepData::sTgcPrepData(const Identifier& RDOId,
+                           const IdentifierHash& idDE,
+                           const Amg::Vector2D& locpos,
+                           std::vector<Identifier>&& rdoList,
+                           Amg::MatrixX&& locErrMat,
+                           const MuonGM::sTgcReadoutElement* detEl,
+                           const int charge,
+                           const short int time,
+                           const uint16_t bcBitMap,
+                           const std::vector<uint16_t>& stripNumbers,
+                           const std::vector<short int>& stripTimes,
+                           const std::vector<int>& stripCharges)
+  : MuonCluster(RDOId, idDE, locpos, std::move(rdoList), std::move(locErrMat))
+  , // call base class constructor
+  m_detEl(detEl)
+  , m_charge(charge)
+  , m_time(time)
+  , m_bcBitMap(bcBitMap)
+  , m_stripNumbers(stripNumbers)
+  , m_stripTimes(stripTimes)
+  , m_stripCharges(stripCharges)
+{}
+
+sTgcPrepData::sTgcPrepData(const Identifier& RDOId,
+                           const IdentifierHash& idDE,
+                           const Amg::Vector2D& locpos,
+                           std::vector<Identifier>&& rdoList,
+                           Amg::MatrixX&& locErrMat,
+                           const MuonGM::sTgcReadoutElement* detEl,
+                           const int charge,
+                           const short int time,
+                           const uint16_t bcBitMap)
+  : MuonCluster(RDOId, idDE, locpos, std::move(rdoList), std::move(locErrMat))
+  , // call base class constructor
+  m_detEl(detEl)
+  , m_charge(charge)
+  , m_time(time)
+  , m_bcBitMap(bcBitMap)
+  , m_stripNumbers()
+  , m_stripTimes()
+  , m_stripCharges()
+{}
+
+
 // Destructor:
 sTgcPrepData::~sTgcPrepData() {}
 

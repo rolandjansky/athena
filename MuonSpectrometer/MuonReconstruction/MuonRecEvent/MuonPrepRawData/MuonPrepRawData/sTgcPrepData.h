@@ -70,6 +70,30 @@ namespace Muon
 		  const short int time   = 0,
 		  const uint16_t bcBitMap=0);
 
+    sTgcPrepData( const Identifier& RDOId,
+		  const IdentifierHash &idDE,
+		  const Amg::Vector2D& locpos,
+		  std::vector<Identifier>&& rdoList,
+		  Amg::MatrixX&& locErrMat,
+		  const MuonGM::sTgcReadoutElement* detEl,
+		  const int charge,
+		  const short int time,
+		  const uint16_t bcBitMap,
+		  const std::vector<uint16_t>& stripNumbers,
+		  const std::vector<short int>& stripTimes,
+		  const std::vector<int>& stripCharges );
+
+
+    sTgcPrepData( const Identifier& RDOId,
+		  const IdentifierHash &idDE,
+		  const Amg::Vector2D& locpos,
+		  std::vector<Identifier>&& rdoList,
+		  Amg::MatrixX&& locErrMat,
+		  const MuonGM::sTgcReadoutElement* detEl,
+		  const int charge = 0,
+		  const short int time   = 0,
+		  const uint16_t bcBitMap=0);
+
 
 
     /** @brief Destructor: */

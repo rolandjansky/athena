@@ -30,6 +30,18 @@ namespace Muon
   { 
   }
 
+MuonCluster::MuonCluster( const Identifier& RDOId,
+                const IdentifierHash & /**collectionHash*/, //FIXME! Should be removed.
+                const Amg::Vector2D& locpos,
+                std::vector<Identifier>&& rdoList,
+                Amg::MatrixX&& locErrMat
+                ) :
+      PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
+      m_globalPosition()
+  { 
+  }
+
+
   // Destructor:
   MuonCluster::~MuonCluster()
   {

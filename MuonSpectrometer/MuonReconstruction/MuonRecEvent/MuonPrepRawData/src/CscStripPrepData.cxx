@@ -40,6 +40,26 @@ namespace Muon
   { 
   }
 
+  CscStripPrepData::CscStripPrepData( const Identifier& RDOId,
+                      const IdentifierHash& collectionHash,
+                      const Amg::Vector2D& locpos,
+                      Amg::MatrixX&& locErrMat,
+                      const MuonGM::CscReadoutElement* detEl,
+                      const std::vector<float>& sampleCharges,
+                      float timeOfFirstSample,
+                      unsigned short samplingTime 
+                      ):
+    PrepRawData(RDOId, locpos, std::move(locErrMat)), //call base class constructor
+    m_collectionHash(collectionHash),
+    m_globalPosition(),
+    m_detEl(detEl),
+    m_sampleCharges(sampleCharges),
+    m_timeOfFirstSample(timeOfFirstSample),
+    m_samplingTime(samplingTime),
+    m_samplingPhase(false)
+  { 
+  }
+
 
   // Destructor:
   CscStripPrepData::~CscStripPrepData()
