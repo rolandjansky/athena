@@ -88,7 +88,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_thistSvc(0),
     m_tree(0),
-    m_bc_tool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_LArOnlineIDHelper(0),
     m_LArHVLineIDHelper(0),
@@ -210,10 +209,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    // Trigger
    declareProperty( "TrigDecisionTool", m_trigDec );
    
-   
-   // NEW
-   declareProperty( "BCTool", m_bc_tool );
-   //   declareProperty( "SCTClusteringTool",m_sctclustering_tool);
    
    //event cuts
    declareProperty("SigmaCut", m_sigmacut = 3.0);
@@ -772,21 +767,30 @@ StatusCode LArNoiseBursts::doEventProperties(){
 
   ATH_MSG_DEBUG("Run Number: "<<run<<", event Id "<<m_nt_evtId<<", bcid = "<<m_nt_bcid);
   
+  SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey);
+  const BunchCrossingCondData* bunchCrossing=*bccd;
+  if (!bunchCrossing) {
+    ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
+    return StatusCode::FAILURE;
+  }
 
-  m_nt_isbcidFilled = m_bc_tool->isFilled(m_nt_bcid);
-  m_nt_isbcidInTrain = m_bc_tool->isInTrain(m_nt_bcid);
-  m_nt_bunchtype = m_bc_tool->bcType(m_nt_bcid);
+  m_nt_isbcidFilled = bunchCrossing->isFilled(m_nt_bcid);
+  m_nt_isbcidInTrain = bunchCrossing->isInTrain(m_nt_bcid);
+  m_nt_bunchtype = bunchCrossing->bcType(m_nt_bcid);
   ATH_MSG_DEBUG("BCID is Filled: "<<m_nt_isbcidFilled);
   ATH_MSG_DEBUG("BCID is in Train: "<<m_nt_isbcidInTrain);
   ATH_MSG_DEBUG("bunch type "<<m_nt_bunchtype);
 
-  std::vector<bool> isBunchesInFront = m_bc_tool->bunchesInFront(m_nt_bcid,m_frontbunches);
+  unsigned int distFromFront = bunchCrossing->distanceFromFront(m_nt_bcid,BunchCrossingCondData::BunchCrossings);
+  if(m_frontbunches < distFromFront) distFromFront=m_frontbunches;
+
   bool checkfirstbunch = true;
-  for(unsigned int i=0;i<isBunchesInFront.size();i++){
-     ATH_MSG_DEBUG("bunch "<<i<<" is Filled "<<isBunchesInFront[i]);
-     m_nt_isBunchesInFront.push_back(isBunchesInFront[i]);
-       if(isBunchesInFront[i]==1){
-         if(i!=0){
+  for(unsigned int i=1;i<=distFromFront;i++){
+     bool isFilled=bunchCrossing->isFilled(m_nt_bcid-i);
+     ATH_MSG_DEBUG("bunch "<<i<<" is Filled "<<isFilled);
+     m_nt_isBunchesInFront.push_back(isFilled);
+       if(isFilled){
+         if(i!=1){
            if(checkfirstbunch){
              float time = 25.0*i;
              m_nt_bunchtime = time;

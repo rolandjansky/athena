@@ -19,7 +19,6 @@
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -28,6 +27,7 @@
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 // Electrons
 #include "egammaEvent/ElectronContainer.h"
@@ -91,8 +91,9 @@ class LArNoiseBursts : public AthAlgorithm  {
    SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey { this, "BadChanKey","LArBadChannel","SG Key of LArBadChannelCont object"};
    SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
      { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
+   SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey 
+     {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
    /*Tools*/
-   ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
    /*services*/
@@ -110,7 +111,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    /*event cuts */
    double m_sigmacut;
    bool m_CosmicCaloStream;
-   int m_frontbunches;
+   unsigned int m_frontbunches;
    bool m_keepOnlyCellID;
 
    /*declaration of branches*/

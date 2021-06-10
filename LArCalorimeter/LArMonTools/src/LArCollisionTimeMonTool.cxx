@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -22,8 +22,6 @@
 
 
 #include "xAODEventInfo/EventInfo.h"
-
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 #include <sstream>
 #include <iomanip>
@@ -50,8 +48,6 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
     m_minCells(2),
     m_eWeighted(true),
     m_newrun(true),
-    //m_bunchGroupTool("BunchGroupTool"),
-    m_bunchGroupTool("BunchCrossingTool"),
     m_bcid_init(false)
 {
   declareProperty( "m_lumi_blocks"	,      m_lumi_blocks = 1000 );
@@ -59,7 +55,6 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   declareProperty( "nCells"		,      m_minCells = 2 );
   declareProperty( "eWeighted"		,      m_eWeighted = true );
   declareProperty( "histPath"           ,      m_histPath="LArCollisionTimeOldTool"); 
-  declareProperty( "BunchCrossingTool"  ,      m_bunchGroupTool); 
   declareProperty( "TrainFrontDistance" ,      m_distance = 30); 
   declareProperty( "IsOnline"           ,      m_IsOnline=false);
   
@@ -91,7 +86,6 @@ LArCollisionTimeMonTool::initialize() {
   ManagedMonitorToolBase::initialize().ignore();
   ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_key.initialize() );
-  ATH_CHECK(m_bunchGroupTool.retrieve());
   ATH_MSG_DEBUG( "Successful Initialize LArCollisionTimeMonTool " );
   return StatusCode::SUCCESS;
 }
@@ -236,19 +230,25 @@ LArCollisionTimeMonTool::fillHistograms()
     return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey);
+  const BunchCrossingCondData* bunchCrossing=*bccd;
+  if (!bunchCrossing) {
+    ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
+    return StatusCode::FAILURE;
+  }
+
   // bunch crossing ID:
   bunch_crossing_id = event_info->bcid();
     
   // luminosity block number
   lumi_block = event_info->lumiBlock();
     
-  if(m_bunchGroupTool->bcType(bunch_crossing_id) == Trig::IBunchCrossingTool::Empty) {
-     //ATH_MSG_INFO("BCID: "<<bunch_crossing_id<<" empty, not filling CollTime" );
+  if(bunchCrossing->bcType(bunch_crossing_id) == BunchCrossingCondData::Empty) {
      ATH_MSG_INFO("BCID: "<<bunch_crossing_id<<" empty ? not filling the coll. time" );
      return StatusCode::SUCCESS; // not filling anything in empty bunches
   }
 
-  int bcid_distance = m_bunchGroupTool->distanceFromFront(bunch_crossing_id, Trig::IBunchCrossingTool::BunchCrossings);
+  int bcid_distance = bunchCrossing->distanceFromFront(bunch_crossing_id, BunchCrossingCondData::BunchCrossings);
   
   // Retrieve LArCollision Timing information
   SG::ReadHandle<LArCollisionTime> larTime{m_key};

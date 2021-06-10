@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 if not 'skipEvents' in dir():
    skipEvents=0
 
@@ -167,10 +169,9 @@ EventCnvSuperTool.DoMuons = False
 EventCnvSuperTool.DoID = False
 ToolSvc += EventCnvSuperTool
 
-# --- BunchCrossing Tool configuration ---
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-theBCTool = BunchCrossingTool()
-ToolSvc += theBCTool
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 # variable for testing on ESD
 try:

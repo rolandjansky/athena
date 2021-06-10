@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #AthMonitorCfgHelperOld must be imported in upper level JO    
 
@@ -16,10 +17,10 @@ larCollTimeMonAlg = helper_collTime.addAlgorithm(LArCollisionTimeMonAlg, "larCol
 larCollTimeMonAlg.CollTimeGroupName=collTimeGroupName
 larCollTimeMonAlg.IsOnline = isOnline 
 
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
-#add a tool
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-larCollTimeMonAlg.BunchCrossingTool = BunchCrossingTool()
 
 #now the groups
 collTimeGroup = helper_collTime.addGroup( 
