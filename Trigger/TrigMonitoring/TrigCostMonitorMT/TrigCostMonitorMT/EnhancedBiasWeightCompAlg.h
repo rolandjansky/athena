@@ -16,6 +16,9 @@
 #include <vector>
 #include <string>
 
+#include <tbb/concurrent_hash_map.h>
+#include <tbb/concurrent_unordered_map.h>
+
 /**
  *  @class EnhancedBiasWeightCompAlg
  *  @brief Compute Enhanced Bias weight
@@ -96,13 +99,13 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
     std::map<TrigCompositeUtils::DecisionID, std::vector<std::string>> m_EBChainIdToItem;
 
     /// Name of xml output file
-    mutable std::string m_outputFilename;
+    mutable std::string m_outputFilename ATLAS_THREAD_SAFE;
 
     /// List of calculated weight + unbiased flag pairs to be saved in xml
-    mutable std::vector<std::pair<int, bool>> m_ebWeights;
+    mutable tbb::concurrent_vector<std::pair<int, bool>> m_ebWeights ATLAS_THREAD_SAFE;
 
     /// Map of event number to index in m_ebWeights vector to be saved in xml
-    mutable std::map<int, int> m_eventToWeight;
+    mutable tbb::concurrent_unordered_map<int, int> m_eventToWeight ATLAS_THREAD_SAFE;
 
 };
 
