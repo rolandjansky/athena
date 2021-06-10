@@ -375,7 +375,7 @@ TauChainParts = {
     'threshold'     : '',
     'preselection'  : ['track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoMVABDT', 'tracktwoLLP', 'tracktwoEFmvaTES', 'ptonly', ],
     'selection'     : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf',
-                       'kaonpi1', 'kaonpi2', 'dipion3', 'dikaonmass', 'singlepion'],
+                       'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'dikaonmass', 'singlepion'],
     'multiplicity'  : '',
     'trigType'      : ['tau'],
     'trkInfo'       : '',
@@ -1015,7 +1015,7 @@ UnconventionalTrackingChainParts_Default = {
 #==========================================================
 # Combined Chains
 #==========================================================
-AllowedTopos_comb = ['03dRAB','03dRAB30']
+AllowedTopos_comb = ['03dRAB','03dRAB30','50invmAB','60invmAB']
 
 # ---- Combined Dictionary of all allowed Values ----
 CombinedChainParts = deepcopy(PhotonChainParts)

@@ -1168,25 +1168,43 @@ HLT_g25_medium_L1EM20VH:
     1: 1
 HLT_g25_medium_mu24_L1MU20:
   eventCount: 0
-HLT_g25_medium_tau25_dikaonmass_tracktwoMVA_L1EM22VHI:
+HLT_g25_medium_tau25_dikaonmass_tracktwoMVA_50invmAB_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
     0: 1
-HLT_g25_medium_tau25_kaonpi1_tracktwoMVA_L1EM22VHI:
+HLT_g25_medium_tau25_dipion1_tracktwoMVA_50invmAB_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
     0: 1
-HLT_g25_medium_tau25_kaonpi2_tracktwoMVA_L1EM22VHI:
+HLT_g25_medium_tau25_dipion2_tracktwoMVA_50invmAB_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
     0: 1
-HLT_g25_medium_tau25_singlepion_tracktwoMVA_L1EM22VHI:
+HLT_g25_medium_tau25_dipion4_tracktwoMVA_50invmAB_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_g25_medium_tau25_kaonpi1_tracktwoMVA_50invmAB_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_g25_medium_tau25_kaonpi2_tracktwoMVA_50invmAB_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_g25_medium_tau25_singlepion_tracktwoMVA_50invmAB_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 1
@@ -1226,7 +1244,7 @@ HLT_g35_medium_L1EM22VHI:
   eventCount: 0
 HLT_g35_medium_g25_medium_L12EM20VH:
   eventCount: 0
-HLT_g35_medium_tau25_dipion3_tracktwoMVA_L1EM22VHI:
+HLT_g35_medium_tau25_dipion3_tracktwoMVA_60invmAB_L1EM22VHI:
   eventCount: 0
 HLT_g35_tight_3j25_0eta290_pf_ftf_boffperf_L1EM22VHI:
   eventCount: 0

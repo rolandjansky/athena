@@ -122,7 +122,7 @@ thresholdsEF = {
     ('idperf',200): TauCuts(3,999,200000.,2)
     }    
 
-# ATR-22644
+# ATR-22644 + ATR-23239
 GeV = 1000.0
 DiKaonCuts = namedtuple('DiKaonCuts','massTrkSysMin massTrkSysMax massTrkSysKaonMin massTrkSysKaonMax massTrkSysKaonPiMin massTrkSysKaonPiMax targetMassTrkSysKaonPi leadTrkPtMin EtCalibMin EMPOverTrkSysPMax')
 thresholdsEF_dikaon = {
@@ -132,7 +132,10 @@ thresholdsEF_dikaon = {
     ('kaonpi1', 35):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  0.79*GeV, 0.99*GeV,  0.89*GeV,  25.0*GeV, 35.0*GeV, 1.0),
     ('kaonpi2', 25):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  1.8*GeV, 1.93*GeV,   1.865*GeV, 15.0*GeV, 25.0*GeV, 1.0),
     ('kaonpi2', 35):         DiKaonCuts(0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  1.8*GeV, 1.93*GeV,   1.865*GeV, 25.0*GeV, 35.0*GeV, 1.0),
-    ('dipion3', 25):         DiKaonCuts(0.279*GeV, 0.648*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 2.2)
+    ('dipion1', 25):         DiKaonCuts(0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0),
+    ('dipion2', 25):         DiKaonCuts(0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0),
+    ('dipion3', 25):         DiKaonCuts(0.279*GeV, 0.648*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 2.2),
+    ('dipion4', 25):         DiKaonCuts(0.460*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0),
 }
 SinglePionCuts = namedtuple('SinglePionCuts','leadTrkPtMin EtCalibMin nTrackMax nWideTrackMax dRmaxMax etOverPtLeadTrkMin etOverPtLeadTrkMax')
 thresholdsEF_singlepion = {
@@ -195,11 +198,27 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         elif 'perf' in criteria:
             currentHypo.method      = 0
 
-    elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion3', 'singlepion' ]: # ATR-22644
+    elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'singlepion' ]: # ATR-22644
         currentHypo = CompFactory.TrigEFTauDiKaonHypoTool(name)
-        currentHypo.MonTool       = ""
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+        monTool = GenericMonitoringTool('MonTool_' + name)
+        monTool.HistPath = 'ComboHypo/' + name.replace("leg001_","")
 
-        if criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion3' ]:
+        monTool.defineHistogram('massTrkSysAccepted',path='EXPERT',type='TH1F',title=';DiPion Mass [GeV]; Entries', xbins=50, xmin=0.,xmax=3.)
+        monTool.defineHistogram('massTrkSysKaonAccepted',path='EXPERT',type='TH1F',title=';DiKaon Mass [GeV]; Entries', xbins=50, xmin=0.,xmax=3.)
+        monTool.defineHistogram('massTrkSysKaonPiAccepted',path='EXPERT',type='TH1F',title=';KaonPion Mass [GeV]; Entries', xbins=50, xmin=0.,xmax=3.)
+        monTool.defineHistogram('leadTrkPtAccepted',path='EXPERT',type='TH1F',title=';Leading Track p_{T} [GeV]; Entries', xbins=50, xmin=0.,xmax=300.)
+        monTool.defineHistogram('ptAccepted',path='EXPERT',type='TH1F',title=';p_{T}(#tau) [GeV]; Entries', xbins=50, xmin=0.,xmax=300.)
+        monTool.defineHistogram('nTrackAccepted',path='EXPERT',type='TH1F',title=';nTracks; Entries', xbins=10, xmin=-0.5,xmax=9.5)
+        monTool.defineHistogram('nWideTrackAccepted',path='EXPERT',type='TH1F',title=';nWideTracks; Entries', xbins=10, xmin=-0.5,xmax=9.5)
+        monTool.defineHistogram('dRAccepted',path='EXPERT',type='TH1F',title=';#DeltaR^{max}; Entries ', xbins=40, xmin=0.,xmax=0.4)
+        monTool.defineHistogram('etOverPtLeadTrkAccepted',path='EXPERT',type='TH1F',title=';etOverPtLeadTrk; Entries', xbins=50, xmin=0.,xmax=5.)
+        monTool.defineHistogram('EMOverTrkSysPAccepted',path='EXPERT',type='TH1F',title=';EMOverTrkSysP; Entries', xbins=50, xmin=0.,xmax=5.)  
+        monTool.defineHistogram('nInputTaus',path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=-0.5,xmax=9.5)  
+
+        currentHypo.MonTool       = monTool
+
+        if criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4']:
             theThresh = thresholdsEF_dikaon[(criteria, int(threshold))]
             currentHypo.massTrkSysMin          = theThresh.massTrkSysMin          
             currentHypo.massTrkSysMax          = theThresh.massTrkSysMax          
