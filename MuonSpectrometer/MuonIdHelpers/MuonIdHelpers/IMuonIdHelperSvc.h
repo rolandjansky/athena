@@ -158,12 +158,24 @@ namespace Muon {
         /** @brief return sector number 1-16, odd=large, even=small */
         virtual int sector(const Identifier& id) const = 0;
 
+        /** @brief returns whether the RPC identifiers are loaded */
         virtual bool hasRPC() const = 0;
+        /** @brief returns whether the sTGC identifiers are loaded */
         virtual bool hasTGC() const = 0;
+        /** @brief returns whether the MDT identifiers are loaded */
         virtual bool hasMDT() const = 0;
+        /** @brief returns whether the CSC identifiers are loaded */
         virtual bool hasCSC() const = 0;
+        /** @brief returns whether the sTGC identifiers are loaded */
         virtual bool hasSTgc() const = 0;
+        /** @brief returns whether the Mircomegas identifiers are loaded */
         virtual bool hasMM() const = 0;
+        /** @brief returns whether the CSC shall take part in the reconstruction */
+        virtual bool recoCSC() const = 0;
+        /** @brief returns whether the sTGC shall take part in the reconstruction */
+        virtual bool recosTgc() const = 0;
+        /** @brief returns whether the Micromegas shall take part in the reconstruction */
+        virtual bool recoMM() const = 0;
     };
 
 }  // namespace Muon

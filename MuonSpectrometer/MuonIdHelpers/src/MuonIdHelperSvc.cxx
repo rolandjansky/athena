@@ -27,10 +27,13 @@ namespace Muon {
                     " Cannot retrieve CscIdHelper, please consider setting HasCSC property to false in the future when running a layout "
                     "without CSC chambers");
                 m_hasCSC = false;
+                m_runCSC = false;
                 m_cscIdHelper = nullptr;
             }
-        } else
+        } else {
+            m_runCSC = false;
             m_cscIdHelper = nullptr;
+        }
         if (m_detStore->retrieve(m_rpcIdHelper).isFailure()) {
             ATH_MSG_ERROR(" Cannot retrieve RpcIdHelper ");
             return StatusCode::FAILURE;
@@ -46,19 +49,26 @@ namespace Muon {
                     "without sTGC chambers");
                 m_hasSTgc = false;
                 m_stgcIdHelper = nullptr;
+                m_runSTgc = false;
             }
-        } else
+        } else {
             m_stgcIdHelper = nullptr;
+            m_runSTgc = false;
+        }
+
         if (m_hasMM) {
             if (m_detStore->retrieve(m_mmIdHelper).isFailure()) {
                 ATH_MSG_WARNING(
                     " Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout "
                     "without MicroMegas chambers");
                 m_hasMM = false;
+                m_runMM = false;
                 m_mmIdHelper = nullptr;
             }
-        } else
+        } else {
             m_mmIdHelper = nullptr;
+            m_runMM = false;
+        }
 
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Technologies: size " << m_mdtIdHelper->technologyNameIndexMax();
         for (int tech = 0; tech <= m_mdtIdHelper->technologyNameIndexMax(); ++tech) {
@@ -769,4 +779,16 @@ namespace Muon {
         if (!isSmallChamber(id)) --sect;
         return sect;
     }
+
+    bool MuonIdHelperSvc::hasRPC() const { return m_rpcIdHelper != nullptr; }
+    bool MuonIdHelperSvc::hasTGC() const { return m_tgcIdHelper != nullptr; }
+    bool MuonIdHelperSvc::hasMDT() const { return m_mdtIdHelper != nullptr; }
+    bool MuonIdHelperSvc::hasCSC() const { return m_hasCSC; }
+    bool MuonIdHelperSvc::hasSTgc() const { return m_hasSTgc; }
+    bool MuonIdHelperSvc::hasMM() const { return m_hasMM; }
+
+    bool MuonIdHelperSvc::recoCSC() const { return m_runCSC; }
+    bool MuonIdHelperSvc::recosTgc() const { return m_runSTgc; }
+    bool MuonIdHelperSvc::recoMM() const { return m_runMM; }
+
 }  // namespace Muon

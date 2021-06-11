@@ -158,12 +158,17 @@ namespace Muon {
         /** @brief return sector number 1-16, odd=large, even=small */
         virtual int sector(const Identifier& id) const override;
 
-        virtual bool hasRPC() const override { return m_rpcIdHelper != nullptr; }
-        virtual bool hasTGC() const override { return m_tgcIdHelper != nullptr; }
-        virtual bool hasMDT() const override { return m_mdtIdHelper != nullptr; }
-        virtual bool hasCSC() const override { return m_hasCSC; }
-        virtual bool hasSTgc() const override { return m_hasSTgc; }
-        virtual bool hasMM() const override { return m_hasMM; }
+        bool hasRPC() const override;
+        bool hasTGC() const override;
+        bool hasMDT() const override;
+
+        bool hasCSC() const override;
+        bool hasSTgc() const override;
+        bool hasMM() const override;
+
+        bool recoCSC() const override;
+        bool recosTgc() const override;
+        bool recoMM() const override;
 
     private:
         const RpcIdHelper* m_rpcIdHelper;
@@ -175,6 +180,11 @@ namespace Muon {
         Gaudi::Property<bool> m_hasCSC{this, "HasCSC", true, "Specify whether current detector layout contains CSC chambers"};
         Gaudi::Property<bool> m_hasSTgc{this, "HasSTgc", true, "Specify whether current detector layout contains STGC chambers"};
         Gaudi::Property<bool> m_hasMM{this, "HasMM", true, "Specify whether current detector layout contains MicroMegas chambers"};
+
+        /// Properties to explicitly switch off the CSC / Micromega/ sTGC reconstruction
+        Gaudi::Property<bool> m_runCSC{this, "RunCSC", true, "Specify whether the CSC reconstruction shall be run"};
+        Gaudi::Property<bool> m_runSTgc{this, "RunTgc", true, "Specify whether the sTGC reconstruction shall be run"};
+        Gaudi::Property<bool> m_runMM{this, "RunMM", true, "Specify whether the Micromega reconstruction shall be tun"};
 
         const ServiceHandle<StoreGateSvc> m_detStore;
 
