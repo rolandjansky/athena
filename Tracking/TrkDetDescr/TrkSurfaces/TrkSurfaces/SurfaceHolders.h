@@ -13,7 +13,9 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
-namespace Trk{
+
+namespace Trk {
+
 using ConeSurfacePtrHolder = SurfacePtrHolderImpl<ConeSurface>;
 using CylinderSurfacePtrHolder = SurfacePtrHolderImpl<CylinderSurface>;
 using DiscSurfacePtrHolder = SurfacePtrHolderImpl<DiscSurface>;
@@ -27,9 +29,11 @@ using CylinderSurfaceUniqHolder = SurfaceUniqHolderImpl<CylinderSurface>;
 using DiscSurfaceUniqHolder = SurfaceUniqHolderImpl<DiscSurface>;
 using PerigeeSurfaceUniqHolder = SurfaceUniqHolderImpl<PerigeeSurface>;
 using PlaneSurfaceUniqHolder = SurfaceUniqHolderImpl<PlaneSurface>;
-using StraightLineSurfaceUniqHolder = SurfaceUniqHolderImpl<StraightLineSurface>;
+using StraightLineSurfaceUniqHolder =
+  SurfaceUniqHolderImpl<StraightLineSurface>;
 using SurfaceUniqHolder = SurfaceUniqHolderImpl<Surface>;
-}
 
+using SurfacePtrHolderDetEl = Trk::SurfacePtrHolderImplDetEl<Surface>;
+}
 
 #endif
