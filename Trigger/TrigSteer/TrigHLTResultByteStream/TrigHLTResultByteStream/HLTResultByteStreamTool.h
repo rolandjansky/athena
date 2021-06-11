@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -8,10 +8,6 @@
  * @class  : HLTResultByteStreamTool
  *
  * @brief  Gaudi bytestream Converter tool for the HLTResult class
- *
- *
- * File and Version Information:
- * $Id: HLTResultByteStreamTool.h,v 1.4 2007-07-05 13:40:31 eifert Exp $
  **********************************************************************************/
 
 #ifndef TrigHLTResultByteStreamTool_h
@@ -19,6 +15,8 @@
 
 /* general stuff */
 #include <stdint.h>
+#include <map>
+#include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
 
 /* To be able to use OFFLINE_FRAGMENTS_NAMESPACE */
@@ -38,21 +36,15 @@ namespace HLT {
 
   /**
      @class HLTResultByteStreamCnv
-     @brief An AlgTool class to provide conversion from HLTResult to ByteStream, and fill it in RawEvent
+     @brief An AlgTool to provide conversion of Run-1&2 HLTResult from/to ByteStream
 
      This tool is used by the Gaudi converter class: HLTResultByteStreamCnv.
-
   */
-
-
   class HLTResultByteStreamTool: public AthAlgTool {
 
   public:
-
     HLTResultByteStreamTool( const std::string& type, const std::string& name,
-			     const IInterface* parent ) ; //!< std Gaudi tool constructor
-
-    virtual ~HLTResultByteStreamTool() ; //!< virtual destructor
+                             const IInterface* parent ) ; //!< std Gaudi tool constructor
 
     static const InterfaceID& interfaceID( ) ; //!< std Gaudi interface
 
@@ -68,13 +60,16 @@ namespace HLT {
     StatusCode convert(HLTResult* result, RawEventWrite* re,
                        std::string objName);
 
-    eformat::SubDetector byteStreamLocation(std::string objName); //!< helper method
-    FullEventAssembler<HLTSrcIdMap>* eventAssembler(std::string objName); //!< helper method
-
   private:
-    static const std::string s_l2ResultName, s_efResultName, s_hltResultName, s_dataScoutingResultName; //!< LVL2 and EF StoreGate keys
 
-    FullEventAssembler<HLTSrcIdMap> m_feaL2, m_feaEF; //!< helper for reading
+    Gaudi::Property<std::map<std::string, uint32_t>> m_robIDMap{
+      this, "HLTResultRobIdMap", {
+        {"HLTResult_L2", eformat::helper::SourceIdentifier(eformat::TDAQ_LVL2, 0).code()},
+        {"HLTResult_EF", eformat::helper::SourceIdentifier(eformat::TDAQ_EVENT_FILTER, 0).code()},
+        {"HLTResult_HLT", eformat::helper::SourceIdentifier(eformat::TDAQ_HLT, 0).code()}
+      }, "Map of HLTResult names to ROB IDs"};
+
+    FullEventAssembler<HLTSrcIdMap> m_fea;
   };
 }
 
