@@ -100,7 +100,14 @@ StatusCode MuonTruthAssociationAlg::execute(const EventContext& ctx) const {
                 muonTruthParticleType(*muon) = acc_type(*tp);
                 setOrigin = true;
             }
-            ElementLink<xAOD::TruthParticleContainer> truthLink = acc_link(*tp);
+            
+            ElementLink<xAOD::TruthParticleContainer> truthLink;  
+            if (acc_link.isAvailable(*tp)) {
+                truthLink =  acc_link(*tp);
+            } else {
+                ATH_MSG_DEBUG("Could not find  any truth link associated with track having pt:"<<tp->pt()<<" MeV, eta: "<<tp->eta()<<", phi: "<<tp->phi()<<", charge: "<<tp->charge()<<". d0:"<<tp->d0()<<", z0: "<<tp->z0());               
+            }
+           
             if (truthLink.isValid()) {
                 ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
                 // loop over truth particles
