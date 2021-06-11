@@ -275,15 +275,8 @@ StatusCode AthenaOutputStream::initialize() {
      ATH_CHECK (pAsIProp->setProperty("ItemList", m_transientItems.toString()));
 
      for (const SG::FolderItem& item : *m_p2BWritten) {
-       // Load ROOT dictionaries now, as we see sporadic failures
-       // with dictionary loading if it happens while multiple
-       // threads are running.  See ATEAM-697.
-       m_dictLoader->load_type (item.id()); // Load ROOT dictionaries now.
-       // Also load the persistent class dictionary, if applicable.
-       std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (item.id());
-       if (tpcnv) {
-         m_dictLoader->load_type (tpcnv->persistentTInfo());
-       }
+       // Load ROOT dictionaries now.
+       loadDict (item.id());
        
        const std::string& k = item.key();
        if (k.find('*') != std::string::npos) continue;
@@ -296,6 +289,21 @@ StatusCode AthenaOutputStream::initialize() {
          }
        }
      }
+     m_transient->clear();
+   }
+
+   // Also load dictionaries for metadata classes.
+   if (!m_metadataItemList.value().empty()) {
+     IProperty *pAsIProp = dynamic_cast<IProperty*> (&*m_transient);
+     if (!pAsIProp) {
+       ATH_MSG_FATAL ("Bad folder interface");
+       return StatusCode::FAILURE;
+     }
+     ATH_CHECK (pAsIProp->setProperty("ItemList", m_metadataItemList.toString()));
+     for (const SG::FolderItem& item : *m_transient) {
+       loadDict (item.id());
+     }
+     m_transient->clear();
    }
 
    // listen to event range incidents if incident name is configured
@@ -1177,4 +1185,21 @@ StatusCode AthenaOutputStream::io_finalize() {
    }
    incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;
+}
+
+
+/// Helper function to load dictionaries (both transient and persistent)
+/// for a given type.
+/// We want to to this explicitly during initialization to avoid sporadic
+/// failures seen loading dictionaries while multiple threads are running.
+/// See ATEAM-697 and ATEAM-749.
+void AthenaOutputStream::loadDict (CLID clid)
+{
+  m_dictLoader->load_type (clid);
+
+  // Also load the persistent class dictionary, if applicable.
+  std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (clid);
+  if (tpcnv) {
+    m_dictLoader->load_type (tpcnv->persistentTInfo());
+  }
 }
