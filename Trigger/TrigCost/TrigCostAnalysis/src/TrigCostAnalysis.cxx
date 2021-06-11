@@ -23,7 +23,7 @@
 
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
-  AthHistogramAlgorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_metadataTree(nullptr),
   m_fullEventDumps(0),
   m_maxViewsNumber(0) {
@@ -60,8 +60,8 @@ StatusCode  TrigCostAnalysis::initialize() {
     }
   }
   
-  ATH_CHECK( histSvc()->regTree("/COSTSTREAM/metadata", std::make_unique<TTree>("metadata", "metadata")) );
-  ATH_CHECK( histSvc()->getTree("/COSTSTREAM/metadata", m_metadataTree) );
+  ATH_CHECK( m_histSvc->regTree("/COSTSTREAM/metadata", std::make_unique<TTree>("metadata", "metadata")) );
+  ATH_CHECK( m_histSvc->getTree("/COSTSTREAM/metadata", m_metadataTree) );
   
   return StatusCode::SUCCESS;
 }
@@ -166,8 +166,16 @@ float TrigCostAnalysis::getWeight(const EventContext& context) {
 }
 
 
-TH1* TrigCostAnalysis::bookGetPointer_fwd(TH1* hist, const std::string& tDir) {
-  return bookGetPointer(hist, tDir);
+TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) {
+  std::string histName(hist->GetName());
+  std::string bookingString = "/COSTSTREAM/" + tDir + "/" + histName;
+
+  if (!((m_histSvc->regHist(bookingString, hist)).isSuccess())) {
+    ATH_MSG_WARNING( "Problem registering histogram with name " << histName);
+    return nullptr;
+  }
+
+  return hist;
 }
 
 

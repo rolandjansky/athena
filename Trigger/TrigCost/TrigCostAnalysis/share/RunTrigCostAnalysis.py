@@ -37,7 +37,6 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
 
   trigCostAnalysis = CompFactory.TrigCostAnalysis()
   trigCostAnalysis.OutputLevel = DEBUG
-  trigCostAnalysis.RootStreamName = "COSTSTREAM"
   trigCostAnalysis.BaseEventWeight = args.baseWeight
   trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
   trigCostAnalysis.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
