@@ -220,7 +220,8 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "MuonTruthSegments",
                                        "MET_Truth","MET_TruthRegions",
                                        "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson",
-                                       "CaloCalTopoClusters", "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects", "JetETMissNeutralFlowElements", "JetETMissChargedFlowElements"
+                                       "CaloCalTopoClusters", "EMOriginTopoClusters","LCOriginTopoClusters",
+                                       "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects", "JetETMissNeutralFlowElements", "JetETMissChargedFlowElements"
                                      ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -276,12 +277,15 @@ if DerivationFrameworkIsMonteCarlo:
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                             'AntiKt10LCTopoJets':'xAOD::JetContainer', 'AntiKt10LCTopoJetsAux':'xAOD::JetAuxContainer',
                                             'AntiKt10PV0TrackJets':'xAOD::JetContainer','AntiKt10PV0TrackJetsAux':'xAOD::JetAuxContainer',
-                                            'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer'   
+                                            'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
+                                            'EMOriginTopoClusters':'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
+                                            'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSVALSlimmingHelper)
    PHYSVALSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   PHYSVALSlimmingHelper.SmartCollections += ['AntiKt4TruthJets']
 
 PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
