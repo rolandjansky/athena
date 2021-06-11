@@ -203,6 +203,7 @@ JetChainParts = {
                       'DIJET20j12ptXX110djmass',  # very loose cuts for testing
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'HT1000',
+                      'HT300',
                       'HT500',
                       'HT1000XX30et',
                       'HT500XX30et',
