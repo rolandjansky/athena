@@ -72,7 +72,7 @@ ApplicationMgr                                    SUCCESS           AthSequencer
 ApplicationMgr                                    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
 ApplicationMgr                                    SUCCESS                IncidentProcAlg/IncidentProcAlg2
 ApplicationMgr                                    SUCCESS      AthSequencer/AthOutSeq
-ApplicationMgr                                    SUCCESS      AthIncFirerAlg/EventWrittenFiringAlg
+ApplicationMgr                                    SUCCESS      AthIncFirerAlg/EndAlgorithmsFiringAlg
 ApplicationMgr                                    SUCCESS      IncidentProcAlg/IncidentProcAlg3
 ApplicationMgr                                    SUCCESS ******************************************************************************
 CondInputLoader                                      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'

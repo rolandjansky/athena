@@ -333,8 +333,9 @@ class AthAppMgr( AppMgr ):
          athMasterSeq += athAlgEvtSeq
          athMasterSeq += athOutSeq
          
-         athMasterSeq += IFA('EventWrittenFiringAlg',
-                             Incidents = ['EventWritten'],
+         # Should be after all other algorithms.
+         athMasterSeq += IFA('EndAlgorithmsFiringAlg',
+                             Incidents = ['EndAlgorithms'],
                              FireSerial = False)
          athMasterSeq += IPA('IncidentProcAlg3')
 
