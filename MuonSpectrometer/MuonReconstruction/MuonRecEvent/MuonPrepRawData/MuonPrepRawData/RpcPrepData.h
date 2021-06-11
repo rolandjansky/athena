@@ -73,6 +73,16 @@ public:
                  const float time,
                  const int triggerInfo,
                  const int ambiguityFlag);
+    RpcPrepData( const Identifier& RDOId,
+                 const IdentifierHash &idDE,
+                 const Amg::Vector2D& locpos,
+                 std::vector<Identifier>&& rdoList,
+                 Amg::MatrixX&& locErrMat,
+                 const MuonGM::RpcReadoutElement* detEl,
+                 const float time,
+                 const int triggerInfo,
+                 const int ambiguityFlag);
+ 
     /** @brief Extra Constructor without TriggerInfo for a slimmed version of RpcPrepData to come. */
     RpcPrepData( const Identifier& RDOId,
                  const IdentifierHash &idDE,
@@ -82,6 +92,16 @@ public:
                  const MuonGM::RpcReadoutElement* detEl,
                  const float time,
                  const int ambiguityFlag);
+    RpcPrepData( const Identifier& RDOId,
+                 const IdentifierHash &idDE,
+                 const Amg::Vector2D& locpos,
+                 std::vector<Identifier>&& rdoList,
+                 Amg::MatrixX&& locErrMat,
+                 const MuonGM::RpcReadoutElement* detEl,
+                 const float time,
+                 const int ambiguityFlag);
+
+
 
 
     /** @brief Destructor: */

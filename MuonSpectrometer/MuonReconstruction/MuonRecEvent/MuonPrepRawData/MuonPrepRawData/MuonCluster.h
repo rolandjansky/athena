@@ -56,12 +56,17 @@ namespace Muon
        @param rdoList List of channels associated with cluster
        @param locErrMat The measurement errors. Ownership passes to this object!
     */
-    MuonCluster( const Identifier& RDOId,
-                 const IdentifierHash& collectionHash,
-                 const Amg::Vector2D& locpos,
-                 const std::vector<Identifier>& rdoList,
-                 const Amg::MatrixX& locErrMat
-         );
+    MuonCluster(const Identifier& RDOId,
+                const IdentifierHash& collectionHash,
+                const Amg::Vector2D& locpos,
+                const std::vector<Identifier>& rdoList,
+                const Amg::MatrixX& locErrMat);
+
+    MuonCluster(const Identifier& RDOId,
+                const IdentifierHash& collectionHash,
+                const Amg::Vector2D& locpos,
+                std::vector<Identifier>&& rdoList,
+                Amg::MatrixX&& locErrMat);
 
     /** @brief Destructor*/
     virtual ~MuonCluster();

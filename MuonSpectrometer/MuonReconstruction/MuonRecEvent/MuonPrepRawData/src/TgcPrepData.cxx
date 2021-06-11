@@ -30,6 +30,20 @@ namespace Muon
     m_bcBitMap(bcBitMap)
 { }
 
+  TgcPrepData::TgcPrepData( const Identifier& RDOId,
+			    const IdentifierHash &idDE,
+			    const Amg::Vector2D& locpos,
+			    std::vector<Identifier>&& rdoList,
+			    Amg::MatrixX&& locErrMat,
+			    const MuonGM::TgcReadoutElement* detEl,
+          const uint16_t bcBitMap) :
+    MuonCluster(RDOId, idDE, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
+    m_detEl(detEl),
+    m_bcBitMap(bcBitMap)
+{ }
+
+
+
 // Destructor:
 TgcPrepData::~TgcPrepData()
 {

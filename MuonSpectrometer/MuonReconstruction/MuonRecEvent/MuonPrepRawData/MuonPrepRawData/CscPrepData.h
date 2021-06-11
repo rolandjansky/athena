@@ -78,6 +78,19 @@ class CscPrepData final:   public MuonCluster
                const CscTimeStatus timeStatus=Muon::CscTimeStatusUndefined
                );
 
+  CscPrepData( const Identifier& RDOId,
+               const IdentifierHash &idDE,
+               const Amg::Vector2D& locpos,
+               std::vector<Identifier>&& rdoList,
+               Amg::MatrixX&& locErrMat,
+               const MuonGM::CscReadoutElement* detEl,
+               const int charge,
+               const double time,
+               const CscClusterStatus status,
+               const CscTimeStatus timeStatus=Muon::CscTimeStatusUndefined
+               );
+
+
   /** @brief Destructor */
   virtual ~CscPrepData();
 

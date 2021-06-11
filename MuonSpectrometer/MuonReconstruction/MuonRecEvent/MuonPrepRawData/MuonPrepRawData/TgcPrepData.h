@@ -62,8 +62,17 @@ namespace Muon
                  const MuonGM::TgcReadoutElement* detEl,
                  const uint16_t bcBitMap=0);
 
+    TgcPrepData( const Identifier& RDOId,
+                 const IdentifierHash &idDE,
+                 const Amg::Vector2D& locpos,
+                 std::vector<Identifier>&& rdoList,
+                 Amg::MatrixX&& locErrMat,
+                 const MuonGM::TgcReadoutElement* detEl,
+                 const uint16_t bcBitMap=0);
+
+
     /// Destructor:
-      virtual ~TgcPrepData();
+    virtual ~TgcPrepData();
 
       // /////////////////////////////////////////////////////////////////
       // Virtual methods
