@@ -189,6 +189,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
   InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
 
+  from InDetPrepRawDataFormation.MonitoringTool import PixelClusterization_MonitoringTool
+  InDetPixelClusterization.MonTool = PixelClusterization_MonitoringTool()
+
   viewAlgs.append(InDetPixelClusterization)
 
   # Create SCT_ConditionsSummaryTool
@@ -260,6 +263,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
   from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
   InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()
+  
+  from InDetPrepRawDataFormation.MonitoringTool import SCT_Clusterization_MonitoringTool
+  InDetSCT_Clusterization.MonTool = SCT_Clusterization_MonitoringTool()
+  
 
   viewAlgs.append(InDetSCT_Clusterization)
 

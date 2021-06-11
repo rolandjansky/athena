@@ -70,11 +70,22 @@ namespace InDet {
       m_regionSelector.disable();
     }
 
+    if ( !m_monTool.empty() ) {
+       ATH_CHECK(m_monTool.retrieve() );
+    }
+    else {
+       ATH_MSG_INFO("Monitoring tool is empty");
+    }
+
     return StatusCode::SUCCESS;
   }
 
   // Execute method:
   StatusCode SCT_Clusterization::execute(const EventContext& ctx) const {
+    //Monitoring Tool Configuration
+    auto mnt_timer_Total                 = Monitored::Timer<std::chrono::milliseconds>("TIME_Total");
+    auto mnt_timer_SummaryTool           = Monitored::Timer<std::chrono::milliseconds>("TIME_SummaryTool");
+    auto mnt_timer_Clusterize            = Monitored::Timer<std::chrono::milliseconds>("TIME_Clusterize");
     // Register the IdentifiableContainer into StoreGate
     SG::WriteHandle<SCT_ClusterContainer> clusterContainer{m_clusterContainerKey, ctx};
     if (m_clusterContainerCacheKey.key().empty()) {
@@ -171,7 +182,6 @@ namespace InDet {
           }
         }
       } else { //enter RoI-seeded mode
-
 	SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey, ctx};
         ATH_CHECK(roiCollection.isValid());
         TrigRoiDescriptorCollection::const_iterator roi{roiCollection->begin()};
@@ -186,10 +196,13 @@ namespace InDet {
 	    IdentifierHash id = listOfSCTIds[i];
             const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection{rdoContainer->indexFindPtr(id)};
             if (RDO_Collection==nullptr) continue;
-
-	    bool goodModule{m_checkBadModules.value() ? m_pSummaryTool->isGood(id) : true};
-	    if (!goodModule) ATH_MSG_VERBOSE("module status flagged as BAD");
-	    // Check the RDO is not empty and that the wafer is good according to the conditions
+            bool goodModule;
+            {
+              Monitored::ScopedTimer time_SummaryTool(mnt_timer_SummaryTool);
+	      goodModule = {m_checkBadModules.value() ? m_pSummaryTool->isGood(id) : true};
+	      if (!goodModule) ATH_MSG_VERBOSE("module status flagged as BAD");
+            }
+            // Check the RDO is not empty and that the wafer is good according to the conditions
 	    if ((not RDO_Collection->empty()) and goodModule) {
 	      // If more than a certain number of RDOs set module to bad
 	      if (m_maxFiredStrips.value()) {
@@ -205,7 +218,6 @@ namespace InDet {
 	    }
 
 
-
             SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(listOfSCTIds[i])};
             if (lock.OnlineAndPresentInAnotherView()) {
 	      ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
@@ -214,12 +226,15 @@ namespace InDet {
 
 
             // Use one of the specific clustering AlgTools to make clusters
-            std::unique_ptr<SCT_ClusterCollection> clusterCollection{m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper)};
-            if (clusterCollection and (not clusterCollection->empty())) {
-              ATH_MSG_VERBOSE("REGTEST: SCT : clusterCollection contains " << clusterCollection->size() << " clusters");
-              ATH_CHECK(lock.addOrDelete(std::move(clusterCollection)));
-            } else {
-              ATH_MSG_DEBUG("No SCTClusterCollection to write");
+            {
+              Monitored::ScopedTimer time_Clusterize(mnt_timer_Clusterize);
+              std::unique_ptr<SCT_ClusterCollection> clusterCollection{m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper)};
+              if (clusterCollection and (not clusterCollection->empty())) {
+                ATH_MSG_VERBOSE("REGTEST: SCT : clusterCollection contains " << clusterCollection->size() << " clusters");
+                ATH_CHECK(lock.addOrDelete(std::move(clusterCollection)));
+              } else {
+                ATH_MSG_DEBUG("No SCTClusterCollection to write");
+              }
             }
           }
         }
@@ -232,7 +247,7 @@ namespace InDet {
     for (auto [hash, error] : flaggedCondMap) {
       flaggedCondData->setOrDrop(hash, error);
     }
-
+    auto monTime = Monitored::Group(m_monTool, mnt_timer_Total, mnt_timer_Clusterize, mnt_timer_SummaryTool);
     return StatusCode::SUCCESS;
   }
 
