@@ -3,4 +3,4 @@
 */
 #include "MuonIdHelpers/MuonIdHelperSvc.h"
 
-DECLARE_COMPONENT( Muon::MuonIdHelperSvc )
+DECLARE_COMPONENT(Muon::MuonIdHelperSvc)
