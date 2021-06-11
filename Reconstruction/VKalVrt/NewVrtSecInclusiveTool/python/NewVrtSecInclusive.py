@@ -6,7 +6,7 @@ from NewVrtSecInclusiveTool.NewVrtSecInclusiveToolConf import Rec__NewVrtSecIncl
 from NewVrtSecInclusiveTool.NewVrtSecInclusiveToolConf import Rec__NewVrtSecInclusiveAlg
 
 # define the class
-# Search for soft B-hadron vertices. 
+# Search for low-pt (soft) B-hadron vertices. 
 #------------------------------------
 class SoftBFinderTool( Rec__NewVrtSecInclusiveTool ):
 
@@ -49,6 +49,7 @@ class SoftBFinderTool( Rec__NewVrtSecInclusiveTool ):
 
 ##########################################################################################################
 # define the class
+# Configuration for B-hadron search in the ttbar phase space
 class InclusiveBFinderTool( Rec__NewVrtSecInclusiveTool ):
 
     def __init__(self, name = 'InclusiveBFinderTool'  ):
@@ -122,6 +123,7 @@ class HighPtBFinderTool( Rec__NewVrtSecInclusiveTool ):
                                              )
 ##########################################################################################################
 # define the class
+# Configuration for hadronic interactions in ID material studies
 class MaterialSVFinderTool( Rec__NewVrtSecInclusiveTool ):
 
     def __init__(self, name = 'MaterialSVFinderTool'  ):
@@ -160,6 +162,7 @@ class MaterialSVFinderTool( Rec__NewVrtSecInclusiveTool ):
                                              )
 ##########################################################################################################
 # define the class
+# Configuration for LLP search using LRT 
 class DVFinderTool( Rec__NewVrtSecInclusiveTool ):
 
     def __init__(self, name = 'DVFinderTool'  ):
@@ -184,23 +187,70 @@ class DVFinderTool( Rec__NewVrtSecInclusiveTool ):
                                              CutPixelHits = 0,
                                              CutSiHits    = 7,
                                              CutTRTHits   = 15,
+                                             CutD0Max     = 1000.,  # Maximal track impact parameter
+                                             CutD0Min     = 0.,     # Minimal track impact parameter
+                                             AntiPileupSigRCut = 6.0,    # Remove tracks aroung beamline
+                                             TrkSigCut         = 10.0,   # Minimal track 3D impact significance
                                              VrtMassLimit      = 1000000.,
                                              Vrt2TrMassLimit   = 1000000.,
                                              useVertexCleaning  = False,
                                              MultiWithOneTrkVrt = False,
                                              removeTrkMatSignif = -1.,   # No explicit material interation rejection
-                                             AntiPileupSigRCut = 6.0,
-                                             TrkSigCut         = 10.0,   # Minimal track 3D impact significance
                                              SelVrtSigCut      = 8.0,
                                              v2tIniBDTCut      =-1.1,  # Disable b-hadron trained BDT here 
                                              v2tFinBDTCut      =-1.1,  # Disable b-hadron trained BDT here
-                                             cosSVPVCut        =-0.5,
-                                             CutD0Max          = 100.,  # Maximal track impact parameter
-                                             CutD0Min          = 0.,    # Minimal track impact parameter
+                                             cosSVPVCut        = 0.0,
                                              CutZVrt           = 100.,
                                              VertexMergeCut    = 10.,   # 3D vertex-vertex dist significance to try merging
-                                             FastZSVCut        = 25.,   # track-track distance cut
+                                             FastZSVCut        = 30.,   # Pre-selection track-track distance cut
                                              MaxSVRadiusCut    = 350.
+                                             )
+
+##########################################################################################################
+# define the class
+# Configuration for creation of calibration ntuples for 2-track vertex classification BDT
+# Version for B-hadrons
+#
+class V2TCalibrationTool( Rec__NewVrtSecInclusiveTool ):
+
+    def __init__(self, name = 'V2TCalibrationTool'  ):
+
+        from AthenaCommon.AppMgr import ToolSvc
+        mlog = logging.getLogger( 'DVFinderTool::__init__ ' )
+        mlog.info("entering")
+        #----------------------
+        # VKalVrt vertex fitter
+        # 
+        from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+                                                  Extrapolator="Trk::Extrapolator/AtlasExtrapolator")
+        ToolSvc += SVertexFitterTool
+        #----------------------
+        # Soft B-hadron vertex finder itself
+        #
+        Rec__NewVrtSecInclusiveTool.__init__( self, name = name,
+                                             VertexFitterTool   = SVertexFitterTool,
+                                             FillHist     =True,
+                                             CutPt        = 400.,   # Lowest track Pt
+                                             CutBLayHits  = 0,
+                                             CutPixelHits = 1,      # Only vertices inside Pixel are considered
+                                             CutSiHits    = 8,
+                                             CutTRTHits   = 15,
+                                             VrtMassLimit      = 5500.,
+                                             Vrt2TrMassLimit   = 4000.,
+                                             useVertexCleaning  = False,
+                                             MultiWithOneTrkVrt = False,
+                                             removeTrkMatSignif = -1.,   # No explicit material interation rejection
+                                             AntiPileupSigRCut = 2.0,
+                                             TrkSigCut         = 2.0,   # Minimal track 3D impact significance
+                                             v2tIniBDTCut      =-1.1,   # Disable BDT usage
+                                             v2tFinBDTCut      =-1.1,   # Disable BDT usage
+                                             cosSVPVCut        = 0.0,   # Maximal angle between SV-PV and SV momentum
+                                             CutD0Max          = 300.,  # Maximal track impact parameter
+                                             CutD0Min          = 0.,    # Minimal track impact parameter
+                                             CutZVrt           = 100.,
+                                             FastZSVCut        = 15.,   # Pre-selection track-track distance cut
+                                             MaxSVRadiusCut    = 140.
                                              )
 
 ##########################################################################################################
