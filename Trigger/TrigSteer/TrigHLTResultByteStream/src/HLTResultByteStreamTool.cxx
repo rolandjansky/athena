@@ -3,8 +3,8 @@
 */
 
 
-#include "TrigHLTResultByteStream/HLTResultByteStreamTool.h"
-#include "TrigHLTResultByteStream/HLTSrcIdMap.h"
+#include "HLTResultByteStreamTool.h"
+#include "HLTSrcIdMap.h"
 #include "eformat/SourceIdentifier.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include <iostream>
