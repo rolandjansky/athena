@@ -163,16 +163,8 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
-    if 'CMTPATH' in os.environ:
-        if q == 'q431':
-            extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
-        elif q == 'q221':
-            extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
 
-    if q == 'q221' or q == 'q440':
-        extraArg += " --athenaopts RDOtoRDOTrigger:--threads=1 "
-
-    logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
+    logging.info("Running clean in rel "+release+" \"ATHENA_CORE_NUMBER=1 Reco_tf.py --multithreaded --AMI "+q+" --imf False "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
 
     CleanDirName="clean_run_"+q+"_"+UniqID
@@ -182,7 +174,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
             " mkdir -p "+ CleanDirName    +" ;" + 
             " cd "      + CleanDirName    +" ;" + 
             " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Reco_tf.py --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" )
+            " ATHENA_CORE_NUMBER=1 Reco_tf.py --multithreaded --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" )
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
@@ -191,16 +183,8 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, nosetup=False):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
-    if 'CMTPATH' in os.environ:
-        if q == 'q431':
-            extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
-        elif q == 'q221':
-            extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
 
-    if q == 'q221' or q == 'q440':
-        extraArg += " --athenaopts RDOtoRDOTrigger:--threads=1 "
-
-    logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
+    logging.info("Running patched in rel "+release+" \"ATHENA_CORE_NUMBER=1 Reco_tf.py --multithreaded --AMI "+q+" --imf False "+extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -212,7 +196,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, nosetup=False):
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+q+"; cd run_"+q+";"
-    cmd += " Reco_tf.py --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" 
+    cmd += " ATHENA_CORE_NUMBER=1 Reco_tf.py --multithreaded --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1"
     
     subprocess.call(cmd,shell=True)
 
@@ -220,7 +204,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, nosetup=False):
     pass
 
 def pwd():
-    Proc = subprocess.Popen('pwd', shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+    Proc = subprocess.Popen('pwd', shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
     Out = (Proc.communicate()[0])[:-1]     
     return Out.decode('utf-8')
     
