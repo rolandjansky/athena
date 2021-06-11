@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 PixelSensorSDTool=CompFactory.PixelSensorSDTool
 
