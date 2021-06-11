@@ -4,12 +4,8 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
-from __future__ import print_function
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
 
 if __name__ == '__main__':
-
 
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
@@ -31,20 +27,9 @@ if __name__ == '__main__':
   # Finalize
   ConfigFlags.lock()
 
-
-  ## Initialize a new component accumulator
-  cfg = ComponentAccumulator()
-
+  # Setup the tool
   from BLM_G4_SD.BLM_G4_SDToolConfig import BLMSensorSDCfg
-
-
-  acc, tool = BLMSensorSDCfg(ConfigFlags)
-  acc.addPublicTool(tool)
-  cfg.merge(acc)
-
-
-
-
+  cfg = BLMSensorSDCfg(ConfigFlags)
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
@@ -52,7 +37,5 @@ if __name__ == '__main__':
   cfg.store(f)
   f.close()
 
-
-
-  print(cfg._publicTools)
+  print(cfg._privateTools)
   print("-----------------finished----------------------")

@@ -6,12 +6,11 @@ from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 
 def HgtdSensorSDCfg(ConfigFlags, name="HgtdSensorSD", **kwargs):
-
-    result = ComponentAccumulator()
     bare_collection_name = "HGTD_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "HGTDHits"
     region = "ID"
+
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
                                                     bare_collection_name,
                                                     mergeable_collection_suffix,
@@ -20,6 +19,7 @@ def HgtdSensorSDCfg(ConfigFlags, name="HgtdSensorSD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["HGTD::HGTDSiSensor0", "HGTD::HGTDSiSensor1", "HGTD::HGTDSiSensor2", "HGTD::HGTDSiSensor3"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
+    result = ComponentAccumulator()
     result.merge(acc)
-    HGTDSensorSDTool = CompFactory.HGTDSensorSDTool
-    return result, HGTDSensorSDTool(name, **kwargs)
+    result.setPrivateTools(CompFactory.HGTDSensorSDTool(name, **kwargs))
+    return result
