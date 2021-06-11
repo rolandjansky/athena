@@ -125,7 +125,7 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
       none
   IncidentProcAlg2
       none
-  EventWrittenFiringAlg
+  EndAlgorithmsFiringAlg
       none
   IncidentProcAlg3
       none

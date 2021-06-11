@@ -308,9 +308,9 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     return sc;
   }
 
-  // Listen to the BeforeFork and EventWritten incidents
+  // Listen to the BeforeFork and EndAlgorithms incidents
   m_incidentSvc->addListener(this,"BeforeFork",0);
-  m_incidentSvc->addListener(this, "EventWritten",0);
+  m_incidentSvc->addListener(this, "EndAlgorithms",0);
 
   CHECK( m_conditionsCleaner.retrieve() );
 
@@ -875,7 +875,7 @@ int AthenaHiveEventLoopMgr::size()
 void AthenaHiveEventLoopMgr::handle(const Incident& inc)
 {
 
-  if(inc.type() == "EventWritten") {
+  if(inc.type() == "EndAlgorithms") {
     // Clear the store at the end of the event.
     // Do it here so that it executes in an algorithm context and thus
     // multiple stores can be cleared at the same time.

@@ -66,7 +66,8 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addEventAlgo(AthIncFirerAlg('EndIncFiringAlg',FireSerial=False,Incidents=['EndEvent']), sequenceName="AthEndSeq")
     cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg2'),sequenceName="AthEndSeq")
 
-    cfg.addEventAlgo(AthIncFirerAlg('EventWrittenFiringAlg',FireSerial=False,Incidents=['EventWritten']), sequenceName="AthMasterSeq")
+    # Should be after all other algorithms.
+    cfg.addEventAlgo(AthIncFirerAlg('EndAlgorithmsFiringAlg',FireSerial=False,Incidents=['EndAlgorithms']), sequenceName="AthMasterSeq")
     cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg3'),sequenceName="AthMasterSeq")
 
     #Basic services:

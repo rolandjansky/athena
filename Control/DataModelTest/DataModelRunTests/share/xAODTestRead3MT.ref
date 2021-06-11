@@ -127,7 +127,7 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
       none
   IncidentProcAlg2
       none
-  EventWrittenFiringAlg
+  EndAlgorithmsFiringAlg
       none
   IncidentProcAlg3
       none
@@ -195,7 +195,7 @@ PrecedenceSvc                                                0    INFO
         EndIncFiringAlg [Alg]  [n= 0]
         IncidentProcAlg2 [Alg]  [n= 0] [unclonable] 
     AthOutSeq [Seq]  [Concurrent] 
-    EventWrittenFiringAlg [Alg]  [n= 0]
+    EndAlgorithmsFiringAlg [Alg]  [n= 0]
     IncidentProcAlg3 [Alg]  [n= 0] [unclonable] 
 
 AthenaHiveEventLoopMgr                                       0    INFO Setup EventSelector service EventSelector
