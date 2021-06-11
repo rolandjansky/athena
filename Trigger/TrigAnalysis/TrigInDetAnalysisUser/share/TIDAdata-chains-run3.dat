@@ -52,8 +52,8 @@ testChains = {
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso",
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau:post:rvtx=HLT_IDVertex_Tau",
 
-    "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF",
-    "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig",
+    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF",
+    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig",
 
     "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig",
 
@@ -62,7 +62,6 @@ testChains = {
     "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_IDTrig;DTE",
 
 #endif
-
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
@@ -70,6 +69,8 @@ testChains = {
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
     "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet:post:rvtx=HLT_IDVertex_FSJet",
+
+
 
 
 };
