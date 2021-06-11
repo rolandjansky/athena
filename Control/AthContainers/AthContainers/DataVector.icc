@@ -539,7 +539,7 @@ DataVector<T, BASE>& DataVector<T, BASE>::operator= (const DataVector& rhs)
  */
 template <class T, class BASE>
 DataVector<T, BASE>&
-DataVector<T, BASE>::operator= (DataVector<T, BASE>&& rhs)
+DataVector<T, BASE>::operator= (DataVector<T, BASE>&& rhs) noexcept
 {
   if (this != &rhs) {
     // Ensure we're not being called via a base class.
