@@ -293,10 +293,10 @@ else
             refdiff=`basename ${reflog}`-todiff.bz2
             sed 's/H1Topo/Topo/g' < $joblog | egrep -v "$PP" | bzip2 -9 > $jobdiff
             sed 's/H1Topo/Topo/g' < $reflog | egrep -v "$PP" | bzip2 -9 > $refdiff
-            bzdiff -a -u -w $jobdiff $refdiff
+            bzdiff -a -u -w $refdiff $jobdiff
 	    diffStatus=$?
 	    if [ $diffStatus != 0 ] ; then
-		echo "post.sh> ERROR: $joblog and $reflog differ"
+		echo "post.sh> ERROR: $reflog and $joblog differ"
                 exit 1
 	    fi
 
