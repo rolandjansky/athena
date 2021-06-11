@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=================================================================================
 ## Name:        LArCellConditionsAlg.py
@@ -21,7 +21,7 @@ from ROOT import HWIdentifier, Identifier, IdentifierHash, LArBadChannel, LArBad
 from ROOT import CaloDetDescrManager
 
 from ctypes import c_uint
-from time import clock
+import time
 import os
 
 class LArCellConditionsAlg(PyAthena.Alg):
@@ -52,13 +52,13 @@ class LArCellConditionsAlg(PyAthena.Alg):
         ## it for us
 
         # Get DetectorStore...
-        from StoreGateBindings.Bindings import StoreGate
-        self._detStore = StoreGate.pointer("DetectorStore")
+
+        self._detStore =  PyAthena.py_svc('StoreGateSvc/DetectorStore')
         if self._detStore is None:
             self.msg.error("Failed to get DetectorStore")
             return StatusCode.Failure
 
-        self._condStore = StoreGate.pointer("ConditionStore")
+        self._condStore = PyAthena.py_svc('StoreGateSvc/ConditionStore')
         if (self._condStore is None):
             self.msg.error("Failed to get ConditionStore")
             return StatusCode.Failure
@@ -111,7 +111,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
         
     def execute(self):
-        self.msg.info('running execute...')
+        #self.msg.info('running execute...')
 
         #for debugging purposes:
         #sgdump = open("sgdump.txt", 'w')
@@ -222,9 +222,9 @@ class LArCellConditionsAlg(PyAthena.Alg):
                                
             if rep.startswith("SEARCH"):
                 inp=rep_in[6:].strip()
-                starttime=clock()
+                starttime=time.time()
                 self.search(inp)
-                print("seach time %.1f sec" % (clock()-starttime))
+                print("seach time %.1f sec" % (time.time()-starttime))
                 continue
 
             #Help
@@ -825,7 +825,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if slot is not None: print(" %.0f <= Slot <= %.0f" % (slot[0],slot[1]),end="")
         
         if bctypes!=0:
-            print (self.bc_packing.stringStatus(LArBadChannel(bctypes)),end="")
+            print (" "+self.bc_packing.stringStatus(LArBadChannel(bctypes)),end="")
 
         if phi is None and eta is None and bctypes==0 and ft is None and side is None and bec is None and slot is None and layer and subcalo is None:
             print ("No search criteria set!")
