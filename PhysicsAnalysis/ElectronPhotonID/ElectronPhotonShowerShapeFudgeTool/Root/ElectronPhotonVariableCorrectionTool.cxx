@@ -46,7 +46,8 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
 
     // Retreive properties from configuration file, using TEnv class
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
@@ -238,7 +239,8 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( co
 const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
 {
     // Retreive properties from configuration file, using TEnv class
-    TEnv env(confFile.c_str());
+    TEnv env;
+    env.ReadFile(confFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 

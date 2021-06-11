@@ -101,8 +101,8 @@ StatusCode AsgElectronSelectorTool::initialize()
 
 
     ATH_MSG_DEBUG("Configfile to use: " << m_configFile);
-    TEnv env(configFile.c_str());
-
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
 
     std::string modelFilename("");
     std::string quantileFilename("");
