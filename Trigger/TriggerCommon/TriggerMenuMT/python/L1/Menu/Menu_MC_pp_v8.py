@@ -310,7 +310,12 @@ def defineMenu():
         'L1_eEM18VHI_jMJJ-300-NFF',
     
         #ATR-19720
+        'L1_BPH-2M9-0DR15-2MU4',
         'L1_BPH-8M15-2MU4-BO',
+        'L1_BPH-2M9-0DR15-MU6MU4',
+        'L1_BPH-8M15-0DR22-MU6MU4-BO',
+        'L1_BPH-2M9-2DR15-2MU6',
+        'L1_BPH-8M15-0DR22-2MU6',
 
         # combined L1Topo for VBF
         
