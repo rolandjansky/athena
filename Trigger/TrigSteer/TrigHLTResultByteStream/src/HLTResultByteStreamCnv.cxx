@@ -4,8 +4,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTResultByteStream/HLTResultByteStreamCnv.h"
-#include "TrigHLTResultByteStream/HLTResultByteStreamTool.h"
+#include "HLTResultByteStreamCnv.h"
+#include "HLTResultByteStreamTool.h"
 
 #include "ByteStreamData/ROBData.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"

@@ -3,7 +3,7 @@
 */
 
 // Trigger includes
-#include "TrigHLTResultByteStream/HLTResultMTByteStreamCnv.h"
+#include "HLTResultMTByteStreamCnv.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes

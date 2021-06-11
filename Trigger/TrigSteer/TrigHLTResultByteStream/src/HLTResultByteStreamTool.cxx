@@ -1,54 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "TrigHLTResultByteStream/HLTResultByteStreamTool.h"
-#include "TrigHLTResultByteStream/HLTSrcIdMap.h"
+#include "HLTResultByteStreamTool.h"
+#include "HLTSrcIdMap.h"
 #include "eformat/SourceIdentifier.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include <iostream>
 #include <stdlib.h>
 
-const std::string HLT::HLTResultByteStreamTool::s_l2ResultName = "HLTResult_L2";
-const std::string HLT::HLTResultByteStreamTool::s_efResultName = "HLTResult_EF";
-const std::string HLT::HLTResultByteStreamTool::s_hltResultName = "HLTResult_HLT";
-const std::string HLT::HLTResultByteStreamTool::s_dataScoutingResultName = "DataScouting_";
-
 HLT::HLTResultByteStreamTool::HLTResultByteStreamTool( const std::string& type,
                                                        const std::string& name,
                                                        const IInterface* parent )
-  :  AthAlgTool(type,name,parent)
+  : AthAlgTool(type,name,parent)
 {
-  declareInterface< HLT::HLTResultByteStreamTool  >( this );
-  m_feaL2.idMap().setDetId(eformat::TDAQ_LVL2);
-  m_feaEF.idMap().setDetId(eformat::TDAQ_EVENT_FILTER);
+  declareInterface<HLT::HLTResultByteStreamTool>( this );
 }
 
-
-HLT::HLTResultByteStreamTool::~HLTResultByteStreamTool()
-{
-}
-
-eformat::SubDetector HLT::HLTResultByteStreamTool::byteStreamLocation(std::string objName)
-{
-  if (objName == s_l2ResultName) return eformat::TDAQ_LVL2;
-  if (objName == s_efResultName || objName == s_hltResultName) return eformat::TDAQ_EVENT_FILTER;
-  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) return eformat::TDAQ_EVENT_FILTER;
-
-  return eformat::OTHER;
-}
-
-
-FullEventAssembler<HLT::HLTSrcIdMap>*
-HLT::HLTResultByteStreamTool::eventAssembler(std::string objName)
-{
-  if (objName == s_l2ResultName) return &m_feaL2;
-  if (objName == s_efResultName || objName == s_hltResultName) return &m_feaEF;
-  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) return &m_feaEF;
-
-  return 0;
-}
 
 /**
     Conversion from RDO to eformat::ROBFragment.
@@ -57,32 +26,26 @@ HLT::HLTResultByteStreamTool::eventAssembler(std::string objName)
 StatusCode HLT::HLTResultByteStreamTool::convert( HLTResult* result, RawEventWrite* re,
                                                   std::string objName)
 {
-  FullEventAssembler<HLTSrcIdMap>* fea = eventAssembler(objName);
-  eformat::SubDetector subDet = byteStreamLocation(objName);
-
-  if (!fea || subDet == eformat::OTHER) {
-    ATH_MSG_ERROR("Cannot store object with name " << objName
-                  << " in BS: we are expecting only HLTResult_(L2,EF,HLT)");
+  // find the ROB ID for the given HLTResult name
+  const auto itr = m_robIDMap.find(objName);
+  if ( itr==m_robIDMap.end() ) {
+    ATH_MSG_ERROR("No ROB ID configured for " << objName);
     return StatusCode::FAILURE;
   }
+  eformat::helper::SourceIdentifier rob(itr->second);
 
-  fea->clear() ;
+  // configure the EventAssembler and serialize into bytestream
+  m_fea.clear();
+  m_fea.idMap().setDetId(rob.subdetector_id());
 
-  uint32_t module_id(0);
-  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) {
-    module_id = atoi( (objName.substr(s_dataScoutingResultName.length(),2)).c_str() ) ;
-  }
-  eformat::helper::SourceIdentifier helpID(subDet, module_id);
-  uint32_t rodIdHLTResult = helpID.code();
-
-  std::vector<uint32_t>* rod = fea->getRodData( rodIdHLTResult );
+  std::vector<uint32_t>* rod = m_fea.getRodData( rob.code() );
   if (!rod) return StatusCode::FAILURE;
 
   result->serialize( *rod );
-  fea->fill(re, msg());
+  m_fea.fill(re, msg());
 
-  ATH_MSG_DEBUG(std::dec << "Serialized HLT Result " << objName << " (" << rod->size()
-                << " words) to location " << subDet);
+  ATH_MSG_DEBUG("Serialized HLT Result " << objName << " (" << rod->size()
+                << " words) to location " << rob.human());
  
   return StatusCode::SUCCESS;
 }
@@ -95,50 +58,32 @@ StatusCode HLT::HLTResultByteStreamTool::convert( HLTResult* result, RawEventWri
 StatusCode HLT::HLTResultByteStreamTool::convert(IROBDataProviderSvc& dataProvider,
                                                  HLT::HLTResult*& result, std::string objName)
 {
-  eformat::SubDetector subDet = byteStreamLocation(objName);
-
-  if (subDet == eformat::OTHER) {
-    ATH_MSG_ERROR("Cannot store object with name " << objName
-                  << " in BS: we are expecting only HLTResult_(L2,EF,HLT)");
+  // find the ROB ID for the given HLTResult name
+  const auto itr = m_robIDMap.find(objName);
+  if ( itr==m_robIDMap.end() ) {
+    ATH_MSG_ERROR("No ROB ID configured for " << objName);
     return StatusCode::FAILURE;
   }
+  eformat::helper::SourceIdentifier rob(itr->second);
+
+  // request the ROB and deserialize into HLTResult
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  dataProvider.getROBData({rob.code()}, robFrags);
 
   // unsigned int vector where to store HLT payload
   std::vector<uint32_t> hltContent;
+  for (const IROBDataProviderSvc::ROBF* rob : robFrags ) {
 
-  uint32_t module_id(0);
-  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) {
-    module_id = atoi( (objName.substr(s_dataScoutingResultName.length(),2)).c_str() ) ;
-  }
-  eformat::helper::SourceIdentifier helpID(byteStreamLocation(objName), module_id);
-  uint32_t robId = helpID.code();
+    OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData = nullptr;
+    rob->rod_data(rodData);
 
-  std::vector<uint32_t> vID;
-  vID.push_back(robId);
-
-  IROBDataProviderSvc::VROBFRAG robFrags;
-  dataProvider.getROBData(vID, robFrags);
-
-  //  (*log) << MSG::DEBUG << "Got ROB fragments: "<< robFrags.size() << endmsg;
-
-  for (IROBDataProviderSvc::VROBFRAG::const_iterator rob = robFrags.begin();
-       rob != robFrags.end(); ++rob) {
-
-    uint32_t nData  = (*rob)->rod_ndata();
-
-    //    size_t sourceID = (*rob)->rod_source_id();
-    //    (*log) << MSG::DEBUG << "Reading fragment of size " << nData << " from source "
-    //           << sourceID << endmsg;
-
-    OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData = 0;
-    (*rob)->rod_data(rodData);
-
+    const uint32_t nData = rob->rod_ndata();
+    hltContent.reserve(nData);
     for (size_t i = 0; i < nData; i++) hltContent.push_back(rodData[i]);
   }
 
   result->deserialize(hltContent);
-  ATH_MSG_DEBUG("Deserialized HLT Result " << objName << " (" << hltContent.size()
-                << " words) from location " << subDet);
+  ATH_MSG_DEBUG("Deserialized HLT Result " << objName << " (" << hltContent.size() << " words)");
   
   return StatusCode::SUCCESS;
 }

@@ -108,28 +108,27 @@ class ByteStreamUnpackGetterRun1or2(Configured):
             from TrigEDMConfig.TriggerEDM import getPreregistrationList
             extr.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
 
+            from eformat import helper as efh
+            robIDMap = {}   # map of result keys and their ROB ID
             if ConfigFlags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
-                ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                    "HLT::HLTResult/HLTResult_L2",
-                    "HLT::HLTResult/HLTResult_EF" ]
+                robIDMap["HLTResult_L2"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_LVL2, 0).code()
+                robIDMap["HLTResult_EF"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_EVENT_FILTER, 0).code()
                 extr.L2ResultKey = "HLTResult_L2"
                 extr.HLTResultKey = "HLTResult_EF"
             else:
-                ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
-                    "HLT::HLTResult/HLTResult_HLT" ]
+                robIDMap["HLTResult_HLT"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, 0).code()
                 extr.L2ResultKey = ""
                 extr.HLTResultKey = "HLTResult_HLT"
 
-            #
             # Configure DataScouting
-            #
             from PyUtils.MetaReaderPeeker import metadata
             if 'stream' in metadata:
                 stream_local = metadata['stream']   # e.g. calibration_DataScouting_05_Jets
                 if stream_local.startswith('calibration_DataScouting_'):
                     ds_tag = '_'.join(stream_local.split('_')[1:3])   # e.g. DataScouting_05
-                    ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
-                    extr.DSResultKeys += [ ds_tag ]
+                    ds_id = int(stream_local.split('_')[2])           # e.g. 05
+                    robIDMap[ds_tag] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, ds_id).code()
+                    extr.DSResultKeys += [ds_tag]
 
         else:
             # if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
@@ -139,18 +138,22 @@ class ByteStreamUnpackGetterRun1or2(Configured):
             extr.DSResultKeys = []
 
         topSequence += extr
-        
-        from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
-        TrigSerToolTP = TrigSerTPTool('TrigSerTPTool')
 
+        # Add all HLTResult keys to AddressProvider
+        for k in robIDMap.keys():
+            ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ f"HLT::HLTResult/{k}" ]
+
+        # Create necessary public tools
         from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += TrigSerToolTP
+        from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
         from TrigEDMConfig.TriggerEDM import getTPList
-        TrigSerToolTP.TPMap = getTPList((ConfigFlags.Trigger.EDMVersion))
+        ToolSvc += TrigSerTPTool(TPMap = getTPList((ConfigFlags.Trigger.EDMVersion)))
         
         from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
-        TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
-        ToolSvc += TrigSerializeConvHelper
+        ToolSvc += TrigSerializeConvHelper(doTP = True)
+
+        from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLT__HLTResultByteStreamTool
+        ToolSvc += HLT__HLTResultByteStreamTool(HLTResultRobIdMap = robIDMap)
 
         return True
 
