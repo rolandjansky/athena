@@ -14,6 +14,10 @@
 //STL
 #include <string>
 
+//Tools
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -78,6 +82,7 @@ private:
   SG::ReadHandleKey<PixelRDO_Container> m_rdoContainerKey;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   ToolHandle<IRegSelTool>     m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_Pixel" };     //!< region selector tool
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   bool m_roiSeeded;
   const PixelID* m_idHelper;
   SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;

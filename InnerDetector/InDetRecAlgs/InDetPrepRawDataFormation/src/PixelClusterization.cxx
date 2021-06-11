@@ -99,6 +99,14 @@ namespace InDet{
     ATH_CHECK( m_ambiguitiesMapKey.initialize() );
     ATH_CHECK( m_clusterContainercacheKey.initialize(!m_clusterContainercacheKey.key().empty()) );
 
+    if ( !m_monTool.empty() ) {
+       ATH_CHECK(m_monTool.retrieve() );
+    }
+    else {
+       ATH_MSG_INFO("Monitoring tool is empty");
+    }
+
+
     ATH_MSG_DEBUG( "Initialize done !" );
     return StatusCode::SUCCESS;
   }
@@ -106,6 +114,9 @@ namespace InDet{
   //----------------------------------------------------------------------------
   // Execute method:
   StatusCode PixelClusterization::execute(const EventContext& ctx) const {
+    //Monitoring Tool Configuration
+    auto mnt_timer_Total                 = Monitored::Timer<std::chrono::milliseconds>("TIME_Total");
+    
   
 
     SG::WriteHandle<PixelClusterContainer> clusterContainer(m_clusterContainerKey, ctx);
@@ -194,6 +205,7 @@ namespace InDet{
     ATH_MSG_DEBUG("clusterContainer->numberOfCollections() " <<  clusterContainer->numberOfCollections());
     ATH_CHECK(ambiguitiesMap.isValid());
     ATH_MSG_DEBUG( "PixelClusterAmbiguitiesMap recorded in StoreGate");
+    auto monTime = Monitored::Group(m_monTool, mnt_timer_Total);
     return StatusCode::SUCCESS;
   }
 
