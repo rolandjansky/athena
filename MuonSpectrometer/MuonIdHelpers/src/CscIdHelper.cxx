@@ -900,3 +900,133 @@ int CscIdHelper::strip_hash_offsets() {
     }
     return 0;
 }
+Identifier CscIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(csc_field_value(), result);
+    if (check) {
+        val = this->validElement(result, stationName, stationEta, stationPhi);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier CscIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = elementID(stationName, stationEta, stationPhi, check, isValid);
+    return id;
+}
+
+Identifier CscIdHelper::elementID(const Identifier& id) const { return parentID(id); }
+
+Identifier CscIdHelper::channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi,
+                                  int strip, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(csc_field_value(), result);
+    m_cla_impl.pack(chamberLayer, result);
+    m_lay_impl.pack(wireLayer, result);
+    m_mea_impl.pack(measuresPhi, result);
+    m_str_impl.pack(strip, result);
+    if (check) {
+        val = this->validChannel(result, stationName, stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier CscIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
+                                  int measuresPhi, int strip, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = channelID(stationName, stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip, check, isValid);
+    return id;
+}
+
+Identifier CscIdHelper::channelID(const Identifier& id, int chamberLayer, int wireLayer, int measuresPhi, int strip, bool check,
+                                  bool* isValid) const {
+    Identifier result(id);
+    bool val = false;
+    m_cla_impl.pack(chamberLayer, result);
+    m_lay_impl.pack(wireLayer, result);
+    m_mea_impl.pack(measuresPhi, result);
+    m_str_impl.pack(strip, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+/// get parent id from channel id
+
+Identifier CscIdHelper::parentID(const Identifier& id) const {
+    assert(is_csc(id));
+    Identifier result(id);
+    m_cla_impl.reset(result);
+    m_lay_impl.reset(result);
+    m_mea_impl.reset(result);
+    m_str_impl.reset(result);
+    return result;
+}
+
+// Access to components of the ID
+
+int CscIdHelper::chamberLayer(const Identifier& id) const { return m_cla_impl.unpack(id); }
+
+int CscIdHelper::wireLayer(const Identifier& id) const { return m_lay_impl.unpack(id); }
+
+bool CscIdHelper::measuresPhi(const Identifier& id) const { return m_mea_impl.unpack(id); }
+
+int CscIdHelper::strip(const Identifier& id) const { return m_str_impl.unpack(id); }
+
+int CscIdHelper::channel(const Identifier& id) const { return strip(id); }
+
+/// Access to min and max of level ranges
+
+int CscIdHelper::stationEtaMin() const { return StationEtaMin; }
+
+int CscIdHelper::stationEtaMax() const { return StationEtaMax; }
+
+int CscIdHelper::stationPhiMin() const { return StationPhiMin; }
+
+int CscIdHelper::stationPhiMax() const { return StationPhiMax; }
+
+int CscIdHelper::chamberLayerMin() const { return ChamberLayerMin; }
+
+int CscIdHelper::chamberLayerMax() const { return ChamberLayerMax; }
+
+int CscIdHelper::wireLayerMin() const { return WireLayerMin; }
+
+int CscIdHelper::wireLayerMax() const { return WireLayerMax; }
+
+int CscIdHelper::measuresPhiMin() const { return MeasuresPhiMin; }
+
+int CscIdHelper::measuresPhiMax() const { return MeasuresPhiMax; }
+
+int CscIdHelper::stripMin() const { return StripMin; }
+
+int CscIdHelper::stripMax() const { return StripMax; }
+
+/// Utility methods
+
+int CscIdHelper::cscTechnology() const {
+    int cscField = technologyIndex("CSC");
+    if (m_dict) { cscField = csc_field_value(); }
+    return cscField;
+}
+
+int CscIdHelper::sector(const Identifier& id) const { return stationEta(id) * (2 * stationPhi(id) - (stationName(id) - 49) + 1); }
+
+int CscIdHelper::gasGap(const Identifier& id) const { return chamberLayer(id); }

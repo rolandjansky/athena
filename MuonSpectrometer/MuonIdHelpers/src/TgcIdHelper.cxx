@@ -607,3 +607,178 @@ bool TgcIdHelper::validChannel(const Identifier& id, int stationName, int statio
     }
     return true;
 }
+
+Identifier TgcIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(tgc_field_value(), result);
+    if (check) {
+        val = this->validElement(result, stationName, stationEta, stationPhi);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier TgcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = elementID(stationName, stationEta, stationPhi, check, isValid);
+    return id;
+}
+
+Identifier TgcIdHelper::elementID(const Identifier& id) const { return parentID(id); }
+
+Identifier TgcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int gasGap, int isStrip, int channel, bool check,
+                                  bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(tgc_field_value(), result);
+    m_gap_impl.pack(gasGap, result);
+    m_ist_impl.pack(isStrip, result);
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = validChannel(result, stationName, stationEta, stationPhi, gasGap, isStrip, channel);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier TgcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
+                                  bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = channelID(stationName, stationEta, stationPhi, gasGap, isStrip, channel, check, isValid);
+    return id;
+}
+
+Identifier TgcIdHelper::channelID(const Identifier& id, int gasGap, int isStrip, int channel, bool check, bool* isValid) const {
+    Identifier result(id);
+    bool val = false;
+    m_gap_impl.pack(gasGap, result);
+    m_ist_impl.pack(isStrip, result);
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+// get parent id from strip or gang identifier
+Identifier TgcIdHelper::parentID(const Identifier& id) const {
+    assert(is_tgc(id));
+    Identifier result(id);
+    m_gap_impl.reset(result);
+    m_ist_impl.reset(result);
+    m_cha_impl.reset(result);
+    return result;
+}
+
+// Access to components of the ID
+
+int TgcIdHelper::gasGap(const Identifier& id) const { return m_gap_impl.unpack(id); }
+
+/** returns measuresPhi */
+int TgcIdHelper::isStrip(const Identifier& id) const { return m_ist_impl.unpack(id); }
+
+bool TgcIdHelper::measuresPhi(const Identifier& id) const { return isStrip(id); }
+
+int TgcIdHelper::channel(const Identifier& id) const { return m_cha_impl.unpack(id); }
+
+// Access to min and max of level ranges
+
+int TgcIdHelper::stationEtaMin() const { return StationEtaMin; }
+
+int TgcIdHelper::stationEtaMax() const { return StationEtaMax; }
+
+int TgcIdHelper::stationPhiMin(bool endcap) const {
+    if (endcap) {
+        return StationPhiEndcapMin;
+    } else {
+        return StationPhiForwardMin;
+    }
+}
+
+int TgcIdHelper::stationPhiMax(bool endcap) const {
+    if (endcap) {
+        return StationPhiEndcapMax;
+    } else {
+        return StationPhiForwardMax;
+    }
+}
+
+int TgcIdHelper::gasGapMin() const { return GasGapMin; }
+
+int TgcIdHelper::gasGapMax(bool triplet) const {
+    if (triplet) {
+        return GasGapTripletMax;
+    } else {
+        return GasGapDoubletMax;
+    }
+}
+
+int TgcIdHelper::isStripMin() const { return IsStripMin; }
+
+int TgcIdHelper::isStripMax() const { return IsStripMax; }
+
+int TgcIdHelper::channelMin() const { return ChannelMin; }
+
+int TgcIdHelper::channelMax() const { return ChannelMax; }
+/// Utility methods
+
+int TgcIdHelper::tgcTechnology() const {
+    int tgcField = technologyIndex("TGC");
+    if (m_dict) { tgcField = tgc_field_value(); }
+    return tgcField;
+}
+
+bool TgcIdHelper::endcapChamber(int stationName) const {
+    std::string name = stationNameString(stationName);
+    return ('E' == stationNameString(stationName)[2]);
+}
+
+bool TgcIdHelper::tripletChamber(int stationName) const {
+    std::string name = stationNameString(stationName);
+    return ('1' == name[1]);
+}
+
+int TgcIdHelper::chamberType(std::string stationName, int stationEta) const {
+    if ('1' == stationName[1]) {
+        if ('F' == stationName[2])
+            return 1;
+        else
+            return (abs(stationEta) + 1);
+    } else if ('2' == stationName[1]) {
+        if ('F' == stationName[2])
+            return 6;
+        else
+            return (abs(stationEta) + 6);
+    } else if ('3' == stationName[1]) {
+        if ('F' == stationName[2])
+            return 12;
+        else
+            return (abs(stationEta) + 12);
+    } else if ('4' == stationName[1]) {
+        if ('F' == stationName[2])
+            return 18;
+        else
+            return (abs(stationEta) + 18);
+    }
+    assert(0);
+    return -1;
+}
+
+int TgcIdHelper::chamberType(int stationName, int stationEta) const {
+    std::string name = stationNameString(stationName);
+    return chamberType(name, stationEta);
+}

@@ -873,4 +873,199 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
     }
     return true;
 }  // end sTgcIdHelper::validChannel
+   /*******************************************************************************/
+   // Construct ID from components
+Identifier sTgcIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(stgc_field_value(), result);
+    if (check) {
+        val = this->validElement(result, stationName, stationEta, stationPhi);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = elementID(stationName, stationEta, stationPhi, check, isValid);
+    return id;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::elementID(const Identifier& id) const { return parentID(id); }
+/*******************************************************************************/
+Identifier sTgcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
+                                   int channel, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(stgc_field_value(), result);
+    m_mplet_impl.pack(multilayer, result);
+    m_gap_impl.pack(gasGap, result);
+    m_typ_impl.pack(channelType, result);
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = validChannel(result, stationName, stationEta, stationPhi, multilayer, gasGap, channelType, channel);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap,
+                                   int channelType, int channel, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = channelID(stationName, stationEta, stationPhi, multilayer, gasGap, channelType, channel, check, isValid);
+    return id;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel, bool check,
+                                   bool* isValid) const {
+    Identifier result = parentID(id);
+    bool val = false;
+    m_mplet_impl.pack(multilayer, result);
+    m_gap_impl.pack(gasGap, result);
+    m_typ_impl.pack(channelType, result);
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta,
+                               int padPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(stgc_field_value(), result);
+    m_mplet_impl.pack(multilayer, result);
+    m_gap_impl.pack(gasGap, result);
+    m_typ_impl.pack(channelType, result);
+    int channel = -1;
+    if (channelType == Pad) {
+        channel = (padPhi - 1) * PadEtaMax + padEta;
+    } else {
+        *isValid = false;
+    }
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = validChannel(result, stationName, stationEta, stationPhi, multilayer, gasGap, channelType, padEta, padPhi);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap,
+                               int channelType, int padEta, int padPhi, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = padID(stationName, stationEta, stationPhi, multilayer, gasGap, channelType, padEta, padPhi, check, isValid);
+    return id;
+}
+/*******************************************************************************/
+Identifier sTgcIdHelper::padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check,
+                               bool* isValid) const {
+    Identifier result(id);
+    bool val = false;
+    m_mplet_impl.pack(multilayer, result);
+    m_gap_impl.pack(gasGap, result);
+    m_typ_impl.pack(channelType, result);
+    int channel = -1;
+    if (channelType == Pad) {
+        channel = (padPhi - 1) * PadEtaMax + padEta;
+    } else {
+        *isValid = false;
+    }
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+// get parent id from strip or gang identifier
+Identifier sTgcIdHelper::parentID(const Identifier& id) const {
+    assert(is_stgc(id));
+    Identifier result(id);
+    m_mplet_impl.reset(result);
+    m_gap_impl.reset(result);
+    m_typ_impl.reset(result);
+    m_cha_impl.reset(result);
+    return result;
+}
+/*******************************************************************************/
+// Access to components of the ID
+int sTgcIdHelper::multilayer(const Identifier& id) const { return m_mplet_impl.unpack(id); }
+/*******************************************************************************/
+// Access to components of the ID
+int sTgcIdHelper::gasGap(const Identifier& id) const { return m_gap_impl.unpack(id); }
+/*******************************************************************************/
+int sTgcIdHelper::channelType(const Identifier& id) const { return m_typ_impl.unpack(id); }
+/*******************************************************************************/
+/** returns measuresPhi */
+bool sTgcIdHelper::measuresPhi(const Identifier& id) const { return (channelType(id) == Strip) ? 0 : 1; }
+/*******************************************************************************/
+int sTgcIdHelper::channel(const Identifier& id) const { return m_cha_impl.unpack(id); }
+/*******************************************************************************/
+// Access to min and max of level ranges
+int sTgcIdHelper::stationEtaMin() const { return StationEtaMin; }
+/*******************************************************************************/
+int sTgcIdHelper::stationEtaMax() const { return StationEtaMax; }
+/*******************************************************************************/
+int sTgcIdHelper::stationPhiMin() const { return StationPhiMin; }
+/*******************************************************************************/
+int sTgcIdHelper::stationPhiMax() const { return StationPhiMax; }
+/*******************************************************************************/
+int sTgcIdHelper::multilayerMin() const { return MultilayerMin; }
+/*******************************************************************************/
+int sTgcIdHelper::multilayerMax() const { return MultilayerMax; }
+/*******************************************************************************/
+int sTgcIdHelper::gasGapMin() const { return GasGapMin; }
+/*******************************************************************************/
+int sTgcIdHelper::gasGapMax() const { return GasGapMax; }
+/*******************************************************************************/
+int sTgcIdHelper::channelTypeMin() const { return ChannelTypeMin; }
+/*******************************************************************************/
+int sTgcIdHelper::channelTypeMax() const { return ChannelTypeMax; }
+/*******************************************************************************/
+int sTgcIdHelper::channelMin() const { return ChannelMin; }
+/*******************************************************************************/
+int sTgcIdHelper::channelMax() const { return ChannelMax; }
+/*******************************************************************************/
+int sTgcIdHelper::padEtaMin() const { return PadEtaMin; }
+/*******************************************************************************/
+int sTgcIdHelper::padEtaMax() const { return PadEtaMax; }
+/*******************************************************************************/
+int sTgcIdHelper::padPhiMin() const { return PadPhiMin; }
+/*******************************************************************************/
+int sTgcIdHelper::padPhiMax() const { return PadPhiMax; }
+/*******************************************************************************/
+/// Utility methods
+int sTgcIdHelper::stgcTechnology() const {
+    int stgcField = technologyIndex("STGC");
+    if (m_dict) { stgcField = stgc_field_value(); }
+    return stgcField;
+}
+/*******************************************************************************/
+bool sTgcIdHelper::LargeSector(int stationName) const { return ('L' == stationNameString(stationName)[2]); }
+/*******************************************************************************/
+bool sTgcIdHelper::SmallSector(int stationName) const { return ('S' == stationNameString(stationName)[2]); }
+
 /*******************************************************************************/

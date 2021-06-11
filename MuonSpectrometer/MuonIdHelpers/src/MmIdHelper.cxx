@@ -682,4 +682,145 @@ bool MmIdHelper::validChannel(const Identifier& id, int stationName, int station
     }
     return true;
 }  // end MmIdHelper::validChannel
+   /*******************************************************************************/
+   // Construct ID from components
+Identifier MmIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(mm_field_value(), result);
+    if (check) {
+        val = this->validElement(result, stationName, stationEta, stationPhi);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
 /*******************************************************************************/
+Identifier MmIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = elementID(stationName, stationEta, stationPhi, check, isValid);
+    return id;
+}
+/*******************************************************************************/
+Identifier MmIdHelper::elementID(const Identifier& id) const { return parentID(id); }
+/*******************************************************************************/
+Identifier MmIdHelper::channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check,
+                                 bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(mm_field_value(), result);
+    m_mplet_impl.pack(multilayer, result);
+    m_gap_impl.pack(gasGap, result);
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = validChannel(result, stationName, stationEta, stationPhi, multilayer, gasGap, channel);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+Identifier MmIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel,
+                                 bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = channelID(stationName, stationEta, stationPhi, multilayer, gasGap, channel, check, isValid);
+    return id;
+}
+/*******************************************************************************/
+Identifier MmIdHelper::channelID(const Identifier& id, int multilayer, int gasGap, int channel, bool check, bool* isValid) const {
+    Identifier result(id);
+    bool val = false;
+    m_mplet_impl.pack(multilayer, result);
+    m_gap_impl.pack(gasGap, result);
+    m_cha_impl.pack(channel, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+/*******************************************************************************/
+// get parent id from strip or gang identifier
+Identifier MmIdHelper::parentID(const Identifier& id) const {
+    assert(is_mm(id));
+    Identifier result(id);
+    m_mplet_impl.reset(result);
+    m_gap_impl.reset(result);
+    m_cha_impl.reset(result);
+    return result;
+}
+/*******************************************************************************/
+// Access to components of the ID
+int MmIdHelper::multilayer(const Identifier& id) const { return m_mplet_impl.unpack(id); }
+/*******************************************************************************/
+int MmIdHelper::gasGap(const Identifier& id) const { return m_gap_impl.unpack(id); }
+/*******************************************************************************/
+int MmIdHelper::channel(const Identifier& id) const { return m_cha_impl.unpack(id); }
+/*******************************************************************************/
+// Access to min and max of level ranges
+int MmIdHelper::stationEtaMin() const { return StationEtaMin; }
+/*******************************************************************************/
+int MmIdHelper::stationEtaMax() const { return StationEtaMax; }
+/*******************************************************************************/
+int MmIdHelper::stationPhiMin() const { return StationPhiMin; }
+/*******************************************************************************/
+int MmIdHelper::stationPhiMax() const { return StationPhiMax; }
+/*******************************************************************************/
+int MmIdHelper::multilayerMin() const { return MultilayerMin; }
+/*******************************************************************************/
+int MmIdHelper::multilayerMax() const { return MultilayerMax; }
+/*******************************************************************************/
+int MmIdHelper::gasGapMin() const { return GasGapMin; }
+/*******************************************************************************/
+bool MmIdHelper::isStereo(const Identifier& id) const {
+    bool isStereo = false;
+    int ml = multilayer(id);
+    int gg = gasGap(id);
+    if ((ml == 1 && gg > 2) || (ml == 2 && gg < 3)) isStereo = true;
+    return isStereo;
+}
+/*******************************************************************************/
+bool MmIdHelper::measuresPhi(const Identifier& /*id*/) const { return false; }
+/*******************************************************************************/
+int MmIdHelper::gasGapMax() const { return GasGapMax; }
+/*******************************************************************************/
+int MmIdHelper::channelMin() const { return ChannelMin; }
+/*******************************************************************************/
+int MmIdHelper::channelMax() const { return ChannelMax; }
+/*******************************************************************************/
+/// Utility methods
+int MmIdHelper::mmTechnology() const {
+    int mmField = technologyIndex("MM");
+    if (m_dict) { mmField = mm_field_value(); }
+    return mmField;
+}
+/*******************************************************************************/
+bool MmIdHelper::LargeSector(int stationName) const { return ('L' == stationNameString(stationName)[2]); }
+/*******************************************************************************/
+bool MmIdHelper::SmallSector(int stationName) const { return ('S' == stationNameString(stationName)[2]); }
+/*******************************************************************************/
+// Nektar: Modified for MicroMegas, but is almost certainly wrong
+int MmIdHelper::sectorType(std::string stationName, int stationEta) const {
+    if ('L' == stationName[2]) {
+        return (abs(stationEta) + 1);
+    } else if ('S' == stationName[2]) {
+        return (abs(stationEta) + 12);
+    }
+    assert(0);
+    return -1;
+}
+/*******************************************************************************/
+int MmIdHelper::sectorType(int stationName, int stationEta) const {
+    std::string name = stationNameString(stationName);
+    return sectorType(name, stationEta);
+}

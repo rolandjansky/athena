@@ -926,3 +926,339 @@ int RpcIdHelper::init_detectorElement_hashes(void) {
 
     return (0);
 }
+
+Identifier RpcIdHelper::elementID(int stationName, int stationEta, int stationPhi, int doubletR, bool check, bool* isValid,
+                                  bool noPrint) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(rpc_field_value(), result);
+    m_dbr_impl.pack(doubletR, result);
+    if (check) {
+        val = this->validElement(result, stationName, stationEta, stationPhi, doubletR, noPrint);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, bool check,
+                                  bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = elementID(stationName, stationEta, stationPhi, doubletR, check, isValid);
+    return id;
+}
+
+Identifier RpcIdHelper::elementID(const Identifier& id, int doubletR, bool check, bool* isValid) const {
+    Identifier result(id);
+    bool val = false;
+    m_dbr_impl.pack(doubletR, result);
+    if (check) {
+        val = this->validElement(result);
+        if (isValid) *isValid = val;
+    }
+
+    return result;
+}
+
+Identifier RpcIdHelper::elementID(const Identifier& id) const { return parentID(id); }
+
+/*     Identifier panelID  (const Identifier& padID, int gasGap, bool check=false, bool* isValid=0) const; */
+/*     Identifier panelID  (const Identifier& channelID, bool check=false, bool* isValid=0) const; */
+/*     Identifier panelID  (int stationName, int stationEta, int stationPhi, int doubletR, */
+/* 		         int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const; */
+
+Identifier RpcIdHelper::panelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+                                int measuresPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(rpc_field_value(), result);
+    m_dbr_impl.pack(doubletR, result);
+    m_dbz_impl.pack(doubletZ, result);
+    m_dbp_impl.pack(doubletPhi, result);
+    m_gap_impl.pack(gasGap, result);
+    m_mea_impl.pack(measuresPhi, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::panelID(const Identifier& channelID) const {
+    Identifier result(channelID);
+    m_str_impl.reset(result);
+    return result;
+}
+
+Identifier RpcIdHelper::panelID(const Identifier& padID, int gasGap, int measuresPhi, bool check, bool* isValid) const {
+    Identifier result(padID);
+    bool val = false;
+    m_gap_impl.pack(gasGap, result);
+    m_mea_impl.pack(measuresPhi, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+                              bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(rpc_field_value(), result);
+    m_dbr_impl.pack(doubletR, result);
+    m_dbz_impl.pack(doubletZ, result);
+    m_dbp_impl.pack(doubletPhi, result);
+    m_gap_impl.pack(gasGap, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::gapID(const Identifier& panelID) const {
+    Identifier result(panelID);
+    m_mea_impl.reset(result);
+    return result;
+}
+
+Identifier RpcIdHelper::gapID(const Identifier& padID, int gasGap, bool check, bool* isValid) const {
+    Identifier result(padID);
+    bool val = false;
+    m_gap_impl.pack(gasGap, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::channelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+                                  int measuresPhi, int strip, bool check, bool* isValid, bool noPrint) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(rpc_field_value(), result);
+    m_dbr_impl.pack(doubletR, result);
+    m_dbz_impl.pack(doubletZ, result);
+    m_dbp_impl.pack(doubletPhi, result);
+    m_gap_impl.pack(gasGap, result);
+    m_mea_impl.pack(measuresPhi, result);
+    m_str_impl.pack(strip, result);
+    if (check) {
+        val = this->validChannel(result, stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip,
+                                 noPrint);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, int doubletZ,
+                                  int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid) const {
+    Identifier id;
+    int stationName = stationNameIndex(stationNameStr);
+    id = channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, gasGap, measuresPhi, strip, check, isValid);
+    return id;
+}
+
+Identifier RpcIdHelper::channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip, bool check,
+                                  bool* isValid) const {
+    // pack fields independently
+    Identifier result(id);
+    bool val = false;
+    m_dbz_impl.pack(doubletZ, result);
+    m_dbp_impl.pack(doubletPhi, result);
+    m_gap_impl.pack(gasGap, result);
+    m_mea_impl.pack(measuresPhi, result);
+    m_str_impl.pack(strip, result);
+    if (check) {
+        val = this->valid(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+// get the parent id from the strip identifier
+Identifier RpcIdHelper::parentID(const Identifier& id) const {
+    assert(is_rpc(id));
+    Identifier result(id);
+    m_dbz_impl.reset(result);
+    m_dbp_impl.reset(result);
+    m_gap_impl.reset(result);
+    m_mea_impl.reset(result);
+    m_str_impl.reset(result);
+    return result;
+}
+
+// doubletZ Identifier
+Identifier RpcIdHelper::doubletZID(const Identifier& id) const {
+    assert(is_rpc(id));
+    Identifier result(id);
+    m_dbp_impl.reset(result);
+    m_gap_impl.reset(result);
+    m_mea_impl.reset(result);
+    m_str_impl.reset(result);
+    return result;
+}
+
+Identifier RpcIdHelper::padID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, bool check,
+                              bool* isValid) const {
+    // pack fields independently
+    Identifier result((Identifier::value_type)0);
+    bool val = false;
+    m_muon_impl.pack(muon_field_value(), result);
+    m_sta_impl.pack(stationName, result);
+    m_eta_impl.pack(stationEta, result);
+    m_phi_impl.pack(stationPhi, result);
+    m_tec_impl.pack(rpc_field_value(), result);
+    m_dbr_impl.pack(doubletR, result);
+    m_dbz_impl.pack(doubletZ, result);
+    m_dbp_impl.pack(doubletPhi, result);
+    if (check) {
+        val = this->validPad(result, stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+Identifier RpcIdHelper::padID(const Identifier& id, int doubletZ, int doubletPhi, bool check, bool* isValid) const {
+    // pack fields independently
+    Identifier result(id);
+    bool val = false;
+    m_dbz_impl.pack(doubletZ, result);
+    m_dbp_impl.pack(doubletPhi, result);
+    if (check) {
+        val = this->validPad(result);
+        if (isValid) *isValid = val;
+    }
+    return result;
+}
+
+// Access to components of the ID
+
+int RpcIdHelper::doubletR(const Identifier& id) const { return m_dbr_impl.unpack(id); }
+
+int RpcIdHelper::doubletZ(const Identifier& id) const { return m_dbz_impl.unpack(id); }
+
+int RpcIdHelper::doubletPhi(const Identifier& id) const { return m_dbp_impl.unpack(id); }
+
+int RpcIdHelper::gasGap(const Identifier& id) const { return m_gap_impl.unpack(id); }
+
+bool RpcIdHelper::measuresPhi(const Identifier& id) const { return m_mea_impl.unpack(id); }
+
+int RpcIdHelper::strip(const Identifier& id) const { return m_str_impl.unpack(id); }
+
+int RpcIdHelper::channel(const Identifier& id) const { return strip(id); }
+
+// Access to min and max of level ranges
+
+int RpcIdHelper::stationEtaMin() const { return StationEtaMin; }
+
+int RpcIdHelper::stationEtaMax() const { return StationEtaMax; }
+
+int RpcIdHelper::stationPhiMin() const { return StationPhiMin; }
+
+int RpcIdHelper::stationPhiMax() const { return StationPhiMax; }
+
+int RpcIdHelper::doubletRMin() const { return DoubletRMin; }
+
+int RpcIdHelper::doubletRMax() const { return DoubletRMax; }
+
+int RpcIdHelper::doubletZMin() const { return DoubletZMin; }
+
+int RpcIdHelper::doubletZMax() const { return DoubletZMax; }
+
+int RpcIdHelper::doubletPhiMin() const { return DoubletPhiMin; }
+
+int RpcIdHelper::doubletPhiMax() const { return DoubletPhiMax; }
+
+int RpcIdHelper::gasGapMin() const { return GasGapMin; }
+
+int RpcIdHelper::gasGapMax() const { return m_gasGapMax; }
+
+int RpcIdHelper::measuresPhiMin() const { return MeasuresPhiMin; }
+
+int RpcIdHelper::measuresPhiMax() const { return MeasuresPhiMax; }
+
+int RpcIdHelper::stripMin() const { return StripMin; }
+
+int RpcIdHelper::stripMax() const { return StripMax; }
+
+/// Utility methods
+
+int RpcIdHelper::rpcTechnology() const {
+    int rpcField = technologyIndex("RPC");
+    if (m_dict) { rpcField = rpc_field_value(); }
+    return rpcField;
+}
+
+int RpcIdHelper::zIndex(const Identifier& id) const {
+    int station = stationName(id);
+    int eta = stationEta(id);
+    int dR = doubletR(id);
+    int dZ = doubletZ(id);
+    int dP = doubletPhi(id);
+    std::string name = stationNameString(station);
+    return zIndex(name, eta, dR, dZ, dP);
+}
+
+int RpcIdHelper::zIndex(const std::string& name, int eta, int dR, int dZ, int dP) const {
+    /** - from Stefania
+        BMS5 which has the following structure:
+        for dbr=1 there are 3 dbZ, first and second are made of a single
+        RpcReadoutElement and the 3rd is made of 2 separate
+        RpcReadoutElements corresponding to dbPhi=1,2 respectively ( 2,
+        according to the identifier scheme, is at larger global phi than 1)
+        for dbr=2 the situation is identical to dbr=1
+
+        and
+
+        BMS6 is done this way:
+        at dbr=1, there are only 2 dbZ, the first corrsponding to a single
+        RpcReadoutElement, the second one corresponding to two different
+        chambers and, therefore, two different RpcReadoutElements;
+        in dbr=2, there are 3 doubletZ, the first two are standard (1
+        RpcReadoutElemet each), the third one has two chambers -> 2
+        RpcReadoutElements
+
+        Notice that 5 and 6 is a subtype naming which does not have any
+        correspondence to the offline identifier scheme: so you have to know where
+        BMS5 and BMS6 are located in order to treat them in a special way: so ...
+
+        BMS 5 are at StEta = +/- 2 and StPhi = 1,2,3,4,5,8
+        BMS 6 are at StEta = +/- 4 and StPhi = 1,2,3,4,5,8
+    */
+    int dbz_index = dZ;
+
+    if (name == "BMS") {
+        if (abs(eta) == 2 && dZ == 3) {
+            if (dP == 2) dbz_index++;
+        } else if (abs(eta) == 4 && dR == 2 && dZ == 3) {
+            if (dP == 2) dbz_index++;
+        } else if (abs(eta) == 4 && dR == 1 && dZ == 2) {
+            if (dP == 2) dbz_index++;
+        }
+    }
+    return dbz_index;
+}

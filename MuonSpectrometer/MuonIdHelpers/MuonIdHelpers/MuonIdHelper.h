@@ -301,8 +301,8 @@ protected:
 
 private:
     // Copy constructor - do not use!
-    inline MuonIdHelper(const MuonIdHelper& other) = delete;
-    inline MuonIdHelper& operator=(const MuonIdHelper& right);
+    MuonIdHelper(const MuonIdHelper& other) = delete;
+    MuonIdHelper& operator=(const MuonIdHelper& right);
 
     // vectors for stationNames and technologies
 
