@@ -178,6 +178,8 @@ HLT_2mu4_muonqual_L12MU4:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu50_msonly_L1MU20:
+  eventCount: 0
 HLT_2mu6_10invm70_L1MU6:
   eventCount: 0
 HLT_2mu6_2j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
@@ -1279,6 +1281,8 @@ HLT_g3_loose_LArPEBHLT_L1EM3:
 HLT_g40_loose_L1EM20VH:
   eventCount: 0
 HLT_g40_loose_LArPEBHLT_L1EM20VHI:
+  eventCount: 0
+HLT_g40_loose_mu40_msonly_L1EM20VH_MU20:
   eventCount: 0
 HLT_g45_loose_6j45_L14J15p0ETA25:
   eventCount: 0
