@@ -86,6 +86,7 @@ LArCollisionTimeMonTool::initialize() {
   ManagedMonitorToolBase::initialize().ignore();
   ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_key.initialize() );
+  ATH_CHECK( m_bcDataKey.initialize() );
   ATH_MSG_DEBUG( "Successful Initialize LArCollisionTimeMonTool " );
   return StatusCode::SUCCESS;
 }
