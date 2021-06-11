@@ -229,9 +229,9 @@ class ComponentAccumulator(object):
         self._msg.info( "[" )
         if self._privateTools:
             for tool in self._privateTools if isinstance(self._privateTools, collections.abc.Sequence) else [self._privateTools]:
-                self._msg.info( "  %s,", self._privateTools.getFullJobOptName() + self._componentsContext.get(tool.name,""))
+                self._msg.info( "  %s,", tool.getFullJobOptName() + self._componentsContext.get(tool.name,""))
                 if summariseProps:
-                    printProperties(self._msg, self._privateTools, printDefaults, printComponentsOnly)
+                    printProperties(self._msg, tool, printDefaults, printComponentsOnly)
         self._msg.info( "]" )
         self._msg.info( "theApp properties" )
         for k, v in self._theAppProps.items():
