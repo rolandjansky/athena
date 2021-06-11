@@ -348,7 +348,7 @@ class ItemDef:
         MenuItem('L1_EM7_MU15'   ).setLogic( d.EM7        & d.MU15     & physcond).setTriggerType(TT.muon)
         MenuItem('L1_EM8VH_MU15' ).setLogic( d.EM8VH      & d.MU15     & physcond).setTriggerType(TT.muon)
         MenuItem('L1_EM7_MU20'   ).setLogic( d.EM7        & d.MU20     & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_EM8VH_MU20' ).setLogic( d.EM8VH      & d.MU20     & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_EM20VH_MU20').setLogic( d.EM20VH     & d.MU20     & physcond).setTriggerType(TT.muon)
 
         MenuItem('L1_EM7_MU11'   ).setLogic( d.EM7        & d.MU11     & physcond).setTriggerType(TT.muon)
         MenuItem('L1_EM8_MU10'   ).setLogic( d.EM8        & d.MU10     & physcond).setTriggerType(TT.muon)
