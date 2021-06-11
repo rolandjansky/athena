@@ -325,7 +325,7 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
 
   if(!acc_L3.isAvailable(jet)){
     if(acc_ECFG_3_1_1.isAvailable(jet) && acc_ECFG_3_3_1.isAvailable(jet)){
-      if(acc_ECFG_3_1_1(jet) > 1e-8) {
+      if(acc_ECFG_3_3_1(jet) > 1e-8) {
         L3 = acc_ECFG_3_1_1(jet) / pow( acc_ECFG_3_3_1(jet), (1.0/3.0) );
       }
       else result = 1;
