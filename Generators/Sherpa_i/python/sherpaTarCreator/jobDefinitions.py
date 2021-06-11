@@ -32,7 +32,8 @@ def mkGetOpenLoopsJob(options):
     job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
-    job.cmds += ["git clone -b "+options.OLbranch+" https://gitlab.com/openloops/OpenLoops.git"]
+    olbranch = options.OLbranch if options.OLbranch is not None else ('OpenLoops-'+os.environ['OPENLOOPSVER'])
+    job.cmds += ["git clone -b "+olbranch+" https://gitlab.com/openloops/OpenLoops.git"]
 
     job.cmds += ["cd OpenLoops"]
     job.cmds += ["./scons num_jobs="+str(options.ncoresScons)]
