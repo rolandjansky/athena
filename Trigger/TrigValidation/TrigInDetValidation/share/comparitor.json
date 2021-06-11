@@ -45,10 +45,10 @@
         "chains" : "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau/HLT_IDVertex_Tau"
     },
     "L2bjet":{
-        "chains" : "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF"
+        "chains" : "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF"
     },
     "EFbjet":{
-        "chains" : "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig"
+        "chains" : "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig"
     },
     "L2FS":{
         "chains" : "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FSJet"
