@@ -29,7 +29,7 @@ def main():
     parser.add_argument('-p', '--local-sherpa', dest='sherpaInstallPath', default=None, help="Path to custom-built local Sherpa installation. If None, use cvmfs version.")
     parser.add_argument('-v', '--athenaVersion', type=str, dest='athenaVersion', default=None, help='Overwrite Athena version to be used.')
     parser.add_argument('--OLskipcvmfs', dest='OLskipcvmfs', default=False, action='store_true', help="Skip precompiled OpenLoops libraries from cvmfs.")
-    parser.add_argument('--OLbranch', dest='OLbranch', type=str, default="OpenLoops-2.1.1", help="OpenLoops branch to use from https://gitlab.com/openloops/OpenLoops (e.g. OpenLoops-2.1.1 or public_beta)")
+    parser.add_argument('--OLbranch', dest='OLbranch', type=str, default=None, help="OpenLoops branch to use from https://gitlab.com/openloops/OpenLoops (e.g. OpenLoops-2.1.2 or public_beta)")
     parser.add_argument('--OLprocessrepos', dest='OLprocessrepos', type=str, default="ATLAS,public_beta,public", help="OpenLoops process repositories to use with ./openloops libinstall")
     parser.add_argument('-d', '--dryRun', action='store_true', default=False, dest='dryRun', help="Do not actually submit jobs to cluster but just print them.")
     options = parser.parse_args()
