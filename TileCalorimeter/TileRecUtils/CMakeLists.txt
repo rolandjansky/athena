@@ -14,7 +14,7 @@ atlas_add_library( TileRecUtilsLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileIdentifier TileConditionsLib CaloInterfaceLib CaloUtilsLib StoreGateLib TrigAnalysisInterfaces xAODEventInfo
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileIdentifier TileConditionsLib CaloInterfaceLib CaloUtilsLib StoreGateLib xAODEventInfo LumiBlockCompsLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthAllocators CaloDetDescrLib CaloEvent CxxUtils EventContainers GeoModelInterfaces PathResolver TileCalibBlobObjs TileDetDescr TileSimEvent )
 
 atlas_add_component( TileRecUtils

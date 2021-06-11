@@ -837,13 +837,6 @@ if not 'newRDO' in dir() or newRDO is None:
     else:
         newRDO = True
 
-
-#============================================================
-#=== configure BunchCrossingTool
-#============================================================
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "MC")
-
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
