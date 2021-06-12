@@ -8,7 +8,7 @@
 
 art.py download TrigAnalysisTest test_trigAna_RDOtoAOD_v1Dev_grid.py
 AODFILE=(./ref-*/AOD.pool.root)
-Run3DQTestingDriver.py 'Input.Files=["'${AODFILE}'"]' DQ.Steering.doHLTMon=True DQ.Environment=AOD Concurrency.NumThreads=1 Concurrency.NumConcurrentEvents=1 --dqOffByDefault > log.HIST_Creation 2>&1
+Run3DQTestingDriver.py --inputFiles=${AODFILE} DQ.Steering.doHLTMon=True DQ.Environment=AOD --threads=1 --dqOffByDefault > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 rm -rf ref-*

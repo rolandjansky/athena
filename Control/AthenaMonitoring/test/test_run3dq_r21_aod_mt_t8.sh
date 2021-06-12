@@ -6,7 +6,7 @@
 # art-output: log*
 # art-athena-mt: 8
 
-Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthenaMonitoring/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1"]' DQ.Steering.doHLTMon=False Concurrency.NumThreads=8 Concurrency.NumConcurrentEvents=8 DQ.Environment=AOD  > log.HIST_Creation 2>&1
+Run3DQTestingDriver.py --inputFiles=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthenaMonitoring/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1 DQ.Steering.doHLTMon=False --threads=8 DQ.Environment=AOD  > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 

@@ -601,6 +601,9 @@ namespace xAOD {
     std::vector<const IParticle*> particleList;
 
     for (const auto& link : clusterAcc(*this)) {
+      if (!link) {
+        continue;
+      }
       const IParticle* particle = *link;
       particleList.push_back(particle);
     }

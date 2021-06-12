@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCellMonConfigOld(inputFlags):
@@ -91,6 +91,9 @@ def LArCellMonConfig(inputFlags):
     if not inputFlags.Input.isMC:
        from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
        algo.BadLBTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
+
+    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg
+    cfg.merge(LArBadChannelCfg(inputFlags))
 
     cfg.merge(helper.result())
 
