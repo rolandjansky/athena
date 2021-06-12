@@ -191,6 +191,12 @@ def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
     rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    if flags.Digitization.PileUpPresampling:
+        kwargs.setdefault("RDOCollName", flags.Overlay.BkgPrefix + "PixelRDOs")
+        kwargs.setdefault("SDOCollName", flags.Overlay.BkgPrefix + "PixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", "PixelRDOs")
+        kwargs.setdefault("SDOCollName", "PixelSDO_Map")
     tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc

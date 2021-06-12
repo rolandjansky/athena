@@ -86,7 +86,7 @@ def CSC_OutputCfg(flags):
     if flags.Output.doWriteRDO:
         ItemList = ["CscRawDataContainer#*"]
         if flags.Digitization.TruthOutput:
-            ItemList += ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO"]
+            ItemList += ["CscSimDataCollection#*CSC_SDO"]
             acc.merge(TruthDigitizationOutputCfg(flags))
         acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc

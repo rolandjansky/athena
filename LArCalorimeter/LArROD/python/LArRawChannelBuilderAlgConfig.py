@@ -30,7 +30,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
            acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
         if configFlags.Digitization.PileUpPresampling:
-            kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix() + "LArDigitContainer_MC")
+            kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         else:
             kwargs.setdefault("LArDigitKey", "LArDigitContainer_MC")
     else:

@@ -27,15 +27,10 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents ${Events} \
---numberOfCavernBkg 0 \
---numberOfHighPtMinBias 0.116075313 \
---numberOfLowPtMinBias 44.3839246425 \
 --outputRDOFile ${DigiOutFileNameCG} \
---pileupFinalBunch 6 \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
+--postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_mc20a.py' \
+--preInclude 'all:Campaigns/MC20a.py' 'HITtoRDO:Campaigns/PileUpMC20a.py' \
 --skipEvents 0 \
 --athenaopts '"--config-only=DigiPUConfigCG.pkl"'
 
@@ -50,15 +45,10 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents ${Events} \
---numberOfCavernBkg 0 \
---numberOfHighPtMinBias 0.116075313 \
---numberOfLowPtMinBias 44.3839246425 \
 --outputRDOFile ${DigiOutFileNameCG} \
---pileupFinalBunch 6 \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_mc20a.py' \
+--preInclude 'all:Campaigns/MC20a.py' 'HITtoRDO:Campaigns/PileUpMC20a.py' \
 --skipEvents 0
 
 rc=$?
@@ -81,11 +71,7 @@ then
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
     --jobNumber 1 \
     --maxEvents ${Events} \
-    --numberOfCavernBkg 0 \
-    --numberOfHighPtMinBias 0.116075313 \
-    --numberOfLowPtMinBias 44.3839246425 \
     --outputRDOFile ${DigiOutFileNameCA} \
-    --pileupFinalBunch 6 \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
     --preInclude 'HITtoRDO:Campaigns.MC20a' \
     --skipEvents 0

@@ -14,12 +14,11 @@ def TileTriggerDigitizationCfg(flags):
     from TileSimAlgs.TileMuonReceiverConfig import TilePulseForTileMuonReceiverOutputCfg
     acc.merge( TilePulseForTileMuonReceiverOutputCfg(flags) )
 
-    if not flags.Digitization.PileUpPresampling:
-        from TileSimAlgs.TileMuonReceiverDecisionConfig import TileMuonReceiverDecisionOutputCfg
-        acc.merge( TileMuonReceiverDecisionOutputCfg(flags) )
+    from TileSimAlgs.TileMuonReceiverDecisionConfig import TileMuonReceiverDecisionOutputCfg
+    acc.merge( TileMuonReceiverDecisionOutputCfg(flags) )
 
-        from TileL2Algs.TileL2Config import TileRawChannelToL2OutputCfg
-        acc.merge( TileRawChannelToL2OutputCfg(flags, streamName = 'RDO') )
+    from TileL2Algs.TileL2Config import TileRawChannelToL2OutputCfg
+    acc.merge( TileRawChannelToL2OutputCfg(flags, streamName = 'RDO') )
 
     return acc
 

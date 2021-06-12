@@ -89,6 +89,11 @@ def DigitizationMainCfg(flags):
         from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
         acc.merge(TruthDigitizationOutputCfg(flags))
 
+    # Beam spot reweighting
+    if not flags.Digitization.PileUpPresampling and flags.Digitization.InputBeamSigmaZ > 0:
+        from BeamEffects.BeamEffectsAlgConfig import BeamSpotReweightingAlgCfg
+        acc.merge(BeamSpotReweightingAlgCfg(flags))
+
     # Inner Detector
     if flags.Detector.EnableBCM:
         acc.merge(BCM_DigitizationCfg(flags))
@@ -142,19 +147,3 @@ def DigitizationTestingPostInclude(flags, acc):
     # dump pickle
     with open(f"{configName}.pkl", "wb") as f:
         acc.store(f)
-
-
-def setupDigitizationFlags(flags):
-    """Setup common digitization flags."""
-    # autoconfigure pile-up
-    if flags.Digitization.PU.NumberOfLowPtMinBias > 0 \
-        or flags.Digitization.PU.NumberOfHighPtMinBias > 0 \
-        or flags.Digitization.PU.NumberOfBeamHalo > 0 \
-        or flags.Digitization.PU.NumberOfBeamGas > 0 \
-        or flags.Digitization.PU.NumberOfCavern > 0:
-        flags.Digitization.PileUp = True
-
-    if flags.Digitization.PileUp:
-        flags.Input.OverrideRunNumber = True
-        # keep this one True by default in CA-based config
-        flags.Digitization.DoXingByXingPileUp = True

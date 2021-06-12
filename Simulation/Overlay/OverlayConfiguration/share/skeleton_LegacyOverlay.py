@@ -238,7 +238,7 @@ if DetFlags.overlay.LVL1_on():
     include('EventOverlayJobTransforms/Level1Overlay_jobOptions.py')  # noqa F821
 
 # Run calculation of weight for the beam spot size reweighting
-if (digitizationFlags.doBeamSpotSizeReweighting()):
+if digitizationFlags.doBeamSpotSizeReweighting() and digitizationFlags.OldBeamSpotZSize() > 0:
     include('Digitization/BeamSpotReweight.py')  # noqa F821
 
 # save the overlay output

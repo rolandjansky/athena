@@ -21,7 +21,10 @@ def TileRawChannelMakerCfg(flags, **kwargs):
     kwargs.setdefault('name', 'TileRChMaker')
     name = kwargs['name']
 
-    kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
+    if flags.Digitization.PileUpPresampling:
+        kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')
+    else:
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
 
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'TileRawChannelMakerCfg' )

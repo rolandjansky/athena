@@ -5,6 +5,7 @@ from math import ceil
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
+
 def pileupInputCollections(inputFiles):
     if not len(inputFiles):
         return [] #Should never hit this but just in case
@@ -12,11 +13,53 @@ def pileupInputCollections(inputFiles):
     collections = [col for col in rawCollections if not col.endswith('Aux.') ]
     return collections
 
+
 def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch, nBunches):
     """Returns the toal number of needed events"""
     totalSubEvts = nBunches * nSubEvtPerBunch
     totalSubEvts += totalSubEvts * refreshRate * nSignalEvts
     return totalSubEvts
+
+
+def getNBkgEventsPerFile(initialList, logger):
+    """Get number of events in a PU file"""
+    nBkgEventsPerFile = 5000
+    try:
+        from PyUtils.MetaReader import read_metadata
+        metadata = read_metadata(initialList[0])
+        metadata = metadata[initialList[0]]  # promote all keys one level up
+        nBkgEventsPerFile = int(metadata['nentries'])
+        logger.debug('{} -> __Test__001__:\n{}'.format(__file__, nBkgEventsPerFile))
+        logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        logger.warning('Failed to count the number of background events in %s.'
+                       'Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
+    return nBkgEventsPerFile
+
+
+def getInputCollectionOffset(flags, initialList):
+    """Calculate random offset into the input PU files"""
+    logger = logging.getLogger("PileUp")
+
+    offsetrnd = 0
+    if flags.Digitization.JobNumber >= 0:
+        nBkgEventsPerFile = getNBkgEventsPerFile(initialList, logger)
+
+        # Turn jobNumber into a random number following https://en.wikipedia.org/wiki/Xorshift
+        #x ^= x << 13;
+        #x ^= x >> 17;
+        #x ^= x << 5;
+        offsetrnd = int(flags.Digitization.JobNumber + nBkgEventsPerFile * len(initialList))
+        offsetrnd = offsetrnd ^ (offsetrnd << 13)
+        offsetrnd = offsetrnd ^ (offsetrnd >> 17)
+        offsetrnd = offsetrnd ^ (offsetrnd << 15)
+        offsetrnd = offsetrnd % (nBkgEventsPerFile * len(initialList))
+
+        logger.info('Event offset into the collection = %s', offsetrnd)
+
+    return offsetrnd
 
 
 def generateBackgroundInputCollections(flags, initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings):
@@ -45,28 +88,19 @@ def generateBackgroundInputCollections(flags, initialList, nBkgEvtsPerCrossing, 
                 traceback.print_exc()
         logger.info('Number of signal events (read from files) = %s.', nSignalEvts)
 
-    nBkgEventsPerFile = 5000
-    try:
-        from PyUtils.MetaReader import read_metadata
-        metadata = read_metadata(initialList[0])
-        metadata = metadata[initialList[0]]  # promote all keys one level up
-        nBkgEventsPerFile = int(metadata['nentries'])
-        logger.debug('{} -> __Test__001__:\n{}'.format(__file__, nBkgEventsPerFile))
-        logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile)
-    except Exception:
-        import traceback
-        traceback.print_exc()
-        logger.warning('Failed to count the number of background events in %s.'
-                       'Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
-
+    nBkgEventsPerFile = getNBkgEventsPerFile(initialList, logger)
     nBunchesTotal = int(1 + flags.Digitization.PU.FinalBunchCrossing - flags.Digitization.PU.InitialBunchCrossing)
     nBunches = nBunchesTotal
     if correctForEmptyBunchCrossings:
         nBunches = int(ceil(float(nBunches) * float(flags.Digitization.PU.BunchSpacing)) / float(flags.Beam.BunchSpacing))
     logger.info('Simulating a maximum of %s colliding-bunch crossings (%s colliding+non-colliding total) per signal event', nBunches, nBunchesTotal)
+
     nBkgEventsForJob = pileUpCalc(float(nSignalEvts), 1.0, float(nBkgEvtsPerCrossing), nBunches)
-    logger.info('Number of background events required: %s. Number of background events in input files: %s',
-                nBkgEventsForJob, (nBkgEventsPerFile * len(initialList)))
+    # Add the event offset to the number of required background events to ensure a sufficient duplication of the minbias files
+    eventOffset = flags.Digitization.PU.HighPtMinBiasInputColOffset if flags.Digitization.PU.HighPtMinBiasInputColOffset > 0 else 0
+    nBkgEventsForJob += eventOffset
+    logger.info('Number of background events required: %s, including %s for the offset. Number of background events in input files: %s',
+                nBkgEventsForJob, eventOffset, (nBkgEventsPerFile * len(initialList)))
     numberOfRepetitionsRequiredTmp = float(nBkgEventsForJob) / float(nBkgEventsPerFile * len(initialList))
     numberOfRepetitionsRequired = 1 + int(ceil(numberOfRepetitionsRequiredTmp))
     # FIXME many copies of this string seems rather inefficient
@@ -196,19 +230,23 @@ def scaleNumberOfCollisions(flags):
                     old, flags.Digitization.PU.NumberOfCavern)
 
 
-def setupPileUpFlags(flags, bunchTrains, pileUpProfile):
+def setupPileUpProfile(flags):
+    bunchStructure = flags.Digitization.PU.BunchStructureConfig
+    pileUpProfile = flags.Digitization.PU.ProfileConfig
+
     # Setup beam intensity pattern
-    parts = bunchTrains.split('.')
+    parts = bunchStructure.split('.')
     if len(parts) < 2:
-        raise ValueError('Bunch trains configuration should be of the form Package.Module')
+        raise ValueError('Bunch structure configuration should be of the form Package.Module')
 
     from importlib import import_module
-    loaded_module = import_module(bunchTrains)
-    function_def = getattr(loaded_module, 'setupBunchTrains')
+    loaded_module = import_module(bunchStructure)
+    function_def = getattr(loaded_module, 'setupBunchStructure')
     function_def(flags)
 
     # Setup pile-up profile
-    generatePileUpProfile(flags, pileUpProfile)
+    generatePileUpProfile(flags, pileUpProfile,
+                          sequentialEventNumbers=flags.Digitization.PU.ForceSequentialEventNumbers)
 
     flags.Digitization.PU.NumberOfCollisions = flags.Digitization.PU.NumberOfLowPtMinBias + flags.Digitization.PU.NumberOfHighPtMinBias
     scaleNumberOfCollisions(flags)

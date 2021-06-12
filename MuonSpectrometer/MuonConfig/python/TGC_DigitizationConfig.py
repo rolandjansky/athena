@@ -45,7 +45,7 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
-        TgcDigitizationTool = CompFactory.TgcDigitizationTool
+    TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 

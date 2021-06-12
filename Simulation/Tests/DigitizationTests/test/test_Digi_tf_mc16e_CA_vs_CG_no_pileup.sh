@@ -16,6 +16,7 @@ HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/va
 
 # config only
 Digi_tf.py \
+--DataRunNumber 310000 \
 --conditionsTag default:OFLCOND-MC16-SDR-25 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -23,14 +24,15 @@ Digi_tf.py \
 --jobNumber 568 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
+--postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)' \
+--preInclude 'all:Campaigns/MC16NoPileUp.py' \
 --skipEvents 0 \
 --athenaopts '"--config-only=DigiPUConfigCG.pkl"'
 
 # full run
 Digi_tf.py \
+--DataRunNumber 310000 \
 --conditionsTag default:OFLCOND-MC16-SDR-25 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -40,7 +42,7 @@ Digi_tf.py \
 --outputRDOFile ${DigiOutFileNameCG} \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)' \
+--preInclude 'all:Campaigns/MC16NoPileUp.py' \
 --skipEvents 0
 
 rc=$?
@@ -54,6 +56,7 @@ if [ $rc -eq 0 ]
 then
     Digi_tf.py \
     --CA \
+    --DataRunNumber 310000 \
     --conditionsTag default:OFLCOND-MC16-SDR-25 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \

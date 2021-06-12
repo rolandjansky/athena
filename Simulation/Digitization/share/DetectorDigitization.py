@@ -82,6 +82,6 @@ if DetFlags.Muon_on():
 include( "Digitization/LVL1Digitization.py" )
 
 # Run calculation of weight for the beam spot size reweighting
-if (digitizationFlags.doBeamSpotSizeReweighting()):
+if not digitizationFlags.PileUpPresampling() and digitizationFlags.doBeamSpotSizeReweighting() and digitizationFlags.OldBeamSpotZSize() > 0:
     include( "Digitization/BeamSpotReweight.py" )
 

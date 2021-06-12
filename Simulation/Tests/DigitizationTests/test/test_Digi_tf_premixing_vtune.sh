@@ -8,14 +8,15 @@
 
 DigiOutFileName="mc16e_premixing_MT.RDO.pool.root"
 
+InputHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/mc16_valid.422075.ParticleGun_single_nu_Pt50.simul.HITS.e6739_e5984_s3126.HITS.14436922._003949.pool.root"
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
 
 
-vtune -start-paused -run-pass-thru=--no-altstack -collect hotspots -- \
+vtune -mrte-mode=native -start-paused -run-pass-thru=--no-altstack -collect hotspots -- \
 Digi_tf.py \
 --PileUpPresampling True \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/mc16_valid.422075.ParticleGun_single_nu_Pt50.simul.HITS.e6739_e5984_s3126.HITS.14436922._003949.pool.root \
+--inputHITSFile ${InputHitsFile} \
 --conditionsTag default:OFLCOND-MC16-SDR-25 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -28,7 +29,7 @@ Digi_tf.py \
 --numberOfLowPtMinBias 99.2404608 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:ServiceMgr.VTuneProfilerService.ResumeEvent=2;' 'all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]' 'HITtoRDO:condSeq.LArAutoCorrTotalCondAlg.deltaBunch=1' \
+--postExec 'all:ServiceMgr.VTuneProfilerService.ResumeEvent=2;' 'all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --pileupFinalBunch 6 \
 --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);' \
