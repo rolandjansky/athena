@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CxxUtils/test/vec_test_common.h
@@ -412,7 +412,7 @@ void
 testFloat1()
 {
   static_assert(std::is_same_v<CxxUtils::vec_type_t<VEC<float, 4>>, float>);
-  VEC<float, 4> v;
+  VEC<float, 4> v { 0, 0, 0, 0 };
   assert((CxxUtils::vec_size<VEC<float, 4>>()) == 4);
   assert(CxxUtils::vec_size(v) == 4);
 
@@ -455,7 +455,7 @@ void
 testInt1()
 {
   static_assert(std::is_same_v<CxxUtils::vec_type_t<VEC<int, 4>>, int>);
-  VEC<int, 4> v;
+  VEC<int, 4> v {0, 0, 0, 0};
   assert((CxxUtils::vec_size<VEC<int, 4>>()) == 4);
   assert(CxxUtils::vec_size(v) == 4);
 
