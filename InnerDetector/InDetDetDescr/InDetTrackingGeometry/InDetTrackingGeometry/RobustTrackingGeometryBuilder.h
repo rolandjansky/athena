@@ -27,11 +27,12 @@
 
 #ifndef TRKDETDESCR_TAKESMALLERBIGGER
 #define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSamller(cSmallest, cBiggest, test); takeBigger(cSmallest, cBiggest,test)
+#define takeSmaller(current, test) current = current < test ? current : test
+#define takeBigger(current, test) current = current > test ? current : test
+#define takeSmallerBigger(cSmallest, cBiggest, test)                           \
+  takeSamller(cSmallest, cBiggest, test);                                      \
+  takeBigger(cSmallest, cBiggest, test)
 #endif
-
 
 namespace Trk {
  class TrackingGeometry;
