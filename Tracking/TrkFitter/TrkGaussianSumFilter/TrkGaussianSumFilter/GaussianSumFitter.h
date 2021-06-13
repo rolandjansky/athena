@@ -56,7 +56,6 @@ public:
   using ITrackFitter::fit;
 
   /** Refit a track using the Gaussian Sum Filter */
-
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -86,7 +85,7 @@ public:
     const ParticleHypothesis particleHypothesis =
       nonInteracting) const override final;
 
-  /** Refit a track adding a PrepRawDataSet - Not done! */
+  /** Refit a track adding a PrepRawDataSet*/
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -94,9 +93,7 @@ public:
     const RunOutlierRemoval runOutlier = false,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
-  /** Refit a track adding a RIO_OnTrack set
-      - This has no form of outlier rejection and will use all hits on orginal
-     track... i.e. very basic impleneation at the moment*/
+  /** Refit a track adding a RIO_OnTrack set*/
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -104,7 +101,7 @@ public:
     const RunOutlierRemoval runOutlier = false,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
-  /** Combine two tracks by refitting - Not done! */
+  /** Combine two tracks by refitting */
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
