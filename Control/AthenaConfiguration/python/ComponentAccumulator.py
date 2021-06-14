@@ -734,12 +734,9 @@ class ComponentAccumulator(object):
             bsh.setProperty(msp, k.encode(), v.encode())
 
         # Feed the jobO service with the remaining options
-        jos = app.getService("JobOptionsSvc")
         for comp, name, value in bshPropsToSet:
             self._msg.debug("Adding %s.%s = %s", comp, name, value)
-            bsh.addPropertyToCatalogue(
-                jos, comp.encode(), name.encode(), value.encode()
-            )
+            app.setOption(f"{comp}.{name}", value)
 
         sys.stdout.flush()
         return app
