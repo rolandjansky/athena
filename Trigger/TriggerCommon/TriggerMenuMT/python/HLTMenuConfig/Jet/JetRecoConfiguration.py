@@ -162,6 +162,12 @@ def interpretRecoAlg(recoAlg):
     jetalg, jetradius, jetextra = re.split(r'(\d+)',recoAlg)    
     return jetalg, int(jetradius), jetextra
 
+# Check if jet definition needs tracks or if it should be agnostic of the tracking choice
+def jetDefNeedsTracks(jetRecoDict):
+  # For tc_a10, tc_a10t and tc_a10sd, we will be agnostic of tracking (no suffix will be added)
+  # For everything else (constitType=pf or dependence on small-R jets) we need to be aware of what tracking was used
+  return jetRecoDict["trkopt"]!="notrk" and (jetRecoDict["constitType"]!="tc" or jetRecoDict["recoAlg"] in ['a4','a10'])
+
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
 def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
@@ -174,7 +180,7 @@ def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
 
     suffix="_"+jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"] != "notrk":
+    if jetDefNeedsTracks(jetRecoDict):
         suffix += "_{}".format(jetRecoDict["trkopt"])
     
 
@@ -190,7 +196,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     suffix = "_"+ jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"]!="notrk":
+    if jetDefNeedsTracks(jetRecoDict):
         suffix += "_"+jetRecoDict["trkopt"]
     
     groomDef = {
