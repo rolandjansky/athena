@@ -244,10 +244,10 @@ include("PowhegControl/PowhegControl_tt_Common.py")
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
-# Pythia8 showering with the A14 NNPDF2.3 tune
+# Pythia8 showering with the A14 NNPDF2.3 tune, main31 routine
 #--------------------------------------------------------------
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_Powheg.py")
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
 ```
 
 Powheg Box processes have many parameters which can be changed via the
@@ -280,7 +280,7 @@ include("PowhegControl/PowhegControl_tt_Common.py")
 PowhegConfig.decay_mode = 't t~ > b j j b~ j j'
 PowhegConfig.generate()
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_Powheg.py")
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
 ```
 
 As the native runcard for Powheg Box is generated when the job options are run,
@@ -288,8 +288,19 @@ parameter changes like this **must be placed before the call to
 `PowhegConfig.generate()`**, or they will be ignored in favour of the
 default settings.
 
-
-
+The last two includes would run Pythia8 after the production of the LHE events by Powheg.
+The line
+```py
+include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
+```
+makes use of the A14 parton shower tune of Pythia8, and the line
+```py
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
+```
+instructs Pythia8 to use the events in the produced LHE file assuming they
+are events produced by Powheg, using the main31 routine which is appropriate
+for ttbar events. Other tunes and/or other routines may be more appropriate
+to your case; in doubt, ask your MC expert.
 
 
 

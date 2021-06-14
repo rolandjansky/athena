@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # EVGEN configuration
@@ -11,6 +11,12 @@ evgenConfig.contact = ["tpelzer@cern.ch"]
 # Load ATLAS defaults for the Powheg WWj process
 # --------------------------------------------------------------
 include("PowhegControl/PowhegControl_WWj_Common.py")
+
+#--------------------------------------------------------------
+# This is an example joboption to generate events with Powheg
+# using ATLAS' interface. Users should optimise and carefully
+# validate the settings before making an official sample request.
+#--------------------------------------------------------------
 
 # --------------------------------------------------------------
 # parameters for integration precision - very low values for quick testing!
@@ -65,7 +71,7 @@ PowhegConfig.runningscales = "2"
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
-# Pythia8 showering with the A14 NNPDF2.3 tune
+# Pythia8 showering with the A14 NNPDF2.3 tune, main31 routine
 #--------------------------------------------------------------
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_Powheg.py")
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
