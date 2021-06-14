@@ -168,7 +168,7 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
     if (msgLvl(MSG::DEBUG)){
       for (auto *trkClusLink : *matchedClusters_02) {
 	const eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
-	ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+	ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->pt() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
       }
     }
 
@@ -213,7 +213,7 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
   PFSubtractionStatusSetter pfSubtractionStatusSetter;
 
   for (unsigned iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
-    eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrack);
+    eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrack);    
     ATH_MSG_DEBUG("About to recover track with e, pt, eta and phi of " << thisEfRecTrack->getTrack()->e() << ", " << thisEfRecTrack->getTrack()->pt() << ", " << thisEfRecTrack->getTrack()->eta() << " and "
     << thisEfRecTrack->getTrack()->eta());
     /* Get matched cluster via Links */
@@ -258,8 +258,15 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
       else{
         //Else now to mark which clusters were modified in the subtraction procedure
         std::vector<float> clusterSubtractedEnergyRatios;
-        for (auto thisCluster: clusterSubtractionList) {
-          if (fabs(thisCluster.first->e() - clusterEnergyMap[thisCluster.first]) > 0.0001) clusterSubtractedEnergyRatios.push_back(thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
+        for (auto thisCluster: clusterSubtractionList) {          
+          //clusterEnergyMap[thisCluster.first can be zero, but this is only a problem if thisCluster.first.e() < 0 - this can happen if a cluster starts with E =0 
+          //from a previous shower subtraction step and then we subtract more such that the new E is < 0. Then the ratio would cause an FPE due to the zero.
+          //If both thisCluster.first->e() and clusterEnergyMap[thisCluster.first] are zero we never enter this step.          
+          if (fabs(thisCluster.first->e() - clusterEnergyMap[thisCluster.first]) > 0.0001){
+            if ( clusterEnergyMap[thisCluster.first] >= 0) clusterSubtractedEnergyRatios.push_back(thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
+            //approximate zero with 0.0001 to avoid FPE and still give a meaningful ratio (e.g -100/0.0001)
+            else clusterSubtractedEnergyRatios.push_back(thisCluster.first->e()/0.0001);
+          }          
           else clusterSubtractedEnergyRatios.push_back(NAN);
         }
 
