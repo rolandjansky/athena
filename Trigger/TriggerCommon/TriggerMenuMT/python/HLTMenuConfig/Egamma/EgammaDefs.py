@@ -23,7 +23,7 @@ class TrigEgammaKeys(object):
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
-      pidVersion = 'rel21_20180312'
+      pidVersion = 'rel22_20210611'
       dnnVersion = 'mc16_20210430'
 
 class TrigEgammaKeys_LRT(object):
@@ -86,6 +86,10 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
           'lhmedium':'AsgElectronLHMediumSelector',
           'lhloose':'AsgElectronLHLooseSelector',
           'lhvloose':'AsgElectronLHVLooseSelector',
+          'lhtightnopix':'AsgElectronLHTightSelectorNoPix',
+          'lhmediumnopix':'AsgElectronLHMediumSelectorNoPix',
+          'lhloosenopix':'AsgElectronLHLooseSelectorNoPix',
+          'lhvloosenopix':'AsgElectronLHVLooseSelectorNoPix',
           })
      
     ElectronToolConfigFile = collections.OrderedDict({
@@ -93,6 +97,10 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
           'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
           'lhloose':'ElectronLikelihoodLooseTriggerConfig.conf',
           'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          'lhtightnopix':'ElectronLikelihoodTightTriggerConfig_NoPix.conf',
+          'lhmediumnopix':'ElectronLikelihoodMediumTriggerConfig_NoPix.conf',
+          'lhloosenopix':'ElectronLikelihoodLooseTriggerConfig_NoPix.conf',
+          'lhvloosenopix':'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
           })
 
     selectors = []

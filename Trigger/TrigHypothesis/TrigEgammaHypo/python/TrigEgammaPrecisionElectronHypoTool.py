@@ -29,7 +29,7 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
     thePrecisionElectronHypo.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
     thePrecisionElectronHypo.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors()
     thePrecisionElectronHypo.CBNames = ["medium", "loose", "mergedtight"] # just like the pidnames
-    thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose"] # just like the pidnames
+    thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose", "lhtightnopix", "lhmediumnopix","lhloosenopix","lhvloosenopix"] # just like the pidnames
     MonTool.Histograms = [ 
                 defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
                 defineHistogram('TIME_LH_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo LH Algtime; time [ us ] ; Nruns", xbins=30, xmin=0.0, xmax=3000.0),
@@ -54,6 +54,10 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
                            'lhmedium' ,
                            'lhloose'  ,
                            'lhvloose' ,
+                           'lhtightnopix'  ,
+                           'lhmediumnopix' ,
+                           'lhloosenopix'  ,
+                           'lhvloosenopix' ,
                            'dnntight',
                            'dnnmedium',
                            'dnnloose',
