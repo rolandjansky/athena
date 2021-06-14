@@ -25,7 +25,7 @@
 # art-output: *.dat 
 
 import os
-os.system("echo 'from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags ; InDetTrigFlags.cutLevel=15 ' > cutlevel.py ; cat cutlevel.py ")
+os.system("echo 'from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags ; InDetTrigFlags.cutLevel.set_Value_and_Lock(15) ' > cutlevel.py ; cat cutlevel.py ")
 
 Slices  = ['muon','electron','tau','bjet','fsjet']
 Events  = 4000
