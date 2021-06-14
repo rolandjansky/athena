@@ -206,9 +206,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
       continue;
     }
     const std::string lowerName = (isHLT ? trigConf->lower_chain_name() : "");
-    const std::set<std::string> groups = (isHLT ? trigConf->groups() : std::set<std::string>());
-
-    ATH_MSG_DEBUG(" chain " << trigger << " has "  << groups.size() << " groups");
+    std::set<std::string> groups = std::set<std::string>(); // To be filled later from the HLTMenu
 
     if (isHLT) {
       // If this is a HLT item, we require it to be seeded by at most one item. This allows us to use a factorising rates algorithm
@@ -223,19 +221,24 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
         continue;
       }
 
-      // TODO the fetching of stream information is not working at present
-      //bool isMain = false;
-      for (const auto& stream : trigConf->streams()) {
-        ATH_MSG_WARNING("stream:" << stream->stream() );
-        // if (stream->stream() == "Main") {
-        //   isMain = true;
-        //   break;
-        // }
+      ATH_CHECK(m_configSvc.isValid());
+      const TrigConf::HLTMenu& hltMenu = m_configSvc->hltMenu(Gaudi::Hive::currentContext());
+
+      TrigConf::HLTMenu::const_iterator chain = std::find_if(hltMenu.begin(), hltMenu.end(), [&] (const TrigConf::Chain& c) {return c.name() == trigger;});
+      if (chain == hltMenu.end()){
+        ATH_MSG_WARNING("Chain " << trigger << " not found in the menu!");
+        continue;
       }
-      // if (isMain == false) {
-      //   ATH_MSG_WARNING("Will not add " << trigger << " due to non-Main stream." );
-      //   continue;
-      // }
+
+      std::vector<std::string> chainGroups = (*chain).groups();
+      std::vector<std::string> chainStreams = (*chain).streams();
+
+      ATH_MSG_DEBUG(" chain " << trigger << " has "  << chainGroups.size() << " groups and " << chainStreams.size() << " streams");
+
+      groups.insert(chainGroups.begin(), chainGroups.end());
+      for (const std::string& stream : chainStreams){
+        groups.insert("STREAM:" + stream );
+      }
     }
 
     // Get the prescale, express prescale and lower prescale. Note these prescales are from SUPPLIED JSON. 
@@ -415,10 +418,13 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       std::string chainName = ( *chain_itr ).name() ;
       unsigned int chainID = ( *chain_itr ).counter();
       std::vector<std::string> chainGroups = ( *chain_itr ).groups();
+      for (std::string& stream : (*chain_itr).streams()){
+        chainGroups.push_back("STREAM:" + stream);
+      }
       std::string singlechainGroups = "";
       for (unsigned int j=0; j < chainGroups.size(); ++j){
-	if (j==0) singlechainGroups += chainGroups[j];
-	else singlechainGroups += ", "+chainGroups[j];
+        if (j==0) singlechainGroups += chainGroups[j];
+        else singlechainGroups += ", "+chainGroups[j];
       }
             
       m_hltChainIDGroup.at(c).at(0) = chainName;

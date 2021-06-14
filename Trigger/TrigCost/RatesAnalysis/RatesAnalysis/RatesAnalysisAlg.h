@@ -255,7 +255,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::vector<std::vector<std::string>> m_l1ItemID;
 
   const std::string m_l1GroupName = "L1";
-  const std::string m_l2GroupName = "Main";
+  const std::string m_l2GroupName = "HLT";
   const std::string m_expressGroupName = "Express";
 
   ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasRatesTool{this, "EnhancedBiasRatesTool", "EnhancedBiasWeighter/EnhancedBiasRatesTool"};
