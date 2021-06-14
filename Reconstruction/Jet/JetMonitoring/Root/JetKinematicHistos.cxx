@@ -111,9 +111,11 @@ int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont,
     float JVT_cut = 0.50;
 
     if(cont.size() > 0){
-      xAOD::JetInput::Type inputtype = cont[0]->getInputType();
-      if(inputtype == xAOD::JetInput::EMTopoOrigin || inputtype == xAOD::JetInput::LCTopoOrigin)
-	JVT_cut = 0.59;
+      if(cont[0]->isAvailable<float>("Jvt")){
+	xAOD::JetInput::Type inputtype = cont[0]->getInputType();
+	if(inputtype == xAOD::JetInput::EMTopoOrigin || inputtype == xAOD::JetInput::LCTopoOrigin)
+	  JVT_cut = 0.59;
+      }
     }
 
     for(auto *jet : cont){
