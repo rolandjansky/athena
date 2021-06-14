@@ -28,6 +28,7 @@ errorRegex = [
     r'illegal instruction',
     r'failure loading library',
     r'Cannot allocate memory',
+    r'Attempt to free invalid pointer',
     r'in state: CONTROLREADY$',
     r'^\s*missing data: ',
     r'^\s*can be produced by alg(s): ',
