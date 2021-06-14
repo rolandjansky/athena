@@ -131,25 +131,26 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
 # this probably only has to happen once
 def setupCondDb(cfgFlags, taggerlist):
     from AthenaCommon.AppMgr import athCondSeq
-    CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]
-    grades= cfgFlags.BTagging.Grades
-    RNNIPConfig = {'rnnip':''}
+    if not hasattr(athCondSeq,"JetTagCalibCondAlg"):
+        CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]
+        grades= cfgFlags.BTagging.Grades
+        RNNIPConfig = {'rnnip':''}
 
-    JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
-    jettagcalibcondalg = "JetTagCalibCondAlg"
-    readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
-    connSchema = "GLOBAL_OFL"
-    if not cfgFlags.Input.isMC:
-        readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
-        connSchema = "GLOBAL"
-    histoskey = "JetTagCalibHistosKey"
-    from IOVDbSvc.CondDB import conddb
+        JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
+        jettagcalibcondalg = "JetTagCalibCondAlg"
+        readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
+        connSchema = "GLOBAL_OFL"
+        if not cfgFlags.Input.isMC:
+            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
+            connSchema = "GLOBAL"
+        histoskey = "JetTagCalibHistosKey"
+        from IOVDbSvc.CondDB import conddb
 
-    conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
-    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = taggerlist,
-        channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
+        conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
+        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = taggerlist,
+            channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
 
-    athCondSeq+=conf2toConfigurable( JetTagCalib, indent="  " )
+        athCondSeq+=conf2toConfigurable( JetTagCalib, indent="  " )
 
 
 
