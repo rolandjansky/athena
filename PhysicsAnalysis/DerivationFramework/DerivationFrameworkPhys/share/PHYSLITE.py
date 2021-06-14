@@ -7,17 +7,13 @@
 from AthenaCommon import Logging
 nanolog = Logging.logging.getLogger('PHYSLITE')
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
-from DerivationFrameworkInDet import InDetCommon
-from DerivationFrameworkEGamma import EGammaCommon
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
-from DerivationFrameworkMuons import MuonsCommon
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
-from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg 
-from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
-from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
-from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from DerivationFrameworkJetEtMiss import METCommon
+from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg
+from DerivationFrameworkCore import LHE3WeightMetadata
 import re
 
 #====================================================================
@@ -29,44 +25,9 @@ PHYSLITEStream = MSMgr.NewPoolRootStream( streamName, fileName )
 PHYSLITEStream.AcceptAlgs(["PHYSLITEKernel"])
 
 thinningTools       = []
-AugmentationTools   = []
+
 # Special sequence 
 SeqPHYSLITE = CfgMgr.AthSequencer("SeqPHYSLITE")
-
-#====================================================================
-# TRUTH CONTENT
-#====================================================================
-if (DerivationFrameworkIsMonteCarlo):
-   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
-   #import DerivationFrameworkHiggs.TruthCategories
-   # Add charm quark collection
-   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
-   PHYSLITETruthCharmTool = DerivationFramework__TruthCollectionMaker(name                    = "PHYSLITETruthCharmTool",
-                                                                  NewCollectionName       = "TruthCharm",
-                                                                  KeepNavigationInfo      = False,
-                                                                  ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
-                                                                  Do_Compress             = True)
-   ToolSvc += PHYSLITETruthCharmTool
-   #from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-   SeqPHYSLITE += CfgMgr.DerivationFramework__CommonAugmentation("PHYSLITETruthCharmKernel",AugmentationTools=[PHYSLITETruthCharmTool])
-   # Add HF particles
-   addHFAndDownstreamParticles(SeqPHYSLITE)
-   # Add standard truth
-   addStandardTruthContents(SeqPHYSLITE,prefix='PHYSLITE_')
-   # Update to include charm quarks and HF particles - require a separate instance to be train safe
-   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
-   PHYSLITETruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSLITETruthNavigationDecorator",
-          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
-   ToolSvc += PHYSLITETruthNavigationDecorator
-   SeqPHYSLITE.PHYSLITE_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSLITETruthNavigationDecorator]
-   # Re-point links on reco objects
-   addMiniTruthCollectionLinks(SeqPHYSLITE)
-   addPVCollection(SeqPHYSLITE)
-   # Set appropriate truth jet collection for tau truth matching
-   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
-   # Add sumOfWeights metadata for LHE3 multiweights =======
-   from DerivationFrameworkCore.LHE3WeightMetadata import *
-
 
 '''
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
@@ -115,9 +76,9 @@ if DerivationFrameworkIsMonteCarlo:
 '''
 
 #====================================================================
-# INNER DETECTOR TRACK THINNING
+# THINNING
 #====================================================================
-# See recommedations here: 
+# ID tracks: See recommedations here: 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
 
 # Inner detector group recommendations for indet tracks in analysis
@@ -172,55 +133,6 @@ PHYSLITEDiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(na
 ToolSvc += PHYSLITEDiTauTPThinningTool
 thinningTools.append(PHYSLITEDiTauTPThinningTool)
 
-#====================================================================
-# JET/MET   
-#====================================================================
-
-# TODO: UFO jets to be added in the future
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" #, "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
-]
-
-OutputJets["PHYSLITE"] = largeRJetCollections
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
-
-if (DerivationFrameworkIsMonteCarlo):
-   OutputJets["PHYSLITE"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-
-replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
-
-# Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
-
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSLITE,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
-
-# fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSLITE, algname='PHYSLITEJetForwardPFlowJvtToolAlg')
-
-#====================================================================
-# EGAMMA
-#====================================================================
-
-if DerivationFrameworkIsMonteCarlo:
-   # Schedule the two energy density tools for running after the pseudojets are created.
-   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-      if hasattr(topSequence, alg):
-         edtalg = getattr(topSequence, alg)
-         delattr(topSequence, alg)
-         SeqPHYSLITE += edtalg
-
-#====================================================================
-# Tau   
-#====================================================================
-
-# Add low-pt di-tau reconstruction
-from DerivationFrameworkTau.TauCommon import addDiTauLowPt
-addDiTauLowPt(Seq=SeqPHYSLITE)
-
 # Low-pt di-tau thinning
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSLITEDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITEDiTauLowPtThinningTool",
@@ -238,19 +150,6 @@ PHYSLITEDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinni
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSLITEDiTauLowPtTPThinningTool
 thinningTools.append(PHYSLITEDiTauLowPtTPThinningTool)
-
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-
-FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYSLITE)
-
-
-
-
-
 
 #==============================================================================
 # Analysis-level variables 
@@ -334,57 +233,6 @@ PHYSLITE_cfg = METAssocConfig('AnalysisMET',
 METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
 scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 
-#====================================================================
-# TRIGGER CONTENT
-#====================================================================
-## See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
-## Get single and multi mu, e, photon triggers
-## Jet, tau, multi-object triggers not available in the matching code
-allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
-## Add cross-triggers for some sets
-trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-## Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
-#
-## Merge and remove duplicates
-trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
-trigger_names_full_tau = list(set(trig_tau+trig_txe))
-#
-## Now reduce the list...
-trigger_names_notau = []
-trigger_names_tau = []
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-if ConfigFlags.Trigger.EDMVersion == 3:
-   r_tau = re.compile("HLT_.*tau.*")
-   r_notau = re.compile("HLT_[1-9]*(e|mu|g).*") 
-   r_veto = re.compile("HLT_.*(LRT).*")   
-   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
-      result_tau = r_tau.match(chain_name)
-      result_notau = r_notau.match(chain_name)
-      result_veto = r_veto.match(chain_name)
-      if result_tau is not None and result_veto is None: trigger_names_tau.append(chain_name)
-      if result_notau is not None and result_veto is None: trigger_names_notau.append(chain_name)
-   trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
-   trigger_names_notau = list(trigger_names_notau)
-else:
-   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
-      if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
-      if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
-# Create trigger matching decorations
-trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolNoTau',
-        trigger_list = trigger_names_notau, add_to_df_job=True)
-trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolTau',
-        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
-
 # Create trigger matching decorations
 #trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
 #        OutputContainerPrefix = "Analysis",
@@ -408,7 +256,6 @@ DerivationFrameworkJob += SeqPHYSLITE
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel(
    "PHYSLITEKernel",
-   AugmentationTools = AugmentationTools,
    ThinningTools = thinningTools,
    )
 #====================================================================
@@ -492,7 +339,7 @@ if DerivationFrameworkIsMonteCarlo:
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 # Add trigger matching
-trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
-trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
+PhysCommon.PhysCommon_trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
+PhysCommon.PhysCommon_trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)

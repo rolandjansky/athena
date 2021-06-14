@@ -8,18 +8,22 @@
 # It requires the reductionConf flag PHYS in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
-from DerivationFrameworkInDet import InDetCommon
-from DerivationFrameworkEGamma import EGammaCommon
+from AthenaCommon import Logging
+nanolog = Logging.logging.getLogger('PHYS')
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
-from DerivationFrameworkMuons import MuonsCommon
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
 from DerivationFrameworkJetEtMiss import METCommon
-from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
-from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
-from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
-import re
+from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg
+from DerivationFrameworkCore import LHE3WeightMetadata
+
+#====================================================================
+# Set up sequence for this format and add to the top sequence 
+#====================================================================
+SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
+DerivationFrameworkJob += SeqPHYS
 
 #====================================================================
 # SET UP STREAM   
@@ -37,98 +41,9 @@ AugmentationTools   = []
 SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
 
 #====================================================================
-# MONTE CARLO TRUTH
+# THINNING
 #====================================================================
-if (DerivationFrameworkIsMonteCarlo):
-   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
-   #import DerivationFrameworkHiggs.TruthCategories
-   # Add charm quark collection
-   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
-   PHYSTruthCharmTool = DerivationFramework__TruthCollectionMaker(name                    = "PHYSTruthCharmTool",
-                                                                  NewCollectionName       = "TruthCharm",
-                                                                  KeepNavigationInfo      = False,
-                                                                  ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
-                                                                  Do_Compress             = True)
-   ToolSvc += PHYSTruthCharmTool
-   #from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-   SeqPHYS += CfgMgr.DerivationFramework__CommonAugmentation("PHYSTruthCharmKernel",AugmentationTools=[PHYSTruthCharmTool])
-   # Add HF particles
-   addHFAndDownstreamParticles(SeqPHYS)
-   # Add standard truth
-   addStandardTruthContents(SeqPHYS,prefix='PHYS_')
-   # Update to include charm quarks and HF particles - require a separate instance to be train safe
-   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
-   PHYSTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSTruthNavigationDecorator",
-          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
-   ToolSvc += PHYSTruthNavigationDecorator
-   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSTruthNavigationDecorator]
-   # Re-point links on reco objects
-   addMiniTruthCollectionLinks(SeqPHYS)
-   addPVCollection(SeqPHYS)
-   # Set appropriate truth jet collection for tau truth matching
-   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
-   # Add sumOfWeights metadata for LHE3 multiweights =======
-   from DerivationFrameworkCore.LHE3WeightMetadata import *
-
-
-
-#====================================================================
-# TRIGGER CONTENT   
-#====================================================================
-## See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
-## Get single and multi mu, e, photon triggers
-## Jet, tau, multi-object triggers not available in the matching code
-allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
-## Add cross-triggers for some sets
-trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-## Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
-#
-## Merge and remove duplicates
-trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
-trigger_names_full_tau = list(set(trig_tau+trig_txe))
-#
-## Now reduce the list...
-trigger_names_notau = []
-trigger_names_tau = []
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-if ConfigFlags.Trigger.EDMVersion == 3:
-   r_tau = re.compile("HLT_.*tau.*")
-   r_notau = re.compile("HLT_[1-9]*(e|mu|g).*") 
-   r_veto = re.compile("HLT_.*(LRT).*")   
-   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
-      result_tau = r_tau.match(chain_name)
-      result_notau = r_notau.match(chain_name)
-      result_veto = r_veto.match(chain_name)
-      if result_tau is not None and result_veto is None: trigger_names_tau.append(chain_name)
-      if result_notau is not None and result_veto is None: trigger_names_notau.append(chain_name)
-   trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
-   trigger_names_notau = list(trigger_names_notau)
-else:
-   for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
-      if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
-      if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
-# Create trigger matching decorations
-trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
-        trigger_list = trigger_names_notau, add_to_df_job=True)
-trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
-        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
-
-
-
-#====================================================================
-# INNER DETECTOR TRACK THINNING
-#====================================================================
-# See recommedations here: 
+# ID tracks: See recommedations here: 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
 
 # Inner detector group recommendations for indet tracks in analysis
@@ -183,61 +98,6 @@ PHYSDiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name  
 ToolSvc += PHYSDiTauTPThinningTool
 thinningTools.append(PHYSDiTauTPThinningTool)
 
-#====================================================================
-# JET/MET   
-#====================================================================
-
-# TODO: UFO jets to be added in the future
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" #, "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
-]
-
-OutputJets["PHYS"] = largeRJetCollections
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
-
-if (DerivationFrameworkIsMonteCarlo):
-   OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-
-replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
-
-# Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
-
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPFAlg")
-
-# fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
-
-#====================================================================
-# EGAMMA
-#====================================================================
-
-if DerivationFrameworkIsMonteCarlo:
-   # Schedule the two energy density tools for running after the pseudojets are created.
-   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-      if hasattr(topSequence, alg):
-         edtalg = getattr(topSequence, alg)
-         delattr(topSequence, alg)
-         SeqPHYS += edtalg
-
-#====================================================================
-# Add our sequence to the top sequence
-#====================================================================
-# Ideally, this should come at the end of the job
-DerivationFrameworkJob += SeqPHYS
-
-#====================================================================
-# Tau   
-#====================================================================
-
-# Add low-pt di-tau reconstruction
-from DerivationFrameworkTau.TauCommon import addDiTauLowPt
-addDiTauLowPt(Seq=SeqPHYS)
-
 # Low-pt di-tau thinning
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
@@ -264,22 +124,6 @@ thinningTools.append(PHYSDiTauLowPtTPThinningTool)
 #from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
                                                         ThinningTools = thinningTools)
-
-
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
-FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],SeqPHYS)
-
-#====================================================================
-# TC-LVT Vertices 
-#====================================================================
-
-# from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
-# addSoftBVrt(SeqPHYS,'Loose')
-# addSoftBVrt(SeqPHYS,'Medium')
-# addSoftBVrt(SeqPHYS,'Tight')
 
 #====================================================================
 # CONTENTS   
@@ -329,9 +173,6 @@ PHYSSlimmingHelper.IncludeBJetTriggerContent = False
 PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
 PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
 
-# Add the jet containers to the stream (defined in JetCommon if import needed)
-#addJetOutputs(PHYSSlimmingHelper,["PHYS"])
-
 # Truth containers
 if DerivationFrameworkIsMonteCarlo:
    PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
@@ -376,8 +217,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights"]
 
 # Add trigger matching
-trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
-trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
+PhysCommon.PhysCommon_trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+PhysCommon.PhysCommon_trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
