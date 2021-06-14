@@ -1,4 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+#--------------------------------------------------------------
+# This is an example joboption to generate events with Powheg
+# using ATLAS' interface. Users should optimise and carefully
+# validate the settings before making an official sample request.
+#--------------------------------------------------------------
 
 #--------------------------------------------------------------
 # EVGEN configuration
