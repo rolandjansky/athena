@@ -623,7 +623,6 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
 										parms,
 										true,
 										false);  // remove only MS TSOS and keep ID+CALO
-
     if(m_infoExtrapolation) {
       if(parms) ATH_MSG_INFO(" go to Beam Line parms position radius " << parms->position().perp() << " z " << parms->position().z());
       ATH_MSG_INFO(" go to Beam Line destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
@@ -663,7 +662,6 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
 										parms,
 										true,
 										true);
-
     // hack to convert DataVector to stl vector and delete the DataVector ...
       if(caloTSOSdv&&Eloss>Eloss_previous) {
 //
@@ -782,7 +780,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 
 
   DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = nullptr;
-  if(caloTSOS->empty()||Eloss<1000.) {
+  if(caloTSOS->empty()) {
     if(dir==Trk::alongMomentum&&pOri>4000.) {
         ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
         ATH_MSG_WARNING(" momentum of track " << pOri);
