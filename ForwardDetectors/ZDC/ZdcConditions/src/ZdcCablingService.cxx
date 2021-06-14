@@ -13,7 +13,7 @@
 //------------------------------------------------------------
 const ZdcCablingService * ZdcCablingService::getInstance()
 {
-  static const ZdcCablingService svc (nullptr, nullptr);
+  static const ZdcCablingService svc (nullptr);//, nullptr);
   return &svc;
 }
 
@@ -25,9 +25,8 @@ void ZdcCablingService::deleteInstance()
 // default constructor
 
 //-------------------------------------------------------------
-ZdcCablingService::ZdcCablingService (const ZdcID* zdcID,
-                                      const ZdcHardwareID* zdcHWID)
-  : m_dbFilled(0), m_zdcID(zdcID), m_zdcHWID(zdcHWID)
+ZdcCablingService::ZdcCablingService (const ZdcID* zdcID) //  const ZdcHardwareID* zdcHWID)
+  : m_dbFilled(0) , m_zdcID(zdcID) //, m_zdcHWID(zdcHWID)
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "ZdcCablingSevice");
   if (!m_zdcID) {
@@ -35,11 +34,14 @@ ZdcCablingService::ZdcCablingService (const ZdcID* zdcID,
       std::abort();
     }
   }
+
+  /*
   if (!m_zdcHWID) {
     if (detStore->retrieve (m_zdcHWID).isFailure()) {
       std::abort();
     }
   }
+  */
 
   fillConnectionTables();
   fillDB();
@@ -333,6 +335,7 @@ Identifier ZdcCablingService::h2s_channel_id ( const HWIdentifier & hwid ) const
 }
 */
 
+
 Identifier ZdcCablingService::h2s_channel_id ( int crate, int channel ) const
 {
 
@@ -344,6 +347,7 @@ Identifier ZdcCablingService::h2s_channel_id ( int crate, int channel ) const
   //std::cout << "ZCS: side=" << side << " module=" << module << " type=" << type << " chan=" << chan << std::endl;
   return m_zdcID->channel_id(side,module,type,chan);
 }
+
 
 /*
 HWIdentifier ZdcCablingService::s2h_channel_hwid (const Identifier & id) const
