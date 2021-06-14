@@ -753,6 +753,7 @@ class TopoAlgoDef:
         algolist = [
             {"minDr": 0, "maxDr": 24, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, #0DR24-2CMU4ab
             {"minDr": 0, "maxDr": 24, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU","ocut2": 4, "onebarrel": 0}, #0DR24-CMU4ab-MU4ab  
+            {"minDr": 10, "maxDr": 99, "mult": 2, "otype1" : "MU","ocut1": 6,  "olist" : "ab", "otype2" : "","ocut2": 4, "onebarrel": 0}, #10DR99-2MU6ab
         ]
         for x in algolist:
             class d:
@@ -1529,7 +1530,7 @@ class TopoAlgoDef:
             tm.registerTopoAlgo(alg)
 
 
-        #ATR-19302: not included for now
+        #ATR-19302:
         toponame = "0INVM70-27DPHI32-eEM10his1-eEM10his6"
         log.debug("Define %s", toponame)
         inputList = ['eEMshi','eEMshi']
@@ -1556,6 +1557,29 @@ class TopoAlgoDef:
         toponame = "0INVM70-27DPHI32-eEM12his1-eEM12his6"
         log.debug("Define %s", toponame)
         inputList = ['eEMshi','eEMshi']
+        alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = toponame, inputs = inputList, outputs = toponame )
+        alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+        alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
+        alg.addgeneric('MaxTob1', 1)
+        alg.addgeneric('MaxTob2', 6)
+        alg.addgeneric('NumResultBits', 1)
+        alg.addvariable('MinMSqr', 0)
+        alg.addvariable('MaxMSqr', (70*_et_conversion)*(70*_et_conversion))
+        alg.addvariable('MinET1', 10*_et_conversion)
+        alg.addvariable('MinET2', 12*_et_conversion)
+        alg.addgeneric('ApplyEtaCut', 1)
+        alg.addvariable('MinEta1', 0)
+        alg.addvariable('MaxEta1', _etamax_phase1)
+        alg.addvariable('MinEta2', 0)
+        alg.addvariable('MaxEta2', _etamax_phase1)
+        alg.addvariable('MinDeltaPhi', 27*_phi_conversion)
+        alg.addvariable('MaxDeltaPhi', 32*_phi_conversion)
+        tm.registerTopoAlgo(alg)
+
+        #ATR-21637, TODO: use loose shower shape cuts 
+        toponame = "0INVM70-27DPHI32-eEM12s1-eEM12s6"
+        log.debug("Define %s", toponame)
+        inputList = ['eEMs','eEMs']
         alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = toponame, inputs = inputList, outputs = toponame )
         alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
         alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
@@ -1659,19 +1683,6 @@ class TopoAlgoDef:
         alg.addvariable('DeltaRMin', 0)
         alg.addvariable('DeltaRMax', 15*15)
         tm.registerTopoAlgo(alg)
-
-
-        # CEP-CJ50s6pETA21
-        x = 50
-        toponame = "CEP-CJ%is6pETA21" % x 
-        log.debug("Define %s", toponame)
-        inputList = ['CJsETA21']
-        alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame)
-        alg.addvariable('MinET1', x)
-        alg.addvariable('MinXi', 13000.0*0.02)
-        alg.addvariable('MaxXi', 13000.0*0.05)
-        tm.registerTopoAlgo(alg)
-
         
         # CEP_CJ
         CEPmap = [

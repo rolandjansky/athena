@@ -179,9 +179,10 @@ def defineInputsMenu():
                                                                                                        '60INVM-25DPHI32-eEM15abhi-FJj15s623ETA49'] ),
                     TopoMenuDef( 'CEP_CJ',                         outputbits = (8,9), outputlines = [ 'CEP-CJ50s6',
                                                                                                        'CEP-CJ60s6'] ),
-                    TopoMenuDef( 'INVM_eEMs6',                      outputbits = (10,11), outputlines = [ '1INVM5-eEM7s1-eEMs6',
+                    TopoMenuDef( 'INVM_eEMs6',                     outputbits = (10,11), outputlines = [ '1INVM5-eEM7s1-eEMs6',
                                                                                                          '1INVM5-eEM12s1-eEMs6'] ),
-                    TopoMenuDef( '27DPHI32-eEMs1-eEMs6',             outputbits = 12 ),
+                    TopoMenuDef( '27DPHI32-eEMs1-eEMs6',           outputbits = 12 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM12s1-eEM12s6',           outputbits = 13 ),
                 ]
             },
             
@@ -240,6 +241,7 @@ def defineInputsMenu():
                     TopoMenuDef( '0INVM70-27DPHI32-eEM10his1-eEM10his6', outputbits = 2 ),
                     TopoMenuDef( '0INVM70-27DPHI32-eEM12his1-eEM12his6', outputbits = 3 ),
                     TopoMenuDef( 'ZEE-eEM20shi2',                        outputbits = 4 ), 
+                    TopoMenuDef( '10DR99-2MU6ab',                        outputbits = 5 ),
                 ]
             },
 

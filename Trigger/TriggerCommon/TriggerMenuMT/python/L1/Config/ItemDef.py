@@ -1516,7 +1516,6 @@ class ItemDef:
             #ATR-17320
             MenuItem('L1_CEP-CJ60').setLogic( d.TOPO_CEP_CJ60s6 & physcond )
             MenuItem('L1_CEP-CJ50').setLogic( d.TOPO_CEP_CJ50s6 & physcond )
-            MenuItem('L1_CEP-CJ50pETA21').setLogic( d.TOPO_CEP_CJ50s6pETA21 & physcond )
             #ATR-18824
             MenuItem('L1_ZAFB-04DPHI-eEM15I' ).setLogic( d.TOPO_60INVM_04DPHI32_eEM15abhi_FJj15s623ETA49 & physcond)
             MenuItem('L1_ZAFB-25DPHI-eEM15I' ).setLogic( d.TOPO_60INVM_25DPHI32_eEM15abhi_FJj15s623ETA49 & physcond)
@@ -1524,6 +1523,10 @@ class ItemDef:
             #ATR-19302:
             MenuItem('L1_DPHI-M70-2eEM10I' ).setLogic( d.TOPO_0INVM70_27DPHI32_eEM10his1_eEM10his6 & physcond)
             MenuItem('L1_DPHI-M70-2eEM12I' ).setLogic( d.TOPO_0INVM70_27DPHI32_eEM12his1_eEM12his6 & physcond)
+            #ATR-21637
+            MenuItem('L1_DPHI-M70-2eEM12' ).setLogic( d.TOPO_0INVM70_27DPHI32_eEM12s1_eEM12s6 & physcond)
+            #ATR-19376
+            MenuItem('L1_10DR-MU20-MU6'   ).setLogic( d.TOPO_10DR99_2MU6ab & d.MU20 & physcond)          
 
             #Missing: KF
 
