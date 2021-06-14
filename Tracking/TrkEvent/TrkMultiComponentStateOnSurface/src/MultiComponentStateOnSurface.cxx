@@ -25,7 +25,7 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface()
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
-  const Trk::MultiComponentState* multiComponentState,
+  std::unique_ptr<MultiComponentState> multiComponentState,
   const Trk::FitQualityOnSurface* fitQualityOnSurface,
   const MaterialEffectsBase* materialEffectsOnTrack,
   double modeQoverP)
@@ -36,14 +36,14 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
       materialEffectsOnTrack,
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
         1 << (int)TrackStateOnSurface::Measurement))
-  , m_multiComponentState(multiComponentState)
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
   const Trk::TrackParameters* trackParameters,
-  const Trk::MultiComponentState* multiComponentState,
+  std::unique_ptr<MultiComponentState> multiComponentState,
   const Trk::FitQualityOnSurface* fitQualityOnSurface,
   const MaterialEffectsBase* materialEffectsOnTrack,
   double modeQoverP)
@@ -54,52 +54,48 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
       materialEffectsOnTrack,
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
         1 << (int)TrackStateOnSurface::Measurement))
-  ,
-
-  m_multiComponentState(multiComponentState)
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
-  const Trk::MultiComponentState* multiComponentState,
+  std::unique_ptr<MultiComponentState> multiComponentState,
   const Trk::FitQualityOnSurface* fitQualityOnSurface,
   const MaterialEffectsBase* materialEffectsOnTrack,
   const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
   double modeQoverP)
-  : TrackStateOnSurface(
-      measurementBase,
-      multiComponentState->front().first->clone(),
-      fitQualityOnSurface,
-      materialEffectsOnTrack,
-      types)
-  , m_multiComponentState(multiComponentState)
+  : TrackStateOnSurface(measurementBase,
+                        multiComponentState->front().first->clone(),
+                        fitQualityOnSurface,
+                        materialEffectsOnTrack,
+                        types)
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
   const Trk::TrackParameters* trackParameters,
-  const Trk::MultiComponentState* multiComponentState,
+  std::unique_ptr<MultiComponentState> multiComponentState,
   const Trk::FitQualityOnSurface* fitQualityOnSurface,
   const MaterialEffectsBase* materialEffectsOnTrack,
   const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
   double modeQoverP)
-  : TrackStateOnSurface(
-      measurementBase,
-      trackParameters,
-      fitQualityOnSurface,
-      materialEffectsOnTrack,
-      types)
+  : TrackStateOnSurface(measurementBase,
+                        trackParameters,
+                        fitQualityOnSurface,
+                        materialEffectsOnTrack,
+                        types)
   ,
 
-  m_multiComponentState(multiComponentState)
+  m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
-  const Trk::MultiComponentState* multiComponentState)
+  std::unique_ptr<MultiComponentState> multiComponentState)
   : TrackStateOnSurface(
       measurementBase,
       multiComponentState->front().first->clone(),
@@ -107,7 +103,7 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
       nullptr,
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
         1 << (int)TrackStateOnSurface::Measurement))
-  , m_multiComponentState(multiComponentState)
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(0.)
 {}
 
@@ -148,15 +144,18 @@ Trk::MultiComponentStateOnSurface::~MultiComponentStateOnSurface() = default;
 Trk::TrackStateOnSurface*
 Trk::MultiComponentStateOnSurface::clone() const
 {
-
+  // Clone all constituents
   const Trk::MeasurementBase* measurementBase =
     this->measurementOnTrack() ? this->measurementOnTrack()->clone() : nullptr;
+
   const Trk::TrackParameters* trackParameters =
     this->trackParameters() ? this->trackParameters()->clone() : nullptr;
-  const Trk::MultiComponentState* multiComponentState =
+
+  std::unique_ptr<Trk::MultiComponentState> multiComponentState =
     this->components()
-      ? Trk::MultiComponentStateHelpers::clone(*(this->components())).release()
+      ? Trk::MultiComponentStateHelpers::clone(*(this->components()))
       : nullptr;
+
   const Trk::FitQualityOnSurface* fitQualityOnSurface =
     this->fitQualityOnSurface()
       ? new Trk::FitQualityOnSurface(*(this->fitQualityOnSurface()))
@@ -166,14 +165,13 @@ Trk::MultiComponentStateOnSurface::clone() const
                                    : nullptr;
   double modeQoverP = this->mixtureModeQoverP();
 
-  return new Trk::MultiComponentStateOnSurface(
-    measurementBase,
-    trackParameters,
-    multiComponentState,
-    fitQualityOnSurface,
-    materialEffectsOnTrack,
-    this->types(),
-    modeQoverP);
+  return new Trk::MultiComponentStateOnSurface(measurementBase,
+                                               trackParameters,
+                                               std::move(multiComponentState),
+                                               fitQualityOnSurface,
+                                               materialEffectsOnTrack,
+                                               this->types(),
+                                               modeQoverP);
 }
 
 MsgStream&

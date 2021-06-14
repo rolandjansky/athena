@@ -57,7 +57,7 @@ public:
      multi-component state */
   MultiComponentStateOnSurface(
     const MeasurementBase*,
-    const MultiComponentState*,
+    std::unique_ptr<MultiComponentState>,
     const FitQualityOnSurface*,
     const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
     double modeQoverP = 0.);
@@ -68,7 +68,7 @@ public:
   MultiComponentStateOnSurface(
     const MeasurementBase*,
     const TrackParameters*,
-    const MultiComponentState*,
+    std::unique_ptr<MultiComponentState>,
     const FitQualityOnSurface*,
     const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
     double modeQoverP = 0.);
@@ -76,7 +76,7 @@ public:
   /** Create TrackStateOnSurface with TrackStateOnSurfaceType. */
   MultiComponentStateOnSurface(
     const MeasurementBase*,
-    const MultiComponentState*,
+    std::unique_ptr<MultiComponentState>,
     const FitQualityOnSurface*,
     const MaterialEffectsBase*,
     const std ::bitset<NumberOfTrackStateOnSurfaceTypes>&,
@@ -88,16 +88,15 @@ public:
   MultiComponentStateOnSurface(
     const MeasurementBase*,
     const TrackParameters*,
-    const MultiComponentState*,
+    std::unique_ptr<MultiComponentState>,
     const FitQualityOnSurface*,
     const MaterialEffectsBase*,
     const std ::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
     double modeQoverP = 0.);
 
   /** Constructor without a FitQualityOnSurface. */
-  MultiComponentStateOnSurface(
-    const MeasurementBase*,
-    const MultiComponentState*);
+  MultiComponentStateOnSurface(const MeasurementBase*,
+                               std::unique_ptr<MultiComponentState>);
 
   /** Copy constructor and assignment*/
   MultiComponentStateOnSurface(const MultiComponentStateOnSurface& other);
@@ -119,14 +118,18 @@ public:
   /** This is Multi, since we MultiComponent */
   virtual TrackStateOnSurface::Variety variety() const override final;
 
-  /** Method to return a pointer to the multi-component state */
+  /** Method to return a pointer to the multi-component state  const overload*/
   const MultiComponentState* components() const;
+
+  /** Method to return a pointer to the multi-component state non const overload*/
+  MultiComponentState* components();
+
 
   /** Method to return the mode of the multi-component state */
   double mixtureModeQoverP() const;
 
 private:
-  std::unique_ptr<const MultiComponentState> m_multiComponentState;
+  std::unique_ptr<MultiComponentState> m_multiComponentState;
   double m_mixtureModeQoverP{};
 };
 
@@ -144,9 +147,8 @@ operator<<(std::ostream&, const MultiComponentStateOnSurface&);
 /// Let the type system know this class inherits so we can have
 /// DataVector<const Trk::MultiComponentStateOnSurface>
 #include "AthContainers/DataVector.h"
-DATAVECTOR_BASE(
-  const Trk::MultiComponentStateOnSurface,
-  const Trk::TrackStateOnSurface);
+DATAVECTOR_BASE(const Trk::MultiComponentStateOnSurface,
+                const Trk::TrackStateOnSurface);
 typedef DataVector<const Trk::MultiComponentStateOnSurface>
   TrkMultiComponentStateOnSurfaceDV;
 
