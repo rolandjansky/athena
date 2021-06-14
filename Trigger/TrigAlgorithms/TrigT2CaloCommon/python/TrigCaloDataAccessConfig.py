@@ -26,12 +26,16 @@ def LArRoIMapCfg( flags ):
     
     return acc
 
-CaloDataAccessSvcDependencies = [('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTEM'), 
+CaloDataAccessSvcDependencies = [('TileEMScale'       , 'ConditionStore+TileEMScale'),
+                                 ('TileBadChannels'   , 'ConditionStore+TileBadChannels'),
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTEM'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTHEC'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TILE'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALEM'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD'),
-                                 ('LArMCSym', 'ConditionStore+LArMCSym')]
+                                 ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ),
+                                 ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),
+                                 ('LArMCSym'          , 'ConditionStore+LArMCSym')]
 
 
 def CaloOffsetCorrectionCfg(flags):
@@ -74,8 +78,9 @@ def trigCaloDataAccessSvcCfg( flags ):
     
     acc.merge( LArRoIMapCfg( flags ) )
 
-    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArFebRodMappingCfg
     acc.merge( LArOnOffIdMappingCfg( flags ))
+    acc.merge( LArFebRodMappingCfg( flags ))
 
     #setup region selector
     from RegionSelector.RegSelToolConfig import (regSelTool_TTEM_Cfg,regSelTool_TTHEC_Cfg,
