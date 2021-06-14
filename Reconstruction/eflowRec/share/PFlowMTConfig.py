@@ -55,9 +55,9 @@ PFAlgorithm.SubtractionToolList  = []
 from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
 PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
 
-if jobproperties.eflowRecFlags.useRun2_MC16_EOverP:
-  from eflowRec.eflowRecConf import eflowCellEOverPTool_Run2_mc16_JetETMiss
-  PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc16_JetETMiss()
+if jobproperties.eflowRecFlags.useRun2_mc20_EOverP:
+  from eflowRec.eflowRecConf import eflowCellEOverPTool_Run2_mc20_JetETMiss
+  PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss()
 else:
   from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
   PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
@@ -97,8 +97,8 @@ PFAlgorithm.SubtractionToolList += [PFCellLevelSubtractionTool]
 from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
 PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
 
-if jobproperties.eflowRecFlags.useRun2_MC16_EOverP:
-  PFRecoverSplitShowersTool.eflowCellEOverPTool=eflowCellEOverPTool_Run2_mc16_JetETMiss("eflowCellEOverPTool_Run2_mc16_JetETMiss_Recover")
+if jobproperties.eflowRecFlags.useRun2_mc20_EOverP:
+  PFRecoverSplitShowersTool.eflowCellEOverPTool=eflowCellEOverPTool_Run2_mc20_JetETMiss("eflowCellEOverPTool_Run2_mc20_JetETMiss_Recover")
 else:
   PFRecoverSplitShowersTool.eflowCellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
 

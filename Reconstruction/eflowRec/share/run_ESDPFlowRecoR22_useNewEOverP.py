@@ -31,7 +31,7 @@ rec.doMuon.set_Value_and_Lock(False)
 from eflowRec.eflowRecFlags import jobproperties
 jobproperties.eflowRecFlags.usePFlowFlowElementTauAssoc.set_Value_and_Lock(False)
 #Enable usage of new e/p reference file
-jobproperties.eflowRecFlags.useRun2_MC16_EOverP.set_Value_and_Lock(True)
+jobproperties.eflowRecFlags.useRun2_mc20_EOverP.set_Value_and_Lock(True)
 
 #Disable thinning, which would mess up links for e.g taus
 from ParticleBuilderOptions.AODFlags import AODFlags
