@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloCellCalcEnergyCorr.cxx 
@@ -34,13 +34,15 @@
 #include "CoolKernel/types.h"
 #include "CoolKernel/Record.h"
 #include "CoralBase/AttributeListSpecification.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
-#include "CxxUtils/checker_macros.h"
 
-
-struct ATLAS_NOT_THREAD_SAFE CaloCellCalcEnergyCorr::HVData
+struct CaloCellCalcEnergyCorr::HVData
 {
-  HVData (const LArHVManager& manager);
+  HVData (const LArHVManager& manager,
+          const LArHVIdMapping& hvCabling,
+          const std::vector<const CondAttrListCollection*>& attrvec);
   EMBHVManager::EMBHVData m_hvdata_EMB;
   EMBPresamplerHVManager::EMBPresamplerHVData m_hvdata_EMBPS;
   EMECHVManager::EMECHVData m_hvdata_EMEC_IN;
@@ -51,14 +53,16 @@ struct ATLAS_NOT_THREAD_SAFE CaloCellCalcEnergyCorr::HVData
 };
 
 
-CaloCellCalcEnergyCorr::HVData::HVData (const LArHVManager& manager)
-  : m_hvdata_EMB (manager.getEMBHVManager().getData()),
-    m_hvdata_EMBPS (manager.getEMBPresamplerHVManager().getData()),
-    m_hvdata_EMEC_IN (manager.getEMECHVManager(EMECHVModule::IOType::INNER).getData()),
-    m_hvdata_EMEC_OUT (manager.getEMECHVManager(EMECHVModule::IOType::OUTER).getData()),
-    m_hvdata_EMECPS (manager.getEMECPresamplerHVManager().getData()),
-    m_hvdata_HEC (manager.getHECHVManager().getData()),
-    m_hvdata_FCAL (manager.getFCALHVManager().getData())
+CaloCellCalcEnergyCorr::HVData::HVData (const LArHVManager& manager,
+                                        const LArHVIdMapping& hvCabling,
+                                        const std::vector<const CondAttrListCollection*>& attrvec)
+  : m_hvdata_EMB (manager.getEMBHVManager().getData (hvCabling, attrvec)),
+    m_hvdata_EMBPS (manager.getEMBPresamplerHVManager().getData (hvCabling, attrvec)),
+    m_hvdata_EMEC_IN (manager.getEMECHVManager(EMECHVModule::IOType::INNER).getData (hvCabling, attrvec)),
+    m_hvdata_EMEC_OUT (manager.getEMECHVManager(EMECHVModule::IOType::OUTER).getData (hvCabling, attrvec)),
+    m_hvdata_EMECPS (manager.getEMECPresamplerHVManager().getData (hvCabling, attrvec)),
+    m_hvdata_HEC (manager.getHECHVManager().getData (hvCabling, attrvec)),
+    m_hvdata_FCAL (manager.getFCALHVManager().getData (hvCabling, attrvec))
 {
 }
 
@@ -109,6 +113,9 @@ StatusCode CaloCellCalcEnergyCorr::initialize()
 
   ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
+  ATH_CHECK( m_hvCablingKey.initialize() );
+  ATH_CHECK( m_DCSFolderKeys.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -122,7 +129,7 @@ StatusCode CaloCellCalcEnergyCorr::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloCellCalcEnergyCorr::stop ATLAS_NOT_THREAD_SAFE ()
+StatusCode CaloCellCalcEnergyCorr::stop()
 {  
 
   const CaloCell_ID*    calocell_id;	
@@ -174,7 +181,16 @@ StatusCode CaloCellCalcEnergyCorr::stop ATLAS_NOT_THREAD_SAFE ()
 
   const LArHVManager* manager = nullptr;
   CHECK( detStore()->retrieve (manager) );
-  HVData hvdata (*manager);
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<LArHVIdMapping> hvCabling (m_hvCablingKey, ctx);
+  std::vector<const CondAttrListCollection*> attrvec;
+  for (const auto& fldkey: m_DCSFolderKeys ) {
+    SG::ReadCondHandle<CondAttrListCollection> dcsHdl(fldkey, ctx);
+    attrvec.push_back (*dcsHdl);
+  }
+
+  HVData hvdata (*manager, **hvCabling, attrvec);
 
   std::vector<float> setVec(1,1);
   unsigned nSet=0;
