@@ -4,13 +4,8 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
-from __future__ import print_function
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
 
 if __name__ == '__main__':
-
-
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
@@ -18,11 +13,9 @@ if __name__ == '__main__':
   log.setLevel(DEBUG)
   Configurable.configurableRun3Behavior = 1
 
-
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   ConfigFlags.Sim.ISFRun = True
-
 
   #Provide input
   from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -32,28 +25,19 @@ if __name__ == '__main__':
   # Finalize
   ConfigFlags.lock()
 
-
-  ## Initialize a new component accumulator
-  cfg = ComponentAccumulator()
-
+  ## Initialize the main component accumulator
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
   from PixelG4_SD.PixelG4_SDToolConfig import PixelSensorSDCfg
   from PixelG4_SD.PixelG4_SDToolConfig import PixelSensor_CTBCfg
   from PixelG4_SD.PixelG4_SDToolConfig import DBMSensorSDCfg
 
+  tools = []
+  cfg = ComponentAccumulator()
+  tools += [ cfg.popToolsAndMerge(PixelSensorSDCfg(ConfigFlags)) ]
+  tools += [ cfg.popToolsAndMerge(PixelSensor_CTBCfg(ConfigFlags)) ]
+  tools += [ cfg.popToolsAndMerge(DBMSensorSDCfg(ConfigFlags)) ]
 
-
-  acc, tool = PixelSensorSDCfg(ConfigFlags)
-  acc.addPublicTool(tool)
-  cfg.merge(acc)
-
-  tool2 = PixelSensor_CTBCfg()
-  cfg.addPublicTool(tool2)
-
-  tool3 = DBMSensorSDCfg()
-  cfg.addPublicTool(tool3)
-
-
-
+  cfg.setPrivateTools(tools)
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
@@ -61,7 +45,5 @@ if __name__ == '__main__':
   cfg.store(f)
   f.close()
 
-
-
-  print(cfg._publicTools)
+  print(cfg._privateTools)
   print("-----------------finished----------------------")

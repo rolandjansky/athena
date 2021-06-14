@@ -1,23 +1,17 @@
 #!/usr/bin/env python
 """Run tests on TRT_G4_SD configuration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
-
-from __future__ import print_function
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-
-
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
   from AthenaCommon.Configurable import Configurable
   log.setLevel(DEBUG)
   Configurable.configurableRun3Behavior = 1
-
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -31,24 +25,17 @@ if __name__ == '__main__':
   # Finalize
   ConfigFlags.lock()
 
-
-  ## Initialize a new component accumulator
-  cfg = ComponentAccumulator()
-
+  ## Initialize the main component accumulator
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
   from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetectorCfg
   from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetector_CTBCfg
 
+  tools = []
+  cfg = ComponentAccumulator()
+  tools += [ cfg.popToolsAndMerge(TRTSensitiveDetectorCfg(ConfigFlags)) ]
+  tools += [ cfg.popToolsAndMerge(TRTSensitiveDetector_CTBCfg(ConfigFlags)) ]
 
-
-  acc, tool = TRTSensitiveDetectorCfg(ConfigFlags)
-  acc.addPublicTool(tool)
-  cfg.merge(acc)
-
-
-  tool  = TRTSensitiveDetector_CTBCfg()
-  cfg.addPublicTool(tool)
-
-
+  cfg.setPrivateTools(tools)
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
@@ -56,7 +43,5 @@ if __name__ == '__main__':
   cfg.store(f)
   f.close()
 
-
-
-  print(cfg._publicTools)
+  print(cfg._privateTools)
   print("-----------------finished----------------------")
