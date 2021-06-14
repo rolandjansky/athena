@@ -7,7 +7,7 @@
 
 art.py download Tier0ChainTests test_q431.sh
 AODFILE=(./ref-*/myAOD.pool.root)
-Run3DQTestingDriver.py 'Input.Files=["'${AODFILE}'"]' DQ.Environment=AOD DQ.Steering.doHLTMon=False > log.HIST_Creation 2>&1
+Run3DQTestingDriver.py --inputFiles=${AODFILE} DQ.Environment=AOD DQ.Steering.doHLTMon=False > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 rm -rf ref-*
