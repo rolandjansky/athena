@@ -146,7 +146,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     buildSeq += conf2toConfigurable( constitPJAlg )
     finalpjs = str(constitPJAlg.OutputContainer)
 
-    if doesTracking:
+    if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
         # We need to do ghost association.
         # The ghost tracks pseudoJet are build in other part of the chain : here
         # we just need to merge our constituents with them
