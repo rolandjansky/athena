@@ -24,7 +24,7 @@ class MuonInputProviderLegacy ( LVL1__MuonInputProviderLegacy ):
     def __init__( self, name = "MuonInputProviderLegacy" ):
         super( MuonInputProviderLegacy, self ).__init__( name )
 
-def L1LegacyTopoSimulationMCCfg(flags):
+def L1LegacyTopoSimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     
@@ -71,7 +71,7 @@ def L1LegacyTopoSimulationMCCfg(flags):
     acc.addEventAlgo(topoSimAlg)
     return acc
 
-def L1TopoSimulationMCCfg(flags):
+def L1TopoSimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     

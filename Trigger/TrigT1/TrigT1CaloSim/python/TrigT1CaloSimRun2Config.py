@@ -68,7 +68,7 @@ def Run2TriggerTowerMakerCfg(flags, name):
 
 
 
-def L1LegacyCaloSimMCCfg(flags):
+def L1LegacyCaloSimCfg(flags):
     '''
     Configures Legacy 1 calo in new JO style
     '''
@@ -106,26 +106,35 @@ def L1LegacyCaloSimMCCfg(flags):
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
     acc.merge(LumiBlockMuWriterCfg(flags))
 
-    L1CaloFolderList = []
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib']
-    # TODO decide what is needed form below items, (likely only needed when re-running on the data)
-    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
-    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
-    #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
-    #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Conditions/DisabledTowers']
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels']
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults']
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
-
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     acc.merge(L1ConfigSvcCfg(flags))
 
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg
-    acc.merge(Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'))
-    acc.addEventAlgo(CompFactory.LVL1.Run2CPMTowerMaker('CPMTowerMaker'))
-    acc.addEventAlgo(CompFactory.LVL1.Run2JetElementMaker('JetElementMaker'))
+    if not flags.Input.isMC:
+        from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+        acc.merge(LVL1CaloRun2ReadBSCfg(flags))
+
+    if flags.Input.isMC:
+        L1CaloFolderList = []
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib']
+
+        # TODO decide what is needed form below items, (likely only needed when re-running on the data)
+        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
+        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
+        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
+        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Conditions/DisabledTowers']
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels']
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults']
+
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
+
+
+        from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg
+        acc.merge(Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'))
+        acc.addEventAlgo(CompFactory.LVL1.Run2CPMTowerMaker('CPMTowerMaker'))
+        acc.addEventAlgo(CompFactory.LVL1.Run2JetElementMaker('JetElementMaker'))
+
     acc.addEventAlgo(CompFactory.LVL1.CPMSim('CPMSim'))
     acc.addEventAlgo(CompFactory.LVL1.JEMJetSim('JEMJetSim'))
     acc.addEventAlgo(CompFactory.LVL1.JEMEnergySim('JEMEnergySim'))
@@ -133,8 +142,9 @@ def L1LegacyCaloSimMCCfg(flags):
     acc.addEventAlgo(CompFactory.LVL1.JetCMX('JetCMX'))
     acc.addEventAlgo(CompFactory.LVL1.EnergyCMX('EnergyCMX'))
     acc.addEventAlgo(CompFactory.LVL1.RoIROD('RoIROD'))
-    acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS(UseNewConfig = flags.Trigger.readLVL1FromJSON))
-    acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC(UseNewConfig = flags.Trigger.readLVL1FromJSON))
+    if flags.Input.isMC:
+        acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS(UseNewConfig = flags.Trigger.readLVL1FromJSON))
+        acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC(UseNewConfig = flags.Trigger.readLVL1FromJSON))
     return acc
 
 if __name__ == '__main__':
@@ -156,7 +166,7 @@ if __name__ == '__main__':
 
     from AthenaCommon.CFElements import seqAND
     acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='AthAlgSeq')
-    acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
+    acc.merge(L1LegacyCaloSimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
     acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
     with open("L1CaloSim.pkl", "wb") as p:

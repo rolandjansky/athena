@@ -4,12 +4,6 @@
 ##
 ## it covers the two cases of running L1 in the MC simulation and for rerunning on data 
 
-# Note on the New JO migration
-#    from AthenaCommon.ComponentAccumulator import ComponentAccumulator
-#    acc = ComponentAccumulator()
-# all tools then should be added to the acc, cond folders as well.
-# L1ConfigSvc CA has to be imported and merged
-# at the end the sequence added to the CA
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import seqAND
@@ -212,7 +206,7 @@ def Lvl1SimulationSequence( ConfigFlags ):
 
 
 
-def Lvl1SimulationMCCfg(flags):
+def Lvl1SimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
@@ -220,24 +214,24 @@ def Lvl1SimulationMCCfg(flags):
     acc.addSequence(seqAND('L1SimSeq'), parentName='AthAlgSeq')
     
     acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimMCCfg
-    acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimCfg
+    acc.merge(L1LegacyCaloSimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
     acc.addSequence(seqAND('L1MuonLegacySimSeq'), parentName='L1SimSeq')
-    from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MCMuonSimulationCfg
-    acc.merge(Lvl1MCMuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
+    from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
+    acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
 
     acc.addSequence(seqAND('L1LegacyTopoSimSeq'), parentName='L1SimSeq')
-    from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationMCCfg
-    acc.merge(L1LegacyTopoSimulationMCCfg(flags), sequenceName='L1LegacyTopoSimSeq')
+    from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationCfg
+    acc.merge(L1LegacyTopoSimulationCfg(flags), sequenceName='L1LegacyTopoSimSeq')
     
     acc.addSequence(seqAND('L1TopoSimSeq'), parentName='L1SimSeq')
-    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationMCCfg
-    acc.merge(L1TopoSimulationMCCfg(flags), sequenceName='L1TopoSimSeq')
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationCfg
+    acc.merge(L1TopoSimulationCfg(flags), sequenceName='L1TopoSimSeq')
     
     acc.addSequence(seqAND('L1CTPSimSeq'), parentName='L1SimSeq')
-    from TrigT1CTP.CTPSimulationConfig import CTPMCSimulationCfg
-    acc.merge(CTPMCSimulationCfg(flags), sequenceName="L1CTPSimSeq")
+    from TrigT1CTP.CTPSimulationConfig import CTPSimulationCfg
+    acc.merge(CTPSimulationCfg(flags), sequenceName="L1CTPSimSeq")
 
 
     return acc
@@ -261,7 +255,7 @@ if __name__ == '__main__':
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(flags))
 
-    acc.merge(Lvl1SimulationMCCfg(flags))
+    acc.merge(Lvl1SimulationCfg(flags))
     from AthenaCommon.Constants import DEBUG
     acc.getEventAlgo("CTPSimulation").OutputLevel=DEBUG  # noqa: ATL900
 

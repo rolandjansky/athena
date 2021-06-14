@@ -32,6 +32,7 @@ flags.Detector.GeometryRPC = True
 
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
+flags.Trigger.EDMVersion = 3
 flags.Output.doWriteRDO = True
 flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
@@ -47,6 +48,7 @@ flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
 flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25' if f.Input.isMC else "CONDBR2-HLTP-2018-01"
 flags.Common.isOnline = lambda f: not f.Input.isMC
+flags.Trigger.doLVL1=True # run L1 sim also on data
 flags.Concurrency.NumThreads = 1
 
 flags.InDet.useSctDCS = False
@@ -99,8 +101,8 @@ if flags.Input.isMC:
         loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ), ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
 
 if flags.Trigger.doLVL1:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationMCCfg
-    acc.merge(Lvl1SimulationMCCfg(flags), sequenceName="HLTBeginSeq")
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+    acc.merge(Lvl1SimulationCfg(flags), sequenceName="HLTBeginSeq")
 
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
@@ -110,7 +112,7 @@ createL1PrescalesFileFromMenu(flags)
 
 
 acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
-acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = not flags.Input.isMC # test setup on data
+#acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = not flags.Input.isMC # test setup on data
 
 
 logging.getLogger('forcomps').setLevel(DEBUG)
