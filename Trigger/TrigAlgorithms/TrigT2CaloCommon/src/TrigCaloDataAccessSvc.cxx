@@ -26,6 +26,8 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_tileDecoder.retrieve() );
   CHECK( m_robDataProvider.retrieve() );
   CHECK( m_bcidAvgKey.initialize() );
+  CHECK( m_onOffIdMappingKey.initialize() );
+  CHECK( m_febRodMappingKey.initialize() );
   CHECK( m_regionSelector_TTEM.retrieve() );
   CHECK( m_mcsymKey.initialize() );
   CHECK( m_regionSelector_TTHEC.retrieve() );
@@ -209,7 +211,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
        cache->larContainer->eventNumber( context.evt() ) ;
   if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
 	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
-	if ( avg.cptr() ) cache->larContainer->updateBCID( *avg.cptr() ); 
+	SG::ReadCondHandle<LArOnOffIdMapping> onoff ( m_onOffIdMappingKey, context);
+        const CaloBCIDAverage* avgPtr = avg.cptr();
+	const LArOnOffIdMapping* onoffPtr = onoff.cptr();
+	if ( avgPtr && onoffPtr ) cache->larContainer->updateBCID( *avgPtr, *onoffPtr ); 
   }
 
   unsigned int status(0);
@@ -329,6 +334,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   
 
   SG::ReadCondHandle<LArMCSym> mcsym (m_mcsymKey, context);
+  SG::ReadCondHandle<LArFebRodMapping> febrod(m_febRodMappingKey, context);
 
   unsigned int nFebs=70;
   unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
@@ -354,7 +360,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( **mcsym ).isFailure() )
+  if ( cache->larContainer->initialize( **mcsym, **febrod ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);
@@ -632,7 +638,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   cache->larContainer->eventNumber( context.evt() );
   if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
 	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
-	if ( avg.isValid() ) cache->larContainer->updateBCID( *avg.cptr() ); 
+        SG::ReadCondHandle<LArOnOffIdMapping> onoff ( m_onOffIdMappingKey, context);
+        const CaloBCIDAverage* avgPtr = avg.cptr();
+	const LArOnOffIdMapping* onoffPtr = onoff.cptr();
+	if ( avgPtr && onoffPtr ) cache->larContainer->updateBCID( *avgPtr, *onoffPtr ); 
   }
   
   unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );

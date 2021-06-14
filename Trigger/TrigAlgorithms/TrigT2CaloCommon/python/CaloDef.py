@@ -27,6 +27,7 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClust
    algo.RoIs=inputEDM
    algo.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
    algo.CellsName=outputEDM
+   algo.ExtraInputs+=[  ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
    return algo
 
 def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', outputEDM='HIEventShape'):
@@ -94,6 +95,7 @@ def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClust
             from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_All
             algo=T2CaloEgamma_All("L2CaloLayersFex")
             algo.RoIs=inputEDM
+    algo.ExtraInputs+=[ ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     algo.ClustersName=recordable(ClustersName)
     return algo

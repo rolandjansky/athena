@@ -574,7 +574,7 @@ class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
         setMinimalCaloSetup()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym') ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
         self.CellsName="SeedLessFS"
         self.RoIs=''
         self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
@@ -584,7 +584,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym') ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' )  ]
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0
@@ -701,7 +701,8 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
                                              ExtraInputs = CaloDataAccessSvcDependencies+
                                                           [("TileEMScale", "ConditionStore+TileEMScale"),
                                                            ("TileBadChannels", "ConditionStore+TileBadChannels"),
-                                                           ("LArOnOffIdMapping", "ConditionStore+LArOnOffIdMap")], # TODO check if this depends on data/MC
+                                                           ("LArOnOffIdMapping", "ConditionStore+LArOnOffIdMap"),
+                                                           ("LArFebRodMapping" , "ConditionStore+LArFebRodMap") ], # TODO check if this depends on data/MC
                                              RoIs=roisKey)
     acc.addEventAlgo(cellMaker, primary=True)
     return acc

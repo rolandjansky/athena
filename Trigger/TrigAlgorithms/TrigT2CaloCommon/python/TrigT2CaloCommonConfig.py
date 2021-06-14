@@ -17,7 +17,8 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_TTEM, makeRegSelTool_TTHEC, makeRegSelTool_FCALEM, makeRegSelTool_FCALHAD, makeRegSelTool_TILE
         from AthenaCommon.AlgSequence import AthSequencer
-        from LArCabling.LArCablingAccess import LArOnOffIdMapping
+        from LArCabling.LArCablingAccess import LArOnOffIdMapping, LArFebRodMapping
+        LArFebRodMapping()
         LArOnOffIdMapping()
         self.RegSelToolEM = makeRegSelTool_TTEM()
         self.RegSelToolHEC = makeRegSelTool_TTHEC()
