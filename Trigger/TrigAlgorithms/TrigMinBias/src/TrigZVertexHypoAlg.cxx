@@ -11,6 +11,7 @@ using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::viewString;
+using TrigCompositeUtils::featureString;
 
 TrigZVertexHypoAlg::TrigZVertexHypoAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   ::HypoBase(name, pSvcLocator)
@@ -59,7 +60,8 @@ StatusCode TrigZVertexHypoAlg::execute(const EventContext& context) const
 
   auto d = newDecisionIn(decisions, hypoAlgNodeName());
   linkToPrevious(d, decisionInput().key(), 0);
-
+  d->setObjectLink(featureString(), ViewHelper::makeLink<xAOD::TrigCompositeContainer>(*view, zVertexHandle, 0));
+  
   TrigCompositeUtils::DecisionIDContainer prev;
   TrigCompositeUtils::decisionIDs(previousDecisionsHandle->at(0), prev);
 
