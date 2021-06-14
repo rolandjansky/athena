@@ -22,9 +22,7 @@ def primaryVertexFindingCfg(flags):
     actsGeoAcc, geometry = ActsTrackingGeometryToolCfg(flags)
     acc.merge(actsGeoAcc)
 
-    trackExtrapolatorAcc = ActsExtrapolationToolCfg(flags)
-    trackExtrapolator = trackExtrapolatorAcc.getPrimary()
-    acc.merge(trackExtrapolatorAcc)
+    trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
 
     trackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
 
