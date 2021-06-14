@@ -17,15 +17,11 @@ def retrieveJetContext(trkopt):
     # Then passing this context name in the JetDefinition and standard helper function will ensure
     # these options will consistently be used everywhere.
     from JetRecConfig.StandardJetContext import jetContextDic
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     if trkopt not in jetContextDic:
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
         IDTrigConfig = getInDetTrigConfig( 'jet' )
 
-        if flags.Trigger.Jet.doAMVFPriorityTTVA:
-            verticesname = IDTrigConfig.vertex
-        else:
-            verticesname = IDTrigConfig.vertex_jet
+        verticesname = IDTrigConfig.vertex_jet
             
         tvaname = f"JetTrackVtxAssoc_{trkopt}"
         label = f"GhostTrack_{trkopt}"
@@ -43,7 +39,6 @@ def retrieveJetContext(trkopt):
     return jetContextDic[trkopt], jetContextDic["trackKeys"]
 
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
     jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
 
@@ -60,18 +55,20 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         # add the collections for the eflowRec reconstriction in the trigger
 
         from eflowRec.PFHLTSequence import trackvtxcontainers
-        trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else IDTrigConfig.vertex_jet )
+        trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet ) 
+
+        vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, IDTrigConfig.adaptiveVertex_jet )
+        jetTrkSeq += vtxAlgs[-1]
 
         # now run he actual vertex finders and TTVA tools
-        if flags.Trigger.Jet.doAMVFPriorityTTVA:
-            trackcollmap = jetVertex( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex,     adaptiveVertex=IDTrigConfig.adaptiveVertex, )
-        else:
+        if IDTrigConfig.vertex_jet != IDTrigConfig.vertex:
             vtxAlgs = makeVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
             jetTrkSeq += vtxAlgs[-1]
-            trackcollmap = jetVertex( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,     adaptiveVertex=IDTrigConfig.adaptiveVertex_jet, )
-            
 
+        trackcollmap = jetTTVA( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,  adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
+            
     return jetTrkSeq, trackcollmap
+
 
 def JetTrackingCfg(flags, trkopt, RoIs):
     """ Create the tracking CA and return it as well as the output name dictionary """
@@ -86,7 +83,7 @@ def JetTrackingCfg(flags, trkopt, RoIs):
         # get the jetContext for trkopt (and build it if not existing yet)
         jetContext, trkKeys = retrieveJetContext(trkopt)
 
-        if flags.Trigger.Jet.doAMVFPriorityTTVA:
+        if IDTrigConfig.vertex_jet == IDTrigConfig.vertex:
             acc.merge(
                 JetVertexCfg(
                     flags, trkopt, IDTrigConfig.adaptiveVertex, jetContext,
@@ -127,22 +124,9 @@ def JetTrackingCfg(flags, trkopt, RoIs):
     return acc, outmap
 
 
-def jetVertex( signature, jetseq, trkopt, config, verticesname=None, adaptiveVertex=None, selector=None ):
-
-    # *****************************    
-    # run the vertex algorithm ...
-    if verticesname is None:
-        verticesname = config.vertex
-    if adaptiveVertex is None:
-        adaptiveVertex = config.adaptiveVertex
+def jetTTVA( signature, jetseq, trkopt, config, verticesname=None, adaptiveVertex=None, selector=None ):
 
     tracksname = config.tracks_FTF()
-
-    # get the algs :
-    vtxAlgs = makeVertices( signature, tracksname, verticesname, config, adaptiveVertex )
-    prmVtx  = vtxAlgs[-1]
-    jetseq += prmVtx
-
 
     label = f"GhostTrack_{trkopt}"
 

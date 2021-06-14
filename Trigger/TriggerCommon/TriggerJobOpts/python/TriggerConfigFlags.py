@@ -293,7 +293,6 @@ def createTriggerFlags():
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
     # Switch on AMVF vertice and priority TTVA for jet slice
-    flags.addFlag("Trigger.Jet.doAMVFPriorityTTVA", False)
     flags.addFlag("Trigger.Jet.doMC16_EOverP", False)
 
     return flags

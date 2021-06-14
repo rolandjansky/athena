@@ -162,8 +162,8 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       # these are being evaluated and may be added
       # self._addSingleTrackVertices = True
       # self._TracksMaxZinterval = 3
-      self._vertex_jet          = "HLT_IDVertex_FSJet"
-      self._adaptiveVertex_jet  = False
+      self._vertex_jet          = "HLT_IDVertex_FS"
+      self._adaptiveVertex_jet  = True
       self._doFullScan      = True
       self._etaHalfWidth    = 3.
       self._phiHalfWidth    = 3.14159
