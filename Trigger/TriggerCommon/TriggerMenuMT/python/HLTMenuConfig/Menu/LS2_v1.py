@@ -15,11 +15,12 @@ import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
 # this is not the best option, due to flake violation, this list has to be changed when some groups are removed
 from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream, SingleMuonGroup, MultiMuonGroup, SingleElectronGroup,
-                                                                MultiElectronGroup, SinglePhotonGroup, MultiPhotonGroup, SingleMETGroup, 
-                                                                MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
-                                                                SingleTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
-                                                                MuonJetGroup, MuonMETGroup, EgammaJetGroup,
-                                                                JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup, PrimaryL1MuGroup,PrimaryPhIGroup,
+                                                                 MultiElectronGroup, SinglePhotonGroup, MultiPhotonGroup, SingleMETGroup, 
+                                                                 MultiMETGroup, SingleJetGroup, MultiJetGroup, SingleBjetGroup, MultiBjetGroup,
+                                                                 BjetMETGroup, TauMETGroup,
+                                                                 SingleTauGroup, BphysicsGroup, EgammaMuonGroup, EgammaMETGroup,
+                                                                 MuonJetGroup, MuonMETGroup, EgammaJetGroup,
+                                                                 JetMETGroup, TauJetGroup, MinBiasGroup,PrimaryLegGroup, PrimaryL1MuGroup, PrimaryPhIGroup,
                                                                  BphysElectronGroup, SupportLegGroup, SupportPhIGroup)
 
 def setupMenu():
@@ -817,8 +818,8 @@ def setupMenu():
 
         # tau+X chains (ATR-21609) 
         # TODO: need to add dRtt to chain below. How do we avoid overlap between taus and jets?
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
         # displaced tau+X (ATR-21754)
         ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=TauJetGroup),
         
@@ -864,6 +865,17 @@ def setupMenu():
         ChainProp(name='HLT_g35_tight_3j25_pf_ftf_L1EM22VHI',          l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaJetGroup),
         ChainProp(name='HLT_g35_tight_3j25_0eta290_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=EgammaJetGroup),
 
+
+        #ATR-23600
+        ChainProp(name='HLT_tau50_mediumRNN_tracktwoMVA_xe80_tcpufit_xe50_cell_L1XE50', l1SeedThresholds=['TAU25IM','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau50_mediumRNN_tracktwoMVA_xe80_pfopufit_xe50_cell_L1XE50', l1SeedThresholds=['TAU25IM','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=TauMETGroup),
+        ChainProp(name='HLT_tau50_mediumRNN_tracktwoMVABDT_xe80_tcpufit_xe50_cell_L1XE50', l1SeedThresholds=['TAU25IM','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=TauMETGroup),
+        ChainProp(name='HLT_tau50_mediumRNN_tracktwoMVABDT_xe80_pfopufit_xe50_cell_L1XE50', l1SeedThresholds=['TAU25IM','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=TauMETGroup),
+        ChainProp(name='HLT_j80_pf_ftf_bdl1r60_xe60_cell_L12J50_XE40', l1SeedThresholds=['FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryLegGroup+BjetMETGroup),
+        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20', l1SeedThresholds=['EM22VHI','MU20'], stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaMuonGroup),
+        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU4_EMPTY', l1SeedThresholds=['EM8VH','MU4'], stream=['Late'], groups=PrimaryLegGroup+EgammaMuonGroup),
+        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU6_EMPTY', l1SeedThresholds=['EM8VH','MU6'], stream=['Late'], groups=PrimaryLegGroup+EgammaMuonGroup),
+        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU4_UNPAIRED_ISO', l1SeedThresholds=['EM8VH','MU4'], stream=['Late'], groups=PrimaryLegGroup+EgammaMuonGroup),
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
