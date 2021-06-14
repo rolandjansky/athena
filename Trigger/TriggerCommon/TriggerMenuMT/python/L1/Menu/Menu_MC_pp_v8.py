@@ -308,6 +308,8 @@ def defineMenu():
         'L1_jMJJ-500-NFF',
         'L1_jMJJ-400-CF',
         'L1_eEM18VHI_jMJJ-300-NFF',
+
+        'L1_10DR-MU20-MU6', #ATR-19376
     
         #ATR-19720
         'L1_BPH-2M9-0DR15-2MU4',
@@ -316,15 +318,11 @@ def defineMenu():
         'L1_BPH-8M15-0DR22-MU6MU4-BO',
         'L1_BPH-2M9-2DR15-2MU6',
         'L1_BPH-8M15-0DR22-2MU6',
-
-        # combined L1Topo for VBF
         
         # INVM + DPHI 
         'L1_jMJJ-400-NFF-0DPHI22',
         'L1_jMJJ-400-NFF-0DPHI24',
         'L1_jMJJ-400-NFF-0DPHI26',
-
-        ### ATR-15062
 
         'L1_LATE-MU10_XE50','L1_LATE-MU10_XE40', 'L1_LATE-MU10_J50',
 
@@ -337,8 +335,8 @@ def defineMenu():
         #ATR-22109
         'L1_ZAFB-25DPHI-eEM18I',
 
-        #ATR-19302: 
-        'L1_DPHI-M70-2eEM10I', 'L1_DPHI-M70-2eEM12I',
+        'L1_DPHI-M70-2eEM10I', 'L1_DPHI-M70-2eEM12I', #ATR-19302
+        'L1_DPHI-M70-2eEM12', # ATR-21637 (no shower shape cuts)
 
         #ATR-19510
         'L1_DY-BOX-2MU4',
