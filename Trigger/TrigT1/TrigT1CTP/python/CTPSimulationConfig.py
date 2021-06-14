@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-def CTPMCSimulationCfg(flags):
+def CTPSimulationCfg(flags):
     from AthenaCommon.Logging import logging
     log = logging.getLogger("CTPMCSimulationCfg")
     acc = ComponentAccumulator()
