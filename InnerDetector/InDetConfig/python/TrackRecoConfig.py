@@ -14,12 +14,8 @@ def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
 ##------------------------------------------------------------------------------
 def PixelClusterizationCfg(flags, name = "InDetPixelClusterization", **kwargs) :
     acc = ComponentAccumulator()
-    sub_acc = MergedPixelsToolCfg(flags, **kwargs)
-    merged_pixels_tool = sub_acc.getPrimary()
-    acc.merge(sub_acc)
-    sub_acc = PixelGangedAmbiguitiesFinderCfg(flags)
-    ambi_finder=sub_acc.getPrimary()
-    acc.merge(sub_acc)
+    merged_pixels_tool = acc.getPrimaryAndMerge(MergedPixelsToolCfg(flags, **kwargs))
+    ambi_finder = acc.getPrimaryAndMerge(PixelGangedAmbiguitiesFinderCfg(flags))
 
     # Region selector tools for Pixel
     from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
@@ -51,9 +47,7 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
     InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
 
     #### Clustering tool ######
-    accbuf = ClusterMakerToolCfg(flags)
-    InDetClusterMakerTool = accbuf.getPrimary()
-    acc.merge(accbuf)
+    InDetClusterMakerTool = acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags))
     InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "InDetSCT_ClusteringTool",
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -92,10 +86,7 @@ def PixelGangedAmbiguitiesFinderCfg(flags) :
 def MergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
       # --- now load the framework for the clustering
-      accbuf = ClusterMakerToolCfg(flags)
-      InDetClusterMakerTool = accbuf.getPrimary()
-      kwargs.setdefault("globalPosAlg", InDetClusterMakerTool )
-      acc.merge(accbuf)
+      kwargs.setdefault("globalPosAlg", acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags)) )
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
       from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg

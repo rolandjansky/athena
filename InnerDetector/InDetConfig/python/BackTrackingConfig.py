@@ -163,9 +163,7 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
     acc.addPublicTool(InDetTRTExtensionTool)
 
     from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    InDetExtrapolator = tmpAcc.getPrimary()
-    acc.merge(tmpAcc)
+    InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     InDetTRT_SeededTrackTool = acc.popToolsAndMerge(TRT_SeededTrackFinder_ATLCfg(flags, 
                                                                                  InputCollections=InputCollections))

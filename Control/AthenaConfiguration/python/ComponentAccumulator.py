@@ -501,7 +501,14 @@ class ComponentAccumulator(object):
         else:
             raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n{}".format(self._inspect()))
 
-
+    def getPrimaryAndMerge(self, other):
+        """ Merging in the other accumulator and getting the primary component
+        """
+        if other is None:
+            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
+        comp = other.getPrimary()
+        self.merge(other)
+        return comp
 
 
     def __call__(self):

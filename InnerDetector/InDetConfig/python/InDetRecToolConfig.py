@@ -84,9 +84,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
       kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
-    tmpAcc = InDetTestPixelLayerToolCfg(flags)
-    kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
+    kwargs.setdefault("PixelLayerTool", result.getPrimaryAndMerge(InDetTestPixelLayerToolCfg(flags)))
 
   kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableSCT)
@@ -99,9 +97,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
 def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
   result = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
+    kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
   if 'BoundaryCheckTool' not in kwargs:
     tmpAcc = InDetBoundaryCheckToolCfg(flags)
@@ -123,21 +119,15 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     result = ComponentAccumulator()
     # FIXME copied from the old config, also needs fixing on the c++ side.
     if 'Propagators' not in kwargs :
-        tmpAcc = InDetPropagatorCfg(flags)
-        kwargs.setdefault( "Propagators", [tmpAcc.getPrimary()  ] ) # [ InDetPropagator, InDetStepPropagator ],
-        result.merge(tmpAcc)
+        kwargs.setdefault( "Propagators", [result.getPrimaryAndMerge(InDetPropagatorCfg(flags))  ] ) # [ InDetPropagator, InDetStepPropagator ],
     propagator= kwargs.get('Propagators')[0].name if kwargs.get('Propagators',None) is not None and len(kwargs.get('Propagators',None))>0 else None
 
     if 'MaterialEffectsUpdators' not in kwargs :
-        tmpAcc = InDetMaterialEffectsUpdatorCfg(flags)
-        kwargs.setdefault( "MaterialEffectsUpdators", [tmpAcc.getPrimary() ] )
-        result.merge(tmpAcc)
+        kwargs.setdefault( "MaterialEffectsUpdators", [result.getPrimaryAndMerge(InDetMaterialEffectsUpdatorCfg(flags)) ] )
     material_updator= kwargs.get('MaterialEffectsUpdators')[0].name if  kwargs.get('MaterialEffectsUpdators',None) is not None and len(kwargs.get('MaterialEffectsUpdators',None))>0  else None
 
     if 'Navigator' not in kwargs :
-        tmpAcc = InDetNavigatorCfg(flags)
-        kwargs.setdefault( "Navigator"               , tmpAcc.getPrimary())
-        result.merge(tmpAcc)
+        kwargs.setdefault( "Navigator", result.getPrimaryAndMerge(InDetNavigatorCfg(flags)))
 
     sub_propagators = []
     sub_updators    = []
@@ -494,9 +484,7 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
     kwargs.setdefault("PixelSummaryTool", result.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
 
   if 'Extrapolator' not in kwargs :
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
+    kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
   kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.InDet.checkDeadElementsOnTrack)
@@ -546,9 +534,7 @@ def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
   if 'TrackingGeometrySvc' not in kwargs :
        if not use_tracking_geometry_cond_alg :
               from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-              tmpAcc = TrackingGeometrySvcCfg(flags)
-              kwargs.setdefault("TrackingGeometrySvc", tmpAcc.getPrimary())
-              result.merge(tmpAcc)
+              kwargs.setdefault("TrackingGeometrySvc", result.getPrimaryAndMerge(TrackingGeometrySvcCfg(flags)))
   if 'TrackingGeometryKey' not in kwargs :
        if use_tracking_geometry_cond_alg :
               from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg

@@ -415,9 +415,7 @@ def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
     acc.addPublicTool(InDetCompetingRotCreator)
 
     from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    InDetExtrapolator = tmpAcc.getPrimary()
-    acc.merge(tmpAcc)
+    InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
     InDetUpdator = InDetUpdatorCfg(flags)
