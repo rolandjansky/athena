@@ -866,16 +866,30 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
 
       if (!aggregate&&!reposition) {
 
-        const Trk::ScatteringAngles* scatNew = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot),sqrt(sigmaDeltaTheta2_tot));
-        const Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, depth ) ;
+        auto scatNew =
+          ScatteringAngles(deltaPhi,
+                               deltaTheta,
+                               sqrt(sigmaDeltaPhi2_tot),
+                               sqrt(sigmaDeltaTheta2_tot));
+        const Trk::EnergyLoss* energyLossNew =
+          new EnergyLoss(deltaE_tot,
+                         sigmaDeltaE_tot,
+                         sigmaPlusDeltaE_tot,
+                         sigmaMinusDeltaE_tot,
+                         deltaE_ioni_tot,
+                         sigmaDeltaE_ioni_tot,
+                         deltaE_rad_tot,
+                         sigmaDeltaE_rad_tot,
+                         depth);
         const Trk::Surface& surf = *(meot->associatedSurface().clone());
-        const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot, scatNew, energyLossNew, surf, meotPattern);
+        const Trk::MaterialEffectsOnTrack* meotLast =
+          new Trk::MaterialEffectsOnTrack(
+            X0_tot, std::move(scatNew), energyLossNew, surf, meotPattern);
         const Trk::TrackParameters* pars = m->trackParameters()->clone();
 
-// make new TSOS
+        // make new TSOS
         const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
         newTSOSvector.push_back(newTSOS);
-        ATH_MSG_DEBUG(" NO aggregation and NO reposition   TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << X0_tot << " deltaE " << energyLossNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
 
         Eloss_tot += energyLossNew->deltaE();
 
@@ -893,20 +907,30 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
 
 
       } else if(!aggregate&&reposition) {
-
         if(fabs(depth)<10.) {
-
-//        Thin scatterer: make only one TSOS
-
-          const Trk::ScatteringAngles* scatNew = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot),sqrt(sigmaDeltaTheta2_tot));
-          const Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, depth ) ;
+          auto scatNew =
+            ScatteringAngles(deltaPhi,
+                                 deltaTheta,
+                                 sqrt(sigmaDeltaPhi2_tot),
+                                 sqrt(sigmaDeltaTheta2_tot));
+          const Trk::EnergyLoss* energyLossNew =
+            new EnergyLoss(deltaE_tot,
+                           sigmaDeltaE_tot,
+                           sigmaPlusDeltaE_tot,
+                           sigmaMinusDeltaE_tot,
+                           deltaE_ioni_tot,
+                           sigmaDeltaE_ioni_tot,
+                           deltaE_rad_tot,
+                           sigmaDeltaE_rad_tot,
+                           depth);
           const Trk::Surface& surf = *(meot->associatedSurface().clone());
-          const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot, scatNew, energyLossNew, surf, meotPattern);
+          const Trk::MaterialEffectsOnTrack* meotLast =
+            new Trk::MaterialEffectsOnTrack(
+              X0_tot, std::move(scatNew), energyLossNew, surf, meotPattern);
           const Trk::TrackParameters* pars = m->trackParameters()->clone();
-//        make new TSOS
+          //        make new TSOS
           const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
           newTSOSvector.push_back(newTSOS);
-          ATH_MSG_DEBUG(" NO aggregation and WITH reposition Thin Scatterer  TSOS type " << newTSOS->dumpType() << " TSOS surface " << newTSOS->trackParameters()->associatedSurface() << " position x " << newTSOS->trackParameters()->position().x() << " y " << newTSOS->trackParameters()->position().y() << " z " << newTSOS->trackParameters()->position().z()   << " direction x " << newTSOS->trackParameters()->momentum().unit().x() << " y " << newTSOS->trackParameters()->momentum().unit().y() << " z " << newTSOS->trackParameters()->momentum().unit().z() << " p " << newTSOS->trackParameters()->momentum().mag() << " X0 " << meotLast->thicknessInX0() << " deltaE " << energyLossNew->deltaE() << " sigma deltaTheta " <<  scatNew->sigmaDeltaTheta()  );
 
           Eloss_tot += energyLossNew->deltaE();
 
@@ -928,13 +952,29 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
 //
 //        prepare for first MaterialEffectsOnTrack with X0 = X0/2 Eloss = 0 and scattering2 = total2 / 2. depth = 0
           const Trk::EnergyLoss* energyLoss0 = new EnergyLoss(0.,0.,0.,0.);
-          const Trk::ScatteringAngles* scatFirst = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
+          auto scatFirst = ScatteringAngles(deltaPhi,
+                                            deltaTheta,
+                                            sqrt(sigmaDeltaPhi2_tot / 2.),
+                                            sqrt(sigmaDeltaTheta2_tot / 2.));
 
-//        prepare for second MaterialEffectsOnTrack with X0 =  X0/2 Eloss = Eloss total and scattering2 = total2 / 2. depth = 0
-          const Trk::ScatteringAngles* scatNew = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
-          const Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, 0.) ;
+          //        prepare for second MaterialEffectsOnTrack with X0 =  X0/2
+          //        Eloss = Eloss total and scattering2 = total2 / 2. depth = 0
+          auto scatNew = ScatteringAngles(deltaPhi,
+                                          deltaTheta,
+                                          sqrt(sigmaDeltaPhi2_tot / 2.),
+                                          sqrt(sigmaDeltaTheta2_tot / 2.));
+          const Trk::EnergyLoss* energyLossNew =
+            new EnergyLoss(deltaE_tot,
+                           sigmaDeltaE_tot,
+                           sigmaPlusDeltaE_tot,
+                           sigmaMinusDeltaE_tot,
+                           deltaE_ioni_tot,
+                           sigmaDeltaE_ioni_tot,
+                           deltaE_rad_tot,
+                           sigmaDeltaE_rad_tot,
+                           0.);
           double norm = dir.perp();
-//        Rotation matrix representation
+          //        Rotation matrix representation
           Amg::Vector3D colx(-dir.y()/norm,        dir.x()/norm,           0);
           Amg::Vector3D coly(-dir.x()*dir.z()/norm, -dir.y()*dir.z()/norm, norm);
           Amg::Vector3D colz( dir.x(),             dir.y(),                dir.z());
@@ -944,8 +984,12 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
           Trk::PlaneSurface* surfFirst = new Trk::PlaneSurface( surfaceTransformFirst );
           Trk::PlaneSurface* surfLast = new Trk::PlaneSurface( surfaceTransformLast );
 //        make MaterialEffectsOnTracks
-          const Trk::MaterialEffectsOnTrack*  meotFirst   =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatFirst,   energyLoss0,   *surfFirst,   meotPattern);
-          const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot/2., scatNew, energyLossNew, *surfLast, meotPattern);
+          const Trk::MaterialEffectsOnTrack* meotFirst =
+            new Trk::MaterialEffectsOnTrack(
+              X0_tot / 2., std::move(scatFirst), energyLoss0, *surfFirst, meotPattern);
+          const Trk::MaterialEffectsOnTrack* meotLast =
+            new Trk::MaterialEffectsOnTrack(
+              X0_tot / 2., std::move(scatNew), energyLossNew, *surfLast, meotPattern);
 
           //        calculate TrackParameters at first surface
           double qOverP0 = m->trackParameters()->charge() /
@@ -972,34 +1016,6 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             new Trk::TrackStateOnSurface(
               nullptr, std::move(parsLast), nullptr, meotLast, typePattern);
 
-          ATH_MSG_DEBUG(
-            " first NO aggregation and WITH reposition   TSOS type "
-            << newTSOSFirst->dumpType() << " TSOS surface "
-            << newTSOSFirst->trackParameters()->associatedSurface()
-            << " position x " << newTSOSFirst->trackParameters()->position().x()
-            << " y " << newTSOSFirst->trackParameters()->position().y() << " z "
-            << newTSOSFirst->trackParameters()->position().z()
-            << " direction x "
-            << newTSOSFirst->trackParameters()->momentum().unit().x() << " y "
-            << newTSOSFirst->trackParameters()->momentum().unit().y() << " z "
-            << newTSOSFirst->trackParameters()->momentum().unit().z() << " p "
-            << newTSOSFirst->trackParameters()->momentum().mag() << " X0 "
-            << meotFirst->thicknessInX0() << " deltaE " << energyLoss0->deltaE()
-            << " sigma deltaTheta " << scatFirst->sigmaDeltaTheta());
-          ATH_MSG_DEBUG(
-            " second NO aggregation and WITH reposition   TSOS type "
-            << newTSOS->dumpType() << " TSOS surface "
-            << newTSOS->trackParameters()->associatedSurface() << " position x "
-            << newTSOS->trackParameters()->position().x() << " y "
-            << newTSOS->trackParameters()->position().y() << " z "
-            << newTSOS->trackParameters()->position().z() << " direction x "
-            << newTSOS->trackParameters()->momentum().unit().x() << " y "
-            << newTSOS->trackParameters()->momentum().unit().y() << " z "
-            << newTSOS->trackParameters()->momentum().unit().z() << " p "
-            << newTSOS->trackParameters()->momentum().mag() << " X0 "
-            << meotLast->thicknessInX0() << " deltaE "
-            << energyLossNew->deltaE() << " sigma deltaTheta "
-            << scatNew->sigmaDeltaTheta());
 
           newTSOSvector.push_back(newTSOSFirst);
           newTSOSvector.push_back(newTSOS);
@@ -1036,18 +1052,50 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
           if(X0_tot>50&&fabs(pos.z())<6700&&pos.perp()<4200) threePlanes = true;
 //
           const Trk::EnergyLoss* energyLoss0 = new EnergyLoss(0.,0.,0.,0.);
-          const Trk::ScatteringAngles* scatFirst = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
+          auto scatFirst = ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
 
-          const Trk::ScatteringAngles* scatNew = new ScatteringAngles(deltaPhi,deltaTheta,sqrt(sigmaDeltaPhi2_tot/2.),sqrt(sigmaDeltaTheta2_tot/2.));
-          Trk::EnergyLoss* energyLoss2 = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, 0.) ;
+          auto scatNew =
+            ScatteringAngles(deltaPhi,
+                                 deltaTheta,
+                                 sqrt(sigmaDeltaPhi2_tot / 2.),
+                                 sqrt(sigmaDeltaTheta2_tot / 2.));
+          Trk::EnergyLoss* energyLoss2 = new EnergyLoss(deltaE_tot,
+                                                        sigmaDeltaE_tot,
+                                                        sigmaPlusDeltaE_tot,
+                                                        sigmaMinusDeltaE_tot,
+                                                        deltaE_ioni_tot,
+                                                        sigmaDeltaE_ioni_tot,
+                                                        deltaE_rad_tot,
+                                                        sigmaDeltaE_rad_tot,
+                                                        0.);
 
-          int elossFlag = 0; // return Flag for updateEnergyLoss Calorimeter energy (0 = not used)
-          const Trk::EnergyLoss* energyLossNew = (updateEloss ? m_elossupdator->updateEnergyLoss(energyLoss2, caloEnergy, caloEnergyError, pCaloEntry, momentumError, elossFlag):  new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, 0.));
+          int elossFlag = 0; // return Flag for updateEnergyLoss Calorimeter
+                             // energy (0 = not used)
+          const Trk::EnergyLoss* energyLossNew =
+            (updateEloss ? m_elossupdator->updateEnergyLoss(energyLoss2,
+                                                            caloEnergy,
+                                                            caloEnergyError,
+                                                            pCaloEntry,
+                                                            momentumError,
+                                                            elossFlag)
+                         : new EnergyLoss(deltaE_tot,
+                                          sigmaDeltaE_tot,
+                                          sigmaPlusDeltaE_tot,
+                                          sigmaMinusDeltaE_tot,
+                                          deltaE_ioni_tot,
+                                          sigmaDeltaE_ioni_tot,
+                                          deltaE_rad_tot,
+                                          sigmaDeltaE_rad_tot,
+                                          0.));
           delete energyLoss2;
 
-//          const Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, 0.);
+          //          const Trk::EnergyLoss* energyLossNew = new
+          //          EnergyLoss(deltaE_tot, sigmaDeltaE_tot,
+          //          sigmaPlusDeltaE_tot, sigmaMinusDeltaE_tot,
+          //          deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot,
+          //          sigmaDeltaE_rad_tot, 0.);
 
-//        direction of plane
+          //        direction of plane
           Amg::Vector3D dir = wdir/w_tot;
           dir = dir/dir.mag();
           double norm = dir.perp();
@@ -1093,13 +1141,13 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             //          Eloss = 0 and scattering2 = total2 / 2. depth = 0
             const Trk::MaterialEffectsOnTrack* meotFirst =
               new Trk::MaterialEffectsOnTrack(
-                X0_tot / 2., scatFirst, energyLoss0, *surfFirst, meotPattern);
+                X0_tot / 2., std::move(scatFirst), energyLoss0, *surfFirst, meotPattern);
             //          prepare for second MaterialEffectsOnTrack with X0 = X0/2
             //          Eloss = Eloss total and scattering2 = total2 / 2. depth
             //          = 0
             const Trk::MaterialEffectsOnTrack* meotLast =
               new Trk::MaterialEffectsOnTrack(
-                X0_tot / 2., scatNew, energyLossNew, *surfLast, meotPattern);
+                X0_tot / 2., std::move(scatNew), energyLossNew, *surfLast, meotPattern);
             //
             //
             const Trk::TrackStateOnSurface* newTSOSFirst =
@@ -1111,44 +1159,13 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
                      nullptr, std::move(parsLast), nullptr, meotLast, typePatternDeposit)
                  : new Trk::TrackStateOnSurface(
                      nullptr, std::move(parsLast), nullptr, meotLast, typePattern));
-            ATH_MSG_DEBUG(
-              " first WITH aggregation and WITH reposition   TSOS type "
-              << newTSOSFirst->dumpType() << " TSOS surface "
-              << newTSOSFirst->trackParameters()->associatedSurface()
-              << " position x "
-              << newTSOSFirst->trackParameters()->position().x() << " y "
-              << newTSOSFirst->trackParameters()->position().y() << " z "
-              << newTSOSFirst->trackParameters()->position().z()
-              << " direction x "
-              << newTSOSFirst->trackParameters()->momentum().unit().x() << " y "
-              << newTSOSFirst->trackParameters()->momentum().unit().y() << " z "
-              << newTSOSFirst->trackParameters()->momentum().unit().z() << " p "
-              << newTSOSFirst->trackParameters()->momentum().mag() << " X0 "
-              << meotFirst->thicknessInX0() << " deltaE "
-              << energyLoss0->deltaE() << " sigma deltaTheta "
-              << scatFirst->sigmaDeltaTheta());
-            ATH_MSG_DEBUG(
-              " second WITH aggregation and WITH reposition   TSOS type "
-              << newTSOS->dumpType() << " TSOS surface "
-              << newTSOS->trackParameters()->associatedSurface()
-              << " position x " << newTSOS->trackParameters()->position().x()
-              << " y " << newTSOS->trackParameters()->position().y() << " z "
-              << newTSOS->trackParameters()->position().z() << " direction x "
-              << newTSOS->trackParameters()->momentum().unit().x() << " y "
-              << newTSOS->trackParameters()->momentum().unit().y() << " z "
-              << newTSOS->trackParameters()->momentum().unit().z() << " p "
-              << newTSOS->trackParameters()->momentum().mag() << " X0 "
-              << meotLast->thicknessInX0() << " deltaE "
-              << energyLossNew->deltaE() << " sigma deltaTheta "
-              << scatNew->sigmaDeltaTheta());
             newTSOSvector.push_back(newTSOSFirst);
             newTSOSvector.push_back(newTSOS);
           } else {
             //
             // make three scattering planes and TSOS in Calorimeter
             //
-            const Trk::ScatteringAngles* scatZero =
-              new ScatteringAngles(0., 0., 0., 0.);
+            auto scatZero = ScatteringAngles(0., 0., 0., 0.);
             Amg::Transform3D surfaceTransform(colx, coly, colz, pos);
             Trk::PlaneSurface* surf = new Trk::PlaneSurface(surfaceTransform);
             std::unique_ptr<Trk::TrackParameters> pars =
@@ -1163,12 +1180,12 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             //        Eloss = ElossNew and scattering2 = 0. depth = 0
             const Trk::MaterialEffectsOnTrack* meot =
               new Trk::MaterialEffectsOnTrack(
-                0., scatZero, energyLossNew, *surf, meotPattern);
+                0., std::move(scatZero), energyLossNew, *surf, meotPattern);
             //        prepare for last MaterialEffectsOnTrack with X0 =  X0/2
             //        Eloss = 0 total and scattering2 = total2 / 2. depth = 0
             const Trk::MaterialEffectsOnTrack* meotLast =
               new Trk::MaterialEffectsOnTrack(
-                X0_tot / 2., scatNew, energyLoss0, *surfLast, meotPattern);
+                X0_tot / 2., std::move(scatNew), energyLoss0, *surfLast, meotPattern);
             const Trk::TrackStateOnSurface* newTSOSFirst =
               new Trk::TrackStateOnSurface(
                 nullptr, std::move(parsFirst), nullptr, meotFirst, typePattern);
@@ -1181,52 +1198,6 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
             newTSOSvector.push_back(newTSOSFirst);
             newTSOSvector.push_back(newTSOS);
             newTSOSvector.push_back(newTSOSLast);
-            ATH_MSG_DEBUG(
-              " first WITH aggregation and WITH reposition   TSOS type "
-              << newTSOSFirst->dumpType() << " TSOS surface "
-              << newTSOSFirst->trackParameters()->associatedSurface()
-              << " position x "
-              << newTSOSFirst->trackParameters()->position().x() << " y "
-              << newTSOSFirst->trackParameters()->position().y() << " z "
-              << newTSOSFirst->trackParameters()->position().z()
-              << " direction x "
-              << newTSOSFirst->trackParameters()->momentum().unit().x() << " y "
-              << newTSOSFirst->trackParameters()->momentum().unit().y() << " z "
-              << newTSOSFirst->trackParameters()->momentum().unit().z() << " p "
-              << newTSOSFirst->trackParameters()->momentum().mag() << " X0 "
-              << meotFirst->thicknessInX0() << " deltaE "
-              << energyLoss0->deltaE() << " sigma deltaTheta "
-              << scatFirst->sigmaDeltaTheta());
-            ATH_MSG_DEBUG(
-              " second WITH aggregation and WITH reposition   TSOS type "
-              << newTSOS->dumpType() << " TSOS surface "
-              << newTSOS->trackParameters()->associatedSurface()
-              << " position x " << newTSOS->trackParameters()->position().x()
-              << " y " << newTSOS->trackParameters()->position().y() << " z "
-              << newTSOS->trackParameters()->position().z() << " direction x "
-              << newTSOS->trackParameters()->momentum().unit().x() << " y "
-              << newTSOS->trackParameters()->momentum().unit().y() << " z "
-              << newTSOS->trackParameters()->momentum().unit().z() << " p "
-              << newTSOS->trackParameters()->momentum().mag() << " X0 "
-              << meotLast->thicknessInX0() << " deltaE "
-              << energyLossNew->deltaE() << " sigma deltaTheta "
-              << scatNew->sigmaDeltaTheta());
-            ATH_MSG_DEBUG(
-              " second WITH aggregation and WITH reposition   TSOS type "
-              << newTSOSLast->dumpType() << " TSOS surface "
-              << newTSOSLast->trackParameters()->associatedSurface()
-              << " position x "
-              << newTSOSLast->trackParameters()->position().x() << " y "
-              << newTSOSLast->trackParameters()->position().y() << " z "
-              << newTSOSLast->trackParameters()->position().z()
-              << " direction x "
-              << newTSOSLast->trackParameters()->momentum().unit().x() << " y "
-              << newTSOSLast->trackParameters()->momentum().unit().y() << " z "
-              << newTSOSLast->trackParameters()->momentum().unit().z() << " p "
-              << newTSOSLast->trackParameters()->momentum().mag() << " X0 "
-              << meotLast->thicknessInX0() << " deltaE "
-              << energyLossNew->deltaE() << " sigma deltaTheta "
-              << scatNew->sigmaDeltaTheta());
           }
 
           Eloss_tot += energyLossNew->deltaE();

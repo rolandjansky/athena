@@ -1791,8 +1791,11 @@ namespace Rec {
                         // Make TSOS for the ID
                         const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(Eloss, sigmaEloss, sigmaEloss, sigmaEloss);
 
-                        const Trk::ScatteringAngles* scatNew =
-                            new Trk::ScatteringAngles(0., 0., std::sqrt(sigmaDeltaPhitot2), std::sqrt(sigmaDeltaThetatot2));
+                        auto scatNew =
+                          Trk::ScatteringAngles(0.,
+                                                0.,
+                                                std::sqrt(sigmaDeltaPhitot2),
+                                                std::sqrt(sigmaDeltaThetatot2));
 
                         const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -1801,7 +1804,11 @@ namespace Rec {
                         meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
                         const Trk::MaterialEffectsOnTrack* meotNew =
-                            new Trk::MaterialEffectsOnTrack(X0tot, scatNew, energyLossNew, surfNew, meotPattern);
+                          new Trk::MaterialEffectsOnTrack(X0tot,
+                                                          std::move(scatNew),
+                                                          energyLossNew,
+                                                          surfNew,
+                                                          meotPattern);
 
                         const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
                         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
@@ -2396,7 +2403,7 @@ namespace Rec {
                 float X0 = trk_srf->materialEffectsOnTrack()->thicknessInX0();
                 //
                 const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
-                const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                auto  scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                 const Trk::Surface& surfNew = trk_srf->trackParameters()->associatedSurface();
 
@@ -2405,8 +2412,13 @@ namespace Rec {
                 meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
                 const Trk::MaterialEffectsOnTrack* meotNew =
-                    new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
-                const Trk::TrackParameters* parsNew = trk_srf->trackParameters()->clone();
+                  new Trk::MaterialEffectsOnTrack(X0,
+                                                  std::move(scatNew),
+                                                  energyLossNew,
+                                                  surfNew,
+                                                  meotPattern);
+                const Trk::TrackParameters* parsNew =
+                  trk_srf->trackParameters()->clone();
 
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
                 typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);

@@ -719,11 +719,11 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
     ro = m_riotool->correct(*m_clusterNoAdd, *tp);
     pat.set(Trk::TrackStateOnSurface::Outlier);
   }
-  const Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(
+  auto sa = Trk::ScatteringAngles(
     0., 0., sqrt(m_noise.covarianceAzim()), sqrt(m_noise.covariancePola()));
 
-  const Trk::MaterialEffectsOnTrack* me =
-    new Trk::MaterialEffectsOnTrack(m_radlengthN, sa, tp->associatedSurface());
+  const Trk::MaterialEffectsOnTrack* me = new Trk::MaterialEffectsOnTrack(
+    m_radlengthN, std::move(sa), tp->associatedSurface());
 
   pat.set(Trk::TrackStateOnSurface::Scatterer);
   Trk::TrackStateOnSurface* sos =

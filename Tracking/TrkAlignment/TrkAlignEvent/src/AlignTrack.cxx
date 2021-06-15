@@ -455,7 +455,7 @@ namespace Trk {
             std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typeMaterial;
             if (eLoss) typeMaterial.set(MaterialEffectsBase::EnergyLossEffects);
             const Trk::MaterialEffectsOnTrack* newmeot=
-                new Trk::MaterialEffectsOnTrack(tinX0,nullptr,eLoss,surf,typeMaterial);
+                new Trk::MaterialEffectsOnTrack(tinX0,std::nullopt,eLoss,surf,typeMaterial);
             delete meb;
             meb=newmeot;
           }

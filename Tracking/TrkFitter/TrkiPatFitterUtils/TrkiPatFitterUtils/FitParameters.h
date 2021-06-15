@@ -11,18 +11,16 @@ scattering for brevity (mis-)named alignment and scatterer
 #ifndef TRKIPATFITTERUTILS_FITPARAMETERS_H
 #define TRKIPATFITTERUTILS_FITPARAMETERS_H
 
-
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include <vector>
 
-
 class MsgStream;
 
 namespace Trk {
-class ScatteringAngles;
 class Surface;
 class TrackSurfaceIntersection;
 
@@ -98,8 +96,8 @@ public:
   void resetOscillations(void);
   double scattererPhi(int scatterer) const;
   double scattererTheta(int scatterer) const;
-  const ScatteringAngles* scatteringAngles(const FitMeasurement& fitMeasurement,
-                                           int scatterer = -1) const;
+  ScatteringAngles scatteringAngles(const FitMeasurement& fitMeasurement,
+                                    int scatterer = -1) const;
   void setPhiInstability(void);
   double sinPhi(void) const;
   double sinTheta(void) const;
