@@ -58,17 +58,21 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
  
-        std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjs;
+        std::vector< std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision*>> pairObjs;
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType, pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
         }
 
-
-        fillDistributions( pairObjs, info );
-        fillEfficiencies( pairObjs, info );
-        fillResolutions( pairObjs, info );
+        std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjsRaw;
+        pairObjsRaw.reserve(pairObjs.size());
+        for (const auto& itr : pairObjs) {
+          pairObjsRaw.emplace_back(itr.first.get(), itr.second);
+        }
+        fillDistributions( pairObjsRaw, info );
+        fillEfficiencies( pairObjsRaw, info );
+        fillResolutions( pairObjsRaw, info );
 
 
 
@@ -89,7 +93,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
                                                              std::string trigItem,
                                                              float etthr,
                                                              std::string pidName,
-                                                             std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision* >> &pairObjs) const
+                                                             std::vector<std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision* >> &pairObjs) const
 {
 
   ATH_MSG_DEBUG("Apply navigation selection "); 
@@ -142,13 +146,12 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
         if(veto)  continue;
       }
 
-      xAOD::Electron *el = new xAOD::Electron(*eg);
+      const auto el = std::make_shared<const xAOD::Electron>(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
 
-      match()->match(el, trigItem, dec, TrigDefs::includeFailedDecisions);
+      match()->match(el.get(), trigItem, dec, TrigDefs::includeFailedDecisions);
       //match()->match(el, trigItem, dec);
-      std::pair< const xAOD::Electron*, const TrigCompositeUtils::Decision * > pair(el,dec);
-      pairObjs.push_back(pair);
+      pairObjs.emplace_back(el, dec);
 
   }
 
