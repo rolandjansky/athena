@@ -33,8 +33,6 @@ namespace asg
   public:
     StatusCode initialize () override;
 
-    ASG_SERVICE_CLASS1 (UnitTestService1, IUnitTestService1)
-
   public:
     virtual std::string getPropertyString () const override;
 

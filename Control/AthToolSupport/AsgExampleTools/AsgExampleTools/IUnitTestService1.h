@@ -17,8 +17,9 @@ namespace asg
 
   class IUnitTestService1 : virtual public IAsgService
   {
-    // Declare the interface that this class provides
-    ASG_SERVICE_INTERFACE( CP::IUnitTestService1 )
+    /// declare the interface that this class provides
+  public:
+    DeclareInterfaceID( asg::IUnitTestService1, 1, 0 );
 
     /// \brief get the integer property
   public:

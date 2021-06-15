@@ -12,8 +12,17 @@
 #include <string>
 
 // Local include(s):
-#include "AsgServices/AsgServiceMacros.h"
 #include "AsgMessaging/INamedInterface.h"
+
+#ifdef XAOD_STANDALONE
+/// \brief standalone version of the Gaudi interface declaration
+///
+/// This can't be a no-op, because the Gaudi version needs to be
+/// followed by a semicolon, so we need a statement that requires to
+/// be followed by a semi-colon.
+#define DeclareInterfaceID(iface, major, minor) \
+  static constexpr nullptr_t interfaceID = nullptr
+#endif
 
 namespace asg
 {

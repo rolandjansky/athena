@@ -51,4 +51,23 @@ namespace asg
     return;
   }
 
+
+
+#ifndef XAOD_STANDALONE
+  StatusCode AsgService ::
+  queryInterface (const InterfaceID& riid, void **ppvi)
+  {
+    for (const auto& interface : m_interfaces)
+    {
+      if (riid == interface.first())
+      {
+        *ppvi = interface.second (this);
+        addRef();
+        return StatusCode::SUCCESS;
+      }
+    }
+    return AsgServiceBase::queryInterface (riid, ppvi);
+  }
+#endif
+
 } // namespace asg
