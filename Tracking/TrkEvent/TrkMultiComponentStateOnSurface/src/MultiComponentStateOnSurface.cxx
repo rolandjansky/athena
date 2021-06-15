@@ -144,34 +144,7 @@ Trk::MultiComponentStateOnSurface::~MultiComponentStateOnSurface() = default;
 Trk::TrackStateOnSurface*
 Trk::MultiComponentStateOnSurface::clone() const
 {
-  // Clone all constituents
-  const Trk::MeasurementBase* measurementBase =
-    this->measurementOnTrack() ? this->measurementOnTrack()->clone() : nullptr;
-
-  const Trk::TrackParameters* trackParameters =
-    this->trackParameters() ? this->trackParameters()->clone() : nullptr;
-
-  std::unique_ptr<Trk::MultiComponentState> multiComponentState =
-    this->components()
-      ? Trk::MultiComponentStateHelpers::clone(*(this->components()))
-      : nullptr;
-
-  const Trk::FitQualityOnSurface* fitQualityOnSurface =
-    this->fitQualityOnSurface()
-      ? new Trk::FitQualityOnSurface(*(this->fitQualityOnSurface()))
-      : nullptr;
-  const Trk::MaterialEffectsBase* materialEffectsOnTrack =
-    this->materialEffectsOnTrack() ? this->materialEffectsOnTrack()->clone()
-                                   : nullptr;
-  double modeQoverP = this->mixtureModeQoverP();
-
-  return new Trk::MultiComponentStateOnSurface(measurementBase,
-                                               trackParameters,
-                                               std::move(multiComponentState),
-                                               fitQualityOnSurface,
-                                               materialEffectsOnTrack,
-                                               this->types(),
-                                               modeQoverP);
+  return new MultiComponentStateOnSurface(*this);
 }
 
 MsgStream&
