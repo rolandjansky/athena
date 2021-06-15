@@ -26,7 +26,7 @@ namespace asg
   UnitTestService1 (const std::string& name, ISvcLocator* pSvcLocator)
     : AsgService (name, pSvcLocator)
   {
-    // declareInterface<IUnitTestService1>();
+    declareServiceInterface<IUnitTestService1>();
 
     declareProperty ("propertyInt", m_propertyInt, "the integer property");
     declareProperty ("propertyString", m_propertyString, "the string property");

@@ -110,18 +110,23 @@ def createPublicTool( typeName, toolName ):
         return createComponent( typeName, toolName, 'AsgTool' )
 
 
-def createService( typeName, serviceName ):
+def createService( typeName, serviceName, sequence=None ):
     """Helper function for setting up a service for a dual-use algorithm
 
-    This function is meant to be used in the analysis algorithm sequence
-    configurations for setting up services on the analysis algorithms.
-    Services that could then be configured with a syntax shared between
-    Athena and EventLoop.
+    This function is meant to be used to set up services in a dual-use
+    manner, particularly for the common CP algorithms.  This allows to
+    use the same syntax in EventLoop and Athena, hiding the
+    differences internally.  Since in EventLoop the service gets added
+    to a sequence (but in Athena does not), that sequence needs to be
+    passed into this function.
 
     Keyword arguments:
       typeName -- The C++ type name of the service
       serviceName -- The name with which the service handle was configured on
                     the algorithm. Also the instance name of the service.
+      sequence -- an optional argument of an algorithm sequence to add it to
+                  in EventLoop (ignored in Athena)
+
     """
 
     try:
@@ -148,7 +153,11 @@ def createService( typeName, serviceName ):
     except ImportError:
         # If that didn't work, then apparently we're in an EventLoop
         # environment, so let's use the EventLoop specific formalism.
-        return createComponent( typeName, serviceName, 'AsgService' )
+        service = createComponent( typeName, serviceName, 'AsgService' )
+        if sequence is not None :
+            sequence += service
+            pass
+        return service
 
 
 def addPrivateTool( alg, toolName, typeName ):

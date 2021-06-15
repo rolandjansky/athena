@@ -20,7 +20,6 @@ class egammaMVASvc : public asg::AsgService, virtual public IegammaMVASvc
 {
 public:
   egammaMVASvc( const std::string& name, ISvcLocator* svc );
-  ASG_SERVICE_CLASS1(egammaMVASvc, IegammaMVASvc)
   virtual ~egammaMVASvc() override {};
   virtual StatusCode initialize() override;
 
