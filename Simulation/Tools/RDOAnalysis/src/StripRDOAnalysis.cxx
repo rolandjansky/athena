@@ -19,8 +19,8 @@
 
 StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_inputKey("SCT_RDOs")
-  , m_inputTruthKey("SCT_SDO_Map")
+  , m_inputKey("ITkStripRDOs")
+  , m_inputTruthKey("ITkStripSDO_Map")
   , m_sctID(nullptr)
   , m_rdoID(nullptr)
   , m_rdoWord(nullptr)
