@@ -28,7 +28,7 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
 
 
             from JetRec.JetRecFlags import jetFlags
-            if (jetFlags.useTracks or
+            if ((jetFlags.Enabled() and jetFlags.useTracks) or
                 cfgKeyStore.isInInput ('xAOD::PFOContainer',
                                        'CHSNeutralParticleFlowObjects')):
                 CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
