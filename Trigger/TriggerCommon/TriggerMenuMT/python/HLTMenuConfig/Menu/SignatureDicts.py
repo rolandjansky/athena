@@ -201,6 +201,10 @@ JetChainParts = {
                       'DIJET80j12ptXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
                       'DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
                       'DIJET20j12ptXX110djmass',  # very loose cuts for testing
+                      'DIJETaliasExample',        # example of an alias for a dijet scenario with very loose cuts for testing
+                      # no explicit pt cuts
+                      'DIJET35j12ptXX700djmass',
+                      'DIJET35j12ptXX500djmass',
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'HT1000',
                       'HT500',
