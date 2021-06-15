@@ -199,22 +199,10 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
     if use_tracking:
         jetDef.modifiers += [f"JVT:{jetRecoDict['trkopt']}"]
 
-    
-    if jetRecoDict["cleaning"] != "noCleaning":
-        # Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
-        if is_pflow:
-            raise RuntimeError(
-                "Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets."
-            )
-        if jetRecoDict["recoAlg"] != "a4":
-            raise RuntimeError(
-                "Requested jet cleaning for a non small-R jet chain. Jet cleaning is currently not supported for large-R jets."
-            )
-
-        jetDef.modifiers += [
-            "CaloQuality",
-            f"Cleaning:{jetRecoDict['cleaning']}",
-        ]
+    if not is_pflow and jetRecoDict["recoAlg"] == "a4":
+        jetDef.modifiers += ["CaloQuality"]
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import cleaningDict
+        jetDef.modifiers += [f'Cleaning:{clean_wp}' for _,clean_wp in cleaningDict.items()]
 
     # make sure all modifiers info is ready before passing jetDef to JetRecConfig helpers
     jetDef = solveDependencies(jetDef) 

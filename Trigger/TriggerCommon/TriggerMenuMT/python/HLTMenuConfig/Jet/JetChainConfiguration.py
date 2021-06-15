@@ -146,7 +146,6 @@ class JetChainConfiguration(ChainConfigurationBase):
             'jetCalib':'subjesIS',
             'trkopt':'notrk',
             'trkpresel': 'nopresel',
-            'cleaning': 'noCleaning',
         }
         from ..Menu.SignatureDicts import JetChainParts_Default
         preselJetParts = dict(JetChainParts_Default)

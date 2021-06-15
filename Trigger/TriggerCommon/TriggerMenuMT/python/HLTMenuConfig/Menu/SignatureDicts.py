@@ -228,7 +228,7 @@ JetChainParts = {
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100XXmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['CLEANlb', 'MASK300ceta210XX300nphi10',
+    ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
      # jets by ordering by pt, and selecting those with indices in [X,Y]
      'PTRANGE0r1',

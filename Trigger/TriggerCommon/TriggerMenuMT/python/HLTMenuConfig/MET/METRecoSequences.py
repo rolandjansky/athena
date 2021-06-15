@@ -22,9 +22,7 @@ def jetRecoDictForMET(**recoDict):
     jrd = {
         k: recoDict.get(k, JetChainParts_Default[k])
         for k in jetRecoKeys
-        if not k == "cleaning"
     }
-    jrd.update({"cleaning": "noCleaning"})
     # Rename the cluster calibration
     try:
         jrd["clusterCalib"] = recoDict["calib"]

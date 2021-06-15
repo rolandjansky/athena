@@ -36,6 +36,8 @@ chains = [
     
     ChainProp(name='HLT_j80_CLEANlb_L1J15', groups=SingleJetGroup),
 
+    ChainProp(name='HLT_j80_CLEANllp_L1J15', groups=SingleJetGroup),
+ 
     ChainProp(name='HLT_j420_subresjesgscIS_ftf_L1J100',groups=SingleJetGroup),
 
     ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',

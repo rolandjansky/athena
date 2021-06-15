@@ -29,10 +29,11 @@ def interpretJetCalibDefault(recoDict):
     else:
         raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel','cleaning']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel']
 
 cleaningDict = {
-    'CLEANlb': 'LooseBad',
+    'CLEANlb':  'LooseBad',
+    'CLEANllp': 'LooseBadLLP',
 }
 
 def extractCleaningsFromPrefilters(prefilters_list):
@@ -58,8 +59,6 @@ def extractRecoDict(chainParts):
                         raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
-            elif k =='cleaning':
-                recoDict[k] = extractCleaningsFromPrefilters(p["prefilters"])
 
     # set proper jetCalib key in default case
     if recoDict['jetCalib'] == "default":
@@ -70,7 +69,7 @@ def extractRecoDict(chainParts):
 
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
-    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}_{cleaning}"
+    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}"
     if jetRecoDict["trkopt"] != "notrk":
         strtemp += "_{trkopt}_{trkpresel}"
     return strtemp.format(**jetRecoDict)
@@ -84,13 +83,13 @@ def jetRecoDictFromString(jet_def_string):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts,JetChainParts_Default
     for key in recoKeys:
         keyFound = False
-        tmp_key = 'prefilters' if key == 'cleaning' else key
+        tmp_key =  key
         for part in jet_def_string.split('_'):
             if part in JetChainParts[tmp_key]:
                 jetRecoDict[key] = part
                 keyFound         = True
         if not keyFound:
-            jetRecoDict[key] = 'noCleaning' if key =='cleaning' else JetChainParts_Default[key]
+            jetRecoDict[key] = JetChainParts_Default[key]
 
     # set proper jetCalib key in default case
     if jetRecoDict['jetCalib'] == "default":
