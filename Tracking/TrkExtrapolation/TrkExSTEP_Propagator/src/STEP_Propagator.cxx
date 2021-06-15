@@ -2585,12 +2585,14 @@ void Trk::STEP_Propagator::dumpMaterialEffects( Cache& cache,
                           cache.m_combinedEloss.meanIoni(), cache.m_combinedEloss.sigmaIoni(),
                           cache.m_combinedEloss.meanRad(), cache.m_combinedEloss.sigmaRad(), path ) ;
 
-    Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(0.,0.,std::sqrt(cache.m_covariance(2,2)),
-                                                          std::sqrt(cache.m_covariance(3,3)));
+    auto sa = Trk::ScatteringAngles(0.,
+                                    0.,
+                                    std::sqrt(cache.m_covariance(2, 2)),
+                                    std::sqrt(cache.m_covariance(3, 3)));
 
     Trk::CurvilinearParameters* cvlTP = parms->clone();
-    Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(cache.m_combinedThickness,sa,eloss,
-                                                                         cvlTP->associatedSurface());
+    Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(
+      cache.m_combinedThickness, std::move(sa), eloss, cvlTP->associatedSurface());
 
     cache.m_matstates->push_back(new TrackStateOnSurface(nullptr,cvlTP,nullptr,mefot));
   }

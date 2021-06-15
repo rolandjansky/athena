@@ -546,7 +546,7 @@ FitParameters::reset(const FitParameters& parameters)
   m_oldDifference = 0.;
 }
 
-const ScatteringAngles*
+ScatteringAngles
 FitParameters::scatteringAngles(const FitMeasurement& fitMeasurement,
                                 int scatterer) const
 {
@@ -556,12 +556,12 @@ FitParameters::scatteringAngles(const FitMeasurement& fitMeasurement,
     scattererSigmaTheta /
     fitMeasurement.intersection(FittedTrajectory).direction().perp();
   if (scatterer < 0) {
-    return new ScatteringAngles(0., 0., scattererSigmaPhi, scattererSigmaTheta);
+    return ScatteringAngles(0., 0., scattererSigmaPhi, scattererSigmaTheta);
   } else {
-    return new ScatteringAngles(m_scattererPhi[scatterer],
-                                m_scattererTheta[scatterer],
-                                scattererSigmaPhi,
-                                scattererSigmaTheta);
+    return ScatteringAngles(m_scattererPhi[scatterer],
+                            m_scattererTheta[scatterer],
+                            scattererSigmaPhi,
+                            scattererSigmaTheta);
   }
 }
 

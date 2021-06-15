@@ -227,7 +227,8 @@ namespace Rec {
                             const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(
                                 energyLoss->deltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE());
 
-                            const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                            auto scatNew = Trk::ScatteringAngles(
+                              0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                             const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -236,7 +237,11 @@ namespace Rec {
                             meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
                             const Trk::MaterialEffectsOnTrack* meotNew =
-                                new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+                              new Trk::MaterialEffectsOnTrack(X0,
+                                                              std::move(scatNew),
+                                                              energyLossNew,
+                                                              surfNew,
+                                                              meotPattern);
 
                             const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
 
@@ -566,7 +571,8 @@ namespace Rec {
 
                             const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
 
-                            const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                            auto scatNew = Trk::ScatteringAngles(
+                              0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                             const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -575,7 +581,11 @@ namespace Rec {
                             meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
                             const Trk::MaterialEffectsOnTrack* meotNew =
-                                new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+                              new Trk::MaterialEffectsOnTrack(X0,
+                                                              std::move(scatNew),
+                                                              energyLossNew,
+                                                              surfNew,
+                                                              meotPattern);
 
                             const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
 

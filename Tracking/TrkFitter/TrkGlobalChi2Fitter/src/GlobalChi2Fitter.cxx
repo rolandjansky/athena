@@ -2632,7 +2632,7 @@ namespace Trk {
           Trk::muon)
         );
         
-        std::unique_ptr<Trk::ScatteringAngles> newsa = std::make_unique<Trk::ScatteringAngles>(
+        auto newsa = Trk::ScatteringAngles(
           0, 
           0,
           sigmascat / std::sin(tsos->trackParameters()->parameters()[Trk::theta]), 
@@ -2641,7 +2641,7 @@ namespace Trk {
         
         Trk::MaterialEffectsOnTrack newmeot(
           meff->thicknessInX0(), 
-          newsa.release(), 
+          std::move(newsa), 
           nullptr,
           tsos->surface()
         );

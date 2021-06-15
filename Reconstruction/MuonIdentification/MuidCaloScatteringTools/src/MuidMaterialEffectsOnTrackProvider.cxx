@@ -83,13 +83,13 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
         Trk::MaterialProperties matprop(X0outer, 1., 0., 0., 0., 0.);
         double sigmascat = std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / parm.parameters()[Trk::qOverP]), 1., Trk::muon));
 
-        Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
-        Trk::ScatteringAngles* newsa2 = new Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
+        auto newsa = Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
+        auto newsa2 = Trk::ScatteringAngles(0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat);
 
-        meots.emplace_back(X0inner, newsa, innersurf);
+        meots.emplace_back(X0inner, std::move(newsa), innersurf);
         meots.push_back(Trk::MaterialEffectsOnTrack(0, new Trk::EnergyLoss(energy.first, energy.second), middlesurf,
                                                     Trk::MaterialEffectsBase::EnergyLossEffects));
-        meots.emplace_back(X0outer, newsa2, outersurf);
+        meots.emplace_back(X0outer, std::move(newsa2), outersurf);
 
         for (int i = 0; i < 3; i++) {
             // std::cout << "meot: " << meots[i] << std::endl;
@@ -113,15 +113,15 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
             if (meot) eloss = dynamic_cast<const CaloEnergy*>(meot->energyLoss());
 
             Trk::EnergyLoss* neweloss = nullptr;
-            Trk::ScatteringAngles* newsa = nullptr;
+            std::optional<Trk::ScatteringAngles> newsa = std::nullopt;
             if (eloss)
                 neweloss = new CaloEnergy(*eloss);
             else {
                 Trk::MaterialProperties matprop(meot->thicknessInX0(), 1., 0., 0., 0., 0.);
                 double sigmascat = std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / qoverp), 1., Trk::muon));
-                newsa = new Trk::ScatteringAngles(0, 0, sigmascat / sintheta, sigmascat);
+                newsa = Trk::ScatteringAngles(0, 0, sigmascat / sintheta, sigmascat);
             }
-            Trk::MaterialEffectsOnTrack newmeot(meot->thicknessInX0(), newsa, neweloss,
+            Trk::MaterialEffectsOnTrack newmeot(meot->thicknessInX0(), std::move(newsa), neweloss,
                                                 (*tsosvec)[i]->trackParameters()->associatedSurface());
             meots.push_back(newmeot);
             delete (*tsosvec)[i];

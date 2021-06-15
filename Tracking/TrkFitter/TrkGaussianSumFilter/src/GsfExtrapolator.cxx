@@ -1503,9 +1503,10 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
     double thick = pathcorr * materialProperties->thickness();
     double dInX0 = thick / materialProperties->x0();
     double absP = 1 / std::abs(nextPar->parameters()[Trk::qOverP]);
+    //scatterning 
     double scatsigma = sqrt(
       m_msupdators->sigmaSquare(*materialProperties, absP, pathcorr, particle));
-    Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(
+    auto newsa = Trk::ScatteringAngles(
       0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
     // energy loss
     Trk::EnergyLoss* eloss = m_elossupdators->energyLoss(
@@ -1515,7 +1516,7 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
     Trk::CurvilinearParameters* cvlTP = new Trk::CurvilinearParameters(
       nextPar->position(), nextPar->momentum(), nextPar->charge());
     Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(
-      dInX0, newsa, eloss, cvlTP->associatedSurface());
+      dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
     cache.m_matstates->push_back(
       new TrackStateOnSurface(nullptr, cvlTP, nullptr, mefot));
   }

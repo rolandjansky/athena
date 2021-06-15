@@ -948,7 +948,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         Trk::MaterialProperties materialProperties(*propagVol, fabs(path));
         double scatsigma = sqrt(m_msupdaters[0]->sigmaSquare(
           materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
-        Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(
+        auto newsa = Trk::ScatteringAngles(
           0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
@@ -962,7 +962,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         const Trk::TrackParameters* cvlTP = replaceTrkParm(new Trk::CurvilinearParameters(
           nextPar->position(), nextPar->momentum(), nextPar->charge()));
         Trk::MaterialEffectsOnTrack* mefot =
-          new Trk::MaterialEffectsOnTrack(dInX0, newsa, eloss, cvlTP->associatedSurface());
+          new Trk::MaterialEffectsOnTrack(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
         cache.m_matstates->push_back(new TrackStateOnSurface(nullptr, cvlTP, nullptr, mefot));
         if (cache.m_extrapolationCache) {
           if (m_dumpCache) {
@@ -1279,7 +1279,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
         double scatsigma = sqrt(m_msupdaters[0]->sigmaSquare(
           materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
-        Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(
+        auto newsa = Trk::ScatteringAngles(
           0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
@@ -1295,7 +1295,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           nextPar->position(), nextPar->momentum(), nextPar->charge()));
 
         Trk::MaterialEffectsOnTrack* mefot =
-          new Trk::MaterialEffectsOnTrack(dInX0, newsa, eloss, cvlTP->associatedSurface());
+          new Trk::MaterialEffectsOnTrack(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
 
         cache.m_matstates->push_back(new TrackStateOnSurface(nullptr, cvlTP, nullptr, mefot));
 
@@ -1411,7 +1411,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 double dInX0 = thick / lx0;
                 double scatsigma = sqrt(m_msupdaters[0]->sigmaSquare(
                   *lmat, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
-                Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(
+                auto newsa = Trk::ScatteringAngles(
                   0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
                 // energy loss
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
@@ -1422,7 +1422,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 const Trk::TrackParameters* cvlTP = replaceTrkParm(new Trk::CurvilinearParameters(
                   nextPar->position(), nextPar->momentum(), nextPar->charge()));
                 Trk::MaterialEffectsOnTrack* mefot =
-                  new Trk::MaterialEffectsOnTrack(dInX0, newsa, eloss, cvlTP->associatedSurface());
+                  new Trk::MaterialEffectsOnTrack(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
                 if (cache.m_extrapolationCache) {
                   if (checkCache(cache, " mat states extrapolateToNextMaterialLayer thin")) {
                     if (m_dumpCache) {
@@ -1563,7 +1563,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 *nextLayer->fullUpdateMaterialProperties(*nextPar)); // !<@TODOcheck
               double scatsigma = sqrt(m_msupdaters[0]->sigmaSquare(
                 materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
-              Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(
+              auto newsa = Trk::ScatteringAngles(
                 0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
               // energy loss
               double currentqoverp = nextPar->parameters()[Trk::qOverP];
@@ -1574,7 +1574,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               const Trk::TrackParameters* cvlTP = replaceTrkParm(new Trk::CurvilinearParameters(
                 nextPar->position(), nextPar->momentum(), nextPar->charge()));
               Trk::MaterialEffectsOnTrack* mefot =
-                new Trk::MaterialEffectsOnTrack(dInX0, newsa, eloss, cvlTP->associatedSurface());
+                new Trk::MaterialEffectsOnTrack(dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
               if (cache.m_extrapolationCache) {
                 if (checkCache(cache, " mat states extrapolateToNextMaterialLayer thin")) {
                   if (m_dumpCache) {
@@ -4670,11 +4670,11 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
     // get the scattering angle
     double sigmaMS = sqrt(m_msupdaters[0]->sigmaSquare(
       *materialProperties, fabs(1. / currentQoP), pathCorrection, particle));
-    Trk::ScatteringAngles* scatAngles =
-      new ScatteringAngles(0, 0, sigmaMS / sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
+    auto scatAngles =
+      ScatteringAngles(0, 0, sigmaMS / sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
 
     Trk::MaterialEffectsOnTrack* meot = new Trk::MaterialEffectsOnTrack(
-      tInX0, scatAngles, energyLoss, *lay.surfaceRepresentation().baseSurface());
+      tInX0, std::move(scatAngles), energyLoss, *lay.surfaceRepresentation().baseSurface());
     // push it to the material states
     cache.m_matstates->push_back(
       new TrackStateOnSurface(nullptr, parsOnLayer.release(), nullptr, meot));
@@ -5382,7 +5382,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
       double scatsigma = sqrt(m_msupdaters[0]->sigmaSquare(
         materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
-      Trk::ScatteringAngles* newsa = new Trk::ScatteringAngles(
+      auto newsa = Trk::ScatteringAngles(
         0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
       // energy loss
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
@@ -5400,7 +5400,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       // Trk::EnergyLoss(adj*eloss0->deltaE(),adj*eloss0->sigmaDeltaE()); delete eloss0;
 
       Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(
-        dInX0, newsa, eloss, *((nextPar->associatedSurface()).baseSurface()));
+        dInX0, std::move(newsa), eloss, *((nextPar->associatedSurface()).baseSurface()));
 
       cache.m_matstates->push_back(
         new TrackStateOnSurface(nullptr, ManagedTrackParmPtr(nextPar).release(), nullptr, mefot));
