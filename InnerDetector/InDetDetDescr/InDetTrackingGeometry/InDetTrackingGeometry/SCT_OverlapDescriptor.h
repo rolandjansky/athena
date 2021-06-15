@@ -17,12 +17,34 @@
 
 #ifndef TRKDETDESCR_SIDETADDNEXTPHIETA
 #define TRKDETDESCR_SIDETADDNEXTPHIETA
-#define addSurface(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
-#define addOtherSide(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
-#define addNextInPhiOS(cur, surfaces) addSurface(cur->nextInPhi(), surfaces); addOtherSide(cur->nextInPhi(),surfaces)
-#define addPrevInPhiOS(cur, surfaces) addSurface(cur->prevInPhi(), surfaces); addOtherSide(cur->prevInPhi(),surfaces)
-#define addNextInEtaOS(cur, surfaces) addSurface(cur->nextInEta(), surfaces); addOtherSide(cur->nextInEta(),surfaces)
-#define addPrevInEtaOS(cur, surfaces) addSurface(cur->prevInEta(), surfaces); addOtherSide(cur->prevInEta(),surfaces)
+
+#define addSurface(cur, surfaces)                                              \
+  if (cur)                                                                     \
+  surfaces.emplace_back(Trk::SurfaceIntersection(                              \
+    Trk::Intersection(Amg::Vector3D(0., 0., 0.), 0., true),                    \
+    &(cur->surface(cur->identify()))))
+
+#define addOtherSide(cur, surfaces)                                            \
+  if (cur && cur->otherSide())                                                 \
+  surfaces.emplace_back(Trk::SurfaceIntersection(                              \
+    Trk::Intersection(Amg::Vector3D(0., 0., 0.), 0., true),                    \
+    &(cur->otherSide()->surface(cur->otherSide()->identify()))))
+
+#define addNextInPhiOS(cur, surfaces)                                          \
+  addSurface(cur->nextInPhi(), surfaces);                                      \
+  addOtherSide(cur->nextInPhi(), surfaces)
+
+#define addPrevInPhiOS(cur, surfaces)                                          \
+  addSurface(cur->prevInPhi(), surfaces);                                      \
+  addOtherSide(cur->prevInPhi(), surfaces)
+
+#define addNextInEtaOS(cur, surfaces)                                          \
+  addSurface(cur->nextInEta(), surfaces);                                      \
+  addOtherSide(cur->nextInEta(), surfaces)
+
+#define addPrevInEtaOS(cur, surfaces)                                          \
+  addSurface(cur->prevInEta(), surfaces);                                      \
+  addOtherSide(cur->prevInEta(), surfaces)
 #endif
 
 namespace Trk {
