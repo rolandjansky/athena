@@ -39,7 +39,7 @@ namespace CP
 
     /// \brief the name of the histogram to use
   private:
-    std::string m_histogramName {sysListDefaultName()};
+    std::string m_histogramName {"systematics"};
 
     /// \brief whether the next event will be the first event
   private:
