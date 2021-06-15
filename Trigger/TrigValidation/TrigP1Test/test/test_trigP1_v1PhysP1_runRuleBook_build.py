@@ -31,7 +31,7 @@ rbsetup.input = ''
 
 ps = ExecStep.ExecStep('RunRulebook')
 ps.type = 'other'
-ps.executable = '(cd TrigMenuRulebook/scripts && ./runRuleBook.py "PhysicsP1_pp_run3_v1_rules:runOptions.ignoreErrors=True:runOptions.doCITest=True" 20000 output_RB_ART && cd ../..)'
+ps.executable = '(cd TrigMenuRulebook/scripts && ./runRuleBook.py "PhysicsP1_pp_run3_v1_rules:runOptions.ignoreErrors=True" 20000 output_RB_ART && cd ../..)'
 ps.input = ''
 
 #====================================================================================================
