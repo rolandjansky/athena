@@ -173,8 +173,9 @@ StatusCode JetCleaningTool::initialize()
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
   m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
   m_acc_jetClean = m_jetCleanDFName;
-  m_jetCleanKey = m_jetContainerName + "." + getCutName(LooseBad);
+  m_jetCleanKey = m_jetContainerName + "." + getCutName(m_cutLevel);
   m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
+
   ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
   m_accept.addCut( "Cleaning", "Cleaning of the jet" );

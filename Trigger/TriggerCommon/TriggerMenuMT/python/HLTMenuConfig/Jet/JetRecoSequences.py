@@ -210,16 +210,10 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     if doesTracking:
         jetDef.modifiers.append("JVT") #+jetRecoDict["trkopt"]
     #Configuring jet cleaning mods now
-    if jetRecoDict["cleaning"] != 'noCleaning': 
-        #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
-        if isPFlow:
-            raise RuntimeError('Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets.')
-        if jetRecoDict['recoAlg']!='a4':
-            raise RuntimeError('Requested jet cleaning for a non small-R jet chain. Jet cleaning is currently not supported for large-R jets.')
-
+    if not isPFlow and jetRecoDict['recoAlg']=='a4': #Add jet cleaning decorations only to small-R non-PFlow jets for now
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import cleaningDict
         jetDef.modifiers.append("CaloQuality")
-        jetDef.modifiers.append("Cleaning:{}".format(jetRecoDict["cleaning"]))
-
+        for key,cleanWP in cleaningDict.items(): jetDef.modifiers.append(f"Cleaning:{cleanWP}")
 
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
     decorList += ["Jvt"]
