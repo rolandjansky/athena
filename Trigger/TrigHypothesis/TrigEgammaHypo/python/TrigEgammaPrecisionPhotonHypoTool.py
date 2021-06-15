@@ -90,7 +90,7 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
   # Isolation and nominal cut
   #
   def isoCut(self):
-    self.tool().RelEtConeCut = self.__caloIsolationCut[self.isoInfo()]
+    self.tool().RelTopoEtConeCut = self.__caloIsolationCut[self.isoInfo()]
     self.nominal()
  
 

@@ -73,11 +73,13 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
   auto monPhi       = Monitored::Scalar( "Phi", -99. );
   auto mon_mu       = Monitored::Scalar("mu",   -1.);
   auto mon_etcone20 = Monitored::Scalar("etcone20",   -99.);
+  auto mon_topoetcone20 = Monitored::Scalar("topoetcone20",   -99.);
   auto mon_reletcone20 = Monitored::Scalar("reletcone20",   -99.);
+  auto mon_reltopoetcone20 = Monitored::Scalar("reltopoetcone20",   -99.);
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto monitorIt    = Monitored::Group( m_monTool, ET, dEta, dPhi, 
                                         etaBin, monEta, monPhi, mon_mu, 
-                                        mon_etcone20, mon_reletcone20, PassedCuts );
+                                        mon_etcone20, mon_topoetcone20, mon_reletcone20, mon_reltopoetcone20, PassedCuts );
 
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
@@ -166,7 +168,7 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
         Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
   float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
-        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), reletcone20(999);
+        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), reletcone20(999), reltopoetcone20(999);
 
     
   // variables based on HCAL
@@ -241,6 +243,12 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
   ATH_MSG_DEBUG( " topoetcone30 = " << topoetcone30 ) ;
   ATH_MSG_DEBUG( " topoetcone40 = " << topoetcone40 ) ;
 
+  if ( !pass ){
+      ATH_MSG_DEBUG("REJECT isEM failed");
+      return pass;
+  } else {
+      ATH_MSG_DEBUG("ACCEPT isEM passed");
+  }
   // Monitor showershapes                      
   mon_etcone20 = etcone20;
   reletcone20 = etcone20/input.photon->caloCluster()->et();
@@ -248,24 +256,27 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
   mon_reletcone20 = reletcone20;
   ATH_MSG_DEBUG("m_RelEtConeCut = " << m_RelEtConeCut );
 
-  if ( !pass ){
-      ATH_MSG_DEBUG("REJECT isEM failed");
-      return pass;
-  } else {
-      ATH_MSG_DEBUG("ACCEPT isEM passed");
-  }
+  mon_topoetcone20 = topoetcone20;
+  reltopoetcone20 = topoetcone20/input.photon->caloCluster()->et();
+  ATH_MSG_DEBUG("reltopoetcone20 = " <<reltopoetcone20  );
+  mon_reltopoetcone20 = reltopoetcone20;
+  ATH_MSG_DEBUG("m_RelTopoEtConeCut = " << m_RelTopoEtConeCut );
 
   // Check if need to apply isolation
   // First check logic. if cut is very negative, then no isolation cut is defined
-  // if m_RelEtConeCut <-100 then hypo is configured not to apply isolation
-  if (m_RelEtConeCut < -100){
-      ATH_MSG_DEBUG(" not applying isolation. Returning NOW");
-      ATH_MSG_DEBUG("TAccept = " << pass);
-      return pass;
+  // Applies to both reletcone20 and reltopoetcone20
+  if (m_RelEtConeCut > 900){
+      ATH_MSG_DEBUG(" not applying etcone20/et isolation.");
+  }
+  if (m_RelTopoEtConeCut > 900){
+      ATH_MSG_DEBUG(" not applying topoetcone20/et isolation.");
   }
   // Then, It will pass if reletcone20 is less than cut:
-  pass = (reletcone20 < m_RelEtConeCut);
-  
+  bool pass_reletcone20 = (m_RelEtConeCut > 900 || reletcone20 < m_RelEtConeCut);
+  bool pass_reltopoetcone20 = (m_RelTopoEtConeCut > 900 || reltopoetcone20 < m_RelTopoEtConeCut);
+  ATH_MSG_DEBUG(" pass_reletcone20 =  "  << pass_reletcone20 );
+  ATH_MSG_DEBUG(" pass_reltopoetcone20 =  "  << pass_reltopoetcone20 );
+  pass = pass_reletcone20 && pass_reltopoetcone20;
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );
 

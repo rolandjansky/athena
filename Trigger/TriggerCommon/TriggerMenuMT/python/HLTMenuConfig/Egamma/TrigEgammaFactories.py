@@ -194,14 +194,8 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     CaloTopoIsolationTool = TrigCaloIsolationTool,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = None, 
-                                    ElIsoTypes            = [[]],
-                                    ElCorTypes            = [[]],
-                                    ElCorTypesExtra       = [[]],
-                                    FeIsoTypes            = [[]],
-                                    FeCorTypes            = [[]],
-                                    FeCorTypesExtra       = [[]],
                                     PhIsoTypes            = [[isoPar.topoetcone20]],
-                                    PhCorTypes            = [[],[isoPar.core57cells],[]],
+                                    PhCorTypes            = [[isoPar.core57cells]],
                                     PhCorTypesExtra       = [[]],
                                     )
                 
