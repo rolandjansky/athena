@@ -86,8 +86,12 @@ namespace LVL1
         // Avoid double counting by only taking the front tower in any given eta/phi slice
         continue;
       Identifier towerID = m_gTowerID->tower_id(tower->Id());
+      // The forward towers don't have valid tower IDs so we can't trust this
+      // information for those towers. This becomes obvious as the hash of the
+      // ID is wrong
+      bool isForward = m_gTowerID->tower_hash(towerID) != std::size_t(tower->Id());
       int iRegion = m_gTowerID->region(towerID);
-      if (m_mergeEdgeTowers && iRegion == 1)
+      if (m_mergeEdgeTowers && iRegion == 1 && !isForward)
         // region 1 is the 2.4-2.5 region
         // There used to be a region 3, but we have just absorbed this into the FCAL towers
         continue;
@@ -113,8 +117,7 @@ namespace LVL1
       if (m_mergeEdgeTowers)
       {
         Identifier regionID = m_gTowerID->region_id(towerID);
-        // Figure out if this is at the edge of region 0
-        if (m_gTowerID->region(towerID) == 0 && m_gTowerID->eta(towerID) == m_gTowerID->eta_max(regionID))
+        if (!isForward && m_gTowerID->region(towerID) == 0 && m_gTowerID->eta(towerID) == m_gTowerID->eta_max(regionID))
         {
           if (tower->eta() > 0)
           {
