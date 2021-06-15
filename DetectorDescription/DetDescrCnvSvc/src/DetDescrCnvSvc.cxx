@@ -165,6 +165,8 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(2518, "TRT_ID");
     if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(79264207, "HGTD_ID");
+    if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(129452393, "SiliconID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(163583365, "LArEM_ID");
