@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TileTPCnv/test/TileDigitsCnv_p3_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -31,10 +29,9 @@ class TileCablingSvc
 {
 public:
   static
-  void init_idhelpers()
+  void init_idhelpers (IdDictParser& parser)
   {
     tileid.set_do_neighbours (false);
-    IdDictParser parser;
     IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
     assert (hwid.initialize_from_dictionary (idd) == 0);
     assert (tbid.initialize_from_dictionary (idd) == 0);
@@ -82,7 +79,8 @@ void test1()
 
 int main()
 {
-  TileCablingSvc::init_idhelpers();
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers(parser);
   test1();
   return 0;
 }
