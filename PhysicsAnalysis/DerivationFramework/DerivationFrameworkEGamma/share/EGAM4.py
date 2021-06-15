@@ -452,7 +452,7 @@ if (DerivationFrameworkIsMonteCarlo):
         if hasattr(topSequence, alg):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
-            egam1Seq += edtalg
+            EGAM4Sequence += edtalg
 
 
 #====================================================================
