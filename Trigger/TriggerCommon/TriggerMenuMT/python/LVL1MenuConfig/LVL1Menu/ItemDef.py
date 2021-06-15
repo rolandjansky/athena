@@ -321,8 +321,8 @@ class ItemDef(object):
         LVL1MenuItem('L1_TAU12_UNPAIRED_NONISO').setLogic( d.HA12  & unpaired_nonisocond ).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU12_EMPTY'          ).setLogic( d.HA12  & cosmiccond ).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU12_FIRSTEMPTY'     ).setLogic( d.HA12  & firstempty ).setTriggerType( TT.calo )
-        LVL1MenuItem('L1_TAU30_EMPTY'          ).setLogic( d.HA30  & cosmiccond ).setTriggerType( TT.calo )
-        LVL1MenuItem('L1_TAU30_UNPAIRED_ISO'   ).setLogic( d.HA30  & unpaired_isocond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU40_EMPTY'          ).setLogic( d.HA40  & cosmiccond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU40_UNPAIRED_ISO'   ).setLogic( d.HA40  & unpaired_isocond ).setTriggerType( TT.calo )
 
 
         # 3xTAU
