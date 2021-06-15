@@ -11,7 +11,6 @@
  */
 
 #include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilterUtils/AlignedDynArray.h"
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateCombiner.h"
