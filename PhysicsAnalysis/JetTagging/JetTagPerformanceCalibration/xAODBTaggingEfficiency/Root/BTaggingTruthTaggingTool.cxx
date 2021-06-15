@@ -686,7 +686,10 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMCCDI(TRFinfo &trfinf){
           trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(OP_index)+m_binEdges.at(OP_index+1))/2.; //to-do: make it fancy? random distribution inside the bin probably?
         }
         else{
-          trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(OP_index)+1)/2.; //only for 60% WP
+          float UpperScore = +1.0;
+          if(m_taggerName.find("MV2") != string::npos){ UpperScore = 1.0; }
+          if(m_taggerName.find("DL1") != string::npos){ UpperScore = 20.0; }
+          trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(OP_index)+UpperScore)/2.; //only for 60% WP
         }
 
         CorrectionCode code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff_all) ;
