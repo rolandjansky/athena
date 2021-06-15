@@ -87,6 +87,8 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
             Trk_EventCnvSuperTool=CompFactory.Trk.EventCnvSuperTool
             EventCnvSuperTool = Trk_EventCnvSuperTool('EventCnvSuperTool', MaxErrorCount=10)
     acc.addEventAlgo(Dumper ('dumper', ConfigFlags.Input.Files[0], keys, refpaths), 'AthAlgSeq')
+    acc.getService("MessageSvc").enableSuppression = True
+    acc.getService("MessageSvc").Format = "% F%18W%S%7W%R%T %0W%M"
     if EventCnvSuperTool is not None:
         acc.addPublicTool(EventCnvSuperTool)
     if configOnly:

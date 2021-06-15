@@ -13,17 +13,18 @@ atlas_add_poolcnv_library( TrackParticleAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( TRACKPARTICLEATHENAPOOL_REFERENCE_TAG
         TrackParticleAthenaPoolReference-01-00-00 )
-   run_tpcnv_legacy_test( TrackParticleTPCnv_16.6.3   AOD-16.6.3-full
+   run_tpcnv_test( TrackParticleTPCnv_16.6.3   AOD-16.6.3-full
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
-   run_tpcnv_legacy_test( TrackParticleTPCnv_17.2.8   AOD-17.2.8-full
+   run_tpcnv_test( TrackParticleTPCnv_17.2.8   AOD-17.2.8-full
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
-   run_tpcnv_legacy_test( TrackParticleTPCnv_18.0.0   AOD-18.0.0-full
+   run_tpcnv_test( TrackParticleTPCnv_18.0.0   AOD-18.0.0-full
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
 
    set_tests_properties( TrackParticleAthenaPool_TrackParticleTPCnv_16.6.3_ctest

@@ -13,6 +13,7 @@ atlas_add_poolcnv_library( tauEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -20,13 +21,13 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( TAUEVENTATHENAPOOL_REFERENCE_TAG
         tauEventAthenaPoolReference-01-00-01 )
-  run_tpcnv_legacy_test( tauEventTPCnv_15.0.0    AOD-15.0.0-full
+  run_tpcnv_test( tauEventTPCnv_15.0.0    AOD-15.0.0-full
                    REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( tauEventTPCnv_15.6.9    AOD-15.6.9-full
+  run_tpcnv_test( tauEventTPCnv_15.6.9    AOD-15.6.9-full
                    REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( tauEventTPCnv_17.2.9.1  AOD-17.2.9.1-full
+  run_tpcnv_test( tauEventTPCnv_17.2.9.1  AOD-17.2.9.1-full
                    REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( tauEventTPCnv_18.0.0    AOD-18.0.0-full
+  run_tpcnv_test( tauEventTPCnv_18.0.0    AOD-18.0.0-full
                    REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING
