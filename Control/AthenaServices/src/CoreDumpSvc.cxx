@@ -49,6 +49,7 @@
 #include "CxxUtils/SealSignal.h"
 #include "CxxUtils/SealDebug.h"
 #include "CxxUtils/read_athena_statm.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace {
 
@@ -91,12 +92,27 @@ namespace CoreDumpSvcHandler
    */
   void action( int sig, siginfo_t *info, void* extra )
   {
-    // Protect against additional signals while we are handling this one.
-    // Note: thread-local.
-    static thread_local int inHandler = 0;
-    if (inHandler++ > 0) {
-      if (inHandler > 100) _exit (98);
-      return;
+    // Careful: don't do anything here that might allocate memory.
+
+    // Protect against recursion.
+    // We originally used a thread_local here --- but accessing
+    // a thread_local can result in a call to malloc.
+
+    const int maxcalls = 64;
+    static std::atomic<int> ncalls (0);
+    if (++ncalls >= maxcalls) _exit (98);
+
+    static std::mutex tidlist_mutex;
+    static size_t ntids ATLAS_THREAD_SAFE = 0;
+    static pthread_t tids[maxcalls] ATLAS_THREAD_SAFE;
+    {
+      pthread_t self = pthread_self();
+      std::lock_guard<std::mutex> lock (tidlist_mutex);
+      for (size_t i = 0; i < ntids; i++) {
+        if (pthread_equal (self, tids[i])) return;
+      }
+      if (ntids == maxcalls) _exit (98);
+      tids[ntids++] = self;
     }
 
     // Count the number of threads trying to dump.
