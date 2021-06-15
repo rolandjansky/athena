@@ -287,8 +287,7 @@ def serial_zip(allSteps, chainName, chainDefList):
                         raise Exception("[serial_zip] Cannot create this chain step, exiting.")
 
                     for sd in emptyChainDicts:
-
-                        if sd['signature'] == 'Jet':
+                        if sd['signature'] == 'Jet' or sd['signature'] == 'Bjet':
                             step_mult += [1]
                         elif len(sd['chainParts']) != 1:
                             log.error("[serial_zip] %s has chainParts has length != 1 within a leg! chain dictionary for this step: \n %s", chainName, sd)
