@@ -1159,10 +1159,9 @@ Trk::GaussianSumFitter::fit(
   // loopUpdatedState is a plain not owning ptr,
   // We point to the starting point
   // As the loop progress we fill the trajectory.
-  // At the end of the loop
-  // we pick the last state added , update what we point and
-  // continue to neext iteration
-  //
+  // At that point  we pick the last state to be added and
+  // update what we point to with it.
+  // Then continue to the next iteration
   Trk::MultiComponentState* loopUpdatedState = &updatedState;
   for (; trackStateOnSurface != forwardTrajectory.rend();
        ++trackStateOnSurface) {
@@ -1205,10 +1204,11 @@ Trk::GaussianSumFitter::fit(
       Trk::MultiComponentStateOnSurface* updatedStateOnSurface =
         new Trk::MultiComponentStateOnSurface(
           measurement.release(),
-          MultiComponentStateHelpers::clone(*loopUpdatedState),
+          MultiComponentStateHelpers::toPtr(std::move(*loopUpdatedState)),
           new FitQuality(1, 1),
           nullptr,
           type);
+      loopUpdatedState = updatedStateOnSurface->components();
       smoothedTrajectory->push_back(updatedStateOnSurface);
       continue;
     }
@@ -1269,7 +1269,6 @@ Trk::GaussianSumFitter::fit(
       // For the next iteration start from last added
       //
       loopUpdatedState = combinedStateOnSurface->components();
-
       smoothedTrajectory->push_back(combinedStateOnSurface);
     } // m_combineWithFitter false
     else {
