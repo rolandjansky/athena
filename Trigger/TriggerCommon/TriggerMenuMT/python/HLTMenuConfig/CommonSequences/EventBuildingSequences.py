@@ -3,12 +3,14 @@
 #
 
 from TrigEDMConfig import DataScoutingInfo
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling import DecisionHandlingConf
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 from libpyeformat_helper import SourceIdentifier, SubDetector
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
@@ -144,16 +146,32 @@ def pebInfoWriterTool(name, eventBuildType):
 
 
 def pebInputMaker(chain, eventBuildType):
-    maker = DecisionHandlingConf.InputMakerForRoI("IMpeb_"+eventBuildType)
+    # Check if we are configuring a full-scan chain
+    isFullscan = (chain.L1decisions == [mapThresholdToL1DecisionCollection('FSNOSEED')])
+
+    # Check if we are configuring RoI-based PEB
+    _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
+    isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    del _tmpTool
+
+    # Configure the InputMaker
+    maker = CompFactory.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
-    if eventBuildType=="MuonTrkPEB":
-        maker.mergeUsingFeature = True
+    # Allow more than one feature per input RoI if we care about RoIs
+    maker.mergeUsingFeature = isRoIBasedPEB
+
+    # Configure the InputMaker RoI tool
     if len(chain.steps) == 0:
         # Streamers: use initial RoI
-        maker.RoITool = DecisionHandlingConf.ViewCreatorInitialROITool()
+        maker.RoITool = CompFactory.ViewCreatorInitialROITool()
+    elif isFullscan and isRoIBasedPEB:
+        # Full-scan chains with RoI-based PEB: create RoI around feature IParticle
+        maker.RoITool = CompFactory.ViewCreatorCentredOnIParticleROITool()
+        maker.RoITool.RoisWriteHandleKey = recordable("HLT_Roi_" + eventBuildType)
     else:
         # Other chains: use previous RoI
-        maker.RoITool = DecisionHandlingConf.ViewCreatorPreviousROITool()
+        maker.RoITool = CompFactory.ViewCreatorPreviousROITool()
+
     return maker
 
 
