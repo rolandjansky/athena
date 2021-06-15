@@ -58,7 +58,7 @@ namespace CP
   ::StatusCode SysListHandle ::
   initialize ()
   {
-    m_evtStore = m_evtStoreGetter();
+    ANA_CHECK (m_systematicsService.retrieve());
     m_isInitialized = true;
     return StatusCode::SUCCESS;
   }
@@ -88,11 +88,8 @@ namespace CP
       m_fullAffecting = std::move (affecting);
     }
 
-    const SysListType *systematicsList = nullptr;
-    ANA_CHECK_THROW (m_evtStore->retrieve (systematicsList, m_systematicsListName));
-
     std::unordered_set<CP::SystematicSet> mysysList;
-    for (const auto& sys : *systematicsList)
+    for (const auto& sys : m_systematicsService->systematicsVector())
     {
       auto iter = m_affectingCache.find (sys);
       if (iter != m_affectingCache.end())

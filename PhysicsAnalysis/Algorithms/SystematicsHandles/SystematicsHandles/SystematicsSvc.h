@@ -1,22 +1,25 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
 
 
-#ifndef ASG_ANALYSIS_ALGORITHMS__SYS_LIST_LOADER_ALG_H
-#define ASG_ANALYSIS_ALGORITHMS__SYS_LIST_LOADER_ALG_H
+#ifndef SYSTEMATICS_HANDLES__SYSTEMATICS_SVC_H
+#define SYSTEMATICS_HANDLES__SYSTEMATICS_SVC_H
 
-#include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgServices/AsgService.h>
 #include <PATInterfaces/SystematicSet.h>
-#include <SystematicsHandles/SysListType.h>
+#include <SystematicsHandles/ISystematicsSvc.h>
+#include <atomic>
+#include <mutex>
 
 namespace CP
 {
-  /// \todo add documentation
+  /// \brief the canonical implementation of \ref ISystematicsSvc
 
-  class SysListLoaderAlg final : public EL::AnaAlgorithm
+  class SystematicsSvc final : public asg::AsgService,
+                                 virtual public ISystematicsSvc
   {
     //
     // public interface
@@ -28,7 +31,7 @@ namespace CP
     /// \par Failures
     ///   out of memory II
   public:
-    SysListLoaderAlg (const std::string& name, 
+    SystematicsSvc (const std::string& name,
                       ISvcLocator* pSvcLocator);
 
 
@@ -39,20 +42,14 @@ namespace CP
 
   public:
     virtual ::StatusCode initialize () override;
-
-  public:
-    virtual ::StatusCode execute () override;
+    virtual ::StatusCode finalize () override;
+    virtual const SysListType& systematicsVector () const override;
 
 
 
     //
     // private interface
     //
-
-    /// \brief the name under which to store the systematics in the
-    /// event store
-  private:
-    std::string m_systematicsName {sysListDefaultName()};
 
     /// \brief the names of the systematics to request
   private:
@@ -71,13 +68,18 @@ namespace CP
   private:
     float m_sigmaRecommended = 0;
 
+
     /// \brief the list of actual systematics
   private:
-    std::vector<CP::SystematicSet> m_systematicsVector;
+    mutable std::vector<CP::SystematicSet> m_systematicsVector;
 
-    /// \brief whether the next event will be the first event
+    /// \brief whether \ref m_systematicsVector was initialized
   private:
-    bool m_firstEvent = true;
+    mutable std::atomic<bool> m_hasVector {false};
+
+    /// \brief a mutex for filling \ref m_systematicsVector
+  private:
+    mutable std::mutex m_vectorMutex;
   };
 }
 

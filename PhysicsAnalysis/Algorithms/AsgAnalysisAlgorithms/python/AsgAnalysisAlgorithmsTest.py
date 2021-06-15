@@ -4,7 +4,7 @@
 # @author Tadej Novak
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeOverlapSequence (dataType) :
     algSeq = AlgSequence()
@@ -15,9 +15,9 @@ def makeOverlapSequence (dataType) :
     algSeq.PrimaryVertexSelectorAlg.VertexContainer = 'PrimaryVertices'
     algSeq.PrimaryVertexSelectorAlg.MinVertices = 1
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
@@ -145,9 +145,9 @@ def makeEventAlgorithmsSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.EventSelectionAnalysisSequence import \
@@ -179,9 +179,9 @@ def makeGeneratorAlgorithmsSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence (to make a copy):
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \

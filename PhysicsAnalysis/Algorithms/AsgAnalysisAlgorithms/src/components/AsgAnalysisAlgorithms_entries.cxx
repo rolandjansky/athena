@@ -27,7 +27,6 @@
 #include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 #include <AsgAnalysisAlgorithms/PMGTruthWeightAlg.h>
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
-#include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>
 #include <AsgAnalysisAlgorithms/TreeMakerAlg.h>
 
@@ -51,7 +50,6 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, OverlapRemovalAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, PileupReweightingAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, PMGTruthWeightAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, SysListDumperAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, SysListLoaderAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeFillerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeMakerAlg)
 
@@ -75,7 +73,6 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGORITHM (CP, PileupReweightingAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, PMGTruthWeightAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, SysListDumperAlg)
-  DECLARE_NAMESPACE_ALGORITHM (CP, SysListLoaderAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, TreeFillerAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, TreeMakerAlg)
 }
