@@ -184,8 +184,8 @@ public:
     const AlignmentEffectsOnTrack* alignmentEffectsOnTrack = nullptr);
 
   TrackStateOnSurface(
-    const MeasurementBase* meas,
-    std::unique_ptr<TrackParameters> trackParameters,
+    std::unique_ptr<const MeasurementBase> meas,
+    std::unique_ptr<const TrackParameters> trackParameters,
     const FitQualityOnSurface* fitQoS,
     const MaterialEffectsBase* materialEffects = nullptr,
     const AlignmentEffectsOnTrack* alignmentEffectsOnTrack = nullptr);
@@ -227,8 +227,8 @@ public:
   );
 
   explicit TrackStateOnSurface(
-    const MeasurementBase* meas,
-    std::unique_ptr<TrackParameters> trackParameters,
+    std::unique_ptr<const MeasurementBase> meas,
+    std::unique_ptr<const TrackParameters> trackParameters,
     const FitQualityOnSurface* fitQoS,
     const MaterialEffectsBase* materialEffectsOnTrack,
     const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
@@ -247,8 +247,8 @@ public:
    */
   TrackStateOnSurface(const MeasurementBase* meas,
                       const TrackParameters* trackParameters);
-  TrackStateOnSurface(const MeasurementBase* meas,
-                      std::unique_ptr<TrackParameters> trackParameters);
+  TrackStateOnSurface(std::unique_ptr<const MeasurementBase> meas,
+                      std::unique_ptr<const TrackParameters> trackParameters);
 
   /**
    * Pseudo-constructor: needed to avoid excessive RTTI

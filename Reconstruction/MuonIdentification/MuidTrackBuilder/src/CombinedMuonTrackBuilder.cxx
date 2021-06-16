@@ -3100,14 +3100,13 @@ namespace Rec {
         covarianceMatrix.setZero();
         covarianceMatrix(0, 0) = m_sigmaPhiSector * m_sigmaPhiSector * parameters->position().perp2();
 
-        const Trk::PseudoMeasurementOnTrack* pseudo = new Trk::PseudoMeasurementOnTrack(
+        auto pseudo = std::make_unique<const Trk::PseudoMeasurementOnTrack>(
             Trk::LocalParameters(Trk::DefinedParameter(0., Trk::locY)), covarianceMatrix, parameters->associatedSurface());
 
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
         type.set(Trk::TrackStateOnSurface::Measurement);
 
-        const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(pseudo, std::move(parameters), nullptr, nullptr, type);
-
+        const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(std::move(pseudo), std::move(parameters), nullptr, nullptr, type);
         return tsos;
     }
 

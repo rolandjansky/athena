@@ -950,12 +950,12 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   // For last points add new information from TRT with parameters
   //
-  const Trk::MeasurementBase* mb = m_elements[m_lastTrajectory].rioOnTrackSimple();
+  std::unique_ptr<const Trk::MeasurementBase> mb(m_elements[m_lastTrajectory].rioOnTrackSimple());
   if(mb) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
     tsosn->push_back
-      (new Trk::TrackStateOnSurface(mb,m_parameters.convert(true),nullptr,nullptr,typePattern));
+      (new Trk::TrackStateOnSurface(std::move(mb),m_parameters.convert(true),nullptr,nullptr,typePattern));
   }
 
   // New fit quality production
