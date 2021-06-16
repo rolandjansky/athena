@@ -311,13 +311,14 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
+    size_t hash = static_cast<size_t>(module_id.get_compact());
     if (errCode == uint64_t{0}) {
       // That means this hashId was decoded but had no error
       // In such case we want to fill the cache also with zero so we do not have to fill the cache again for a given view
       // (see logic in: getErrorCodeWithCacheUpdate)
       // Note: invocation of the [] operator on the map will create missing entry and set the value to default (here 0)
-      cacheEntry->abcdErrorChips[module_id];
-      cacheEntry->tempMaskedChips[module_id];
+      cacheEntry->abcdErrorChips[ hash ];
+      cacheEntry->tempMaskedChips[ hash ];
       continue;
     }
 
@@ -332,13 +333,13 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     if (v_abcdErrorChips) {
       v_abcdErrorChips >>= SCT_ByteStreamErrors::ABCDError_Chip0; // bit 0 (5) is for chip 0 (5) for both sides
       v_abcdErrorChips <<= (side*N_CHIPS_PER_SIDE); // bit 0 (6) is for chip 0 on side 0 (1)
-      cacheEntry->abcdErrorChips[module_id] |= v_abcdErrorChips;
+      cacheEntry->abcdErrorChips[hash] |= v_abcdErrorChips;
     }
     IDCInDetBSErrContainer::ErrorCode v_tempMaskedChips{errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()};
     if (v_tempMaskedChips) {
       v_tempMaskedChips >>= SCT_ByteStreamErrors::TempMaskedChip0; // bit 0 (5) is for chip 0 (5) for both sides0
       v_tempMaskedChips <<= (side*N_CHIPS_PER_SIDE); // bit 0 (6) is for chip 0 on side 0 (1)
-      cacheEntry->tempMaskedChips[module_id] |= v_tempMaskedChips;
+      cacheEntry->tempMaskedChips[hash] |= v_tempMaskedChips;
 
     }
 
@@ -388,15 +389,16 @@ unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId
 }
 
 std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCacheUpdate(const Identifier& moduleId, const EventContext& ctx,
-                                                                                          std::unordered_map<Identifier, unsigned int>& whereExected) const {
+                                                                                          std::unordered_map<size_t, unsigned int>& whereExected) const {
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool getErrorCodeWithCacheUpdate " << moduleId);
-  auto it{whereExected.find(moduleId)};
+  size_t modhash =  static_cast<size_t>(moduleId.get_compact());
+  auto it{whereExected.find(modhash)};
   if (it != whereExected.end()) return std::make_pair(StatusCode::SUCCESS, it->second);
 
   // even if there are no errors for this module at all filled
   // we want the entry of value 0 so we know we walked over it and do not need to invoke filling again
   // and and do not need to do it again
-  whereExected[moduleId] = 0;
+  whereExected[modhash] = 0;
 
   // the content is missing, look for actual errors
   StatusCode sc{fillData(ctx)};
@@ -404,7 +406,7 @@ std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCa
     return std::make_pair(StatusCode::FAILURE, 0);
   }
   // handle situation when the cache does not contain desired datum after the update
-  it = whereExected.find(moduleId);
+  it = whereExected.find(modhash);
   if (it == whereExected.end()) {
     ATH_MSG_ERROR("After fillData in abcdErrorChips, cache does not have an infomation about the " << moduleId);
     ATH_MSG_ERROR("Likely cause is a request for for different region");
