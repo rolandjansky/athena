@@ -296,6 +296,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 
   const IDCInDetBSErrContainer* idcErrCont{getContainer(ctx)};
   if (idcErrCont == nullptr) {
+    ATH_MSG_VERBOSE("idcErrCont == nullptr");
     return StatusCode::SUCCESS;
   }
 
@@ -334,13 +335,16 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
       v_abcdErrorChips >>= SCT_ByteStreamErrors::ABCDError_Chip0; // bit 0 (5) is for chip 0 (5) for both sides
       v_abcdErrorChips <<= (side*N_CHIPS_PER_SIDE); // bit 0 (6) is for chip 0 on side 0 (1)
       cacheEntry->abcdErrorChips[hash] |= v_abcdErrorChips;
+    } else {
+      cacheEntry->abcdErrorChips[hash] = 0;
     }
     IDCInDetBSErrContainer::ErrorCode v_tempMaskedChips{errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()};
     if (v_tempMaskedChips) {
       v_tempMaskedChips >>= SCT_ByteStreamErrors::TempMaskedChip0; // bit 0 (5) is for chip 0 (5) for both sides0
       v_tempMaskedChips <<= (side*N_CHIPS_PER_SIDE); // bit 0 (6) is for chip 0 on side 0 (1)
       cacheEntry->tempMaskedChips[hash] |= v_tempMaskedChips;
-
+    } else {
+      cacheEntry->tempMaskedChips[hash] = 0;
     }
 
   }
@@ -354,7 +358,10 @@ unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleI
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool tempMaskedChips");
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   auto cacheEntry{getCacheEntry(ctx)};
-  if (cacheEntry->IDCCache == nullptr) return 0;
+  if (cacheEntry->IDCCache == nullptr) {
+    ATH_MSG_VERBOSE("cacheEntry->IDCCache == nullptr");
+    return 0;
+  }
 
   auto [status, v_tempMaskedChips] = getErrorCodeWithCacheUpdate(moduleId, ctx, cacheEntry->tempMaskedChips);
   if (status.isFailure()) {
@@ -373,7 +380,10 @@ unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool abcdErrorChips");
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   auto cacheEntry{getCacheEntry(ctx)};
-  if (cacheEntry->IDCCache == nullptr) return 0;
+  if (cacheEntry->IDCCache == nullptr) {
+    ATH_MSG_VERBOSE("cacheEntry->IDCCache == nullptr");
+    return 0;
+  }
 
   auto [status, v_abcdErrorChips] = getErrorCodeWithCacheUpdate(moduleId, ctx, cacheEntry->abcdErrorChips);
   if (status.isFailure()) {
@@ -398,7 +408,10 @@ std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCa
   // even if there are no errors for this module at all filled
   // we want the entry of value 0 so we know we walked over it and do not need to invoke filling again
   // and and do not need to do it again
-  whereExected[modhash] = 0;
+
+  auto cacheEntry{getCacheEntry(ctx)};
+  cacheEntry->abcdErrorChips[modhash] =  0;
+  cacheEntry->tempMaskedChips[modhash] = 0;
 
   // the content is missing, look for actual errors
   StatusCode sc{fillData(ctx)};
