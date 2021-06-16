@@ -53,7 +53,7 @@ private:
   Gaudi::Property<bool> m_processBoundaries{this, "processBoundaries", true, "Write boundary surface to the json file"};
   Gaudi::Property<bool> m_processVolumes{this, "processVolumes", true, "Write volume to the json file"};
   Gaudi::Property<bool> m_processDenseVolumes{this, "processDenseVolumes", false, "Write dense volume to the json file"};
-  Gaudi::Property<bool> m_processnonmaterial{this, "processnonmaterial", false, "Add proto material to all surfaces and volumes"};
+  Gaudi::Property<bool> m_processNonMaterial{this, "processNonMaterial", false, "Add proto material to all surfaces and volumes"};
 };
 
 #endif

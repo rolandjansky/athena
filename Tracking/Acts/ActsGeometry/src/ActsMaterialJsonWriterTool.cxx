@@ -34,7 +34,7 @@ ActsMaterialJsonWriterTool::initialize()
   m_cfg.processBoundaries = m_processBoundaries;
   m_cfg.processVolumes = m_processVolumes;
   m_cfg.processDenseVolumes = m_processDenseVolumes;
-  m_cfg.processNonMaterial = m_processnonmaterial;
+  m_cfg.processNonMaterial = m_processNonMaterial;
   
   return StatusCode::SUCCESS;
 }

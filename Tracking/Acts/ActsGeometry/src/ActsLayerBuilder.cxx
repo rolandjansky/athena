@@ -181,7 +181,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       double layerHalfZ
         = std::abs(pl.max(Acts::binZ) + pl.envelope[Acts::binZ].second - layerZ);
 
-      Transform3 transform(Translation3(0., 0., -layerZ));
+      Acts::Transform3 transform(Translation3(0., 0., -layerZ));
       // set up approach descriptor
 
       std::shared_ptr<Acts::CylinderSurface> innerBoundary
@@ -251,9 +251,9 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
 
       if (std::abs(layerZInner) > std::abs(layerZOuter)) std::swap(layerZInner, layerZOuter);
 
-        Transform3 transformNominal(Translation3(0., 0., layerZ));
-        Transform3 transformInner(Translation3(0., 0., layerZInner));
-        Transform3 transformOuter(Translation3(0., 0., layerZOuter));
+        Acts::Transform3 transformNominal(Translation3(0., 0., layerZ));
+        Acts::Transform3 transformInner(Translation3(0., 0., layerZInner));
+        Acts::Transform3 transformOuter(Translation3(0., 0., layerZOuter));
 
         std::shared_ptr<Acts::DiscSurface> innerBoundary = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.min(Acts::binR), pl.max(Acts::binR));
 
