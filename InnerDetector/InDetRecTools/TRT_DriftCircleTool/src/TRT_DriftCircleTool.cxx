@@ -69,8 +69,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_mask_middle_HT_bit(false),
   m_mask_middle_HT_bit_argon(false),
   m_mask_last_HT_bit(false),
-  m_mask_last_HT_bit_argon(false),
-  m_mask_out_of_time_bits(false)
+  m_mask_last_HT_bit_argon(false)
 {
   declareInterface<ITRT_DriftCircleTool>(this);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
@@ -100,7 +99,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   declareProperty("MaskMiddleHTBitArgon",m_mask_middle_HT_bit_argon);
   declareProperty("MaskLastHTBit",m_mask_last_HT_bit);
   declareProperty("MaskLastHTBitArgon",m_mask_last_HT_bit_argon);
-  declareProperty("MaskOutOfTimeBits",m_mask_out_of_time_bits);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -288,11 +286,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       bool  isOK=true;
       double t0=0.;
       double rawTime   = m_driftFunctionTool->rawTime(newtdcvalue);
-      unsigned int word = (*r)->getWord();
-
-      if (m_mask_out_of_time_bits) {
-        word = word & 0x03FFFEF0; // zero first 5 unused bits, first and third HT bits, last 4 LT bits
-      }
+      unsigned int word = (*r)->getWord(); 
             
       if (m_useToTCorrection && !isArgonStraw) {
         rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id);     

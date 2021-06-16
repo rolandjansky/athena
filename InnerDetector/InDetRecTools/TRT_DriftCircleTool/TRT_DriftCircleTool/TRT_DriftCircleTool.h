@@ -106,7 +106,6 @@ public:
   bool                                 m_mask_middle_HT_bit_argon; // mask off ht bit in middle 25 ns time bin
   bool                                 m_mask_last_HT_bit; // mask off ht bit in last (latest) 25 ns time bin
   bool                                 m_mask_last_HT_bit_argon; // mask off ht bit in last (latest) 25 ns time bin
-  bool                                 m_mask_out_of_time_bits; // removes out of time bits from raw data word
 
 };
 
