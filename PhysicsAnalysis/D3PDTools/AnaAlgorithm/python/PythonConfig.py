@@ -80,6 +80,15 @@ class PythonConfig( ROOT.EL.PythonConfigBase ):
 
         return self.type()
 
+    def addSelfToJob( self, job ):
+        """add a copy of this config to the EventLoop job object
+
+        Keyword arguments:
+          job      -- The job object to add ourself to
+        """
+        job.algsAdd( self )
+        pass
+
     def __getattr__( self, name ):
         """Get a previously set property value from the configuration
 
