@@ -7,6 +7,8 @@ preTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
         'BTagging/201903/rnnip/antikt4empflow/network.json',
         'BTagging/201903/smt/antikt4empflow/network.json',
+        'BTagging/20210517/dips/antikt4empflow/network.json',
+        'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
     ],
     'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903': [
         'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
@@ -23,6 +25,8 @@ postTagDL2JetToTrainingMap={
         'BTagging/201903/dl1r/antikt4empflow/network.json',
         'BTagging/201903/dl1/antikt4empflow/network.json',
         'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+        'BTagging/20210607/dl1d/antikt4empflow/network.json',
+        'BTagging/20210607/dl1dLoose/antikt4empflow/network.json'
     ],
     'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903': [
         'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
