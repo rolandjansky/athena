@@ -557,6 +557,16 @@ namespace InDetDD {
      */
     virtual void updateCache() const;
 
+    /**
+     * Return information on orientation
+     */
+    bool depthDirection() const;
+    bool etaDirection() const;
+    bool phiDirection() const;
+    double depthAngle() const;
+    double etaAngle() const;
+    double phiAngle() const;
+
   private:
     /**
      * @name Private Methods
@@ -690,6 +700,11 @@ namespace InDetDD {
     mutable bool m_depthDirection ATLAS_THREAD_SAFE {true};
     mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
     mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+   
+    mutable double m_depthAngle ATLAS_THREAD_SAFE {true};
+    mutable double m_phiAngle ATLAS_THREAD_SAFE {true};
+    mutable double m_etaAngle ATLAS_THREAD_SAFE {true};
+
     //@}
 
     /**
