@@ -295,7 +295,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  if ( chainName.roi()!="" )     continue;
 	  //            if ( !chainName.passed() )     continue;
 	  
-	  chains.push_back( selectChain );
+    if (std::find(chains.begin(), chains.end(), selectChain) == chains.end()) { // deduplicate
+  	  chains.push_back( selectChain );
+    }
 
 	}
 	else { 
@@ -386,7 +388,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    
             /// replace wildcard with actual matching chains ...
 	    //            chains.push_back( ChainString(selectChains[iselected]) );
+      if (std::find(chains.begin(), chains.end(), selectChains[iselected]) == chains.end()) { // deduplicate
             chains.push_back( selectChains[iselected] );
+      }
 
             msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
 
