@@ -293,4 +293,34 @@ namespace InDetDD {
     return m_commonItems->msgLvl(lvl);
   }
 
+  inline bool SolidStateDetectorElementBase::depthDirection() const
+  {
+    return m_depthDirection;
+  }
+
+  inline bool SolidStateDetectorElementBase::etaDirection() const
+  {
+    return m_etaDirection;
+  }
+
+  inline bool SolidStateDetectorElementBase::phiDirection() const
+  {
+    return m_phiDirection;
+  }
+
+  inline double SolidStateDetectorElementBase::depthAngle() const
+  {
+    return m_depthAngle;
+  }
+
+  inline double SolidStateDetectorElementBase::etaAngle() const
+  {
+    return m_etaAngle;
+  }
+
+  inline double SolidStateDetectorElementBase::phiAngle() const
+  {
+    return m_phiAngle;
+  }
+
 } // namespace InDetDD
