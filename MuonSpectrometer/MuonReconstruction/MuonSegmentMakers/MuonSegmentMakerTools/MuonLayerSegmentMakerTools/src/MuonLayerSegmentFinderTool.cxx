@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentFinderTool.h"
@@ -33,7 +33,7 @@ MuonLayerSegmentFinderTool::initialize()
     if (m_idHelperSvc->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize(!m_houghDataPerSectorVecKey.empty()));
     return StatusCode::SUCCESS;
 }
 

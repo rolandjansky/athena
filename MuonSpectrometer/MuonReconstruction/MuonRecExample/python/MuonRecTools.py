@@ -496,7 +496,8 @@ def MuonLayerSegmentFinderTool(name='MuonLayerSegmentFinderTool',extraFlags=None
     kwargs.setdefault("Csc2DSegmentMaker", getPublicTool("Csc2dSegmentMaker") if MuonGeometryFlags.hasCSC() else "")
     kwargs.setdefault("Csc4DSegmentMaker", getPublicTool("Csc4dSegmentMaker") if MuonGeometryFlags.hasCSC() else "")
     kwargs.setdefault("MuonClusterSegmentFinder",getPublicTool("MuonClusterSegmentFinder"))
-
+    if muonStandaloneFlags.reconstructionMode() != 'collisions':
+        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def ExtraTreeTrackFillerTool(name="ExtraTreeTrackFillerTool",extraFlags=None,**kwargs):

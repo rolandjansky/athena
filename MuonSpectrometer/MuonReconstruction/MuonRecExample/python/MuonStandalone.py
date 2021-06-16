@@ -79,7 +79,8 @@ def MooSegmentFinderAlg( name="MuonSegmentMaker",**kwargs ):
         kwargs.setdefault("UseTGCNextBC", muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC())
     kwargs.setdefault("doTGCClust", muonRecFlags.doTGCClusterSegmentFinding())
     kwargs.setdefault("doRPCClust", muonRecFlags.doRPCClusterSegmentFinding())
-
+    if muonStandaloneFlags.reconstructionMode() != 'collisions':
+        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec","")
     return CfgMgr.MooSegmentFinderAlg(name,**kwargs)
 
 def MooSegmentFinderNCBAlg( name="MuonSegmentMaker_NCB",**kwargs ):
@@ -103,6 +104,7 @@ def MooSegmentFinderNCBAlg( name="MuonSegmentMaker_NCB",**kwargs ):
     kwargs.setdefault("UseTGCNextBC", False)
     kwargs.setdefault("doTGCClust", False)
     kwargs.setdefault("doRPCClust", False)
+    kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec","")
 
     return CfgMgr.MooSegmentFinderAlg(name,**kwargs)
 
