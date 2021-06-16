@@ -14,9 +14,9 @@
 #define TRKSPACEPOINT_PIXELSPACEPOINT_H
 
 
-#include "Identifier/IdentifierHash.h"
-#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkSpacePoint/SpacePoint.h"
+
+class IdentifierHash;
 
 namespace Trk
 {
