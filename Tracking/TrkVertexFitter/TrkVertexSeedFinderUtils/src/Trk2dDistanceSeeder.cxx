@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -430,7 +430,7 @@ StatusCode Trk2dDistanceSeeder::finalize()
 
     cache.getField(posXYZ,magnFieldVect);
     const double bfield = magnFieldVect[2]*299.792;//should be in GeV/mm
-    if (bfield==0. || isnan(bfield)) {
+    if (bfield==0. || std::isnan(bfield)) {
       ATH_MSG_DEBUG( "Could not find a magnetic field different from zero: very very strange" );
       return 0.60407; //Value in GeV/mm (ATLAS units)
     } 
