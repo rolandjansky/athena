@@ -26,10 +26,10 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
   protected:
 
     /*! Tag and Probe method called by derived classes */
-    bool executeTandP( const EventContext& ctx, std::vector<const xAOD::Electron*> & ) const;
+    bool executeTandP( const EventContext& ctx, std::vector<std::shared_ptr<const xAOD::Electron>> & ) const;
 
     /*! Match probes called by derived classes */
-    void matchObjects(const std::string trigItem,  std::vector<const xAOD::Electron*>, 
+    void matchObjects(const std::string trigItem,  std::vector<std::shared_ptr<const xAOD::Electron>>&, 
                       std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> &) const; 
     
    

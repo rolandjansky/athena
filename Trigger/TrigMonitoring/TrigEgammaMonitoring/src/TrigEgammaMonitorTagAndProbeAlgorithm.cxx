@@ -73,7 +73,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
     auto totalTime        = Monitored::Timer("TIME_TotalTime");
      
 
-    std::vector<const xAOD::Electron*> probes;
+    std::vector<std::shared_ptr<const xAOD::Electron>> probes;
 
     // Select TP Pairs
     ATH_MSG_DEBUG("Execute TP selection");
@@ -130,7 +130,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
 
 
-bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ctx, std::vector<const xAOD::Electron*> &probeElectrons) const
+bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ctx, std::vector<std::shared_ptr<const xAOD::Electron>> &probeElectrons) const
 {
    
 
@@ -260,8 +260,8 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 if(!isGoodProbeElectron(monGroup, elProbe, jets.cptr())) continue;
                 //fill( monGroup, m_anatype+"_ProbeCutCounter", "GoodProbe");
                 
-                xAOD::Electron *selProbe = new xAOD::Electron(*elProbe);              
-                dressPid(selProbe);
+                const auto selProbe = std::make_shared<const xAOD::Electron>(*elProbe);              
+                dressPid(selProbe.get());
                 
                 probeElectrons.push_back(selProbe);
 
@@ -295,16 +295,15 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::minimalTriggerRequirement() const {
 
 
 void TrigEgammaMonitorTagAndProbeAlgorithm::matchObjects(const std::string probeTrigItem, 
-                                           std::vector<const xAOD::Electron*> probeElectrons,
+                                           std::vector<std::shared_ptr<const xAOD::Electron>>& probeElectrons,
                                            std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision *>> &pairObj ) const
 {
-    for( const auto *el : probeElectrons)
+    for( const auto& el : probeElectrons)
     {
         const TrigCompositeUtils::Decision *dec=nullptr;
-        match()->match(el, probeTrigItem, dec, TrigDefs::includeFailedDecisions);
+        match()->match(el.get(), probeTrigItem, dec, TrigDefs::includeFailedDecisions);
         //match()->match(el, probeTrigItem, dec);
-        std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision *> pairProbe(el,dec);
-        pairObj.push_back(pairProbe);
+        pairObj.emplace_back(el.get(), dec);
     }
 }
 
