@@ -3,12 +3,14 @@
 from GaudiKernel.DataHandle import DataHandle
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
+import collections.abc
 from collections import MutableSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from AthenaCommon.Configurable import Configurable
 
 RoRSeqFilter=CompFactory.RoRSeqFilter
 PassFilter = CompFactory.PassFilter
@@ -1092,6 +1094,38 @@ class SelectionCA(ComponentAccumulator):
         """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
+
+def lockConfigurable(conf):
+    log.debug('RecoFragmentsPool: Trying to lock %s',conf)
+    # Need to recurse through a few possibilities to ensure the
+    # locking block only receives Configurables
+    if isinstance(conf,Node): # Send along the alg from the node
+        lockConfigurable(conf.Alg)
+    elif isinstance(conf, collections.abc.Sequence): # Iterate over children
+        for i in list(conf):
+            if isinstance(i,Configurable):
+                lockConfigurable(i)
+    # Skip all other types
+    if not isinstance(conf,Configurable):
+        return
+
+    # Don't attempt this on components that the menu needs to configure
+    skiplock = False
+    if isInputMakerBase(conf) or isComboHypoAlg(conf):
+        skiplock=True
+    if skiplock:
+        return
+
+    try:
+        # lock item if possible
+        # except if it is a ComboHypo, as the menu needs to modify this
+        # -- should not be configured in signature code
+        log.debug("RecoFragmentsPool: Attempting to lock %s of type %s",compName(conf),conf.__class__)
+        conf.lock()
+    except AttributeError:
+        log.info(f"RecoFragmentsPool: Unable to lock returned fragment {compName(conf)} of type {conf.__class__}")
+    pass
+
 class RecoFragmentsPool(object):
     """ Class to host all the reco fragments that need to be reused """
     fragments = {}
@@ -1133,12 +1167,17 @@ class RecoFragmentsPool(object):
                       else allargs[key] for key in sortedkeys]
 
         requestHash = hash( ( creator.__module__, creator.__qualname__, tuple(sortedkeys), tuple(sortedvals) ) )
-        if requestHash not in cls.fragments:
+        if requestHash in cls.fragments:
+            return cls.fragments[requestHash]
+        else:
             recoFragment = creator( flags, **allargs )
+            try:
+                lockConfigurable(recoFragment)
+            except Exception as e:
+                log.info(f"RecoFragmentsPool: Failed to lock {recoFragment} with exception {e}")
+                raise e
             cls.fragments[requestHash] = recoFragment
             return recoFragment
-        else:
-            return cls.fragments[requestHash]
 
 
 def getChainStepName(chainName, stepNumber):

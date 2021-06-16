@@ -295,6 +295,9 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
 
  # hierarchy building, and ownership rules of children
    def __iadd__( self, configs, descr = None, index = None ):
+      if self.isLocked():
+         raise RuntimeError( f"cannot add children to locked configurable {self.getJobOptName()}" )
+
       if not type(configs) in (list,tuple):
          configs = ( configs, )
 

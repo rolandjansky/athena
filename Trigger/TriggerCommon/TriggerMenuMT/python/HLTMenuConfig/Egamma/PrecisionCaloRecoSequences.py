@@ -25,7 +25,7 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence, HLTHIRoITopoRecoSequence
     topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
+    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
 
     tag = 'HI' if ion is True else ''
     outputCaloClusters = precisionCaloMenuDefs.caloClusters(ion)
@@ -38,7 +38,7 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
                                           doAdd = False )
 
     algo = egammaTopoClusterCopier()
-    precisionRecoSequence += algo
+    precisionRecoSequence = parOR("electronRoITopoRecoSequence"+tag, [caloRecoSequence,algo])
     sequenceOut = algo.OutputTopoCollection
 
     return (precisionRecoSequence, sequenceOut)
@@ -56,11 +56,11 @@ def precisionCaloRecoSequence_LRT(DummyFlag, RoIs):
                                           doAdd = False )
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,algSuffix='_LRT')
+    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,algSuffix='_LRT')
 
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
-    precisionRecoSequence += algo
+    precisionRecoSequence = parOR("electronRoITopoRecoSequence_LRT", [caloRecoSequence,algo])
     sequenceOut = algo.OutputTopoCollection
 
     return (precisionRecoSequence, sequenceOut)
@@ -80,11 +80,11 @@ def precisionCaloRecoSequence_FWD(DummyFlag, RoIs):
                                           doAdd = False )
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,algSuffix='_FWD')
+    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,algSuffix='_FWD')
 
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
-    precisionRecoSequence += algo
+    precisionRecoSequence = parOR("electronRoITopoRecoSequence_FWD", [caloRecoSequence,algo])
     sequenceOut = algo.OutputTopoCollection
 
     return (precisionRecoSequence, sequenceOut)
