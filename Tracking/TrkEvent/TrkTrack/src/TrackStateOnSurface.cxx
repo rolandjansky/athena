@@ -30,14 +30,14 @@ TrackStateOnSurface::TrackStateOnSurface(
 }
 
 TrackStateOnSurface::TrackStateOnSurface(
-  const MeasurementBase* meas,
-  std::unique_ptr<TrackParameters> trackParameters,
+  std::unique_ptr<const MeasurementBase> meas,
+  std::unique_ptr<const TrackParameters> trackParameters,
   const FitQualityOnSurface* fitQoS,
   const MaterialEffectsBase* materialEffects,
   const AlignmentEffectsOnTrack* alignmentEffectsOnTrack)
   : m_fitQualityOnSurface(fitQoS)
   , m_trackParameters(std::move(trackParameters))
-  , m_measurementOnTrack(meas)
+  , m_measurementOnTrack(std::move(meas))
   , m_materialEffectsOnTrack(materialEffects)
   , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
 {
@@ -66,8 +66,8 @@ TrackStateOnSurface::TrackStateOnSurface(
 }
 
 TrackStateOnSurface::TrackStateOnSurface(
-  const MeasurementBase* meas,
-  std::unique_ptr<TrackParameters> trackParameters,
+  std::unique_ptr<const MeasurementBase> meas,
+  std::unique_ptr<const TrackParameters> trackParameters,
   const FitQualityOnSurface* fitQoS,
   const MaterialEffectsBase* materialEffects,
   const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
@@ -75,7 +75,7 @@ TrackStateOnSurface::TrackStateOnSurface(
   const AlignmentEffectsOnTrack* alignmentEffectsOnTrack)
   : m_fitQualityOnSurface(fitQoS)
   , m_trackParameters(std::move(trackParameters))
-  , m_measurementOnTrack(meas)
+  , m_measurementOnTrack(std::move(meas))
   , m_materialEffectsOnTrack(materialEffects)
   , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
   , m_typeFlags(typePattern)
@@ -86,18 +86,18 @@ TrackStateOnSurface::TrackStateOnSurface(
 
 TrackStateOnSurface::TrackStateOnSurface(const MeasurementBase* meas,
                                          const TrackParameters* trackParameters)
-  : m_measurementOnTrack(meas)
 {
   m_trackParameters.reset(trackParameters);
+  m_measurementOnTrack.reset(meas);
   assert(isSane());
   setFlags();
 }
 
 TrackStateOnSurface::TrackStateOnSurface(
-  const MeasurementBase* meas,
-  std::unique_ptr<TrackParameters> trackParameters)
+  std::unique_ptr<const MeasurementBase> meas,
+  std::unique_ptr<const TrackParameters> trackParameters)
   : m_trackParameters(std::move(trackParameters))
-  , m_measurementOnTrack(meas)
+  , m_measurementOnTrack(std::move(meas))
 {
   assert(isSane());
   setFlags();
