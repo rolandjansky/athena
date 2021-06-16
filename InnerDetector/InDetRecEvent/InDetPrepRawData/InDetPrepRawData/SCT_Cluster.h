@@ -20,6 +20,8 @@
 #include "InDetPrepRawData/SiCluster.h"
 
 #include <vector>
+#include <cstdint> //for uint16_t
+#include <iosfwd>
 
 class Identifier;
 class MsgStream;

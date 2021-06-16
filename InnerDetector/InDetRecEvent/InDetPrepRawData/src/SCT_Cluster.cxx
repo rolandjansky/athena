@@ -16,6 +16,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include <ostream>
+#include <sstream>
 
 
 namespace InDet{
@@ -100,11 +102,10 @@ SCT_Cluster::operator=(SCT_Cluster&& RIO) noexcept
 
 	MsgStream& SCT_Cluster::dump( MsgStream&    stream) const
 	{
-			stream << "SCT_Cluster object"<<std::endl;
-			stream <<  "Base class (SiCluster):" << std::endl;
-			this->SiCluster::dump(stream);
-
-			return stream;
+			std::ostringstream out;
+      dump(out);
+      stream<<out.str();
+      return stream;
 	}
 
 	std::ostream& SCT_Cluster::dump( std::ostream&    stream) const

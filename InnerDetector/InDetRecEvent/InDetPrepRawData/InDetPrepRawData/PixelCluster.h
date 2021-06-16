@@ -23,6 +23,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "Identifier/Identifier.h"
 #include <vector>
+#include <iosfwd>
 
 // Pixel splitter information stored in 32 bit
 // the information is : bool, prob1, pob2

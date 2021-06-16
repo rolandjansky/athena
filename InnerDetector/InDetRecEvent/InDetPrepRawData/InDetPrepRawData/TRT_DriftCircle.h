@@ -20,6 +20,7 @@
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TrkPrepRawData/PrepRawData.h"
+#include <iosfwd>
 
 class TRT_DriftCircleContainerCnv;
 class TRT_DriftCircleContainerCnv_p0;
