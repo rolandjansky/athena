@@ -214,7 +214,7 @@ AsgElectronLikelihoodTool::initialize()
   ATH_MSG_INFO("initialize : WP " << m_WorkingPoint.size() << " "
                                   << m_configFile.size());
 
-  std::string PDFfilename(""); // Default
+  std::string configFile, PDFfilename, resolvedPDF; // Default
 
   if (!m_WorkingPoint.empty()) {
     m_configFile = AsgConfigHelper::findConfigFile(
@@ -223,14 +223,19 @@ AsgElectronLikelihoodTool::initialize()
   }
 
   if (!m_configFile.empty()) {
-    std::string configFile = PathResolverFindCalibFile(m_configFile);
+    configFile = PathResolverFindCalibFile(m_configFile);
     if (configFile.empty()) {
-      ATH_MSG_ERROR("Could not locate " << m_configFile);
+      ATH_MSG_ERROR("Could not locate config " << m_configFile);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile);
-    TEnv env(configFile.c_str());
+
+    TEnv env;
+    if(env.ReadFile(configFile.c_str(), kEnvLocal)) {
+      ATH_MSG_ERROR("Could not open config " << configFile);
+      return StatusCode::FAILURE;
+    }
 
     // Get the input PDFs in the tool.
     ATH_MSG_DEBUG("Get the input PDFs in the tool ");
@@ -240,25 +245,29 @@ AsgElectronLikelihoodTool::initialize()
       ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
       PDFfilename = m_pdfFileName;
     } else {
-      if (m_configFile.find("dev/") != std::string::npos) {
-
-        std::string PDFdevval = env.GetValue(
-          "inputPDFFileName",
-          "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
-        PDFfilename = ("dev/" + PDFdevval);
-        ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
-      } else {
-        PDFfilename = env.GetValue(
-          "inputPDFFileName",
-          "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
-        ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
+      if(!env.Defined("inputPDFFileName")) {
+        ATH_MSG_WARNING("will use default PDF filename "
+          "since none is specified in the config " << m_configFile);
       }
+      PDFfilename = env.GetValue("inputPDFFileName",
+        "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
+      if(PDFfilename.empty()) {
+        ATH_MSG_ERROR("empty inputPDFFilename in " << configFile);
+        return StatusCode::FAILURE;
+      }
+      if(m_configFile.find("dev/") != std::string::npos) {
+        PDFfilename.insert(0, "dev/");
+      }
+      ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
     }
-    std::string filename = PathResolverFindCalibFile(PDFfilename);
-    if (!filename.empty()) {
-      m_rootTool->setPDFFileName(filename.c_str());
+
+    resolvedPDF = PathResolverFindCalibFile(PDFfilename);
+    if (!resolvedPDF.empty()) {
+      m_rootTool->setPDFFileName(resolvedPDF.c_str());
     } else {
-      ATH_MSG_ERROR("Could not find PDF file");
+      ATH_MSG_ERROR("Couldn't resolve PDF filename from " << PDFfilename
+        << ", config file = " << configFile
+      );
       return StatusCode::FAILURE;
     }
 
@@ -362,7 +371,14 @@ AsgElectronLikelihoodTool::initialize()
 
   // We need to initialize the underlying ROOT TSelectorTool
   if (m_rootTool->initialize().isFailure()) {
-    ATH_MSG_ERROR("ERROR! Could not initialize the TElectronLikelihoodTool!");
+    ATH_MSG_ERROR("Could not initialize the TElectronLikelihoodTool! "
+      "Configuration details: "
+      << "working point = \"" << m_WorkingPoint
+      << "\", config file = \"" << m_configFile
+      << "\", resolved file  = \"" << configFile
+      << "\", PDF file = \"" << PDFfilename
+      << "\", resolved file = \"" << resolvedPDF
+    );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
