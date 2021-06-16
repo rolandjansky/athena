@@ -2310,6 +2310,16 @@ HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
   eventCount: 0
 HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
   eventCount: 0
+HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6:
+  eventCount: 0
+HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU11_2MU6:
+  eventCount: 0
+HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU11_2MU6:
+  eventCount: 0
+HLT_mu11_mu6_bBmumux_BsmumuPhi_L1MU11_2MU6:
+  eventCount: 0
+HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6:
+  eventCount: 0
 HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
   eventCount: 0
 HLT_mu11_mu6_bDimu_L1LFV-MU11:

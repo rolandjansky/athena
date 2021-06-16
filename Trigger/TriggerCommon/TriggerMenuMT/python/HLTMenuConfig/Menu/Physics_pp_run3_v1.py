@@ -29,6 +29,8 @@ SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
 MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
 BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
 BphysElectronGroup = ['RATE:BphysicsElectron', 'BW:BphysicsElectron']
+EOFBPhysL1MuGroup = ['EOF:BPhysL1Muon']
+#EOFBPhysL1MuGroup = ['Primary:L1Muon', 'EOF:BPhys']
 EgammaMuonGroup = ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon']
 EgammaMETGroup = ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET']
 MuonJetGroup =['RATE:MuonJet','BW:Muon', 'BW:Jet']
@@ -374,16 +376,44 @@ def setupMenu():
     ]
     
     TriggerFlags.BphysicsSlice.signatures = [
-        #ATR-20049
-        ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bBmumu_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bDimu_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bDimu2700_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bPhi_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
-        ChainProp(name='HLT_mu11_mu6_bTau_L1MU11_2MU6', groups=PrimaryL1MuGroup+BphysicsGroup),
+        #ATR-20049 All primary triggers
+        ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bBmumu_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bDimu_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bDimu2700_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bPhi_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        ChainProp(name='HLT_mu11_mu6_bTau_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup ),
+        
+        #ATR-20603 All primary triggers
+        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        #ATR-20839 All primary triggers
+        ChainProp(name='HLT_2mu4_bDimu_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        #ATR-21639 All primary triggers
+        ChainProp(name='HLT_2mu4_bBmumux_BpmumuKp_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_BcmumuPi_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_BsmumuPhi_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_BdmumuKst_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_LbPqKm_L12MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        
+        ChainProp(name='HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu11_mu6_bBmumux_BsmumuPhi_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6', groups=BphysicsGroup+PrimaryL1MuGroup),
+        #ATR-22223 All primary triggers
+        ChainProp(name='HLT_3mu4_bJpsi_L13MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_3mu4_bUpsi_L13MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_3mu4_bTau_L13MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_3mu4_bPhi_L13MU4', groups=BphysicsGroup+EOFBPhysL1MuGroup),
+        ChainProp(name='HLT_3mu6_bDimu_L13MU6', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu6_2mu4_bDimu2700_L1MU6_3MU4', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu6_2mu4_bDimu6000_L1MU6_3MU4', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_4mu4_bDimu6000_L14MU4', groups=BphysicsGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6',     groups=BphysicsGroup+PrimaryL1MuGroup)
     ]
     
     TriggerFlags.CombinedSlice.signatures = [
