@@ -30,6 +30,8 @@ class TrigMuonEFInvMassHypoTool: public ::ComboHypoToolBase {
     this, "InvMassHigh", -1.0, "High threshold for invariant mass cut" };
   Gaudi::Property< bool > m_acceptAll {
     this, "AcceptAll", false, "Ignore selection" };
+  Gaudi::Property< bool > m_selOS {
+    this, "SelectOppositeSign", false, "Select only oppositly charged pairs" };
 
   // Other members:   
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

@@ -201,7 +201,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getFSmuEFCB(self):
-        return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg])
+        if 'invm' in self.chainPart['invMassInfo']:
+            return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg],comboTools=[TrigMuonEFInvMassHypoToolFromDict])
+        else:
+            return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg])
 
     #---------------------
     def getmuEFIso(self):

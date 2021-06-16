@@ -40,8 +40,6 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
   auto monitorIt	= Monitored::Group(m_monTool, muonMassMon, muonMassSelMon); 
 
   bool result = false;
-  bool passLow = false;
-  bool passHigh = false;
 
   //for pass through mode
   if(m_acceptAll) {
@@ -90,10 +88,13 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
 		      << " and highMassCut cut is " << m_invMassHigh << " GeV");
 
 	//Apply hypo cuts. If any mass combination is true, then the overall result should be true.
-	if(m_invMassLow>0 && diMuMass>m_invMassLow) passLow=true;
-	if(m_invMassHigh>0 && diMuMass<m_invMassHigh) passHigh = true;
-	if(passLow && passHigh){
-	  result=true;
+	if(m_invMassLow>0 && diMuMass>m_invMassLow && m_invMassHigh>0 && diMuMass<m_invMassHigh){
+	  if(m_selOS){
+	    if(muon1->charge()*muon2->charge()<0){
+	      result=true;
+	    }
+	  }
+	  else result = true;
 	  //fill monitored variables
 	  fexInvMassSel.push_back(diMuMass);
 	}
