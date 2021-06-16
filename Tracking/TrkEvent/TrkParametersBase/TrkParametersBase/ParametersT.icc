@@ -6,12 +6,13 @@
 // ParametersT.icc, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// STD
-#include <limits>
-#include <utility>
+
 // Trk
 #include "TrkEventPrimitives/ParamDefs.h"
 #include <cmath>
+// STD
+#include <limits>
+#include <utility>
 
 namespace Trk {
 
@@ -324,7 +325,7 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
 
 // Protected Constructor with local arguments - persistency only
 template<int DIM, class T, class S>
-Trk::ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
+ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
                                          const S* surface,
                                          std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(pars, cov)

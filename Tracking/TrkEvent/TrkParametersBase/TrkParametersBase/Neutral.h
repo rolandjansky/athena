@@ -9,8 +9,6 @@
 #ifndef TRKPARAMETERSBASE_NEUTRAL_H
 #define TRKPARAMETERSBASE_NEUTRAL_H 1
 
-#include <cmath>
-
 namespace Trk
 {
   /**
