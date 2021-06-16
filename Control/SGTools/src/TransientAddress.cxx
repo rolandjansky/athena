@@ -6,9 +6,7 @@
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/EventContextClid.h"
 #include "GaudiKernel/IOpaqueAddress.h"
-#include "GaudiKernel/EventContext.h"
 
 #include <assert.h>
 
@@ -176,42 +174,14 @@ void TransientAddress::setAddress(IOpaqueAddress* pAddress)
   m_address = pAddress;
 }
 
-bool TransientAddress::isValid(IProxyDict* store,
+bool TransientAddress::isValid(const EventContext* ctx,
                                bool forceUpdate /*= false*/)
 {
   if (!forceUpdate && 0 != address()) return true;
 
-  // FIXME CGL
-//    if (!m_consultProvider) {
-//      if ( m_clid != 0 && m_name != "" ) { return true; }
-//    }
-  if (m_consultProvider && 0 != provider()) {
-    if ((provider()->updateAddress(storeID(), this,
-                                   contextFromStore (store))).isSuccess())
+  if (ctx && m_consultProvider && 0 != provider()) {
+    if ((provider()->updateAddress(storeID(), this, *ctx)).isSuccess())
       return true;
   }
   return false;
-}
-
-
-/**
- * @brief Retrieve the EventContext saved in store STORE.
- * @param store The store from which to retrieve the context, or nullptr.
- *
- * If there is no context recorded in the store, return a default-initialized
- * context.
- */
-const EventContext& TransientAddress::contextFromStore (IProxyDict* store) const
-{
-  if (store) {
-    static const SG::sgkey_t ctxkey = 
-      store->stringToKey ("EventContext", ClassID_traits<EventContext>::ID());
-    SG::DataProxy* proxy = store->proxy_exact (ctxkey);
-    if (proxy && proxy->object()) {
-      EventContext* ctx = SG::DataProxy_cast<EventContext> (proxy);
-      if (ctx) return *ctx;
-    }
-  }
-  static const EventContext emptyContext;
-  return emptyContext;
 }

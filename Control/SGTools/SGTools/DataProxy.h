@@ -327,6 +327,9 @@ class DataStore;
 
     // Needs to be recursive since updateAddress can call back
     // into the DataProxy.
+    // To prevent deadlocks, the store lock should be acquired
+    // before this one.  This implies that we shouldn't call anything
+    // that might acquire the store lock while holding m_mutex.
     typedef std::recursive_mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_t;
     mutable mutex_t m_mutex;
@@ -340,15 +343,12 @@ class DataStore;
     Athena::IMessageSvcHolder m_ims;
     
     /// The store of which we are a part.
-    IProxyDict* m_store;
+    std::atomic<IProxyDict*> m_store;
 
     /// errno-style error code for accessData
     enum ErrNo m_errno;
 
     
-    bool isValidAddress (lock_t&) const;
-
-
     /**
      * @brief Lock the data object we're holding, if any.
      *
@@ -373,6 +373,19 @@ class DataStore;
 
     /// set DataObject
     void setObject (objLock_t& objLock, DataObject* obj);
+
+
+    /**
+     * @brief Retrieve the EventContext saved in the owning store.
+     *
+     * If there is no context recorded in the store, return a default-initialized
+     * context.
+     *
+     * Do not call this holding m_mutex, or we could deadlock (ATEAM-755).
+     * (The store lock must be acquired before the DataProxy lock.)
+     */
+    const EventContext& contextFromStore() const;
+
   };
 
   ///cast the proxy into the concrete data object it proxies
@@ -427,7 +440,7 @@ class DataStore;
 // DP+d8: m_mutex
 // DP+100: m_objMutex                <== 5th cache line starts at +100
 // DP+128: IMessageSvc* m_ims
-// DP+130: IProxyDict* m_store
+// DP+130: std::atomic<IProxyDict*> m_store
 // DP+138: ErrNo m_errno
 // DP+13c: padding
 // DP+140: end

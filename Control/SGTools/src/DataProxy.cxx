@@ -14,12 +14,14 @@
 #include "GaudiKernel/IConverter.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/EventContext.h"
 
 #include "SGTools/TransientAddress.h"
 #include "SGTools/T2pMap.h"
 #include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "SGTools/DataProxy.h"
 using SG::DataProxy;
@@ -217,8 +219,8 @@ bool DataProxy::bindHandle(IResetable* ir) {
   } else {
     m_handles.push_back(ir);
     m_boundHandles = true;
-    if (m_store)
-      m_store->boundHandle(ir);
+    if (IProxyDict* store = m_store)
+      store->boundHandle(ir);
     return true;
   }
 }
@@ -306,8 +308,8 @@ void DataProxy::unbindHandle(IResetable *ir) {
   //within a m_handles loop
   if (ifr != m_handles.end()) {
     *ifr=0; 
-    if (m_store)
-      m_store->unboundHandle(ir);
+    if (IProxyDict* store = m_store)
+      store->unboundHandle(ir);
   }
   m_boundHandles = !m_handles.empty();
 }
@@ -460,20 +462,21 @@ std::unique_ptr<DataObject> DataProxy::readData (objLock_t&, ErrNo* errNo) const
       if (errNo) *errNo=NOCNVSVC;
       return nullptr;
     }
-    if (!isValidAddress (lock)) {
-      //MsgStream gLog(m_ims, "DataProxy");
-      //gLog << MSG::WARNING
-      //	 << "accessData:  IOA pointer not set" <<endmsg;
-      if (errNo) *errNo=NOIOA;
-      return nullptr;
-    }
 
     dataLoader = m_dataLoader;
     store = m_store;
     address = m_tAddress.address();
   }
 
-  SG::CurrentEventStore::Push push (m_store);
+  if (!isValidAddress()) {
+    //MsgStream gLog(m_ims, "DataProxy");
+    //gLog << MSG::WARNING
+    //	 << "accessData:  IOA pointer not set" <<endmsg;
+    if (errNo) *errNo=NOIOA;
+    return nullptr;
+  }
+
+  SG::CurrentEventStore::Push push (store);
 
   DataObject* obj = nullptr;
   StatusCode sc;
@@ -558,22 +561,29 @@ DataObject* DataProxy::accessDataOol()
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool DataProxy::isValidAddress (lock_t&) const
-{
-  /// FIXME: why don't we get a thread-checker warning here?
-  return const_cast<DataProxy*>(this)->m_tAddress.isValid(m_store);
-}
-
 bool DataProxy::isValidAddress() const
 {
+  // Looking up the context is relatively expensive.
+  // So first try isValid() without the context.
+  {
+    lock_t lock (m_mutex);
+    if (const_cast<DataProxy*>(this)->m_tAddress.isValid(nullptr)) {
+      return true;
+    }
+  }
+  // Get the context.  (Must not be holding m_mutex here.)
+  const EventContext& ctx = contextFromStore();
+  // Try again with the context.
   lock_t lock (m_mutex);
-  return isValidAddress (lock);
+  return const_cast<DataProxy*>(this)->m_tAddress.isValid(&ctx);
 }
 
 bool DataProxy::updateAddress()
 {
+  // Be sure to get the context before acquiring the lock.
+  const EventContext& ctx = contextFromStore();
   lock_t lock (m_mutex);
-  return m_tAddress.isValid(m_store, true);
+  return m_tAddress.isValid(&ctx, true);
 }
 
 /**
@@ -621,3 +631,28 @@ void DataProxy::lock (objLock_t&)
     bucket->lock();
 }
 
+
+/**
+ * @brief Retrieve the EventContext saved in the parent store.
+ *
+ * If there is no context recorded in the store, return a default-initialized
+ * context.
+ *
+ * Do not call this holding m_mutex, or we could deadlock (ATEAM-755).
+ * (The store lock must be acquired before the DataProxy lock.)
+ */
+const EventContext& DataProxy::contextFromStore() const
+{
+  IProxyDict* store = m_store;
+  if (store) {
+    static const SG::sgkey_t ctxkey = 
+      store->stringToKey ("EventContext", ClassID_traits<EventContext>::ID());
+    SG::DataProxy* proxy = store->proxy_exact (ctxkey);
+    if (proxy && proxy->object()) {
+      EventContext* ctx = SG::DataProxy_cast<EventContext> (proxy);
+      if (ctx) return *ctx;
+    }
+  }
+  static const EventContext emptyContext;
+  return emptyContext;
+}
