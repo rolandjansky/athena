@@ -11,8 +11,8 @@ eta    = 2.5;
 #elif defined(LARGED0_EL)
 	a0=4.;
 #elif defined(LRT)
-        a0=100.;
-#else	
+        a0=200.;
+#else
 	a0=3.;
 #endif
 // npix   = 1;
@@ -27,7 +27,7 @@ eta_rec = 5;
 Rmatch = 0.05;
 
 #if defined(LRT)
-	a0v = 100.;
+	a0v = 200.;
 	z0v = 300.5;
 #else
 

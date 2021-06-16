@@ -1,5 +1,5 @@
 
-#ifdef MINBIAS 
+#ifdef MINBIAS
 pT     = 400;
 #else
 pT     = 1000;
@@ -11,8 +11,8 @@ eta    = 2.5;
 #elif defined(LARGED0_EL)
 	a0=4.;
 #elif defined(LRT)
-        a0=100.;
-#else	
+  a0=200.;
+#else
 	a0=3.;
 #endif
 // npix   = 1;
@@ -26,8 +26,8 @@ Rmatch = 0.05;
 
 
 #if defined(LRT)
-	a0v = 100.;
-   	z0v = 100.;
+	a0v = 200.;
+	z0v = 100.;
 #else
 	a0v = 10.5;
 	z0v = 10.5;
