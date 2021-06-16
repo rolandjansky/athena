@@ -37,7 +37,7 @@
 
 // Forward declarations
 class IConversionSvc;
-class IDataManagerSvc;
+struct IDataManagerSvc;
 class IDataProviderSvc;
 class IIncidentSvc;
 class StoreGateSvc;
