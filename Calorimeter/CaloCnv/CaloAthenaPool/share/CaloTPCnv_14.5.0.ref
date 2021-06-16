@@ -154,34 +154,34 @@ AthDictLoaderSvc                                     INFO in initialize...
 AthDictLoaderSvc                                     INFO acquired Dso-registry
 ClassIDSvc                                           INFO  getRegistryEntries: read 255 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 184 CLIDRegistry entries for module ALL
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1388, run #5200 1 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1390, run #5200 1 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1390, run #5200 2 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1391, run #5200 2 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1391, run #5200 3 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1392, run #5200 3 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1392, run #5200 4 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1394, run #5200 4 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1394, run #5200 5 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1397, run #5200 5 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1397, run #5200 6 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1398, run #5200 6 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1398, run #5200 7 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1399, run #5200 7 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1399, run #5200 8 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1402, run #5200 8 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1402, run #5200 9 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1404, run #5200 9 events processed so far  <<<===
-CaloTowerContainerCnv::createTransient            WARNING  No SUBCALO in CaloTowerContainer
+CaloTowerContai...WARNING  No SUBCALO in CaloTowerContainer
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1404, run #5200 10 events processed so far  <<<===
 /cvmfs/atlas-nightlies.cern.ch/repo/data/da...root   INFO Database being retired...
 Domain[ROOT_All]                                     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
