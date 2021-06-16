@@ -42,7 +42,7 @@ class ActsDetectorElement : public Acts::DetectorElementBase
 {
   using DetElemVariant = boost::variant<const InDetDD::SiDetectorElement*, const InDetDD::TRT_BaseElement*>;
 public:
-  enum class Subdetector { Pixel, SCT, TRT };
+  enum class Subdetector { Pixel, SCT, TRT, Size };
 
   ActsDetectorElement(const InDetDD::SiDetectorElement* detElem);
 
@@ -71,6 +71,10 @@ public:
   /// Return surface associated with this identifier, which should come from the
   virtual const Acts::Surface&
   surface() const final override;
+
+  /// Return a shared pointer on the ATLAS surface associated with this identifier,
+  const Trk::Surface&
+  atlasSurface() const;
 
   /// Returns the thickness of the module
   virtual double

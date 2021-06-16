@@ -9,6 +9,7 @@
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "ActsInterop/IdentityHelper.h"
 #include "TrkSurfaces/RectangleBounds.h"
+#include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
@@ -154,7 +155,7 @@ ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 
   // get the correct cached transform
   // units should be fine here since we converted at construction
-  const Transform3* cachedTrf = alignmentStore->getTransform(this);
+  const Acts::Transform3* cachedTrf = alignmentStore->getTransform(this);
 
   assert(cachedTrf != nullptr);
 
@@ -164,12 +165,12 @@ ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 void
 ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 {
-  struct get_transform : public boost::static_visitor<Transform3>
+  struct get_transform : public boost::static_visitor<Acts::Transform3>
   {
-    get_transform(ActsAlignmentStore* gas2, const Transform3* trtTrf)
+    get_transform(ActsAlignmentStore* gas2, const Acts::Transform3* trtTrf)
       : m_store(gas2), m_trtTrf(trtTrf) {}
 
-    Transform3 operator()(const InDetDD::SiDetectorElement* detElem) const
+    Acts::Transform3 operator()(const InDetDD::SiDetectorElement* detElem) const
     {
       Amg::Transform3D g2l
         = detElem->getMaterialGeom()->getAbsoluteTransform(m_store)
@@ -181,16 +182,16 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
       return g2l;
     }
 
-    Transform3 operator()(const InDetDD::TRT_BaseElement*) const
+    Acts::Transform3 operator()(const InDetDD::TRT_BaseElement*) const
     {
       return *m_trtTrf;
     }
 
     ActsAlignmentStore* m_store;
-    const Transform3* m_trtTrf;
+    const Acts::Transform3* m_trtTrf;
   };
 
-  Transform3 trf
+  Acts::Transform3 trf
     = boost::apply_visitor(get_transform(gas, m_defTransform.get()), m_detElement);
 
   gas->setTransform(this, trf);
@@ -203,11 +204,11 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 const Acts::Transform3&
 ActsDetectorElement::getDefaultTransformMutexed() const
 {
-  struct get_default_transform : public boost::static_visitor<Transform3>
+  struct get_default_transform : public boost::static_visitor<Acts::Transform3>
   {
-    get_default_transform(const Transform3* trtTrf) : m_trtTrf(trtTrf) {}
+    get_default_transform(const Acts::Transform3* trtTrf) : m_trtTrf(trtTrf) {}
 
-    Transform3 operator()(const InDetDD::SiDetectorElement* detElem) const
+    Acts::Transform3 operator()(const InDetDD::SiDetectorElement* detElem) const
     {
       Amg::Transform3D g2l
         = detElem->getMaterialGeom()->getDefAbsoluteTransform()
@@ -219,12 +220,12 @@ ActsDetectorElement::getDefaultTransformMutexed() const
       return g2l;
     }
 
-    Transform3 operator()(const InDetDD::TRT_BaseElement*) const
+    Acts::Transform3 operator()(const InDetDD::TRT_BaseElement*) const
     {
       return *m_trtTrf;
     }
 
-    const Transform3* m_trtTrf;
+    const Acts::Transform3* m_trtTrf;
   };
 
   std::lock_guard<std::mutex> guard(m_cacheMutex);
@@ -233,7 +234,7 @@ ActsDetectorElement::getDefaultTransformMutexed() const
   }
   // transform not yet set
   m_defTransform
-    = std::make_shared<const Transform3>(
+    = std::make_shared<const Acts::Transform3>(
         boost::apply_visitor(get_default_transform(m_defTransform.get()), m_detElement));
 
   return *m_defTransform;
@@ -243,6 +244,18 @@ const Acts::Surface&
 ActsDetectorElement::surface() const
 {
   return (*m_surface);
+}
+
+const Trk::Surface&
+ActsDetectorElement::atlasSurface() const
+{
+  size_t which = m_detElement.which();
+  if (which == 0) {
+    return (boost::get<const InDetDD::SiDetectorElement *>(m_detElement))->surface();
+  }
+   else {
+    throw std::domain_error("Cannot get surface for TRT element");
+  }
 }
 
 double
