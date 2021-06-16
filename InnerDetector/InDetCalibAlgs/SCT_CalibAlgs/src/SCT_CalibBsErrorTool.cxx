@@ -158,8 +158,9 @@ SCT_CalibBsErrorTool::fillFromData() {
   //--- Number of event
   m_numberOfEventsHisto->Fill( 1 );
   //--- Loop over BSErrors
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
   for (int type = 0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) {
-    const std::set<IdentifierHash> errorSet{m_bytestreamErrorsTool->getErrorSet(type)};
+    const std::set<IdentifierHash> errorSet{m_bytestreamErrorsTool->getErrorSet(type, ctx)};
     for(const auto& idHash : errorSet) {
       Identifier waferId{m_pSCTHelper->wafer_id(idHash)};
       fillBsErrorsForWafer(waferId, type);

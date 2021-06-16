@@ -247,7 +247,7 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   double deltaZ = 0;
   
   m_errorGeoSCT.clear();
-
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
@@ -257,7 +257,7 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
-      const std::set<IdentifierHash> sctErrors = m_byteStreamErrTool->getErrorSet( i );
+      const std::set<IdentifierHash> sctErrors = m_byteStreamErrTool->getErrorSet( i, ctx );
       // Check that all modules are registered
       for(const auto& idHash : sctErrors) {
 	    // The module is already registered, no need to do something
