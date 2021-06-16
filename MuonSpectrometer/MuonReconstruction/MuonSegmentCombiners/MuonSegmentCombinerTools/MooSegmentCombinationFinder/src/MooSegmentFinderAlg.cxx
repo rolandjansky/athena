@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooSegmentFinderAlg.h"
@@ -32,7 +32,7 @@ MooSegmentFinderAlg::initialize()
 
     ATH_CHECK(m_patternCombiLocation.initialize());
     ATH_CHECK(m_segmentLocation.initialize());
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize(!m_houghDataPerSectorVecKey.empty()));
 
     return StatusCode::SUCCESS;
 }
@@ -84,11 +84,14 @@ MooSegmentFinderAlg::execute(const EventContext& ctx) const
     }
 
     // write hough data to SG
-    if (output.houghDataPerSectorVec) {
+    if (!m_houghDataPerSectorVecKey.empty()){
       SG::WriteHandle<Muon::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey, ctx};
+      if(output.houghDataPerSectorVec) {
         ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
-    } else {
+      } else {
+	ATH_CHECK(handle.record(std::make_unique<Muon::HoughDataPerSectorVec>()));
         ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());
+      }
     }
 
     // do cluster based segment finding

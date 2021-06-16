@@ -927,8 +927,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
     #Need PRD containers for inside-out reco
     ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
     ViewVerifyInsideOut.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
+    if not isCosmic(): ViewVerifyInsideOut.DataObjects += [( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
     if MuonGeometryFlags.hasCSC():
       ViewVerifyInsideOut.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
