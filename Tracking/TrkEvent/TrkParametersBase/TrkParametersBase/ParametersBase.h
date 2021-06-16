@@ -19,6 +19,9 @@
 #include <memory>
 #include <type_traits>
 #include <optional>
+#include <limits>
+#include <iosfwd>
+
 class MsgStream;
 
 template<typename T>
