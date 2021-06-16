@@ -68,6 +68,7 @@
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
 #include "GeneratorFilters/MultiBjetFilter.h"
+#include "GeneratorFilters/MultiCjetFilter.h"
 #include "GeneratorFilters/ParentsTracksFilter.h"
 #include "GeneratorFilters/SplitPhotonFilter.h"
 #include "GeneratorFilters/TripletChainFilter.h"
@@ -146,6 +147,7 @@ DECLARE_ALGORITHM_FACTORY(HTFilter)
 DECLARE_ALGORITHM_FACTORY(MissingEtFilter)
 DECLARE_ALGORITHM_FACTORY(TrimuMassRangeFilter)
 DECLARE_ALGORITHM_FACTORY(MultiBjetFilter)
+DECLARE_ALGORITHM_FACTORY(MultiCjetFilter)
 DECLARE_ALGORITHM_FACTORY(ParentsTracksFilter)
 DECLARE_ALGORITHM_FACTORY(SplitPhotonFilter)
 DECLARE_ALGORITHM_FACTORY(TripletChainFilter)
@@ -223,6 +225,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(MissingEtFilter)
     DECLARE_ALGORITHM(TrimuMassRangeFilter)
     DECLARE_ALGORITHM(MultiBjetFilter)
+    DECLARE_ALGORITHM(MultiCjetFilter)
     DECLARE_ALGORITHM(ParentsTracksFilter)  
     DECLARE_ALGORITHM(SplitPhotonFilter)  
     DECLARE_ALGORITHM(TripletChainFilter)
