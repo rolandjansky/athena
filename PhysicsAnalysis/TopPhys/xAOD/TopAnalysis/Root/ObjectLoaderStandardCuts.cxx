@@ -101,7 +101,7 @@ namespace top {
     }
 
     ///-- Soft Muons --///
-    if (topConfig->useSoftMuons()) {
+    if (topConfig->useMuons() && topConfig->useSoftMuons()) {
       objectSelection->softmuonSelection(new top::SoftMuonMC15(topConfig->softmuonPtcut()));
     }
 

@@ -75,7 +75,7 @@ namespace top {
     //   (3) Determination of Fakes control regions in MC - expert fakes mode
     //
    
-    if (m_config->useSoftMuons()) {
+    if (m_config->useSoftMuons() && m_config->useMuons()) {
       top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
       top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
     }
