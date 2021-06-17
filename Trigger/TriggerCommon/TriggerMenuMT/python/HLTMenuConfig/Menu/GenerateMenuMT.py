@@ -448,7 +448,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         # This part is to deal with combined chains between different signatures
         if len(listOfChainConfigs) == 0:
-            log.error('[__generateChainConfigs] No Chain Configuration found for %s',chainName)
+            log.error('[__generateChainConfigs] No Chain Configuration found for %s', mainChainDict['chainName'])
             raise Exception("[__generateChainConfigs] chain generation failed, exiting.")
 
         else:

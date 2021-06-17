@@ -252,6 +252,7 @@ def defineMenu():
 
         # MBTS
         'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY', 
+        'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_2',
 
         # extra MBTS 
@@ -353,7 +354,7 @@ def defineMenu():
                 
         #ATR-17320
         'L1_CEP-CJ60',
-        'L1_CEP-CJ50' ,
+        'L1_CEP-CJ50',
         'L1_AFP_A_AND_C_TOF_CEP-CJ60','L1_AFP_A_AND_C_TOF_T0T1_CEP-CJ60',
 
         ]
@@ -416,6 +417,9 @@ def defineMenu():
         'L1_MBTS_1_EMPTY' : 164,
         'L1_MBTS_1_1_EMPTY' : 168,
         'L1_MBTS_2_EMPTY' : 166,
+        'L1_MBTS_1_UNPAIRED_ISO' : 169,
+        'L1_MBTS_2_UNPAIRED_ISO' : 170,
+        'L1_MBTS_1_1_UNPAIRED_ISO' : 171,        
 
         'L1_MBTSA0' : 401,
         'L1_MBTSA1' : 402,
