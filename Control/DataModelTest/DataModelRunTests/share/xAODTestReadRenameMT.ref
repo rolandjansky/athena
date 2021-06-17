@@ -89,14 +89,14 @@ ThreadPoolSvc                                                0    INFO no thread
 AvalancheSchedulerSvc                                        0    INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                                        0    INFO Found 10 algorithms
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec_renamed' )     required by Algorithm: 
-       * xAODTestReadCVec
-   o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec_renamed.dInt1_renamed' )     required by Algorithm: 
-       * xAODTestReadDecor
-   o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1_renamed' )     required by Algorithm: 
-       * xAODTestReadDecor
-   o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1_renamedBase' )     required by Algorithm: 
-       * xAODTestReadDecor
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec_renamed' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadCVec
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec_renamed.dInt1_renamed' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecor
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1_renamed' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecor
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1_renamedBase' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecor
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                                0    INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                                        0    INFO Concurrency level information:
