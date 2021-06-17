@@ -1625,6 +1625,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   // these do not change
   std::vector< std::pair<int,std::pair<double,double> > >::iterator vsBeg   = cache.m_currentDist.begin();
   std::vector< std::pair<int,std::pair<double,double> > >::iterator vsEnd   = cache.m_currentDist.end();
+  const int num_vs_dist = cache.m_currentDist.size();
 
   //Set initial step length to 100mm or the distance to the target surface.
   double h = 0;
@@ -2000,13 +2001,16 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     }
     // if next closest not found, propagation failed
     if (nextSf<0 && nextSfCand<0) return false;
-
     // flip direction
     if (flipDirection) {
+      // Out of bounds protection
+      if (nextSf<0 || nextSf>=num_vs_dist) return false;
       distanceToTarget = (*(vsBeg+nextSf)).second.first;
       h = -h;
     } else if (nextSfCand!=nextSf) {
       nextSf = nextSfCand;
+      // Out of bounds protection
+      if (nextSf<0 || nextSf>=num_vs_dist) return false;
       if (cache.m_currentDist[nextSf].first<3) helpSoft = 1.;
     }
 
