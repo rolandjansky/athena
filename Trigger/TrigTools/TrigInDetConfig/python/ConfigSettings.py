@@ -333,6 +333,8 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._DoubletDR_Max         = 200
       self._nClustersMin          = 8
       self._isLRT                 = True
+      self._LRTD0Min              = 2.0
+      self._LRTHardPtMin          = 1.0*GeV
 
 
 
