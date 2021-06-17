@@ -37,6 +37,7 @@ class TrigEgammaPrecisionElectronHypoTool : public extends<AthAlgTool, ITrigEgam
   Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
   Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
   Gaudi::Property< float >              m_RelPtConeCut { this, "RelPtConeCut", -999., "Track isolation cut" };
+  Gaudi::Property< float >              m_d0{ this,  "d0Cut", -1., "d0 cut" };
   Gaudi::Property<std::string>          m_pidName{this,"PidName", "", "Pid name"};
   ToolHandle< GenericMonitoringTool >   m_monTool { this, "MonTool", "", "Monitoring tool" };
 

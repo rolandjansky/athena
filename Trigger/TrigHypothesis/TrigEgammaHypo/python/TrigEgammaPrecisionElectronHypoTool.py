@@ -72,7 +72,17 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
         'ivartight': 0.05
         }
 
-  def __init__(self, name, threshold, sel, iso):
+  # LRT d0 cuts
+  __lrtD0Cut = {
+      '': -1.,
+      None: None,
+      'lrtloose':2.0,
+      'lrtmedium':3.0,
+      'lrttight':5.
+      }
+
+
+  def __init__(self, name, threshold, sel, iso, d0):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionElectronHypoTool')
@@ -80,6 +90,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__threshold = float(threshold)
     self.__sel = sel
     self.__iso = iso
+    self.__d0  = d0
     
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
     tool = TrigEgammaPrecisionElectronHypoTool( name )
@@ -90,12 +101,14 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     tool.dPHICLUSTERthr = 0.1
     tool.RelPtConeCut   = -999
     tool.PidName        = ":wq!"
+    tool.d0Cut          = self.__lrtD0Cut[d0]
     self.__tool         = tool    
 
     self.__log.debug( 'Electron_Chain     :%s', name )
     self.__log.debug( 'Electron_Threshold :%s', threshold )
     self.__log.debug( 'Electron_Pidname   :%s', sel )
     self.__log.debug( 'Electron_iso       :%s', iso )
+    self.__log.debug( 'Electron_d0       :%s', d0 )
 
   def chain(self):
     return self.__name
@@ -108,6 +121,9 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
 
   def isoInfo(self):
     return self.__iso
+
+  def d0Info(self):
+    return self.__d0
 
   def tool(self):
     return self.__tool
@@ -193,8 +209,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.tool().MonTool = monTool
 
 
-def _IncTool( name, threshold, sel, iso ):
-    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso)
+def _IncTool( name, threshold, sel, iso, d0 ):
+    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso, d0)
     config.compile()
     return config.tool()
 
@@ -216,8 +232,11 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
     def __iso(cpart):
         return cpart['isoInfo']
 
+    def __d0(cpart):
+        return cpart['lrtInfo']
+
     name = d['chainName']
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0])  )
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0]), __d0(cparts[0])  )
                    
     
 def TrigEgammaPrecisionElectronHypoToolFromName(name, conf):
