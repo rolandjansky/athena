@@ -66,6 +66,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
         enableKinematicHistograms -- Whether or not to dump the kinematic histograms
         Other keyword arguments are forwarded to the other functions.
     """
+
     if dataType not in ["data", "mc", "afii"]:
         raise ValueError ("invalid data type: " + dataType )
 

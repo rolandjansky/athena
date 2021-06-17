@@ -1,16 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createService
 
 def makeSequence (dataType, likelihood=True) :
     algSeq = AlgSequence()
 
-    # Create the algorithm's configuration. Note that we'll be able to add
-    # algorithm property settings here later on.
-    alg = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    alg.sigmaRecommended = 1
-    algSeq += alg
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \

@@ -156,10 +156,10 @@ thinningTools.append(PHYSLITEDiTauLowPtTPThinningTool)
 #==============================================================================
 
 # Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
+sysLoader = CfgMgr.CP__SystematicsSvc( 'SystematicsSvc' )
 #sysLoader.sigmaRecommended = 1
 sysLoader.systematicsList= ['']
-SeqPHYSLITE += sysLoader
+ServiceMgr += sysLoader
 
 
 dataType = "data"
