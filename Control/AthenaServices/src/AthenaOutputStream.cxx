@@ -306,6 +306,9 @@ StatusCode AthenaOutputStream::initialize() {
      m_transient->clear();
    }
 
+   // Also make sure we have the dictionary for Token.
+   m_dictLoader->load_type ("Token");
+
    // listen to event range incidents if incident name is configured
    if( !m_outSeqSvc->incidentName().empty() ) {
       ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
