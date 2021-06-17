@@ -106,6 +106,9 @@ dEdxHitVars = '.'.join(dEdxHitToKeep)
 HPtdEdxTrkToKeep = ['trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
 HPtdEdxTrkVars = '.'.join(HPtdEdxTrkToKeep)
 
+L1TopoErrorFlagVars = '.'.join(['hasGenericRoiError', 'hasGenericDaqError', 'hasCrcTobError', 'hasCrcFibreError',
+                                'hasCrcDaqError', 'hasRoibDaqDifference', 'hasRoibCtpDifference', 'hasDaqCtpDifference'])
+
 TriggerHLTListRun3 = [
 
     # framework/steering
@@ -175,6 +178,9 @@ TriggerHLTListRun3 = [
 
     ('xAOD::EmTauRoIContainer#eTausPerf',                   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EmTauRoIAuxContainer#eTausPerfAux.',            'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+
+    ('xAOD::TrigCompositeContainer#L1TopoErrorFlags_Legacy', 'BS ESD AODFULL', 'L1'),
+    ('xAOD::TrigCompositeAuxContainer#L1TopoErrorFlags_LegacyAux.'+L1TopoErrorFlagVars, 'BS ESD AODFULL', 'L1'),
 
     # LArPS
     ('xAOD::TrigEMClusterContainer#HLT_LArPS_AllCaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:LArPS_AllEM_Views'),

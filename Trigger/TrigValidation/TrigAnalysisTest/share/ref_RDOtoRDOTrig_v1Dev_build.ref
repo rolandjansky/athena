@@ -5246,6 +5246,8 @@ HLT_j85_pf_ftf_preselj20_L1J20:
   stepFeatures:
     0: 19
     1: 20
+HLT_l1topodebug_legacy_L1All:
+  eventCount: 0
 HLT_larnoiseburst_L1XE60:
   eventCount: 6
   stepCounts:
