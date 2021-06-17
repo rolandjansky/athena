@@ -455,7 +455,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ++c;
     }
   }
-  
+
   // Print all triggers
   if (msgLevel(MSG::DEBUG)) {
     if (m_triggers.size()) {
@@ -821,11 +821,10 @@ void RatesAnalysisAlg::writeMetadata() {
     lvl1PrescaleKey = m_configSvc->lvl1PrescaleKey();
   }
 
-  if (bunchGroups.size() == 0) {
-    for (size_t i = 0; i < 16; ++i) {
-      bunchGroups.push_back(0);
-    }
+  if (bunchGroups.size() == 0 || std::all_of(bunchGroups.begin(), bunchGroups.end(), [](int i) { return i==0; })) {
+    bunchGroups = m_enhancedBiasRatesTool->getBunchGroups();
   }
+
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
 
   m_metadataTree->Branch("hltChainIDGroup", &m_hltChainIDGroup);

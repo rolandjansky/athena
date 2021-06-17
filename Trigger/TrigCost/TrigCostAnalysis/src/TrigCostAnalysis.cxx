@@ -217,9 +217,10 @@ StatusCode TrigCostAnalysis::execute() {
   std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
 
   // Skip empty events, where only cost chain was active
+  bool skipMonitoringThisEvent = false;
   if ((seededChains.size() == 1 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")))
     || (seededChains.size() == 2 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")) && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_L1All"))) ){
-    return StatusCode::SUCCESS;
+    skipMonitoringThisEvent = true;
   }
 
   for (auto id : seededChains){
@@ -246,7 +247,7 @@ StatusCode TrigCostAnalysis::execute() {
     costData.setLivetime( liveTime, liveTimeIsPerEvent );
   }
 
-  ATH_CHECK( range->newEvent( costData, getWeight(context) ) );
+  ATH_CHECK( range->newEvent( costData, getWeight(context), skipMonitoringThisEvent ) );
 
   if (checkDoFullEventDump(context, costData)) {
     ATH_CHECK( dumpEvent(context) );

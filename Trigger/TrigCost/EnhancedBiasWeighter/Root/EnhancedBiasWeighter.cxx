@@ -220,6 +220,7 @@ StatusCode EnhancedBiasWeighter::loadLumi()
 
       XMLNodePointer_t node = xml->GetChild( listNode );
       while( node != 0) { 
+        m_bunches.push_back( std::atoi( xml->GetNodeContent(node) ) );
         if ( xml->GetNodeName(node) == std::string("bunchgroup") && xml->HasAttr(node, "name") &&
             (std::string(xml->GetAttr(node, "name")) == "Paired" || std::string(xml->GetAttr(node, "name")) == "Filled")) {
           m_pairedBunches = std::atoi( xml->GetNodeContent(node) );
