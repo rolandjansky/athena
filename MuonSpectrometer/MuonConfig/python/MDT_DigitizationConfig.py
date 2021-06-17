@@ -47,7 +47,7 @@ def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
     acc = ComponentAccumulator()
-    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
+    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig", "False") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
     acc.setPrivateTools(MDT_Response_DigiTool(name, **kwargs))

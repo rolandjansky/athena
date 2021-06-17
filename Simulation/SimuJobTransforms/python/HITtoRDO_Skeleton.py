@@ -38,16 +38,16 @@ def fromRunArgs(runArgs):
         detectors = None
 
     # Setup digitization flags
-    from Digitization.DigitizationConfigFlags import digitizationRunArgsToFlags, pileupRunArgsToFlags
+    from Digitization.DigitizationConfigFlags import digitizationRunArgsToFlags
     digitizationRunArgsToFlags(runArgs, ConfigFlags)
-    pileupRunArgsToFlags(runArgs, ConfigFlags)
 
     # Setup common digitization flags
-    from Digitization.DigitizationSteering import setupDigitizationFlags
-    setupDigitizationFlags(ConfigFlags)
+    from Digitization.DigitizationConfigFlags import setupDigitizationFlags
+    setupDigitizationFlags(runArgs, ConfigFlags)
+    log.info('Running with pile-up: %s', ConfigFlags.Digitization.PileUp)
 
     # Setup detector flags
-    ConfigFlags.Digitization.TruthOutput = True  # temporary
+    ConfigFlags.Digitization.TruthOutput = True  # TODO: temporary
     if detectors:
         from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
         setupDetectorsFromList(ConfigFlags, detectors)
@@ -57,6 +57,15 @@ def fromRunArgs(runArgs):
 
     # Pre-exec
     processPreExec(runArgs, ConfigFlags)
+
+    # Load pile-up stuff after pre-include/exec to ensure everything is up-to-date
+    from Digitization.DigitizationConfigFlags import pileupRunArgsToFlags
+    pileupRunArgsToFlags(runArgs, ConfigFlags)
+
+    # Setup pile-up profile
+    if ConfigFlags.Digitization.PileUp:
+        from Digitization.PileUpUtils import setupPileUpProfile
+        setupPileUpProfile(ConfigFlags)
 
     # TODO not parsed yet:
     # '--outputRDO_FILTFile'

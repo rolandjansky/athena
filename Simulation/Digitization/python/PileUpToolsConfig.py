@@ -29,5 +29,9 @@ def PileUpToolsCfg(flags, **kwargs):
     else:
         Alg = DigitizationAlg
 
+    # setup EventInfo
+    if flags.Digitization.PileUpPresampling:
+        kwargs["EventInfoKey"] = flags.Overlay.BkgPrefix + 'EventInfo'
+
     acc.addEventAlgo(Alg(flags.Digitization.DigiSteeringConf, **kwargs))
     return acc

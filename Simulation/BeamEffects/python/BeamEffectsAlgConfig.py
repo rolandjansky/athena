@@ -153,8 +153,7 @@ def BeamSpotReweightingAlgCfg(ConfigFlags, **kwargs):
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     acc = BeamSpotCondAlgCfg(ConfigFlags)
 
-    from Digitization.DigitizationFlags import digitizationFlags
-    kwargs.setdefault('Input_beam_sigma_z', digitizationFlags.OldBeamSpotZSize())
+    kwargs.setdefault('Input_beam_sigma_z', ConfigFlags.Digitization.InputBeamSigmaZ)
 
     alg = CompFactory.Simulation.BeamSpotReweightingAlg(name="BeamSpotReweightingAlg", **kwargs)
     acc.addEventAlgo(alg)

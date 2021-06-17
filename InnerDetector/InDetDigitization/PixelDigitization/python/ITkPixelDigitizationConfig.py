@@ -143,6 +143,12 @@ def ITkPixelDigitizationToolCfg(flags, name="ITkPixelDigitizationTool", **kwargs
     rangetool = acc.popToolsAndMerge(ITkPixelRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    if flags.Digitization.PileUpPresampling:
+        kwargs.setdefault("RDOCollName", flags.Overlay.BkgPrefix + "ITkPixelRDOs")
+        kwargs.setdefault("SDOCollName", flags.Overlay.BkgPrefix + "ITkPixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", "ITkPixelRDOs")
+        kwargs.setdefault("SDOCollName", "ITkPixelSDO_Map")
     tool = acc.popToolsAndMerge(ITkPixelDigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc
