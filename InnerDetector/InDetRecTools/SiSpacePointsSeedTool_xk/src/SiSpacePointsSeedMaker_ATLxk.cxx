@@ -20,8 +20,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include "StoreGate/ReadCondHandle.h"
-#include <cmath>
-
 #include <iomanip>
 #include <ostream>
 
@@ -178,9 +176,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
       * We actually estimate the circle diameter, 2R, in the seeding. 
       * So what we want is: 2R = pT[MeV] x 2  / (300 x Bz) = K x pT[MeV]. 
       **/
-      data.K = 2./(300.*magField[2]);
+      data.K = 2.f/(300.f*float(magField[2]));
     } else {
-      data.K = 2./(300.* 5. );
+      data.K = 2.f/(300.f* 5.f );
     }
     /** helper variables allowing us to directly apply our pt cut on the variables
     * available at seed level. 
@@ -217,7 +215,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
   if (m_dbm) data.checketa = false;
 
   /// build the r-binning. 
-  float oneOverBinSizeR = 1./m_binSizeR;
+  float oneOverBinSizeR = 1.f/m_binSizeR;
   int   maxBinR  = m_nBinsR-1;
 
   /** This cleans up remaining entries in the data object. 
@@ -445,9 +443,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   if (fieldCache.solenoidOn()) {
     fieldCache.getFieldZR(globalPos,magField);
 
-    data.K = 2./(300.*magField[2]);
+    data.K = 2.f/(300.f*float(magField[2]));
   } else {
-    data.K = 2./(300.* 5. );
+    data.K = 2.f/(300.f* 5.f );
   }
 
   data.ipt2K = m_ipt2/(data.K*data.K);
@@ -456,7 +454,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
 
   data.i_spforseed = data.l_spforseed.begin();
 
-  float oneOverBinSizeR = 1./m_binSizeR;
+  float oneOverBinSizeR = 1.f/m_binSizeR;
   int   maxBinR  = m_nBinsR-1;
 
   data.r_first = 0;
@@ -546,13 +544,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
  
   data.zminB = IRD.zedMinus()-data.zbeam[0]; // min bottom Z
   data.zmaxB = IRD.zedPlus ()-data.zbeam[0]; // max bottom Z
-  data.zminU = data.zminB+550.*dzdrmin;
-  data.zmaxU = data.zmaxB+550.*dzdrmax;
-  double fmax    = IRD.phiPlus ();
-  double fmin    = IRD.phiMinus();
+  data.zminU = data.zminB+550.f*float(dzdrmin);
+  data.zmaxU = data.zmaxB+550.f*float(dzdrmax);
+  float fmax    = IRD.phiPlus ();
+  float fmin    = IRD.phiMinus();
   if (fmin > fmax) fmin -= twoPi;
-  data.ftrig  = (fmin+fmax)*.5;
-  data.ftrigW = (fmax-fmin)*.5;
+  data.ftrig  = (fmin+fmax)*.5f;
+  data.ftrigW = (fmax-fmin)*.5f;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -948,9 +946,9 @@ bool InDet::SiSpacePointsSeedMaker_ATLxk::newVertices(EventData& data, const std
 
   /// and also update the z interval, adding 20mm before/after the first/last vertex in z 
   /// make sure not to extend the interval beyond the user-configured z interval. 
-  data.zminU = (*data.l_vertex. begin())-20.;
+  data.zminU = (*data.l_vertex. begin())-20.f;
   if (data.zminU < m_zmin) data.zminU = m_zmin;
-  data.zmaxU = (*data.l_vertex.rbegin())+20.;
+  data.zmaxU = (*data.l_vertex.rbegin())+20.f;
   if (data.zmaxU > m_zmax) data.zmaxU = m_zmax;
 
   /// Ich bin der Geist, der stets verneint!
@@ -983,12 +981,12 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   /// symmetrise eta cut if eta min not explicitly set 
   if (std::abs(m_etamin) < .1) m_etamin = -m_etamax;
   /// set dz/dr cut values based on eta cuts
-  m_dzdrmax0  = 1./std::tan(2.*std::atan(std::exp(-m_etamax)));
-  m_dzdrmin0  = 1./std::tan(2.*std::atan(std::exp(-m_etamin)));
+  m_dzdrmax0  = 1.f/std::tan(2.f*std::atan(std::exp(-m_etamax)));
+  m_dzdrmin0  = 1.f/std::tan(2.f*std::atan(std::exp(-m_etamin)));
   
   m_r3max     = m_r_rmax;
   /// cache inverse pt cuts 
-  m_ipt       = 1./std::abs(.9*m_ptmin);
+  m_ipt       = 1.f/std::abs(.9f*m_ptmin);
   m_ipt2      = m_ipt*m_ipt;
 
   /// set up the score thresholds based on the user-supplied properties
@@ -997,11 +995,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   /// Hence, by subtracting one, we get all seeds which have 
   /// received an additional bonus in addition to the PPP/SSS one, 
   /// which is the confirmation one by construction. 
-  m_seedScoreThresholdPPPConfirmationSeed = m_seedScoreBonusPPP - 1.; 
-  m_seedScoreThresholdSSSConfirmationSeed = m_seedScoreBonusSSS - 1.; 
+  m_seedScoreThresholdPPPConfirmationSeed = m_seedScoreBonusPPP - 1.f; 
+  m_seedScoreThresholdSSSConfirmationSeed = m_seedScoreBonusSSS - 1.f; 
 
   /// Build radius sorted containers
-  m_nBinsR = static_cast<int>((m_r_rmax+.1)/m_binSizeR);
+  m_nBinsR = static_cast<int>((m_r_rmax+.1f)/m_binSizeR);
 
   /** 
    * Now we construct the radius-azimuthal sorted containers.
@@ -1009,7 +1007,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   **/
 
   /// determine the phi binning 
-  constexpr float twoPi = 2.*M_PI;
+  constexpr float twoPi = 2.f*M_PI;
 
   /// The max Nb. of bins possible is given by the binning enum 
   const int   nPhiBinsMax = arraySizePhi;
@@ -1037,13 +1035,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
     /// The factor 3 we divide by is motivated by the fact that we combine sets of
     /// three consecutive phi bins in the seed making step. So each individual bin should 
     /// be approximately a third of the maximum expected azimutal deflection
-    const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd)/3. : 0.; 
+    const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd)/3.f : 0.f; 
     /// case 2: SSS seeds, if we use them
     constexpr float radiusSctStart = 295.; ; /// approximate lowest R location of strip hits (driven by barrel)
     constexpr float radiusSctEnd = 560.; /// approximate largest R location of strip hits (driven by endcap)
-    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,radiusSctStart,radiusSctEnd)/3. : 0.; 
+    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,radiusSctStart,radiusSctEnd)/3.f : 0.f; 
     /// pick the larger of the two and invert
-    m_inverseBinSizePhi = 1./std::max(binSizePhi_PPP, binSizePhi_SSS); 
+    m_inverseBinSizePhi = 1.f/std::max(binSizePhi_PPP, binSizePhi_SSS); 
   }
   else {
     /// this is the default phi binning as operated in release 21 - optimised for 
@@ -1051,7 +1049,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
     float ptm = 400.; 
     /// if we cut below 400 MeV, adapt the ptm 
     if (!m_dbm && m_ptmin < ptm) ptm = m_ptmin;
-    m_inverseBinSizePhi = ptm /60.;
+    m_inverseBinSizePhi = ptm /60.f;
   }
 
   /// truncate the bin size to fall within our thresholds
@@ -1067,7 +1065,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   /// same logic as for the space points above 
   const int   nPhiBinsVertexMax  = arraySizePhiV;
   const float inverseBinSizePhiVertexMax = static_cast<float>(nPhiBinsVertexMax)/twoPi;
-  m_inverseBinSizePhiVertex = m_ptmin/120.;
+  m_inverseBinSizePhiVertex = m_ptmin/120.f;
   if (m_inverseBinSizePhiVertex > inverseBinSizePhiVertexMax) m_inverseBinSizePhiVertex = inverseBinSizePhiVertexMax;
   m_maxBinPhiVertex = static_cast<int>(twoPi*m_inverseBinSizePhiVertex);
   if (m_maxBinPhiVertex>=nPhiBinsVertexMax) m_maxBinPhiVertex = nPhiBinsVertexMax-1;
@@ -1409,7 +1407,7 @@ float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const
   /// here we approximate the largest curvature
   /// that can be expected for the seeds we build
   /// using R[mm] ~ pT[MeV] / (0.3 * B[T]), with B == 2T
-  float Rm = pTmin/.6;
+  float Rm = pTmin/.6f;
 
   /// for LRT, the maximum allowed d0 may be larger than 
   /// the radius at which the innermost hit is possible.
@@ -1421,8 +1419,8 @@ float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const
   if (maxd0 > Rmin) worstCaseD0 = Rmin; 
 
   float sI = std::abs(std::asin(worstCaseD0/Rmin) - std::asin(worstCaseD0/Rmax)); 
-  float sF = std::abs(std::asin(std::min(1.,Rmax/(2.*Rm))) -
-                      std::asin(std::min(1.,Rmin/(2.*Rm))));
+  float sF = std::abs(std::asin(std::min(1.f,Rmax/(2.f*Rm))) -
+                      std::asin(std::min(1.f,Rmin/(2.f*Rm))));
   return sI+sF; 
 }
 
@@ -1538,14 +1536,14 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp(EventData& data) const
             float y  =-dx*ay+dy*ax;
             float xy = x*x+y*y;
             if (xy == 0.) continue;
-            float r2 = 1./xy;
+            float r2 = 1.f/xy;
             float Ut = x*r2;
             float Vt = y*r2;
-            float UR = Ut*R+1.;
+            float UR = Ut*R+1.f;
             if (UR == 0.) continue;
             float A  = Vt*R/UR;
             float B  = Vt-A*Ut;
-            if (std::abs(B*data.K) > m_ipt*std::sqrt(1.+A*A)) continue;
+            if (std::abs(B*data.K) > m_ipt*std::sqrt(1.f+A*A)) continue;
             ++nseed;
             newSeed(data, (*r), (*r0), Zo);
           }
@@ -1906,7 +1904,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float y   = dy*ax-dx*ay;
 
       /// inverse square distance of the candidate space point to the central point 
-      float r2  = 1./(x*x+y*y);
+      float r2  = 1.f/(x*x+y*y);
       /// inverse distance of the candidate space point to the central point 
       float dr  = std::sqrt(r2);
       /// estimate slope in z - distance traveled in transverse plane vs z direction. 
@@ -1939,7 +1937,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float  Erb  = data.Er[b];       ///< this is the uncertainty in 1/tanTheta on the bottom segment resulting from the position errors in the 2 SP
       float  Vb   = data.V [b];       ///< v-coordinate of bottom SP  
       float  Ub   = data.U [b];       ///< u-coordinate of bottom SP
-      float  Tzb2 = (1.+Tzb*Tzb);     ///< 1+1/tan²theta - converts transverse to total squared pt
+      float  Tzb2 = (1.f+Tzb*Tzb);     ///< 1+1/tan²theta - converts transverse to total squared pt
       float sTzb2 = std::sqrt(Tzb2);       ///< sqrt (1+1/tan²theta) - used to convert pt to |p|
       float sigmaSquaredScatteringPtDependent  = Tzb2*COFK;        ///< this, when divided by the 2R², yields an approximated multiple scattering term assuming the measured pt. 
       float sigmaSquaredScatteringMinPt  = Tzb2*ipt2C;       ///< this is an approximate worst case multiple scattering term assuming the lowest 
@@ -1958,16 +1956,16 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         /// is compatible within the assumed uncertainties. 
         
         /// average value of 1/tan(theta), approximate the slope at the location of the central space point
-        float meanOneOverTanTheta = (Tzb+data.Tz[t])/2.; 
+        float meanOneOverTanTheta = (Tzb+data.Tz[t])/2.f; 
         float theta = 0.;
         if(m_writeNtuple){
           /// theta estimate of the seed based on the average value of 1/tan(theta)
-          theta = atan(1./meanOneOverTanTheta);
+          theta = std::atan(1.f/meanOneOverTanTheta);
         }
         /// squared error on the difference in tan(theta) due to space point position errors. 
         float sigmaSquaredSpacePointErrors = Erb+data.Er[t]   /// pre-computed individual squared errors on 1/tan(theta) for the two segments 
-                        + 2. * covz0 * data.R[t]*data.R[b]    /// mixed term with z-uncertainty on central SP
-                        + 2. * covr0 * data.R[t]*data.R[b] * meanOneOverTanTheta * meanOneOverTanTheta; // mixed term with r-uncertainy on central SP
+                        + 2.f * covz0 * data.R[t]*data.R[b]    /// mixed term with z-uncertainty on central SP
+                        + 2.f * covr0 * data.R[t]*data.R[b] * meanOneOverTanTheta * meanOneOverTanTheta; // mixed term with r-uncertainy on central SP
         /// start out by subtracting from the squared difference in 1/tanTheta the space-point-related squared error
         float remainingSquaredDelta  = (Tzb-data.Tz[t])*(Tzb-data.Tz[t]) - sigmaSquaredSpacePointErrors; 
 
@@ -2000,7 +1998,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         if (deltaU == 0.) continue;       ///< delta U = 0 blocks the evaluation of A. 
         float A   = (data.V[t]-Vb)/deltaU;  ///< A parameter, slope of the seed point distribution in the U,V plane 
         float B   = Vb-A*Ub;            ///< B parameter, V axis intercept of the seed point distribution in the U,V plane 
-        float onePlusAsquare  = 1.+A*A;
+        float onePlusAsquare  = 1.f+A*A;
         float BSquare  = B*B;
 
         /** With this radius (and pT) estimate, we can apply our pt cut. 
@@ -2036,9 +2034,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         if(std::abs(B) < 1e-10) d0  = std::abs((A-B*R)*R);  
         /// apply the precise d0 calculation if we don't have to worry about floating point exceptions        
         else{
-          float x0 = -A/(2.*B);
-          float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5;
-          d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
+          float x0 = -A/(2.f*B);
+          float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5f;
+          d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2.f*x0*R +R*R));
         }
 
         /// apply d0 cut to seed 
@@ -2054,8 +2052,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
           if(m_writeNtuple){
             /// set parameters for ntuple writing
-            data.SP[t]->setEta(-log(tan(0.5*theta)));
-            data.SP[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000*data.K)); 
+            data.SP[t]->setEta(-std::log(std::tan(0.5f*theta)));
+            data.SP[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000.f*data.K)); 
           }
           /// record one possible seed candidate, sort by the curvature 
           data.CmSp.emplace_back(std::make_pair(B/std::sqrt(onePlusAsquare), data.SP[t]));
@@ -2148,7 +2146,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
         float Tz = (Z-(*r)->z())/dR;
         float Zo = Z-R*Tz;
         if (Zo < data.zminB || Zo > data.zmaxB) continue;
-        float Zu = Z+(550.-R)*Tz;
+        float Zu = Z+(550.f-R)*Tz;
         if (Zu < data.zminU || Zu > data.zmaxU) continue;
         data.SP[Nb] = (*r);
         if (++Nb==m_maxsizeSP) goto breakb;
@@ -2179,7 +2177,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
         float Tz = ((*r)->z()-Z)/dR;
         float Zo = Z-R*Tz;
         if (Zo < data.zminB || Zo > data.zmaxB) continue;
-        float Zu = Z+(550.-R)*Tz;
+        float Zu = Z+(550.f-R)*Tz;
         if (Zu < data.zminU || Zu > data.zmaxU) continue;
         data.SP[Nt] = (*r);
         if (++Nt==m_maxsizeSP) goto breakt;
@@ -2203,7 +2201,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
       float dz  = sp->z()-Z;
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
-      float r2  = 1./(x*x+y*y);
+      float r2  = 1.f/(x*x+y*y);
       float dr  = std::sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
@@ -2215,8 +2213,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
       data.V [i]   = y*r2;
       data.Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
     }
-    covr0      *= .5;
-    covz0      *= 2.;
+    covr0      *= .5f;
+    covz0      *= 2.f;
    
     // Three space points comparison
     //
@@ -2229,7 +2227,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
       float  Erb  = data.Er[b];
       float  Vb   = data.V [b];
       float  Ub   = data.U [b];
-      float  Tzb2 = (1.+Tzb*Tzb);
+      float  Tzb2 = (1.f+Tzb*Tzb);
       float  CSA  = Tzb2*COFK;
       float ICSA  = Tzb2*ipt2C;
       float d0max  = maxd0cut;
@@ -2243,7 +2241,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
         float deltaU  = data.U[t]-Ub;
         if (deltaU == 0.) continue;
         float A   = (data.V[t]-Vb)/deltaU;
-        float onePlusAsquare  = 1.+A*A;
+        float onePlusAsquare  = 1.f+A*A;
         float B   = Vb-A*Ub;
         float BSquare  = B*B;
         if (BSquare  > ipt2K*onePlusAsquare || dT*onePlusAsquare > BSquare*CSA) continue;
@@ -2254,7 +2252,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
         // Azimuthal angle test
         //
         float y  = 1.;
-        float x  = 2.*B*R-A;
+        float x  = 2.f*B*R-A;
         float df = std::abs(std::atan2(ay*y-ax*x,ax*y+ay*x)-data.ftrig);
         if (df > M_PI) df = twoPi-df;
         if (df > data.ftrigW) continue;
@@ -2325,7 +2323,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
 void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
 (EventData& data, SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob) const
 {
-  static const float curvatureInterval = .00003;
+  constexpr float curvatureInterval = .00003;
 
   bool  bottomSPisPixel = !SPb->spacepoint->clusterList().second;
   float bottomSPQuality   = SPb->quality();
@@ -2358,17 +2356,17 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
         bottomZ - (bottomR - originalSeedQuality) * ((topZ - bottomZ) / (topR - bottomR)) : bottomZ;
 
       float theta1 = std::abs(topR - bottomR) > 10e-9 ?
-        std::atan2(topR - bottomR, topZ - bottomZ) : 0.;
-      float eta1 = theta1 > 0 ? -std::log(std::tan(.5 * theta1)) : 0.;
+        std::atan2(topR - bottomR, topZ - bottomZ) : 0.f;
+      float eta1 = theta1 > 0.f ? -std::log(std::tan(.5f * theta1)) : 0.f;
 
-      float theta0 = seedIP > 0 ? std::atan2(seedIP, Zot) : 0;
-      float eta0 = theta0 > 0 ? -std::log(std::tan(.5 * theta0)) : 0.;
+      float theta0 = seedIP > 0.f ? std::atan2(seedIP, Zot) : 0.f;
+      float eta0 = theta0 > 0.f ? -std::log(std::tan(.5f * theta0)) : 0.f;
 
       float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
       //calculate weighted average of d0 and deltaEta, normalized by their maximum values
-      float f=std::min(0.5,originalSeedQuality/200.);  //0.5 and 200 are parameters chosen from a grid scan to optimize efficiency
-      seedQuality*=(1-f)/300.;
-      seedQuality+=f*deltaEta/2.5;
+      float f=std::min(0.5f,originalSeedQuality/200.f);  //0.5 and 200 are parameters chosen from a grid scan to optimize efficiency
+      seedQuality*=(1.f-f)/300.f;
+      seedQuality+=f*deltaEta/2.5f;
     }
 
     bool                topSPisPixel = !(*it_commonTopSP).second->spacepoint->clusterList().second;
@@ -2534,7 +2532,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::writeNtuple(const SiSpacePointsSeed* s
     std::lock_guard<std::mutex> lock(m_mutex);
 
     if(track != nullptr) {
-      m_trackPt = (track->trackParameters()->front()->pT())/1000.;
+      m_trackPt = (track->trackParameters()->front()->pT())/1000.f;
       m_trackEta = std::abs(track->trackParameters()->front()->eta());
     }
     else {
@@ -2585,7 +2583,7 @@ bool InDet::SiSpacePointsSeedMaker_ATLxk::isZCompatible
 
   //return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
   //(Minor) speed-up: Avoid calculation of sqrt, compare squares
-  return dZmin*dZmin < (m_dzver+m_dzdrver*R)*(m_dzver+m_dzdrver*R)*(1.+T*T);
+  return dZmin*dZmin < (m_dzver+m_dzdrver*R)*(m_dzver+m_dzdrver*R)*(1.f+T*T);
 }
 
 ///////////////////////////////////////////////////////////////////
