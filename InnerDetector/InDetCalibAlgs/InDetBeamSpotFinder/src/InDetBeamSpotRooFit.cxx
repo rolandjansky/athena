@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotRooFit.h"
@@ -158,13 +158,15 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
   double rmsCutZLow = mzStart - m_rmsCutNum * szStart;
   double rmsCutZHigh = mzStart + m_rmsCutNum * szStart;
 
-  std::string rmsCutString = static_cast<std::ostringstream*>( & (std::ostringstream() << "x > " << rmsCutXLow << " && "
-							     << "x < " << rmsCutXHigh << " && "
-							     << "y > " << rmsCutYLow  << " && "
-							     << "y < " << rmsCutYHigh << " && "
-							     << "z > " << rmsCutZLow  << " && "
-							     << "z < " << rmsCutZHigh) ) -> str();
-
+  std::ostringstream ss;
+  ss << "x > " << rmsCutXLow << " && "
+     << "x < " << rmsCutXHigh << " && "
+     << "y > " << rmsCutYLow  << " && "
+     << "y < " << rmsCutYHigh << " && "
+     << "z > " << rmsCutZLow  << " && "
+     << "z < " << rmsCutZHigh;
+  std::string rmsCutString = ss.str();
+  
   std::string combinedCutString = m_vtxCutString + std::string(" && ") + rmsCutString;
   const char *combinedCut = (const char*)combinedCutString.c_str();
 
