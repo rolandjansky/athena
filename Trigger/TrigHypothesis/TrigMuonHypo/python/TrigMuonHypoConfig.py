@@ -229,7 +229,8 @@ trigMuonLrtd0Cut = {
 #Fomat is [lower bound, upper bound] in GeV
 # <0 for no cut
 trigMuonEFInvMassThresholds = {
-    '10invm70' : [10., 70.]
+    '10invm70' : [10., 70.],
+    'invmJPsi' : [2.5, 4.3]
 }
 
 def addMonitoring(tool, monClass, name, thresholdHLT ):
@@ -766,8 +767,12 @@ def TrigMuonEFInvMassHypoToolFromDict( chainDict ) :
     cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
     #The invariant mass is specified at end of chain, so only shows up in the last chainPart
     thresholds = cparts[-1]['invMassInfo']
+    if "os" in cparts[-1]['addInfo']:
+        osCut=True
+    else:
+        osCut = False
     config = TrigMuonEFInvMassHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds, osCut )
     addMonitoring( tool, TrigMuonEFInvMassHypoMonitoring, "TrigMuonEFInvMassHypoTool", chainDict['chainName'] )
     return tool
 
@@ -775,7 +780,7 @@ class TrigMuonEFInvMassHypoConfig(object) :
 
     log = logging.getLogger('TrigMuonEFInvMassHypoConfig')
 
-    def ConfigurationHypoTool(self, toolName, thresholds):
+    def ConfigurationHypoTool(self, toolName, thresholds, osCut):
 
         tool = CompFactory.TrigMuonEFInvMassHypoTool(toolName)
 
@@ -785,6 +790,7 @@ class TrigMuonEFInvMassHypoConfig(object) :
             tool.InvMassLow = massWindow[0]
             tool.InvMassHigh = massWindow[1]
             tool.AcceptAll = False
+            tool.SelectOppositeSign = osCut
 
         except LookupError:
             if(thresholds=='passthrough') :

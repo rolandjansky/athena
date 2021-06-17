@@ -124,7 +124,10 @@ def setupMenu():
         ChainProp(name='HLT_mu20_mu6noL1_nscan_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'],   groups=MultiMuonGroup),
 
         #ATR-20505
-        ChainProp(name='HLT_2mu50_msonly_L1MU20', groups=PrimaryLegGroup+SingleMuonGroup),        
+        ChainProp(name='HLT_2mu50_msonly_L1MU20', groups=PrimaryLegGroup+SingleMuonGroup),   
+
+        #ATR-23614 
+        ChainProp(name='HLT_mu20_mu2noL1_invmJPsi_os_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [

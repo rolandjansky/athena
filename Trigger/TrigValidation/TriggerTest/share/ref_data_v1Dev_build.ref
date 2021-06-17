@@ -2402,6 +2402,14 @@ HLT_mu20_ivarmedium_mu8noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu20_mu2noL1_invmJPsi_os_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_mu20_mu6noL1_nscan_L1MU20:
   eventCount: 0
   stepCounts:
