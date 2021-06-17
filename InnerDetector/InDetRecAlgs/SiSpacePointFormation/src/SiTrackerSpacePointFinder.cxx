@@ -126,10 +126,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   
   auto nReceivedClustersSCT = Monitored::Scalar<int>( "numSctClusters" , 0 );
   auto nReceivedClustersPIX = Monitored::Scalar<int>( "numPixClusters" , 0 );
-  auto nSCTspacePoints = Monitored::Scalar<int>( "numSctSpacePoints"   , 0 );
-  auto nPIXspacePoints = Monitored::Scalar<int>( "numPixSpacePoints"   , 0 );
 
-  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
+  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT );
 
   if (m_selectSCTs) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
@@ -236,7 +234,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       }
 
       size_t size = spacepointCollection->size();
-      nSCTspacePoints = size;
       if (size == 0){
         ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
       } else {
@@ -249,6 +246,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_VERBOSE( size << " SpacePoints successfully added to Container !" );
       }
     }
+    m_numberOfSCT+= sct_clcontainer->size();
   }
 
   if (m_selectPixels)
@@ -293,7 +291,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_DEBUG( "Empty pixel cluster collection" );
       }
       size_t size = spacepointCollection->size();
-      nPIXspacePoints = spacepointCollection->size();
       if (size == 0)
       {
         ATH_MSG_DEBUG( "SiTrackerSpacePointFinder algorithm found no space points" );
@@ -310,6 +307,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
             << " SpacePoints successfully added to Container !" );
       }
     }
+    m_numberOfPixel+= pixel_clcontainer->size();
   }
 
   // store the overlap space points.
@@ -322,14 +320,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   {
     ATH_MSG_DEBUG( spacepointoverlapCollection->size() <<" overlap space points registered." );
   }
-  if (m_selectPixels) {
-    auto c = spacePointContainerPixel->numberOfCollections();
-    m_numberOfPixel += c;
-  }
-  if (m_selectSCTs) {
-    auto c = spacePointContainer_SCT->numberOfCollections();
-    m_numberOfSCT   += c;
-  }
+
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
      m_sctCacheHits  += sctCacheCount;
