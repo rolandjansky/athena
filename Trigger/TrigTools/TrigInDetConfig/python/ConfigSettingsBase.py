@@ -34,17 +34,19 @@ class _ConfigSettingsBase() :
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
-      self._doTRT               = True 
+      self._doTRT               = True
       self._keepTrackParameters = False # Keep track parameters in conversion to TrackParticles
       self._UsePixelSpacePoints = True
       self._TrackInitialD0Max   = 20.0
       self._TrackZ0Max          = 300.0
       self._isLRT               = False
-      self._UseTrigSeedML       = None 
+      self._UseTrigSeedML       = None
       self._RoadWidth           = 10
       self._nClustersMin        = None
       self._roi                 = None
       self._isLRT               = False
+      self._LRTD0Min            = None
+      self._LRTHardPtMin        = None
       self._doRecord            = True
       self._vertex              = None
       self._adaptiveVertex      = False
@@ -54,11 +56,11 @@ class _ConfigSettingsBase() :
       self._vertex_jet          = None
       self._adaptiveVertex_jet  = False
       self._dodEdxTrk           = False
-      
+
    def tracks_FTF(self):
       if not self._suffix:
          raise Exception( "ID Trigger configuration:  called with non existent slice: ", self._name, self._input_name  )
-      if self._doRecord: 
+      if self._doRecord:
          return recordable('HLT_IDTrack_{}_FTF'.format( self._suffix ))
       else:
          return 'HLT_IDTrack_{}_FTF'.format( self._suffix )
@@ -199,6 +201,14 @@ class _ConfigSettingsBase() :
        return self._isLRT
 
    @property
+   def LRT_D0Min(self):
+       return self._LRTD0Min
+
+   @property
+   def LRT_HardMinPt(self):
+       return self._LRTHardPtMin
+
+   @property
    def roi(self):
       return self._roi
 
@@ -226,7 +236,7 @@ class _ConfigSettingsBase() :
    def vertex(self):
       if not self._vertex:
          raise Exception( "ID Trigger configuration: vertex not defined for slice: ", self._name, self._input_name  )
-      if self._doRecord: 
+      if self._doRecord:
          return recordable(self._vertex)
       else:
          return self._vertex
@@ -235,7 +245,7 @@ class _ConfigSettingsBase() :
    def vertex_jet(self):
       if not self._vertex_jet:
          raise Exception( "ID Trigger configuration: vertex_jet not defined for slice: ", self._name, self._input_name  )
-      if self._doRecord: 
+      if self._doRecord:
          return recordable(self._vertex_jet)
       else:
          return self._vertex_jet
@@ -293,6 +303,8 @@ class _ConfigSettingsBase() :
       log.info( "   TrackZ0Max            : {}".format( self._TrackZ0Max ) )
       log.info( "   adaptiveVertex        : {}".format( self._adaptiveVertex ) )
       log.info( "   isLRT                 : {}".format( self._isLRT ) )
+      log.info( "   LRTD0Min              : {}".format( self._LRTD0Min ) )
+      log.info( "   LRTHardPtmin          : {}".format( self._LRTHardPtMin ) )
       log.info( "   doJseedHitDV          : {}".format( self._doJseedHitDV ) )
       log.info( "   nClustersMin          : {}".format( self._nClustersMin ) )
       log.info( "   useBremModel          : {}".format( self._useBremModel ) )

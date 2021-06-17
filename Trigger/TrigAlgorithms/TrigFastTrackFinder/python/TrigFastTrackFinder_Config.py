@@ -272,6 +272,12 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.LRT_Mode = config.isLRT
 
+        if config.LRT_D0Min is not None:
+            self.LRT_D0Min = config.LRT_D0Min
+
+        if config.LRT_HardMinPt is not None:
+            self.LRT_HardMinPt = config.LRT_HardMinPt
+
         self.Triplet_MaxBufferLength = 3
         self.doSeedRedundancyCheck = config.doSeedRedundancyCheck
         self.Triplet_D0Max         = config.Triplet_D0Max
@@ -284,8 +290,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.pTmin           = config.pTmin
         self.DoubletDR_Max   = config.DoubletDR_Max
         self.SeedRadBinWidth = config.SeedRadBinWidth
-        
-        if config.UseTrigSeedML is not None: 
+
+        if config.UseTrigSeedML is not None:
             self.UseTrigSeedML = config.UseTrigSeedML
 
         if remapped_type=="cosmics":
@@ -337,7 +343,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             nClustersMin = config.nClustersMin
         else:
             nClustersMin = TrackingCuts.minClusters()
-        
+
         TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+slice_name,
                                               RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                               CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,

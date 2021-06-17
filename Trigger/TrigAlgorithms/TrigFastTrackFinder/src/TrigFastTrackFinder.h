@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // filename: TrigFastTrackFinder.h
-// 
+//
 // Description: a part of HLT ID tracking
-// 
+//
 // date: 16/04/2013
-// 
+//
 // -------------------------------
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 
-#include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "InDetRecToolInterfaces/ISiTrackMaker.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
@@ -51,7 +51,7 @@
 
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h" 
+#include "InDetIdentifier/PixelID.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
@@ -75,7 +75,7 @@ namespace InDet {
   class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
   {
   public:
-    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) { 
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) {
       if (!key.key().empty()) {
         m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key, ctx);
         if (!m_prdToTrackMap.isValid()) {
@@ -93,7 +93,7 @@ namespace InDet {
 class TrigFastTrackFinder : public AthReentrantAlgorithm {
 
  public:
-  
+
   TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TrigFastTrackFinder();
   virtual StatusCode initialize() override;
@@ -111,7 +111,7 @@ class TrigFastTrackFinder : public AthReentrantAlgorithm {
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
 
-protected: 
+protected:
 
   void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&) const;
   void extractClusterIds(const Trk::SpacePoint*, std::vector<Identifier>&) const;
@@ -123,7 +123,7 @@ protected:
 
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
-  ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
+  ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
@@ -140,7 +140,7 @@ protected:
 
   SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
      {this,"PRDtoTrackMap",""};
- 
+
   // DataHandles for UTT
   SG::ReadHandleKey<DataVector<LVL1::RecJetRoI>> m_recJetRoiCollectionKey {this, "RecJetRoI", "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey{this, "HitDVSeed", "", ""};
@@ -152,7 +152,7 @@ protected:
   // Control flags
 
   bool m_doCloneRemoval;
-  bool m_useBeamSpot; 
+  bool m_useBeamSpot;
 
   bool m_vertexSeededMode;
 
@@ -170,18 +170,18 @@ protected:
 
   int  m_minHits;
 
-  int                     m_nfreeCut;     // Min number free clusters 
+  int                     m_nfreeCut;     // Min number free clusters
 
 
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
-  float m_Z0Max;                        
+  float m_Z0Max;
   bool m_checkSeedRedundancy;
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
-  // Monitoring member functions 
+  // Monitoring member functions
 
   void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi, const EventContext& ctx) const;
   void runResidualMonitoring(const Trk::Track& track, const EventContext&) const;
@@ -215,7 +215,9 @@ protected:
 
   // Large Radius Tracking
   bool m_LRTmode;
-  
+  float m_LRTD0Min;
+  float m_LRTHardMinPt;
+
   std::string m_trigseedML_LUT;//ML-based track seeding LUT name
 
   // L1 J seeded hit-based displaced vertex

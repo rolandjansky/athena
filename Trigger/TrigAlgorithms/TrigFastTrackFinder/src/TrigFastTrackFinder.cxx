@@ -64,6 +64,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_useNewLayerNumberScheme(false),
   m_useGPU(false),
   m_LRTmode(false),
+  m_LRTD0Min(0.0),
+  m_LRTHardMinPt(0.0),
   m_trigseedML_LUT(""),
   m_doJseedHitDV(false),
   m_dodEdxTrk(false)
@@ -141,6 +143,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("useGPU", m_useGPU = false);
 
   declareProperty("LRT_Mode", m_LRTmode);
+  declareProperty("LRT_D0Min", m_LRTD0Min=0.0);
+  declareProperty("LRT_HardMinPt", m_LRTHardMinPt=0.0);
 
   // UTT
   declareProperty("doJseedHitDV", m_doJseedHitDV = false);
@@ -657,6 +661,32 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
         ATH_MSG_DEBUG(**fittedTrack);
         fittedTrack = outputTracks.erase(fittedTrack);
         continue;
+      }
+
+      if(m_LRTmode){
+        //reject tracks which have a d0 below a cut but only when an input track collection (from ftf) is also present
+        if(m_LRTD0Min>0.0){
+          if(std::abs(d0) < m_LRTD0Min && !m_inputTracksKey.key().empty()){
+            ATH_MSG_DEBUG("REGTEST / Reject track after fit for min d0 (" << d0 << " < " << m_LRTD0Min <<")");
+            fittedTrack = outputTracks.erase(fittedTrack);
+            continue;
+          }
+        }
+
+        //calculate pt
+        float trkPt = 0.0;
+        if(m_LRTHardMinPt > 0.0){
+          //avoid a floating poitn error
+          if(std::abs((*fittedTrack)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9){
+            trkPt = std::sin((*fittedTrack)->perigeeParameters()->parameters()[Trk::theta])/std::abs((*fittedTrack)->perigeeParameters()->parameters()[Trk::qOverP]);
+
+            if(trkPt < m_LRTHardMinPt){
+              ATH_MSG_DEBUG("REGTEST / Reject track after fit for min pt (" << trkPt << " < " << m_LRTHardMinPt <<")");
+              fittedTrack = outputTracks.erase(fittedTrack);
+              continue;
+            }
+          }
+        }
       }
     }
 
@@ -1479,7 +1509,7 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
 
    const float  TRKCUT_A0BEAM       = 2.5;
    const int    TRKCUT_N_HITS_INNER = 1;
-   const int    TRKCUT_N_HITS_PIX   = 2; 
+   const int    TRKCUT_N_HITS_PIX   = 2;
    const int    TRKCUT_N_HITS       = 4;
 
    const float  TRKCUT_PTGEV_LOOSE  =  3.0;
@@ -1492,23 +1522,23 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       ATH_MSG_DEBUG("UTT: +++++++ i_track: " << i_track << " +++++++");
 
       i_track++;
-      if ( ! track->perigeeParameters() ) continue; 
+      if ( ! track->perigeeParameters() ) continue;
       if ( ! track->trackSummary() )      continue;
       float n_hits_innermost = 0;  float n_hits_next_to_innermost = 0; float n_hits_inner = 0; float n_hits_pix = 0; float n_hits_sct = 0;
-      n_hits_innermost = (float)track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
-      n_hits_next_to_innermost = (float)track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
+      n_hits_innermost = (float)track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits);
+      n_hits_next_to_innermost = (float)track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits);
       n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
       n_hits_pix = (float)track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
       n_hits_sct = (float)track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
       if( n_hits_inner < TRKCUT_N_HITS_INNER )      continue;
       if( n_hits_pix < TRKCUT_N_HITS_PIX )          continue;
       if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS ) continue;
-      float theta = track->perigeeParameters()->parameters()[Trk::theta]; 
+      float theta = track->perigeeParameters()->parameters()[Trk::theta];
       float pt    = std::abs(1./track->perigeeParameters()->parameters()[Trk::qOverP]) * sin(theta);
       float ptgev = pt / 1000.0;
       if( ptgev < TRKCUT_PTGEV_LOOSE ) continue;
-      float a0   = track->perigeeParameters()->parameters()[Trk::d0]; 
-      float phi0 = track->perigeeParameters()->parameters()[Trk::phi0]; 
+      float a0   = track->perigeeParameters()->parameters()[Trk::d0];
+      float phi0 = track->perigeeParameters()->parameters()[Trk::phi0];
       float shift_x = 0; float shift_y = 0;
       if( m_useBeamSpot ) getBeamSpot(shift_x, shift_y, ctx);
       float a0beam = a0 + shift_x*sin(phi0)-shift_y*cos(phi0);
@@ -1571,7 +1601,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 				std::vector<int>&   v_pixhit_iblovfl, std::vector<int>&   v_pixhit_loc,     std::vector<int>& v_pixhit_layer) const
 {
    const float Pixel_sensorthickness=.025;      // 250 microns Pixel Planars
-   const float IBL_3D_sensorthickness=.023;     // 230 microns IBL 3D 
+   const float IBL_3D_sensorthickness=.023;     // 230 microns IBL 3D
    const float IBL_PLANAR_sensorthickness=.020; // 200 microns IBL Planars
 
    const float energyPair = 3.68e-6; // Energy in MeV to create an electron-hole pair in silicon
@@ -1580,7 +1610,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    float conversion_factor=energyPair/sidensity;
 
    // Loop over pixel hits on track, and calculate dE/dx:
-   
+
    pixelhits  = 0;
    n_usedhits = 0;
 
@@ -1602,14 +1632,14 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    std::multimap<float,int> dEdxMap;
    int   n_usedIBLOverflowHits=0;
    float dEdxValue = 0;
-   
+
    // Check for track states:
    const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = track->trackStateOnSurfaces();
    if (recoTrackStates) {
 
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIter    = recoTrackStates->begin();
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIterEnd = recoTrackStates->end();
- 
+
       int i_tsos=0;
 
       // Loop over track states on surfaces (i.e. generalized hits):
@@ -1654,7 +1684,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	 int    bec        = m_pixelId->barrel_ec(pixclus->identify());
 	 int    layer      = m_pixelId->layer_disk(pixclus->identify());
 	 int    eta_module = m_pixelId->eta_module(pixclus->identify()); //check eta module to select thickness
-       
+
 	 float chi2  = 0.;
 	 float ndof  = 0.;
 	 const Trk::FitQualityOnSurface* fq = (*tsosIter)->fitQualityOnSurface();
@@ -1667,7 +1697,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	 float thickness=0;
 	 int loc=-1;
 
-	 if ( (bec==0) and (layer==0) ){ // IBL 
+	 if ( (bec==0) and (layer==0) ){ // IBL
 	    const float overflowIBLToT = 16; // m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
 	    for (int pixToT : v_tots) {
 	       if (pixToT >= overflowIBLToT) {
@@ -1711,15 +1741,15 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	    if(iblOverflow==1)n_usedIBLOverflowHits++;
 	 }
 	 ATH_MSG_DEBUG("UTT: dEdx=" << dEdxValue);
-	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot); 
+	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot);
 	 v_pixhit_trkchi2.push_back(chi2); v_pixhit_trkndof.push_back(ndof);
-	 v_pixhit_iblovfl.push_back(iblOverflow); v_pixhit_loc.push_back(loc); v_pixhit_layer.push_back(layer); 
+	 v_pixhit_iblovfl.push_back(iblOverflow); v_pixhit_loc.push_back(loc); v_pixhit_layer.push_back(layer);
       }
    }
- 
+
    // Now calculate dEdx, multimap is already sorted in ascending order
    // float averageCharge=-1;
-   
+
    float averagedEdx=0.;
    int IBLOverflow=0;
 
@@ -1732,7 +1762,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
          averagedEdx += itdEdx.first;
          n_usedhits++;
       }
-      if(itdEdx.second > 0){ 
+      if(itdEdx.second > 0){
 	 ATH_MSG_DEBUG("UTT: IBLOverflow");
          IBLOverflow++;
       }
@@ -1741,8 +1771,8 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	 ATH_MSG_DEBUG("UTT: break, skipping last or two last elements");
 	 break;
       }
-     
-      // break, IBL Overflow case pixelhits==3 and 4 
+
+      // break, IBL Overflow case pixelhits==3 and 4
       if((int)IBLOverflow>0 and ((int)pixelhits==3) and (int)n_usedhits==1) {
 	 ATH_MSG_DEBUG("UTT: break, IBL overflow case, pixel hits=3");
 	 break;
@@ -1754,25 +1784,25 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 
       if (((int)pixelhits > 1) and ((int)n_usedhits >=(int)pixelhits-1)) {
 	 ATH_MSG_DEBUG("UTT: break, skipping last??");
-	 break; 
+	 break;
       }
 
       if((int)IBLOverflow>0 and (int)pixelhits==1){ // only IBL in overflow
 	 ATH_MSG_DEBUG("UTT: break, only IBL in overflow");
          averagedEdx=itdEdx.first;
          break;
-      }   
+      }
    }
-   
+
    if (n_usedhits > 0 or (n_usedhits==0 and(int)IBLOverflow>0 and (int)pixelhits==1)) {
       if(n_usedhits > 0) averagedEdx = averagedEdx / n_usedhits;
       //if(n_usedhits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx;  //no-op
       ATH_MSG_DEBUG("UTT: =====> averaged dEdx = " << averagedEdx << " =====>");;
       ATH_MSG_DEBUG("UTT:    +++ Used hits: " << n_usedhits << ", IBL overflows: " << IBLOverflow );;
       ATH_MSG_DEBUG("UTT:    +++ Original number of measurements = " << pixelhits << " (map size = " << dEdxMap.size() << ") ");
-      return averagedEdx;  
+      return averagedEdx;
    }
-   
+
    // -- false return
    ATH_MSG_DEBUG("UTT: dEdx not calculated, return 0");
    return 0.;
