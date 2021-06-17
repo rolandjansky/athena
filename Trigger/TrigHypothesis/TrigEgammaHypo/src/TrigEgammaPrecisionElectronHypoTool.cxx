@@ -3,6 +3,7 @@
 */
 
 #include <algorithm>
+#include <cmath>
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -28,6 +29,7 @@ StatusCode TrigEgammaPrecisionElectronHypoTool::initialize()
   ATH_MSG_DEBUG( "ETthr          = " << m_eTthr    );
   ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
+  ATH_MSG_DEBUG( "d0Cut          = " << m_d0 );
   
   if ( m_etabin.empty() ) {
     ATH_MSG_ERROR(  " There are no cuts set (EtaBins property is an empty list)" );
@@ -61,10 +63,11 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
   auto mon_mu       = Monitored::Scalar("mu",   -1.);
   auto mon_ptcone20 = Monitored::Scalar("ptcone20",   -99.);
   auto mon_relptcone20 = Monitored::Scalar("ptcone20",   -99.);
+  auto trk_d0       = Monitored::Scalar("trk_d0",   -1.);
   auto monitorIt    = Monitored::Group( m_monTool, dEta, dPhi, 
                                         etaBin, monEta,
                                         monPhi,PassedCuts,mon_lhval,mon_mu, 
-                                        mon_ptcone20, mon_relptcone20);
+                                        mon_ptcone20, mon_relptcone20, trk_d0);
 
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
@@ -104,6 +107,8 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
   dPhi =  fabs( pClus->phi() - phiRef );
   dPhi = ( dPhi < M_PI ? dPhi : 2*M_PI - dPhi ); // TB why only <
   ET  = pClus->et();
+
+  trk_d0 = std::abs(input.electron->trackParticle()->d0());
 
   // apply cuts: DeltaEta( clus-ROI )
   ATH_MSG_DEBUG( "Electron : eta="  << pClus->eta() 
@@ -145,6 +150,17 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
   }
   PassedCuts = PassedCuts + 1; // ET_em
   
+  // d0 for LRT
+  if (m_d0 and m_d0>0.)
+  {
+    ATH_MSG_DEBUG( "Electron: trk_d0=" << trk_d0 << " cut: >"  << m_d0 );
+    if ( trk_d0 < m_d0 ) {
+      ATH_MSG_DEBUG("REJECT d0 cut failed");
+      return pass;
+    }
+    PassedCuts = PassedCuts + 1; // d0
+  }
+
  
   // This is the last step. So pass is going to be the result of LH
   // get average luminosity information to calculate LH
