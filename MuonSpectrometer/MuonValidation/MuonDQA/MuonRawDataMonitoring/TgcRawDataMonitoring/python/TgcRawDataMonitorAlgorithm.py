@@ -18,18 +18,23 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
     result.merge(AtlasGeometryCfg(inputFlags))
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(inputFlags) )
-    else:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge(TrackingGeometrySvcCfg(inputFlags))
     
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
-    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(inputFlags))
+
+    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg', TrackExtrapolator = extrapolator)
+
+
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+        result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
+    else:
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        result.merge(TrackingGeometrySvcCfg(inputFlags))
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 

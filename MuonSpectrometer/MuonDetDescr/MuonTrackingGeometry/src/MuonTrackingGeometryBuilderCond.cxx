@@ -37,6 +37,9 @@
 #include "TrkGeometry/Material.h"
 #include<fstream>
 
+// Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
+
 // STD
 #include <map>
 
@@ -128,7 +131,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
   ATH_MSG_INFO( name() <<" building tracking geometry" );    
 
   // process muon material objects
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
   std::unique_ptr<const std::vector<std::unique_ptr <const Trk::DetachedTrackingVolume> > > stations;
   if (m_muonActive && m_stationBuilder){ 
     auto stationsPair = m_stationBuilder->buildDetachedTrackingVolumes(ctx);

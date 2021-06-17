@@ -6,6 +6,7 @@
 // Trk includes
 #include "TrkGeometry/TrackingGeometry.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "TrkDetDescrSvc/TrackingGeometrySvc.h"
 
 #include "TrackingGeometryCondAlg/TrackingGeometryCondAlg.h"
@@ -52,7 +53,7 @@ StatusCode Trk::TrackingGeometryCondAlg::execute(const EventContext& ctx) const{
   }
 
   //Create dummy IOV range covering 0 - inf
-  EventIDRange range;
+  EventIDRange range = IOVInfiniteRange::infiniteMixed();
 
   std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometryPair = m_trackingGeometryBuilder->trackingGeometry(ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>(range, nullptr));
   // cast constness away for StoreGate

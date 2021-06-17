@@ -27,6 +27,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 //Athena
 #include "CxxUtils/checker_macros.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
@@ -146,7 +147,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeome
    double maximumLayerExtendZ   = 0.;
    double maximumLayerRadius    = 0.;
    std::vector<InDet::LayerSetup> layerSetups;
-   EventIDRange range;
+   EventIDRange range = IOVInfiniteRange::infiniteMixed();
    for ( const auto & lProvider : m_layerProviders){
        // screen output 
        ATH_MSG_DEBUG( "[ LayerBuilder : '" << lProvider->identification() << "' ] being processed. " );
