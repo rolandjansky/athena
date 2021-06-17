@@ -14,6 +14,10 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from . import JetRecoConfiguration
 from .JetRecoConfiguration import jetRecoDictToString
 
+from AthenaCommon.Logging import logging
+logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger(__name__)
+
 ###############################################################################################
 # Sequences for input information
 

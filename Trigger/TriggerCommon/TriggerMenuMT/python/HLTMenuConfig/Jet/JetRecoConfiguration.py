@@ -29,7 +29,7 @@ def interpretJetCalibDefault(recoDict):
     else:
         raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt']
 
 cleaningDict = {
     'CLEANlb':  'LooseBad',
@@ -71,7 +71,7 @@ def extractRecoDict(chainParts):
 def jetRecoDictToString(jetRecoDict):
     strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}"
     if jetRecoDict["trkopt"] != "notrk":
-        strtemp += "_{trkopt}_{trkpresel}"
+        strtemp += "_{trkopt}"
     return strtemp.format(**jetRecoDict)
 
 # Inverse of the above, essentially only for CF tests
