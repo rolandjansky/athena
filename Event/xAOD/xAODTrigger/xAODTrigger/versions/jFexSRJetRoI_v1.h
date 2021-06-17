@@ -88,7 +88,7 @@ namespace xAOD {
       //Data masks
       static const int s_etMask   = 0x7ff;
       static const int s_etaMask  = 0x1f;
-      static const int s_phiMask  = 0x7;
+      static const int s_phiMask  = 0xf;
       //static const int s_resMask  = 0x7ff; 
       static const int s_satMask = 0x1; 
 
