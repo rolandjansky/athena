@@ -92,6 +92,11 @@ StatusCode
     FileMetaDataCreatorTool::preFinalize() {
       std::lock_guard lock(m_toolMutex);
 
+      if (!m_filledEvent && !m_filledNonEvent) {
+        ATH_MSG_DEBUG("FileMetaData is incomplete");
+        return StatusCode::SUCCESS;
+      }
+
       // Remove any existing objects with this key
       if (!m_metaDataSvc->contains< xAOD::FileMetaData >(m_key)) {
         auto info = std::make_unique< xAOD::FileMetaData >();
@@ -152,7 +157,7 @@ StatusCode
         }
       } else {
         ATH_MSG_DEBUG("Failed to retrieve " << m_eventInfoKey
-                     << " => cannot set " << xAOD::FileMetaData::mcProcID);
+                        << " => cannot set " << xAOD::FileMetaData::mcProcID);
       }
 
       // Read data header
@@ -176,7 +181,7 @@ StatusCode
         }
       } else {
         ATH_MSG_DEBUG("Failed to retrieve " << m_dataHeaderKey
-                     << " => cannot set " << xAOD::FileMetaData::dataType);
+                        << " => cannot set " << xAOD::FileMetaData::dataType);
       }
 
       m_filledEvent = true;
@@ -286,9 +291,10 @@ StatusCode
           break;  // only investigate first payload
         }
       } else {
-        ATH_MSG_DEBUG("Failed to retrieve " << m_simInfoKey << " => cannot set: "
-                     << xAOD::FileMetaData::simFlavour << ", and "
-                     << xAOD::FileMetaData::isDataOverlay);
+        ATH_MSG_DEBUG(
+            "Failed to retrieve " << m_simInfoKey << " => cannot set: "
+            << xAOD::FileMetaData::simFlavour << ", and "
+            << xAOD::FileMetaData::isDataOverlay);
       }
 
       // FileMetaData object has been filled with non event info
