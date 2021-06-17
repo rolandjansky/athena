@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TransientAddress_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +12,7 @@
 #include "SGTools/TransientAddress.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "GaudiKernel/IOpaqueAddress.h"
+#include "GaudiKernel/EventContext.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -163,15 +162,19 @@ void test1()
   assert (!tad3.isValid(nullptr));
   assert (tad3.address() == 0);
 
+  EventContext ctx;
+
   TestProvider tp;
   tad3.setProvider (&tp, StoreID::EVENT_STORE);
   assert (tad3.provider() == &tp);
   assert (tad3.storeID() == StoreID::EVENT_STORE);
-  assert (tad3.isValid(nullptr));
+  assert (!tad3.isValid(nullptr));
+  assert (tad3.isValid(&ctx));
   tad3.consultProvider (false);
   assert (!tad3.isValid(nullptr));
   tad3.consultProvider (true);
-  assert (tad3.isValid(nullptr));
+  assert (!tad3.isValid(nullptr));
+  assert (tad3.isValid(&ctx));
 
   SG::TransientAddress tad4(0, "");
   assert (tad4.clID() == CLID_NULL);
