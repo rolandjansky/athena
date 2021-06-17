@@ -703,12 +703,12 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.trk_id.trk_pt.trk_eta.trk_phi.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct.trk_a0beam',     'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HitDVSP',             'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.sp_eta.sp_r.sp_phi.sp_z.sp_layer.sp_isPix.sp_isSct.sp_usedTrkId',      'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                          'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,       'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_dEdxHit',                          'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,       'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                       'BS ESD AODFULL AODSLIM', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
+    #('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                          'BS ESD AODFULL', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,       'BS ESD AODFULL', 'ID'),
+    #('xAOD::TrigCompositeContainer#HLT_dEdxHit',                          'BS ESD AODFULL', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,       'BS ESD AODFULL', 'ID'),
+    #('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                       'BS ESD AODFULL AODSLIM', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
 
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),

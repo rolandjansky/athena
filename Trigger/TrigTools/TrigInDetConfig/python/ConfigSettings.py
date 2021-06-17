@@ -173,7 +173,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._nClustersMin    = 8
       self._RoadWidth       = 5
-      self._dodEdxTrk       = True
+      self._dodEdxTrk       = False
       self._UseTrigSeedML   = 4
 
 
