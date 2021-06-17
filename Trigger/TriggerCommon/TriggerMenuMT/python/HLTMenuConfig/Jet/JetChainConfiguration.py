@@ -44,7 +44,9 @@ class JetChainConfiguration(ChainConfigurationBase):
         jChainParts = jetChainParts(self.chainPart)
         # Register if this is a performance chain, in which case the HLT should be exactly j0_perf
         self.isPerf = False
-        for p in jChainParts:
+        # Check if we intend to preselect events with calo jets in step 1
+        self.trkpresel = "nopresel"
+        for ip,p in enumerate(jChainParts):
             if p['addInfo'] == 'perf':
                 # Slightly awkward check but we want to permit any L1, while
                 # restricting HLT to have exactly this form and nothing else
@@ -53,9 +55,17 @@ class JetChainConfiguration(ChainConfigurationBase):
                 self.isPerf = True
             l1th = p['L1threshold']
             if self.L1Threshold != '' and self.L1Threshold != l1th:
-                log.error('Cannot configure a jet chain with different L1 thresholds')
-                exit(1)
+                raise RuntimeError('Cannot configure a jet chain with different L1 thresholds')
             self.L1Threshold = l1th
+            # We require that if there is any preselection it is only written
+            # in the last chainPart to avoid inconsistencies -- chain should
+            # look like HLT_jA_jB_jC_preselNjX_L1BLAH
+            if p["trkpresel"]!="nopresel":
+                if ip+1==len(jChainParts): # Last jet chainPart, presel should go here
+                    self.trkpresel=p["trkpresel"]
+                else:
+                    log.error("Likely inconsistency encountered in preselection specification for %s",self.chainName)
+                    raise RuntimeError("Preselection %s specified earlier than in the last chainPart!",p["trkpresel"])
 
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
@@ -73,7 +83,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         # reclustering and trimming workflows
         chainSteps = []
         if self.recoDict["trkopt"]=="ftf":
-            if self.recoDict["trkpresel"]=="nopresel":
+            if self.trkpresel=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
             else:
@@ -145,11 +155,12 @@ class JetChainConfiguration(ChainConfigurationBase):
             'constitMod':'',
             'jetCalib':'subjesIS',
             'trkopt':'notrk',
-            'trkpresel': 'nopresel',
         }
         from ..Menu.SignatureDicts import JetChainParts_Default
         preselJetParts = dict(JetChainParts_Default)
-        preselParts    = self.recoDict["trkpresel"].split('j')
+        # Get from the last chainPart... trying to anticipate potential developments
+        # For now they are only in single-threshold chains anyway
+        preselParts    = self.trkpresel.split('j')
         multiplicity   = preselParts[0].split('presel')[1] if preselParts[0] != 'presel' else '1'
         threshold      = preselParts[1]
         chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
