@@ -13,6 +13,8 @@
 
 #include "InDetPrepRawData/SiCluster.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
+#include <sstream>
 
 namespace InDet {
 
@@ -124,48 +126,32 @@ SiCluster::~SiCluster()
 MsgStream&
 SiCluster::dump(MsgStream& stream) const
 {
-  stream << "SiCluster object" << std::endl;
-
-  // have to do a lot of annoying checking to make sure that PRD is valid.
-  {
-    stream << "at global coordinates (x,y,z) = (" << this->globalPosition().x()
-           << ", " << this->globalPosition().y() << ", "
-           << this->globalPosition().z() << ")" << std::endl;
-  }
-
-  if (gangedPixel()) {
-    stream << "and is a ganged pixel. " << std::endl;
-  } else {
-    stream << "and is not a ganged pixel. " << std::endl;
-  }
-
-  stream << "SiWidth: " << m_width << std::endl;
-
-  stream << "Base class (PrepRawData):" << std::endl;
-  this->PrepRawData::dump(stream);
-
+  std::ostringstream out;
+  dump(out);
+  stream<<out.str();
   return stream;
 }
 
 std::ostream&
 SiCluster::dump(std::ostream& stream) const
 {
-  stream << "SiCluster object" << std::endl;
+  const std::string lf("\n");
+  stream << "SiCluster object" << lf;
   {
     stream << "at global coordinates (x,y,z) = (" << this->globalPosition().x()
            << ", " << this->globalPosition().y() << ", "
-           << this->globalPosition().z() << ")" << std::endl;
+           << this->globalPosition().z() << ")" << lf;
   }
 
   if (gangedPixel()) {
-    stream << "and is a ganged pixel. " << std::endl;
+    stream << "and is a ganged pixel. " << lf;
   } else {
-    stream << "and is not a ganged pixel. " << std::endl;
+    stream << "and is not a ganged pixel. " << lf;
   }
 
-  stream << "SiWidth: " << m_width << std::endl;
+  stream << "SiWidth: " << m_width << lf;
 
-  stream << "Base Class (PrepRawData): " << std::endl;
+  stream << "Base Class (PrepRawData): " << lf;
   this->PrepRawData::dump(stream);
 
   return stream;

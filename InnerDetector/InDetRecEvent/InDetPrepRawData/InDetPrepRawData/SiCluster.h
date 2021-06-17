@@ -21,6 +21,7 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
 #include <memory>
+#include <iosfwd>
 
 class PixelClusterContainerCnv;
 class SCT_ClusterContainerCnv;

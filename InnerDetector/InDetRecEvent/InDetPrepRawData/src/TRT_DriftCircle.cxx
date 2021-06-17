@@ -13,6 +13,8 @@
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
+#include <sstream>
 
 namespace InDet{
 
@@ -90,16 +92,9 @@ double TRT_DriftCircle::driftTime(bool& valid) const
 MsgStream&
 TRT_DriftCircle::dump(MsgStream& stream) const
 {
-  stream << "TRT_DriftCircle object" << endmsg;
-  stream << "Level (true/false)		 " << highLevel() << endmsg;
-  stream << "Valid (true/false)		 " << driftTimeValid() << endmsg;
-  stream << "timeOverThreshold:               " << timeOverThreshold()
-         << endmsg;
-  stream << "driftTime:                       " << rawDriftTime() << endmsg;
-  stream << "dataWord:                        " << m_word << endmsg;
-  stream << "Base class (PrepRawData):" << endmsg;
-  this->PrepRawData::dump(stream);
-
+  std::ostringstream out;
+  dump(out);
+  stream<<out.str();
   return stream;
 }
 
