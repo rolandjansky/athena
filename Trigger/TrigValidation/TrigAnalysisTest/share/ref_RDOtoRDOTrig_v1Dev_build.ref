@@ -209,11 +209,8 @@ HLT_2j35_0eta290_020jvt_pf_ftf_bdl1r70_2j35_0eta290_020jvt_pf_ftf_bdl1r85_L14J15
 : eventCount: 0
   stepCounts:
     0: 3
-    1: 2
   stepFeatures:
     0: 3
-    1: 46
-    2: 2
 HLT_2j45_0eta290_020jvt_pf_ftf_bdl1r60_2j45_pf_ftf_L14J15p0ETA25:
   eventCount: 0
   stepCounts:
@@ -236,11 +233,8 @@ HLT_2j45_pf_ftf_bdl1r70_j0_pf_ftf_HT300_j0_pf_ftf_DJMASS700j35_L1HT150-J20s5pETA
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
   stepFeatures:
     0: 3
-    1: 38
-    2: 2
 HLT_2j55_0eta290_020jvt_pf_ftf_bdl1r60_2j55_pf_ftf_0eta320_L14J15p0ETA25:
   eventCount: 0
   stepCounts:
@@ -5393,14 +5387,6 @@ HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
     2: 6
     3: 4
     4: 4
-HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 5
-    1: 3
-    2: 2
 HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5451,6 +5437,14 @@ HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6:
     1: 11
     2: 6
     3: 4
+HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 5
+    1: 3
+    2: 2
 HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
