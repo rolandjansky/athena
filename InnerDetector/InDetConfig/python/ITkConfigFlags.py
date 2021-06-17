@@ -7,7 +7,7 @@ def createITkConfigFlags():
   itkcf = AthConfigFlags()
 
   # take geometry XML files from local instance rather than Detector Database, for development
-  itkcf.addFlag("ITk.pixelGeometryFilename", "ITKLayouts/PixelGeoModelXml/ITkPixel.gmx")
+  itkcf.addFlag("ITk.pixelGeometryFilename", "ITKLayouts/Pixel/ITkPixel.gmx")
   itkcf.addFlag("ITk.stripGeometryFilename", "ITKLayouts/Strip/ITkStrip.gmx")
 
   return itkcf
