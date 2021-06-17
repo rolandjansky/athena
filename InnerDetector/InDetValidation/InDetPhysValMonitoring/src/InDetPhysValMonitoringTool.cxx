@@ -342,7 +342,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
           truthIsFromB = true;
         }
-        m_monPlots->fill(*thisTrack, *associatedTruth, truthIsFromB, beamSpotWeight); // Make plots requiring matched truth
+        m_monPlots->fill(*thisTrack, *associatedTruth, truthIsFromB, puEvents, beamSpotWeight); // Make plots requiring matched truth
       }
     }
 

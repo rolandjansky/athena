@@ -114,7 +114,7 @@ void InDetRttPlots::SetFillJetPlots(bool fillJets, bool fillBJets){
 //
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool isFromB, float weight) {
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool isFromB, float mu, float weight) {
   // fill measurement bias, resolution, and pull plots
 
   // fill ITK resolutions (bias / resolutions)
@@ -155,7 +155,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
   if(m_iDetailLevel >= 200){
     float barcode = truthParticle.barcode();
     if (barcode < 200000 && barcode != 0) { 
-      m_hitsMatchedTracksPlots->fill(particle, weight);
+      m_hitsMatchedTracksPlots->fill(particle, mu, weight);
     }
   }
 }
@@ -189,7 +189,6 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, float weight) {
 
   }
 
-  m_hitsRecoTracksPlots.fill(particle, weight);
   m_trtExtensionPlots.fill(particle, weight);
 }
 
@@ -197,6 +196,7 @@ void
 InDetRttPlots::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx, float weight) {
 
   m_trtExtensionPlots.fill(particle, mu, nVtx, weight);
+  m_hitsRecoTracksPlots.fill(particle, mu, weight);
 
 }
 
@@ -271,8 +271,8 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
   m_missingTruthFakePlots.fill(track, !isAssociatedTruth, weight);
   m_anTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx, weight);
   if(m_iDetailLevel >= 200){
-    if (!isAssociatedTruth) m_hitsUnlinkedTracksPlots->fill(track, weight);
-    else m_hitsFakeTracksPlots->fill(track, weight);
+    if (!isAssociatedTruth) m_hitsUnlinkedTracksPlots->fill(track, mu, weight);
+    else m_hitsFakeTracksPlots->fill(track, mu, weight);
   }
   if(isAssociatedTruth) {
     m_fakePlots.fill(track, isFake, weight);

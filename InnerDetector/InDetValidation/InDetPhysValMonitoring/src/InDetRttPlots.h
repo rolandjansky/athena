@@ -54,7 +54,7 @@ public:
   void SetFillJetPlots(bool fillJets, bool fillBJets);
 
   ///fill for things needing truth and track only
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false, float weight=1.0);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false, float mu = 0.0, float weight=1.0);
 
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle, float weight=1.0);
