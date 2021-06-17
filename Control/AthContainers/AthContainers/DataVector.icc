@@ -2158,7 +2158,7 @@ DATAVECTOR& DATAVECTOR::operator= (const DataVector& rhs)
  * Any auxiliary data will be moved along with the container contents.
  */
 template <class T>
-DATAVECTOR& DATAVECTOR::operator= (DATAVECTOR&& rhs)
+DATAVECTOR& DATAVECTOR::operator= (DATAVECTOR&& rhs) noexcept
 {
   if (this != &rhs) {
     // Ensure we're not being called via a base class.
