@@ -6013,6 +6013,18 @@ HLT_mu24_LRT_d0tight_L1MU20:
     0: 10
     1: 1
     2: 1
+HLT_mu24_LRT_idperf_L1MU20:
+  eventCount: 5
+  stepCounts:
+    0: 6
+    1: 6
+    2: 5
+    3: 5
+  stepFeatures:
+    0: 7
+    1: 7
+    2: 6
+    3: 6
 HLT_mu24_LRT_l2lrt_d0loose_L1MU20:
   eventCount: 1
   stepCounts:
