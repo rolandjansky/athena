@@ -58,6 +58,8 @@
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
 
+#include "AthenaKernel/IOVInfiniteRange.h"
+
 #include <map>
 #include <fstream>
 
@@ -111,7 +113,7 @@ std::pair<EventIDRange,
   Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& ctx, bool blend) const
 {
   auto mStations = std::make_unique<std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > >();
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> readHandle{m_muonMgrReadKey, ctx};
   if (!readHandle.isValid() || *readHandle == nullptr) {

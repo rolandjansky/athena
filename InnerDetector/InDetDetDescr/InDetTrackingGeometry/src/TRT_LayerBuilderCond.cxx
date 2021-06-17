@@ -29,6 +29,8 @@
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetIdentifier/TRT_ID.h"
+// Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
@@ -130,7 +132,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 {
 
   //create dummy infinite range
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
   if (!m_trtMgr) return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
 
   ATH_MSG_DEBUG( "Building cylindrical layers for the TRT " );
@@ -479,7 +481,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
   ATH_MSG_DEBUG( "Building disc-like layers for the TRT " );
 
   //create dummy infinite range
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
   const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
   // get the TRT ID Helper

@@ -41,6 +41,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/SmartDataPtr.h"
+// Athena 
+#include "AthenaKernel/IOVInfiniteRange.h"
 // STL
 #include <map>
 
@@ -189,7 +191,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   if (!m_pixIdHelper && !m_sctIdHelper){
     ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
     //create dummy infinite range
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
   }
 
@@ -237,7 +239,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   // iterate over the detector elements for layer dimension, etc.   
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
   }
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
@@ -506,7 +508,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       // (3) register the layers --- either in the split vector or in the return vector 
       if (splitDone) {
           ATH_MSG_DEBUG( "[ Split mode / Part 1 ] Layer cached for Part 2" );
-          readHandle.range(s_splitIOVRange);
+          s_splitIOVRange = readHandle.getRange();
           s_splitCylinderLayers.push_back(activeLayer);   
           // get the split radius to the smallest one possible
           if (m_splitMode > 0) takeSmaller( s_splitRadius, currentLayerRadius);
@@ -535,8 +537,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
      ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius determined as : " << s_splitRadius );
 
   ATH_MSG_DEBUG("Returning " << cylinderLayers->size() << " cylinder layers.");
-  EventIDRange range;
-  readHandle.range(range);
+  EventIDRange range = readHandle.getRange();
   std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> cylinderLayersPair = std::make_pair(range,cylinderLayers);
   return cylinderLayersPair;
 } 
@@ -557,7 +558,7 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> InDet::SiLaye
   if (!m_pixIdHelper && !m_sctIdHelper){
        ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
     //create dummy infinite range
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>(range,nullptr);
   } 
 
@@ -585,7 +586,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   // get general layout
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
   }
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
@@ -955,16 +956,15 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
         registerSurfacesToLayer(layerSurfaces,*activeLayer);
         if (m_splitMode){
             ATH_MSG_DEBUG( "[ Split mode ] Checking if this layer needs to be cached." );
+            s_splitIOVRange = readHandle.getRange();
             if (m_splitMode < 0 && rMin > s_splitRadius){
                 ATH_MSG_VERBOSE( "            Split mode is negative and rMin > splitRadius (" << rMin  << " > " << s_splitRadius << ").");
                 ATH_MSG_VERBOSE( "            -> Caching this disk.");
-                readHandle.range(s_splitIOVRange);
                 s_splitDiscLayers.push_back(activeLayer);
             }
             else if (m_splitMode > 0 && rMax < s_splitRadius){
                 ATH_MSG_VERBOSE( "            Split mode is positive and rMax < splitRadius (" << rMax  << " < " << s_splitRadius << ").");
                 ATH_MSG_VERBOSE( "            -> Caching this disk.");
-                readHandle.range(s_splitIOVRange);
                 s_splitDiscLayers.push_back(activeLayer);
             }
         } else 
@@ -1057,8 +1057,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
     std::sort(sortIter, sortEnd, zSorter);
   }
  
-  EventIDRange range;
-  readHandle.range(range);
+  EventIDRange range = readHandle.getRange();
   return std::make_pair(range, discLayers);
 }
 

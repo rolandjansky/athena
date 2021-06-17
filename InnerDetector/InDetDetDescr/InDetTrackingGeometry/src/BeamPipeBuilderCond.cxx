@@ -25,6 +25,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
+//Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 InDet::BeamPipeBuilderCond::BeamPipeBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
@@ -181,7 +183,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
   //delete beamPipeLayerMaterial; 
   
   //create dummy infinite range
-  EventIDRange range;
+  EventIDRange range = IOVInfiniteRange::infiniteMixed();
   return std::make_pair(range,beamPipe);
   
 } 

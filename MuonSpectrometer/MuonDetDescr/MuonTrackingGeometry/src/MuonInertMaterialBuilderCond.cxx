@@ -336,8 +336,7 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
 
     ATH_MSG_INFO( name() << " returns " << mObjects->size() << " prototypes, to be cloned into "<< count <<" objects" );   
 
-    EventIDRange range;
-    readHandle.range(range);
+    EventIDRange range=readHandle.getRange();
 
     return std::make_tuple(range, mObjects, std::move(constituentsVector));
   }
