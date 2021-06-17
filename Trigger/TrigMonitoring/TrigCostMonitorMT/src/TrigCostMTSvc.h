@@ -152,7 +152,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
 
   Gaudi::Property<bool>        m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
-  Gaudi::Property<bool>        m_enableMultiSlot{this, "EnableMultiSlot", true, "Monitored events in the MasterSlot collect data from events running in other slots."};
+  Gaudi::Property<bool>        m_enableMultiSlot{this, "EnableMultiSlot", false, "Monitored events in the MasterSlot collect data from events running in other slots."};
   Gaudi::Property<bool>        m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
   Gaudi::Property<size_t>      m_masterSlot{this, "MasterSlot", 0, "The slot responsible for saving MultiSlot data"};
   Gaudi::Property<std::string> m_l1DecoderName{this, "L1DecoderName", "L1Decoder", "The name of the Gaudi Configurable of type L1Decoder"};

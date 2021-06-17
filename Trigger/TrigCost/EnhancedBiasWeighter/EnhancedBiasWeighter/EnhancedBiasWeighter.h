@@ -161,6 +161,11 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    */
    virtual std::unordered_map<std::string, ChainDetail> parsePrescaleXML(const std::string& prescaleXML) const override;
 
+  /**
+   * @return The number of BCIDs in each bunch group
+   */
+   virtual const std::vector<int32_t>& getBunchGroups() const override { return m_bunches; }
+
  private: 
     StatusCode loadWeights(); //!< Read into memory from XML event weights for this EnhancedBias run.
     StatusCode loadLumi(); //!< Read into memory this EnhancedBias run's XML
@@ -204,6 +209,8 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     std::unordered_map<uint32_t, uint32_t> m_eventsPerLB; //!< Map of how many EnhancedBias events were recorded per LB 
     std::unordered_map<uint32_t, double>   m_lumiPerLB; //!< Map of instantaneous luminosity per LB 
     std::unordered_map<uint32_t, uint8_t>  m_goodLB;  //!< Like a Good Run List flag for EnhancedBias runs.
+
+    std::vector<int32_t> m_bunches; //!< Number of BCIDs in each bunch group
 
     ReadLumiBlock m_readLumiBlock; //!< Cache lumi block lengths. Get this from COOL.
 }; 
