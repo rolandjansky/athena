@@ -58,6 +58,8 @@ SupportPhIGroup = ['Support:PhaseI']
 TagAndProbeGroup = ['Support:TagAndProbe']
 TagAndProbeLegGroup = ['Support:LegacyTagAndProbe']
 TagAndProbePhIGroup = ['Support:PhaseITagAndProbe']
+# to dente all chains needed from low mu menu (to be removed once that menu is created and chains moved)
+LowMuGroup = ['Primary:LowMu']
 
 def setupMenu():
 
