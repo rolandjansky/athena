@@ -2156,7 +2156,7 @@ public:
    *
    * Any auxiliary data will be moved along with the container contents.
    */
-  DataVector& operator= (DataVector&& rhs);
+  DataVector& operator= (DataVector&& rhs) noexcept;
 
 
   /**
