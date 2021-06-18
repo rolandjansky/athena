@@ -368,7 +368,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&
     // given that we cannot separate eta/phi holes, redo the assignment before moving to the next chamber
     if (currentChamberSummary && !currentChamberSummary->isMdt()) { updateHoleContent(*currentChamberSummary); }
 
-    summary.m_muonTrackSummary = muonTrackSummary;
+    summary.m_muonTrackSummary.reset(muonTrackSummary);
 }
 
 void Muon::MuonTrackSummaryHelperTool::updateHoleContent(Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary) const {

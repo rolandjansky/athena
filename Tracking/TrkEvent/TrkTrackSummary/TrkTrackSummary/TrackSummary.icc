@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 inline int
 Trk::TrackSummary::get(const Trk::SummaryType& type) const
@@ -52,26 +52,25 @@ Trk::TrackSummary::isHit(const Trk::DetectorType& type) const
 inline const Trk::InDetTrackSummary*
 Trk::TrackSummary::indetTrackSummary() const
 {
-  return m_indetTrackSummary;
+  return m_indetTrackSummary.get();
 }
 
 inline Trk::InDetTrackSummary*
-Trk::TrackSummary::indetTrackSummary() 
+Trk::TrackSummary::indetTrackSummary()
 {
-  return m_indetTrackSummary;
+  return m_indetTrackSummary.get();
 }
-
 
 inline const Trk::MuonTrackSummary*
 Trk::TrackSummary::muonTrackSummary() const
 {
-  return m_muonTrackSummary;
+  return m_muonTrackSummary.get();
 }
 
 inline Trk::MuonTrackSummary*
 Trk::TrackSummary::muonTrackSummary()
 {
-  return m_muonTrackSummary;
+  return m_muonTrackSummary.get();
 }
 
 inline unsigned long
