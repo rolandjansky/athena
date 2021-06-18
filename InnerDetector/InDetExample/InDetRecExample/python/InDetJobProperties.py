@@ -1204,6 +1204,13 @@ class doTTVADecos(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+## Decide whether to wrap the new configuration in the old.
+class useNewConfig(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2801,7 +2808,8 @@ _list_InDetJobProperties = [Enabled,
                             useMuForTRTErrorScaling,
                             writeSeedValNtuple,
                             doTRTPIDNN,
-                            doTTVADecos
+                            doTTVADecos,
+                            useNewConfig
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
