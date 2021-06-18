@@ -1026,6 +1026,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
         if "<" in name:
             name=name.replace("<","_")
             name=name.replace(">","_")
+            name=name.replace(", ","_")
 
         from AthenaCommon import CfgMgr
         classObj = getattr( CfgMgr, name )
