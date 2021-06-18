@@ -54,6 +54,9 @@ flags.Concurrency.NumThreads = 1
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
 
+# Calo is currently the only client of Transient BS
+flags.Trigger.doTransientByteStream = lambda f: f.Input.Format == 'POOL' and f.Trigger.doCalo
+
 # command line handling
 # options that are defined in: AthConfigFlags are handled here
 # they override values from above
@@ -93,12 +96,12 @@ menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # menu.printConfig(withDetails=True, summariseProps=True)
 acc.merge(menu)
 
-#TODO this is not exactly correct, we need an independent flag for it
-if flags.Input.isMC:
-    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
-    acc.merge(triggerTransBSCfg(flags), sequenceName="HLTBeginSeq")
-    if flags.Trigger.doMuon:
-        loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ), ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
+if flags.Trigger.doTransientByteStream and flags.Trigger.doCalo:
+    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
+    acc.merge(triggerTransBSCfg_Calo(flags), sequenceName="HLTBeginSeq")
+
+if flags.Input.isMC and flags.Trigger.doMuon:
+    loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ), ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
 
 if flags.Trigger.doLVL1:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg

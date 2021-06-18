@@ -382,7 +382,10 @@ if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
     if ConfigFlags.Input.Format == 'POOL':
-        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigCaloDataAccessSvc is used with pool data
+        # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
+        ConfigFlags.Trigger.doTransientByteStream = True
+        from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
+        CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
@@ -465,14 +468,6 @@ if opt.doL1Unpacking:
     else:
         from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-# ---------------------------------------------------------------
-# Transient ByteStream
-# ---------------------------------------------------------------
-if ConfigFlags.Trigger.doTransientByteStream:
-    log.info("Configuring transient ByteStream")
-    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
-    CAtoGlobalWrapper(triggerTransBSCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # HLT generation
