@@ -35,14 +35,14 @@
 
 GeoPixelLayer::GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
                              PixelGeometryManager* mgr)
-  : GeoVPixelFactory (ddmgr, mgr)
+  : GeoVPixelFactory (ddmgr, mgr),
+    m_supportPhysA (nullptr),
+    m_supportPhysC (nullptr),
+    m_supportMidRing (nullptr),
+    m_xformSupportA (nullptr),
+    m_xformSupportC (nullptr),
+    m_xformSupportMidRing (nullptr)
 {
-  m_supportPhysA=nullptr;
-  m_supportPhysC=nullptr;
-  m_supportMidRing=nullptr;
-  m_xformSupportA=nullptr;
-  m_xformSupportC=nullptr;
-  m_xformSupportMidRing=nullptr;
 }
 
 GeoVPhysVol* GeoPixelLayer::Build() {

@@ -124,7 +124,7 @@ StatusCode LArHITtoCell::execute(const EventContext& context) const
 	 energy_time[hash].first+=energy;
 	 energy_time[hash].second+=(energy*time);
       }
-      first++;
+      ++first;
     }
    } // enf of for in hits
 
