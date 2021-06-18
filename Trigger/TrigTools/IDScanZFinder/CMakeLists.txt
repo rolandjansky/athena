@@ -10,5 +10,5 @@ find_package( CLHEP )
 atlas_add_component( IDScanZFinder
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel IRegionSelector TrigInDetEvent TrigInDetToolInterfacesLib xAODTrigger xAODTracking TrigCompositeUtilsLib)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel IRegionSelector TrigCompositeUtilsLib TrigInDetEvent TrigInDetToolInterfacesLib xAODTrigger xAODTracking xAODTrackingCnvLib)
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8})
