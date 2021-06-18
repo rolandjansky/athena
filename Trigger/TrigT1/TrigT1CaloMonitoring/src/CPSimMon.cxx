@@ -1345,7 +1345,7 @@ void CPSimMon::compare(const CpmTobRoiMap &roiSimMap,
 //  Compare simulated CMX TOBs with data
 
 void CPSimMon::compare(const CmxCpTobMap &simMap, const CmxCpTobMap &datMap,
-                       const std::vector<int> parityMap, ErrorVector &errorsCPM,
+                       const std::vector<int> & parityMap, ErrorVector &errorsCPM,
                        ErrorVector &errorsCMX) {
   if (m_debug)
     msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endmsg;
