@@ -2094,7 +2094,7 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     Settings is a dictionary of keys (no spaces needed) and values to replace.
     """
     # Operate on lower case settings, and choose the capitalization MG5 has as the default (or all lower case)
-    for s in settings:
+    for s in settings.keys():
         if s.lower() not in settings:
             settings[s.lower()] = settings[s]
             del settings[s]
