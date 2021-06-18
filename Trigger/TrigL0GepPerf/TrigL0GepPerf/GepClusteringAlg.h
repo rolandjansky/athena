@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TRIGL0GEPPERF_GEPCLUSTERINGALG_H
@@ -21,17 +21,9 @@
 class GepClusteringAlg: public ::AthAnalysisAlgorithm { 
  public: 
   GepClusteringAlg( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~GepClusteringAlg(); 
 
-                                        //IS EXECUTED:
-  virtual StatusCode  initialize();     //once, before any input is loaded
-  //virtual StatusCode  beginInputFile(); //start of each input file, only metadata loaded
-  //virtual StatusCode  firstExecute();   //once, after first eventdata is loaded (not per file)
-  virtual StatusCode  execute();        //per event
-  //virtual StatusCode  endInputFile();   //end of each input file
-  //virtual StatusCode  metaDataStop();   //when outputMetaStore is populated by MetaDataTools
-  virtual StatusCode  finalize();       //once, after all events processed
-  
+  virtual StatusCode  initialize() override;   
+  virtual StatusCode  execute() override;    
 
  private: 
 
