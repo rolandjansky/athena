@@ -309,6 +309,7 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
 # Leaving these as smart collections
 
 PHYSLITESlimmingHelper.SmartCollections = [
+  "EventInfo",
   "InDetTrackParticles",
   "PrimaryVertices",
   ]

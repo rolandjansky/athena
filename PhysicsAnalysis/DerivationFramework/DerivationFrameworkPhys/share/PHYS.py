@@ -204,6 +204,7 @@ if DerivationFrameworkIsMonteCarlo:
    addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
    PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
+PHYSSlimmingHelper.AllVariables += ['EventInfo']
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
