@@ -25,17 +25,12 @@ public:JepJemMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
   struct MonitorJepJemJE {
-    const xAOD::JetElement* jelement;
+    const xAOD::JetElement* jelement{};
 
     // some modified/derived information
-    double eta;
-    double phi;
-    // errors
-    // bool emParityError;
-    // bool emLinkDownError;
-    // bool emGLinkParityError[8];
-    // bool hadParityError;
-    // bool hadLinkDownError;
+    double eta{};
+    double phi{};
+   
   };
 
 

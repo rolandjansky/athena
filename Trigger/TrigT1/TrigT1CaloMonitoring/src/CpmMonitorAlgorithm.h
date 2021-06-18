@@ -22,55 +22,55 @@ class CpmMonitorAlgorithm : public AthMonitorAlgorithm {
 
   // monitoring trigger tower structs for various towers
   struct MonitorTT{
-    const xAOD::TriggerTower_v2* ttower;
-    double phi_scaled; // rescaled for 2D plots
+    const xAOD::TriggerTower_v2* ttower{};
+    double phi_scaled{}; // rescaled for 2D plots
   };
 
   struct MonitorCpmTT{
-    const xAOD::CPMTower_v2* ttower;
+    const xAOD::CPMTower_v2* ttower{};
     // some modified/derived information 
-    double phi_scaled; // rescaled for 2D plots
-    int slice; // crate * m_maxSlices + emEnergyVec()).size() - 1;
+    double phi_scaled{}; // rescaled for 2D plots
+    int slice{}; // crate * m_maxSlices + emEnergyVec()).size() - 1;
     // errors
-    bool emParityError;
-    bool emLinkDownError;
-    bool emGLinkParityError[8]; 
-    bool hadParityError;
-    bool hadLinkDownError;   
+    bool emParityError{};
+    bool emLinkDownError{};
+    bool emGLinkParityError[8]{}; 
+    bool hadParityError{};
+    bool hadLinkDownError{};   
   };
 
   struct MonitorTobRoI{
     const xAOD::CPMTobRoI_v1* tobroi;
     // some modified/derived information 
-    double etaMod; 
-    double phiMod; 
+    double etaMod{}; 
+    double phiMod{}; 
   };
 
   struct MonitorCmxCpTob{
     const xAOD::CMXCPTob_v1* tob;
     // some modified/derived information 
-    uint8_t x; // crate * m_modules + cpm - 1
-    uint8_t y; // chip * 4 + location
-    int ybase; // cmx * 5
+    uint8_t x{}; // crate * m_modules + cpm - 1
+    uint8_t y{}; // chip * 4 + location
+    int ybase{}; // cmx * 5
     // errors required to be used as masks
-    bool parityError;
-    int ybaseError; 
+    bool parityError{};
+    int ybaseError{}; 
   };
 
   struct MonitorCmxCpHits{
-    const xAOD::CMXCPHits_v1* hit;
+    const xAOD::CMXCPHits_v1* hit{};
     // some modified/derived information 
-    uint8_t crateSlices; // crate * m_maxSlices + slices - 1
-    uint8_t crateCmx; // crate * 2 + cmx
+    uint8_t crateSlices{}; // crate * m_maxSlices + slices - 1
+    uint8_t crateCmx{}; // crate * 2 + cmx
     // source flag
-    bool srcTopoCheckSum;
+    bool srcTopoCheckSum{};
   };
 
 
 private:
 
   // Phi scale for trigger tower eta/phi plots
-  double m_phiScaleTT;
+  double m_phiScaleTT{};
 
   StringProperty m_packageName{this,"PackageName","CpmMonitor","group name for histograming"};
 

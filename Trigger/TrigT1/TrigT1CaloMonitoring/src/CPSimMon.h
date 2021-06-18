@@ -202,20 +202,14 @@ private:
                        LocalSumMismatch, RemoteSumMismatch, TotalSumMismatch,
 		       TopoMismatch, NumberOfSummaryBins };
 
-  //typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
-  //typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
-  //typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;  
-  //typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;  
 
   typedef DataVector<LVL1::CPAlgorithm>  InternalRoiCollection;
   typedef std::vector<int> ErrorVector;
 
   //typedef maps @@
-  //typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
   typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapEm;
   typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapHad;
   typedef xAOD::CPMTowerMap_t                      CpmTowerMap;
-  //  typedef std::map<int, const xAOD::CPMTower*>*    CpmTowerMapP;
   typedef std::map<int, const xAOD::CMXCPTob*>     CmxCpTobMap;
   typedef std::map<int, const xAOD::CMXCPHits*>    CmxCpHitsMap;
   typedef xAOD::CPMTobRoIMap_t                     CpmTobRoiMap;
@@ -234,7 +228,7 @@ private:
                                                  ErrorVector& errors);
   /// Compare simulated CMX TOBs with data
   void  compare(const CmxCpTobMap& simMap, const CmxCpTobMap& datMap,
-                      const std::vector<int> parityMap,
+                      const std::vector<int> & parityMap,
                       ErrorVector& errorsCPM, ErrorVector& errorsCMX);
   /// Compare Simulated CMX Hit Sums and Data CMX Hit Sums
   void  compare(const CmxCpHitsMap& cmxSimMap, const CmxCpHitsMap& cmxMap,
