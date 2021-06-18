@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBMONITORING_TBMWPCMONTOOL_H
@@ -54,7 +54,6 @@ class TBMWPCMonTool: public MonitorToolBase
   bool m_monitor_mwpcraw;
   bool m_monitor_mwpc;
   bool m_testTool;
-  bool m_isBooked;
 
   // ADC histograms
   IHistogram1D* m_histo_mwpcrawHitDist[8];
