@@ -114,67 +114,67 @@ using namespace RadDam;
 
     } else if (m_fluence == 1) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.0e-14_20V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.0e-14_20V_238K.root");
 
         fluence = 1e-14;
 
     } else if (m_fluence == 2) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.0e+15_50V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.0e+15_50V_238K.root");
 
         fluence = 1e15;
 
     } else if (m_fluence == 3) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_3.0e+15_100V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_3.0e+15_100V_238K.root");
 
         fluence = 3e15;
 
     } else if (m_fluence == 4) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_5.0e+15_160V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_5.0e+15_160V_238K.root");
 
         fluence = 5e15;
 
     } else if (m_fluence == 5) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.0e+16_250V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.0e+16_250V_238K.root");
 
         fluence = 1e16;
 
     } else if (m_fluence == 6) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.2e+16_250V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.2e+16_250V_238K.root");
 
         fluence = 1.2e16;
 
     } else if (m_fluence == 7) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_250V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_250V_238K.root");
 
         fluence = 1.5e16;
 
     } else if (m_fluence == 8) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_200V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_200V_238K.root");
 
         fluence	= 1.5e16;
 
     } else if (m_fluence == 9) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_150V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_150V_238K.root");
 
         fluence = 1.5e16;
 
     } else if (m_fluence == 10) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_100V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_100V_238K.root");
 
         fluence = 1.5e16;
 
     } else if (m_fluence == 11) {
 
-        mapsPath = "/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_50V_238K.root";
+        mapsPath = PathResolverFindCalibFile("ITkPixelDigitization/3D_" + m_geometry + "_phi_1.5e+16_50V_238K.root");
 
         fluence = 1.5e16;
     }
