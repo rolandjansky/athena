@@ -82,7 +82,7 @@ namespace NSWL1 {
     std::vector< std::vector<MMCandidateData*> > 
             m_trigger_candidates;                           //!< cache for the MM Strip hit data in the event
     int     m_mmcandidate_cache_runNumber;                  //!< run number associated to the current MM Strip cache
-    int     m_mmcandidate_cache_eventNumber;                //!< event number associated to the current MM Strip cache
+    uint64_t     m_mmcandidate_cache_eventNumber;                //!< event number associated to the current MM Strip cache
     cStatus m_mmcandidate_cache_status[32];                 //!< status of the current cache
 
     //properties

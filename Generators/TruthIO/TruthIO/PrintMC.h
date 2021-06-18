@@ -22,8 +22,8 @@ private:
   bool  m_VerboseOutput;
   std::string m_printsty;
   bool m_vertexinfo;
-  int  m_firstEvt;
-  int  m_lastEvt;
+  uint64_t  m_firstEvt;
+  uint64_t  m_lastEvt;
   bool m_trustHepMC;
 
 };

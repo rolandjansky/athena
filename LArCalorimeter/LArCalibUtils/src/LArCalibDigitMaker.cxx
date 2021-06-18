@@ -128,7 +128,7 @@ StatusCode LArCalibDigitMaker::execute() {
  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
  //  const unsigned eventNb=thisEventInfo->event_ID()->event_number();
- const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;
+ const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;        // Are we sure?
  ATH_MSG_DEBUG ( "======== executing event "<< eventNb << " ========" );
  
  const LArCalibParams* calibParams = nullptr;

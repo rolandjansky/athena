@@ -126,7 +126,7 @@ namespace Trigger {
     sc = evtStore()->retrieve(p_evt);
     int runNumber = p_evt->event_ID()->run_number();
     int lumiBlock = p_evt->event_ID()->lumi_block();
-    int eventNumber = p_evt->event_ID()->event_number();
+    uint64_t eventNumber = p_evt->event_ID()->event_number();
 
     for(unsigned int ii=0;ii<vh.size();ii++){
       if(vh.at(ii)->uintToTiming(m_bc)!=vh.at(ii)->getTimingCoin())continue;
@@ -139,7 +139,7 @@ namespace Trigger {
       if(vh.at(ii)->hasCoincidence(TgcCoinData::TYPE_SL)) trgFlag |= 0x10;
 
      sprintf(message
-             ,"run#:%d,LB:%d,event#:%d,BC:%d,trg:%x\n"
+             ,"run#:%d,LB:%d,event#:%lu,BC:%d,trg:%x\n"
              ,runNumber
              ,lumiBlock
              ,eventNumber
@@ -241,7 +241,7 @@ namespace Trigger {
     sc = evtStore()->retrieve(p_evt);
     int runNumber = p_evt->event_ID()->run_number();
     int lumiBlock = p_evt->event_ID()->lumi_block();
-    int eventNumber = p_evt->event_ID()->event_number();
+    uint64_t eventNumber = p_evt->event_ID()->event_number();
 
     for(unsigned int ii=0;ii<vh.size();ii++){
       if(vh.at(ii)->uintToTiming(m_bc)!=vh.at(ii)->getTimingCoin())continue;
@@ -257,7 +257,7 @@ namespace Trigger {
       if(trgFlag==0) continue;
 
       sprintf(message
-             ,"HIT :: run#:%d,LB:%d,event#:%d,BC:%d,trg:%x\n"
+             ,"HIT :: run#:%d,LB:%d,event#:%lu,BC:%d,trg:%x\n"
              ,runNumber
              ,lumiBlock
              ,eventNumber

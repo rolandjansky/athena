@@ -62,7 +62,7 @@ StatusCode PrintMC::execute() {
 
     // Get event number from HepMC
     const HepMC::GenEvent* evt = *itr;
-    int evtnum = evt->event_number();
+    uint64_t evtnum = std::max(0,evt->event_number());
     // Override with evtnum from Athena if enabled and functional
     if (!m_trustHepMC) {
       const EventInfo* evtinfo;

@@ -122,7 +122,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       m_signalShapes->SetRunNumber(m_runNumber);
    }
    
-   unsigned int eventNum = m_evtInfo->event_ID()->event_number();
+   uint64_t eventNum = m_evtInfo->event_ID()->event_number();
    
    // Retrieve the Database parameters.
    // Only need to do this once because they do not change from event to event.

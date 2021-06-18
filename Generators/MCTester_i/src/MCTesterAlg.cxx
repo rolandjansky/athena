@@ -116,7 +116,8 @@ StatusCode MCTesterAlg::execute()
 {
   ATH_MSG_DEBUG( "execute()" );
 
-  int run_number,evt_number;
+  int run_number;
+  uint64_t evt_number;
   
   //Load event info
   const EventInfo * mcInfoptr;
@@ -148,7 +149,7 @@ StatusCode MCTesterAlg::execute()
       HepMCEvent * temp_event = new HepMCEvent(*evt,m_include_decays_to_self);
 
       //Fix event number as it's not set in GenEvent
-      temp_event->SetEventNumber(evt_number);
+      temp_event->SetEventNumber((int)evt_number);
 
       ATH_CHECK(MC_Validate_checkDecay(temp_event));
       ATH_CHECK(MC_Validate_check4MomentumSum(temp_event));
