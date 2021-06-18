@@ -20,11 +20,11 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
 from AthenaCommon.SystemOfUnits import meter
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import globalflags
 
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from InDetRecExample import TrackingCommon
@@ -199,17 +199,22 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
     kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
     kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())
     kwargs.setdefault("TGCRegionSelector", makeRegSelTool_TGC())
-    if MuonGeometryFlags.hasCSC():
+ 
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    
+    if reco_cscs:
         from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
         kwargs.setdefault("CSCRegionSelector", makeRegSelTool_CSC())
     else:
         kwargs.setdefault("CSCRegionSelector", "")
-    if MuonGeometryFlags.hasSTGC():
+    if reco_stgcs:
         from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
         kwargs.setdefault("STGCRegionSelector", makeRegSelTool_sTGC())
     else:
         kwargs.setdefault("STGCRegionSelector", "")
-    if MuonGeometryFlags.hasMM():
+    if reco_mm:
         from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
         kwargs.setdefault("MMRegionSelector", makeRegSelTool_MM())
     else:
@@ -268,6 +273,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
     kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
+
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
@@ -298,7 +305,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
         kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
-        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
+        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "") )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
 
 
@@ -318,6 +325,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
 
 def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.AppMgr import ToolSvc
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -369,7 +378,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
         kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
-        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
+        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "") )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
 
 

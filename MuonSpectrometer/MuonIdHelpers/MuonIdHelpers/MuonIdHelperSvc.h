@@ -183,7 +183,7 @@ namespace Muon {
 
         /// Properties to explicitly switch off the CSC / Micromega/ sTGC reconstruction
         Gaudi::Property<bool> m_runCSC{this, "RunCSC", true, "Specify whether the CSC reconstruction shall be run"};
-        Gaudi::Property<bool> m_runSTgc{this, "RunTgc", true, "Specify whether the sTGC reconstruction shall be run"};
+        Gaudi::Property<bool> m_runSTgc{this, "RunsTgc", true, "Specify whether the sTGC reconstruction shall be run"};
         Gaudi::Property<bool> m_runMM{this, "RunMM", true, "Specify whether the Micromega reconstruction shall be tun"};
 
         const ServiceHandle<StoreGateSvc> m_detStore;

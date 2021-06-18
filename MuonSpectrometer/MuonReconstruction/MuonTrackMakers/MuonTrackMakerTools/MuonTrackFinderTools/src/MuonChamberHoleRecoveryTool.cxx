@@ -54,10 +54,10 @@ namespace Muon {
         ATH_CHECK(m_mdtRotCreator.retrieve());
 
         if (!m_cscRotCreator.empty()) {
-            if (!m_idHelperSvc->hasCSC())
+            if (!m_idHelperSvc->recoCSC())
                 ATH_MSG_WARNING(
-                    "The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it, but double-check "
-                    "configuration");
+                    "The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it,"<<
+                    "  but double-check configuration");
             else
                 ATH_CHECK(m_cscRotCreator.retrieve());
         } else {
@@ -70,11 +70,14 @@ namespace Muon {
         ATH_CHECK(m_intersectSvc.retrieve());
 
         ATH_CHECK(m_key_mdt.initialize());
-        ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty()));  // check for layouts without CSCs
+        /// Check that the layout has CSCs and that the key is actually set
+        if (!m_key_csc.empty() && m_idHelperSvc->recoCSC()){ ATH_CHECK(m_key_csc.initialize());}  
         ATH_CHECK(m_key_tgc.initialize());
         ATH_CHECK(m_key_rpc.initialize());
-        ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty()));  // check for layouts without STGCs
-        ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty()));      // check for layouts without MicroMegas
+        /// Check that the layout has stgcs and that the key is set
+        if (!m_key_stgc.empty() && m_idHelperSvc->recosTgc()) {ATH_CHECK(m_key_stgc.initialize());}
+        /// Check that the layout has micromegas and that the key is set
+        if (!m_key_mm.empty() && m_idHelperSvc->recoMM()){ATH_CHECK(m_key_mm.initialize());}
         ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
 
         return StatusCode::SUCCESS;
@@ -83,7 +86,7 @@ namespace Muon {
         std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack;
 
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* trkstates = track.trackStateOnSurfaces();
+        const Trk::TrackStates* trkstates = track.trackStateOnSurfaces();
         if (!trkstates) {
             ATH_MSG_DEBUG(" track without states, discarding track ");
             return nullptr;
@@ -172,7 +175,7 @@ namespace Muon {
         ATH_MSG_DEBUG(" track has stations: " << stations.size() << "   original states " << states.size() << " new states "
                                               << newStates.size());
         // states were added, create a new track
-        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+        auto trackStateOnSurfaces = std::make_unique<Trk::TrackStates>();
         trackStateOnSurfaces->reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces->push_back(nit.release()); }

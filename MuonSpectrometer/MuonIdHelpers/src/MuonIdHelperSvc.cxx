@@ -44,9 +44,8 @@ namespace Muon {
         }
         if (m_hasSTgc) {
             if (m_detStore->retrieve(m_stgcIdHelper).isFailure()) {
-                ATH_MSG_WARNING(
-                    " Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout "
-                    "without sTGC chambers");
+                ATH_MSG_WARNING(" Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false "<<
+                                " in the future when running a layout without sTGC chambers");
                 m_hasSTgc = false;
                 m_stgcIdHelper = nullptr;
                 m_runSTgc = false;
@@ -179,6 +178,8 @@ namespace Muon {
                 msg(MSG::DEBUG) << MuonStationIndex::chName(data.chIndex) << "  " << MuonStationIndex::stName(data.stIndex) << endmsg;
             }
         }
+        ATH_MSG_DEBUG("Configured the service with the following flags --- hasCSC: "<<hasCSC()
+                    <<" recoCSC: "<<recoCSC()<<" hasSTGC: "<<hasSTgc()<<" recoSTGC: "<<recosTgc()<<" hasMicroMegas: "<<hasMM()<<" recoMM: "<<recoMM());
         return StatusCode::SUCCESS;
     }
 
