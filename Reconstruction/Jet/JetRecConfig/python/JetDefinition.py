@@ -64,6 +64,7 @@ from AthenaCommon.SystemOfUnits import MeV
 @clonable
 @onlyAttributesAreProperties
 class JetDefinition(object):
+    _allowedattributes = ['_cflags'] # onlyAttributesAreProperties will add all properties to this list.
     def __init__(self,
                  algorithm,           # The fastjet clustering algorithm
                  radius,              # The jet radius specifier (clustering cutoff)
@@ -110,7 +111,8 @@ class JetDefinition(object):
         # used internally to resolve dependencies
         self._prereqDic = {}
         self._prereqOrder = [] 
-        self._internalAtt = {} 
+        self._internalAtt = {}
+        self._cflags = None # pointer to AthenaConfiguration.ConfigFlags. Mainly to allow to invoke building of input dependencies which are outside Jet domain during std reco
         self._locked = lock
 
             
@@ -251,8 +253,6 @@ class JetModifier(object):
         # These will be set as the Gaudi properties of the C++ tool
         self.properties = properties
         
-        self._instanceMap = {}
-        #self._locked = lock
                 
 
         
@@ -523,7 +523,6 @@ class JetInputConstitSeq(JetInputConstit):
         self.inputname  = inputname or name
         self.modifiers = modifiers
 
-        self._instanceMap = dict() # internal maps of modifier to actual configuration object        
         
         self._locked = lock
 
@@ -549,7 +548,7 @@ class JetInputConstitSeq(JetInputConstit):
     
     # Define a string conversion for printing
     def __str__(self):
-        return f"JetInputConstitSeq({self.name}, {self.inputname} , {self.outputname})"
+        return f"JetInputConstitSeq({self.name}, {self.inputname} , {self.containername})"
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
     
@@ -569,17 +568,23 @@ class JetConstitModifier(object):
     def __init__(self,
                  name,
                  tooltype,
-                 properties={}):
+                 prereqs= [],                 
+                 properties={},
+                 ):
         self.name = name
         self.tooltype = tooltype
         self.properties = properties
-
+        self.prereqs = prereqs
+        self.filterfn = _condAlwaysPass # we might want to make this a proper attribute in the future
+        
     @make_lproperty
     def name(self): pass
     @make_lproperty
     def tooltype(self): pass
     @make_lproperty
     def properties(self): pass
+    @make_lproperty
+    def prereqs(self): pass
 
 
 

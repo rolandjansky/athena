@@ -10,7 +10,7 @@ The functions here are scaning reccursively all the aliases, building the corres
 collecting them in a JetDefinition.
 
 """
-from .JetDefinition import JetInputExternal, JetInputConstit, JetModifier
+from .JetDefinition import JetInputExternal, JetInputConstit, JetModifier, JetInputConstitSeq
 
 class _dummyJetDef:
     def __init__(self):
@@ -115,15 +115,15 @@ def solveConstitDependencies(constitseq, parentjetdef, inplace=False):
     stdInputExtDic.setdefault( constitseq.inputname, JetInputExternal( constitseq.inputname, constitseq.basetype) )
     # we re-use the solveInputExternalDependencies to instantiate the prereqs
     constitseq.prereqs += ['input:'+constitseq.inputname] # make sure the external input to these constituents are taken into account.
-    solveInputExternalDependencies( constitseq, parentjetdef)
 
-    # JetInputConstit don't have modifiers, we can return immediately
-    if not hasattr( constitseq, "modifiers") : return constitseq
-    
-    # instantiate the JetConstitModifier (those don't have dependencies)
-    for mod in constitseq.modifiers:
-        modInstance =  stdContitModifDic[ mod ].clone()
-        constitseq._instanceMap[mod] = modInstance
+    if isinstance( constitseq, JetInputConstitSeq):
+        # instantiate the JetConstitModifier and add their dependencies to the actual constit sequence
+        for mod in constitseq.modifiers:
+            modInstance =  stdContitModifDic[ mod ].clone()
+            parentjetdef._prereqDic[f'cmod:{mod}'] = modInstance
+            solveInputExternalDependencies( modInstance, parentjetdef, inplace=True)
+    # the rest of dependencies are handled similarly as JetInputExternal :
+    solveInputExternalDependencies( constitseq, parentjetdef)                
 
     return constitseq
 

@@ -200,7 +200,9 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     rhoKey = "auto"
     if "sub" in jetRecoDict["jetCalib"]:
         # Add the event shape alg if needed for area subtraction
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix )
+        # WARNING : offline jets use the parameter voronoiRf = 0.9 ! we might want to harmonize this.
+        
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix, voronoiRf = 1.0 )
         recoSeq += conf2toConfigurable(eventShapeAlg)
         # Not currently written because impossible to merge
         # across event views, which is maybe a concern in

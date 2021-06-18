@@ -400,7 +400,7 @@ def JetRecCfg_reorder(jetdef, configFlags, returnFinalJetDef=False):
     they are in proper order.
     Re-ordering is done manually, according to various input alg type.
     """
-    res = JetRecConfig.JetRecCfg_original(jetdef, configFlags, returnFinalJetDef)
+    res = JetRecConfig.JetRecCfg_original(configFlags, jetdef , returnFinalJetDef)
 
     acc , _ = res if returnFinalJetDef else (res,None)
     algs = acc.algs

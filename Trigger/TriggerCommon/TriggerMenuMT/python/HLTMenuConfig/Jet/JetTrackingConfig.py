@@ -12,15 +12,23 @@ from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
 
 
 def retrieveJetContext(trkopt):
-    # Tell the standard jet config about the specific track related options we are using here.
-    # This is done by defining a new jet context into jetContextDic.
-    # Then passing this context name in the JetDefinition and standard helper function will ensure
-    # these options will consistently be used everywhere.
+    """Tell the standard jet config about the specific track related options we are using here.
+
+     This is done by defining a new jet context into jetContextDic.
+     Then, later, passing this context name in the JetDefinition and standard helper functions will ensure
+    these options will consistently be used everywhere.
+
+    returns the context dictionnary and the list of keys related to tracks in this dic.
+    """
+
     from JetRecConfig.StandardJetContext import jetContextDic
     if trkopt not in jetContextDic:
+        # *****************
+        # Set the options corresponding to trkopt to a new entry in jetContextDic 
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
         IDTrigConfig = getInDetTrigConfig( 'jet' )
 
+        tracksname = IDTrigConfig.tracks_FTF()
         verticesname = IDTrigConfig.vertex_jet
             
         tvaname = f"JetTrackVtxAssoc_{trkopt}"
@@ -28,7 +36,7 @@ def retrieveJetContext(trkopt):
         ghosttracksname = f"PseudoJet{label}"
         
         jetContextDic[trkopt] = jetContextDic['default'].clone(
-            Tracks           = IDTrigConfig.tracks_FTF(),
+            Tracks           = tracksname,
             Vertices         = verticesname,
             TVA              = tvaname,
             GhostTracks      = ghosttracksname,
@@ -36,6 +44,14 @@ def retrieveJetContext(trkopt):
             JetTracks        = f'JetSelectedTracks_{trkopt}',
         )
 
+
+        # also declare some JetInputExternal corresponding to trkopt
+        # This ensures the JetRecConfig helpers know about them.
+        # We declare simplistic JetInputExternal, without algoBuilder, because the rest of the trigger config is in charge of producing these containers.
+        from JetRecConfig.StandardJetConstits import stdInputExtDic, JetInputExternal, xAODType
+        stdInputExtDic[tracksname]   =  JetInputExternal( tracksname, xAODType.TrackParticle)
+        stdInputExtDic[verticesname] =  JetInputExternal( verticesname, xAODType.Vertex)
+        
     return jetContextDic[trkopt], jetContextDic["trackKeys"]
 
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):

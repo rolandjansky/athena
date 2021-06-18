@@ -56,7 +56,7 @@ def getEventShapeName( parentjetdef, inputspec):
     return nameprefix+"Kt4"+label+"EventShape"
 
 
-def buildEventShapeAlg( parentjetdef, inputspec ):
+def buildEventShapeAlg( parentjetdef, inputspec, voronoiRf = 0.9 ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
     
@@ -65,12 +65,18 @@ def buildEventShapeAlg( parentjetdef, inputspec ):
     label = parentjetdef.inputdef.label
     rhotoolname = "EventDensity_"+nameprefix+"Kt4"+label
     
-    rhotool = CompFactory.EventDensityTool(rhotoolname)
-    rhotool.InputContainer = "PseudoJet"+label # same as in PseudoJet algs
-    rhotool.OutputContainer = rhokey
+    rhotool = CompFactory.EventDensityTool(
+        rhotoolname,
+        InputContainer = "PseudoJet"+label, # same as in PseudoJet algs
+        OutputContainer = rhokey,
+        JetRadius = parentjetdef.radius,
+        UseFourMomArea = True,
+        VoronoiRfact = voronoiRf,
+        JetAlgorithm = "Kt",)
     
-    eventshapealg = CompFactory.EventDensityAthAlg("{0}{1}Alg".format(nameprefix,rhotoolname))
-    eventshapealg.EventDensityTool = rhotool
+    eventshapealg = CompFactory.EventDensityAthAlg(
+        "{0}{1}Alg".format(nameprefix,rhotoolname),
+        EventDensityTool = rhotool )
 
     return eventshapealg
 

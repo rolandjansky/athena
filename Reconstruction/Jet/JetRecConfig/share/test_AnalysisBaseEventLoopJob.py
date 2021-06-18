@@ -42,7 +42,7 @@ ConfigFlags = JetRecConfig.JetAnalysisCommon.setupFlags(inputFiles=[inputFilePat
 
 # Schedule 2 jet containers
 # truth jets :
-acc=JetRecCfg(AntiKt4Truth, ConfigFlags)
+acc=JetRecCfg(ConfigFlags, AntiKt4Truth )
 
 # we re-define AntiKt4LCTopo adding a suffix to the output and the modifiers :
 myAk4LCtopo = AntiKt4LCTopo.clone(suffix="ReDone",
@@ -52,7 +52,7 @@ myAk4LCtopo = AntiKt4LCTopo.clone(suffix="ReDone",
                                   )
 
 # generate the config and append it to acc :
-acc.merge(JetRecCfg( myAk4LCtopo, ConfigFlags))
+acc.merge(JetRecCfg( ConfigFlags, myAk4LCtopo ))
 
 # acc contains all the algs (inputs + jet finding) needed. Just set debug mode for the last one : 
 acc.algs[-1].OutputLevel = 2
