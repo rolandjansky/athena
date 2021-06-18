@@ -279,6 +279,10 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_Roi_FastElectron_LRT',            'BS ESD AODFULL', 'Egamma'),
     ('TrigRoiDescriptorCollection#HLT_Roi_FastPhoton',              'BS ESD AODFULL', 'Egamma'),
 
+    # hipTRT
+    ('xAOD::TrigRNNOutputContainer#HLT_TrigTRTHTCounts',            'BS ESD AODFULL', 'Egamma', 'inViews:TRTHitGeneratorViews'),
+    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'), 
+
     # Muon
 
     # Id track particles

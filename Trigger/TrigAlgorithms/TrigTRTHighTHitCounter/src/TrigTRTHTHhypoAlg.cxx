@@ -47,7 +47,7 @@ StatusCode TrigTRTHTHhypoAlg::execute( const EventContext& context ) const {
   size_t counter=0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
    
-    auto d = TCU::newDecisionIn( decisions, name() );
+    auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
     //get RoI  
     auto roiELInfo = TCU::findLink<TrigRoiDescriptorCollection>( previousDecision, TCU::initialRoIString() );
     ATH_CHECK( roiELInfo.isValid() );
@@ -64,7 +64,7 @@ StatusCode TrigTRTHTHhypoAlg::execute( const EventContext& context ) const {
     // link the rnnOutput      
     auto rnn = ViewHelper::makeLink( *viewEL, rnnOutputHandle, 0 );
     ATH_CHECK( rnn.isValid() );
-    d->setObjectLink( "rnnOutput", rnn );
+    d->setObjectLink( TCU::featureString(), rnn );
 
     // create new decision
     toolInput.emplace_back( d, rnnOutputHandle.cptr()->at(0), previousDecision );

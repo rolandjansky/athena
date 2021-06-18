@@ -235,6 +235,9 @@ class TrigEgammaFastCaloHypoToolConfig:
   
     elif self.pidname() in self.__operation_points and self.isPhoton():
       self.etcut()
+   
+    elif self.etthr()==0:
+      self.nocut()
 
     self.addMonitoring()
 

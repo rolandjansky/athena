@@ -73,6 +73,8 @@
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODHIEvent/HIEventShapeAuxContainer.h"
 
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
+#include "xAODTrigRinger/TrigRNNOutputAuxContainer.h"
 /**
  * @class HLTEDMCreator
  * @brief Tool capable of creating collections missing (early rejection) after HLT processing.
@@ -149,6 +151,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigBphysContainer );
   DEF_XAOD_KEY( TrigT2MbtsBitsContainer );
   DEF_XAOD_KEY( HIEventShapeContainer );
+  DEF_XAOD_KEY( TrigRNNOutputContainer);
 
 #undef DEF_VIEWS
 #undef DEF_KEY

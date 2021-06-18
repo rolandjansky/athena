@@ -90,6 +90,8 @@ class TrigEgammaFastPhotonHypoToolConfig:
         self.etcut()
     elif 'noalg' == self.pidname():
         self.nocut()
+    elif 0 == self.etthr():
+        self.nocut()
     else:
         self.nominal()
 

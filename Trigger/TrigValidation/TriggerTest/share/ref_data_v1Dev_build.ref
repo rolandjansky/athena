@@ -986,6 +986,12 @@ HLT_eb_medium_L1RD2_FILLED:
     0: 7
   stepFeatures:
     0: 7
+HLT_g0_hiptrt_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_g100_loose_L1EM22VHI:
   eventCount: 0
 HLT_g10_loose_L1EM7:
@@ -2314,8 +2320,6 @@ HLT_mu11_mu6_bBmumu_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
   eventCount: 0
-HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
-  eventCount: 0
 HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6:
   eventCount: 0
 HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU11_2MU6:
@@ -2325,6 +2329,8 @@ HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU11_2MU6:
 HLT_mu11_mu6_bBmumux_BsmumuPhi_L1MU11_2MU6:
   eventCount: 0
 HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6:
+  eventCount: 0
+HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
   eventCount: 0

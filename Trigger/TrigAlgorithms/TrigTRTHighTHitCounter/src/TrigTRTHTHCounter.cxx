@@ -95,6 +95,11 @@ StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
  //Sanity check of the ROI size
  double deltaEta= std::abs(roiDescriptor->etaPlus()-roiDescriptor->etaMinus());
  double deltaPhi=CxxUtils::deltaPhi(roiDescriptor->phiPlus(),roiDescriptor->phiMinus());
+
+ ATH_MSG_DEBUG( "roiDescriptor->etaPlus() in TrigTRTHTHCounter:"<<roiDescriptor->etaPlus());
+ ATH_MSG_DEBUG( "roiDescriptor->etaMinus() in TrigTRTHTHCounter:"<<roiDescriptor->etaMinus());
+ ATH_MSG_DEBUG( "deltaEta in TrigTRTHTHCounter:"<<deltaEta); 
+
  float phiTolerance = 0.001;
  float etaTolerance = 0.001;
 
@@ -262,8 +267,8 @@ StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
   
   //Writing to xAOD
   xAOD::TrigRNNOutput* rnnOutput = new xAOD::TrigRNNOutput();
-  rnnOutput->setRnnDecision(trththits);
   trigRNNOutputColl->push_back(rnnOutput);
+  rnnOutput->setRnnDecision(trththits);
   
   ATH_MSG_DEBUG("REGTEST:  returning an xAOD::TrigRNNOutputContainer with size "<< trigRNNOutputColl->size() << ".");
 

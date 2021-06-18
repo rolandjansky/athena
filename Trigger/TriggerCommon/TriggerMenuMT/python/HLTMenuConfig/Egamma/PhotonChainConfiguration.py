@@ -13,8 +13,10 @@ from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from .FastPhotonMenuSequences import fastPhotonMenuSequence
 from .PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from .HipTRTMenuSequences import hipTRTMenuSequence
 from .TLAPhotonMenuSequences import TLAPhotonMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
+
 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -37,6 +39,10 @@ def precisionPhotonCaloSequenceCfg( flags ):
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
+
+def hipTRTMenuSequenceCfg( flags ):
+    return hipTRTMenuSequence()
+
 
 def _diPhotonComboHypoToolFromDict(chainDict, lowermass=80000,uppermass=-999,dphi=1.5,applymass=False,applydphi=False): 
     name = chainDict['chainName']
@@ -83,6 +89,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
+            "hiptrt" : ['getFastCalo', 'getHipTRT'],                                # hipTRT sequence 
             "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
             "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
             "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
@@ -157,6 +164,10 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
+    
+    def getHipTRT(self):
+        stepName = "hipTRT"
+        return self.getStep(2,stepName,[ hipTRTMenuSequenceCfg])
 
     def getPrecisionPhoton(self):
    
