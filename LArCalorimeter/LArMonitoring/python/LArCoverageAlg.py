@@ -113,18 +113,22 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                          type='TProfile',
                                          path='LAr/'+caloNoiseTool_path,
                                          title='DBNoise in EM',
-                                         xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min)
+                                         xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min,
+                                         merge='identical')               
 
     caloNoiseToolArrayHEC.defineHistogram('etaChan,noise;CaloNoiseHEC_Sampling',
-                                         type='TProfile',
-                                         path='LAr/'+caloNoiseTool_path,
-                                         title='DBNoise in HEC',
-                                         xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min)
+                                          type='TProfile',
+                                          path='LAr/'+caloNoiseTool_path,
+                                          title='DBNoise in HEC',
+                                          xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min,
+                                          merge='identical')
+
     caloNoiseToolArrayFCal.defineHistogram('etaChan,noise;CaloNoiseFCal_Sampling',
-                                         type='TProfile',
-                                         path='LAr/'+caloNoiseTool_path,
-                                         title='DBNoise in FCal',
-                                         xbins=lArDQGlobals.etaCaloNoise_FcalBins,xmax=lArDQGlobals.etaCaloNoise_FcalMax,xmin=lArDQGlobals.etaCaloNoise_FcalMin)
+                                           type='TProfile',
+                                           path='LAr/'+caloNoiseTool_path,
+                                           title='DBNoise in FCal',
+                                           xbins=lArDQGlobals.etaCaloNoise_FcalBins,xmax=lArDQGlobals.etaCaloNoise_FcalMax,xmin=lArDQGlobals.etaCaloNoise_FcalMin,
+                                           merge='identical')
 
 
     # -- badChannels histograms --
