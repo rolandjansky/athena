@@ -130,7 +130,7 @@ namespace MuonCombined {
                 } else
                     msMuonTrackSummary = msTrack.trackSummary()->muonTrackSummary();
                 for (const auto& chs : msMuonTrackSummary->chamberHitSummary()) {
-                    if (chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) {
+		    if ((chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) || m_idHelperSvc->isCsc(chs.chamberId())) {
                         skipTrack = false;
                         break;
                     }
