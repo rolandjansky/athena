@@ -59,9 +59,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeEventAlgorithmsSequence
 algSeq = makeEventAlgorithmsSequence (dataType)
 print( algSeq ) # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+algSeq.addSelfToJob( job )
 
 # Set up an output file for the job:
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
