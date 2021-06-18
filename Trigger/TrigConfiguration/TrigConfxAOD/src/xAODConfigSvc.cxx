@@ -163,7 +163,18 @@ namespace TrigConf {
    }
 
    uint32_t xAODConfigSvc::masterKey() const {
-      if (m_menuJSONContainerAvailable or !m_useInFileMetadata) {
+      if (!m_useInFileMetadata) {
+
+         SG::ReadHandle<HLTMenu> hltMenuHandle(m_hltMenuName);  // No context - Detector Store
+         if( !hltMenuHandle.isValid() ) {
+            REPORT_MESSAGE( MSG::WARNING )
+                << "Unable to load " << m_hltMenuName << " from Detector Store." << endmsg;
+            return std::numeric_limits<uint32_t>::max();
+         } else {
+            return hltMenuHandle->smk();
+         }
+
+      } else if (m_menuJSONContainerAvailable) {
 
          // Run3: From in-file JSON metadata or JSON from conditions store
          return m_currentHlt.get()->smk();
@@ -187,7 +198,23 @@ namespace TrigConf {
    }
 
    uint32_t xAODConfigSvc::lvl1PrescaleKey() const {
-      if (m_menuJSONContainerAvailable or !m_useInFileMetadata) {
+      if (!m_useInFileMetadata) {
+
+         const bool firstEvent = !m_currentL1ps.get()->isInitialized();
+         if (firstEvent) {
+            return std::numeric_limits<uint32_t>::max();
+         }
+
+         SG::ReadCondHandle<L1PrescalesSet> l1psRCH(m_L1PrescaleSetKey);
+         if( !l1psRCH.isValid() ) {
+            REPORT_MESSAGE( MSG::WARNING )
+                << "Unable to load " << m_L1PrescaleSetKey.key() << " from Conditions Store." << endmsg;
+            return std::numeric_limits<uint32_t>::max();
+         } else {
+            return l1psRCH->psk();
+         }
+
+      } else if (m_menuJSONContainerAvailable) {
          
          // Run3: From in-file JSON metadata or JSON from conditions store
          return m_currentL1ps.get()->psk();
@@ -210,7 +237,23 @@ namespace TrigConf {
    }
 
    uint32_t xAODConfigSvc::hltPrescaleKey() const {
-      if (m_menuJSONContainerAvailable or !m_useInFileMetadata) {
+      if (!m_useInFileMetadata) {
+
+         const bool firstEvent = !m_currentHltps.get()->isInitialized();
+         if (firstEvent) {
+            return std::numeric_limits<uint32_t>::max();
+         }
+
+         SG::ReadCondHandle<HLTPrescalesSet> hltpsRCH(m_HLTPrescaleSetKey);
+         if( !hltpsRCH.isValid() ) {
+            REPORT_MESSAGE( MSG::WARNING )
+                << "Unable to load " << m_HLTPrescaleSetKey.key() << " from Conditions Store." << endmsg;
+            return std::numeric_limits<uint32_t>::max();
+         } else {
+            return hltpsRCH->psk();      
+         }
+
+      } else if (m_menuJSONContainerAvailable) {
 
          // Run3: From in-file JSON metadata or JSON from conditions store
          return m_currentHltps.get()->psk();
@@ -234,7 +277,13 @@ namespace TrigConf {
    }
 
    const HLTMenu& xAODConfigSvc::hltMenu(const EventContext& ctx) const {
-      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
+      if (!m_useInFileMetadata) {
+         SG::ReadHandle<HLTMenu> hltMenuHandle(m_hltMenuName);  // No context - Detector Store
+         if( hltMenuHandle.isValid() ) {
+            return *hltMenuHandle;
+         }
+      }
+      if (!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 hltMenu JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::hltMenu",
@@ -245,7 +294,13 @@ namespace TrigConf {
    }
 
    const L1Menu& xAODConfigSvc::l1Menu(const EventContext& ctx) const {
-      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
+      if (!m_useInFileMetadata) {
+         SG::ReadHandle<L1Menu> l1MenuHandle(m_l1MenuName);  // No context - Detector Store
+         if( l1MenuHandle.isValid() ) {
+            return *l1MenuHandle;
+         }
+      }
+      if (!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1Menu JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::l1Menu",
@@ -256,7 +311,13 @@ namespace TrigConf {
    }
 
    const HLTPrescalesSet& xAODConfigSvc::hltPrescalesSet(const EventContext& ctx) const {
-      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
+      if (!m_useInFileMetadata) {
+         SG::ReadCondHandle<HLTPrescalesSet> hltpsRCH(m_HLTPrescaleSetKey, ctx);
+         if( hltpsRCH.isValid() ) {
+            return **hltpsRCH;
+         }
+      }
+      if (!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 hltPrescalesSet JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::hltPrescalesSet",
@@ -267,7 +328,13 @@ namespace TrigConf {
    }
 
    const L1PrescalesSet& xAODConfigSvc::l1PrescalesSet(const EventContext& ctx) const {
-      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
+      if (!m_useInFileMetadata) {
+         SG::ReadCondHandle<L1PrescalesSet> l1psRCH(m_L1PrescaleSetKey, ctx);
+         if( l1psRCH.isValid() ) {
+            return **l1psRCH;
+         }
+      }
+      if(!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1PrescalesSet JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::l1PrescalesSet",
@@ -278,7 +345,10 @@ namespace TrigConf {
    }
 
    const L1BunchGroupSet& xAODConfigSvc::l1BunchGroupSet(const EventContext& ctx) const {
-      if (m_useInFileMetadata and !m_menuJSONContainerAvailable) {
+      if (!m_useInFileMetadata) {
+         // TODO 
+      }
+      if (!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1BunchGroupSet JSON not loaded." << endmsg;
          throw GaudiException( "Service not initialised correctly",
                                "TrigConf::xAODConfigSvc::l1BunchGroupSet",
@@ -636,7 +706,7 @@ namespace TrigConf {
           REPORT_MESSAGE( MSG::WARNING )
              << "L1 and HLT prescales will not be available via the TrigConf::xAODConfigSvc in the first "
              << "event when running with UseInFileMetadata=False" << endmsg;
-
+             
       } else {
 
          SG::ReadCondHandle<L1PrescalesSet> l1psRCH(m_L1PrescaleSetKey, context);
