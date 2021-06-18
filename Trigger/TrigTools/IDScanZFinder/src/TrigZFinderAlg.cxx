@@ -27,6 +27,8 @@ StatusCode TrigZFinderAlg::initialize()
   ATH_CHECK(m_pixelSpKey.initialize());
   ATH_CHECK(m_pixelHelperKey.initialize());
   ATH_CHECK(m_zFinderKey.initialize());
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -96,8 +98,14 @@ StatusCode TrigZFinderAlg::execute(const EventContext& context) const
     zFinderContainer->push_back(zFinder);
     zFinder->setDetail<float>("zfinder_vtx_z", vertex->z() );
     zFinder->setDetail<float>("zfinder_vtx_weight", vertex->cov()[5] );
+    
+    // Adding monitoring histograms
+    auto ZVertex = Monitored::Scalar("ZVertex",vertex->z());
+    auto ZVertexWeight = Monitored::Scalar("ZVertexWeight",vertex->cov()[5]);
+    
+    auto mon = Monitored::Group(m_monTool, ZVertex, ZVertexWeight);
   }
-
+  
   SG::WriteHandle<xAOD::TrigCompositeContainer> zFinderHandle(m_zFinderKey, context);
   ATH_CHECK(zFinderHandle.record(std::move(zFinderContainer), std::move(zFinderContainerAux)));
   
@@ -105,4 +113,3 @@ StatusCode TrigZFinderAlg::execute(const EventContext& context) const
 
   return StatusCode::SUCCESS;
 }
-
