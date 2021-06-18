@@ -3,7 +3,7 @@
 pT     = 400;
 #else
 pT     = 1000;
-endif
+#endif
 
 eta    = 2.5;
 #if defined(LARGED0)
@@ -39,7 +39,7 @@ Rmatch = 0.05;
 /// only 10.5 mm with respect to the primary vertex
 	a0v = 10.5;
 	z0v = 300.5;
-#ndif
+#endif
 #endif
 
 // VertexSelection    = 0;

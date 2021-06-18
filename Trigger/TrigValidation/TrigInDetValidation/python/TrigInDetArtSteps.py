@@ -24,7 +24,7 @@ class TrigInDetReco(ExecStep):
 
     def __init__(self, name='TrigInDetReco', postinclude_file='', preinclude_file='' ):
         ExecStep.__init__(self, name)
-##        super(TrigInDetReco, self).__init__(name)
+##      super(TrigInDetReco, self).__init__(name)
         self.type = 'Reco_tf'
         self.max_events=-1
         self.required = True
@@ -107,7 +107,7 @@ class TrigInDetReco(ExecStep):
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
-#                chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
+#               chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
                 chains += "'HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
@@ -207,37 +207,39 @@ class TrigInDetRdictStep(Step):
     '''
     Execute TIDArdict for TrkNtuple files.
     '''
-    def __init__(self, name='TrigInDetdict', args=None, testbin='Test_bin.dat'):
+    def __init__(self, name='TrigInDetdict', args=None, testbin='Test_bin.dat', config=False ):
         super(TrigInDetRdictStep, self).__init__(name)
         self.args=args + "  -b " + testbin + " "
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDArdict'
         self.timeout = 10*60
+        self.config = config
 
     def configure(self, test):
-        os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
-        os.system( 'get_files -data Test_bin.dat &> /dev/null' )
-        os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
-        os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-vtxtrack.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
+        if not self.config :
+            os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
+            os.system( 'get_files -data Test_bin.dat &> /dev/null' )
+            os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
+            os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-vtxtrack.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
         super(TrigInDetRdictStep, self).configure(test)
 
 
