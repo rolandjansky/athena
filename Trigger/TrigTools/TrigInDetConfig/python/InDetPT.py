@@ -156,7 +156,7 @@ def trtExtension_builder( signature, config, rois, summaryTool, inputTracks, out
 
 def trtRIOMaker_builder( signature, config, rois, prefix="InDetTrigMT" ): 
     
-    log.info( "trtRIOMaker_builder: {} {} {} {}".format(  signature, config.input_name, config.name, prefix ) )
+    log.info( "trtRIOMaker_builder: {} {}".format(  signature, prefix ) )
 
     algs = []
 

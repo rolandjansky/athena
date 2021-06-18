@@ -48,9 +48,13 @@ bool TrigTRTHTHhypoTool::decide( const ITrigTRTHTHhypoTool::RNNOutputInfo& input
   float trththits_wedge = vec.at(2);
 
   ATH_MSG_DEBUG ( "trththits_road: " << trththits_road);
+  ATH_MSG_DEBUG ("m_minTRTHTHitsRoad in hypotool: "<<m_minTRTHTHitsRoad);
   ATH_MSG_DEBUG ( "trththits_wedge: " << trththits_wedge);
-  ATH_MSG_DEBUG ( "fHT_road: " << fHT_road); 
+  ATH_MSG_DEBUG ("m_minTRTHTHitsWedge in hypotool:: "<< m_minTRTHTHitsWedge);
+  ATH_MSG_DEBUG ( "fHT_road: " << fHT_road);
+  ATH_MSG_DEBUG ("m_minHTratioRoad in hypotool: "<<m_minHTratioRoad); 
   ATH_MSG_DEBUG ( "fHT_wedge: " << fHT_wedge);
+  ATH_MSG_DEBUG ("m_minHTratioWedge in hypotool: "<<m_minHTratioWedge);
 
   //Apply the cuts
 
