@@ -113,6 +113,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     int iirow = cellId.phiIndex();
     int iicol = cellId.etaIndex();
+    if (iirow>=maxRow) { iirow=iirow-maxRow; } // RD53 copy mechanism works per FE.
     if (iicol>=maxCol) { iicol=iicol-maxCol; } // RD53 copy mechanism works per FE.
 
     // Front-End simulation

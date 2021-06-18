@@ -109,8 +109,8 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 // path for run2 digitizer: : /eos/atlas/atlascerngroupdisk/asg-calib/PixelDigitization
   // Use all TCAD E field files in this directory for creating E field via interpolation (pruned filed excluded)
 
-  std::string layer100umFiles        = PathResolverFindCalibDirectory("/eos/atlas/atlascerngroupdisk/det-slhc/users/PixelRadDamage/itk_100um_50um_x_50um/");
-  std::string layer150umFiles     = PathResolverFindCalibDirectory("/eos/atlas/atlascerngroupdisk/det-slhc/users/PixelRadDamage/itk_150um_50um_x_50um/");
+  std::string layer100umFiles        = PathResolverFindCalibDirectory("ITkPixelDigitization/itk_100um_50um_x_50um/");
+  std::string layer150umFiles     = PathResolverFindCalibDirectory("ITkPixelDigitization/itk_150um_50um_x_50um/");
 
   // For each layer one configuration
   TCADpath_list = {layer100umFiles, layer150umFiles, layer150umFiles, layer150umFiles};           //layer1 - 100um sensor depth, layer2/3/4 - 150um
@@ -128,10 +128,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
   }
   else if(m_fluence==1){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_80V_fl1e-24e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_80V_fl1e-24e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root"));
     m_fluence_layers.push_back(1e-10);
     m_fluence_layers.push_back(1e-10);
     m_fluence_layers.push_back(1e-10);
@@ -139,10 +139,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
   }
   else if(m_fluence==2){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_600V_fl10e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_600V_fl10e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_600V_fl10e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_600V_fl10e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_600V_fl10e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_600V_fl10e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_600V_fl10e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_600V_fl10e14.root"));
     m_fluence_layers.push_back(1e15);
     m_fluence_layers.push_back(1e15);
     m_fluence_layers.push_back(1e15);
@@ -151,10 +151,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==3){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_600V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_600V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_600V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_600V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_600V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_600V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_600V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_600V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -162,10 +162,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==4){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_500V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_500V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_500V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_500V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_500V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_500V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_500V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_500V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -173,10 +173,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==5){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_400V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_400V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_400V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_400V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_400V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_400V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_400V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_400V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -185,10 +185,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==6){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_300V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_300V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_300V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_300V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_300V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_300V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_300V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_300V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -196,10 +196,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==7){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_200V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_200V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_200V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_200V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_200V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_200V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_200V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_200V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -207,10 +207,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==8){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_150V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_150V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_150V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_150V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_150V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_150V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_150V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_150V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -218,10 +218,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
 
   }else if(m_fluence==9){
 
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_140V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_140V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_140V_fl30e14.root");
-    mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_140V_fl30e14.root");
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_140V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_140V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_140V_fl30e14.root"));
+    mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_140V_fl30e14.root"));
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
     m_fluence_layers.push_back(3e15);
@@ -236,10 +236,10 @@ StatusCode SensorSimITkPlanarTool::initialize() {
           m_voltage_layers.clear();
           //Set up default maps for ramoMap,
           //but retrieve Efield from interpolation as well as Lorentz, time and distance map from E field
-          mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_100_80V_fl1e-24e14.root"); //Layer 1
-          mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root"); //Layer 2
-          mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root"); //Layer 3
-          mapsPath_list.push_back("/eos/atlas/atlascerngroupdisk/asg-calib/ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root"); //Layer 4
+          mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_100_80V_fl1e-24e14.root")); //Layer 1
+          mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root")); //Layer 2
+          mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root")); //Layer 3
+          mapsPath_list.push_back(PathResolverFindCalibFile("ITkPixelDigitization/maps_PIX_150_80V_fl1e-24e14.root")); //Layer 4
           m_fluence_layers.push_back(m_fluence*1e14);
           m_fluence_layers.push_back(m_fluence2*1e14);
           m_fluence_layers.push_back(m_fluence3*1e14);
