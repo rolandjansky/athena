@@ -13,7 +13,7 @@ from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigCostStep, TrigInDetRdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
-import sys,getopt
+import os,sys,getopt
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"lcxptmn:",["local","config"])
@@ -57,6 +57,11 @@ for opt,arg in opts:
         testconfig = True
     if opt=="-t":
         dry_run=True
+
+vdry_run = os.environ.get('TRIGVALSTEERING_DRY_RUN')
+
+if vdry_run == '1':
+    dry_run=True
 
 
 if 'postinclude_file' in dir() :
@@ -134,9 +139,9 @@ if (not exclude):
 if ((not exclude) or postproc ):
     for job in Jobs :
         if len(job) >= 3:
-            rdict = TrigInDetRdictStep( name=job[0], args=job[1], testbin=job[2] )
+            rdict = TrigInDetRdictStep( name=job[0], args=job[1], testbin=job[2], config=(testconfig or dry_run)  )
         else:
-            rdict = TrigInDetRdictStep( name=job[0], args=job[1] )
+            rdict = TrigInDetRdictStep( name=job[0], args=job[1], config=(testconfig or dry_run) )
         print( "\n\033[0;32m TIDArdict "+job[1]+" \033[0m" )
         test.check_steps.append(rdict)
 
