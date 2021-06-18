@@ -246,24 +246,30 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   // impact parameter variables w.r.t. tau vertex 
   const xAOD::Vertex* vxcand = nullptr;
 
-  xAOD::Vertex theBeamspot;
-  theBeamspot.makePrivateStore();
+  xAOD::Vertex vxbkp;
+  vxbkp.makePrivateStore();
 
-  if (inTrigger()) { // online: use beamspot
+  if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
+    vxcand = pTau.vertex();
+  } else if (inTrigger()) { // online: use vertex with x-y coordinates from the beamspot and the z from the leading track
+    vxbkp.setX(0); vxbkp.setY(0); vxbkp.setZ(0);
+
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     if(beamSpotHandle.isValid()) {
-      theBeamspot.setPosition(beamSpotHandle->beamPos());
+      vxbkp.setPosition(beamSpotHandle->beamPos());
       const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
-      theBeamspot.setCovariancePosition(cov);
-      vxcand = &theBeamspot;
+      vxbkp.setCovariancePosition(cov);
+
+      if(!tauTracks.empty()) {
+         vxbkp.setZ(tauTracks.at(0)->z0());
+      }
     }
     else {
       ATH_MSG_DEBUG("No Beamspot object in tau candidate");
     }
+    vxcand = & vxbkp;
   }
-  else if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
-    vxcand = pTau.vertex();
-  }
+
 
   // this could be replaced with TauTrack::setDetail
   static const SG::AuxElement::Accessor<float> dec_d0TJVA("d0TJVA");

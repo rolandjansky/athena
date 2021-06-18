@@ -598,7 +598,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     }
 
     // monitoring tau vertex
-    if( p_tau->vertexLink().isValid() && p_tau->vertex()){
+    if( p_tau->vertexLink().isValid() && p_tau->vertex() && p_tau->vertex()->vertexType() != xAOD::VxType::NoVtx ){
         EF_vertex_x = p_tau->vertex()->x();
         EF_vertex_y = p_tau->vertex()->y();       
         EF_vertex_z = p_tau->vertex()->z();

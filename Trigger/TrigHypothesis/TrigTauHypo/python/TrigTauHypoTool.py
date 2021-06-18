@@ -180,8 +180,21 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
     if criteria in ['medium', 'loose1', 'medium1', 'tight1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'idperf', 'perf'] :
     
         currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
-        currentHypo.MonTool       = ""
 
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+        monTool = GenericMonitoringTool('MonTool_' + name)
+        monTool.HistPath = 'TrigTauRecMerged_TrigEFTauMVHypo/' + name
+
+        # define quantities to be monitored
+        monTool.defineHistogram("CutCounter", path='EXPERT',type='TH1I',title=';CutCounter; Entries', xbins=10, xmin=0.,xmax=10.) 
+        monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=50, xmin=0.,xmax=500.)
+        monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
+        monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
+        monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
+        currentHypo.MonTool = monTool
+
+ 
+        # setup the Hypo parameter
         theThresh = thresholdsEF[(criteria, int(threshold))]
         currentHypo.numTrackMax = theThresh.numTrackMax
         currentHypo.numTrackWideTrackMax = theThresh.numTrackWideTrackMax
@@ -252,7 +265,16 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
     threshold = chainPart['threshold']
     from AthenaConfiguration.ComponentFactory import CompFactory
     currentHypo = CompFactory.TrigTrackPreSelHypoTool(name)
-    currentHypo.MonTool = ""
+
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    monTool = GenericMonitoringTool('MonTool_' + name)
+    monTool.HistPath = 'TrigTauRecMerged_TrigTrackPreSelHypo/' + name
+
+    # define quantities to be monitored
+    monTool.defineHistogram("nTracksInCore", path='EXPERT', type='TH1I',title=';nTracksInCore; Entries', xbins=10, xmin=0.,xmax=10.)
+    monTool.defineHistogram("nTracksInIso",  path='EXPERT', type='TH1I',title=';nTracksInIso; Entries',  xbins=10, xmin=0.,xmax=10.)
+    monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
+    currentHypo.MonTool = monTool
 
     if criteria == 'cosmic':
       currentHypo.LowerPtCut      = int(threshold)*1000.
