@@ -7,6 +7,9 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 // Section of includes for Pixel and SCT tests
 #include "InDetSimEvent/SiHitCollection.h"
 #include "GeoAdaptors/GeoSiHit.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -42,9 +45,17 @@ SiHitAnalysis::SiHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    , m_hits_eloss(0)
    , m_hits_step(0)
    , m_hits_barcode(0)
+   , m_hits_pdgId(0)
+   , m_hits_pT(0)
+   , m_hits_eta(0)
+   , m_hits_phi(0)
+   , m_hits_prodVtx_x(0)
+   , m_hits_prodVtx_y(0)
+   , m_hits_prodVtx_z(0)
      
    , m_collection("BCMHits")
    , m_expert("off")
+   , m_extraTruthBranches(0)
      
    , m_tree(0)
    , m_ntupleFileName("/SiHitAnalysis/")
@@ -59,6 +70,7 @@ SiHitAnalysis::SiHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("HistPath", m_path);
   declareProperty("isITK", m_isITK);
   declareProperty("isHGTD", m_isHGTD);
+  declareProperty("ExtraTruthBranches", m_extraTruthBranches = false);
 }
 
 StatusCode SiHitAnalysis::initialize() {
@@ -205,6 +217,15 @@ StatusCode SiHitAnalysis::initialize() {
     m_tree->Branch((detName+"_eloss").c_str(), &m_hits_eloss);
     m_tree->Branch((detName+"_step").c_str(), &m_hits_step);
     m_tree->Branch((detName+"_barcode").c_str(), &m_hits_barcode);
+    if (m_extraTruthBranches) {
+      m_tree->Branch((detName+"_pdgId").c_str(), &m_hits_pdgId);
+      m_tree->Branch((detName+"_pT").c_str(), &m_hits_pT);
+      m_tree->Branch((detName+"_eta").c_str(), &m_hits_eta);
+      m_tree->Branch((detName+"_phi").c_str(), &m_hits_phi);
+      m_tree->Branch((detName+"_prodVtx_x").c_str(), &m_hits_prodVtx_x);
+      m_tree->Branch((detName+"_prodVtx_y").c_str(), &m_hits_prodVtx_y);
+      m_tree->Branch((detName+"_prodVtx_z").c_str(), &m_hits_prodVtx_z);
+    }
   }
   else {
     ATH_MSG_ERROR("No tree found!");
@@ -225,6 +246,15 @@ StatusCode SiHitAnalysis::execute() {
   m_hits_eloss->clear();
   m_hits_step->clear();
   m_hits_barcode->clear();
+  if (m_extraTruthBranches) {
+    m_hits_pdgId->clear();
+    m_hits_pT->clear();
+    m_hits_eta->clear();
+    m_hits_phi->clear();
+    m_hits_prodVtx_x->clear();
+    m_hits_prodVtx_y->clear();
+    m_hits_prodVtx_z->clear();
+  }
   
   const DataHandle<SiHitCollection> p_collection;
   if (evtStore()->retrieve(p_collection, m_collection) == StatusCode::SUCCESS) {
@@ -261,7 +291,28 @@ StatusCode SiHitAnalysis::execute() {
       m_hits_eloss->push_back(i_hit->energyLoss());
       m_hits_time->push_back(i_hit->meanTime()); 
       m_hits_step->push_back(step_length);
-      m_hits_barcode->push_back(i_hit->particleLink().barcode());    
+      m_hits_barcode->push_back(i_hit->particleLink().barcode());
+      if (m_extraTruthBranches) {
+        auto tpl = i_hit->particleLink();
+        if (tpl.isValid()) {
+          m_hits_pdgId->push_back(tpl->pdg_id());
+          m_hits_pT->push_back(tpl->momentum().perp());
+          m_hits_eta->push_back(tpl->momentum().eta());
+          m_hits_phi->push_back(tpl->momentum().phi());
+          m_hits_prodVtx_x->push_back(tpl->production_vertex()->position().x());
+          m_hits_prodVtx_y->push_back(tpl->production_vertex()->position().y());
+          m_hits_prodVtx_z->push_back(tpl->production_vertex()->position().z());
+        }
+        else {
+          m_hits_pdgId->push_back(-9999);
+          m_hits_pT->push_back(-9999);
+          m_hits_eta->push_back(-9999);
+          m_hits_phi->push_back(-9999);
+          m_hits_prodVtx_x->push_back(-9999);
+          m_hits_prodVtx_y->push_back(-9999);
+          m_hits_prodVtx_z->push_back(-9999);
+        }
+      }
     } // End while hits
   } // End statuscode success upon retrieval of hits
 
