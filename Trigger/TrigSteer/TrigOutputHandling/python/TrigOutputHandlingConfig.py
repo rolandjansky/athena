@@ -6,8 +6,6 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
    m = CompFactory.HLTResultMTMaker(name)
-   m.StreamTagMaker = StreamTagMakerToolCfg()
-   m.MakerTools = [TriggerEDMSerialiserToolCfg(), TriggerBitsMakerToolCfg()]
 
    # ROBs/SubDets which are enabled but not necessarily part of the ROS-ROB map
    from libpyeformat_helper import SourceIdentifier,SubDetector
