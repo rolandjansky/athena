@@ -21,10 +21,6 @@ TRT_RDORawData::TRT_RDORawData(const Identifier rdoId,
   InDetRawData(rdoId,word) //call base class constructor
 {}
 
-// Destructor:
-//should I be destructing something here?
-TRT_RDORawData::~TRT_RDORawData()
-{}
 
 
 
