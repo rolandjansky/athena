@@ -77,7 +77,7 @@ def TRT_DigitizationToolCfg(flags, name="TRTDigitizationTool", **kwargs):
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "TRT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TRT_SDO_Map")
     else:

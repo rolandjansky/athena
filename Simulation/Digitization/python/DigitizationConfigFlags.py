@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import log
 from PyUtils import AthFile
 
@@ -72,8 +73,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.DoInnerDetectorNoise", True)
     # Run pile-up digitization on one bunch crossing at a time?
     flags.addFlag("Digitization.DoXingByXingPileUp", False)
-    # Run pile-up presampling
-    flags.addFlag("Digitization.PileUpPresampling", False)
     # Special configuration read from flags.Input.Files
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
     # Run Calorimeter noise simulation
@@ -116,7 +115,7 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PU.ProfileConfig", "")
     # Force sequential event numbers
     flags.addFlag("Digitization.PU.ForceSequentialEventNumbers",
-                  lambda prevFlags: prevFlags.Digitization.PileUpPresampling)
+                  lambda prevFlags: prevFlags.Common.ProductionStep == ProductionStep.PileUpPresampling)
     # Beam Halo input collections
     flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
     # LHC Bunch Structure (list of non-negative floats)
@@ -174,7 +173,7 @@ def digitizationRunArgsToFlags(runArgs, flags):
         flags.Digitization.JobNumber = runArgs.jobNumber
 
     if hasattr(runArgs, "PileUpPresampling"):
-        flags.Digitization.PileUpPresampling = runArgs.PileUpPresampling
+        flags.Common.ProductionStep = ProductionStep.PileUpPresampling
 
     if hasattr(runArgs, "doAllNoise"):
         flags.Digitization.DoInnerDetectorNoise = runArgs.doAllNoise

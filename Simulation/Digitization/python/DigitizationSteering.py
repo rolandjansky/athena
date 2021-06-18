@@ -6,6 +6,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
@@ -90,7 +91,7 @@ def DigitizationMainCfg(flags):
         acc.merge(TruthDigitizationOutputCfg(flags))
 
     # Beam spot reweighting
-    if not flags.Digitization.PileUpPresampling and flags.Digitization.InputBeamSigmaZ > 0:
+    if flags.Common.ProductionStep != ProductionStep.PileUpPresampling and flags.Digitization.InputBeamSigmaZ > 0:
         from BeamEffects.BeamEffectsAlgConfig import BeamSpotReweightingAlgCfg
         acc.merge(BeamSpotReweightingAlgCfg(flags))
 

@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
@@ -29,7 +30,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
            dbInstance="LAR_OFL"
            acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
-        if configFlags.Digitization.PileUpPresampling:
+        if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
             kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         else:
             kwargs.setdefault("LArDigitKey", "LArDigitContainer_MC")

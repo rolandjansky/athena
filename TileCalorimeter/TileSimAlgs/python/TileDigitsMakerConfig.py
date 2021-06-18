@@ -86,7 +86,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
         from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
         acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')
     else:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
@@ -101,7 +101,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs.setdefault('TileDigitsContainer_DigiHSTruth', '')
 
 
-    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPresampling)
+    kwargs.setdefault('IntegerDigits', flags.Common.ProductionStep != ProductionStep.PileUpPresampling)
 
     TileDigitsMaker=CompFactory.TileDigitsMaker
     digitsMaker = TileDigitsMaker(**kwargs)
@@ -126,7 +126,7 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
     acc = TileDigitsMakerCfg(flags, **kwargs)
     tileDigitsMaker = acc.getPrimary()
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         if hasattr(tileDigitsMaker, 'TileDigitsContainer'):
             tileDigitsContainer = tileDigitsMaker.TileDigitsContainer
         else:

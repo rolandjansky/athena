@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
@@ -83,7 +84,7 @@ def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
     rangetool = acc.popToolsAndMerge(MDT_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MDT_SDO")

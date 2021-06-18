@@ -40,7 +40,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
         from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
         kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge(TileCondToolEmscaleCfg(flags))
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
     elif flags.Common.ProductionStep == ProductionStep.Overlay:

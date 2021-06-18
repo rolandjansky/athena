@@ -2,7 +2,9 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import logging
+
 
 def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
                     disableEventTag=False, trigNavThinningSvc=None):
@@ -12,7 +14,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    StoreGateSvc=CompFactory.StoreGateSvc
 
    eventInfoKey = "EventInfo"
-   if configFlags.Digitization.PileUpPresampling:
+   if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
       eventInfoKey = configFlags.Overlay.BkgPrefix + "EventInfo"
 
    msg = logging.getLogger("OutputStreamCfg")

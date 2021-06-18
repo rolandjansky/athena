@@ -5,6 +5,7 @@
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 # Compiled beam effects methods
 # for documentation of method X, see Simulation__X._propertyDocDct
 Simulation__GenEventValidityChecker=CompFactory.Simulation.GenEventValidityChecker
@@ -139,7 +140,7 @@ def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
 
     kwargs.setdefault('InputKey', 'Input_EventInfo')
 
-    if ConfigFlags.Digitization.PileUpPresampling:
+    if ConfigFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
     else:
         kwargs.setdefault('OutputKey', 'EventInfo')
