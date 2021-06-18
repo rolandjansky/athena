@@ -19,7 +19,6 @@ class TH1;
 class TH2;
 class TTree;
 
-
 class SiHitAnalysis : public AthAlgorithm {
 
  public:
@@ -55,9 +54,16 @@ class SiHitAnalysis : public AthAlgorithm {
    std::vector<float>* m_hits_eloss;
    std::vector<float>* m_hits_step;
    std::vector<float>* m_hits_barcode;
-
+   std::vector<float>* m_hits_pdgId;
+   std::vector<float>* m_hits_pT;
+   std::vector<float>* m_hits_eta;
+   std::vector<float>* m_hits_phi;
+   std::vector<float>* m_hits_prodVtx_x;
+   std::vector<float>* m_hits_prodVtx_y;
+   std::vector<float>* m_hits_prodVtx_z;
    std::string m_collection;
-   std::string m_expert;  
+   std::string m_expert;
+   bool m_extraTruthBranches;
    
    TTree* m_tree;
    std::string m_ntupleFileName; 
