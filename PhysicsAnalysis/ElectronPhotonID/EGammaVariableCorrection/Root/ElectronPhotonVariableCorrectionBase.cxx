@@ -64,7 +64,8 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     }
 
     // retrieve properties from configuration file, using TEnv class
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 

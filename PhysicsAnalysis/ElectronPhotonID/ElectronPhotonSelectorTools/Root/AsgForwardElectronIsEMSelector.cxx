@@ -115,7 +115,8 @@ AsgForwardElectronIsEMSelector::initialize()
       return sc;
     }
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile);
-    TEnv env(filename.c_str());
+    TEnv env;
+    env.ReadFile(filename.c_str(), kEnvLocal);
 
     ///------- Read in the TEnv config ------///
 
