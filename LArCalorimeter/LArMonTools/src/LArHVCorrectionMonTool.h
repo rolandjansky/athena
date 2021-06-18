@@ -28,7 +28,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 
 #include <string>
@@ -82,13 +82,13 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
 
   std::unique_ptr<LArOnlineIDStrHelper> m_strHelper;
   ITHistSvc* m_rootStore;
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingLegacyService> m_larCablingService;  
 
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
   { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
  private:
 

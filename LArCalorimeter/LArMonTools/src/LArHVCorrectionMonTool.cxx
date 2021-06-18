@@ -44,7 +44,6 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_LArHEC_IDHelper(nullptr),
     m_caloIdMgr(nullptr),
     m_rootStore(nullptr),
-    m_larCablingService("LArCablingLegacyService"),
     m_eventsCounter(0)
 {
   declareProperty("ErrorThreshold",m_threshold=0.02);
@@ -86,10 +85,9 @@ StatusCode LArHVCorrectionMonTool::initialize()
   m_LArHEC_IDHelper  = idHelper->hec_idHelper();
   m_LArFCAL_IDHelper = idHelper->fcal_idHelper();
   
-  ATH_CHECK( m_larCablingService.retrieve() );
-
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
   
   ATH_CHECK( m_channelKey.initialize() );
 
@@ -260,6 +258,7 @@ LArHVCorrectionMonTool::fillHistograms()
 
     SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
     SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
     
     // Loop over LArRawChannels
     //SelectAllLArRawChannels AllRaw(pRawChannelsContainer);
@@ -270,10 +269,10 @@ LArHVCorrectionMonTool::fillHistograms()
     for (const LArRawChannel& rawChannel : *pRawChannelsContainer) {
       HWIdentifier id  = rawChannel.hardwareID();
       //CaloGain::CaloGain gain = pRawChannel->gain();
-      Identifier offlineID = m_larCablingService->cnvToIdentifier(id);
+      Identifier offlineID = cabling->cnvToIdentifier(id);
       
       // Skip disconnected channels
-      if(!m_larCablingService->isOnlineConnected(id)) continue;
+      if(!cabling->isOnlineConnected(id)) continue;
       
       // Get Physical Coordinates
       float etaChan = 0; float phiChan = 0.;
