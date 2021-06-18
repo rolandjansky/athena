@@ -177,8 +177,11 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
   LBN=thisLBN;
   fill(m_summaryMonGroupName,LBN);
 
-  const std::vector<unsigned> streamsThisEvent=LArMon::trigStreamMatching(m_streams,thisEvent->streamTags());
-  
+  std::vector<unsigned int> streamsThisEvent=LArMon::trigStreamMatching(m_streams,thisEvent->streamTags());
+  if(streamsThisEvent[0] == m_streams.size()) streamsThisEvent[0]=m_streams.size()-1; // assuming others are last in the list of streams
+
+  auto streambin=Monitored::Collection("streamBin",streamsThisEvent);
+
   SG::ReadCondHandle<ILArPedestal> pedestalHdl{m_keyPedestal,ctx};
   const ILArPedestal* pedestals=*pedestalHdl;
 
@@ -342,8 +345,9 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
       maxpos=thismaxPos;
       energy=(*maxSam-pedestal);
       l1Trig=thisl1Trig; 
-      fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot,ft,LBN,maxpos,energy,l1Trig);
-      
+      fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot,ft,LBN,maxpos,energy,l1Trig,streambin);
+
+
       /** fill histo out of range:*/
       if(!(thismaxPos>=m_SampleRangeLow&&thismaxPos<=m_SampleRangeUp)){
          sumbin=0;

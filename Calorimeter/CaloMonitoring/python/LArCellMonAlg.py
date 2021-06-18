@@ -274,7 +274,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     cellMonGroup = helper.addGroup(
         LArCellMonAlg,
         GroupName,
-        '/CaloMonitoring/LArCellMon_NoTrigSelNewAlg/'
+        '/CaloMonitoring/LArCellMon_NoTrigSel/'
 
     )
 
@@ -349,7 +349,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     cellMonGroupPerJob = helper.addGroup(
         LArCellMonAlg,
         LArCellMonAlg.MonGroupName_perJob,
-        '/CaloMonitoring/LArCellMon_NoTrigSelNewAlg/'
+        '/CaloMonitoring/LArCellMon_NoTrigSel/'
     )
 
     LArCellMonAlg.doKnownBadChannelsVsEtaPhi = True
@@ -394,7 +394,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
     #--- group array for threshold dependent histograms
     allMonArray = helper.addArray([LArCellMonAlg.LayerNames, LArCellMonAlg.ThresholdType], LArCellMonAlg, "allMon", 
-                                    "/CaloMonitoring/LArCellMon_NoTrigSelNewAlg/")
+                                    "/CaloMonitoring/LArCellMon_NoTrigSel/")
 
 
     #now histograms

@@ -158,7 +158,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                            ylabels=lArDQGlobals.DSPRanges 
           )
     Group.defineHistogram('Ediff,Erange;E_ranges_all', title='E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
-                           type='TH2F', path=dqmd_hist_path,
+                           type='TH2F', path='DQMD/',
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
                            ylabels=lArDQGlobals.DSPRanges

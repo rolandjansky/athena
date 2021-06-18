@@ -77,7 +77,8 @@ private:
   
   //Added for Stream aware:
   /** Give the name of the streams you want to monitor:*/
-  Gaudi::Property<std::vector<std::string> >  m_streams {this, "Streams", {""}};
+  Gaudi::Property<std::vector<std::string> >  m_streams {this, "Streams", {}};
+
   //std::vector<unsigned> m_streamsThisEvent;
   
   //Histogram group names
