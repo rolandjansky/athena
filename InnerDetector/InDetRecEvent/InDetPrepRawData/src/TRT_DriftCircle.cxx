@@ -66,9 +66,6 @@ TRT_DriftCircle::TRT_DriftCircle(
 {
 }
 
-// Destructor:
-TRT_DriftCircle::~TRT_DriftCircle() = default;
-
 
 // Default constr
 TRT_DriftCircle::TRT_DriftCircle()

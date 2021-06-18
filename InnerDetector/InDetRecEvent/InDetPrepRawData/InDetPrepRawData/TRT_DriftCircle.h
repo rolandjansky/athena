@@ -68,7 +68,7 @@ public:
                   const unsigned int word);
 
   /** Destructor*/
-  virtual ~TRT_DriftCircle();
+  virtual ~TRT_DriftCircle() = default;
 
   // accesors
 

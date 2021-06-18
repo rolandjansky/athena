@@ -27,29 +27,6 @@ InDetRawData::InDetRawData(const Identifier rdoId, const unsigned int word) :
 
 }
 
-// Destructor:
-InDetRawData::~InDetRawData()
-{
-
-}
-
-Identifier InDetRawData::identify() const
-{
-  return m_rdoId;
-
-}
-unsigned int InDetRawData::getWord() const
-{
-  return m_word;
-}
-
-
-void InDetRawData::merge (const InDetRawData& other)
-{
-  m_word |= other.m_word;
-}
-
-
 MsgStream& operator << ( MsgStream& sl, const InDetRawData& rdo) {
   sl << " Identifier " << rdo.identify() << " word " << rdo.getWord();
   return sl;
