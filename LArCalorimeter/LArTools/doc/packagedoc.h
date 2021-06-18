@@ -14,29 +14,9 @@ This package provides tools for LAr identifier mapping.
 @author Fabienne Ledroit <ledroit@lpsc.in2p3.fr>
 @author Arnaud Lucotte <arnaud.lucotte@lpsc.in2p3.fr>
 
-@section LArTools_SignalMap Signal channel cabling mapping
-
-LArCablingService (an AlgTool) provides the cabling mapping for signal channels, between online and offline identifiers.
-LArCablingService will be removed, LArCablingLegacyService will be provided for clients which should retire soon
-
-It also provide the definition of LArReadoutModuleID (defined in LArIdentifier package), and the mapping from FEB ID to 
-the backend readout module.
-
-the data classes LArOnOffIdMap and LArFebRodMap are conditions data objects, and can be filled from database.
-
-LArFebRod_P and LArOnOffId_P are persistent data structure.
-
-web page:  http://lpsc.in2p3.fr/atlas/fabienne/identifiers.html
+web pages:
+  http://lpsc.in2p3.fr/atlas/fabienne/identifiers.html
   http://lpsc.in2p3.fr/atlas/lucotte/3.SOFTWARE/software_online.html
-
-@section LArTools_HVMap HV channel mapping
-
-LArHVCablingTool provides the mapping between the HV channel and the detector electrode.,
-It is also responsbile for encoding and decoding the LArHVCellID and LArHVDetectorID and LArHVElectrodeID.
-
-LArHVMap is a data class that contains the mapping. 
-
-web page:
-http://lpsc.in2p3.fr/atlas/lucotte/3.SOFTWARE/software_highvoltage.html
+  http://lpsc.in2p3.fr/atlas/lucotte/3.SOFTWARE/software_highvoltage.html
 
 */
