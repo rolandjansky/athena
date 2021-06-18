@@ -318,7 +318,10 @@ class SlimmingHelper:
                 items = []
                 if collectionName not in FullListOfSmartContainers:
                         raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
-                if collectionName=="Electrons":
+                if collectionName=="EventInfo":
+                        from DerivationFrameworkCore.EventInfoContent import EventInfoContent
+                        items.extend(EventInfoContent)
+                elif collectionName=="Electrons":
                         from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
                 elif collectionName=="Photons":
