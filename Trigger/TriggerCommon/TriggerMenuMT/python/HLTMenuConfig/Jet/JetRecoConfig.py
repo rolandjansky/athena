@@ -181,7 +181,8 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
 
     if "sub" in jetRecoDict["jetCalib"]:
         # Add the event shape alg for area subtraction
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg(jetDef, _jetNamePrefix)
+        # WARNING : offline jets use the parameter voronoiRf = 0.9 ! we might want to harmonize this.
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg(jetDef, _jetNamePrefix,voronoiRf = 1.0 )
         acc.addEventAlgo(eventShapeAlg)
         rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
     else:

@@ -82,11 +82,11 @@ stdJetModifiers.update(
 
     # More complex cases here
     CaloEnergies =    JetModifier("JetCaloEnergies", "jetens", 
-                                   prereqs=["mod:EMScaleMom"], JetContainer = _jetname,
-                                   ),
+                                  prereqs=["mod:EMScaleMom"], JetContainer = _jetname,
+                                  ),
     CaloQuality =     JetModifier("JetCaloQualityTool", "caloqual",
-                                   TimingCuts = [5,10],
-                                   Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],JetContainer = _jetname),
+                                  TimingCuts = [5,10],
+                                  Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],JetContainer = _jetname),
 
     ConstitFourMom =  JetModifier("JetConstitFourMomTool", "constitfourmom_basename",
                                   createfn=JetMomentToolsConfig.getConstitFourMomTool,),
@@ -125,7 +125,7 @@ stdJetModifiers.update(
     # More complex cases here
     TruthPartonDR =    JetModifier("Analysis::JetConeLabeling","truthpartondr",
                                    filterfn=isMC,
-                                   JetTruthMatchTool = lambda *l : CompFactory.Analysis.JetQuarkLabel("jetquarklabel", McEventCollection='TruthEvents'),
+                                   JetTruthMatchTool = lambda *l : CompFactory.getComp("Analysis::JetQuarkLabel")("jetquarklabel", McEventCollection='TruthEvents'),
                                    ),
 
                                     

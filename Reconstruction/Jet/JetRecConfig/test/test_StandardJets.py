@@ -97,7 +97,7 @@ if args.nEvents == 0:
     # Don't run over events --> just run the jet config.
     # Add the components from our jet reconstruction job
     for jetdef in jetdefs:
-        cfg.merge( JetRecCfg(jetdef,ConfigFlags) )        
+        cfg.merge( JetRecCfg(ConfigFlags,jetdef) )        
     import sys
     tlog.info("Performed jet config. Exiting now")
     sys.exit(0)
@@ -106,6 +106,8 @@ if args.nEvents == 0:
     
 # ***********************************************
 # else setup a full job
+
+
 
 # Add the components for reading in pool files
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -121,10 +123,19 @@ muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="Lumino
 cfg.addEventAlgo(muWriter,"AthAlgSeq")
 
 
+
+# =======================
+# If running on ESD the CHSXYZParticleFlowObjects container pre-exist and can get in the way. Just rename them manually here :
+if 'CHSChargedParticleFlowObjects' in ConfigFlags.Input.Collections:
+    from SGComps.AddressRemappingConfig import InputRenameCfg
+    cfg.merge( InputRenameCfg("xAOD::PFOContainer", "CHSNeutralParticleFlowObjects" , "CHSNeutralParticleFlowObjects_original") )
+    cfg.merge( InputRenameCfg("xAOD::PFOContainer", "CHSChargedParticleFlowObjects" , "CHSChargedParticleFlowObjects_original") )
+
+
     
 # Add the components from our jet reconstruction job
 for jetdef in jetdefs:
-    cfg.merge( JetRecCfg(jetdef,ConfigFlags) )        
+    cfg.merge( JetRecCfg(ConfigFlags,jetdef) )        
 
 
 # Now get the output stream components
