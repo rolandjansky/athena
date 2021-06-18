@@ -61,6 +61,7 @@ StatusCode DataHeaderCnv::initialize()
    // Get IncidentSvc
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", "DataHeaderCnv");
    ATH_CHECK( incSvc.retrieve() );
+   incSvc->addListener(this, IncidentType::EndInputFile, 0);
    incSvc->addListener(this, "PreFork", 0);
    return DataHeaderCnvBase::initialize();
 }
