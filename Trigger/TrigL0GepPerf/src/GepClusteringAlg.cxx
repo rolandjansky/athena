@@ -1,11 +1,11 @@
 /*
- *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrigL0GepPerf/GepClusteringAlg.h"
 
 // Base class 
-#include "TrigL0GepPerf/TopoClusterMaker_Base.h"
+#include "TrigL0GepPerf/ITopoClusterMaker.h"
 
 // *** Include custom topoclustering classes inherited from base class ***
 
@@ -20,7 +20,6 @@
 #include "JetEDM/PseudoJetVector.h"
 
 
-
 GepClusteringAlg::GepClusteringAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAnalysisAlgorithm( name, pSvcLocator ),
   m_topoclAlg ("TopoclAlg")
@@ -30,9 +29,6 @@ GepClusteringAlg::GepClusteringAlg( const std::string& name, ISvcLocator* pSvcLo
   declareProperty("TopoclAlg", m_topoclAlg="Unknown", "Custom topoclustering algorithm label. New custom clusters will be named m_topoclAlg+\"TopoClusters\".");
 
 }
-
-
-GepClusteringAlg::~GepClusteringAlg() {}
 
 
 StatusCode GepClusteringAlg::initialize() {
@@ -64,14 +60,7 @@ StatusCode GepClusteringAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode GepClusteringAlg::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-  //
-  //Things that happen once at the end of the event loop go here
-  //
 
-return StatusCode::SUCCESS;
-}
 
 StatusCode GepClusteringAlg::execute() {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
@@ -82,14 +71,14 @@ StatusCode GepClusteringAlg::execute() {
     return StatusCode::FAILURE;
   }
   else {
-    ATH_MSG_INFO("Noise tool retrieved");
+    ATH_MSG_DEBUG("Noise tool retrieved");
   }
 
 
 
   const xAOD::EventInfo* ei = 0;
   CHECK( evtStore()->retrieve( ei , "EventInfo" ) );
-  ATH_MSG_INFO("eventNumber=" << ei->eventNumber() );
+  ATH_MSG_DEBUG("eventNumber=" << ei->eventNumber() );
 
 
   //
@@ -109,7 +98,7 @@ StatusCode GepClusteringAlg::execute() {
 
   //
   // Run topoclustering algorithm
-  std::unique_ptr<TopoClusterMaker_Base> topoMaker{};
+  std::unique_ptr<Gep::ITopoClusterMaker> topoMaker{};
 
   // *** Instantiate custom topoclustering classes ***
 
@@ -119,11 +108,11 @@ StatusCode GepClusteringAlg::execute() {
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO( "Running " << topoMaker->getName() << " topoclustering algorithm." );
+  ATH_MSG_DEBUG( "Running " << topoMaker->getName() << " topoclustering algorithm." );
 
-  std::vector<CustomTopoCluster> customClusters = topoMaker->makeTopoCluster( m_cch.getCaloCellsMap() );
+  std::vector<Gep::CustomTopoCluster> customClusters = topoMaker->makeTopoCluster( m_cch.getCaloCellsMap() );
 
-  ATH_MSG_INFO( "Topoclustering completed." );
+  ATH_MSG_DEBUG( "Topoclustering completed." );
 
   
   // create the new container and its auxiliary store.
@@ -139,16 +128,16 @@ StatusCode GepClusteringAlg::execute() {
     xAOD::CaloCluster* iclus = athenaCluster.get();
     athenaTopoClusters->push_back(std::move(athenaCluster));
 
-    iclus->setE(iClust.e);
-    iclus->setEta(iClust.eta);
-    iclus->setPhi(iClust.phi);
+    iclus->setE(iClust.vec.E());
+    iclus->setEta(iClust.vec.Eta());
+    iclus->setPhi(iClust.vec.Phi());
     iclus->setTime(iClust.time);
   }
 
   std::string clustersName = m_topoclAlg + "TopoClusters";
   std::string clustersNameAux = clustersName + "Aux.";
 
-  ATH_MSG_INFO( "Storing " << clustersName );
+  ATH_MSG_DEBUG( "Storing " << clustersName );
   CHECK( evtStore()->record(std::move(athenaTopoClusters),clustersName) ); 
   CHECK( evtStore()->record(std::move(athenaTopoClustersAux),clustersNameAux) );
 

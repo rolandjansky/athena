@@ -10,6 +10,7 @@ def setupL0GepSimulationSequence():
 
     from TrigL0GepPerf.JetBuilder import addStandardJets, modifyClusters, modifyJets
     from TrigL0GepPerfConf import GepClusteringAlg
+    from TrigL0GepPerfConf import GepJetAlg
     from TrigL0GepPerfConf import ClusterTiming
     from TrigL0GepPerfConf import MissingETGepCl
     from TrigL0GepPerfConf import MissingETGepPufit
@@ -37,14 +38,17 @@ def setupL0GepSimulationSequence():
     topoclAlgs = ['CaloCal','Calo420','Calo422']
     # pileup suppression
     puSupprAlgs = ['', 'Vor', 'SK', 'VorSK']
-
+    # jet reconstruction
+    jetAlgs = ['AntiKt4']
 
     for topoMaker in topoclAlgs:
 
-        # run topoclustering algorithm
+        # topoclusters
         if( topoMaker == 'CaloCal' or topoMaker == 'Calo420' or topoMaker == 'Calo422'):
-            log.info('\n No topoclustering algorithm given. Using '+topoMaker+'TopoClusters')
+            # use existing topoclusters
+            log.info('\n Using '+topoMaker+'TopoClusters')
         else:
+            # run custom topoclustering 
             log.info('\n Running '+topoMaker+' topoclustering \n')
             topSequence += GepClusteringAlg( topoMaker, TopoclAlg=topoMaker, CaloNoiseTool=theCaloNoiseTool )
 
@@ -53,17 +57,25 @@ def setupL0GepSimulationSequence():
 
         for puSupAlg in puSupprAlgs:            
 
-            clusterAlgs = topoMaker+puSupAlg
-            inputClusterName = clusterAlgs+'TopoClusters' 
-            # run AntiKt4 jet reconstruction
-            modifyJets( clusterAlgs )      
+            topoclLabel = topoMaker+puSupAlg
+
+            # jets
+            for jetAlg in jetAlgs:
+                if jetAlg=='AntiKt4':
+                    # run Athena AntiKt4 jet reconstruction
+                    modifyJets( topoclLabel )      
+                else:
+                    # run custom jet algorithm
+                    topSequence += GepJetAlg( jetAlg+topoclLabel, TopoclLabel=topoclLabel, JetAlg=jetAlg)
 
             # get MET
-            outputMETName = 'cluster'+clusterAlgs
-            topSequence += MissingETGepCl(outputMETName,inputClusters=inputClusterName,outputMET=outputMETName) 
+            inputTopoclName = topoclLabel+'TopoClusters' 
+            outputMETName = 'cluster'+topoclLabel
+            topSequence += MissingETGepCl(outputMETName,inputClusters=inputTopoclName,outputMET=outputMETName) 
             # get MET with pufit
-            outputMETPufitName = 'pufit'+clusterAlgs
-            topSequence += MissingETGepPufit(outputMETPufitName,inputClusters=inputClusterName,outputMET=outputMETPufitName); 
+            outputMETPufitName = 'pufit'+topoclLabel
+            topSequence += MissingETGepPufit(outputMETPufitName,inputClusters=inputTopoclName,outputMET=outputMETPufitName); 
+
 
 
     # ClusterTiming currently cannot run on custom clusters

@@ -1,43 +1,42 @@
 /*
- *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef CUSTOMTOPOCLUSTER_H
-#define CUSTOMTOPOCLUSTER_H
+#ifndef TRIGL0GEPPERF_CUSTOMTOPOCLUSTER_H
+#define TRIGL0GEPPERF_CUSTOMTOPOCLUSTER_H
 
 #include <vector>
-#include <iostream>
+#include "TLorentzVector.h"
 
-class CustomTopoCluster
-{
+namespace Gep{
 
- public:
-  CustomTopoCluster() {}
-  ~CustomTopoCluster() {}
+  class CustomTopoCluster
+  {
+    
+  public:
+    CustomTopoCluster() {}
+    ~CustomTopoCluster() {}
+    
+    void erase() {
+      ncells = 0;
+      time = 0.;
+      vec.SetPxPyPzE(0.,0.,0.,0.);
+      cell_id = {};
+    }
+    
+    bool isEmptyCluster() const{
+      if (ncells == 0) return true;
+      return false;
+    }
+    
+    int ncells;
+    float time;
+    TLorentzVector vec;
+    std::vector<unsigned int> cell_id;
+    
+  private:
+    
+  };
+}
 
-  void erase() {
-    ncells = 0;
-    e  = 0.0;
-    et = 0.0;
-    time = 0.0;
-    eta = 0.0;
-    phi = 0.0;
-    cell_id = {};
-  }
-  bool isEmptyCluster() const{
-    if (ncells == 0) return true;
-    return false;
-  }
-
-  int ncells;
-  float e;
-  float et;
-  float time;
-  float eta;
-  float phi;
-  std::vector<unsigned int> cell_id;
-
- private:
-
-};
-#endif //CUSTOMTOPOCLUSTER_H
+#endif //TRIGL0GEPPERF_CUSTOMTOPOCLUSTER_H
