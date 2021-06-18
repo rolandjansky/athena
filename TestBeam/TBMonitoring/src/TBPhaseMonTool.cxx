@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,6 +16,7 @@
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCell.h"
@@ -26,7 +27,6 @@
 // #include "CaloUtils/CaloSamplingHelper.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingLegacyService.h"
 
 #include "TBEvent/TBTDCRaw.h"
 #include "TBEvent/TBTDCRawCont.h"
@@ -54,7 +54,6 @@ TBPhaseMonTool::TBPhaseMonTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent)
   : MonitorToolBase(type,name,parent)
-    , m_cablingService("LArCablingLegacyService", "TBPhaseMonTool")
     , m_onlineHelper(nullptr)
     , m_tdcContainerName("TDCRawCont")
     , m_caloCellName("AllCalo")
@@ -120,7 +119,6 @@ StatusCode TBPhaseMonTool::initialize() {
   MsgStream report(msgSvc(),name());
   report << MSG::DEBUG << "TBPhaseMonTool::initialize()" << endmsg;
 
-  ATH_CHECK( m_cablingService.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // 
@@ -181,6 +179,8 @@ StatusCode TBPhaseMonTool::initialize() {
     }
     report << MSG::INFO << endmsg;
   }
+
+  ATH_CHECK( m_cablingKey.initialize() );
   
   // booking flag
   this->SetBookStatus(false);
@@ -212,7 +212,8 @@ StatusCode TBPhaseMonTool::fillHists() {
 
   const TBPhase* theTBPhase = nullptr;
   ATH_CHECK( evtStore()->retrieve(theTBPhase, m_TBPhaseName) );
-  
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
   
   ////////////////////////
   // First Event Action //
@@ -240,7 +241,7 @@ StatusCode TBPhaseMonTool::fillHists() {
           // here you have the CaloCell with idCalo, idSample, **cell
           // find the hardware ID and the corresponding febID
 
-          HWIdentifier id = m_cablingService->createSignalChannelID((*cell)->ID());
+          HWIdentifier id = cabling->createSignalChannelID((*cell)->ID());
           HWIdentifier febID = m_onlineHelper->feb_Id(id);
 
           // store it if you don't have it already
@@ -355,7 +356,7 @@ StatusCode TBPhaseMonTool::fillHists() {
         // here you have the CaloCell with idCalo, idSample, **cell
         // find the hardware ID and the corresponding febID
 
-        HWIdentifier id = m_cablingService->createSignalChannelID((*cell)->ID());
+        HWIdentifier id = cabling->createSignalChannelID((*cell)->ID());
         HWIdentifier febID = m_onlineHelper->feb_Id(id);
         
         // gather sums for energy weighted cubic peaking time
