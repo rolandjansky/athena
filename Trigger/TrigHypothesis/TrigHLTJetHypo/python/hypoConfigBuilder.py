@@ -264,7 +264,7 @@ def make_fastreduction_configurers(chain_dict):
             # We only allow threshold != 0 for the simple scenario.
             assert scenario_chainpart['threshold'] == '0'
         
-            scenario = scenario_chainparts[0]['hypoScenario']
+            scenario = scenario_chainpart['hypoScenario']
             # find the chain part index for a non-simple scenario.
             # assume simple is processed before non-simple, and that
             # there is at most one non-simple chainpart.
