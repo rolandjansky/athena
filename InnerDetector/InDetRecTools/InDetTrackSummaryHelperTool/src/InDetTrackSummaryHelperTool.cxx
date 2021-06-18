@@ -559,7 +559,7 @@ InDet::InDetTrackSummaryHelperTool::addDetailedTrackSummary(
     return;
   }
   ATH_MSG_DEBUG("Adding detailed indet track summary");
-  delete summary.m_indetTrackSummary;
+  summary.m_indetTrackSummary.reset();
   Trk::InDetTrackSummary* indetTrackSummary = new Trk::InDetTrackSummary();
   Trk::InDetTrackSummary& trackSummary = *indetTrackSummary;
   if (m_usePixel and not m_pixeldedxtool.empty() and
@@ -582,7 +582,7 @@ InDet::InDetTrackSummaryHelperTool::addDetailedTrackSummary(
         m_pixeldedxtool->getMass(ctx, dedx, p, ngoodhits);
     }
   }
-  summary.m_indetTrackSummary = indetTrackSummary;
+  summary.m_indetTrackSummary.reset(indetTrackSummary);
 }
 
 StatusCode
