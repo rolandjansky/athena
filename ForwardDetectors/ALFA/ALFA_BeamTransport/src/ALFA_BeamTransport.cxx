@@ -128,7 +128,8 @@ StatusCode ALFA_BeamTransport::execute()
        // Code entered here will be executed once per event
      ATH_MSG_DEBUG ("Executing " << name() << "...");
        //-----------------------------------------------------------------------------------------
-     int run_number, evt_number;
+     int run_number;
+     uint64_t evt_number;
 
      //Set particles counter to zero!
      //counter for particles marked as outgoing in event record

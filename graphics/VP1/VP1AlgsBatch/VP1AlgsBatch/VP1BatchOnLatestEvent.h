@@ -67,7 +67,7 @@ private:
 	int m_indexFile;
 	int m_lastIndexFile;
 
-	unsigned long m_eventNumber = 0;
+	uint64_t m_eventNumber = 0;
 	unsigned long m_runNumber = 0;
 	unsigned long m_timeStamp = 0;
 	std::string m_humanTimestamp;

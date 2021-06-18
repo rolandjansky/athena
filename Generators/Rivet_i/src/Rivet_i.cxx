@@ -248,8 +248,8 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   const DataHandle<EventInfo> eventInfo;
   if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
     //int run=eventInfo->event_ID()->run_number();
-    int eventNumber = eventInfo->event_ID()->event_number();
-    modEvent->set_event_number(eventNumber);
+    uint64_t eventNumber = eventInfo->event_ID()->event_number();
+    modEvent->set_event_number((int)eventNumber);
   }
 
   // weight-name cleaning
