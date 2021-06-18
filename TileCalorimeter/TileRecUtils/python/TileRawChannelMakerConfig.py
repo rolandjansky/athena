@@ -21,7 +21,7 @@ def TileRawChannelMakerCfg(flags, **kwargs):
     kwargs.setdefault('name', 'TileRChMaker')
     name = kwargs['name']
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')
     else:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')

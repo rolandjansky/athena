@@ -108,7 +108,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
         kwargs.setdefault("HighGainThreshEMECIW", 0)
     kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
     else:
         kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
@@ -153,11 +153,11 @@ def LArOutputCfg(flags):
         ItemList = []
         if flags.Digitization.AddCaloDigi:
             ItemList.append("LArDigitContainer#*")
-        elif flags.Digitization.PileUpPresampling:
+        elif flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
             ItemList.append("LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
         elif flags.Digitization.AddCaloDigiThinned:
             ItemList.append("LArDigitContainer#LArDigitContainer_MC_Thinned")
-        if not flags.Digitization.PileUpPresampling:
+        if flags.Common.ProductionStep != ProductionStep.PileUpPresampling:
             ItemList.append("LArRawChannelContainer#LArRawChannels")
         if flags.Digitization.TruthOutput:
             ItemList.append("CaloCalibrationHitContainer#*")
@@ -223,7 +223,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("PileUp", flags.Digitization.PileUp)
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")
     LArTTL1Maker = CompFactory.LArTTL1Maker

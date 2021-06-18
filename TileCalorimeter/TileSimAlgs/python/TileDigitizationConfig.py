@@ -3,6 +3,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def TileTriggerDigitizationCfg(flags):
@@ -45,7 +46,7 @@ def TileDigitizationCfg(flags):
     from TileSimAlgs.TileDigitsMakerConfig import TileDigitsMakerOutputCfg
     acc = TileDigitsMakerOutputCfg(flags)
 
-    if not flags.Digitization.PileUpPresampling and flags.Output.doWriteRDO:
+    if flags.Common.ProductionStep != ProductionStep.PileUpPresampling and flags.Output.doWriteRDO:
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
     else:

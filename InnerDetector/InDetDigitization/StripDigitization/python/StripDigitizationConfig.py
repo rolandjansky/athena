@@ -61,7 +61,7 @@ def ITkStripDigitizationToolCfg(flags, name="ITkStripDigitizationTool", **kwargs
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkStripRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "ITkStripRDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "ITkStripSDO_Map")
     else:
@@ -217,7 +217,7 @@ def ITkStripFrontEndCfg(flags, name="ITkStripFrontEnd", **kwargs):
     acc = ComponentAccumulator()
     
     # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
-    #if flags.Digitization.PileUpPresampling:
+    #if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
     #    kwargs.setdefault("DataCompressionMode", 3)
     #elif flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
     #    kwargs.setdefault("DataCompressionMode", 2)

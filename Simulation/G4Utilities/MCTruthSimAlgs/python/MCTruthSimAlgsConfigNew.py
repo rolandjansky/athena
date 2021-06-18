@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
@@ -12,7 +13,7 @@ from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFo
 def GenericMergeMcEventCollCfg(flags, name="MergeMcEventCollTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TruthCollInputKey", "TruthEvent")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("TruthCollOutputKey", flags.Overlay.BkgPrefix + "TruthEvent")
     else:
         kwargs.setdefault("TruthCollOutputKey", "TruthEvent")
@@ -96,7 +97,7 @@ def MergeAntiKt4TruthJetsCfg(flags, name="MergeAntiKt4TruthJetsTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing())
         kwargs.setdefault("LastXing",  TruthJet_LastXing())
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("InTimeOutputTruthJetCollKey", flags.Overlay.BkgPrefix + "InTimeAntiKt4TruthJets")
         kwargs.setdefault("OutOfTimeTruthJetCollKey", flags.Overlay.BkgPrefix + "OutOfTimeAntiKt4TruthJets")
     else:
@@ -114,7 +115,7 @@ def MergeAntiKt6TruthJetsCfg(flags, name="MergeAntiKt6TruthJetsTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing())
         kwargs.setdefault("LastXing",  TruthJet_LastXing())
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("InTimeOutputTruthJetCollKey", flags.Overlay.BkgPrefix + "InTimeAntiKt6TruthJets")
         kwargs.setdefault("OutOfTimeTruthJetCollKey", flags.Overlay.BkgPrefix + "OutOfTimeAntiKt6TruthJets")
     else:
@@ -161,7 +162,7 @@ def MergeTruthParticlesCfg(flags, name="MergeTruthParticlesTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthParticle_FirstXing())
         kwargs.setdefault("LastXing",  TruthParticle_LastXing())
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("InTimeOutputTruthParticleCollKey", flags.Overlay.BkgPrefix + "TruthPileupParticles")
     else:
         kwargs.setdefault("InTimeOutputTruthParticleCollKey", "TruthPileupParticles")
@@ -206,7 +207,7 @@ def MergeTrackRecordCollCfg(flags, name="MergeTrackRecordCollTool", **kwargs):
 def MergeCaloEntryLayerCfg(flags, name="MergeCaloEntryLayerTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("TrackRecordCollOutputKey", flags.Overlay.BkgPrefix + "CaloEntryLayer")
     else:
         kwargs.setdefault("TrackRecordCollOutputKey", "CaloEntryLayer")
@@ -217,7 +218,7 @@ def MergeCaloEntryLayerCfg(flags, name="MergeCaloEntryLayerTool", **kwargs):
 def MergeMuonEntryLayerCfg(flags, name="MergeMuonEntryLayerTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TrackRecordCollKey", "MuonEntryLayer")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("TrackRecordCollOutputKey", flags.Overlay.BkgPrefix + "MuonEntryLayer")
     else:
         kwargs.setdefault("TrackRecordCollOutputKey", "MuonEntryLayer")
@@ -228,7 +229,7 @@ def MergeMuonEntryLayerCfg(flags, name="MergeMuonEntryLayerTool", **kwargs):
 def MergeMuonExitLayerCfg(flags, name="MergeMuonExitLayerTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TrackRecordCollKey", "MuonExitLayer")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("TrackRecordCollOutputKey", flags.Overlay.BkgPrefix + "MuonExitLayer")
     else:
         kwargs.setdefault("TrackRecordCollOutputKey", "MuonExitLayer")
@@ -315,7 +316,7 @@ def MergeRecoTimingObjCfg(flags, name="MergeRecoTimingObjTool", **kwargs):
         kwargs.setdefault("FirstXing", TimingObj_FirstXing())
         kwargs.setdefault("LastXing",  TimingObj_LastXing())
     kwargs.setdefault("RecoTimingObjInputKey", "EVNTtoHITS_timings")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("RecoTimingObjInputKey", flags.Overlay.BkgPrefix + "EVNTtoHITS_timings")
     else:
         kwargs.setdefault("RecoTimingObjInputKey", "EVNTtoHITS_timings")

@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from AthenaConfiguration.Enums import ProductionStep
 from LArConfiguration.LArConfigRun2 import LArConfigRun2
 
 
@@ -20,7 +21,7 @@ def MC20a(flags):
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2015'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run284500_MC20a'
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
         flags.Digitization.PU.HighPtMinBiasInputColOffset = -1
 
@@ -41,7 +42,7 @@ def MC20d(flags):
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run300000_MC20d'
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
         flags.Digitization.PU.HighPtMinBiasInputColOffset = -1
 
@@ -62,6 +63,6 @@ def MC20e(flags):
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run310000_MC20e'
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
         flags.Digitization.PU.HighPtMinBiasInputColOffset = -1

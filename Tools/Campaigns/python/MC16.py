@@ -19,9 +19,6 @@ def MC16a(flags):
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2015'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run284500_MC16a'
 
-    if flags.Digitization.PileUpPresampling:
-        flags.Digitization.PU.ForceSequentialEventNumbers = True
-
 
 def MC16d(flags):
     """MC16d flags for MC to match 2017 data"""
@@ -38,9 +35,6 @@ def MC16d(flags):
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run300000_MC16d'
 
-    if flags.Digitization.PileUpPresampling:
-        flags.Digitization.PU.ForceSequentialEventNumbers = True
-
 
 def MC16e(flags):
     """MC16e flags for MC to match 2018 data"""
@@ -56,6 +50,3 @@ def MC16e(flags):
     flags.Digitization.PU.NumberOfHighPtMinBias = 0.2595392
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run310000_MC16e'
-
-    if flags.Digitization.PileUpPresampling:
-        flags.Digitization.PU.ForceSequentialEventNumbers = True
