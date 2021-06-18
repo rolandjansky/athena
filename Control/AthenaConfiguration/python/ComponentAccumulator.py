@@ -1092,6 +1092,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
 
                     __setProperties( instance, newCdict[newC], __indent( indent ) )
                     _log.debug('%s will now add %s to array.',indent, instance)
+                    existingConfigurableInstance += instance # Makes a copy with a correctly set parent and name
                     alreadySetProperties[pname].append(instance)
             elif "PublicToolHandleArray" in propType:
                 toolSet = {_.getName() for _ in alreadySetProperties[pname]}
@@ -1115,10 +1116,25 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                     _log.warning("%sThe handle %s of new-config component %s.%s is just a string %s, "
                                  "skipping deeper checks, configuration may be incorrect",
                                  indent, propType, newConf2Instance.name, pname, pvalue)
+                elif pvalue is None:
+                    _log.debug("%sThe property value for %s of %s is None. Skipping.", indent, pname, newConf2Instance.name )
+                    continue
+                elif str(existingVal) == "":
+                    className = pvalue.getFullJobOptName().split( "/" )[0]
+                    pvalueCompName = pvalue.getFullJobOptName().split( "/" )[1]
+                    _log.debug("%sThe existing value for %s of %s is an empty handle. "
+                               "Will try to create conf1 instance using this className: %s, and merge.",
+                               indent, pname, newConf2Instance.name, className )
+                    configurableClass = __findConfigurableClass( className )
+                    # Do not create with existing name, or it will try to get an existing public tool, if available
+                    # (and public tools cannot be added to a PrivateToolHandle)
+                    instance = configurableClass( pvalueCompName + className + str(len(indent)) )
+                    # Now give it the correct name, assign to the conf1 property, and merge
+                    instance._name = pvalueCompName
+                    setattr(existingConfigurableInstance, pname, instance)
+                    existingVal = getattr(existingConfigurableInstance, pname)
+                    __areSettingsSame( existingVal, pvalue, indent)
                 else:
-                    if pvalue is None:
-                        _log.debug("%sThe property value for %s of %s is None. Skipping.", indent, pname, newConf2Instance.name )
-                        continue
                     _log.debug( "%sSome kind of handle and, object type %s existing %s",
                                 indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
