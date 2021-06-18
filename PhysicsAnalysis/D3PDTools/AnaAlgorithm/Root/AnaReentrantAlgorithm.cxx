@@ -83,6 +83,7 @@ namespace EL
 
 
 
+#ifdef XAOD_STANDALONE
   ::StatusCode AnaReentrantAlgorithm ::
   initialize ()
   {
@@ -104,6 +105,7 @@ namespace EL
   {
     return StatusCode::SUCCESS;
   }
+#endif
 
 
 
