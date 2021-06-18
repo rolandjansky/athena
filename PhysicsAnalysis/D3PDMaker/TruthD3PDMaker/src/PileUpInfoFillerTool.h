@@ -61,7 +61,7 @@ private:
   /// Variable: Event number.
   int* m_run_number;
   /// Variable: Run number.
-  uint64_t* m_event_number;
+  int* m_event_number;
   /// Write out Event Number
   bool  m_do_EvtNum;
 };
