@@ -4,6 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 log = logging.getLogger("RecoSteering.py")
 
+tryConfiguringAll=False
 def RecoSteering(flags):
     """
     Generates configuration of the reconstructions
@@ -38,6 +39,11 @@ def RecoSteering(flags):
     acc.merge(MuonReconstructionCfg(flags))
     log.info("---------- Configured muon tracking")
 
+    if tryConfiguringAll:
+        from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedReconstructionCfg
+        acc.merge(MuonCombinedReconstructionCfg(flags))
+        log.info("---------- Configured combined muon reconstruction")
+
     #Caching of CaloExtension for downstream Combined Performance algorithms.
     #The algorithms that use these cached CaloExtension only run in the reco step that produces ESD.
     if flags.Output.doESD:
@@ -52,7 +58,12 @@ def RecoSteering(flags):
     # egamma
     # jets
     # btagging
-    # pflow
+    if tryConfiguringAll:
+        from AthenaCommon.ConcurrencyFlags import jobproperties # hack to prevent btagging fragments to rename top sequence
+        jobproperties.ConcurrencyFlags.NumThreads=flags.Concurrency.NumThreads
+        from BTagging.BTagRun3Config import BTagRecoSplitCfg
+        acc.merge(BTagRecoSplitCfg(flags))
+        log.info("---------- Configured btagging")
 
     #setup output
     if any((flags.Output.doWriteESD, flags.Output.doWriteAOD, flags.Output.doWriteRDO)):
@@ -96,6 +107,7 @@ def _run(input):
     flags.Output.ESDFileName="myESD.pool.root"
     flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()
+    parser.add_argument('--tryConfiguringAll', action="store_true")
     args = flags.fillFromArgs(parser=parser)
 
     # test inputs
@@ -112,6 +124,9 @@ def _run(input):
     flags.lock()
 
     acc = MainServicesCfg(flags)
+    if args.tryConfiguringAll: # this option (and related functionality) should be removed once all major fragments can actually be configured
+        global tryConfiguringAll
+        tryConfiguringAll=True
     acc.merge(RecoSteering(flags), sequenceName="AthAlgSeq")
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
@@ -122,7 +137,6 @@ def _run(input):
         with open(args.configOnly, "wb") as confFile:
             acc.store(confFile)
             log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
-    
             sys.exit(0)
     # running        
     statusCode = acc.run()
