@@ -44,13 +44,21 @@ namespace Muon {
       virtual ~MuonStationBuilderCond() = default;
       StatusCode initialize();
 
-      //FIXME: THIS IS USING const_cast TO ACCESS buildDetachedTrackingVolumeTypes(...)
-      std::pair<EventIDRange, std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > > > buildDetachedTrackingVolumes ATLAS_NOT_THREAD_SAFE (const EventContext& ctx, bool blend=false) const;
+      // FIXME: THIS IS USING const_cast TO ACCESS
+      // buildDetachedTrackingVolumeTypes(...)
+      std::pair<EventIDRange,
+                std::unique_ptr<const std::vector<
+                  std::unique_ptr<const Trk::DetachedTrackingVolume>>>>
+        buildDetachedTrackingVolumes(const EventContext& ctx,
+                              bool blend = false) const;
 
     private:
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumeTypes(bool blend, const MuonGM::MuonDetectorManager* muonMgr);
+      const std::vector<const Trk::DetachedTrackingVolume*>*
+      buildDetachedTrackingVolumeTypes(
+        bool blend,
+        const MuonGM::MuonDetectorManager* muonMgr) const;
 
       void glueComponents(const Trk::DetachedTrackingVolume* ) const;    
       void encloseLayers( const Trk::DetachedTrackingVolume* ) const; 

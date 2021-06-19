@@ -124,7 +124,7 @@ std::pair<EventIDRange,
   const MuonGM::MuonDetectorManager* muonMgr = readHandle.cptr();
   if (muonMgr) { 
     // retrieve muon station prototypes from GeoMode(this)->l
-    const std::vector<const Trk::DetachedTrackingVolume*>* msTypes = const_cast<MuonStationBuilderCond*>(this)->buildDetachedTrackingVolumeTypes(blend, muonMgr);
+    const std::vector<const Trk::DetachedTrackingVolume*>* msTypes =this->buildDetachedTrackingVolumeTypes(blend, muonMgr);
     std::vector<const Trk::DetachedTrackingVolume*>::const_iterator msTypeIter = msTypes->begin();
 
 
@@ -643,11 +643,15 @@ std::pair<EventIDRange,
   return std::make_pair(range, std::move(mStations));
 }
 
-const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderCond::buildDetachedTrackingVolumeTypes(bool /*blend*/,const MuonGM::MuonDetectorManager* muonMgr)
+const std::vector<const Trk::DetachedTrackingVolume*>*
+Muon::MuonStationBuilderCond::buildDetachedTrackingVolumeTypes(
+  bool /*blend*/,
+  const MuonGM::MuonDetectorManager* muonMgr) const
 {
 
   ATH_MSG_INFO( name() <<" building station types" );    
   ///////////////////////////////////////////////////////////////////////////////////////////////////
+  MuonStationTypeBuilder::Cache cache{};
   std::vector<const Trk::DetachedTrackingVolume*> stations;
 
   if (muonMgr){
@@ -717,7 +721,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
           if (name.substr(0,2)=="CS" || name.substr(0,1)=="T") {
             if (m_muonStationTypeBuilder) {
               if (name.substr(0,2)=="CS") { 
-                Trk::TrackingVolume* csc_station = m_muonStationTypeBuilder->processCscStation(cv, name);   
+                Trk::TrackingVolume* csc_station = m_muonStationTypeBuilder->processCscStation(cv, name,cache);   
                 // create layer representation
                 std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr =
                   m_muonStationTypeBuilder->createLayerRepresentation(csc_station);
@@ -725,7 +729,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                 Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,csc_station,layerRepr.first,layerRepr.second);
                 stations.push_back(typeStat); 
               } else {
-                std::vector<const Trk::TrackingVolume*> tgc_stations = m_muonStationTypeBuilder->processTgcStation(cv);   
+                std::vector<const Trk::TrackingVolume*> tgc_stations = m_muonStationTypeBuilder->processTgcStation(cv,cache);   
                 for (unsigned int i=0;i<tgc_stations.size();i++) {
                   // create layer representation
                   std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr =
@@ -778,7 +782,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                 Trk::CuboidVolumeBounds* envBounds = new Trk::CuboidVolumeBounds(halfX1,halfY1,halfZ);
                 // station components
                 if (m_muonStationTypeBuilder) confinedVolumes = 
-                  m_muonStationTypeBuilder->processBoxStationComponents(cv,envBounds);
+                  m_muonStationTypeBuilder->processBoxStationComponents(cv,envBounds,cache);
                 // enveloping volume
                 envelope= new Trk::Volume(0,envBounds);
               } else if (shape=="Trd") {
@@ -799,7 +803,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                 if (envBounds) {
                   // station components
                   if (m_muonStationTypeBuilder) confinedVolumes = 
-                    m_muonStationTypeBuilder->processTrdStationComponents(cv,envBounds); 
+                    m_muonStationTypeBuilder->processTrdStationComponents(cv,envBounds,cache); 
                   // enveloping volume
                   envelope= new Trk::Volume(transf,envBounds);
                 }
@@ -839,7 +843,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
 
   ///////////////////////////////////////////////////////////////////////////////////////
   const std::vector<const Trk::DetachedTrackingVolume*>* mStations = new std::vector<const Trk::DetachedTrackingVolume*>(stations); 
-  return mStations;  
+  return mStations;
 }
 
 void Muon::MuonStationBuilderCond::glueComponents(const Trk::DetachedTrackingVolume* stat) const
