@@ -22,26 +22,39 @@
  */
 
 namespace Amg {
+/**  Sometimes the extrapolation to the next surface succeeds but has termendoulsy large errors leading to uncertainties larger 
+    than the radius of the Geneva metropole. These ones themself are clearly unphysical, but if extrapolation continues 
+    to the next surface the numerical values blow up giving rise to floating point exception. The covariance_cutoff defines a maximum value
+    for the diagonal elements of the covariance matrix to consider them as sanish
+*/
 
+inline bool saneCovarianceElement(double ele) {
+    constexpr double upper_covariance_cutoff = 1.e34;
+    return !(std::isnan(ele) || std::isinf(ele) || std::abs(ele) >= upper_covariance_cutoff );
+} 
 /** return diagonal error of the matrix
  caller should ensure the matrix is symmetric and the index is in range
  */
 inline double error(const Amg::MatrixX& mat, int index) {
-    return sqrt(mat(index, index));
+    return std::sqrt(mat(index, index));
 }
 /// Returns true if all diagonal elements of the covariance matrix
-/// are greater or equal zero
-template <int N> bool valid_cov(const AmgSymMatrix(N)& mat){
+/// are finite, greater than zero and also below the covariance cutoff scale.
+/// This check avoids floating point exceptions raised during the uncertainty calculation on the perigee parameters 
+/// Add a double epislon parameter to avoid numerical precision issues. The one chosen here has been
+/// taken from https://stackoverflow.com/questions/1566198/how-to-portably-get-dbl-epsilon-in-c-and-c
+template <int N> inline bool valid_cov(const AmgSymMatrix(N)& mat) {
+   static const double MIN_COV_EPSILON = 2.2204460492503131e-16;
    const int dim = mat.cols();
    for (int i = 0; i < dim ; ++i){
-        if (mat(i,i) < 0.) return false;
+        if ( mat(i,i) <= MIN_COV_EPSILON || !saneCovarianceElement(mat(i,i)))  return false;
    }
    return true;
 }
 template<int N>
 inline double error(const AmgSymMatrix(N)& mat, int index ) {
     assert(index<N);
-    return sqrt(mat(index,index));
+    return std::sqrt(mat(index,index));
 }
 
 // expression template to evaluate the required size of the compressed matrix at compile time
@@ -60,13 +73,13 @@ inline void compress(const AmgSymMatrix(N)& covMatrix, std::vector<float>& vec )
     vec.reserve(CalculateCompressedSize<N>::value);
     for (unsigned int i = 0; i < N ; ++i)
       for (unsigned int j = 0; j <= i; ++j)
-          vec.push_back(covMatrix(i,j));
+          vec.emplace_back(covMatrix(i,j));
   }
 inline void compress(const MatrixX& covMatrix, std::vector<float>& vec) {
     int rows = covMatrix.rows();
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j <= i; ++j) {
-            vec.push_back(covMatrix(i, j));
+            vec.emplace_back(covMatrix(i, j));
         }
     }
 }
@@ -104,10 +117,10 @@ inline void expand(std::vector<float>::const_iterator it,
 template<int N>
 double largestDifference(const AmgSymMatrix(N)& m1, const AmgSymMatrix(N)& m2,bool relative = false ) {
     if( N < 1 ) return 0;
-    double max = relative ? 0.5*fabs(m1(0,0)-m2(0,0))/(m1(0,0)+m2(0,0)) : fabs(m1(0,0)-m2(0,0));
+    double max = relative ? 0.5*std::abs(m1(0,0)-m2(0,0))/(m1(0,0)+m2(0,0)) : std::abs(m1(0,0)-m2(0,0));
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            double val = fabs(m1(i,j)-m2(i,j));
+            double val = std::abs(m1(i,j)-m2(i,j));
             if( relative ) {
                 val = 0.5*val/(m1(i,j)+m2(i,j));
             }
@@ -123,10 +136,10 @@ double largestDifference(const AmgSymMatrix(N)& m1, const AmgSymMatrix(N)& m2,bo
 template<int N>
 int largestDifference(const AmgVector(N)& m1, const AmgVector(N)& m2, bool relative = false ) {
     if( N < 1 ) return 0;
-    double max = relative ? 0.5*fabs(m1(0)-m2(0))/(m1(0)+m2(0)) : fabs(m1(0)-m2(0));
+    double max = relative ? 0.5*std::abs(m1(0)-m2(0))/(m1(0)+m2(0)) : std::abs(m1(0)-m2(0));
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            double val = fabs(m1(i)-m2(i));
+            double val = std::abs(m1(i)-m2(i));
             if( relative ) {
                 val = 0.5*val/(m1(i)+m2(i));
             }
@@ -144,9 +157,9 @@ std::pair<int, int> compare(const AmgSymMatrix(N)& m1, const AmgSymMatrix(N)& m2
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             if( relative ) {
-                if( 0.5*fabs(m1(i,j)-m2(i,j))/(m1(i,j)+m2(i,j)) > precision ) return std::make_pair(i,j);
+                if( 0.5*std::abs(m1(i,j)-m2(i,j))/(m1(i,j)+m2(i,j)) > precision ) return std::make_pair(i,j);
             } else {
-                if( fabs(m1(i,j)-m2(i,j)) > precision ) return std::make_pair(i,j);
+                if( std::abs(m1(i,j)-m2(i,j)) > precision ) return std::make_pair(i,j);
             }
         }
     }
@@ -160,9 +173,9 @@ template<int N>
 int compare(const AmgVector(N)& m1, const AmgVector(N)& m2, double precision = 1e-9, bool relative = false ) {
     for (int i = 0; i < N; ++i) {
         if( relative ) {
-            if( 0.5*fabs(m1(i)-m2(i))/(m1(i)+m2(i)) > precision ) return i;
+            if( 0.5*std::abs(m1(i)-m2(i))/(m1(i)+m2(i)) > precision ) return i;
         } else {
-            if( fabs(m1(i)-m2(i)) > precision ) return i;
+            if( std::abs(m1(i)-m2(i)) > precision ) return i;
         }
     }
     return -1;
@@ -177,7 +190,7 @@ bool isSymMatrix(const AmgSymMatrix(N)& m ) {
             if( m(i,j) < 0. ) return false;
         } else {
             // check that the off-diagonal elements are symmetric
-            if( fabs(m(i,j)-m(j,i)) > 1e-9 ) return false;
+            if( std::abs(m(i,j)-m(j,i)) > 1e-9 ) return false;
         }
     }
 }
