@@ -234,18 +234,19 @@ METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = P
 scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 
 # Create trigger matching decorations
-#trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
-#        OutputContainerPrefix = "Analysis",
-#        trigger_list = trigger_names_notau, add_to_df_job=False,
-#        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
-#        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
-#trigmatching_helper_tau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolTau',
-#        OutputContainerPrefix = "Analysis",
-#        trigger_list = trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
-#        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
-#        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
-#SeqPHYSLITE += trigmatching_helper_notau.alg
-#SeqPHYSLITE += trigmatching_helper_tau.alg
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+PHYSLITEtrigmatching_helper_notau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolNoTau',
+        OutputContainerPrefix = "Analysis",
+        trigger_list = PhysCommon.trigger_names_notau, add_to_df_job=False,
+        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
+        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
+PHYSLITEtrigmatching_helper_tau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolTau',
+        OutputContainerPrefix = "Analysis",
+        trigger_list = PhysCommon.trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
+        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
+        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
+SeqPHYSLITE += PHYSLITEtrigmatching_helper_notau.alg
+SeqPHYSLITE += PHYSLITEtrigmatching_helper_tau.alg
 
 #====================================================================
 # MAIN KERNEL
@@ -342,5 +343,7 @@ if DerivationFrameworkIsMonteCarlo:
 # Add trigger matching
 PhysCommon.PhysCommon_trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
 PhysCommon.PhysCommon_trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
+PHYSLITEtrigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
+PHYSLITEtrigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
