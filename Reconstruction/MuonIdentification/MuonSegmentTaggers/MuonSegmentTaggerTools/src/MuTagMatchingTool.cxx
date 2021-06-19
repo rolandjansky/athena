@@ -217,7 +217,6 @@ std::unique_ptr<const Trk::TrackParameters> MuTagMatchingTool::ExtrapolateTrktoM
                                                                                          const Trk::TrackParameters* pTrack,
                                                                                          Trk::PropDirection direction) const {
     if (!pSurface || !pTrack) return nullptr;
-
     std::unique_ptr<const Trk::TrackParameters> exTrk{m_IExtrapolator->extrapolate(ctx, *pTrack, *pSurface, direction, false, Trk::muon)};
     if (!exTrk) {
         ATH_MSG_DEBUG(" didn't manage to extrapolate TrackParameters to abstract surface Radius " << pSurface->center().perp() << " Z "
@@ -227,8 +226,6 @@ std::unique_ptr<const Trk::TrackParameters> MuTagMatchingTool::ExtrapolateTrktoM
 }
 
 std::unique_ptr<const Trk::Perigee> MuTagMatchingTool::flipDirection(const Trk::Perigee* inputPars) const {
-    //  return inputPars->clone();
-    // CLHEP::HepVector pars = inputPars->parameters();
     const AmgVector(5)& pars = inputPars->parameters();
 
     double flippedPhi = pars[2] + M_PI;
@@ -253,8 +250,8 @@ std::unique_ptr<const Trk::AtaPlane> MuTagMatchingTool::ExtrapolateTrktoSegmentS
                                                                                        Trk::PropDirection direction) const {
     if (!segment || !pTrack) return nullptr;
 
-    bool isCsc(isCscSegment(segment));
-    unsigned int hits(cscHits(segment));
+    unsigned int hits{cscHits(segment)};
+    bool isCsc{hits>0};   
     if (isCsc) {
         ATH_MSG_DEBUG("CSC segment has " << hits << " hits");
         if (hits < 5) {
@@ -290,7 +287,7 @@ bool MuTagMatchingTool::phiMatch(const Trk::TrackParameters* atSurface, const Mu
     double PHI_CUT = m_GLOBAL_PHI_CUT;
     if (hasPhi(segment)) PHI_CUT = m_GLOBAL_PHI_CUT / 2.;
 
-    const Amg::Vector3D& exTrkPos = atSurface->position();
+    const Amg::Vector3D exTrkPos = atSurface->position();
     const Amg::Vector3D& segPos = segment->globalPosition();
 
     const double deltaPhi = exTrkPos.deltaPhi(segPos);
@@ -337,7 +334,7 @@ bool MuTagMatchingTool::hasPhi(const Muon::MuonSegment* seg) const {
 
 bool MuTagMatchingTool::thetaMatch(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment) const {
     double THETA_CUT = m_GLOBAL_THETA_CUT;
-    const Amg::Vector3D& exTrkPos = atSurface->position();
+    const Amg::Vector3D exTrkPos = atSurface->position();
     const Amg::Vector3D& segPos = segment->globalPosition();
     const double dTheta = std::abs(exTrkPos.theta() - segPos.theta());
     if (dTheta < THETA_CUT)
@@ -349,7 +346,7 @@ bool MuTagMatchingTool::thetaMatch(const Trk::TrackParameters* atSurface, const 
 }
 
 bool MuTagMatchingTool::rMatch(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment) const {
-    const Amg::Vector3D& exTrkPos = atSurface->position();
+    const Amg::Vector3D exTrkPos = atSurface->position();
     double L = exTrkPos.mag();
     double R_CUT = m_GLOBAL_R_CUT * (L / 7500.);  // mm
 
@@ -460,7 +457,7 @@ bool MuTagMatchingTool::matchPtDependentPull(MuonCombined::MuonSegmentInfo* info
     if (aMeasPer) {
         double sinTheta = std::sin(aMeasPer->parameters()[Trk::theta]);
         pT = sinTheta * std::abs(1.0 / (aMeasPer->parameters()[Trk::qOverP]));
-        pT /= 1000.;
+        pT *= 1.e-3;
     }
 
     double Pullcut = 2.0;
@@ -487,8 +484,8 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
     const Trk::PerigeeSurface periSurf;
     std::unique_ptr<const Trk::Perigee> pPerigee =
         std::make_unique<Trk::Perigee>(oripars[0], oripars[1], oripars[2], oripars[3], 0., periSurf, std::nullopt);
-    const Amg::Vector3D& startPos = pPerigee->position();
-    const Amg::Vector3D& startMom = pPerigee->momentum();
+    const Amg::Vector3D startPos = pPerigee->position();
+    const Amg::Vector3D startMom = pPerigee->momentum();
     const AmgVector(5)& pars = pPerigee->parameters();
 
     ATH_MSG_DEBUG("==============================================================================");
@@ -502,8 +499,8 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
 
     ATH_MSG_DEBUG("======= EXTRAPOLATED ALONG MOMENTUM ORIGINAL PERIGEE");
     if (alongPars) {
-        const Amg::Vector3D& alongPos = alongPars->position();
-        const Amg::Vector3D& alongMom = alongPars->momentum();
+        const Amg::Vector3D alongPos = alongPars->position();
+        const Amg::Vector3D alongMom = alongPars->momentum();
 
         ATH_MSG_DEBUG("=== global position " << alongPos.x() << "  " << alongPos.y() << "  " << alongPos.z());
         ATH_MSG_DEBUG("=== global position phi theta " << alongPos.phi() << "  " << alongPos.theta());
@@ -515,28 +512,22 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
     std::unique_ptr<const Trk::TrackParameters> oppositePars{
         m_IExtrapolator->extrapolate(*pPerigee, *pSurface, Trk::oppositeMomentum, false, Trk::muon)};
     if (oppositePars) {
-        const Amg::Vector3D& oppositePos = oppositePars->position();
-        const Amg::Vector3D& oppositeMom = oppositePars->momentum();
+        const Amg::Vector3D oppositePos = oppositePars->position();
+        const Amg::Vector3D oppositeMom = oppositePars->momentum();
         ATH_MSG_DEBUG("=== global position " << oppositePos.x() << "  " << oppositePos.y() << "  " << oppositePos.z());
         ATH_MSG_DEBUG("=== global position phi theta " << oppositePos.phi() << "  " << oppositePos.theta());
         ATH_MSG_DEBUG("=== global directn  " << oppositeMom.phi() << "  " << oppositeMom.theta());
     } else
         ATH_MSG_DEBUG("======= NOT EXTRAPOLATED");
 
-    double flippedPhi = pars[2] + M_PI;
-    if (flippedPhi > M_PI) flippedPhi -= 2 * M_PI;
-    double flippedTheta = M_PI - pars[3];
-    if (flippedTheta < 0.) flippedTheta += M_PI;
-    const Trk::PerigeeSurface perigSurf;
-    std::unique_ptr<const Trk::Perigee> flippedPerigee =
-        std::make_unique<Trk::Perigee>(-pars[0], pars[1], flippedPhi, flippedTheta, pars[4], perigSurf, std::nullopt);
-    // CLHEP::HepVector flipPars = flippedPerigee->parameters();
+ ;
+    std::unique_ptr<const Trk::Perigee> flippedPerigee = flipDirection(pPerigee.get());
     const AmgVector(5)& flipPars = flippedPerigee->parameters();
-    const Amg::Vector3D& flipPos = flippedPerigee->position();
-    const Amg::Vector3D& flipMom = flippedPerigee->momentum();
+    const Amg::Vector3D flipPos = flippedPerigee->position();
+    const Amg::Vector3D flipMom = flippedPerigee->momentum();
 
     ATH_MSG_DEBUG("======= FLIPPED TRACK PARAMETERS (PERIGEE)");
-    ATH_MSG_DEBUG("=== phi and theta were " << pars[2] << "  " << pars[3] << " and are flipped to " << flippedPhi << "  " << flippedTheta);
+    ATH_MSG_DEBUG("=== phi and theta were " << pars[2] << "  " << pars[3] << " and are flipped to ");
     ATH_MSG_DEBUG("=== parameters are " << flipPars[0] << "  " << flipPars[1] << "  " << flipPars[2] << "  " << flipPars[3] << "  "
                                         << flipPars[4]);
     ATH_MSG_DEBUG("=== global position " << flipPos.x() << "  " << flipPos.y() << "  " << flipPos.z());
@@ -547,8 +538,8 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
 
     ATH_MSG_DEBUG("======= EXTRAPOLATED ALONGFLIP MOMENTUM ORIGINAL PERIGEE");
     if (alongFlipPars) {
-        const Amg::Vector3D& alongFlipPos = alongFlipPars->position();
-        const Amg::Vector3D& alongFlipMom = alongFlipPars->momentum();
+        const Amg::Vector3D alongFlipPos = alongFlipPars->position();
+        const Amg::Vector3D alongFlipMom = alongFlipPars->momentum();
         ATH_MSG_DEBUG("=== global position " << alongFlipPos.x() << "  " << alongFlipPos.y() << "  " << alongFlipPos.z());
         ATH_MSG_DEBUG("=== global position phi theta " << alongFlipPos.phi() << "  " << alongFlipPos.theta());
         ATH_MSG_DEBUG("=== global directn  " << alongFlipMom.phi() << "  " << alongFlipMom.theta());
@@ -559,8 +550,8 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
     std::unique_ptr<const Trk::TrackParameters> oppositeFlipPars{
         m_IExtrapolator->extrapolate(*flippedPerigee, *pSurface, Trk::oppositeMomentum, false, Trk::muon)};
     if (oppositeFlipPars) {
-        const Amg::Vector3D& oppositeFlipPos = oppositeFlipPars->position();
-        const Amg::Vector3D& oppositeFlipMom = oppositeFlipPars->momentum();
+        const Amg::Vector3D oppositeFlipPos = oppositeFlipPars->position();
+        const Amg::Vector3D oppositeFlipMom = oppositeFlipPars->momentum();
         ATH_MSG_DEBUG("=== global position " << oppositeFlipPos.x() << "  " << oppositeFlipPos.y() << "  " << oppositeFlipPos.z());
         ATH_MSG_DEBUG("=== global position phi theta " << oppositeFlipPos.phi() << "  " << oppositeFlipPos.theta());
         ATH_MSG_DEBUG("=== global directn  " << oppositeFlipMom.phi() << "  " << oppositeFlipMom.theta());
@@ -575,12 +566,10 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
 void MuTagMatchingTool::nrTriggerHits(const Muon::MuonSegment* seg, int& nRPC, int& nTGC) const {
     nRPC = 0;
     nTGC = 0;
-    std::vector<const Trk::MeasurementBase*> mbs = seg->containedMeasurements();
-    //    for( unsigned int i = 0; i< seg->numberOfContainedROTs(); ++i){
-    for (unsigned int i = 0; i < mbs.size(); ++i) {
-        const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(mbs[i]);
+    for (const Trk::MeasurementBase* seg_meas : seg->containedMeasurements()) {
+        const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(seg_meas);
         if (!rot) {
-            const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(mbs[i]);
+            const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(seg_meas);
             if (crot) rot = &crot->rioOnTrack(0);
         }
         if (!rot) { continue; }
@@ -828,15 +817,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
     info.chi2Y = chi2Y / det / 2.;
     if (info.chi2Y < 0) ATH_MSG_DEBUG(" NEGATIVE chi2Y " << chi2Y << " dydyz " << dydyz << " determinant " << det);
 
-    bool hasPhi = false;
-
-    if (hitCounts.nexpectedTrigHitLayers > 1) hasPhi = true;
-
+    bool hasPhi = hitCounts.nexpectedTrigHitLayers > 1;
+    
     //
     // Store hasphi
     //
-    info.hasPhi = 0;
-    if (hasPhi) info.hasPhi = 1;
+    info.hasPhi = hasPhi;
     info.t0 = 0.;
 
     // station layer
@@ -915,7 +901,7 @@ void MuTagMatchingTool::calculateLocalAngleErrors(const Trk::AtaPlane* exTrack, 
     // Parameters are described as Trk::LocX, Trk::locY, Trk::phi, Trk::theta
     // So the errormatrix of the track 'localErrorMatrix' still holds global angle representation!!!!
     // retrieve Jabcobian to transform the global errors err_phi,err_theta to local errors err_alphaXZ, err_alphaYZ
-    const Amg::RotationMatrix3D& glob2loc = exTrack->associatedSurface().transform().rotation().inverse();
+    const Amg::RotationMatrix3D glob2loc = exTrack->associatedSurface().transform().rotation().inverse();
     const AmgVector(5)& exTrkParms = exTrack->parameters();
     Trk::JacobianPhiThetaLocalAngles jacobianExTrk(exTrkParms[Trk::phi], exTrkParms[Trk::theta], glob2loc);
 
@@ -966,31 +952,25 @@ bool MuTagMatchingTool::matchDistance(MuonCombined::MuonSegmentInfo* info) const
 }
 
 bool MuTagMatchingTool::isCscSegment(const Muon::MuonSegment* seg) const {
-    bool isCsc(false);
-
-    std::vector<const Trk::MeasurementBase*> mbs = seg->containedMeasurements();
-    for (unsigned int i = 0; i < mbs.size(); ++i) {
-        const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(mbs[i]);
+    for (const Trk::MeasurementBase* seg_meas : seg->containedMeasurements()) {
+        const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(seg_meas);
         if (!rot) {
-            const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(mbs[i]);
+            const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(seg_meas);
             if (crot) rot = &crot->rioOnTrack(0);
         }
         if (!rot) { continue; }
-        if (m_idHelperSvc->isCsc(rot->identify())) isCsc = true;
+        if (m_idHelperSvc->isCsc(rot->identify())) return true;
     }
 
-    return isCsc;
+    return false;
 }
 
 unsigned int MuTagMatchingTool::cscHits(const Muon::MuonSegment* seg) const {
-    unsigned int nrHits(0);
-    if (!isCscSegment(seg)) return nrHits;
-
-    std::vector<const Trk::MeasurementBase*> mbs = seg->containedMeasurements();
-    for (unsigned int i = 0; i < mbs.size(); ++i) {
-        const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(mbs[i]);
+    unsigned int nrHits{0};
+    for (const Trk::MeasurementBase* seg_meas : seg->containedMeasurements()) {
+        const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(seg_meas);
         if (!rot) {
-            const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(mbs[i]);
+            const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(seg_meas);
             if (crot) rot = &crot->rioOnTrack(0);
         }
         if (!rot) { continue; }
