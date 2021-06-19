@@ -286,7 +286,7 @@ StatusCode AANTupleStream::execute()
   coral::AttributeList newAttr(*m_attribSpec);
 
   unsigned int runNumber   = 0;
-  uint64_t eventNumber = 0;
+  unsigned int eventNumber = 0;
 
   // retrieve event info
   const EventInfo* eventInfo;
