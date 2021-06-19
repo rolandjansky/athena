@@ -36,6 +36,10 @@ def fastPhotonMenuSequence():
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
     roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastPhoton")
+    # not running the tracking here, so do not need to set this size 
+    # from the ID Trigger configuration, however, if we want overlap 
+    # of the Rois then we would need to use the electron instance size
+    # for consistency
     roiTool.RoIEtaWidth = 0.05
     roiTool.RoIPhiWidth = 0.10
     l2PhotonViewsMaker.RoITool = roiTool

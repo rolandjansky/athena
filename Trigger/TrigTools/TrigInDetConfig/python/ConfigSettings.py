@@ -33,6 +33,9 @@ class _ConfigSettings_electron( _ConfigSettingsBase ):
       self._name      = "electron"
       self._suffix    = "Electron"
       self._roi       = "HLT_Roi_Electron"
+      # this soze of 0.05 should be increased to 0.1
+      self._etaHalfWidth        = 0.05
+      self._phiHalfWidth        = 0.1
       self._doCloneRemoval      = True #Previously False in Run2!
       self._doSeedRedundancyCheck = True
       self._doTRT               = True
@@ -249,12 +252,12 @@ class _ConfigSettings_electronLRT( _ConfigSettingsBase ):
       self._name       = "electronLRT"
       self._suffix     = "ElectronLRT"
       self._roi        = "HLT_Roi_Electron"
+      self._etaHalfWidth        = 0.1
+      self._phiHalfWidth        = 0.4
       self._UsePixelSpacePoints = False
       self._Triplet_D0Max       = 300.
       self._TrackInitialD0Max   = 300.
       self._TrackZ0Max          = 500.
-      self._etaHalfWidth        = 0.05
-      self._phiHalfWidth        = 0.4
       self._keepTrackParameters = True
       self._doSeedRedundancyCheck = True
       self._nClustersMin        = 8

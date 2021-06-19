@@ -48,8 +48,8 @@ def fastElectronSequence(ConfigFlags):
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
     roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron")
-    roiTool.RoIEtaWidth = 0.05
-    roiTool.RoIPhiWidth = 0.10
+    roiTool.RoIEtaWidth = IDTrigConfig.etaHalfWidth
+    roiTool.RoIPhiWidth = IDTrigConfig.phiHalfWidth
     l2ElectronViewsMaker.RoITool = roiTool
     l2ElectronViewsMaker.InViewRoIs = RoIs
     l2ElectronViewsMaker.Views = "EMElectronViews"

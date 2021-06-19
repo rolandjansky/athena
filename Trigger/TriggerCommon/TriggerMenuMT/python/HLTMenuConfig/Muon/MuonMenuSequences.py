@@ -249,8 +249,11 @@ def muCombLRTAlgSequence(ConfigFlags):
     ### set the EVCreator ###
     l2muCombLRTViewsMaker = EventViewCreatorAlgorithm("IMl2muCombLRT")
     newRoITool = ViewCreatorCentredOnIParticleROITool()
-    newRoITool.RoIEtaWidth=0.2
-    newRoITool.RoIPhiWidth=0.4
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDConfig = getInDetTrigConfig("muonLRT")
+    newRoITool.RoIEtaWidth=IDConfig.etaHalfWidth
+    newRoITool.RoIPhiWidth=IDConfig.phiHalfWidth
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuon_LRT") #RoI collection recorded to EDM
 
     #
@@ -709,8 +712,10 @@ def muEFIsoAlgSequence(ConfigFlags, doMSiso=False):
         name = "MS"
     efmuIsoViewsMaker = EventViewCreatorAlgorithm("IMefmuiso"+name)
     newRoITool = ViewCreatorCentredOnIParticleROITool()
-    newRoITool.RoIEtaWidth=0.35
-    newRoITool.RoIPhiWidth=0.35
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDConfig = getInDetTrigConfig("muonIso")
+    newRoITool.RoIEtaWidth=IDConfig.etaHalfWidth
+    newRoITool.RoIPhiWidth=IDConfig.phiHalfWidth
     if doMSiso:
         newRoITool.RoisWriteHandleKey = "Roi_MuonIsoMS"
     else:
