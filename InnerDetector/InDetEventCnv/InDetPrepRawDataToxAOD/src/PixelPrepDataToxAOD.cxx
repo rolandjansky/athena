@@ -31,8 +31,16 @@
 #include "TMath.h" 
 #include "CLHEP/Geometry/Point3D.h"
 
+#include <map>
+
 #define AUXDATA(OBJ, TYP, NAME) \
   static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
+
+namespace {
+   unsigned int makeKey(short phi, char eta, char layer) {
+      return phi | (eta << 16) |  (layer << 24);
+   }
+}
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -144,6 +152,14 @@ StatusCode PixelPrepDataToxAOD::execute()
     }
   }
 
+  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer;
+  if (!m_clusterSplitProbContainer.key().empty()) {
+     splitProbContainer=SG::ReadHandle<Trk::ClusterSplitProbabilityContainer>(m_clusterSplitProbContainer);
+     if (!splitProbContainer.isValid()) {
+        ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
+     }
+  }
+
   std::vector<std::vector<const SiHit*>> siHits(m_PixelHelper->wafer_hash_max());
   if (m_need_sihits) {
     SG::ReadHandle<SiHitCollection> siHitCollectionHandle(m_sihitContainer_key);
@@ -180,6 +196,7 @@ StatusCode PixelPrepDataToxAOD::execute()
   SG::ReadCondHandle<PixelDCSHVData> dcsHV(m_readKeyHV);
   SG::ReadCondHandle<PixelDCSTempData> dcsTemp(m_readKeyTemp);
 
+  std::unordered_map< unsigned int , std::vector<unsigned int> > cluster_map;
   for( const auto clusterCollection : * PixelClusterContainer ){
 
     //Fill Offset container
@@ -199,6 +216,7 @@ StatusCode PixelPrepDataToxAOD::execute()
             
       // create and add xAOD object
       xAOD::TrackMeasurementValidation* xprd = new xAOD::TrackMeasurementValidation();
+      unsigned int cluster_idx = xaod->size();
       xaod->push_back(xprd);
       
       //Set Identifier
@@ -237,15 +255,18 @@ StatusCode PixelPrepDataToxAOD::execute()
 
       //Add pixel cluster properties
       AUXDATA(xprd,int,bec)          =   m_PixelHelper->barrel_ec(clusterId)   ;
-      AUXDATA(xprd,int,layer)        =   m_PixelHelper->layer_disk(clusterId)  ;   
-      AUXDATA(xprd,int,phi_module)   =   m_PixelHelper->phi_module(clusterId)  ;
-      AUXDATA(xprd,int,eta_module)   =   m_PixelHelper->eta_module(clusterId)  ;
-         
+      char the_layer                 =   m_PixelHelper->layer_disk(clusterId)  ;
+      char the_eta                   =   m_PixelHelper->eta_module(clusterId)  ;
+      short the_phi                  =   m_PixelHelper->phi_module(clusterId)  ;
+      AUXDATA(xprd,int,layer)        =   the_layer ;
+      AUXDATA(xprd,int,phi_module)   =   the_phi ;
+      AUXDATA(xprd,int,eta_module)   =   the_eta ;
       //AUXDATA(xprd,int,col)         =  m_PixelHelper->eta_index(clusterId);
       //AUXDATA(xprd,int,row)         =  m_PixelHelper->phi_index(clusterId);
       AUXDATA(xprd,int,eta_pixel_index)         =  m_PixelHelper->eta_index(clusterId);
       AUXDATA(xprd,int,phi_pixel_index)         =  m_PixelHelper->phi_index(clusterId);
-   
+
+      cluster_map[ makeKey(the_phi, the_eta, the_layer)].push_back(cluster_idx);
 
       const InDet::SiWidth cw = prd->width();
       AUXDATA(xprd,int,sizePhi) = (int)cw.colRow()[0];
@@ -257,8 +278,9 @@ StatusCode PixelPrepDataToxAOD::execute()
       AUXDATA(xprd,int,LVL1A)     =  prd->LVL1A(); 
    
       AUXDATA(xprd,char,isFake)      =  (char)prd->isFake(); 
-      AUXDATA(xprd,char,gangedPixel) =  (char)prd->gangedPixel(); 
-      const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(prd);
+      AUXDATA(xprd,char,gangedPixel) =  (char)prd->gangedPixel();
+      const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &
+         splitProb = splitProbContainer.isValid() ? splitProbContainer->splitProbability(prd) : Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
       AUXDATA(xprd,int,isSplit)      =  static_cast<int>(splitProb.isSplit());
       AUXDATA(xprd,float,splitProbability1)  =  splitProb.splitProbability1();
       AUXDATA(xprd,float,splitProbability2)  =  splitProb.splitProbability2();
@@ -331,7 +353,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       }
     }
   }
-  
+
   for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ ) {
       AUXDATA(*clusItr,char,broken) = false;
   }
@@ -346,9 +368,9 @@ StatusCode PixelPrepDataToxAOD::execute()
       int layer = acc_layer(*pixelCluster);
       std::vector<int> barcodes = acc_sihit_barcode(*pixelCluster);
 
-      for ( auto clusItr2 = clusItr + 1; clusItr2 != xaod->end(); clusItr2++ )
-      {
-	  auto pixelCluster2 = *clusItr2;
+      const std::vector< unsigned int> &cluster_idx_list = cluster_map.at( makeKey(acc_phi_module(*pixelCluster), acc_eta_module(*pixelCluster), acc_layer(*pixelCluster) ));
+      for (unsigned int cluster_idx : cluster_idx_list) {
+          auto pixelCluster2 = xaod->at(cluster_idx);
 	  if ( acc_layer(*pixelCluster2) != layer )
 	      continue;
 	  if ( acc_eta_module(*pixelCluster) != acc_eta_module(*pixelCluster2) )
@@ -578,6 +600,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
         highestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
+        // @TODO could invalidate siHitIter
         siHitIter2 = multiMatchingHits.erase( siHitIter2 );
       }else if (fabs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<0.00005 &&
                 fabs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<0.00005 &&
@@ -586,6 +609,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
         lowestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
+        // @TODO could invalidate siHitIter
         siHitIter2 = multiMatchingHits.erase( siHitIter2 );
       } else {
         ++siHitIter2;
