@@ -9,7 +9,6 @@
 
 /** Container class for JEMHits objects */
 
-using namespace LVL1;
-typedef DataVector<JEMHits> JEMHitsCollection;
+typedef DataVector<LVL1::JEMHits> JEMHitsCollection;
 
 #endif

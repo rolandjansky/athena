@@ -9,7 +9,6 @@
 
 /** Container class for CMMJetHits objects */
 
-using namespace LVL1;
-typedef DataVector<CMMJetHits> CMMJetHitsCollection;
+typedef DataVector<LVL1::CMMJetHits> CMMJetHitsCollection;
 
 #endif
