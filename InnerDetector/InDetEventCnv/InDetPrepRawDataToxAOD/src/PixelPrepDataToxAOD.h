@@ -95,8 +95,9 @@ private:
                          const unsigned int SizeX, 
                          const unsigned int SizeY ) const;
 
-  void  addRdoInformation( xAOD::TrackMeasurementValidation* xprd, 
-                         const InDet::PixelCluster* pixelCluster) const;
+  void  addRdoInformation( xAOD::TrackMeasurementValidation* xprd,
+                           const InDet::PixelCluster* pixelCluster,
+                           const PixelChargeCalibCondData *calibData) const;
 
 
 
