@@ -68,15 +68,17 @@ StatusCode TGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
 
       Amg::Vector3D gpos(0.,0.,0.);
       Amg::Vector2D lpos(0.,0.);
-
-      rdoEl->surface(Id).localToGlobal(lpos, gpos,gpos);
+      
+      rdoEl->stripNumber(lpos,Id);
+      rdoEl->stripPosition(Id,lpos);
+      rdoEl->surface(Id).globalToLocal(gpos,gpos,lpos);
       
       m_TGC_dig_localPosX.push_back( lpos.x() );
       m_TGC_dig_localPosY.push_back( lpos.y() );
       m_TGC_dig_globalPosX.push_back( gpos.x() );
       m_TGC_dig_globalPosY.push_back( gpos.y() );
       m_TGC_dig_globalPosZ.push_back( gpos.z() );
-      
+
       // digit counter for the ntuple
       m_TGC_nDigits++;
     }
