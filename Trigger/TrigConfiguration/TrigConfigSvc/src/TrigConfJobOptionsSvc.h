@@ -83,7 +83,7 @@ namespace TrigConf {
       return m_optsvc->broadcast(filter, value, defaults);
     }
 
-    virtual StatusCode readOptions(const std::string&, const std::string&) override
+    virtual StatusCode readOptions(std::string_view, std::string_view) override
     {
       throw std::runtime_error("TrigConf::JobOptionsSvc::readOptions() is not supported");
     }
