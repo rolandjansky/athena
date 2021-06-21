@@ -41,9 +41,6 @@ StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
     return StatusCode::FAILURE;
   }
 
-  /* Get ROBs */
-  std::vector<uint32_t> robVector = mdtCabling->getAllROBId();
-
   MuonMDT_CablingMap::MapOfItems *listOfSubdet;
   MuonMDT_CablingMap::MapOfItems::const_iterator it_sub;
 
