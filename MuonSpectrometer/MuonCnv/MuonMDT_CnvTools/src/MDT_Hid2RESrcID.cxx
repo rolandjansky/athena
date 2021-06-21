@@ -63,8 +63,10 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) const {
         log << MSG::ERROR << "Null pointer to the read conditions object" << endmsg;
         return 0;
     }
+
+
     online = readCdo->getOnlineId(station_name, station_eta, station_phi, multilayer, tubelayer, tube, SubsystemId, MrodId, LinkId, TdcId,
-                                  ChannelId);
+                                  ChannelId, log);
 
     if (!online) {
         log << MSG::DEBUG << "ROD Id of the Station " << MSG::hex << "0x" << offlineId << " not found" << endmsg;

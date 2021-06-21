@@ -57,7 +57,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert(const std::vector<IdentifierHa
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
-    return convert(readCdo->getROBId(HashVec), ctx);
+    return convert(readCdo->getROBId(HashVec, msgStream()), ctx);
 }
 
 StatusCode Muon::MDT_RawDataProviderTool::convert(const std::vector<uint32_t>& robIds) const {

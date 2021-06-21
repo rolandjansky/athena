@@ -10,19 +10,13 @@
 MdtCsmMap::MdtCsmMap(uint8_t csmId):
   MdtMapBase<MdtAmtMap>(csmId,"MdtAmtMap")
 {
-  if (m_debug) { 
-    *m_log << MSG::VERBOSE << "Adding Csm number: " << (int) csmId << endmsg;
-  }
+
 }
 
 
-// destructor
-MdtCsmMap::~MdtCsmMap()
-{ }
-
 // add a TDC, with its Id, to the CSM
-bool MdtCsmMap::setAmtMap(uint8_t tdcId, MdtAmtMap* amtMap) {
-  bool tdcAdded = addItem(tdcId,amtMap);
+bool MdtCsmMap::setAmtMap(uint8_t tdcId, MdtAmtMap* amtMap, MsgStream &log) {
+  bool tdcAdded = addItem(tdcId,amtMap, log);
   return tdcAdded;
 }
 

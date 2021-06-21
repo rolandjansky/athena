@@ -108,7 +108,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
     sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));    
     ATH_MSG_VERBOSE( "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer  );        
     // here add the mezzanine type to the cabling class
-    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence);
+    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence, msgStream());
     if (!addLine) {
       ATH_MSG_ERROR( "Could not add the mezzanine sequence to the map " );
     }
@@ -201,7 +201,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
                          << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube  );
 	// now this mezzanine can be added to the map:
 	writeCdo->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
-				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId);				    
+				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId, msgStream());				    
       }
     } // end of info_map loop
 

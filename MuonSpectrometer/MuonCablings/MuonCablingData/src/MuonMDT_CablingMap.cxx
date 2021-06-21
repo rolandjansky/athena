@@ -16,11 +16,6 @@
 MuonMDT_CablingMap::MuonMDT_CablingMap() :
   MdtMapBase<MdtSubdetectorMap>(0,"MdtSubdetectorMap")
 { 
-  m_chamberToROD = std::make_unique<ChamberToRODMap>();
-  m_RODToChamber = std::make_unique<RODToChamberMap>();
-  m_listOfROD = std::make_unique<ListOfROD>();
-  m_listOfMezzanineTypes = std::make_unique<MezzanineTypes>();
-
   // initialize the message service
 
   // retrieve the MdtIdHelper
@@ -28,13 +23,12 @@ MuonMDT_CablingMap::MuonMDT_CablingMap() :
   StoreGateSvc* detStore= nullptr;
   StatusCode sc = svcLocator->service("DetectorStore",detStore);
   if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not find the detctor store" << endmsg;
+    throw std::runtime_error("Could not find the detctor store");
   }
   sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not retrieve the MdtIdHelper" << endmsg;
+    throw std::runtime_error("Could not retrieve the MdtIdHelper");
   }
-  
 }
 
 MuonMDT_CablingMap::~MuonMDT_CablingMap() = default;
@@ -47,12 +41,12 @@ bool MuonMDT_CablingMap::cleanup()
 }
 
 // add a CSM map to this ROD
-bool MuonMDT_CablingMap::setSubdetectorMap(uint8_t subdetectorId, MdtSubdetectorMap* subdetectorMap)
+bool MuonMDT_CablingMap::setSubdetectorMap(uint8_t subdetectorId, MdtSubdetectorMap* subdetectorMap, MsgStream &log)
 { 
-  bool subdetectorAdded = addItem(subdetectorId,subdetectorMap);
+  bool subdetectorAdded = addItem(subdetectorId,subdetectorMap, log);
 
   if (!subdetectorAdded) {
-    *m_log << MSG::ERROR << "Could not add subdetector " << MSG::hex 
+    log << MSG::ERROR << "Could not add subdetector " << MSG::hex 
 	   << subdetectorId << MSG::dec << " to the MDT cabling map" << endmsg;
   }
 
@@ -62,25 +56,25 @@ bool MuonMDT_CablingMap::setSubdetectorMap(uint8_t subdetectorId, MdtSubdetector
 
 /** add a new line from the database, describing a mezzanine type */
 bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
-					  const int sequence)
+					  const int sequence, MsgStream &log)
 {
   bool added = true;
 
   if (m_debug) {
-    *m_log << MSG::VERBOSE << "Now in MuonMDT_CablingMap::addMezzanineLine" << endmsg;
+    log << MSG::VERBOSE << "Now in MuonMDT_CablingMap::addMezzanineLine" << endmsg;
   }
 
   MdtMezzanineType* mezType;
   
-  MezzanineTypes::const_iterator it = m_listOfMezzanineTypes->find(type);
+  MezzanineTypes::const_iterator it = m_listOfMezzanineTypes.find(type);
 
   // check if the type already exists, if yes, retrieve it
   bool isNewMezzanine;
-  if (it != m_listOfMezzanineTypes->end()) {
+  if (it != m_listOfMezzanineTypes.end()) {
     // if the attempt is to initialize all layers of a mezzanine already
     // initialized, return an error message
     if (!layer) {
-      *m_log << MSG::ERROR << "The mezzanine type " << type 
+      log << MSG::ERROR << "The mezzanine type " << type 
 	     << "has been already initialized" << endmsg;
       return false;
     }
@@ -90,11 +84,11 @@ bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
   // if it does not exist, create the new type
   else {
     if (m_debug) {
-      *m_log << MSG::VERBOSE << "Creating a new mezzanine type: " << type << endmsg;
+      log << MSG::VERBOSE << "Creating a new mezzanine type: " << type << endmsg;
     }
-    mezType = new MdtMezzanineType(type);
+    mezType = new MdtMezzanineType(type, log);
     // insert the new mezzanine in the map
-    m_listOfMezzanineTypes->insert(MezzanineTypes::value_type(type,mezType));
+    m_listOfMezzanineTypes.insert(MezzanineTypes::value_type(type,mezType));
     isNewMezzanine=true;
   }
   
@@ -108,12 +102,12 @@ bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
   while ( tube!=0 ) {
     // add the tube to the tube sequence
     if (ntubes>7) {
-      *m_log << MSG::ERROR << "More than 8 tubes in a layer, not possible !" 
+      log << MSG::ERROR << "More than 8 tubes in a layer, not possible !" 
 	     << endmsg;
       return false;
     }
     if (m_debug) {
-      *m_log << MSG::VERBOSE << "Adding tube number: " << tube << " to the layer " 
+      log << MSG::VERBOSE << "Adding tube number: " << tube << " to the layer " 
 	     << layer << " of mezzanine type " << type << endmsg;
     }
     
@@ -127,14 +121,14 @@ bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
   }
 
   if (ntubes!=8 && ntubes!=6) {
-    *m_log << MSG::ERROR << "in type " << type 
+    log << MSG::ERROR << "in type " << type 
 	   << ": number of tubes per mezzanine layer can be only 6 or 8 ! what are you doing ???";
     return false;
   }
   else {
     nOfLayers = 24/ntubes;
     if (layer>nOfLayers) {
-      *m_log << MSG::ERROR << "The maximum number of layers for this mezzanine is: "
+      log << MSG::ERROR << "The maximum number of layers for this mezzanine is: "
 	     << nOfLayers << " so you can't initialize layer: " 
 	     << layer << endmsg;
       return false;
@@ -143,8 +137,8 @@ bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
   }
 
   if (m_debug) {
-    *m_log << MSG::VERBOSE << "Found " << ntubes << " tubes in layer " << layer << endmsg;
-    *m_log << MSG::VERBOSE << "This is a " << nOfLayers 
+    log << MSG::VERBOSE << "Found " << ntubes << " tubes in layer " << layer << endmsg;
+    log << MSG::VERBOSE << "This is a " << nOfLayers 
 	   << " layers mezzanine - OK, OK..." << endmsg;
   }
   
@@ -160,21 +154,21 @@ bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
     if (layer==0) {
       // setting all the layers of this mezzanine
       for (int ll=1 ; ll<nOfLayers+1 ; ++ll) {
-	mezType->addLayer(ll,newLayer);
+	mezType->addLayer(ll,newLayer, log);
       } 
     }
     else {
-      mezType->addLayer(layer,newLayer);
+      mezType->addLayer(layer,newLayer, log);
     }
   }
   // this is an existing mezzanine so just add the single layer, but first 
   // check that the layer does not exist yet
   else {
     if (mezType->hasLayer(layer)) {
-      *m_log << MSG::ERROR << "Layer: " << layer << " has been already initialized for mezzanine " << type << endmsg;
+      log << MSG::ERROR << "Layer: " << layer << " has been already initialized for mezzanine " << type << endmsg;
       return false;
     }
-    mezType->addLayer(layer,newLayer);
+    mezType->addLayer(layer,newLayer, log);
   }
 
   return added;
@@ -182,10 +176,10 @@ bool MuonMDT_CablingMap::addMezzanineLine(const int type, const int layer,
 
 
 /** Add a new mezzanine to the map */
-bool MuonMDT_CablingMap::addMezzanine( int mezType, int station, int eta, int phi,
+bool MuonMDT_CablingMap::addMezzanine( uint8_t mezType, int station, int eta, int phi,
 				       int multilayer, int layer, int tube,
-				       int subdetId, int rod, int csm, 
-				       int tdc, int chan )
+				       uint8_t subdetId, uint8_t rod, uint8_t csm, 
+				       uint8_t tdc, uint8_t chan, MsgStream &log )
 {
 
   uint8_t mezzanineType = (uint8_t) mezType;
@@ -198,38 +192,48 @@ bool MuonMDT_CablingMap::addMezzanine( int mezType, int station, int eta, int ph
   /** check if the subdetector exists, otherwise create it */
   MdtSubdetectorMap* subdetectorMap = this->getSubdetectorMap(subdetectorId);
   if (!subdetectorMap) {
-    if (m_debug) *m_log << MSG::VERBOSE << "Subdetector: 0x" << MSG::hex << (int) subdetectorId 
+    if (m_debug){
+     log << MSG::VERBOSE << "Subdetector: 0x" << MSG::hex << (int) subdetectorId 
 	   << MSG::dec << " not found: create it" << endmsg;
+   }
   
     subdetectorMap = new MdtSubdetectorMap(subdetectorId);
 
-    this->setSubdetectorMap(subdetectorId, subdetectorMap);
+    this->setSubdetectorMap(subdetectorId, subdetectorMap, log);
   }
   else {
-    if (m_debug) *m_log << MSG::VERBOSE << "Found the subdetector: 0x" << MSG::hex << (int) subdetectorId 
+    if (m_debug){
+     log << MSG::VERBOSE << "Found the subdetector: 0x" << MSG::hex << (int) subdetectorId 
 	   << MSG::dec << endmsg;
+    }
   }
 
   /** look for the correct ROD in the subdetector */
   MdtRODMap* rodMap = subdetectorMap->getRODMap(rodId);
   if (!rodMap) {
-    if (m_debug) *m_log << MSG::VERBOSE << "ROD with id: 0x" << MSG::hex << (int) rodId 
+    if (m_debug) {
+      log << MSG::VERBOSE << "ROD with id: 0x" << MSG::hex << (int) rodId 
 	   << MSG::dec << " not found, create it" << endmsg;
+    }
     rodMap = new MdtRODMap(rodId);
-    subdetectorMap->setRODMap(rodId,rodMap);
+    subdetectorMap->setRODMap(rodId,rodMap, log);
   }
   else {
-    if (m_debug) *m_log << MSG::VERBOSE << "Found the RODid: 0x" << MSG::hex << (int) rodId << MSG::dec
+    if (m_debug) {
+      log << MSG::VERBOSE << "Found the RODid: 0x" << MSG::hex << (int) rodId << MSG::dec
 	   << endmsg;
+    }
   }
   
   /** look for the correct CSM in the ROD */
   MdtCsmMap* csmMap = rodMap->getCsmMap(csmId);
   if (!csmMap) {
-    if (m_debug) *m_log << MSG::VERBOSE << "CSM with id: 0x" << MSG::hex << (int) csmId 
+    if (m_debug) {
+        log << MSG::VERBOSE << "CSM with id: 0x" << MSG::hex << (int) csmId 
 	   << MSG::dec << " not found, create it" << endmsg;
+   }
     csmMap = new MdtCsmMap(csmId);
-    rodMap->setCsmMap(csmId,csmMap);
+    rodMap->setCsmMap(csmId,csmMap, log);
 
     //    if (!added) {
 
@@ -242,15 +246,17 @@ bool MuonMDT_CablingMap::addMezzanine( int mezType, int station, int eta, int ph
 
   }
   else {
-    if (m_debug) *m_log << MSG::VERBOSE << "Found the CSMid: 0x" << MSG::hex << (int) csmId 
+    if (m_debug){
+      log << MSG::VERBOSE << "Found the CSMid: 0x" << MSG::hex << (int) csmId 
 	   << MSG::dec << endmsg;
+    }
   }
 
   // if it's a new CSM (here), update the chamber to ROD map at the same time
-  bool added = addChamberToRODMap(station,eta,phi,subdetectorId,rodId);
+  bool added = addChamberToRODMap(station,eta,phi,subdetectorId,rodId, log);
   if (!added) {
     if (m_debug) {
-      *m_log << MSG::VERBOSE << "Station already in the map !" << endmsg;
+      log << MSG::VERBOSE << "Station already in the map !" << endmsg;
     }
   }
   
@@ -259,23 +265,23 @@ bool MuonMDT_CablingMap::addMezzanine( int mezType, int station, int eta, int ph
   if (!amtMap) {
     // find the corresponding mezzanine type
     const MdtMezzanineType* mezzaType; 
-    MezzanineTypes::const_iterator it = m_listOfMezzanineTypes->find(mezzanineType);
-    if ( it != m_listOfMezzanineTypes->end() ) {
+    MezzanineTypes::const_iterator it = m_listOfMezzanineTypes.find(mezzanineType);
+    if ( it != m_listOfMezzanineTypes.end() ) {
       mezzaType = (*it).second.get();
     }
     else {
-      *m_log << MSG::ERROR << "Mezzanine Type: " << (int) mezzanineType << " not found in the list !" << endmsg;
+      log << MSG::ERROR << "Mezzanine Type: " << (int) mezzanineType << " not found in the list !" << endmsg;
       return false;
     }
 
     // create the mezzanine !
-    amtMap = new MdtAmtMap(mezzaType, tdcId, channel, station, eta, phi, multilayer,layer,tube,m_mdtIdHelper, m_log);
+    amtMap = new MdtAmtMap(mezzaType, tdcId, channel, station, eta, phi, multilayer,layer,tube,m_mdtIdHelper, log);
     // store it in the csm
-    csmMap->setAmtMap(tdcId,amtMap);
+    csmMap->setAmtMap(tdcId,amtMap, log);
 
   }
   else {
-    *m_log << MSG::ERROR << "Tdc with Id: 0x" << MSG::hex << (int) tdcId << MSG::dec 
+    log << MSG::ERROR << "Tdc with Id: 0x" << MSG::hex << (int) tdcId << MSG::dec 
 	   << " already found, cannot be added" << endmsg;
     return false;
   }
@@ -292,40 +298,40 @@ MdtSubdetectorMap* MuonMDT_CablingMap::getSubdetectorMap(uint8_t subdetectorId) 
 
 
 bool MuonMDT_CablingMap::addChamberToRODMap(int station, int eta, int phi,
-					    uint8_t subdetectorId, uint8_t rodId)
+					    int subdetectorId, int rodId, MsgStream &log)
 {
   int sub = (int) subdetectorId;
   int rod = (int) rodId;
 
   IdentifierHash chamberId;
-  bool hashFound = getStationCode(station, eta, phi,chamberId);
+  bool hashFound = getStationCode(station, eta, phi,chamberId, log);
   if (!hashFound) {
-    *m_log << MSG::ERROR << "Could not found hashId for station: " << station 
+    log << MSG::ERROR << "Could not found hashId for station: " << station 
 	   << " eta: " << eta << " phi: " << phi << endmsg;
     return false;
   }
 
   uint32_t hardId = (sub<<16) | rod;
   if (m_debug) {
-    *m_log << MSG::VERBOSE << "Adding the chamber with Id: " << chamberId
+    log << MSG::VERBOSE << "Adding the chamber with Id: " << chamberId
 	   << " and subdetector+rod ID: 0x" << MSG::hex << hardId << MSG::dec << endmsg;
   }
 
   // check if the chamber has already been put in the map
-  ChamberToRODMap::const_iterator it = m_chamberToROD->find(chamberId);
-  if ( it != m_chamberToROD->end() ) {
+  ChamberToRODMap::const_iterator it = m_chamberToROD.find(chamberId);
+  if ( it != m_chamberToROD.end() ) {
     //    *m_log << MSG::ERROR << "Station with Id: " << chamberId << " already in the map !" << endmsg;
     return false;
   }
 
-  m_chamberToROD->insert(std::pair<IdentifierHash,uint32_t>(chamberId,hardId));
+  m_chamberToROD.insert(std::pair<IdentifierHash,uint32_t>(chamberId,hardId));
 
   //new function to do the opposite of the above
-  RODToChamberMap::iterator Rod_it = m_RODToChamber->find(hardId);
-  if ( Rod_it == m_RODToChamber->end() ) {
+  RODToChamberMap::iterator Rod_it = m_RODToChamber.find(hardId);
+  if ( Rod_it == m_RODToChamber.end() ) {
     std::vector<IdentifierHash> Idvec;    
     Idvec.push_back(chamberId);
-    m_RODToChamber->insert(std::make_pair(hardId, Idvec));
+    m_RODToChamber.insert(std::make_pair(hardId, Idvec));
   }
   else{
     Rod_it->second.push_back(chamberId);
@@ -333,17 +339,17 @@ bool MuonMDT_CablingMap::addChamberToRODMap(int station, int eta, int phi,
 
   // now check if the ROD is already in the list of ROD vector
   bool rodInitialized = false;
-  for (unsigned int i=0 ; i<m_listOfROD->size() ; ++i) {
-    if (hardId==(*m_listOfROD)[i]) {
+  for (unsigned int i=0 ; i<m_listOfROD.size() ; ++i) {
+    if (hardId==m_listOfROD[i]) {
       rodInitialized=true;
     }
   }
   if (!rodInitialized) {
     if (m_debug) {
-      *m_log << MSG::VERBOSE << "Adding the ROD 0x" << MSG::hex << hardId << MSG::dec
+      log << MSG::VERBOSE << "Adding the ROD 0x" << MSG::hex << hardId << MSG::dec
 	     << " to the list" << endmsg;
     }
-    m_listOfROD->push_back(hardId);
+    m_listOfROD.push_back(hardId);
   }
 
   return true;
@@ -354,13 +360,13 @@ bool MuonMDT_CablingMap::addChamberToRODMap(int station, int eta, int phi,
  *
  */
 bool MuonMDT_CablingMap::getStationCode(int station, int eta, int phi, 
-					IdentifierHash& mdtHashId) const
+					IdentifierHash& mdtHashId, MsgStream &log) const
 {
   // create the station identifier
   Identifier elementId = m_mdtIdHelper->elementID(station,eta,phi);
 
   if(m_mdtIdHelper->get_module_hash(elementId, mdtHashId) ) {
-    *m_log << MSG::ERROR << "Could not find HashId for module: " << endmsg;
+    log << MSG::ERROR << "Could not find HashId for module: " << endmsg;
     elementId.show();
     return false;
   }
@@ -374,37 +380,37 @@ bool MuonMDT_CablingMap::getStationCode(int station, int eta, int phi,
  * return the ROBid of a given station, identified through station, eta, phi
  *
  */
-uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi) const
+uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi, MsgStream &log) const
 {
 
   int rodId = 0;
 
   // convert to hash id
   IdentifierHash mdtHashId;
-  bool hashFound = getStationCode(station,eta,phi,mdtHashId);
+  bool hashFound = getStationCode(station,eta,phi,mdtHashId, log);
   if (!hashFound) {
-    *m_log << MSG::ERROR << "Could not find HashId for station: " << station 
+    log << MSG::ERROR << "Could not find HashId for station: " << station 
 	   << " eta: " << eta << " phi: " << phi << endmsg;
     return rodId;
   }
 
-  rodId = getROBId(mdtHashId);
+  rodId = getROBId(mdtHashId, log);
 
   return rodId;
 }
 
 // get the ROBid given the identifier hash
 
-uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode) const
+uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode, MsgStream &log) const
 {
   int rodId = 0;
 
-  ChamberToRODMap::const_iterator it = m_chamberToROD->find(stationCode);
-  if (it != m_chamberToROD->end()) {
+  ChamberToRODMap::const_iterator it = m_chamberToROD.find(stationCode);
+  if (it != m_chamberToROD.end()) {
     rodId = it->second;
   }
   else {
-    *m_log << MSG::WARNING << "Rod ID not found !" << endmsg;
+    log << MSG::WARNING << "Rod ID not found !" << endmsg;
     return 0;
   }
 
@@ -413,51 +419,52 @@ uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode) const
 
 //get the robs corresponding to a vector of hashIds, copied from Svc before the readCdo migration
 
-std::vector<uint32_t> MuonMDT_CablingMap::getROBId(const std::vector<IdentifierHash>& mdtHashVector) const
+std::vector<uint32_t> MuonMDT_CablingMap::getROBId(const std::vector<IdentifierHash>& mdtHashVector, MsgStream &log) const
 {
   std::vector<uint32_t> robVector;
 
   for ( unsigned int i = 0 ; i<mdtHashVector.size() ; ++i ) {
 
-    int robId = getROBId(mdtHashVector[i]);
+    int robId = getROBId(mdtHashVector[i], log);
     if (robId==0) {
-
-      *m_log << MSG::ERROR << "ROB id not found for Hash Id: " << mdtHashVector[i] << endmsg;
-
+      log << MSG::ERROR << "ROB id not found for Hash Id: " << mdtHashVector[i] << endmsg;
     } else {
-      *m_log << MSG::VERBOSE << "Found ROB id 0x" << MSG::hex << robId << MSG::dec << " for hashId " << mdtHashVector[i] << endmsg;
+      if(m_debug){
+        log << MSG::VERBOSE << "Found ROB id 0x" << MSG::hex << robId << MSG::dec << " for hashId " << mdtHashVector[i] << endmsg;
+      }
     }
     robVector.push_back(robId);
   }
-  *m_log << MSG::VERBOSE << "Size of ROB vector is: " << robVector.size() << endmsg;
-
+  {
+    log << MSG::VERBOSE << "Size of ROB vector is: " << robVector.size() << endmsg;
+  }
   return robVector;
 }
 
-const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId) const
+const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId, MsgStream &log) const
 {
-  RODToChamberMap::const_iterator Rob_it = m_RODToChamber->find(ROBId);
-  if(Rob_it != m_RODToChamber->end()) {
+  RODToChamberMap::const_iterator Rob_it = m_RODToChamber.find(ROBId);
+  if(Rob_it != m_RODToChamber.end()) {
     return Rob_it->second;
   }
   else {
-    *m_log << MSG::WARNING << "Rod ID not found !" << endmsg;
+    log << MSG::WARNING << "Rod ID not found !" << endmsg;
     return m_emptyIdHashVec;
   }
 }
 
-const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const
+const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const std::vector< uint32_t> &ROBId_list, MsgStream &log) const
 {
    std::vector<IdentifierHash> HashVec;
   
   for(unsigned int i = 0; i< ROBId_list.size(); ++i)
     {
-      RODToChamberMap::const_iterator Rob_it = m_RODToChamber->find(ROBId_list[i]);
-      if(Rob_it != m_RODToChamber->end()) {
+      RODToChamberMap::const_iterator Rob_it = m_RODToChamber.find(ROBId_list[i]);
+      if(Rob_it != m_RODToChamber.end()) {
 	HashVec.insert(HashVec.end(), Rob_it->second.begin(), Rob_it->second.end());
       }
       else {
-	*m_log << MSG::WARNING << "Rod ID "<<ROBId_list[i]<<" not found, continuing with the rest of the ROBId" << endmsg;
+	      log << MSG::WARNING << "Rod ID "<<ROBId_list[i]<<" not found, continuing with the rest of the ROBId" << endmsg;
       }
 
     }
@@ -470,7 +477,7 @@ const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const st
  */
 std::vector<uint32_t> MuonMDT_CablingMap::getAllROBId() const
 {
-  return *m_listOfROD;
+  return m_listOfROD;
 }
 
 
@@ -486,20 +493,20 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
 				      uint8_t tdcId,
 				      uint8_t channelId,
 				      int& stationName, int& stationEta, int& stationPhi,
-				      int& multiLayer, int& layer, int& tube) const
+				      int& multiLayer, int& layer, int& tube, MsgStream &log) const
 {
   
   // get the subdetector
   MdtSubdetectorMap* subdetectorMap = this->getSubdetectorMap(subdetectorId);
   if (!subdetectorMap) {
-    *m_log << MSG::WARNING << "Subdetector: 0x" << MSG::hex << (int) subdetectorId << MSG::dec 
+    log << MSG::WARNING << "Subdetector: 0x" << MSG::hex << (int) subdetectorId << MSG::dec 
 	   << " not found in the map" << endmsg;
     return false;
   }
   // get the rod
   MdtRODMap* rodMap = subdetectorMap->getRODMap(rodId);
   if (!rodMap) {
-    *m_log << MSG::WARNING << "MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
+    log << MSG::WARNING << "MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
 	   << " not found in the map of subdetector: 0x" << MSG::hex << (int) subdetectorId 
 	   << MSG::dec << endmsg;
     return false;
@@ -507,7 +514,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
   // retrieve the csm
   MdtCsmMap* csmMap = rodMap->getCsmMap(csmId);
   if (!csmMap) {
-    *m_log << MSG::WARNING << "CSM: 0x" << MSG::hex << (int) csmId << MSG::dec 
+    log << MSG::WARNING << "CSM: 0x" << MSG::hex << (int) csmId << MSG::dec 
 	   << " not found in MROD: 0x" << MSG::hex << (int) rodId 
 	   << MSG::dec << " of subdetector: 0x" << MSG::hex << (int) subdetectorId << MSG::dec << endmsg;
     return false;
@@ -518,7 +525,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
   
  if (tdcId==0xff && channelId==0xff) {
 
-   std::map<uint8_t, std::unique_ptr<MdtAmtMap>, std::less<uint8_t> >* listOfAmt = csmMap->getListOfElements();
+   const std::map<uint8_t, std::unique_ptr<MdtAmtMap>, std::less<uint8_t> >* listOfAmt = csmMap->getListOfElements();
    std::map<uint8_t, std::unique_ptr<MdtAmtMap>, std::less<uint8_t> >::const_iterator it_amt = listOfAmt->begin();
 
 
@@ -528,7 +535,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
      amtMap = (*it_amt).second.get();
      
      if (!amtMap) {
-       *m_log << MSG::WARNING << "CSM: 0x" << MSG::hex << (int) csmId 
+       log << MSG::WARNING << "CSM: 0x" << MSG::hex << (int) csmId 
 	      << MSG::dec << " of MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
 	      << " subdetector: 0x" << MSG::hex << (int) subdetectorId << MSG::dec  
 	      << " not identified !!" <<   endmsg;
@@ -538,7 +545,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
      channelId=0;
      
      bool foundTdc = amtMap->offlineId(channelId, stationName, stationEta, stationPhi, 
-				       multiLayer, layer, tube);
+				       multiLayer, layer, tube, log);
    
      if (foundTdc) return true;
    }
@@ -552,7 +559,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
    
    amtMap = csmMap->getTdcMap(tdcId);
    if (!amtMap) {
-     *m_log << MSG::WARNING << "Tdc: 0x" << MSG::hex << (int) tdcId << MSG::dec 
+     log << MSG::WARNING << "Tdc: 0x" << MSG::hex << (int) tdcId << MSG::dec 
 	     << " not found in CSM: 0x" << MSG::hex << (int) csmId 
 	     << MSG::dec << " of MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
 	     << " subdetector: 0x" << MSG::hex << (int) subdetectorId << MSG::dec << endmsg;
@@ -563,7 +570,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
   
   // retrieve the full information
   bool found = amtMap->offlineId(channelId, stationName, stationEta, stationPhi, 
-				 multiLayer, layer, tube);
+				 multiLayer, layer, tube, log);
   
   if (!found) {
     
@@ -576,15 +583,14 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
   }
 
   if (m_debug) {
-
-    *m_log << MSG::VERBOSE << "Channel: 0x" << MSG::hex << (int) channelId << MSG::dec  
+    log << MSG::VERBOSE << "Channel: 0x" << MSG::hex << (int) channelId << MSG::dec  
 	   << " Tdc: 0x" << MSG::hex << (int) tdcId << MSG::dec 
 	   << " CSM: 0x" << MSG::hex << (int) csmId 
 	   << MSG::dec << " of MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
 	   << " subdetector: 0x" << MSG::hex << (int) subdetectorId 
 	   << MSG::dec << endmsg;
 
-    *m_log << MSG::VERBOSE << "Mapped to: Station: " << stationName << " eta: " << stationEta
+    log << MSG::VERBOSE << "Mapped to: Station: " << stationName << " eta: " << stationEta
 	   << " phi: " << stationPhi << " multiLayer: " << multiLayer 
 	   << " layer: " << layer << " tube: " << tube << endmsg;
   }
@@ -598,19 +604,18 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
 				     int multiLayer, int layer, int tube,
 				     uint8_t& subdetectorId, uint8_t& rodId, 
 				     uint8_t& csmId, uint8_t& tdcId, 
-				     uint8_t& channelId) const
+				     uint8_t& channelId, MsgStream &log) const
 {
 
   
   // get the station ROD from the ROD map
-  int module = getROBId(stationName, stationEta, stationPhi);
+  int module = getROBId(stationName, stationEta, stationPhi, log);
 
   rodId = (module & 0xff);
   subdetectorId = (module>>16) & 0xff;
 
   if (m_debug) {
-
-    *m_log << MSG::VERBOSE << "Station: " << stationName << " eta: " << stationEta 
+    log << MSG::VERBOSE << "Station: " << stationName << " eta: " << stationEta 
 	   << " phi: " << stationPhi << " mapped to subdet: 0x" << MSG::hex << subdetectorId
 	   << MSG::dec << " rodId: 0x" << MSG::hex << rodId << MSG::dec << endmsg;
 
@@ -621,14 +626,14 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
   // get the subdetector
   MdtSubdetectorMap* subdetectorMap = this->getSubdetectorMap(subdetectorId);
   if (!subdetectorMap) {
-    *m_log << MSG::WARNING << "Subdetector: 0x" << MSG::hex << (int) subdetectorId 
+    log << MSG::WARNING << "Subdetector: 0x" << MSG::hex << (int) subdetectorId 
 	   << MSG::dec << " not found in the map" << endmsg;
     return false;
   }
   // get the rod
   MdtRODMap* rodMap = subdetectorMap->getRODMap(rodId);
   if (!rodMap) {
-    *m_log << MSG::WARNING << "MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
+    log << MSG::WARNING << "MROD: 0x" << MSG::hex << (int) rodId << MSG::dec 
 	   << " not found in the map of subdetector: 0x" << MSG::hex 
 	   << (int) subdetectorId 
 	   << MSG::dec << endmsg;
@@ -637,15 +642,15 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
   
 
   // loop on the CSMs of this ROD
-  std::map<uint8_t, std::unique_ptr<MdtCsmMap>, std::less<uint8_t> >* listOfCsm= rodMap->getListOfElements();
+  const std::map<uint8_t, std::unique_ptr<MdtCsmMap>, std::less<uint8_t> >* listOfCsm= rodMap->getListOfElements();
   
   std::map<uint8_t, std::unique_ptr<MdtCsmMap>, std::less<uint8_t> >::const_iterator it_csm;
  
-  std::map<uint8_t, std::unique_ptr<MdtAmtMap>, std::less<uint8_t> >* listOfAmt;
+  const std::map<uint8_t, std::unique_ptr<MdtAmtMap>, std::less<uint8_t> >* listOfAmt;
   std::map<uint8_t, std::unique_ptr<MdtAmtMap>, std::less<uint8_t> >::const_iterator it_amt;
 
   if (m_debug) {
-    *m_log << MSG::VERBOSE << "number of csm to loop: " << listOfCsm->size()
+    log << MSG::VERBOSE << "number of csm to loop: " << listOfCsm->size()
 	   << endmsg;
   }
 
@@ -654,7 +659,7 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
     csmId = ((*it_csm).second)->moduleId();
     
     if (m_debug) {
-      *m_log << MSG::VERBOSE << "Csm number: " << MSG::hex << (int) csmId << MSG::dec << endmsg;
+      log << MSG::VERBOSE << "Csm number: " << MSG::hex << (int) csmId << MSG::dec << endmsg;
     }
 
     listOfAmt = ((*it_csm).second)->getListOfElements();
@@ -679,14 +684,14 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
 
       // convert channel 0
       bool found = amtMap->offlineId(0,test_station,test_eta,test_phi,
-				     test_multi,test_layer,test_tube);
+				     test_multi,test_layer,test_tube, log);
       if (!found) {
 
 	found = amtMap->offlineId(23,test_station,test_eta,test_phi,
-				     test_multi,test_layer,test_tube);
+				     test_multi,test_layer,test_tube, log);
 	if (!found) {
 	  if (m_debug) {
-	    *m_log << MSG::VERBOSE << "Error converting offline->online" << endmsg;
+	    log << MSG::VERBOSE << "Error converting offline->online" << endmsg;
 	  }
 	  return false;
 	}
@@ -708,7 +713,7 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
 	// look for the correct channel
 	for (int i=0 ; i<24 ; ++i) {
 	  found = amtMap->offlineId(i,test_station,test_eta,test_phi,
-				    test_multi,test_layer,test_tube);
+				    test_multi,test_layer,test_tube, log);
 	  //	  if (!found) {
 	  //  *m_log << MSG::WARNING << "Error converting offline->online, looping on TDC channels" << endmsg;
 	  // return false;
