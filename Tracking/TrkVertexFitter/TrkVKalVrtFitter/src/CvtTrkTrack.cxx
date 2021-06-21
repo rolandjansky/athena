@@ -146,11 +146,10 @@ namespace Trk{
     const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov, state);
 				      
     const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
-    auto trackStateOnSurfaces =
-      std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
     const Trk::TrackStateOnSurface* trackSOS =
       new Trk::TrackStateOnSurface(nullptr, perigee, nullptr, nullptr);
-    trackStateOnSurfaces->push_back(trackSOS);
+    trackStateOnSurfaces.push_back(trackSOS);
     Trk::TrackInfo info;
     return new Trk::Track( info, std::move(trackStateOnSurfaces), fitQuality) ;
   }

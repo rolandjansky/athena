@@ -353,10 +353,9 @@ Trk::GaussianSumFitter::fit(
 
   // Store only TSOS in tracks instead of MCSOS
   if (!m_StoreMCSOS) {
-    auto slimmedSmoothedTrajectory =
-      std::make_unique<Trk::SmoothedTrajectory>();
+    auto slimmedSmoothedTrajectory = Trk::SmoothedTrajectory();
     for (const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory) {
-      slimmedSmoothedTrajectory->push_back(new Trk::TrackStateOnSurface(*tsos));
+      slimmedSmoothedTrajectory.push_back(new Trk::TrackStateOnSurface(*tsos));
     }
     // Create new track
     Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
@@ -373,7 +372,7 @@ Trk::GaussianSumFitter::fit(
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
   ++m_fitSuccess;
   return std::make_unique<Track>(
-    info, std::move(smoothedTrajectory), fitQuality.release());
+    info, std::move(*smoothedTrajectory), fitQuality.release());
 }
 
 /*
@@ -488,10 +487,9 @@ Trk::GaussianSumFitter::fit(
 
   // Store only TSOS in tracks instead of MCSOS
   if (!m_StoreMCSOS) {
-    auto slimmedSmoothedTrajectory =
-      std::make_unique<Trk::SmoothedTrajectory>();
+    auto slimmedSmoothedTrajectory = Trk::SmoothedTrajectory();
     for (const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory) {
-      slimmedSmoothedTrajectory->push_back(new Trk::TrackStateOnSurface(*tsos));
+      slimmedSmoothedTrajectory.push_back(new Trk::TrackStateOnSurface(*tsos));
     }
     // Create new track
     Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
@@ -508,7 +506,7 @@ Trk::GaussianSumFitter::fit(
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
   ++m_fitSuccess;
   return std::make_unique<Track>(
-    info, std::move(smoothedTrajectory), fitQuality.release());
+    info, std::move(*smoothedTrajectory), fitQuality.release());
 }
 
 /**

@@ -730,18 +730,18 @@ std::pair<Trk::Track*,Trk::Track*> TrigInDetTrackFitter::fitTrack(const Trk::Tra
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      auto pParVec    = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-      auto pParVecwTP = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+      auto pParVec    = DataVector<const Trk::TrackStateOnSurface>();
+      auto pParVecwTP = DataVector<const Trk::TrackStateOnSurface>();
       if (m_correctClusterPos) {
-        pParVec->reserve(vpTrkNodes.size()+1);
-        pParVec->push_back(new Trk::TrackStateOnSurface(nullptr, perigee,nullptr,nullptr, typePattern));
+        pParVec.reserve(vpTrkNodes.size()+1);
+        pParVec.push_back(new Trk::TrackStateOnSurface(nullptr, perigee,nullptr,nullptr, typePattern));
         if (addTPtoTSoS) {
           std::bitset<
             Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
             typePatternwTP;
           typePatternwTP.set(Trk::TrackStateOnSurface::Perigee);
-          pParVecwTP->reserve(vpTrkNodes.size() + 1);
-          pParVecwTP->push_back(
+          pParVecwTP.reserve(vpTrkNodes.size() + 1);
+          pParVecwTP.push_back(
             new Trk::TrackStateOnSurface(nullptr, perigeewTP, nullptr, nullptr, typePatternwTP));
         }
         for (auto pnIt = vpTrkNodes.begin(); pnIt != vpTrkNodes.end(); ++pnIt) {
@@ -750,22 +750,22 @@ std::pair<Trk::Track*,Trk::Track*> TrigInDetTrackFitter::fitTrack(const Trk::Tra
 	    Trk::TrackStateOnSurface* pTSSwTP = nullptr;
 	    if( addTPtoTSoS ) pTSSwTP = createTrackStateOnSurface(*pnIt,true);
             if(pTSS!=nullptr) {
-              pParVec->push_back(pTSS);
+              pParVec.push_back(pTSS);
             }
             if(pTSSwTP!=nullptr) {
-              pParVecwTP->push_back(pTSSwTP);
+              pParVecwTP.push_back(pTSSwTP);
             }
           }
         }
       }
       else {
-        pParVec->reserve(recoTrack.trackStateOnSurfaces()->size());
-        pParVec->push_back(new Trk::TrackStateOnSurface(nullptr, perigee,nullptr,nullptr, typePattern));
+        pParVec.reserve(recoTrack.trackStateOnSurfaces()->size());
+        pParVec.push_back(new Trk::TrackStateOnSurface(nullptr, perigee,nullptr,nullptr, typePattern));
 
         for (auto tSOS = recoTrack.trackStateOnSurfaces()->begin(); tSOS != recoTrack.trackStateOnSurfaces()->end(); ++tSOS) {
           //Don't store perigee - new perigee created above
           if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
-            pParVec->push_back((*tSOS)->clone());
+            pParVec.push_back((*tSOS)->clone());
           }
         }
       }

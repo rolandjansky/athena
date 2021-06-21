@@ -239,7 +239,7 @@ namespace InDet {
     if(!fq) return nullptr;
 
     // output datavector of TSOS
-    auto	    ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto	 ntsos = DataVector<const Trk::TrackStateOnSurface>();
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) {return nullptr;}
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
@@ -251,7 +251,7 @@ namespace InDet {
         ((*its)->type(Trk::TrackStateOnSurface::Perigee))
           ? new Trk::TrackStateOnSurface(nullptr, mp->clone(), nullptr, nullptr, typePattern)
           : (*its)->clone();
-      ntsos->push_back(per_tsos);
+      ntsos.push_back(per_tsos);
     }
 
     //Construct the new track

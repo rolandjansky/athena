@@ -187,11 +187,8 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
     // perform hole search
     unsigned int oldHoles = doHoleSearch( *trackIterator );
 
+    auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
-
-    auto vecTsos 
-      = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-    
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();
@@ -410,7 +407,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
       } // end TSoS is of type measurement
 
       const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
-      vecTsos->push_back(newTsos);
+      vecTsos.push_back(newTsos);
     } // end loop over all TSoS
     
     ATH_MSG_DEBUG(  "Removed total of " << nRemoved << " TSoS on track." ) ;

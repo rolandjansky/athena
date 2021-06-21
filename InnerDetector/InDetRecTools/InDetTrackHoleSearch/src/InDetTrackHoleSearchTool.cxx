@@ -725,17 +725,17 @@ const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(
 // ====================================================================================================================
 const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::Track& oldTrack,
                                                                     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const {
-  auto trackTSOS = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto trackTSOS = DataVector<const Trk::TrackStateOnSurface>();
 
   // get states from track
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = oldTrack.trackStateOnSurfaces()->begin();
        it != oldTrack.trackStateOnSurfaces()->end(); ++it) {
     // veto old holes
-    if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) trackTSOS->push_back(new Trk::TrackStateOnSurface(**it));
+    if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) trackTSOS.push_back(new Trk::TrackStateOnSurface(**it));
   }
 
   // if we have no holes on the old track and no holes found by search, then we just copy the track
-  if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS->size() && listOfHoles->empty()) {
+  if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS.size() && listOfHoles->empty()) {
     ATH_MSG_DEBUG("No holes on track, copy input track to new track");
     // create copy of track
     const Trk::Track* newTrack = new Trk::Track(
@@ -748,7 +748,7 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   // add new holes
   for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = listOfHoles->begin();
        it != listOfHoles->end(); ++it) {
-    trackTSOS->push_back(*it);
+    trackTSOS.push_back(*it);
   }
 
   // sort
@@ -767,9 +767,9 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
          not 100% transitive comparison functor.
       */
       ATH_MSG_DEBUG("sorting vector with stable_sort ");
-      std::stable_sort(trackTSOS->begin(), trackTSOS->end(), CompFunc);
+      std::stable_sort(trackTSOS.begin(), trackTSOS.end(), CompFunc);
     } else {
-      trackTSOS->sort(CompFunc); // respects DV object ownership
+      trackTSOS.sort(CompFunc); // respects DV object ownership
     }
 
   }

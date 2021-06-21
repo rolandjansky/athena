@@ -185,7 +185,7 @@ namespace InDet {
     }
 
     // --- create new track state on surface vector
-    auto ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto ntsos = DataVector<const Trk::TrackStateOnSurface>();
 
     //
     // if no refit, make it a perigee
@@ -204,7 +204,7 @@ namespace InDet {
         ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
         ATH_MSG_DEBUG("Failed to build perigee parameters.Discard...");
-        ntsos.reset();
+        ntsos.clear();
         delete segPar;
         segPar = nullptr;
         delete fq;
@@ -219,7 +219,7 @@ namespace InDet {
       par_tsos = new Trk::TrackStateOnSurface(
         nullptr, perParm, nullptr, nullptr, typePattern);
       // push new TSOS into the list
-      ntsos->push_back(par_tsos);
+      ntsos.push_back(par_tsos);
     }
 
     //
@@ -326,7 +326,7 @@ namespace InDet {
 
       // push new TSOS into the list
       if (seg_tsos)
-        ntsos->push_back(seg_tsos);
+        ntsos.push_back(seg_tsos);
     }
 
     // Construct the new track

@@ -122,19 +122,18 @@ namespace Trk
         * @param[in] fitQuality Fit quality of the tracks. *			                    
         */
        Track(const TrackInfo& info,
-             std::unique_ptr<TrackStates> trackStateOnSurfaces,
+             TrackStates&& trackStateOnSurfaces,
              const FitQuality* fitQuality);
 
-       Track( const Track& rhs); //!< copy constructor				            
+       Track(const Track& rhs); //!< copy constructor
 
-       Track &operator= (const Track & rhs); //!< assignment operator		            
+       Track& operator=(const Track& rhs); //!< assignment operator
 
-       Track( Track&& rhs) noexcept; //!< move constructor				            
+       Track(Track&& rhs) = default; //!< move constructor
 
-       Track &operator= (Track && rhs) noexcept; //!< move assignment operator		            
+       Track& operator=(Track&& rhs) = default; //!< move assignment operator
 
-
-       virtual ~Track (); //!< destructor					            
+       virtual ~Track(); //!< destructor
 
        /**
         * returns true if the track has non-nullptr 
@@ -218,7 +217,7 @@ namespace Trk
         /** 
         * Set the TrackStateOnSurfaces. The Trk::Track takes ownership 		            
         */				            
-       void setTrackStateOnSurfaces(DataVector<const TrackStateOnSurface>* input);
+       void setTrackStateOnSurfaces(DataVector<const TrackStateOnSurface>&& input);
  
        /**									            
         * Returns a const ref to info of a const tracks.           
@@ -282,13 +281,13 @@ namespace Trk
         */
        void copyHelper(const Track& rhs);
 
-       /**									   
-        * TrackStateOnSurface							   
-        *									   
-        * These objects link the various parameters related to a surface,	   
-        * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
+       /**
+        * TrackStateOnSurface
+        *
+        * These objects link the various parameters related to a surface,
+        * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface
         */
-       std::unique_ptr<TrackStates>  m_trackStateVector{ nullptr };
+       TrackStates m_trackStateVector{};
 
        /**
         * A vector of TrackParameters: these can be any of the classes that

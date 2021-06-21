@@ -1322,14 +1322,14 @@ Trk::KalmanFitter::makeTrack(
     m_fitStatus = Trk::FitterStatusCode::FewFittableMeasurements;
     return nullptr;
   }
-    auto finalTrajectory = std::make_unique<SmoothedTrajectory>();
+    auto finalTrajectory = SmoothedTrajectory();
 
     // add new TSoS with parameters on reference surface (e.g. physics Perigee)
     if (m_option_PerigeeAtOrigin) {
       const Trk::PerigeeSurface   perSurf;
       const TrackStateOnSurface* perState =
         internallyMakePerigee(ctx, perSurf, matEffController->particleType());
-      if (perState) finalTrajectory->push_back( perState );
+      if (perState) finalTrajectory.push_back( perState );
       else {
         ATH_MSG_DEBUG ("********** perigee making failed, drop track");
         if (msgLvl(MSG::DEBUG)) monitorTrackFits( Trk::KalmanFitter::PerigeeMakingFailure, this_eta );
@@ -1340,7 +1340,7 @@ Trk::KalmanFitter::makeTrack(
       const TrackStateOnSurface* refState = makeReferenceState(
         ctx, refPar.associatedSurface(), matEffController->particleType());
       if (refState) {
-        finalTrajectory->push_back( refState );
+        finalTrajectory.push_back( refState );
         ATH_MSG_VERBOSE ("added track state at reference surface.");
       } else ATH_MSG_VERBOSE ("no track state at reference surface available, return bare track.");
     }
@@ -1351,7 +1351,7 @@ Trk::KalmanFitter::makeTrack(
     int i=0;
     for(; it!=m_trajectory.end(); it++, i++) {
       const TrackStateOnSurface* trkState = it->createState();
-      if (trkState) finalTrajectory->push_back( trkState );
+      if (trkState) finalTrajectory.push_back( trkState );
       else ATH_MSG_WARNING ("fitter inconsistency - no track state #"<<i<<" available!");
     }
     ATH_MSG_VERBOSE ("extracted " << i << " states from KF internal trajectory.");

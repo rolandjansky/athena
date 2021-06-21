@@ -20,8 +20,12 @@ void TrackCnv_p3::persToTrans( const Trk::Track_p2 *persObj,
     const Trk::TrackInfo * info = createTransFromPStore( &m_tiCnv, persObj->m_trackInfo, log );
     if(info )transObj->m_trackInfo  = *info;
     delete info;
-    transObj->m_fitQuality.reset(createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log ));
-    transObj->m_trackStateVector.reset(m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log ));
+    transObj->m_fitQuality.reset(
+      createTransFromPStore(&m_fqCnv, persObj->m_fitQuality, log));
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
+      m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
+    // move copy
+    transObj->m_trackStateVector = std::move(*sink);
 }
 
 //-----------------------------------------------------------------------------

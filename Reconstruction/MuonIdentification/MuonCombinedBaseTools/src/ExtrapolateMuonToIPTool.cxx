@@ -139,9 +139,9 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
 
     // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
     const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
-    auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
     unsigned int newSize = oldTSOT->size() + 1;
-    trackStateOnSurfaces->reserve(newSize);
+    trackStateOnSurfaces.reserve(newSize);
 
     Amg::Vector3D perDir = ipPerigee->momentum().unit();
 
@@ -161,18 +161,18 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
+                trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
             }
         }
 
         // copy remainging TSOS
-        trackStateOnSurfaces->push_back(tsit->clone());
+        trackStateOnSurfaces.push_back(tsit->clone());
     }
 
     if (ipPerigee) {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Perigee);
-        trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
+        trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
     }
     ATH_MSG_DEBUG(" creating new track ");
 

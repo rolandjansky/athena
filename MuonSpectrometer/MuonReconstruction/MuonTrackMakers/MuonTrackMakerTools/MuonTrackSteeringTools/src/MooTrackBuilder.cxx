@@ -739,13 +739,13 @@ namespace Muon {
         ATH_MSG_DEBUG(" original track had " << states->size() << " TSOS, adding " << newStates.size() - states->size() << " new TSOS ");
 
         // states were added, create a new track
-        auto  trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        trackStateOnSurfaces->reserve(newStates.size());
+        auto  trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        trackStateOnSurfaces.reserve(newStates.size());
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit = newStates.begin();
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit_end = newStates.end();
         for (; nit != nit_end; ++nit) {
             // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
-            trackStateOnSurfaces->push_back(nit->first ? nit->second : nit->second->clone());
+            trackStateOnSurfaces.push_back(nit->first ? nit->second : nit->second->clone());
         }
         return std::make_unique<Trk::Track>(
           track.info(),

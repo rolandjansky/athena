@@ -438,16 +438,16 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
   const std::vector<const Trk::MeasurementBase*>& extension) const
 {
   const auto& trackStatesOnSurfaces{ *(siTrack->trackStateOnSurfaces()) };
-  auto pExtendedTrajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto pExtendedTrajectory = DataVector<const Trk::TrackStateOnSurface>();
 
-  pExtendedTrajectory->reserve(trackStatesOnSurfaces.size() + extension.size());
+  pExtendedTrajectory.reserve(trackStatesOnSurfaces.size() + extension.size());
   int nSiStates = 0, nExtStates = 0;
   // copy existing si track as first part to new track - including all track pars since fit does not change
   auto cloneTSOS = [](const Trk::TrackStateOnSurface* pTSOS) {
                      return new Trk::TrackStateOnSurface(*pTSOS);
                    };
   std::transform(trackStatesOnSurfaces.begin(), trackStatesOnSurfaces.end(), std::back_inserter(
-                   *pExtendedTrajectory), cloneTSOS);
+                   pExtendedTrajectory), cloneTSOS);
   nSiStates += trackStatesOnSurfaces.size();
   // copy proposed (but failed) extension as second part onto new track - all hits flagged as outliers.
   constexpr auto outlierDigit {1 << Trk::TrackStateOnSurface::Outlier};
@@ -463,21 +463,21 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
                                  const double inprod = (pm->associatedSurface().center() - perigee->position()).dot(
                                    perigee->momentum());
                                  if (inprod < 0) {
-                                   pExtendedTrajectory->insert(pExtendedTrajectory->begin(), createNewTSOS(pm));
+                                   pExtendedTrajectory.insert(pExtendedTrajectory.begin(), createNewTSOS(pm));
                                  } else {
-                                   pExtendedTrajectory->push_back(createNewTSOS(pm));
+                                   pExtendedTrajectory.push_back(createNewTSOS(pm));
                                  }
                                };
   //actual copying done here, using preceding lambda functions
   if (not m_cosmics) {
-    std::transform(extension.begin(), extension.end(), std::back_inserter(*pExtendedTrajectory), createNewTSOS);
+    std::transform(extension.begin(), extension.end(), std::back_inserter(pExtendedTrajectory), createNewTSOS);
   } else {
     //difficult to use std::transform here, since don't know whether back or front are added to
     for (const auto *const pMeasurementBase: extension) {
       addNewTSOS_ForCosmics(pMeasurementBase);
     }
   }
-  nExtStates += pExtendedTrajectory->size();
+  nExtStates += pExtendedTrajectory.size();
   const auto& pFitQuality {siTrack->fitQuality()};
   Trk::Track* extTrack =
     new Trk::Track(siTrack->info(), std::move(pExtendedTrajectory), (pFitQuality ? pFitQuality->clone() : nullptr));

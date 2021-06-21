@@ -380,9 +380,9 @@ namespace Muon {
 
         // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
         const DataVector<const Trk::TrackStateOnSurface> *oldTSOT = track.trackStateOnSurfaces();
-        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
         unsigned int newSize = oldTSOT->size();
-        trackStateOnSurfaces->reserve(newSize + 11);
+        trackStateOnSurfaces.reserve(newSize + 11);
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tit = oldTSOT->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_prev = tit;  // iterator pointing to the previous TSOS
@@ -396,14 +396,14 @@ namespace Muon {
                     Trk::StraightLineSurface slSurf(ptrans);
                     Trk::AtaStraightLine *slPars = new Trk::AtaStraightLine(ppars[Trk::locR], ppars[Trk::locZ], ppars[Trk::phi],
                                                                             ppars[Trk::theta], ppars[Trk::qOverP], slSurf);
-                    trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(slPars));
+                    trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(slPars));
                 }
                 continue;
             }
             const Trk::TrackParameters *pars = (*tit)->trackParameters();
             if (!pars) {
                 // keep state but do not consider any further
-                trackStateOnSurfaces->push_back((*tit)->clone());
+                trackStateOnSurfaces.push_back((*tit)->clone());
                 continue;
             }
 
@@ -438,7 +438,7 @@ namespace Muon {
                                 if (matvec && !matvec->empty()) {
                                     ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
-                                    trackStateOnSurfaces->insert(trackStateOnSurfaces->end(), matvec->begin(), matvec->end());
+                                    trackStateOnSurfaces.insert(trackStateOnSurfaces.end(), matvec->begin(), matvec->end());
                                 } else {
                                     ATH_MSG_VERBOSE(" no layers obtained from extrapolator ");
                                 }
@@ -453,7 +453,7 @@ namespace Muon {
                         ATH_MSG_VERBOSE(" perigee points away from IP, inserting perigee ");
 
                         // first add perigee
-                        trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
                         perigeeWasInserted = true;
 
                         // 	    // now look whether there are measurements upstream of this point add add material if needed
@@ -469,7 +469,7 @@ namespace Muon {
                             if (matvec && !matvec->empty()) {
                                 ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
-                                trackStateOnSurfaces->insert(trackStateOnSurfaces->end(), matvec->begin(), matvec->end());
+                                trackStateOnSurfaces.insert(trackStateOnSurfaces.end(), matvec->begin(), matvec->end());
                             } else {
                                 ATH_MSG_VERBOSE(" no layers obtained from extrapolator ");
                             }
@@ -480,7 +480,7 @@ namespace Muon {
 
                 // check whether we did not insert the perigee, if not insert
                 if (!perigeeWasInserted) {
-                    trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+                    trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
                     perigeeWasInserted = true;
                     ATH_MSG_VERBOSE(" inserting perigee ");
                 }
@@ -512,7 +512,7 @@ namespace Muon {
                                 if (matvec && !matvec->empty()) {
                                     ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
-                                    trackStateOnSurfaces->insert(trackStateOnSurfaces->end(), matvec->begin(), matvec->end());
+                                    trackStateOnSurfaces.insert(trackStateOnSurfaces.end(), matvec->begin(), matvec->end());
                                 } else {
                                     ATH_MSG_VERBOSE(" no layers obtained from extrapolator ");
                                 }
@@ -525,7 +525,7 @@ namespace Muon {
                         ATH_MSG_VERBOSE(" perigee points away from IP, inserting perigee ");
 
                         // first add perigee
-                        trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
                         secondPerigeeWasInserted = true;
 
                         // 	    // now look whether there are measurements upstream of this point add add material if needed
@@ -540,7 +540,7 @@ namespace Muon {
                             if (matvec && !matvec->empty()) {
                                 ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
-                                trackStateOnSurfaces->insert(trackStateOnSurfaces->end(), matvec->begin(), matvec->end());
+                                trackStateOnSurfaces.insert(trackStateOnSurfaces.end(), matvec->begin(), matvec->end());
                             } else {
                                 ATH_MSG_VERBOSE(" no layers obtained from extrapolator ");
                             }
@@ -550,7 +550,7 @@ namespace Muon {
 
                     // check whether we did not insert the perigee, if not insert
                     if (!secondPerigeeWasInserted) {
-                        trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
                         secondPerigeeWasInserted = true;
                         ATH_MSG_VERBOSE(" inserting second perigee ");
                     }
@@ -558,7 +558,7 @@ namespace Muon {
             }
 
             // copy TSOS
-            trackStateOnSurfaces->push_back((*tit)->clone());
+            trackStateOnSurfaces.push_back((*tit)->clone());
 
             // update iterator previous TSTO
             tit_prev = tit;
@@ -577,7 +577,7 @@ namespace Muon {
                     if (matvec && !matvec->empty()) {
                         ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
-                        trackStateOnSurfaces->insert(trackStateOnSurfaces->end(), matvec->begin(), matvec->end());
+                        trackStateOnSurfaces.insert(trackStateOnSurfaces.end(), matvec->begin(), matvec->end());
                     } else {
                         ATH_MSG_VERBOSE(" no layers obtained from extrapolator ");
                     }
@@ -585,7 +585,7 @@ namespace Muon {
                 }
             }
             ATH_MSG_VERBOSE(" inserting perigee ");
-            trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
         }
         if (secondPerigee && !secondPerigeeWasInserted) {
             // check whether the previous state is a measurement, else we will assume the material is there
@@ -600,7 +600,7 @@ namespace Muon {
                     if (matvec && !matvec->empty()) {
                         ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
-                        trackStateOnSurfaces->insert(trackStateOnSurfaces->end(), matvec->begin(), matvec->end());
+                        trackStateOnSurfaces.insert(trackStateOnSurfaces.end(), matvec->begin(), matvec->end());
                     } else {
                         ATH_MSG_VERBOSE(" no layers obtained from extrapolator ");
                     }
@@ -608,7 +608,7 @@ namespace Muon {
                 }
             }
             ATH_MSG_VERBOSE(" inserting second perigee ");
-            trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
+            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(secondPerigee));
         }
 
         // create new track

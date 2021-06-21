@@ -148,13 +148,13 @@ inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::M
   if (muon.author() == xAOD::Muon::MuTagIMO) author = Trk::TrackInfo::StacoLowPt;
   ATH_MSG_VERBOSE(" author " << muon.author());
 
-  auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
 
   //  Copy ID track
   // if(!m_useMuonHitsOnly){
   DataVector<const Trk::TrackStateOnSurface>::const_iterator it     = track->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = track->trackStateOnSurfaces()->end(); 
-  for ( ; it!=it_end; ++it) trackStateOnSurfaces->push_back( (*it)->clone() );
+  for ( ; it!=it_end; ++it) trackStateOnSurfaces.push_back( (*it)->clone() );
   //}
 
   //  Loop over segments   
@@ -192,7 +192,7 @@ inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::M
       }
 
       const Trk::TrackStateOnSurface *trackState = new Trk::TrackStateOnSurface( meas.clone(), exPars, nullptr, nullptr, typePattern );
-      trackStateOnSurfaces->push_back( trackState ); 
+      trackStateOnSurfaces.push_back( trackState ); 
     } // end segment loop
     delete pars;
   }
