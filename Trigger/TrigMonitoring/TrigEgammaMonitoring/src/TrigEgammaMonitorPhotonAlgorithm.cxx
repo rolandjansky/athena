@@ -21,6 +21,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::initialize()
 {
   
   ATH_CHECK(TrigEgammaMonitorAnalysisAlgorithm::initialize());
+
   ATH_CHECK(m_offPhotonKey.initialize());
 
 

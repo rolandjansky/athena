@@ -21,10 +21,7 @@ StatusCode TrigEgammaMonitorAnalysisAlgorithm::initialize()
 }
 
 
-
-
 // *********************************************************************************
-
 
 
 
@@ -35,7 +32,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillLabel( const ToolHandle<GenericMoni
   auto mon = Monitored::Scalar<std::string>( histname, label );
   fill( groupHandle, mon );
 }
-
 
 
 
@@ -50,6 +46,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
 
   std::vector<asg::AcceptData> accept_vec;
   std::vector<asg::AcceptData> accept_iso_vec;
+
+  std::vector<asg::AcceptData> emu_accept_vec;
+  std::vector<asg::AcceptData> emu_accept_iso_vec;
+
 
   for( auto pairObj : pairObjs ){
 
@@ -71,57 +71,74 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
     } // Offline photon
   
 
-    pair_vec.push_back(pairObj);
-    auto acceptData = setAccept( pairObj.second, info );
-    accept_vec.push_back(acceptData);
-    if( pairObj.first->auxdecor<bool>("Isolated") ){
-        pair_iso_vec.push_back(pairObj);
-        accept_iso_vec.push_back(acceptData);
+    // Good pair to be measure
+    { // Efficiency
+        pair_vec.push_back(pairObj);
+        auto acceptData = setAccept( pairObj.second, info );
+        accept_vec.push_back(acceptData);
+        if( pairObj.first->auxdecor<bool>("Isolated") ){
+            pair_iso_vec.push_back(pairObj);
+            accept_iso_vec.push_back(acceptData);
+        }
     }
 
+    
+    // Good pair to be measure
+    if(m_doEmulation){ // Emulation
+        auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigName );
+        emu_accept_vec.push_back( acceptData );
+        if( pairObj.first->auxdecor<bool>("Isolated") ){
+            emu_accept_iso_vec.push_back(acceptData);
+        }
+    }
 
   }
+
+  std::string dirname= "Efficiency";
   
   if (info.trigL1){
-    fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec);
+    fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
   }else{
-    fillEfficiency( "L1Calo"  , "L1Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "FastCalo"  , "L2Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "PrecisionCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec , accept_vec);
 
+    std::string l2step = "FastElectron";
     if( info.trigType == "electron" ){
-        fillEfficiency( "FastElectron"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
-        fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec); 
+      l2step = "FastElectron";
+    }else if( info.trigType == "photon" ){
+      l2step = "FastPhoton";
     }
-    else if( info.trigType == "photon" ){
-        fillEfficiency( "FastPhoton"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
-        fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
-    }
+    fillEfficiency( "L1Calo"        , "L1Calo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( "FastCalo"      , "L2Calo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( l2step          , "L2"       , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( "HLT"           , "HLT"      , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+
+    
     if( m_detailedHists ){
-
-        if( info.trigType == "electron" ){
-            for( const auto& pid : m_isemname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-            for( const auto& pid : m_lhname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-        }
-        else if( info.trigType == "photon" ){
-            for( const auto& pid : m_isemname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-
-            for( const auto& pid : m_lhname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-        }
-
+      for( const auto& pid : m_isemname ){
+        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec, dirname);
+        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec, dirname );
+      }
+      for( const auto& pid : m_lhname ){
+        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec, dirname );
+        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec, dirname );
+      }
     } 
+
+    // Fill emulator efficiency plots
+    if ( m_doEmulation ){
+        ATH_MSG_INFO("Fill emulation...");
+        dirname= "Emulation";
+        if (info.trigL1){
+            fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+        }else{
+            fillEfficiency( "L1Calo"        , "L1Calo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( "FastCalo"      , "L2Calo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( l2step          , "L2"       , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( "HLT"           , "HLT"      , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+        }
+    }
+    
 
   }
 
@@ -135,7 +152,8 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
                                                          const std::string &pidword,
                                                          const TrigInfo info,
                                                          std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs,
-                                                         std::vector< asg::AcceptData > acceptObjs ) const
+                                                         std::vector< asg::AcceptData > acceptObjs ,
+                                                         std::string dirname ) const
 {
 
 
@@ -144,7 +162,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
     const std::string trigger = info.trigName;
 
 
-    auto monGroup = getGroup( trigger + "_Efficiency_" + subgroup );
+    auto monGroup = getGroup( trigger + "_"+dirname+"_" + subgroup );
 
     
     std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec;
@@ -265,6 +283,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
 
 
 // *********************************************************************************
+
+
+
 
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
