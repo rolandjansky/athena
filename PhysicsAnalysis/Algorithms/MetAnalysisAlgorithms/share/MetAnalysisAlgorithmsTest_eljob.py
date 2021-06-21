@@ -25,6 +25,7 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 import ROOT
 ROOT.xAOD.Init().ignore()
 ROOT.xAOD.LoadDictionaries().ignore()
+ROOT.xAOD.JetContainer ()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
