@@ -46,16 +46,17 @@ int usage(const std::string& name, int status) {
   s << "    -t,  --tag       value   \t appends tag 'value' to the end of output plot names, \n";
   s << "    -k,  --key       value   \t prepends key 'value' to the front of output plot names, \n\n";
   s << "    -a,  --auto              \t process all histograms that are in the file, \n";
+  s << "    -r,  --replace   patt rep\t replace patt wiht rep in the file name\n"; 
   s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
   s << "         --nodir             \t do not print the directory name on the plot,\n";
-  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n";
-  s << "    -f,  --frac              \t explicitly include the fractional plots\n\n";
-  s << "    -nr, --noref             \t do not use a reference file, \n\n";
-  s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
-  s << "         --logx               \t force logx \n\n";
+  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
+  s << "    -f,  --frac              \t explicitly include the fractional plots\n";
+  s << "    -nr, --noref             \t do not use the reference file, \n\n";
+  s << "    -x,  --xoffset   value   \t offset the key by value \n";
+  s << "         --logx               \t force logx \n";
+  s << "    -w,  --binwidth          \t normalise by bin width\n";
   s << "    -as, --atlasstyle        \t use the ATLAS style \n\n";
-  s << "    -w,  --binwidth          \t normalise by bin width\n\n";
-  s << "    -v,  --verbose           \t verbose output\n";
+  s << "    -v,  --verbose           \t verbose output\n\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
   return status;
@@ -137,6 +138,8 @@ int main(int argc, char** argv) {
 
   bool withfractional = false;
 
+  std::vector<std::string> replace_list;
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -159,6 +162,12 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-k" || arg == "--key") {
       if (++argnum < argc) { key = argv[argnum] + std::string("-"); }
+      else { return usage(argv[0], -1); }
+    }
+    else if (arg == "-r" || arg == "--replace") {
+      if (++argnum < argc) replace_list.push_back( argv[argnum] );
+      else { return usage(argv[0], -1); }
+      if (++argnum < argc) replace_list.push_back( argv[argnum] );
       else { return usage(argv[0], -1); }
     }
     else if ( arg == "--logx") {
@@ -387,11 +396,43 @@ int main(int argc, char** argv) {
 
       //      std::cout << "\n\nfound histname " << histname << std::endl;
 
-      TH1F* refhist = (TH1F*)fref->Get(histname.c_str());
-  
+      std::string refhistname = histname;
+
+
+      TH1F* refhist = (TH1F*)fref->Get(refhistname.c_str());
+
+
+      /// if we cannot find the reference histogram, try replacing all patterns 
+      /// that are requested in the reference hist name 
+
+      if ( refhist==0 && replace_list.size()>=2 ) { 
+
+	for ( size_t ir=0 ; ir<replace_list.size()-1 ; ir+=2 ) {
+	  
+	  size_t pos = refhistname.find(replace_list[ir]);
+	  if ( pos != std::string::npos ) { 
+	    
+	    while( pos!=std::string::npos ) { 
+	      refhistname.replace( pos, replace_list[ir].size(), "XXXX" );
+	      pos = refhistname.find(replace_list[ir]);
+	    }
+	    
+	    pos = refhistname.find("XXXX");
+	    while( pos!=std::string::npos ) { 
+	      refhistname.replace( pos, 4, replace_list[ir+1] );
+	      pos = refhistname.find("XXXX");
+	    }
+	  }
+	  
+	}
+
+	refhist = (TH1F*)fref->Get(refhistname.c_str());
+
+      }
+     
       if (refhist == 0 ) {
-        std::cerr << "main(): can not find hist " << histname << " in ref file" << std::endl;
-        continue;
+        std::cerr << "main(): can not find hist " << refhistname << " in ref file" << std::endl;
+	continue;
       }
 
       if ( norm_width ) binwidth( refhist );
