@@ -298,12 +298,23 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
     result.setPrivateTools(TopoSplitter)
     return result
 
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopoClusters",doLCCalib=None):
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname=None,doLCCalib=None):
     """
     Configures topo clustering
 
     If output writing is enabled (ESD,AOD) the topo clusters are added to them
     """
+
+    if doLCCalib is None:
+        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+        
+    if clustersname is None:
+        clustersname="CaloCalTopoClusters" if doLCCalib else "CaloTopoClusters"
+
+
+    if clustersname=="CaloTopoClusters" and doLCCalib is True: 
+        raise RuntimeError("Inconistent arguments: Name must not be 'CaloTopoClusters' if doLCCalib is True")
+
     result=ComponentAccumulator()
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -319,11 +330,6 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopo
     result.merge(LArGMCfg(configFlags))
 
     result.merge(TileGMCfg(configFlags))
-
-    if not doLCCalib:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
-    else:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
 
     TopoMaker = result.popToolsAndMerge( CaloTopoClusterToolCfg(configFlags, cellsname=cellsname))
     TopoSplitter = result.popToolsAndMerge( CaloTopoClusterSplitterToolCfg(configFlags) )
@@ -348,13 +354,12 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopo
 
     momentsMaker=result.popToolsAndMerge(getTopoMoments(configFlags))
     CaloTopoCluster.ClusterCorrectionTools += [momentsMaker]
-
-    if doLCCalib is None:
-        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+    CaloTopoCluster.ClustersOutputName=clustersname
+    
     if doLCCalib:
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)        
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
         #if not clustersname:
-        CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
 
         from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
