@@ -433,8 +433,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
   //Amg::Vector3D startGP  = (*inputTrk.trackParameters()->begin())->position();
   //Amg::Vector3D refDir = (*(inputTrk.trackParameters()->end()-1))->position() - startGP;
 
-  auto newListOfStates
-    = std::make_unique<DataVector<const TrackStateOnSurface>>();
+  auto newListOfStates = DataVector<const TrackStateOnSurface>();
   TS_iterator itStates = inputTrk.trackStateOnSurfaces()->begin();
   for (;itStates!=inputTrk.trackStateOnSurfaces()->end();++itStates)
     if ( (*itStates)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -443,7 +442,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
       if ( (*itStates)->type(Trk::TrackStateOnSurface::Outlier) &&
            ! reintegrateOutliers ) typePattern.set(TrackStateOnSurface::Outlier);
         else typePattern.set(TrackStateOnSurface::Measurement);
-      newListOfStates->push_back(new TrackStateOnSurface
+      newListOfStates.push_back(new TrackStateOnSurface
                            ((*itStates)->measurementOnTrack()->clone(),
                            ( (*itStates)->trackParameters()           ?
                              (*itStates)->trackParameters()->clone()  :
@@ -458,15 +457,15 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
   for ( ; itSet!=inputMbs.end(); ++itSet) if ((*itSet)) {
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
     typePattern.set(TrackStateOnSurface::Measurement);
-    newListOfStates->push_back(new TrackStateOnSurface((*itSet)->clone(),nullptr,nullptr,nullptr,typePattern));
+    newListOfStates.push_back(new TrackStateOnSurface((*itSet)->clone(),nullptr,nullptr,nullptr,typePattern));
   }
 
   if (doSorting) {
     Trk::TrackStateOnSurfaceComparisonFunction* CompFunc =
       new Trk::TrackStateOnSurfaceComparisonFunction
       ( (*inputTrk.trackParameters()->begin())->momentum() ) ;
-    if(!__gnu_cxx::is_sorted(newListOfStates->begin(),newListOfStates->end(), *CompFunc))
-      std::sort(newListOfStates->begin(),newListOfStates->end(), *CompFunc);
+    if(!__gnu_cxx::is_sorted(newListOfStates.begin(),newListOfStates.end(), *CompFunc))
+      std::sort(newListOfStates.begin(),newListOfStates.end(), *CompFunc);
     delete CompFunc;
   }
   TrackInfo info;

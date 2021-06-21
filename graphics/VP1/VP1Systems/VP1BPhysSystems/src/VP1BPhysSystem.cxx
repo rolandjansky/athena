@@ -63,11 +63,11 @@ bool Br::init(TTree* tree) {
 
 	vp1Filter->SetBranchAddress("evtNum", &evtNum);
 	vp1Filter->SetBranchAddress("runNum", &runNum);
-  
+
 	vp1Filter->SetBranchAddress("vtx_x",              &vtx_x);
 	vp1Filter->SetBranchAddress("vtx_y",              &vtx_y);
 	vp1Filter->SetBranchAddress("vtx_z",              &vtx_z);
-  
+
 	vp1Filter->SetBranchAddress("vtx_xx",             &vtx_xx);
 	vp1Filter->SetBranchAddress("vtx_yy",             &vtx_yy);
 	vp1Filter->SetBranchAddress("vtx_zz",             &vtx_zz);
@@ -91,7 +91,7 @@ bool Br::init(TTree* tree) {
 	vp1Filter->SetBranchAddress("track_refitted_pz",    &track_refitted_pz   );
 	vp1Filter->SetBranchAddress("track_color",          &track_color         );
 	vp1Filter->SetBranchAddress("track_refitted_color", &track_refitted_color);
-  
+
   //neutral tracks
 	vp1Filter->SetBranchAddress("neutral_refitted_px",  &neutral_refitted_px);
 	vp1Filter->SetBranchAddress("neutral_refitted_py",  &neutral_refitted_py);
@@ -99,7 +99,7 @@ bool Br::init(TTree* tree) {
 	vp1Filter->SetBranchAddress("neutral_length",       &neutral_length     );
 	vp1Filter->SetBranchAddress("neutral_decay",        &neutral_decay      );
 	vp1Filter->SetBranchAddress("neutral_color",        &neutral_color      );
-  
+
 	return true;
 
 }
@@ -132,7 +132,7 @@ VP1BPhysSystem::VP1BPhysSystem()
   m_signalSwitches{},
   m_neutralSwitches{},
   m_refittedSwitches{},
-  m_br{},    
+  m_br{},
 	m_c(new Clockwork)
 {
 	messageDebug("in BPhysSystem");
@@ -142,7 +142,7 @@ VP1BPhysSystem::VP1BPhysSystem()
 	m_sg = nullptr;
 	m_root = nullptr;
 
-	
+
 //   messageDebug("Creating propagationHelper...");
 //   propagationHelper = new TrackPropagationHelper(this);
 //   messageDebug("...done");
@@ -154,13 +154,13 @@ VP1BPhysSystem::VP1BPhysSystem()
 QWidget * VP1BPhysSystem::buildController()
 {
 	messageDebug("in buildController");
-  
+
 	QWidget * controller = new QWidget(nullptr);
 	m_c->ui.setupUi(controller);
 
   //connect slots
 	connect(m_c->ui.bLoad,SIGNAL(released()),this,SLOT(loadFile()));
-  
+
 	connect(m_c->ui.chDisplayVertices,SIGNAL(stateChanged(int)),this,SLOT(displayVerticesChanged(int)));
 	connect(m_c->ui.rbSphere,SIGNAL(toggled(bool)),this,SLOT(sphereToggled(bool)));
 	connect(m_c->ui.rbCross,SIGNAL(toggled(bool)),this,SLOT(crossToggled(bool)));
@@ -181,9 +181,9 @@ QWidget * VP1BPhysSystem::buildController()
 	m_showRefitted  = m_c->ui.chDisplayRefTracks->isChecked();
 	m_showNeutral = m_c->ui.chDisplayNeutral->isChecked();
 
-  
+
 	messageDebug("leaving buildController");
-  
+
 	return controller;
 }
 
@@ -193,7 +193,7 @@ void VP1BPhysSystem::actualBuild() {
 
 	//delete all objects from the scene
 	m_root->removeAllChildren();
-	
+
   //Sanity check:
 	if (!m_sg) {
 		message("Error: Got null storegate pointer");
@@ -210,7 +210,7 @@ void VP1BPhysSystem::actualBuild() {
 		message("Error: Could not retrieve EventInfo");
 		return;
 	}
-  
+
 	const EventID* eventID = eventInfo->event_ID(); // Get EventInfo
 	int evtNum = eventID->event_number();
 	int runNum = eventID->run_number();
@@ -231,12 +231,12 @@ void VP1BPhysSystem::actualBuild() {
 	m_signalSwitches.clear();
 	m_neutralSwitches.clear();
 	m_refittedSwitches.clear();
-  
+
   /// --------------------------------------------------------------------
-  
+
 	std::vector<const Rec::TrackParticle*>* selectedParticles = new std::vector<const Rec::TrackParticle*>();
 
-  
+
   //find event
   //int e = m_tree->GetEntryNumberWithIndex(runNum, evtNum);  //for some reason this doesn't work 100% reliable
 
@@ -248,13 +248,13 @@ void VP1BPhysSystem::actualBuild() {
 			break;
 		}
 	}
-  
+
 	if(e==-1) {
 		m_c->ui.lStatus->setText("No event to display");
 		message("Event is not in the VP1BPhys Display File. Skipping.");
 	}else{
 		m_c->ui.lStatus->setText("");
-  
+
 		m_br->GetEntry(e);
 		for(; m_br->runNum == runNum && m_br->evtNum == evtNum && e<m_tree->GetEntries(); m_br->GetEntry(++e)) {
 
@@ -281,7 +281,7 @@ void VP1BPhysSystem::actualBuild() {
 				message("Different lengths of some filter track collections");
 				continue;
 			}
-  
+
       //draw selected particles
 			for(uint i=0; i<m_br->track_pt->size(); ++i) {
         //TrackParticles
@@ -294,7 +294,7 @@ void VP1BPhysSystem::actualBuild() {
 										m_br->vtx_x, m_br->vtx_y, m_br->vtx_z,
 										m_br->track_color->at(i),
 										selectedParticles);
-        
+
         //refitted tracks
 				drawRefittedTrack(m_root,
 													m_br->vtx_x, m_br->vtx_y, m_br->vtx_z,
@@ -303,22 +303,22 @@ void VP1BPhysSystem::actualBuild() {
 													m_br->track_refitted_pz->at(i),
 													m_br->track_charge->at(i),
 													m_br->track_refitted_color->at(i));
-        
+
 			}
-  
-  
+
+
       //draw neutral tracks
 			std::vector<double>::iterator neutralPxItr = m_br->neutral_refitted_px->begin();
 			std::vector<double>::iterator neutralPyItr = m_br->neutral_refitted_py->begin();
 			std::vector<double>::iterator neutralPzItr = m_br->neutral_refitted_pz->begin();
 			std::vector<double>::iterator neutralLengthItr = m_br->neutral_length->begin();
 			std::vector<unsigned long>::iterator neutralColorItr = m_br->neutral_color->begin();
-  
+
 			for(; neutralPxItr!=m_br->neutral_refitted_px->end(); ++neutralPxItr, ++neutralPyItr, ++neutralPzItr, ++neutralLengthItr, ++neutralColorItr) {
 				drawNeutralTrack(m_root, m_br->vtx_x, m_br->vtx_y, m_br->vtx_z,
 												 *neutralPxItr, *neutralPyItr, *neutralPzItr, *neutralLengthItr, *neutralColorItr);
 			}
-  
+
       //draw vertices
 			drawVertex(m_root, m_br->vtx_x, m_br->vtx_y, m_br->vtx_z, 3/*sigma*/,
 								 m_br->vtx_xx,
@@ -329,10 +329,10 @@ void VP1BPhysSystem::actualBuild() {
 								 m_br->vtx_zz,
 								 m_br->vtx_color,
 								 m_vertexSwitches);
-  
+
 		}
 	}
-  
+
   //draw all remaining tracks
 	drawAllTrackParticles(m_sg,m_root,selectedParticles);
 
@@ -383,7 +383,7 @@ void VP1BPhysSystem::filterTrack(SoSeparator *root, const Rec::TrackParticleCont
 	messageDebug("leaving filterTrack");
 
 }
-//___________________________________________________________                                    
+//___________________________________________________________
 void VP1BPhysSystem::drawAllTrackParticles(StoreGateSvc* sg, SoSeparator *root, std::vector<const Rec::TrackParticle*>* selectedParticles) {
 	messageDebug("in drawAllTrackParticles");
 
@@ -424,7 +424,7 @@ void VP1BPhysSystem::drawAllTrackParticles(StoreGateSvc* sg, SoSeparator *root, 
 	messageDebug("leaving drawAllTrackParticles");
 
 }
-//___________________________________________________________                                    
+//___________________________________________________________
 void VP1BPhysSystem::drawTrackParticle(SoSwitch* trackSwitch, const Rec::TrackParticle* part, unsigned long color) {
 
 	messageDebug("in drawTrackParticle");
@@ -434,30 +434,30 @@ void VP1BPhysSystem::drawTrackParticle(SoSwitch* trackSwitch, const Rec::TrackPa
 
   //drawing line
 	drawPoints(trackSwitch,points,color, 0.0f, false);
-  
+
   //cleaning up
 	delete points;
-  
+
 	messageDebug("leaving drawTrackParticle");
 
 }
 //___________________________________________________________
 void VP1BPhysSystem::drawCutoffTrackParticle(SoSeparator *root, const Rec::TrackParticle* part, double x, double y, double z, unsigned long color) {
 	messageDebug("in drawCutoffTrackParticle");
-  
+
   //getting track space-points
 	std::vector<Amg::Vector3D >* points = getPoints(part);
 
   //getting cut-off point collection
 	std::vector<Amg::Vector3D >* cutoffPoints = findClosestApproach(points, x, y, z);
-  
+
   //drawing
 	SoSwitch* trackSwitch = new SoSwitch();
 	root->addChild(trackSwitch);
 	trackSwitch->whichChild = m_showSignal ? SO_SWITCH_ALL : SO_SWITCH_NONE;
 	drawPoints(trackSwitch,cutoffPoints,color,2,false);
 	m_signalSwitches.push_back(trackSwitch);
-  
+
   //cleaning up
 	delete points;
 	delete cutoffPoints;
@@ -500,9 +500,9 @@ void VP1BPhysSystem::drawRefittedTrack(SoSeparator* root, double x, double y, do
 
 	Amg::Vector3D mom(px,py,pz);
 	Amg::Vector3D pos(x,y,z);
-      
+
 	const Trk::Track* track = getRefittedTrack(pos,mom,charge);
-  
+
   //getting track space-points
 	std::vector<Amg::Vector3D >* points = getPoints(track);
 
@@ -512,7 +512,7 @@ void VP1BPhysSystem::drawRefittedTrack(SoSeparator* root, double x, double y, do
 	trackSwitch->whichChild = m_showRefitted ? SO_SWITCH_ALL : SO_SWITCH_NONE;
 	drawPoints(trackSwitch,points,color,2,false);
 	m_refittedSwitches.push_back(trackSwitch);
-  
+
   //cleaning up
 	delete points;
 	delete track;
@@ -528,7 +528,7 @@ void VP1BPhysSystem::drawPoints(SoSwitch* trackSwitch, std::vector<Amg::Vector3D
 	if(points == nullptr) return;
 
 	SoSeparator* sep = new SoSeparator();
-  
+
   //setting up draw style
 	SoDrawStyle* drawStyle = new SoDrawStyle();
 	drawStyle->lineWidth = width;
@@ -543,10 +543,10 @@ void VP1BPhysSystem::drawPoints(SoSwitch* trackSwitch, std::vector<Amg::Vector3D
 	getColor(color,r,g,b);
 	baseColor->rgb.setValue(r,g,b);
 	sep->addChild(baseColor);
-  
+
 	int iver(0);
 	SoVertexProperty *vertices = new SoVertexProperty();
-  
+
 	std::vector<Amg::Vector3D >::iterator it, itE = points->end();
 	for(it = points->begin(); it != itE; ++it) {
 		vertices->vertex.set1Value(iver++,(*it).x(),(*it).y(),(*it).z());
@@ -556,27 +556,27 @@ void VP1BPhysSystem::drawPoints(SoSwitch* trackSwitch, std::vector<Amg::Vector3D
 	SoLineSet * line = new SoLineSet();
 	line->numVertices = iver;
 	line->vertexProperty = vertices;
-  
+
   //Add to the tree:
 	sep->addChild(line);
 
   //add to the root
 	trackSwitch->addChild(sep);
-  
+
   //To avoid GUI freeze-ups:
 	updateGUI();
-  
+
 	messageDebug("leaving drawPoints");
-  
+
 }
-//___________________________________________________________                                    
+//___________________________________________________________
 
 std::vector<Amg::Vector3D >* VP1BPhysSystem::getPoints(const Trk::Track* track) {
 
 	messageDebug("in getPoints(Trk::Track)");
 
   //retrieve/create VP1Extrapolator
-  
+
 	messageDebug("Retrieving propagator...");
 	Trk::IExtrapolator* propagator = nullptr;
 	VP1ToolAccessHelper toolaccess(this);
@@ -615,13 +615,13 @@ std::vector<Amg::Vector3D >* VP1BPhysSystem::getPoints(const Trk::Track* track) 
 
   //cleaning up
 	delete propagationHelper;
-  
+
   //return
 	messageDebug("leaving getPoints(Trk::Track)");
 	return points;
 
 }
-//___________________________________________________________                                    
+//___________________________________________________________
 std::vector<Amg::Vector3D >* VP1BPhysSystem::getPoints(const Rec::TrackParticle* part) {
 	messageDebug("in getPoints(Rec::TrackParticle)");
 
@@ -632,7 +632,7 @@ std::vector<Amg::Vector3D >* VP1BPhysSystem::getPoints(const Rec::TrackParticle*
 
   //cleaning up
 	delete track;
-  
+
   //return
 	messageDebug("leaving getPoints(Rec::TrackParticle)");
 	return points;
@@ -649,7 +649,7 @@ std::vector<Amg::Vector3D >* VP1BPhysSystem::findClosestApproach(std::vector<Amg
 	double lastDist = 1e10;
 	Amg::Vector3D point = points->at(0);
 	std::vector<Amg::Vector3D >::iterator startFrom = (points->begin())+1;
-  
+
   //find the closest approach
 	std::vector<Amg::Vector3D >::iterator it, itE = points->end();
 	for(it = points->begin(); (it+1) != itE; ++it) {
@@ -692,7 +692,7 @@ void VP1BPhysSystem::drawVertex(SoSeparator *root, double x, double y, double z,
 	messageDebug("in drawVertex");
 
 	SoSeparator* sep = new SoSeparator();
-  
+
   //move sphere to position
 	SoTranslation * translation = new SoTranslation;
 	translation->translation.setValue ( x, y, z );
@@ -711,9 +711,9 @@ void VP1BPhysSystem::drawVertex(SoSeparator *root, double x, double y, double z,
 		vtxSwitch->whichChild = SO_SWITCH_NONE;
 	else
 		vtxSwitch->whichChild = m_vertexStyle;
-  
+
 	sep->addChild(vtxSwitch);
-  
+
   ///sphere
 	SoSphere * sphere = new SoSphere;
 	sphere->radius = 2*CLHEP::mm;
@@ -722,11 +722,11 @@ void VP1BPhysSystem::drawVertex(SoSeparator *root, double x, double y, double z,
   ///cross
 	SoLineSet* cross = createCross(3*CLHEP::mm);
 	vtxSwitch->addChild ( cross );
-  
+
   ///ellipsoid
 	SoSeparator* sepEllipsoid = new SoSeparator();
 	vtxSwitch->addChild ( sepEllipsoid );
-  
+
   //transorm sphere to elipsoid
 	double a=xx*CLHEP::mm;
 	double b=xy*CLHEP::mm;
@@ -734,7 +734,7 @@ void VP1BPhysSystem::drawVertex(SoSeparator *root, double x, double y, double z,
 	double d=yy*CLHEP::mm;
 	double e=yz*CLHEP::mm;
 	double f=zz*CLHEP::mm;
-  
+
 	double det = a*(d*f-e*e) + 2*b*c*e - d*c*c-f*b*b;
 	if (det>0) {
 		double sixthrootofdet = exp(log(det)/6.0);
@@ -758,12 +758,12 @@ void VP1BPhysSystem::drawVertex(SoSeparator *root, double x, double y, double z,
 	SoSphere * ellipsoid = new SoSphere;
 	ellipsoid->radius = 3;
 	sepEllipsoid->addChild ( sphere );
-  
 
-  
+
+
   //vertexSwitches
 	vertexSwitches.push_back(vtxSwitch);
-  
+
   //add to root
 	root->addChild(sep);
 
@@ -777,7 +777,7 @@ void VP1BPhysSystem::drawVertex(SoSeparator *root, double x, double y, double z,
 //___________________________________________________________
 /// slots *****************************************************************************
 void VP1BPhysSystem::loadFile() {
-  
+
 	messageDebug("in loadFile");
 
 	QString fileName = QFileDialog::getOpenFileName(nullptr, tr("Open File"),tr("."),tr("ROOT files (*.root)"));
@@ -785,8 +785,8 @@ void VP1BPhysSystem::loadFile() {
 
 	m_c->ui.leFileName->setText(fileName);
 	m_fileName = fileName;
-	
-	
+
+
   //close previous file
 	if(m_rootFile!=nullptr) {
 		m_rootFile->Close();
@@ -795,7 +795,7 @@ void VP1BPhysSystem::loadFile() {
 			delete m_br;
 			m_br = nullptr;
 		}
-    
+
 		m_rootFile = nullptr;
 		m_tree = nullptr;
 	}
@@ -821,14 +821,14 @@ void VP1BPhysSystem::loadFile() {
 
 	if(m_sg!=nullptr && m_root!=nullptr) actualBuild();
 	updateGUI();
-	
+
 	messageDebug("leaving loadFile");
 }
 //___________________________________________________________
 void VP1BPhysSystem::displayVerticesChanged ( int state ) {
 
 	SoSFInt32 which;
-  
+
 	if(state==Qt::Unchecked) {
 		m_showVertices = false;
 		which = SO_SWITCH_NONE;
@@ -836,7 +836,7 @@ void VP1BPhysSystem::displayVerticesChanged ( int state ) {
 		m_showVertices = true;
 		which = m_vertexStyle;
 	}
-  
+
   //apply
 	std::vector<SoSwitch*>::iterator it=m_vertexSwitches.begin();
 	for(; it!=m_vertexSwitches.end(); ++it) {
@@ -847,7 +847,7 @@ void VP1BPhysSystem::displayVerticesChanged ( int state ) {
 //___________________________________________________________
 void VP1BPhysSystem::sphereToggled ( bool checked ) {
 
-  
+
 	if(checked) {
 		messageDebug("show vertices as spheres");
 		m_vertexStyle=0;
@@ -875,7 +875,7 @@ void VP1BPhysSystem::crossToggled ( bool checked ) {
 			(*it)->whichChild = m_vertexStyle;
 		}
 	}
-  
+
 }
 //___________________________________________________________
 void VP1BPhysSystem::ellipsoidToggled ( bool checked ) {
@@ -891,7 +891,7 @@ void VP1BPhysSystem::ellipsoidToggled ( bool checked ) {
 			(*it)->whichChild = m_vertexStyle;
 		}
 	}
-  
+
 }
 //___________________________________________________________
 void VP1BPhysSystem::displayAllTracksChanged ( int state ) {
@@ -937,7 +937,7 @@ void VP1BPhysSystem::displayRefTracksChanged ( int state ) {
 		m_showRefitted = false;
 	else
 		m_showRefitted = true;
-  
+
   //loop over refitted signal tracks
 	std::vector<SoSwitch*>::iterator it=m_refittedSwitches.begin();
 	for(; it!=m_refittedSwitches.end(); ++it) {
@@ -975,7 +975,7 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 	std::vector< const Trk::TrackParameters* >  trackpars;
 	trackpars = trackparticle->trackParameters();
 
-	auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+	auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
 	messageDebug("...done");
 
 	if (!trackpars.empty()) {
@@ -990,7 +990,7 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 
 			messageDebug("new TrackStateOnSurface");
 
-			if (p) trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
+			if (p) trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
 		}
 		unsigned limit(needresorting?trackpars.size()-1:trackpars.size());
 		messageDebug("...done");
@@ -1004,10 +1004,10 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 				continue;
 /*      if (!common()->trackSanityHelper()->isSafe(p))
 			continue;*/
-			trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
+			trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
 		}
 		messageDebug("...done");
-    
+
 	}
 
 	messageDebug("Creating the track...");
@@ -1019,7 +1019,7 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
     const Trk::Track * trk = new Trk::Track(Trk::Track::unknown, std::move(trackStateOnSurfaces)/*track assumes ownership*/,
 																						0/*fitquality*/,Trk::pion);
 #endif
-  
+
   messageDebug("...done");
 
   messageDebug("leaving getTrack");
@@ -1029,14 +1029,14 @@ const Trk::Track* VP1BPhysSystem::getTrack(const Rec::TrackParticle* trackpartic
 //___________________________________________________________
 const Trk::Track* VP1BPhysSystem::getRefittedTrack(const Amg::Vector3D& position, const Amg::Vector3D& momentum, double charge) {
 
-  
+
 	const Amg::Vector3D& pos(std::move(position));
 	const Amg::Vector3D& mom(std::move(momentum));
 
 	// init the error matrix
 	AmgSymMatrix(5) covMtxP;
 	covMtxP.setIdentity();
-  
+
 	AmgSymMatrix(5) errMatr = covMtxP;
 	Trk::Perigee * measuredPerigee  =  new Trk::Perigee( pos, mom, charge, pos, std::move(errMatr) );
 
@@ -1046,8 +1046,8 @@ const Trk::Track* VP1BPhysSystem::getRefittedTrack(const Amg::Vector3D& position
   //TODO: check parameters safety
 
   //creates a vector of TracksStates on surface
-	auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-	trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
+	auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+	trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
 
   //create track
 #ifdef TRKTRACK_TRACKINFO_H
@@ -1057,9 +1057,9 @@ const Trk::Track* VP1BPhysSystem::getRefittedTrack(const Amg::Vector3D& position
     const Trk::Track * trk = new Trk::Track(Trk::Track::unknown, std::move(trackStateOnSurfaces)/*track assumes ownership*/,
 																						0/*fitquality*/,Trk::pion);
 #endif
-  
+
   return trk;
-  
+
 
 }
 
@@ -1067,7 +1067,7 @@ const Trk::Track* VP1BPhysSystem::getRefittedTrack(const Amg::Vector3D& position
 
 void VP1BPhysSystem::getColor(unsigned long icolor, double& r, double& g, double& b) {
 	messageDebug("in getColor");
-	
+
 	unsigned long red = icolor/65536;
 	icolor -= red*65536;
 
@@ -1086,7 +1086,7 @@ void VP1BPhysSystem::getColor(unsigned long icolor, double& r, double& g, double
 //___________________________________________________________
 SoLineSet* VP1BPhysSystem::createCross(double extent ) {
 	messageDebug("in createCross");
-  
+
 	SoVertexProperty *vertices = new SoVertexProperty();
 	vertices->vertex.set1Value ( 0,-extent, 0      , 0      );
 	vertices->vertex.set1Value ( 1, extent, 0      , 0      );

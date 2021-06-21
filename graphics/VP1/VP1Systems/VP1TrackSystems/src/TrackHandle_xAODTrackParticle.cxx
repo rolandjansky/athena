@@ -35,10 +35,10 @@ public:
       return nullptr;
     }
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,theclass->extrapolationParticleHypothesis());
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>  sink(trackStateOnSurfaces);
     const Trk::Track* trk =
       new Trk::Track(ti,
-                     std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>
-                       (trackStateOnSurfaces) /*track assumes ownership*/,
+                     std::move(*sink),
                      nullptr /*fitquality*/);
     if (VP1Msg::verbose())
       VP1Msg::messageVerbose("TrackHandle_xAODTrackParticle created track with "

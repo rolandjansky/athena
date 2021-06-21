@@ -7260,7 +7260,7 @@ namespace Trk {
     ParticleHypothesis matEffects
   ) const {
     // Convert internal trajectory into track
-    std::unique_ptr<DataVector<const TrackStateOnSurface>> trajectory = std::make_unique<DataVector<const TrackStateOnSurface>>();
+    auto  trajectory = DataVector<const TrackStateOnSurface>();
     
     if (m_fillderivmatrix) {
       makeTrackFillDerivativeMatrix(cache, oldtrajectory);
@@ -7288,7 +7288,7 @@ namespace Trk {
       }
       
       std::unique_ptr<const TrackStateOnSurface> trackState = makeTSOS(*hit);
-      trajectory->push_back(trackState.release());
+      trajectory.push_back(trackState.release());
     }
 
     std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(tmptrajectory.chi2(), tmptrajectory.nDOF());

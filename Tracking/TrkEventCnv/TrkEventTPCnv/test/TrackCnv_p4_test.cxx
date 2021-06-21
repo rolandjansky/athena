@@ -264,7 +264,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
                        patrec);
 
   Trk::Track trans1 (info,
-                     std::make_unique<DataVector<const Trk::TrackStateOnSurface>> (tsvec),
+                     DataVector<const Trk::TrackStateOnSurface> (tsvec),
                      new Trk::FitQuality (fq));
   testit (trans1);
 }

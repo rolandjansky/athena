@@ -77,10 +77,11 @@ public:
 
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,
                       theclass->extrapolationParticleHypothesis());
+    /*track assumes ownership*/
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(trackStateOnSurfaces);
     trkTrack = new Trk::Track(
       ti,
-      std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>>(
-        trackStateOnSurfaces) /*track assumes ownership*/,
+      std::move(*sink),
       nullptr /*fitquality*/);
 
     //     if (VP1Msg::verbose())

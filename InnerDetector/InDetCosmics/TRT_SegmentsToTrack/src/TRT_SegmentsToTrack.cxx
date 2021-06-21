@@ -262,7 +262,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           fittedTrack.reset();
         }
         else {
-          auto trajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+          auto trajectory = DataVector<const Trk::TrackStateOnSurface>();
           itSet = fittedTrack->trackStateOnSurfaces()->begin();
           for ( ; itSet!=itSetEnd; ++itSet) {
             if (!(**itSet).type(Trk::TrackStateOnSurface::Perigee)) {
@@ -275,35 +275,35 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
               else if ((**itSet).type(Trk::TrackStateOnSurface::Outlier)) typePattern.set(Trk::TrackStateOnSurface::Outlier);
               else if ((**itSet).type(Trk::TrackStateOnSurface::Scatterer)) typePattern.set(Trk::TrackStateOnSurface::Scatterer);
               else if ((**itSet).type(Trk::TrackStateOnSurface::BremPoint)) typePattern.set(Trk::TrackStateOnSurface::BremPoint);
-              trajectory->push_back(new Trk::TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern));
+              trajectory.push_back(new Trk::TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern));
 
             }
           }
           bool peradded=false;
-          itSet = trajectory->begin()+1;
-          itSetEnd = trajectory->end();
-	  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
-	  typePattern.set(Trk::TrackStateOnSurface::Perigee);
+          itSet = trajectory.begin()+1;
+          itSetEnd = trajectory.end();
+          std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
+          typePattern.set(Trk::TrackStateOnSurface::Perigee);
           const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,myper,nullptr,nullptr,typePattern);
 
-	  int index=1;
+          int index=1;
           for ( ; itSet!=itSetEnd; ++itSet) {
             double inprod1=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
             itSet--;
             double inprod2=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
             itSet++;
             if (inprod1>0 && inprod2<0) {
-              trajectory->insert(trajectory->begin()+index,pertsos);
+              trajectory.insert(trajectory.begin()+index,pertsos);
               peradded=true;
               break;
             }
-	    index++;
+            index++;
           }
           if (!peradded){
-            itSet = trajectory->begin();
+            itSet = trajectory.begin();
             double inprod=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
-            if (inprod>0) trajectory->insert(trajectory->begin(),pertsos);
-            else trajectory->push_back(pertsos);
+            if (inprod>0) trajectory.insert(trajectory.begin(),pertsos);
+            else trajectory.push_back(pertsos);
           }
           std::unique_ptr<Trk::Track> track =
             std::make_unique<Trk::Track>(fittedTrack->info(),

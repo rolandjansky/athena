@@ -196,8 +196,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
     ATH_MSG_WARNING("Track has no TSOS vector! Skipping track, returning 0.");
   }
   // create vector for new TSOS (the ones which are kept)
-  DataVector<const TrackStateOnSurface>* trackStates =
-    new DataVector<const TrackStateOnSurface>;
+  auto trackStates = DataVector<const TrackStateOnSurface>();
   const TrackStateOnSurface* firstValidIDTSOS(nullptr);
   const TrackStateOnSurface* lastValidIDTSOS(nullptr);
   const TrackStateOnSurface* firstValidMSTSOS(nullptr);
@@ -228,7 +227,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       if (itTSoS != oldTrackStates->begin()) {
         --itTSoS;
         if ((**itTSoS).type(TrackStateOnSurface::Scatterer)) {
-          trackStates->push_back((**itTSoS).clone());
+          trackStates.push_back((**itTSoS).clone());
         }
         ++itTSoS;
       }
@@ -237,7 +236,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
         dynamic_cast<const MaterialEffectsOnTrack*>(
           (**itTSoS).materialEffectsOnTrack());
       if (meot && meot->energyLoss()) {
-        trackStates->push_back(new TrackStateOnSurface(
+        trackStates.push_back(new TrackStateOnSurface(
           nullptr,
           (**itTSoS).trackParameters()->clone(),
           nullptr,
@@ -251,7 +250,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       ++itTSoS;
       if (itTSoS != oldTrackStates->end() &&
           (**itTSoS).type(TrackStateOnSurface::Scatterer)) {
-        trackStates->push_back((**itTSoS).clone());
+        trackStates.push_back((**itTSoS).clone());
       }
       --itTSoS;
     }
@@ -292,10 +291,10 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
     if (rot != nullptr || parameters != nullptr) {
       newTSOS = new Trk::TrackStateOnSurface(
         rot, parameters, nullptr, nullptr, typePattern);
-      trackStates->push_back(newTSOS);
+      trackStates.push_back(newTSOS);
     }
   }
-  track.setTrackStateOnSurfaces(trackStates);
+  track.setTrackStateOnSurfaces(std::move(trackStates));
   track.info().setTrackProperties(TrackInfo::SlimmedTrack);
   // The above resets also the caches.
 }

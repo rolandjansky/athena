@@ -112,15 +112,11 @@ public:
     }
 
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,theclass->extrapolationParticleHypothesis());
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(trackStateOnSurfaces);
     trkTrack = new Trk::Track(ti,
-                              std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
-                                (trackStateOnSurfaces),
+                              std::move(*sink),
                               nullptr /*fitquality*/);
 
-    //     if (VP1Msg::verbose())
-    //       VP1Msg::messageVerbose("TrackHandle_TruthTrack created track with "
-    // 			     +QString::number(trackStateOnSurfaces->size())+"
-    // parameters");
   }
 
 };

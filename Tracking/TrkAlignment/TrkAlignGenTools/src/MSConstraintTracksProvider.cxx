@@ -6,7 +6,7 @@
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkAlignGenTools/MSConstraintTracksProvider.h"
-#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"  
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -23,12 +23,12 @@
 
 
 namespace Trk {
-  
+
   //________________________________________________________________________
-  MSConstraintTracksProvider::MSConstraintTracksProvider(const std::string& type, 
+  MSConstraintTracksProvider::MSConstraintTracksProvider(const std::string& type,
                const std::string& name,
                const IInterface* parent)
-    
+
     : AthAlgTool(type,name,parent)
     , m_trackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
     , m_inputMuonCollection("MuidMuonCollection")
@@ -76,29 +76,29 @@ namespace Trk {
     declareInterface<ITrackCollectionProvider>(this);
 
     declareProperty("TrackFitter",              m_trackFitter                       );
-    declareProperty("InputMuonCollection",      m_inputMuonCollection               );   
+    declareProperty("InputMuonCollection",      m_inputMuonCollection               );
     declareProperty("InputTracksCollection",    m_inputTracksCollection             );
-    declareProperty("RunOutlierRemoval",        m_runOutlierRemoval      = true     ); 
+    declareProperty("RunOutlierRemoval",        m_runOutlierRemoval      = true     );
     declareProperty("MaxRetrievalErrors",       m_maxRetrievalErrors     = 10       );
     declareProperty("UseMSConstraintTrkOnly",   m_useMSConstraintTrkOnly = true     );
     declareProperty("DoTree",                   m_doTree                 = true     );
-    declareProperty("MinPt",                    m_minPt                  = 15.0     );        
+    declareProperty("MinPt",                    m_minPt                  = 15.0     );
     declareProperty("MinPIXHits",               m_minPIXHits             = 1        );
     declareProperty("MinSCTHits",               m_minSCTHits             = 6        );
     declareProperty("MinTRTHits",               m_minTRTHits             = 0        );
     declareProperty("MaxIDd0",                  m_maxIDd0                = 500.     );
-    declareProperty("MaxIDz0",                  m_maxIDz0                = 500.     ); 
+    declareProperty("MaxIDz0",                  m_maxIDz0                = 500.     );
     declareProperty("MinIDPt",                  m_minIDPt                = 10       );
     declareProperty("MDTHits",                  m_minMDTHits             = 15       );
     declareProperty("MinRPCPhiHits",            m_minRPCPhiHits          = 0        );
     declareProperty("MinTGCPhiHits",            m_minTGCPhiHits          = 0        );
     declareProperty("MaxMSd0",                  m_maxMSd0                = 500.     );
-    declareProperty("MaxMSz0",                  m_maxMSz0                = 500.     );     
+    declareProperty("MaxMSz0",                  m_maxMSz0                = 500.     );
     declareProperty("MinMSPt",                  m_minMSPt                = 0        );
     declareProperty("MaxNumberOfSectors",       m_maxNumberOfSectors     = 1        );
     declareProperty("MinNumberOfPhiLayers",     m_minNumberOfPhiLayers   = 2        );
     declareProperty("MinStationLayers",         m_minStationLayers       = 3        );
- 
+
   }
 
   //________________________________________________________________________
@@ -114,7 +114,7 @@ namespace Trk {
     ATH_CHECK(m_trackFitter.retrieve());
     ATH_MSG_DEBUG("Retrieved " << m_trackFitter);
     ATH_CHECK(m_muonHitSummaryTool.retrieve());
-    // 
+    //
     bookNtuple();
     return StatusCode::SUCCESS;
   }
@@ -122,18 +122,18 @@ namespace Trk {
 
 
 
-  void MSConstraintTracksProvider::setNtuple(TFile* ntuple) { 
-    m_ntuple = ntuple; 
+  void MSConstraintTracksProvider::setNtuple(TFile* ntuple) {
+    m_ntuple = ntuple;
     bookNtuple();
   }
-  
+
 
 
 
   bool MSConstraintTracksProvider::bookNtuple(){
 
-    ATH_MSG_DEBUG("in  MSConstraintTracksProvider::bookNtuple");     
-  
+    ATH_MSG_DEBUG("in  MSConstraintTracksProvider::bookNtuple");
+
     if (m_doTree && !m_tree && m_ntuple) {
         m_ntuple->cd();
         m_tree = new TTree("MSMomentumConstraint","MSMomentumConstraint");
@@ -159,7 +159,7 @@ namespace Trk {
         m_tree->Branch("IDPhi_constrained",   &m_IDPhi_constrained,   "IDPhi_constrained/D"   );
         m_tree->Branch("charge_constrained",    &m_charge_constrained,  "charge_constrained/D"  );
 
-   
+
         m_tree->Branch("eBLhits",           &m_eBLhits,             "eBLhits/I"   );
         m_tree->Branch("nBLhits",           &m_nBLhits,             "nBLhits/I"   );
 
@@ -184,17 +184,17 @@ namespace Trk {
     }
 
     ATH_MSG_DEBUG("done with bookNtuple");
-     
+
     return true;
-  
-}   
+
+}
 
 
 
   void MSConstraintTracksProvider::initializeNtuple(){
-  
+
     m_run      = -999;
-    m_event      = -999; 
+    m_event      = -999;
     m_pID      = -999.;
     m_pMS      = -999.;
     m_ptID     = -999.;
@@ -204,7 +204,7 @@ namespace Trk {
     m_combinedEta    = -999.;
     m_IDEta      = -999.;
     m_combinedPhi    = -999.;
-    m_IDPhi      = -999.;             
+    m_IDPhi      = -999.;
 
     m_pID_constrained    = -999.;
     m_ptID_constrained   = -999.;
@@ -257,7 +257,7 @@ namespace Trk {
     return StatusCode::SUCCESS;
   }
 
- 
+
   bool MSConstraintTracksProvider::combinedMuonSelection(const Analysis::Muon* it) {
 
        const Trk::Perigee* IDTrkMeasuredPerigee = dynamic_cast<const Trk::Perigee*>(& (it->inDetTrackParticle()->definingParameters()));
@@ -273,32 +273,32 @@ namespace Trk {
        }
 
        const double pt  = fabs(it->pt())/1000.;
-       const double eta = fabs(it->eta()); 
-       ATH_MSG_DEBUG(" the combined pt : "<< pt );  
+       const double eta = fabs(it->eta());
+       ATH_MSG_DEBUG(" the combined pt : "<< pt );
 
        if (  pt   < m_minPt     ||
-             eta  > 2.7         || 
-            (eta > 0.8 && eta < 1.2) ){ 
+             eta  > 2.7         ||
+            (eta > 0.8 && eta < 1.2) ){
              ATH_MSG_DEBUG(" this combinedMuon not pass basic pt and eta cuts --- pt: "<< pt << " eta: " << eta);
            return false;
        }
 
        const int nPixHits        = it->numberOfPixelHits();
        const int nSCTHits        = it->numberOfSCTHits();
-       const int nTRTHits        = it->numberOfTRTHits();  
+       const int nTRTHits        = it->numberOfTRTHits();
 
        //  Do you need fit quality cuts???
-       // const Trk::FitQuality* idfq = idtrk->fitQuality(); 
+       // const Trk::FitQuality* idfq = idtrk->fitQuality();
        // const double chisqID        = idfq->chiSquared();
        // const int    ndofID         = idfq->numberDoF();
-    
 
-       const double idQoverPatIP = IDTrkMeasuredPerigee->parameters()[Trk::qOverP] * 1000.; 
+
+       const double idQoverPatIP = IDTrkMeasuredPerigee->parameters()[Trk::qOverP] * 1000.;
        const double idz0atIP     = IDTrkMeasuredPerigee->parameters()[Trk::z0];
        const double idd0atIP     = IDTrkMeasuredPerigee->parameters()[Trk::d0];
        double ptIDatIP           = 0.;
        if ( idQoverPatIP != 0 ) ptIDatIP = fabs(1.0/idQoverPatIP)*sin(IDTrkMeasuredPerigee->parameters()[Trk::theta]);
-  
+
        ATH_MSG_DEBUG( " ID pt  : "<< ptIDatIP );
 
 
@@ -307,8 +307,8 @@ namespace Trk {
            nTRTHits < m_minTRTHits ||
            idd0atIP > m_maxIDd0    ||
            idz0atIP > m_maxIDz0    ||
-           ptIDatIP < m_minIDPt     ) {          
-         ATH_MSG_DEBUG("this combined muon not pass ID cuts --- nPixHits: " << nPixHits << " nSCTHits: " << nSCTHits << 
+           ptIDatIP < m_minIDPt     ) {
+         ATH_MSG_DEBUG("this combined muon not pass ID cuts --- nPixHits: " << nPixHits << " nSCTHits: " << nSCTHits <<
                          "nTRTHits: " << nTRTHits << " idd0atIP: " << idd0atIP << " idz0atIP: " << idz0atIP <<" ptIDatIP: " << ptIDatIP );
          return false;
        }
@@ -317,12 +317,12 @@ namespace Trk {
 
        const int nMDTHits        = it->numberOfMDTHits();
        const int nRPCPhiHits     = it->numberOfRPCPhiHits();
-       const int nTGCPhiHits     = it->numberOfTGCPhiHits();    
+       const int nTGCPhiHits     = it->numberOfTGCPhiHits();
 
-       const double msQoverPatIP = METrkMeasuredPerigee->parameters()[Trk::qOverP] * 1000.; 
+       const double msQoverPatIP = METrkMeasuredPerigee->parameters()[Trk::qOverP] * 1000.;
        const double msz0atIP     = METrkMeasuredPerigee->parameters()[Trk::z0];
        const double msd0atIP     = METrkMeasuredPerigee->parameters()[Trk::d0];
-  
+
        double ptMSatIP = 0.;
        if ( msQoverPatIP != 0 ) ptMSatIP = fabs(1.0/msQoverPatIP)*sin(METrkMeasuredPerigee->parameters()[Trk::theta]);
 
@@ -337,8 +337,8 @@ namespace Trk {
            msz0atIP    > m_maxMSz0       ||
            ptMSatIP    < m_minMSPt        ){
 
-           ATH_MSG_DEBUG("this combined muon not pass MS cuts --- nMDTHits: " << nMDTHits << " nRPCPhiHits: " << nRPCPhiHits << 
-                         " nTGCPhiHits: " << nTGCPhiHits << " msd0atIP: " << msd0atIP << 
+           ATH_MSG_DEBUG("this combined muon not pass MS cuts --- nMDTHits: " << nMDTHits << " nRPCPhiHits: " << nRPCPhiHits <<
+                         " nTGCPhiHits: " << nTGCPhiHits << " msd0atIP: " << msd0atIP <<
                          " msz0atIP: "    << msz0atIP    << " pMSatIP:"   << ptMSatIP);
            return false;
        }
@@ -346,13 +346,13 @@ namespace Trk {
 
        Muon::IMuonHitSummaryTool::CompactSummary summary;
        const Rec::TrackParticle* aTrackParticle = it->track();
-    
+
        const Trk::Track* aTrack = nullptr;
        if (aTrackParticle) aTrack = aTrackParticle->originalTrack();
 
        if (aTrack && aTrack != it->inDetTrkTrack()) {
-           summary = m_muonHitSummaryTool->summary(*aTrack);  
-       } 
+           summary = m_muonHitSummaryTool->summary(*aTrack);
+       }
        else {
          ATH_MSG_WARNING("aTrack possible null !");
          std::vector<const Muon::MuonSegment*> segments;
@@ -360,22 +360,22 @@ namespace Trk {
          segments.reserve(nSeg); // avoid death by push back
          for( unsigned int si=0; si<nSeg; ++si ){
               const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(it->muonSegment(si));
-              if( seg ) segments.push_back(seg);  
+              if( seg ) segments.push_back(seg);
          }
-         summary = m_muonHitSummaryTool->summary(segments);  
+         summary = m_muonHitSummaryTool->summary(segments);
        }
 
-       // it is possible to avoid the verbose summary construction in the above, 
+       // it is possible to avoid the verbose summary construction in the above,
        const int sectors       = summary.sectors.size();
        const int phiLayers     = summary.phiLayers.size();
-       const int stationLayers = summary.stationLayers.size(); 
+       const int stationLayers = summary.stationLayers.size();
 
 
        if ( sectors       > m_maxNumberOfSectors   ||
             phiLayers     < m_minNumberOfPhiLayers ||
             stationLayers < m_minStationLayers      ){
 
-            ATH_MSG_DEBUG("this combined muon not pass muonHitSummary cuts ---  sectors: "<< sectors << " phiLayers:  "<< phiLayers << " stationLayers: " << stationLayers);   
+            ATH_MSG_DEBUG("this combined muon not pass muonHitSummary cuts ---  sectors: "<< sectors << " phiLayers:  "<< phiLayers << " stationLayers: " << stationLayers);
 
             return false;
        }
@@ -407,9 +407,9 @@ namespace Trk {
 
     return true;
   }
- 
 
-  
+
+
 StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& originalTracks){
   initializeNtuple();
 
@@ -420,16 +420,16 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
     ATH_MSG_WARNING(" Can't retrieve " << m_inputMuonCollection << " from the StoreGate ");
     ATH_MSG_WARNING("One probability is that you are not running on ESD/DESD ");
 
-    // Can't do MS constraint refit, resort to retrieve tracks directly 
+    // Can't do MS constraint refit, resort to retrieve tracks directly
     if ( StatusCode::SUCCESS != evtStore()->retrieve(originalTracks, m_inputTracksCollection) ){
       originalTracks = nullptr;
       ATH_MSG_WARNING(" Can't retrieve " << m_inputTracksCollection << " from the StoreGate ");
     } else {
-      if (originalTracks){ 
+      if (originalTracks){
         ATH_MSG_DEBUG(" have tracks of this event: " << originalTracks->size());
       }
     }
-    
+
     return StatusCode::SUCCESS;
   } else {
 
@@ -442,18 +442,18 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
 
     for ( ; combinedTrackIt != combinedTrackItE; ++combinedTrackIt ) {
       ++m_nCBMuonsFromSG;
-      const Analysis::Muon* muon = *combinedTrackIt;  
+      const Analysis::Muon* muon = *combinedTrackIt;
       if ( muon->isCombinedMuon() && muon->hasMuonExtrapolatedTrackParticle() && muon->hasInDetTrackParticle() ){
         ++m_nCBMuonsHasEXandID;
         if(combinedMuonSelection(muon)) {
-          ATH_MSG_DEBUG("have good quality combined Muons of the event:  " << ++goodQualityCombinedMuon); 
+          ATH_MSG_DEBUG("have good quality combined Muons of the event:  " << ++goodQualityCombinedMuon);
           ++m_nCBMuonsPassSelection;
           const Trk::Perigee* METrkMeasuredPerigee = dynamic_cast<const Trk::Perigee*>(&(muon->muonExtrapolatedTrackParticle()->definingParameters()));
           if(!METrkMeasuredPerigee){
             ATH_MSG_DEBUG("NO muonExtrapolatedTrackParticle or no METrkMeasuredPerigee");
             continue;
           }
- 
+
           const Trk::Surface* surf =  &(METrkMeasuredPerigee->associatedSurface()) ;
           if( !surf ) {
             ATH_MSG_DEBUG("NO surface of the METrkMeasuredPerigee");
@@ -464,7 +464,7 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           if(!IDTrkMeasuredPerigee){
             ATH_MSG_DEBUG("NO inDetTrackParticle or no IDTrkMeasuredPerigee");
             continue;
-          } 
+          }
 
           Trk::DefinedParameter qOverPFromMS(METrkMeasuredPerigee->parameters()[Trk::qOverP], Trk::qOverP) ;
 
@@ -474,29 +474,29 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
           Amg::MatrixX covFromMS( 1,1 ) ;
           covFromMS( 1, 1 )   = (*METrkMeasuredPerigee->covariance())( Trk::qOverP, Trk::qOverP ) ;
 
-          Trk::PseudoMeasurementOnTrack *pmot = new Trk::PseudoMeasurementOnTrack( Trk::LocalParameters( parFromMSVec ), 
+          Trk::PseudoMeasurementOnTrack *pmot = new Trk::PseudoMeasurementOnTrack( Trk::LocalParameters( parFromMSVec ),
 										   covFromMS, *surf) ;
 
 
-         auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-          trackStateOnSurfaces->reserve(muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->size() + 1);
+          auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+          trackStateOnSurfaces.reserve(muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->size() + 1);
           DataVector<const Trk::TrackStateOnSurface>::const_iterator sb = muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->begin();
 
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
           type.set(Trk::TrackStateOnSurface::Measurement);
 
-          const Perigee* IDPerigeeParameters  = muon->inDetTrackParticle()->originalTrack()->perigeeParameters(); 
+          const Perigee* IDPerigeeParameters  = muon->inDetTrackParticle()->originalTrack()->perigeeParameters();
           const Perigee* IDPerigeeParametersClone(nullptr);
-          if (IDPerigeeParameters) IDPerigeeParametersClone  = IDPerigeeParameters->clone(); 
+          if (IDPerigeeParameters) IDPerigeeParametersClone  = IDPerigeeParameters->clone();
 
 
           // std::cout << "muon->inDetTrackParticle()->originalTrack()->perigeeParameters(): " << IDPerigeeParameters << std::endl;
           // std::cout << "muon->inDetTrackParticle()->originalTrack()->perigeeParameters()->clone(): "<< IDPerigeeParametersClone << std::endl;
 
           if(IDPerigeeParameters && IDPerigeeParametersClone ){
-            trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(pmot, IDPerigeeParametersClone, nullptr, nullptr, type));
+            trackStateOnSurfaces.push_back(new const Trk::TrackStateOnSurface(pmot, IDPerigeeParametersClone, nullptr, nullptr, type));
 
-            for ( ; sb != muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->end(); ++sb)  trackStateOnSurfaces->push_back((**sb).clone());
+            for ( ; sb != muon->inDetTrackParticle()->originalTrack()->trackStateOnSurfaces()->end(); ++sb)  trackStateOnSurfaces.push_back((**sb).clone());
 
             Trk::Track* tmpTrack = new Trk::Track(
               muon->inDetTrackParticle()->originalTrack()->info(),
@@ -506,10 +506,10 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
             Trk::Track* MSConstraintFittedTrack = m_trackFitter->fit(*tmpTrack, m_runOutlierRemoval, Trk::muon);
 
             if(!MSConstraintFittedTrack){
-              ++m_nCBMuonsFailedRefit;    
+              ++m_nCBMuonsFailedRefit;
               ATH_MSG_WARNING("MSConstraintFittedTrack refit failed!");
 
-              if(!m_useMSConstraintTrkOnly){  
+              if(!m_useMSConstraintTrkOnly){
                 ATH_MSG_WARNING("Try to push the originalIDTrack into the trackCollection");
                 Trk::Track* IDOriginalTrackClone = new Trk::Track(*(muon->inDetTrackParticle()->originalTrack()));
                 if(IDOriginalTrackClone){
@@ -521,11 +521,11 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
                            sin(aMeasPerClone->parameters()[Trk::theta])
                       << " d0: " << aMeasPerClone->parameters()[Trk::d0]);
                   }
-                }     
+                }
                 if(!IDOriginalTrackClone){
                   ATH_MSG_WARNING("Exception when IDOriginalTrackClone!");
-                } else 
-                  trackCollection->push_back(IDOriginalTrackClone);  
+                } else
+                  trackCollection->push_back(IDOriginalTrackClone);
               }
             } else {
               ++m_nCBMuonsSucRefit;
@@ -539,13 +539,13 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
               m_ptID_constrained   = fabs( m_pID_constrained*sin(MSConstraintFittedTrackMPClone->parameters()[Trk::theta]) );
               m_charge_constrained = MSConstraintFittedTrackMPClone->parameters()[Trk::qOverP]/fabs(MSConstraintFittedTrackMPClone->parameters()[Trk::qOverP]);
 
-              delete MSConstraintFittedTrackClone;          
-              // only fill the tracks used in the alignment 
+              delete MSConstraintFittedTrackClone;
+              // only fill the tracks used in the alignment
               m_ntuple->cd();
               m_tree->Fill();
 
               trackCollection->push_back(MSConstraintFittedTrack);
-            } 
+            }
 
           // clean up
           delete tmpTrack;
@@ -556,12 +556,12 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
 
         }
       }
-    }// end loop over tracks 
+    }// end loop over tracks
 
     if (StatusCode::SUCCESS != evtStore()->record(trackCollection, "MSMomentumConstraintTracks")){
     ATH_MSG_WARNING("problem with recording MSMomentumConstraintTracks to StoreGate!");
     return StatusCode::SUCCESS;
-    }    
+    }
 
     ATH_MSG_DEBUG(" The final trackCollection size : " << trackCollection->size() );
     if ( not trackCollection->empty() ){
@@ -572,11 +572,11 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
   return StatusCode::SUCCESS;
 }
 
- 
+
   void MSConstraintTracksProvider::printSummary(){
 
     if(m_logStream) {
-  
+
       *m_logStream<<"*************************************************************"<<std::endl;
       *m_logStream<<"******        MSConstraintTracksProvider Summary       ******"<<std::endl;
       *m_logStream<<"*"<<std::endl;

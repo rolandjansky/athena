@@ -417,7 +417,7 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
   // Get the fit output object
   const auto& fitOutput = fitResult.value();
   if (fitOutput.fittedParameters) {
-    auto finalTrajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto finalTrajectory = DataVector<const Trk::TrackStateOnSurface>();
     // initialise the number of dead Pixel and Acts strip
     int numberOfDeadPixel = 0;
     int numberOfDeadSCT = 0;
@@ -485,7 +485,7 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
           const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(measState, parm, quality, nullptr, typePattern);
           // If a state was succesfully created add it to the trajectory 
           if (perState) {
-            finalTrajectory->insert(finalTrajectory->begin(), perState);
+            finalTrajectory.insert(finalTrajectory.begin(), perState);
           }
         }
       }
@@ -498,7 +498,7 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     const Trk::TrackStateOnSurface *perState = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
-    if (perState) finalTrajectory->insert(finalTrajectory->begin(), perState);
+    if (perState) finalTrajectory.insert(finalTrajectory.begin(), perState);
 
     // Create the track using the states
     Trk::TrackInfo newInfo(Trk::TrackInfo::TrackFitter::KalmanFitter, Trk::noHypothesis);

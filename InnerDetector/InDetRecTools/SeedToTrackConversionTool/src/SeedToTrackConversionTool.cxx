@@ -113,8 +113,8 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     const Trk::TrackStateOnSurface* pertsos = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
-    auto traj = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-    traj->push_back(pertsos);
+    auto traj = DataVector<const Trk::TrackStateOnSurface>();
+    traj.push_back(pertsos);
     for (const Trk::PrepRawData* prd: prdsInSp) {
       const Trk::Surface& surf = prd->detectorElement()->surface(prd->identify());
       const Trk::TrackParameters* thispar = m_extrapolator->extrapolate(*prevpar, surf, Trk::alongMomentum, false, Trk::nonInteracting);
@@ -127,7 +127,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
         const Trk::RIO_OnTrack* rot = m_rotcreator->correct(*prd, *thispar);
         if (rot) {
           const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(rot, thispar, nullptr, nullptr, typePattern);
-          traj->push_back(tsos);
+          traj.push_back(tsos);
           prevpar = thispar;
         }
       }
