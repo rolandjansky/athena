@@ -11,10 +11,13 @@ log = logging.getLogger(__name__)
 def bmumuxAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from DecisionHandling.DecisionHandlingConf import  ViewCreatorCentredOnIParticleROITool
+    
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDConfig = getInDetTrigConfig( "bphysics" )
 
     viewCreatorROITool = ViewCreatorCentredOnIParticleROITool(
-        RoIEtaWidth = 0.75,
-        RoIPhiWidth = 0.75,
+        RoIEtaWidth = IDConfig.etaHalfWidth,
+        RoIPhiWidth = IDConfig.phiHalfWidth,
         RoisWriteHandleKey = recordable('HLT_Roi_Bmumux'))
 
     viewMaker = EventViewCreatorAlgorithm(
