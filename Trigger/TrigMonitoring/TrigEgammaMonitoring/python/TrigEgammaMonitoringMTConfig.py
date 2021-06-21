@@ -48,7 +48,7 @@ class TrigEgammaMonAlgBuilder:
 
   
   # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath']
+  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath','emulation']
   emulation = False
   derivation = False
   detailedHistograms = False
@@ -347,6 +347,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.TagTriggerList=self.tagItems
       self.zeeMonAlg.TriggerList=self.tpList
       self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
+      self.zeeMonAlg.DoEmulation = False
 
 
     if self.activate_jpsiee:
@@ -372,6 +373,7 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.TagTriggerList=self.jpsitagItems
       self.jpsieeMonAlg.TriggerList=self.jpsiList
       self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
+      self.jpsieeMonAlg.DoEmulation = False
 
 
     if self.activate_electron:
@@ -390,6 +392,7 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
       self.elMonAlg.DetailedHistograms=self.detailedHistograms
+      self.elMonAlg.DoEmulation = False
 
     if self.activate_photon:
 
@@ -403,6 +406,7 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.PhotonIsEMSelector =[TightPhotonSelector,MediumPhotonSelector,LoosePhotonSelector]
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
+      self.phMonAlg.DoEmulation = False
 
 
 
@@ -488,24 +492,24 @@ class TrigEgammaMonAlgBuilder:
 
         self.bookEfficiencies( monAlg, trigger, "L1Calo" )
         self.bookEfficiencies( monAlg, trigger, "FastCalo" )
+        self.bookEfficiencies( monAlg, trigger, "FastPhoton" if info.isPhoton() else "FastElectron")             
         self.bookEfficiencies( monAlg, trigger, "PrecisionCalo" )
-        
-        if info.isPhoton():         
-          self.bookEfficiencies( monAlg, trigger, "FastPhoton")         
-          self.bookEfficiencies( monAlg, trigger, "HLT")
+        self.bookEfficiencies( monAlg, trigger, "HLT")
+        if self.detailedHistograms:
+          for pid in self.isemnames + self.lhnames:
+            self.bookEfficiencies( monAlg, trigger, "HLT", pid )
+            self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
 
-          if self.detailedHistograms:
-            for pid in self.isemnames + self.lhnames:
-              self.bookEfficiencies( monAlg, trigger, "HLT", pid )
-              self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )        
-        else:  
-          self.bookEfficiencies( monAlg, trigger, "FastElectron")
-          self.bookEfficiencies( monAlg, trigger, "HLT")
-          
-          if self.detailedHistograms:
-            for pid in self.isemnames + self.lhnames:
-              self.bookEfficiencies( monAlg, trigger, "HLT", pid )
-              self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
+        #
+        # Emulation
+        #
+        if self.emulation:
+          self.bookEfficiencies( monAlg, trigger, "L1Calo" , doEmulation=True)
+          self.bookEfficiencies( monAlg, trigger, "FastCalo" , doEmulation=True)
+          self.bookEfficiencies( monAlg, trigger, "PrecisionCalo" , doEmulation=True)
+          self.bookEfficiencies( monAlg, trigger, "FastPhoton" if info.isPhoton() else "FastElectron", doEmulation=True)         
+          self.bookEfficiencies( monAlg, trigger, "HLT" , doEmulation=True)
+
 
 
 
@@ -603,11 +607,6 @@ class TrigEgammaMonAlgBuilder:
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
                               self.basePath+'/'+trigger+'/Distributions/' + (level if online else "Offline") )
     
-    # from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    # monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
-                              # self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
-
-    
 
     self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -1, 1))
     self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ethad1 ; Count", 20, -1, 1))
@@ -637,9 +636,7 @@ class TrigEgammaMonAlgBuilder:
     
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    # monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
-                              # self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
-    
+
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
                               self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
@@ -669,13 +666,15 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book efficiencies
   #
-  def bookEfficiencies(self, monAlg, trigger, level, subgroup=None ):
+  def bookEfficiencies(self, monAlg, trigger, level, subgroup=None, doEmulation=False ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TProfile
+
+    dirname = 'Emulation' if doEmulation else 'Efficiency'
     if subgroup:
-      monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/Efficiency/'+level+'/'+subgroup )
+      monGroup = self.addGroup( monAlg, trigger+'_'+dirname+'_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/'+dirname+'/'+level+'/'+subgroup )
     else:
-      monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
+      monGroup = self.addGroup( monAlg, trigger+'_'+dirname+'_'+level, self.basePath+'/'+trigger+'/'+dirname+'/'+level )
 
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))

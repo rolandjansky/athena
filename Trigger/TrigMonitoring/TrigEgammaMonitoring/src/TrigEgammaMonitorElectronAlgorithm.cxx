@@ -18,10 +18,9 @@ TrigEgammaMonitorElectronAlgorithm::~TrigEgammaMonitorElectronAlgorithm()
 
 StatusCode TrigEgammaMonitorElectronAlgorithm::initialize() 
 {
-  
   ATH_CHECK(TrigEgammaMonitorAnalysisAlgorithm::initialize());
+
   ATH_CHECK(m_offElectronKey.initialize());
- 
 
   for(const auto& trigName:m_trigInputList)
   {
@@ -70,6 +69,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         for (const auto& itr : pairObjs) {
           pairObjsRaw.emplace_back(itr.first.get(), itr.second);
         }
+
         fillDistributions( pairObjsRaw, info );
         fillEfficiencies( pairObjsRaw, info );
         fillResolutions( pairObjsRaw, info );

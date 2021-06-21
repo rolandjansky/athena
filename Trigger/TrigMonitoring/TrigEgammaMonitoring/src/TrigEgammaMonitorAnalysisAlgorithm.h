@@ -17,7 +17,7 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     virtual ~TrigEgammaMonitorAnalysisAlgorithm() override;
 
     virtual StatusCode initialize() override;
-
+    
   protected:
 
     void fillLabel( const ToolHandle<GenericMonitoringTool>& groupHandle, const std::string &histname, const std::string &label ) const;
@@ -31,7 +31,7 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     // Efficiency monitoring
     void fillEfficiency( const std::string &subgroup, const std::string &level, const std::string &pidword, const TrigInfo info, 
                          std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs,
-                         std::vector< asg::AcceptData > acceptObjs ) const;
+                         std::vector< asg::AcceptData > acceptObjs, std::string dirname ) const;
 
 
     // Disribution monitoring

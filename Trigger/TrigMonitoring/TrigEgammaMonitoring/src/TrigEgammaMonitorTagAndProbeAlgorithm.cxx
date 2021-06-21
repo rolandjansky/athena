@@ -43,7 +43,9 @@ TrigEgammaMonitorTagAndProbeAlgorithm::~TrigEgammaMonitorTagAndProbeAlgorithm()
 
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
     
-    ATH_CHECK(TrigEgammaMonitorBaseAlgorithm::initialize() );
+    ATH_MSG_INFO("TrigEgammaMonitorTagAndProbeAlgorithm::initialize()...");
+    ATH_CHECK(TrigEgammaMonitorBaseAlgorithm::initialize());
+
     ATH_CHECK(m_offElectronKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
    

@@ -12,6 +12,7 @@ TrigEgammaMonitorBaseAlgorithm::TrigEgammaMonitorBaseAlgorithm( const std::strin
     m_matchTool("Trig::TrigEgammaMatchingToolMT/TrigEgammaMatchingToolMT")
 {
   declareProperty( "MatchTool" , m_matchTool );
+  declareProperty( "EmulationTool" , m_emulatorTool );
 }
 
 
@@ -22,7 +23,8 @@ TrigEgammaMonitorBaseAlgorithm::~TrigEgammaMonitorBaseAlgorithm() {}
 
 StatusCode TrigEgammaMonitorBaseAlgorithm::initialize() 
 {
-    
+
+  ATH_MSG_INFO("TrigEgammaMonitorBaseAlgorithm::initialize()...");
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_trigdec.retrieve());
   ATH_CHECK(m_photonIsEMTool.retrieve());

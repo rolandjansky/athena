@@ -7,7 +7,7 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingToolMT.h"
-#include "TrigEgammaEmulationToolMT/TrigEgammaEmulationToolMT.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
 
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
@@ -87,7 +87,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /* Trigger e/g matching tool */
     ToolHandle<TrigEgammaMatchingToolMT> m_matchTool;
     /* Trigger e/g emulation tool */
-    ToolHandleArray<Trig::TrigEgammaEmulationToolMT> m_emulatorTool{this,"EmulatorTool",{}};
+    ToolHandle<Trig::TrigEgammaEmulationToolMT> m_emulatorTool;
     /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
@@ -95,7 +95,9 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Offline isEM Photon Selectors */ 
     ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMTool{this,"PhotonIsEMSelector",{}};
     
-
+    
+    /*! Do emulation */
+    Gaudi::Property<bool> m_doEmulation{this, "DoEmulation", false };
     /*! TP Trigger Analysis */
     Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
