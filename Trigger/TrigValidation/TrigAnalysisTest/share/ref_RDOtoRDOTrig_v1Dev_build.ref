@@ -1556,7 +1556,7 @@ HLT_e20_lhvloose_L1EM15VH:
     2: 4
     3: 4
     4: 4
-HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
+HLT_e24_lhmedium_2g12_loose_02dRAB_L1EM20VH_3EM10VH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -1565,7 +1565,7 @@ HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
     0: 7
     1: 3
     2: 3
-HLT_e24_lhmedium_g25_medium_L12EM20VH:
+HLT_e24_lhmedium_g25_medium_02dRAB_L12EM20VH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -1715,7 +1715,7 @@ HLT_e24_lhvloose_gsf_L1EM20VH:
     4: 4
 HLT_e250_etcut_L1EM22VHI:
   eventCount: 0
-HLT_e25_mergedtight_g35_medium_Heg_L12EM20VH:
+HLT_e25_mergedtight_g35_medium_Heg_02dRAB_L12EM20VH:
   eventCount: 0
   stepCounts:
     0: 1
