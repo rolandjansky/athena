@@ -144,11 +144,15 @@ def ByteStreamWriteCfg(flags, type_names=None):
     )
     result.addService(bytestream_conversion)
 
+    # ByteStreamCnvSvc::connectOutput() requires xAOD::EventInfo
+    event_info_input = ('xAOD::EventInfo','StoreGateSvc+EventInfo')
+
     output_stream = comp_factory.AthenaOutputStream(
         name="BSOutputStreamAlg",
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamEventStorageOutputSvc",
         ItemList=type_names if type_names else list(),
+        ExtraInputs=[event_info_input]
     )
     result.addEventAlgo(output_stream, primary=True)
 
@@ -199,12 +203,19 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
     # scheduling of transient ByteStream clients
     extra_outputs = [("TransientBSOutType","StoreGateSvc+TransientBSOutKey")]
 
+    # ByteStreamCnvSvc::connectOutput() requires xAOD::EventInfo
+    event_info_input = ('xAOD::EventInfo','StoreGateSvc+EventInfo')
+    if not extra_inputs:
+        extra_inputs = [event_info_input]
+    elif event_info_input not in extra_inputs:
+        extra_inputs.append(event_info_input)
+
     output_stream = comp_factory.AthenaOutputStream(
         name="TransBSStreamAlg",
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamRDP_OutputSvc",
         ItemList=item_list if item_list else list(),
-        ExtraInputs=extra_inputs if extra_inputs else list(),
+        ExtraInputs=extra_inputs,
         ExtraOutputs=extra_outputs
     )
     result.addEventAlgo(output_stream, primary=True)
