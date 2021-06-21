@@ -10,7 +10,6 @@ log = logging.getLogger("InDetPrecisionTracking")
 
 
 
-# FIXME: eventually the rois should go into the slice setings
 def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
     
     log.info( "makeInDetPRecisionTracking:: {} {} doTR: {} ".format(  config.input_name, config.name, config.doTRT ) )
@@ -45,7 +44,12 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
         
     summaryTool     = trackSummaryTool_builder( signature, config, prefix )
 
-    ambiSolvingAlgs = ambiguitySolver_builder( signature, config, summaryTool, outputTrackName=ambiTrackCollection, prefix=prefix )
+    if config.newConfig:
+        log.info( "ID Trigger: NEW precision tracking configuration {} {}".format(config.input_name, signature) )
+        ambiSolvingAlgs = ambiguitySolver_builder( signature, config, summaryTool, outputTrackName=ambiTrackCollection, prefix=prefix+"Trk" )
+    else:
+        log.info( "ID Trigger: OLD precision tracking configuration {} {}".format(config.input_name, signature) )
+        ambiSolvingAlgs = ambiguitySolverOld_builder( signature, config, summaryTool, outputTrackName=ambiTrackCollection, prefix=prefix )
 
     #Loading the alg to the sequence
     ptAlgs.extend( ambiSolvingAlgs )
@@ -97,7 +101,7 @@ def trackSummaryTool_builder( signature, config, prefix="InDetTrigMT" ) :
         from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTrackSummaryHelperToolSharedHits
     
-        trigTrackSummaryTool = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%( prefix, signature ),
+        trigTrackSummaryTool = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT_%s"%( prefix, signature ),
                                                      InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                                                      doSharedHits           = True,
                                                      doHolesInDet           = True )
@@ -117,7 +121,102 @@ def trackSummaryTool_builder( signature, config, prefix="InDetTrigMT" ) :
 
 
 
+# top level alg
+
 def ambiguitySolver_builder( signature, config, summaryTool, outputTrackName=None, prefix="InDetTrigMT" ) :
+
+    log.info( "Precision tracking using new configuration: {} {} {} {}".format(  signature, config.input_name, config.name, prefix ) )
+
+    scoreMap        = 'ScoreMap'+config.input_name
+    ambiguityScore  = ambiguityScore_builder( signature, config, scoreMap, prefix ) 
+    ambiguitySolver = ambiguitySolverInternal_builder( signature, config, summaryTool, scoreMap, outputTrackName, prefix )
+
+    return [ ambiguityScore, ambiguitySolver ]
+
+
+
+# next level alg
+
+def ambiguityScore_builder( signature, config, scoreMap, prefix=None ):
+    
+    from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+    ambiguityScore = Trk__TrkAmbiguityScore( name                    = '%sAmbiguityScore_%s'%(prefix, config.input_name),
+                                             TrackInput              = [ config.trkTracks_FTF() ],
+                                             TrackOutput             = scoreMap,
+                                             AmbiguityScoreProcessor = None ) 
+         
+    log.info(ambiguityScore)
+    
+    return ambiguityScore 
+
+
+
+# next level alg
+
+def ambiguitySolverInternal_builder( signature, config, summaryTool, scoreMap, outputTrackName=None, prefix=None ):
+  
+    ambiguityProcessorTool = ambiguityProcessorTool_builder( signature, config, summaryTool, prefix )
+    
+    from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
+    ambiguitySolver = Trk__TrkAmbiguitySolver( name               = '%sAmbiguitySolver_%s'%(prefix,config.input_name),
+                                               TrackInput         = scoreMap,
+                                               TrackOutput        = outputTrackName, 
+                                               AmbiguityProcessor = ambiguityProcessorTool )
+    
+    
+    return ambiguitySolver
+
+
+
+
+def ambiguityProcessorTool_builder( signature, config, summaryTool ,prefix=None ) : 
+
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    trackMapTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
+
+    scoringTool = scoringTool_builder( signature, config, summaryTool, prefix )
+    
+    from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool 
+    ambiguityProcessorTool = Trk__SimpleAmbiguityProcessorTool( name             = '%sAmbiguityProcessor_%s'%(prefix,config.input_name),
+                                                                Fitter           = InDetTrigTrackFitter,
+                                                                ScoringTool      = scoringTool,
+                                                                AssociationTool  = trackMapTool,
+                                                                TrackSummaryTool = summaryTool,
+                                                                SelectionTool    = InDetTrigAmbiTrackSelectionTool )
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += ambiguityProcessorTool
+    
+    return ambiguityProcessorTool
+
+
+
+
+def scoringTool_builder( signature, config, summaryTool, prefix=None ):
+
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+
+  from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+  scoringTool =  InDet__InDetAmbiScoringTool( name = '%sScoringTool_%s'%( prefix, config.input_name),
+                                              Extrapolator = InDetTrigExtrapolator,
+                                              minPt        = config.pTmin, 
+                                              doEmCaloSeed = False,
+                                              SummaryTool  = summaryTool ) 
+                                              
+  log.info( scoringTool )
+
+  from AthenaCommon.AppMgr import ToolSvc
+  ToolSvc += scoringTool
+
+  return scoringTool
+
+
+
+
+def ambiguitySolverOld_builder( signature, config, summaryTool, outputTrackName=None, prefix="InDetTrigMT" ) :
     
     #-----------------------------------------------------------------------------
     #                        Ambiguity solving stage
@@ -125,13 +224,13 @@ def ambiguitySolver_builder( signature, config, summaryTool, outputTrackName=Non
     from .InDetTrigCommon import ambiguitySolverAlg_builder
     
     # Map of tracks and their scores
-    scoreAlg = ambiguityScoreAlg_builder( name                  = prefix+'TrkAmbiguityScore'+config.input_name,
+    scoreAlg = ambiguityScoreAlg_builder( name                  = prefix+'TrkAmbiguityScore_'+config.input_name,
                                           config                = config,
                                           inputTrackCollection  = config.trkTracks_FTF(),
                                           outputTrackScoreMap   = 'ScoreMap'+config.input_name ) 
     
   
-    solverAlg = ambiguitySolverAlg_builder( name                  = prefix+'TrkAmbiguitySolver'+config.input_name,
+    solverAlg = ambiguitySolverAlg_builder( name                  = prefix+'TrkAmbiguitySolver_'+config.input_name,
                                             config                = config,
                                             summaryTool           = summaryTool,
                                             inputTrackScoreMap    = 'ScoreMap'+config.input_name,
@@ -156,7 +255,7 @@ def trtExtension_builder( signature, config, rois, summaryTool, inputTracks, out
 
 def trtRIOMaker_builder( signature, config, rois, prefix="InDetTrigMT" ): 
     
-    log.info( "trtRIOMaker_builder: {} {}".format(  signature, prefix ) )
+    log.info( "trtRIOMaker_builder: {} {}".format( signature, prefix ) )
 
     algs = []
 

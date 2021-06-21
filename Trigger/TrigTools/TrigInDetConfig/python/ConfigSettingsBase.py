@@ -16,6 +16,7 @@ class _ConfigSettingsBase() :
       self._name                = None
       self._suffix              = None
       self._pTmin               = 1.*GeV
+      self._newConfig           = False
       self._TripletDoPPS        = True
       self._Triplet_D0Max       = 4.0
       self._Triplet_D0_PPS_Max  = 1.7
@@ -56,6 +57,15 @@ class _ConfigSettingsBase() :
       self._vertex_jet          = None
       self._adaptiveVertex_jet  = False
       self._dodEdxTrk           = False
+
+      if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
+         self.override()
+
+   # assign to this override method to add additioal global functionality 
+   # to the base class, such as to globally override any of the 
+   # variables above
+   # def override(self):   
+   #      pass
 
    def tracks_FTF(self):
       if not self._suffix:
@@ -103,6 +113,10 @@ class _ConfigSettingsBase() :
    @property
    def pTmin(self):
       return self._pTmin
+
+   @property
+   def newConfig(self):
+      return self._newConfig
 
    @property
    def TripletDoPPS(self):

@@ -30,7 +30,7 @@ def ambiguityScoreAlg_builder(name, config, inputTrackCollection, outputTrackSco
 def ambiguitySolverAlg_builder(name, config, summaryTool, inputTrackScoreMap, outputTrackCollection):
 
       #Set/Get subtools
-      ambiguityProcessor = ambiguityProcessorTool_builder( name   = add_prefix( 'AmbiguityProcessor', config.input_name),
+      ambiguityProcessor = ambiguityProcessorToolOld_builder( name   = add_prefix( 'AmbiguityProcessor', config.input_name),
                                                            config = config, 
                                                            trackSummaryTool = summaryTool )
       
@@ -48,7 +48,7 @@ def ambiguitySolverAlg_builder(name, config, summaryTool, inputTrackScoreMap, ou
 #                    Track Ambiguity Solver algs/tools
 
 @makePublicTool
-def ambiguityProcessorTool_builder( name, config, trackSummaryTool ):
+def ambiguityProcessorToolOld_builder( name, config, trackSummaryTool ):
 
    #Configuration of parameters based on the signature and Flags (following Run2 settings)
    kwargs = {}
@@ -326,7 +326,7 @@ def trackSelectionTool_getter(config):
 #
 # this does not appear to actually be needed
 @makePublicTool
-def ambiguityScoreProcessorTool_builder( name, config, trackSummaryTool ):
+def ambiguityScoreProcessorToolOld_builder( name, config, trackSummaryTool ):
    #   Tool contains backend functions for calculating score of a provided track
    #   Score of each track is based on track parameters such as hits in the ID, higher score -> more likely to survive ambiguity resolving between tracks
 
