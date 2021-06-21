@@ -83,14 +83,6 @@ namespace xAOD {
         TClass::GetClass( name, LOAD, SILENT );
       }
 
-#ifdef XAOD_STANDALONE
-      // Ensure the JetContainer dictionary is loaded.  This fixes an
-      // issue in the common CP algorithms where this dictionary is
-      // not always loaded in the correct order despite the code
-      // above.
-      gInterpreter->ProcessLine ("delete new xAOD::JetContainer;");
-#endif
-
       // Let the user know what happened:
       ::Info( appname, "Environment initialised for data access" );
 
