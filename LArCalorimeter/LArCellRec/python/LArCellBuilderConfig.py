@@ -4,11 +4,13 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArCellBuilderFromLArRawChannelTool, LArCellMerger, LArCellNoiseMaskingTool=CompFactory.getComps("LArCellBuilderFromLArRawChannelTool","LArCellMerger","LArCellNoiseMaskingTool",)
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
+from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
 from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
 
 def LArCellBuilderCfg(configFlags):
     result=ComponentAccumulator()
     result.merge(LArOnOffIdMappingCfg(configFlags))
+    result.merge(LArBadFebCfg(configFlags))
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
     theLArCellBuilder.LArCablingKey = "ConditionStore+LArOnOffIdMap"
     theLArCellBuilder.MissingFebKey = "ConditionStore+LArBadFeb"
@@ -28,7 +30,6 @@ def LArCellCorrectorCfg(configFlags):
         correctionTools.append(theMerger)
     
     if configFlags.LAr.doCellNoiseMasking or configFlags.LAr.doCellSporadicNoiseMasking:
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg
         result.merge(LArBadChannelCfg(configFlags))
         theNoiseMasker=LArCellNoiseMaskingTool(qualityCut = 4000)
         if configFlags.LAr.doCellNoiseMasking:
