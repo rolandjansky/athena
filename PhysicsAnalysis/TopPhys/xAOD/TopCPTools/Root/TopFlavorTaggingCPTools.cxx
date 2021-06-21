@@ -76,12 +76,6 @@ namespace top {
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
 
-    // Calibrated and uncalibrated working points for R=0.2 track jets for all algorithms
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-
     // Calibrated and uncalibrated working points for VR track jets for all algorithms
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02PV0TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02PV0TrackJets WP");
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02PV0TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02PV0TrackJets WP");
@@ -398,15 +392,6 @@ namespace top {
     } else if (jetcollection == "AntiKtVR30Rmax4Rmin02PV0TrackJets" && !isCalibrated) {
       // use m_trackAntiKt2_WPs
       for (auto s : list_of_WP) m_trackAntiKtVR_WPs.push_back(tagger + "_" + s);
-    } else if (jetcollection == "AntiKt2PV0TrackJets" && isCalibrated) {
-      // use m_trackAntiKt2_WPs_calib
-      for (auto s : list_of_WP) {
-        m_trackAntiKt2_WPs_calib.push_back(tagger + "_" + s);
-        m_trackAntiKt2_WPs.push_back(tagger + "_" + s);
-      }
-    } else if (jetcollection == "AntiKt2PV0TrackJets" && !isCalibrated) {
-      // use m_trackAntiKt2_WPs
-      for (auto s : list_of_WP) m_trackAntiKt2_WPs.push_back(tagger + "_" + s);
     } else {
       ATH_MSG_ERROR("Unknown jet collection and calibration options");
       return StatusCode::FAILURE;
