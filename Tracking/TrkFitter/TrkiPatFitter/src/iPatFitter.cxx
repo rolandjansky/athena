@@ -695,13 +695,17 @@ namespace Trk
               && !haveMaterial
               && (haveMeasurement || s.measurementOnTrack())) { haveMaterial = true; }
         }
+	else{
+	  ATH_MSG_DEBUG("don't keep thin scatterer");
+	  continue;
+	}
       } else if (s.alignmentEffectsOnTrack() && s.trackParameters()) {
         Amg::Vector3D direction = s.trackParameters()->momentum().unit();
         Amg::Vector3D position = s.trackParameters()->position();
         measurement1 = std::make_unique<FitMeasurement>(s.alignmentEffectsOnTrack(), direction, position);
       }
-    const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
-    if (measurementBase) {
+      const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
+      if (measurementBase) {
         if (!Amg::valid_cov(measurementBase->localCovariance())){
             continue;
         }
@@ -759,17 +763,21 @@ namespace Trk
             }
           }
         }
-      } else if (!measurement1 && s.trackParameters()) {
+      } 
+      else if (!measurement1 && s.trackParameters()) {
         if (s.type(TrackStateOnSurface::Hole)) {
           measurement2 = std::make_unique<FitMeasurement>(s);
-        } else if (s.type(TrackStateOnSurface::Perigee)) {
+        } 
+	else if (s.type(TrackStateOnSurface::Perigee)) {
           if (i == trackStateOnSurfaces.begin()) { continue; }
           const Perigee* perigee = dynamic_cast<const Perigee*>(s.trackParameters());
           if (!perigee) { continue; }
           measurement2 = std::make_unique<FitMeasurement>(*perigee);
-        } else if (s.type(TrackStateOnSurface::Parameter)) {
+        } 
+	else if (s.type(TrackStateOnSurface::Parameter)) {
           continue;
-        } else {
+        } 
+	else {
           // TSOS type not understood.
           m_messageHelper->printWarning(16, s.dumpType());
           continue;
