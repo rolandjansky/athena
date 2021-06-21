@@ -455,12 +455,11 @@ namespace InDetDD {
     SolidStateDetectorElementBase::updateCache();
 
     //Similar to 21.9, but ... Do we actually need this? If not, we could just rely on the base-class implementation?
-
-      if (isBarrel() && !m_barrelLike) {
-        ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
-      } else if (!isBarrel() && m_barrelLike) {
-        ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
-      }
+    if (isBarrel() && !m_barrelLike) {
+      ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
+    } else if (!isBarrel() && m_barrelLike && (m_design->type())!=InDetDD::PixelInclined) {
+      ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
+    }
 
     m_cacheValid.store(true);
     if (m_firstTime) m_firstTime.store(false);

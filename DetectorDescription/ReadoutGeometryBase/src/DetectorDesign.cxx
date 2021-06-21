@@ -98,6 +98,11 @@ DetectorShape DetectorDesign::shape() const {
     return InDetDD::Box;
 }
 
+DetectorType DetectorDesign::type() const {
+    // Default is Undefined.
+    return InDetDD::Undefined;
+}
+
 SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
                                        double phiTol, double etaTol) const {
     double etaDist = 0;

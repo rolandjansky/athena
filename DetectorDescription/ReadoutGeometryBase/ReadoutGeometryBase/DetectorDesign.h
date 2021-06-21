@@ -40,6 +40,10 @@ enum DetectorShape {
   Box=0, Trapezoid, Annulus,Other
 };
 
+enum DetectorType {
+    Undefined=0,PixelBarrel,PixelEndcap,PixelInclined,StripBarrel,StripEndcap,BCMPrime,PLR,HGTD
+};
+
 /** @class DetectorDesign
 
    Base class for the detector design classes for ITk and HGTD.
@@ -138,6 +142,9 @@ public:
 
     /** Shape of element */
     virtual DetectorShape shape() const;
+
+     /** Type of element */
+    virtual DetectorType type() const;
 
     /** Method to calculate length of a module */
     virtual double length() const = 0;

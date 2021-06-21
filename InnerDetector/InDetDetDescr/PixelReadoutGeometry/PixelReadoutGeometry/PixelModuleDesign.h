@@ -68,16 +68,17 @@ namespace InDetDD {
            number of diode rows connected to one circuit */
       
       PixelModuleDesign(const double thickness,
-			const int circuitsPerColumn,
-			const int circuitsPerRow,
-			const int cellColumnsPerCircuit,
-			const int cellRowsPerCircuit,
-			const int diodeColumnsPerCircuit,
-			const int diodeRowsPerCircuit,
-			std::shared_ptr<const PixelDiodeMatrix> matrix,
-			InDetDD::CarrierType carrierType,
-			int readoutSide = -1,
-			bool is3D=false);
+                        const int circuitsPerColumn,
+                        const int circuitsPerRow,
+                        const int cellColumnsPerCircuit,
+                        const int cellRowsPerCircuit,
+                        const int diodeColumnsPerCircuit,
+                        const int diodeRowsPerCircuit,
+                        std::shared_ptr<const PixelDiodeMatrix> matrix,
+                        InDetDD::CarrierType carrierType,
+                        int readoutSide = -1,
+                        bool is3D=false,
+                        InDetDD::DetectorType detectorType = InDetDD::Undefined);
     
       // Destructor:
       virtual ~PixelModuleDesign() = default;
@@ -204,6 +205,7 @@ namespace InDetDD {
       enum ReadoutTechnology{FEI3,FEI4,RD53};
       ReadoutTechnology getReadoutTechnology() const;
 
+      virtual DetectorType type() const final;
 
       ///////////////////////////////////////////////////////////////////
       // Non-const methods:
@@ -243,6 +245,7 @@ namespace InDetDD {
       PixelReadoutScheme m_readoutScheme;
       CxxUtils::CachedUniquePtr<Trk::RectangleBounds> m_bounds;
       bool m_is3D;
+      InDetDD::DetectorType m_detectorType;
     
     };
     

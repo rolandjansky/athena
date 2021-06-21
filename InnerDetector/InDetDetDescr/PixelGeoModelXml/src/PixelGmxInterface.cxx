@@ -78,7 +78,7 @@ void PixelGmxInterface::addSensorType(std::string clas,
   ATH_MSG_DEBUG("addModuleType called for class " << clas << ", typeName " << typeName);
 
   if (clas == "QuadChip_RD53") {
-    makePixelModule(typeName, parameters);
+    makePixelModule(clas, parameters);
   } else {
     ATH_MSG_ERROR("addModuleType: unrecognised module class: " << clas);
     ATH_MSG_ERROR("No module design created");
@@ -151,13 +151,23 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
                                         << columnsPerChip << " " << rowsPerChip << " "
                                         << carrier << " " << readoutSide);
 
+  //For optionally setting PixelBarrel,PixelEndcap,PixelInclined
+  //(so far) primarily useful for the latter to avoid orientation warnings
+  InDetDD::DetectorType detectorType{InDetDD::Undefined};
+  int detectorTypeEnum = 0;
+  if(checkParameter(typeName, parameters, "detectorType", detectorTypeEnum)){
+    if (detectorTypeEnum == 1) detectorType = InDetDD::PixelBarrel;
+    else if (detectorTypeEnum == 2) detectorType = InDetDD::PixelEndcap;
+    else if (detectorTypeEnum == 3) detectorType = InDetDD::PixelInclined;
+  }
+
   auto design = std::make_unique<InDetDD::PixelModuleDesign>(thickness,
-                                                             circuitsPerPhi, circuitsPerEta,
-                                                             columnsPerChip, rowsPerChip,
-                                                             columnsPerChip, rowsPerChip,
-                                                             fullMatrix,
-                                                             carrier,
-                                                             readoutSide, is3D);
+                                                            circuitsPerPhi, circuitsPerEta,
+                                                            columnsPerChip, rowsPerChip,
+                                                            columnsPerChip, rowsPerChip,
+                                                            fullMatrix, carrier,
+                                                            readoutSide, is3D, detectorType);
+  
 
   ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << "    " <<design->rows() << " " << design->columns());
 
