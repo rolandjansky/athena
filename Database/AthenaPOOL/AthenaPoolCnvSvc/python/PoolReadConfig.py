@@ -96,6 +96,7 @@ def PoolReadCfg(configFlags):
                 apapsPrimary.getFullJobOptName(),
             ])) #No service handle yet???
         else:
+            evSel.ProcessMetadata = False
             # We have primary and secondary pool inputs, create two address providers
             apapsPrimary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcPrimary")
             apapsPrimary.DataHeaderKey = "EventSelector"
