@@ -11,17 +11,14 @@ MdtRODMap::MdtRODMap(uint8_t rodId) :
   MdtMapBase<MdtCsmMap>(rodId,"MdtCsmMap")
 { }
 
-// destructor
-MdtRODMap::~MdtRODMap()
-{ }
 
 
 // add a CSM map to this ROD
-bool MdtRODMap::setCsmMap(uint8_t csmId, MdtCsmMap* csmMap)
+bool MdtRODMap::setCsmMap(uint8_t csmId, MdtCsmMap* csmMap, MsgStream &log)
 { 
-  bool csmAdded = addItem(csmId,csmMap);
+  bool csmAdded = addItem(csmId,csmMap, log);
   if (!csmAdded) {
-    *m_log << MSG::ERROR << "Could not add csm " << MSG::hex 
+    log << MSG::ERROR << "Could not add csm " << MSG::hex 
 	   << (int) csmId << MSG::dec << " to the MDT cabling map" << endmsg;
   }
   return csmAdded;

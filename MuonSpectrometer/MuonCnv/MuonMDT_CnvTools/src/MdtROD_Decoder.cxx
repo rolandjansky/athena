@@ -160,6 +160,13 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         ATH_MSG_ERROR(" Subdetector, ROD ID: 0x" << MSG::hex << subdetId << MSG::dec << ", 0x" << mrodId << MSG::dec);
     }
 
+    SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+      const MuonMDT_CablingMap* readCdo{*readHandle};
+      if (readCdo == nullptr) {
+        ATH_MSG_ERROR("Null pointer to the read conditions object");
+        return StatusCode::FAILURE;
+    }
+    auto &msg = msgStream();
     while (!csmReadOut.is_EOB()) {
         while ((!csmReadOut.is_BOL()) && (!csmReadOut.is_EOB())) {
             wordPos += 1;
@@ -200,15 +207,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         uint16_t cha = 0xff;
         Identifier moduleId;
 
-        bool cab;
-
-        SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
-        const MuonMDT_CablingMap* readCdo{*readHandle};
-        if (readCdo == nullptr) {
-            ATH_MSG_ERROR("Null pointer to the read conditions object");
-            return StatusCode::FAILURE;
-        }
-        cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, cha, StationName, StationEta, StationPhi, MultiLayer, TubeLayer, Tube);
+        bool cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, cha, StationName, StationEta, StationPhi, MultiLayer, TubeLayer, Tube, msg);
 
         ATH_MSG_DEBUG("getOfflineIdfromOnlineID result: ");
         ATH_MSG_DEBUG("Name : " << StationName);

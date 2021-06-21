@@ -28,7 +28,7 @@ class IdentifierHash;
 
 /** typedef to implement the csm mapping to ROD */
 /* mapping from hashid to ROD identifier as Subdetector+Rodid */
-typedef std::map< IdentifierHash , uint32_t , std::less<int> > ChamberToRODMap;
+typedef std::map< IdentifierHash , uint32_t > ChamberToRODMap;
 
 typedef std::map< uint32_t, std::vector<IdentifierHash> > RODToChamberMap;
 
@@ -50,35 +50,35 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   bool cleanup();
   
   /** Set functions */
-  bool setSubdetectorMap(uint8_t subdetectorId,MdtSubdetectorMap* mdtSubdetectorMap);
+  bool setSubdetectorMap(uint8_t subdetectorId,MdtSubdetectorMap* mdtSubdetectorMap, MsgStream &log);
 
   /** Add a new line describing a mezzanine type */
-  bool addMezzanineLine(const int type, const int layer, const int sequence);  
+  bool addMezzanineLine(const int type, const int layer, const int sequence, MsgStream &log);  
 
   /** Add a new mezzanine */
   /** the indexes multilayer, layer, tube refer to the tube connected to the channelZero */
-  bool addMezzanine(int mezzanineType, int station, int eta, int phi,
+  bool addMezzanine(uint8_t mezzanineType, int station, int eta, int phi,
 		    int multilayer, int layerZero, int tubeZero,
-		    int subdetectorId, int rodId, int csmId,
-		    int tdcId, int channelZero);
+		    uint8_t subdetectorId, uint8_t rodId, uint8_t csmId,
+		    uint8_t tdcId, uint8_t channelZero, MsgStream &log);
 
   /** Get function */
   MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId) const;
 
   /** return the ROD id of a given chamber, given station, eta, phi */
-  uint32_t getROBId(int station, int eta, int phi) const;
+  uint32_t getROBId(int station, int eta, int phi, MsgStream &log) const;
 
   /** return the ROD id of a given chamber, given the hash id */
-  uint32_t getROBId(const IdentifierHash stationCode) const;
+  uint32_t getROBId(const IdentifierHash stationCode, MsgStream &log) const;
 
   /** get the robs corresponding to a vector of hashIds, copied from Svc before the readCdo migration */
-  std::vector<uint32_t> getROBId(const std::vector<IdentifierHash>& mdtHashVector) const;
+  std::vector<uint32_t> getROBId(const std::vector<IdentifierHash>& mdtHashVector, MsgStream &log) const;
 
  /** return a vector of HashId lists for a  given list of ROD's */
-  const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const;
+  const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list, MsgStream &log) const;
 
  /** return a HashId list for a  given ROD */
-  const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBId) const;
+  const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBI, MsgStream &log) const;
 
   /** return the ROD id of a given chamber */
   std::vector<uint32_t> getAllROBId() const;
@@ -87,43 +87,43 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   bool getOfflineId(uint8_t subdetectorId,uint8_t rodId,uint8_t csmId,
 		    uint8_t tdcId,uint8_t channelId,
 		    int& stationName, int& stationEta, int& stationPhi,
-		    int& multiLayer, int& layer, int& tube) const;
+		    int& multiLayer, int& layer, int& tube, MsgStream &log) const;
 
   /** return the online id given the offline id */
   bool getOnlineId(int stationName, int stationEta, int stationPhi,
 		   int multiLayer, int layer, int tube,
 		   uint8_t& subdetectorId, uint8_t& rodId, uint8_t& csmId,
-		   uint8_t& tdcId, uint8_t& channelId) const;
+		   uint8_t& tdcId, uint8_t& channelId, MsgStream &log) const;
 
  private:
 
   /** private function to add a chamber to the ROD map */
-  bool addChamberToRODMap(int station, int eta, int phi, uint8_t subdetectorId, 
-			  uint8_t rodId);
+  bool addChamberToRODMap(int station, int eta, int phi, int subdetectorId, 
+			  int rodId, MsgStream &log);
 
   /** List of mezzanine types, to be initialized from the conditions db */
-  std::unique_ptr<MezzanineTypes> m_listOfMezzanineTypes;
+  MezzanineTypes m_listOfMezzanineTypes;
 
   /** map returning the RODid for a given chamber ID */
-  std::unique_ptr<ChamberToRODMap> m_chamberToROD;
+  ChamberToRODMap m_chamberToROD;
 
  /** map returning a vecotr of Hashid's associated with a given ROD */
   //new sbarnes
-   std::unique_ptr<RODToChamberMap> m_RODToChamber;
+   RODToChamberMap m_RODToChamber;
    std::vector<IdentifierHash> m_emptyIdHashVec;
 
   /** full list of RODs */
-  std::unique_ptr<ListOfROD> m_listOfROD;
+  ListOfROD m_listOfROD;
 
   /** private function to compute a station code for the chamber to ROD map */
-  bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash) const;
+  bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash, MsgStream &log) const;
 
   /** Pointer to the MdtIdHelper */
   const MdtIdHelper* m_mdtIdHelper;
 
   /** assignment and copy constructor operator (hidden) */
-  MuonMDT_CablingMap & operator=(const  MuonMDT_CablingMap &right);
-  MuonMDT_CablingMap(const  MuonMDT_CablingMap&);
+  MuonMDT_CablingMap & operator=(const  MuonMDT_CablingMap &right) =delete;
+  MuonMDT_CablingMap(const  MuonMDT_CablingMap&) =delete;
 
 };
 
