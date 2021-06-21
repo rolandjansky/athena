@@ -7,6 +7,8 @@
 #include <vector>
 #include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 ReadTBLArDigits::SortDigits::SortDigits(const LArOnlineID* onlineHelper)
 {
@@ -16,7 +18,6 @@ ReadTBLArDigits::SortDigits::SortDigits(const LArOnlineID* onlineHelper)
 ReadTBLArDigits::ReadTBLArDigits(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_count(0),
-    m_larCablingSvc(nullptr),
     m_emId(0),
     m_fcalId(0),
     m_hecId(0),
@@ -45,8 +46,6 @@ StatusCode ReadTBLArDigits::initialize()
   m_hecId=idHelper->hec_idHelper();
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
-
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingLegacyService",m_larCablingSvc) );
 
   if (m_dumpFile.size()>0)
     m_outfile.open(m_dumpFile.c_str(),std::ios::out);
@@ -79,6 +78,8 @@ StatusCode ReadTBLArDigits::initialize()
   ATH_CHECK( nt->addItem("gain",m_cellIndex,m_gain) );
   ATH_CHECK( nt->addItem("NSamples",m_Nsamples,0,32) );
   ATH_CHECK( nt->addItem("Samples",m_cellIndex,m_samples,32) );
+
+  ATH_CHECK( m_cablingKey.initialize() );
   
   m_ntuplePtr=nt;
   m_count=0;
@@ -88,7 +89,10 @@ StatusCode ReadTBLArDigits::initialize()
 
 
 StatusCode ReadTBLArDigits::execute()
-{MsgStream log(msgSvc(), name());
+{
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+
+ MsgStream log(msgSvc(), name());
  m_count++; 
  StatusCode sc; 
  log << MSG::DEBUG << "======== executing event "<< m_count << " ========" << endmsg;
@@ -109,6 +113,8 @@ StatusCode ReadTBLArDigits::execute()
    SortDigits sortDigits(m_onlineHelper);
    std::sort(larDigitCont->begin(),larDigitCont->end(),sortDigits);
  }
+
+ SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
  
  log << MSG::DEBUG << "Finished sorting" << endmsg; 
  unsigned cellCounter=0;
@@ -120,7 +126,7 @@ StatusCode ReadTBLArDigits::execute()
  for (const LArDigit* digit : *larDigitCont) {
    HWIdentifier chid=digit->hardwareID();
    log << MSG::DEBUG << "Get offline ID" << endmsg; 
-   const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+   const Identifier id=cabling->cnvToIdentifier(chid);
    const std::vector<short>& vSamples=digit->samples();
    m_cellIndex=cellCounter;
    log << MSG::DEBUG << "Now find eta/phi (EM only right now)" << endmsg; 
