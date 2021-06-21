@@ -519,13 +519,13 @@ class TrigEgammaMonAlgBuilder:
       probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated","GoodProbe"]
       tagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","IsGoodOQ","PassTrigger","MatchTrigger"]
 
-      monGroup.defineHistogram("CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",
+      monGroup.defineHistogram("CutCounter", type='TH1I', path='', title="Event Selection; Cut ; Count",
           xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
       monGroup.defineHistogram("TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
           xbins=len(tagLabels), xmin=0, xmax=len(tagLabels), xlabels=tagLabels)
       monGroup.defineHistogram("ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
           xbins=len(probeLabels), xmin=0, xmax=len(probeLabels), xlabels=probeLabels)
-      monGroup.defineHistogram("Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, 
+      monGroup.defineHistogram("Mee", type='TH1F', path='', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, 
           xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
 
 

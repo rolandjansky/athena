@@ -1,10 +1,8 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file tauMonitorAlgorithm.py
-@author C. D. Burton
-@author P. Onyisi
 @date 2018-01-11
 @brief tau python configuration for the Run III AthenaMonitoring package
 '''
@@ -283,27 +281,6 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram(namer('jetSeedPt','jetSeedPt','Calo',postfix), title='Calorimeter pt of tau candidates;Et;Numbers of Candidates',path=folder+"Calo",
             xbins=100, xmin=0., xmax=300 )
-            
-            igroup.defineHistogram(namer('EMRadius','EMRadius','Calo',postfix), title='Uncalibrated EM Radius;EM Radius;Number Of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=1.2 )
-
-            igroup.defineHistogram(namer('hadRadius','hadRadius','Calo',postfix), title='Hadronic Radius of tau candidates;Hadronic Radius; Number Of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=1. )
-
-            igroup.defineHistogram(namer('stripWidth2','stripWidth2','Calo',postfix), title='Strip Width of tau candidates;Strip Width;Number of Candidates',path=folder+"Calo",
-            xbins=50, xmin=-0.1, xmax=0.12 )
-
-            igroup.defineHistogram(namer('isolFrac','isolFrac','Calo',postfix), title='Isolation Fraction;Et Isolation Fraction;Number of Candidates',path=folder+"Calo",
-            xbins=51, xmin=0.0, xmax=1.02 )
-
-            igroup.defineHistogram(namer('nStrip','nStrip','Calo',postfix), title='Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates',path=folder+"Calo",
-            xbins=56, xmin=-0.5, xmax=55.5 )
-
-            igroup.defineHistogram(namer('etEMAtEMScale','etEMAtEMScale','Calo',postfix), title='EM energy at the EM scale;EM Et (GeV) );Number of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=200. )
-
-            igroup.defineHistogram(namer('etHadAtEMScale','etHadAtEMScale','Calo',postfix), title='Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=200. )
             
             igroup.defineHistogram(namer('centFrac,LB','CentFracVsLB','Calo',postfix), type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
             xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)

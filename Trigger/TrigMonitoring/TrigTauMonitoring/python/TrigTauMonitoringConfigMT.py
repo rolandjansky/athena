@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -466,14 +466,14 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
 
-    monGroup.defineHistogram('hEFEta;hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
+    monGroup.defineHistogram('hEFEta,hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
                                path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('hEFEt;hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
+    monGroup.defineHistogram('hEFEt,hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
                                path=monGroupPath,
                                xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
    
-    monGroup.defineHistogram('hEFEta;hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
+    monGroup.defineHistogram('hEFEta,hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
                                path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
    
@@ -510,7 +510,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk ('+nProng+') non-corrected; etOverPtLeadTrk; Candidates',xbins=51,xmin=-0.1,xmax=25)
     monGroup.defineHistogram('innerTrkAvgDist', title='innerTrkAvgDist ('+nProng+') non-corrected; innerTrkAvgDist; Candidates',xbins=50,xmin=-0.05,xmax=0.5)
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+') non-corrected; ptRatioEflowApprox; Candidates',xbins=50,xmin=0,xmax=2)
-    monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+    monGroup.defineHistogram('massTrkSys;massTrkSys_log', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
     if nProng=='1P':
       monGroup.defineHistogram('SumPtTrkFrac', title='SumPtTrkFrac ('+nProng+') non-corrected; SumPtTrkFrac; Candidates',xbins=50,xmin=-0.5,xmax=1.1)
