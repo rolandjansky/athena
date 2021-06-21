@@ -1,5 +1,5 @@
 #
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                                                                           
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                                                                           
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -373,7 +373,7 @@ def MdtMonitoringConfig(inputFlags):
                     titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+"OuterPlusExtra"
                     var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+"PlusExtra;"+titleOccvsLbPerRegionPerLayer
                 elif(ilayer=="Outer"):
-                    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer+"PlusExtra"
+                    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer
                     var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
                 if(iregion=="BA"):
                      maxy=118 # outer sideA

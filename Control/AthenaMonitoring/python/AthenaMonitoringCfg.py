@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -6,6 +6,8 @@ def AthenaMonitoringCfg(flags):
     import logging
     local_logger = logging.getLogger('AthenaMonitoringCfg')
     info = local_logger.info
+    debug = local_logger.debug
+    error = local_logger.error
     result = ComponentAccumulator()
 
     if flags.DQ.Steering.doPixelMon:
@@ -92,5 +94,22 @@ def AthenaMonitoringCfg(flags):
         info('Set up LVL1Calo monitoring')
         from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
         result.merge(LVL1CaloMonitoringConfig(flags))
+
+    # Check for potentially duplicated histogram definitions
+    definedhists = {}
+    for algo in result.getEventAlgos():
+        import os.path, json
+        if hasattr(algo, 'GMTools'):
+            for t in algo.GMTools:
+                for h in t.Histograms:
+                    ho = json.loads(h)
+                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    if fullpath in definedhists:
+                        previous = definedhists[fullpath]
+                        error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')
+                        raise ValueError()
+                    definedhists[fullpath] = (algo.getName(), t.getName(), ho)
+
+    debug('Passed histogram duplication check')
         
     return result

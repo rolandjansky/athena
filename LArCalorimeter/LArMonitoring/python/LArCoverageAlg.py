@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file LArCoverageAlg
@@ -195,7 +195,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECA_statusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECC_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - EMECC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -219,7 +219,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECA_statusCode',
+    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECC_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - HECC - statusCode={0};Feedthrough(+Slot increasing);Channel',

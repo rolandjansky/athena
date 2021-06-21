@@ -42,7 +42,7 @@ def TH1F(name, title, nxbins, bins_par2, bins_par3=None, path='', **kwargs):
 
 
 
-def TH2F(name, title, nxbins, bins_par2, bins_par3, bins_par4, bins_par5=None, bins_par6=None, path='/', **kwargs):
+def TH2F(name, title, nxbins, bins_par2, bins_par3, bins_par4, bins_par5=None, bins_par6=None, path='', **kwargs):
 
     res = THWrapper(name) 
     res['type'] = 'TH2F'

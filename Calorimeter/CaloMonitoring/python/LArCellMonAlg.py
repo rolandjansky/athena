@@ -399,7 +399,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
     #now histograms
     for part in LArCellMonAlg.LayerNames:
-        allMonArray.defineHistogram('dummy', type='TH1F', path='/', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
+        allMonArray.defineHistogram('dummy'+part, type='TH1F', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
 
         allMonArray.defineHistogram('celleta,cellphi;CellOccupancyVsEtaPhi',
                                                 title='No. of events in (#eta,#phi) for '+part+';cell #eta;cell #phi',
