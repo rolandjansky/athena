@@ -36,7 +36,8 @@ typedef Trk::Charged T;
 
 //truly minimal Surface to use below
 namespace Trk{
-  struct Surface{
+  class Surface{
+  public:
     static constexpr unsigned int id{12345};
     std::string str() const{
       return std::string("TestSurface");
@@ -92,8 +93,9 @@ public:
     m.setIdentity();
     return m;
   } 
-  
-  const Trk::Surface& associatedSurface() const {
+
+  virtual
+  const Trk::Surface& associatedSurface() const override {
     return m_surface;
   }
   Trk::ParametersBase<DIM,T>* clone() const override{
@@ -138,7 +140,7 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
     ChargedParametersStub v;
     BOOST_CHECK_NO_THROW(ChargedParametersStub w(v));
     //move c'tor?
-    BOOST_CHECK_NO_THROW(ChargedParametersStub w(std::move(ChargedParametersStub())));
+    BOOST_CHECK_NO_THROW(ChargedParametersStub w(std::move(v)));
   }
   BOOST_AUTO_TEST_CASE(Getters){
     //preconstruct required parameters
