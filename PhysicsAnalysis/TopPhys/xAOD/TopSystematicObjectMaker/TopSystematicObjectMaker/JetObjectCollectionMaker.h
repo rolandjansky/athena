@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetObjectCollectionMaker.h 809674 2017-08-23 14:10:24Z iconnell $
@@ -94,7 +94,8 @@ namespace top {
                                 const CP::SystematicSet& recommendedSysts, std::unordered_map<CP::SystematicSet,
                                                                                               CP::SystematicSet>& map,
                                 const std::string& modName, bool isLargeR = false,
-                                bool onlyJER = false);
+                                bool onlyJER = false,
+                                bool isPseudoData = false);
 
     StatusCode execute(const bool isLargeR, bool executeNominal);
 
@@ -116,6 +117,7 @@ namespace top {
     bool m_isMC;
     bool m_doMultipleJES;
     bool m_do_fjvt = false;
+    bool m_JERisPseudoData;
 
     std::list<CP::SystematicSet> m_specifiedSystematics;
     std::list<CP::SystematicSet> m_specifiedSystematicsLargeR;
@@ -127,6 +129,7 @@ namespace top {
     ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolPseudoData;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario1;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario2;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario3;
@@ -151,6 +154,7 @@ namespace top {
     std::unique_ptr<top::TopJetSubstructure> m_jetSubstructure;
 
     systMap m_systMap_AllNP;
+    systMap m_systMap_JERPseudo;
     systMap m_systMap_ReducedNPScenario1;
     systMap m_systMap_ReducedNPScenario2;
     systMap m_systMap_ReducedNPScenario3;
