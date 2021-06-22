@@ -23,6 +23,8 @@ class Global_HLT_TableConstructor(TableConstructorBase):
                                    "SteeringTime_perEvent",
                                    "LbLength"]
 
+        self.lbLength = 0
+
 
     def defineColumns(self):
         self.columns['name']                 = Column("Name", "Algorithms name")
@@ -40,17 +42,16 @@ class Global_HLT_TableConstructor(TableConstructorBase):
 
 
     def fillColumns(self, histName):
-        lbLength = self.getHistogram("LbLength").GetBinContent(1)
         weightedEvents = self.getHistogram("SteeringTime_perEvent").Integral()
         weightedCalls = self.getXWeightedIntegral("AlgCalls_perEvent", isLog=False)
 
         self.columns['name'].addValue(histName)
-        self.columns['lbLength'].addValue(lbLength)
+        self.columns['lbLength'].addValue(self.getHistogram("LbLength").GetBinContent(1))
         self.columns['events'].addValue(self.getHistogram("SteeringTime_perEvent").GetEntries())
         self.columns['eventsWeighted'].addValue(weightedEvents)
         self.columns['callsPerEvent'].addValue(self.getHistogram("AlgCalls_perEvent").GetMean())
-        self.columns['eventRate'].addValue(weightedEvents / lbLength)
-        self.columns['callRate'].addValue(weightedCalls / lbLength)
+        self.columns['eventRate'].addValue(weightedEvents / self.lbLength)
+        self.columns['callRate'].addValue(weightedCalls / self.lbLength)
         self.columns['steeringTime'].addValue(self.getXWeightedIntegral("SteeringTime_perEvent", isLog=True) * 1e-3)
         self.columns['steeringTimePerEvent'].addValue(self.getHistogram("SteeringTime_perEvent").GetMean())
         self.columns['totalTimeSec'].addValue(self.getXWeightedIntegral("AlgTime_perEvent", isLog=True) * 1e-3)

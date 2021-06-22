@@ -12,7 +12,13 @@ from .Algorithm_HLT_TableConstructor import Algorithm_HLT_TableConstructor
     (own ROOT directory)
 '''
 
-''' 
-@brief Class representing Chain_Algorithm_HLT table
-'''
-Chain_Algorithm_HLT_TableConstructor = Algorithm_HLT_TableConstructor
+class Chain_Algorithm_HLT_TableConstructor(Algorithm_HLT_TableConstructor):
+    ''' @brief Class representing Chain_Algorithm_HLT table
+    '''
+    def __init__(self, tableObj):
+        super(). __init__(tableObj) 
+        self.totalTime = 0 # Total time of algoirthms execution
+
+    def postProcessing(self):
+        for entry in self.columns["totalTimeSec"].content:
+            self.columns["totalTimePerc"].addValue(100 * entry / self.totalTime)
