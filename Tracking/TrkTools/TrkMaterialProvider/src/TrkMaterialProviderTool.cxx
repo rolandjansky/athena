@@ -760,7 +760,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 
 
   DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = nullptr;
-  if(caloTSOS->empty()) {
+  if(caloTSOS->empty() || Eloss<=0) {
     if(dir==Trk::alongMomentum&&pOri>4000.) {
         ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
         ATH_MSG_WARNING(" momentum of track " << pOri);
