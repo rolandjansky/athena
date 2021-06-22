@@ -22,6 +22,19 @@ HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
   size_t split = histoPath.find('/');
   m_streamName = histoPath.substr(0,split);
   m_groupName = split!=std::string::npos ? histoPath.substr(split) : "";
+
+  // Infrequently, loading a ROOT class in a MT context can fail.
+  // So try to load the classes we'll need early.
+  TClass::GetClass("TH1F");
+  TClass::GetClass("TH1D");
+  TClass::GetClass("TH1I");
+  TClass::GetClass("TH2F");
+  TClass::GetClass("TH2D");
+  TClass::GetClass("TH2I");
+  TClass::GetClass("TProfile");
+  TClass::GetClass("TProfile2D");
+  TClass::GetClass("TEfficiency");
+  TClass::GetClass("TTree");
 }
 
 
