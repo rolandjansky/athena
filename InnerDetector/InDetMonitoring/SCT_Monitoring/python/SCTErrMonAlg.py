@@ -41,16 +41,10 @@ def SCTErrMonAlgConfig(inputFlags):
     # FilterTools
     # There seems no new configureation corresponding to
     # from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
-    if inputFlags.Beam.Type=='collisions':
-        if inputFlags.Input.isMC:
-            from AthenaMonitoring.AthenaMonitoringConf import DQDummyFilterTool
-            myMonAlg.FilterTools += [DQDummyFilterTool()]
-        else:
-            from AthenaMonitoring.AthenaMonitoringConf import DQFilledBunchFilterTool
-            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-            monFilledBunchFilterTool = DQFilledBunchFilterTool()
-            monFilledBunchFilterTool.bunchCrossingTool = BunchCrossingTool()
-            myMonAlg.FilterTools += [monFilledBunchFilterTool]
+
+
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result.merge(BunchCrossingCondAlgCfg(inputFlags))
 
     myMonGroup = helper.addGroup(myMonAlg, "SCTErrMonitor", "SCT/")
 
