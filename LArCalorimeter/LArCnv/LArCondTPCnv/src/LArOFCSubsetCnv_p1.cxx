@@ -14,6 +14,7 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
 
     // Copy conditions
     unsigned int nfebids    = persObj->m_subset.m_febIds.size();
+    const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
     unsigned int nPhases    = persObj->m_nPhases;
     unsigned int nSamples   = persObj->m_nSamples;
     unsigned int dataIndex  = 0;
@@ -41,7 +42,7 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
         }
             
         // Loop over channels in feb - only some channels are filled
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+        for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 
             bool copyChannel = true;
             if (hasSparseData) {
@@ -185,6 +186,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
     // Get the number of channels, corrections and the size of ofc vectors
     unsigned int nsubsetsNotEmpty = 0;
     unsigned int ncorrs           = transObj->correctionVecSize();
+    const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
     unsigned int nchans           = 0;
     unsigned int nPhases          = 0;
     unsigned int nSamples         = 0;
@@ -200,7 +202,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
     {
         unsigned int nfebChans = (*subsetIt).second.size();
 
-        if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+        if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
             log << MSG::ERROR 
                 << "LArOFCSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
                 << endmsg;
