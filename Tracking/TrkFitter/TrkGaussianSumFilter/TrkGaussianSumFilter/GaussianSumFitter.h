@@ -118,7 +118,7 @@ private:
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Gsf smoothe trajectory*/
-  std::unique_ptr<SmoothedTrajectory> fit(
+  SmoothedTrajectory fit(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
