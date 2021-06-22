@@ -163,33 +163,16 @@ def setupMenu():
         ChainProp(name='HLT_e5_dnntight_L1EM3', groups=SingleElectronGroup),
 
         # lrt chains
-
-        # Commented out: ATR-23564
-        # Chains below for ATR-23500 should be used instead
-        # ChainProp(name='HLT_e5_lhloose_lrtloose_L1EM3', groups=SingleElectronGroup),
-        # ChainProp(name='HLT_e5_lhmedium_lrtmedium_L1EM3', groups=SingleElectronGroup),
-        # ChainProp(name='HLT_e5_lhtight_lrttight_L1EM3', groups=SingleElectronGroup),
-
-        # ChainProp(name='HLT_e26_lhloose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        # ChainProp(name='HLT_e26_lhmedium_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        # ChainProp(name='HLT_e26_lhtight_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
 
-        # Test chains for ATR-23500, once ATR-23564 is resolved
-        #ChainProp(name='HLT_e26_lhvloosenopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhvloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhvloosenopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        #
-        #ChainProp(name='HLT_e26_lhloosenopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhloosenopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        #
-        #ChainProp(name='HLT_e26_lhloosenopix_ivarloose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhvloosenopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhvloosenopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e28_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
+        # Test chains for ATR-23500
+        ChainProp(name='HLT_e26_lhloosenopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloosenopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloosenopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhvloosenopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e28_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
 
 
         # Primary
