@@ -105,6 +105,13 @@ StatusCode TrigZFinderAlg::execute(const EventContext& context) const
     
     auto mon = Monitored::Group(m_monTool, ZVertex, ZVertexWeight);
   }
+  if ( vertices->empty() ) {
+    xAOD::TrigComposite *zFinder = new xAOD::TrigComposite();
+    zFinderContainer->push_back(zFinder);
+    zFinder->setDetail<float>("zfinder_vtx_z", -1000.0 );
+    zFinder->setDetail<float>("zfinder_vtx_weight", -1.0 );
+  }
+
   
   SG::WriteHandle<xAOD::TrigCompositeContainer> zFinderHandle(m_zFinderKey, context);
   ATH_CHECK(zFinderHandle.record(std::move(zFinderContainer), std::move(zFinderContainerAux)));
