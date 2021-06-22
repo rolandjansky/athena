@@ -32,18 +32,38 @@ Reco_tf.py \
 --inputHighPtMinbiasHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/\* \
 --outputAODFile=myAOD.pool.root --outputRDOFile=myRDO.pool.root --outputESDFile=myESD.pool.root --imf False
 
-
 rc1=$?
 echo "art-result: $rc1 Reco"
+
+# Workaround for the problem "Looping job killed by pilot trans". A message is printed every 30 minutes to avoid killing the job by the pilot. This was suggested in the email thread with atlas-adc-dpa@cern.ch by Serhan on 23.4.2021.
+
+# Periodically print elapsed time while the long command executes
+file=$(mktemp)
+
+progress() {
+  pc=0;
+  inc=1800; # print elapsed time every 1800 seconds
+  while [ -e ${file} ];
+    do
+      echo "[WRAPPER] Elapsed time: $(expr ${pc} \* ${inc}) seconds..."
+      sleep ${inc}
+      ((pc++))
+    done
+}
+
+progress &
 
 rc2=-9999
 if [ ${rc1} -eq 0 ]
 then
   ArtPackage=$1
   ArtJobName=$2
+  echo "Running art.py command"
   art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"
 
+# Remove tmp file after done
+rm -f $file
 
