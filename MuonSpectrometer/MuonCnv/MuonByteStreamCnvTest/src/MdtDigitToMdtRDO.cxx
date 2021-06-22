@@ -150,7 +150,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  auto msg = msgStream();
+  auto &msg = msgStream();
 
   // Iterate on the collections
   for ( const MdtDigitCollection* mdtCollection : *container) {

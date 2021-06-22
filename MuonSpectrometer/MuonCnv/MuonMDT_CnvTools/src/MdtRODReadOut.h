@@ -25,30 +25,31 @@ private:
     uint16_t m_triggerTypeId;  // Trigger type Id
 
     // Data words in the ROD header
-    static const uint32_t s_RODstart;
-    static const uint32_t s_RODheadersize;
-    static const uint32_t s_RODversion;  // ??
+    static constexpr uint32_t s_RODstart = 0xee1234ee;
+    static constexpr uint32_t s_RODheadersize = 0x8;
+    static constexpr uint32_t s_RODversion = 0;  // ??
 
 public:
     MdtRODReadOut();
-    ~MdtRODReadOut();
+    ~MdtRODReadOut()=default;
+    
     void decodeHeader(const std::vector<uint32_t>& p);
     void decodeFooter(const std::vector<uint32_t>& p);
 
     uint32_t* encodeFooter();
 
     // Header words
-    uint32_t makeHeaderMarker() { return s_RODstart; }
-    uint32_t makeHeaderSize() { return s_RODheadersize; }
-    uint32_t makeFormatVersion() { return s_RODversion; }
+    constexpr uint32_t makeHeaderMarker() { return s_RODstart; }
+    constexpr uint32_t makeHeaderSize() { return s_RODheadersize; }
+    constexpr uint32_t makeFormatVersion() { return s_RODversion; }
     uint32_t makeRODId(uint16_t subdet, uint16_t mrod);
 
     // Retrieve decoded results
-    uint16_t subdetId() { return m_subdetId; }
-    uint16_t mrodId() { return m_mrodId; }
-    uint32_t lvl1Id() { return m_lvl1Id; }
-    uint16_t bcId() { return m_bcId; }
-    uint16_t trigtypeId() { return m_triggerTypeId; }
+    uint16_t subdetId() const { return m_subdetId; }
+    uint16_t mrodId() const { return m_mrodId; }
+    uint32_t lvl1Id() const { return m_lvl1Id; }
+    uint16_t bcId() const { return m_bcId; }
+    uint16_t trigtypeId() const { return m_triggerTypeId; }
 
 private:
     // Private functions

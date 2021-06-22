@@ -26,7 +26,6 @@ MdtAmtReadOut::MdtAmtReadOut() :
     m_masked(0),
     m_leading(false) {}
 
-MdtAmtReadOut::~MdtAmtReadOut() {}
 
 void MdtAmtReadOut::decodeWord(uint32_t dataWord) {
     //  Zero all the decoded quantities
@@ -37,37 +36,37 @@ void MdtAmtReadOut::decodeWord(uint32_t dataWord) {
 
     if (is_TSM())  // TDC single measurement
     {
-        m_leading = (bool)getBits(18, 18);
-        m_jt = getBits(25, 24);
-        m_channel = getBits(23, 19);
-        m_errflag = getBits(17, 17);
-        m_coarse = getBits(16, 5);
-        m_fine = getBits(4, 0);
+        m_leading = (bool)getBits(getBitsWord(18, 18));
+        m_jt = getBits(getBitsWord(25, 24));
+        m_channel = getBits(getBitsWord(23, 19));
+        m_errflag = getBits(getBitsWord(17, 17));
+        m_coarse = getBits(getBitsWord(16, 5));
+        m_fine = getBits(getBitsWord(4, 0));
     } else if (is_TCM())  // TDC combined measurement
     {
-        m_jt = getBits(25, 24);
-        m_channel = getBits(23, 19);
-        m_width = getBits(18, 11);
-        m_coarse = getBits(10, 5);
-        m_fine = getBits(4, 0);
+        m_jt = getBits(getBitsWord(25, 24));
+        m_channel = getBits(getBitsWord(23, 19));
+        m_width = getBits(getBitsWord(18, 11));
+        m_coarse = getBits(getBitsWord(10, 5));
+        m_fine = getBits(getBitsWord(4, 0));
     } else if (is_BOT())  // Beginning of TDC
     {
         // One header bit is used for TDC numbers > 15
-        m_tdcId = getBits(28, 24);
-        m_ecnt = getBits(23, 12);
-        m_bcId = getBits(11, 0);
+        m_tdcId = getBits(getBitsWord(28, 24));
+        m_ecnt = getBits(getBitsWord(23, 12));
+        m_bcId = getBits(getBitsWord(11, 0));
     } else if (is_EOT())  // End of TDC
     {
-        m_ecnt = getBits(23, 12);
-        m_wcnt = getBits(11, 0);
+        m_ecnt = getBits(getBitsWord(23, 12));
+        m_wcnt = getBits(getBitsWord(11, 0));
     } else if (is_TMC())  // TDC masked channels flag
     {
-        m_jt = getBits(25, 24);
-        m_masked = getBits(23, 0);
+        m_jt = getBits(getBitsWord(25, 24));
+        m_masked = getBits(getBitsWord(23, 0));
     } else if (is_TES())  // TDC error status
     {
-        m_jt = getBits(25, 24);
-        m_errflag = getBits(6, 0);
+        m_jt = getBits(getBitsWord(25, 24));
+        m_errflag = getBits(getBitsWord(6, 0));
     }
     // special decoding of the CSM trailer word count - nothing to do here
     else if (is_TWC()) {}

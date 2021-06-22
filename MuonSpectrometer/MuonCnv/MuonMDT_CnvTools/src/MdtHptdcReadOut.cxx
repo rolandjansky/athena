@@ -4,10 +4,6 @@
 
 #include "MdtHptdcReadOut.h"
 
-//#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/Bootstrap.h"
-//#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IMessageSvc.h"
 
 MdtHptdcReadOut::MdtHptdcReadOut() :
     m_dataWord(0),
@@ -23,7 +19,6 @@ MdtHptdcReadOut::MdtHptdcReadOut() :
     m_errflag(0),
     m_leading(false) {}
 
-MdtHptdcReadOut::~MdtHptdcReadOut() {}
 
 void MdtHptdcReadOut::decodeWord(uint32_t dataWord) {
     //  Zero all the decoded quantities
@@ -34,33 +29,33 @@ void MdtHptdcReadOut::decodeWord(uint32_t dataWord) {
 
     if (is_TSM())  // TDC single measurement
     {
-        m_leading = !((bool)getBits(28, 28));
-        m_tdcId = getBits(27, 24);
-        m_channel = getBits(23, 19);
-        m_coarse = getBits(18, 5);
-        m_fine = getBits(4, 0);
+        m_leading = !((bool)getBits(getBitsWord(28, 28)));
+        m_tdcId = getBits(getBitsWord(27, 24));
+        m_channel = getBits(getBitsWord(23, 19));
+        m_coarse = getBits(getBitsWord(18, 5));
+        m_fine = getBits(getBitsWord(4, 0));
     } else if (is_TCM())  // TDC combined measurement
     {
-        m_tdcId = getBits(27, 24);
-        m_channel = getBits(23, 19);
-        m_width = getBits(18, 12);
-        m_coarse = getBits(11, 5);
-        m_fine = getBits(4, 0);
+        m_tdcId = getBits(getBitsWord(27, 24));
+        m_channel = getBits(getBitsWord(23, 19));
+        m_width = getBits(getBitsWord(18, 12));
+        m_coarse = getBits(getBitsWord(11, 5));
+        m_fine = getBits(getBitsWord(4, 0));
     } else if (is_BOT())  // Beginning of TDC
     {
         // One header bit is used for TDC numbers > 15
-        m_tdcId = getBits(28, 24);
-        m_ecnt = getBits(23, 12);
-        m_bcId = getBits(11, 0);
+        m_tdcId = getBits(getBitsWord(28, 24));
+        m_ecnt = getBits(getBitsWord(23, 12));
+        m_bcId = getBits(getBitsWord(11, 0));
     } else if (is_EOT())  // End of TDC
     {
-        m_tdcId = getBits(27, 24);
-        m_ecnt = getBits(23, 12);
-        m_wcnt = getBits(11, 0);
+        m_tdcId = getBits(getBitsWord(27, 24));
+        m_ecnt = getBits(getBitsWord(23, 12));
+        m_wcnt = getBits(getBitsWord(11, 0));
     } else if (is_TES())  // TDC error status
     {
-        m_tdcId = getBits(27, 24);
-        m_errflag = getBits(14, 0);
+        m_tdcId = getBits(getBitsWord(27, 24));
+        m_errflag = getBits(getBitsWord(14, 0));
     }
 }
 
@@ -81,7 +76,7 @@ void MdtHptdcReadOut::setZero() {
 // Beginning of TDC
 uint32_t MdtHptdcReadOut::makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid) {
     uint16_t inputData[4];
-    uint16_t inputPos[4] = {HEADERPOS, 24, 12, 0};
+    constexpr uint16_t inputPos[4] = {HEADERPOS, 24, 12, 0};
     uint16_t nData = 4;
 
     if (tdcId < 16) {
@@ -101,7 +96,7 @@ uint32_t MdtHptdcReadOut::makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid) 
 // End of TDC
 uint32_t MdtHptdcReadOut::makeEOT(uint16_t tdcId, uint16_t ecnt, uint16_t wcnt) {
     uint16_t inputData[4] = {EOTVALUE, tdcId, ecnt, wcnt};
-    uint16_t inputPos[4] = {HEADERPOS, 24, 12, 0};
+    constexpr uint16_t inputPos[4] = {HEADERPOS, 24, 12, 0};
     uint16_t nData = 4;
 
     return setBits(nData, inputData, inputPos);
@@ -113,7 +108,7 @@ uint32_t MdtHptdcReadOut::makeTSM(uint16_t tdcId, uint16_t channel, bool leading
 
     uint16_t inputData[4] = {TSMvalue, static_cast<uint16_t>(tdcId & 0xf), static_cast<uint16_t>(channel & 0x1f),
                              static_cast<uint16_t>(coarse & 0x7ffff)};
-    uint16_t inputPos[4] = {HEADERPOS, 24, 19, 0};
+    constexpr uint16_t inputPos[4] = {HEADERPOS, 24, 19, 0};
     uint16_t nData = 4;
 
     return setBits(nData, inputData, inputPos);
@@ -123,7 +118,7 @@ uint32_t MdtHptdcReadOut::makeTSM(uint16_t tdcId, uint16_t channel, bool leading
 uint32_t MdtHptdcReadOut::makeTCM(uint16_t tdcId, uint16_t channel, uint16_t width, uint16_t coarse, uint16_t /*fine*/) {
     uint16_t inputData[5] = {TCMVALUE, static_cast<uint16_t>(tdcId & 0xf), static_cast<uint16_t>(channel & 0x1f),
                              static_cast<uint16_t>(width & 0x7f), static_cast<uint16_t>(coarse & 0xfff)};
-    uint16_t inputPos[5] = {HEADERPOS, 24, 19, 12, 0};
+    constexpr uint16_t inputPos[5] = {HEADERPOS, 24, 19, 12, 0};
     uint16_t nData = 5;
 
     return setBits(nData, inputData, inputPos);
