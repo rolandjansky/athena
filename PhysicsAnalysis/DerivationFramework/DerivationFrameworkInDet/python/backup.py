@@ -77,6 +77,9 @@ def makeInDetDFCommon():
                                                                                         UsedInFitDecoratorTool = ToolSvc.DFCommonUsedInFitDecoratorTool )
         ToolSvc += DFCommonUsedInFitDecorator
     
+    #=======================================
+    # CREATE THE DERIVATION KERNEL ALGORITHM
+    #=======================================
         # Turned off by defult for the LRT tracks as they are not used. Added this option to turn it on for future studies.
         if InDetDxAODFlags.DecoLRTTTVA() and InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
 
@@ -104,7 +107,7 @@ def makeInDetDFCommon():
           DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetCommonKernel",
                                                                              AugmentationTools = [DFCommonTrackSelection, DFCommonZ0AtPV, DFCommonHSDecorator, DFCommonUsedInFitDecorator])
 
-    # Add LRT merger job to the sequence when the LRT track particle is supposed to be made already 
+    # Add LRT merger job to the sequence 
 
     if InDetDxAODFlags.MergeLRT() and InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container(): 
     #====================================================================
@@ -120,5 +123,4 @@ def makeInDetDFCommon():
       ToolSvc += LRTAndStandardTrackParticleMerger
       DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetLRTMerge",
                                                                          AugmentationTools = [LRTAndStandardTrackParticleMerger])
-    
     
