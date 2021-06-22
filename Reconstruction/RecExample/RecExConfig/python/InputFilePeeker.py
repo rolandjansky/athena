@@ -25,6 +25,25 @@ def _setup():
     msg = L.logging.getLogger('inputFilePeeker' )
     msg.info("Executing   inputFilePeeker.py")
 
+
+    enableDeprecationWarning = False
+    
+    # If enabled, this enable a deprecation warning when this module is used.
+    # By default it is disabled because othewise it will print a lot of warning during 
+    # the switch to MetaReader solution. We will enabled during local testing to better 
+    # pin out the usage of this deprecated module
+    if enableDeprecationWarning:
+        # We create a deprecation warning message
+        import inspect
+        
+        trace = []
+        stack = inspect.stack()
+        for i in range(len(stack)):
+            frame = stack[i]
+            trace.append('\t{}:{}'.format(frame.filename, frame.lineno))
+    
+        msg.warning('DEPRECATION: the deprecated module InputFilePeeker is still in use. Please switch to the MetaReaderPeeker module instead.\nBacktrace:\n{}'.format('\n'.join(trace)))
+
     # special setup for online reconstruction so far
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.isOnline():
