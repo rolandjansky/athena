@@ -347,6 +347,7 @@ DataHeader* DataHeaderCnv::createTransient() {
       if( compareClassGuid( p6_guid ) ) {
          std::unique_ptr<DataHeader_p6> header( poolReadObject_p6() );
          auto dh = m_tpInConverter.createTransient( header.get(), *(m_inputDHForms[ header->dhFormToken() ]) );
+         dh->setEvtRefTokenStr( m_i_poolToken->toString() );
          // To dump the DataHeader uncomment below
          // std::ostringstream ss;  dh->dump(ss); cout << ss.str() << endl;
          return dh;
