@@ -31,8 +31,16 @@
 #include "TMath.h" 
 #include "CLHEP/Geometry/Point3D.h"
 
+#include <map>
+
 #define AUXDATA(OBJ, TYP, NAME) \
   static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
+
+namespace {
+   unsigned int makeKey(short phi, char eta, char layer) {
+      return phi | (eta << 16) |  (layer << 24);
+   }
+}
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -83,7 +91,7 @@ StatusCode PixelPrepDataToxAOD::initialize()
   }
 
   ATH_CHECK(m_pixelCabling.retrieve());
-  ATH_CHECK(m_chargeDataKey.initialize());
+  ATH_CHECK(m_chargeDataKey.initialize( m_writeRDOinformation));
 
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
@@ -117,8 +125,9 @@ StatusCode PixelPrepDataToxAOD::initialize()
 /////////////////////////////////////////////////////////////////////
 StatusCode PixelPrepDataToxAOD::execute() 
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   //Mandatory. Require if the algorithm is scheduled.
-  SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer_key);
+  SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer_key,ctx);
   
   if ( !PixelClusterContainer.isValid() )
   {
@@ -128,7 +137,7 @@ StatusCode PixelPrepDataToxAOD::execute()
 
   const PRD_MultiTruthCollection* prdmtColl(nullptr);
   if (m_useTruthInfo) {
-    SG::ReadHandle<PRD_MultiTruthCollection> prdmtCollHandle(m_multiTruth_key);
+     SG::ReadHandle<PRD_MultiTruthCollection> prdmtCollHandle(m_multiTruth_key,ctx);
     if (prdmtCollHandle.isValid()) {
       prdmtColl = &*prdmtCollHandle;
     }
@@ -136,7 +145,7 @@ StatusCode PixelPrepDataToxAOD::execute()
 
   const InDetSimDataCollection* sdoCollection(nullptr);
   if (m_writeSDOs) {
-    SG::ReadHandle<InDetSimDataCollection> sdoCollectionHandle(m_SDOcontainer_key);
+    SG::ReadHandle<InDetSimDataCollection> sdoCollectionHandle(m_SDOcontainer_key,ctx);
     if (sdoCollectionHandle.isValid()) {
       sdoCollection = &*sdoCollectionHandle;
     } else if (m_firstEventWarnings) {
@@ -144,9 +153,17 @@ StatusCode PixelPrepDataToxAOD::execute()
     }
   }
 
+  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer;
+  if (!m_clusterSplitProbContainer.key().empty()) {
+     splitProbContainer=SG::ReadHandle<Trk::ClusterSplitProbabilityContainer>(m_clusterSplitProbContainer, ctx);
+     if (!splitProbContainer.isValid()) {
+        ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
+     }
+  }
+
   std::vector<std::vector<const SiHit*>> siHits(m_PixelHelper->wafer_hash_max());
   if (m_need_sihits) {
-    SG::ReadHandle<SiHitCollection> siHitCollectionHandle(m_sihitContainer_key);
+    SG::ReadHandle<SiHitCollection> siHitCollectionHandle(m_sihitContainer_key, ctx);
     if (siHitCollectionHandle.isValid()) {
       for (const SiHit& siHit: *siHitCollectionHandle) {
         // Check if it is a Pixel hit
@@ -164,22 +181,32 @@ StatusCode PixelPrepDataToxAOD::execute()
       ATH_MSG_WARNING("SiHit information requested, but SiHit collection not available!");
     }
   }
-  
+
+  const PixelChargeCalibCondData *calibData=nullptr;
+  if (m_writeRDOinformation) {
+     SG::ReadCondHandle<PixelChargeCalibCondData> calibData_handle(m_chargeDataKey,ctx);
+     if (!calibData_handle.isValid()) {
+        ATH_MSG_FATAL("Failed to get PixelChargeCalibCondData with key " << m_chargeDataKey);
+     }
+     calibData=calibData_handle.cptr();
+  }
+
   // Create the xAOD container and its auxiliary store:
-  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod);
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod,ctx);
   ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
                         std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
 
-  SG::WriteHandle<std::vector<unsigned int>> offsets(m_write_offsets);
+  SG::WriteHandle<std::vector<unsigned int>> offsets(m_write_offsets,ctx);
   ATH_CHECK(offsets.record(std::make_unique<std::vector<unsigned int>>(m_PixelHelper->wafer_hash_max(), 0)));
   
   // Loop over the container
   unsigned int counter(0);
  
-  SG::ReadCondHandle<PixelDCSStateData> dcsState(m_condDCSStateKey);
-  SG::ReadCondHandle<PixelDCSHVData> dcsHV(m_readKeyHV);
-  SG::ReadCondHandle<PixelDCSTempData> dcsTemp(m_readKeyTemp);
+  SG::ReadCondHandle<PixelDCSStateData> dcsState(m_condDCSStateKey,ctx);
+  SG::ReadCondHandle<PixelDCSHVData> dcsHV(m_readKeyHV,ctx);
+  SG::ReadCondHandle<PixelDCSTempData> dcsTemp(m_readKeyTemp,ctx);
 
+  std::unordered_map< unsigned int , std::vector<unsigned int> > cluster_map;
   for( const auto clusterCollection : * PixelClusterContainer ){
 
     //Fill Offset container
@@ -199,6 +226,7 @@ StatusCode PixelPrepDataToxAOD::execute()
             
       // create and add xAOD object
       xAOD::TrackMeasurementValidation* xprd = new xAOD::TrackMeasurementValidation();
+      unsigned int cluster_idx = xaod->size();
       xaod->push_back(xprd);
       
       //Set Identifier
@@ -229,6 +257,7 @@ StatusCode PixelPrepDataToxAOD::execute()
 
       // Set vector of hit identifiers
       std::vector< uint64_t > rdoIdentifierList;
+      rdoIdentifierList.reserve(prd->rdoList().size());
       for( const auto &hitIdentifier : prd->rdoList() ){
         rdoIdentifierList.push_back( hitIdentifier.get_compact() );
         //May want to addinformation about the individual hits here
@@ -237,15 +266,18 @@ StatusCode PixelPrepDataToxAOD::execute()
 
       //Add pixel cluster properties
       AUXDATA(xprd,int,bec)          =   m_PixelHelper->barrel_ec(clusterId)   ;
-      AUXDATA(xprd,int,layer)        =   m_PixelHelper->layer_disk(clusterId)  ;   
-      AUXDATA(xprd,int,phi_module)   =   m_PixelHelper->phi_module(clusterId)  ;
-      AUXDATA(xprd,int,eta_module)   =   m_PixelHelper->eta_module(clusterId)  ;
-         
+      char the_layer                 =   m_PixelHelper->layer_disk(clusterId)  ;
+      char the_eta                   =   m_PixelHelper->eta_module(clusterId)  ;
+      short the_phi                  =   m_PixelHelper->phi_module(clusterId)  ;
+      AUXDATA(xprd,int,layer)        =   the_layer ;
+      AUXDATA(xprd,int,phi_module)   =   the_phi ;
+      AUXDATA(xprd,int,eta_module)   =   the_eta ;
       //AUXDATA(xprd,int,col)         =  m_PixelHelper->eta_index(clusterId);
       //AUXDATA(xprd,int,row)         =  m_PixelHelper->phi_index(clusterId);
       AUXDATA(xprd,int,eta_pixel_index)         =  m_PixelHelper->eta_index(clusterId);
       AUXDATA(xprd,int,phi_pixel_index)         =  m_PixelHelper->phi_index(clusterId);
-   
+
+      cluster_map[ makeKey(the_phi, the_eta, the_layer)].push_back(cluster_idx);
 
       const InDet::SiWidth cw = prd->width();
       AUXDATA(xprd,int,sizePhi) = (int)cw.colRow()[0];
@@ -257,8 +289,9 @@ StatusCode PixelPrepDataToxAOD::execute()
       AUXDATA(xprd,int,LVL1A)     =  prd->LVL1A(); 
    
       AUXDATA(xprd,char,isFake)      =  (char)prd->isFake(); 
-      AUXDATA(xprd,char,gangedPixel) =  (char)prd->gangedPixel(); 
-      const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(prd);
+      AUXDATA(xprd,char,gangedPixel) =  (char)prd->gangedPixel();
+      const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &
+         splitProb = splitProbContainer.isValid() ? splitProbContainer->splitProbability(prd) : Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
       AUXDATA(xprd,int,isSplit)      =  static_cast<int>(splitProb.isSplit());
       AUXDATA(xprd,float,splitProbability1)  =  splitProb.splitProbability1();
       AUXDATA(xprd,float,splitProbability2)  =  splitProb.splitProbability2();
@@ -279,7 +312,8 @@ StatusCode PixelPrepDataToxAOD::execute()
 
         AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleTool->getLorentzShift(moduleHash);
 
-        addRdoInformation(xprd,  prd);
+        assert (calibData);
+        addRdoInformation(xprd,  prd, calibData);
       } 
   
   
@@ -331,7 +365,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       }
     }
   }
-  
+
   for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ ) {
       AUXDATA(*clusItr,char,broken) = false;
   }
@@ -346,9 +380,9 @@ StatusCode PixelPrepDataToxAOD::execute()
       int layer = acc_layer(*pixelCluster);
       std::vector<int> barcodes = acc_sihit_barcode(*pixelCluster);
 
-      for ( auto clusItr2 = clusItr + 1; clusItr2 != xaod->end(); clusItr2++ )
-      {
-	  auto pixelCluster2 = *clusItr2;
+      const std::vector< unsigned int> &cluster_idx_list = cluster_map.at( makeKey(acc_phi_module(*pixelCluster), acc_eta_module(*pixelCluster), acc_layer(*pixelCluster) ));
+      for (unsigned int cluster_idx : cluster_idx_list) {
+          auto pixelCluster2 = xaod->at(cluster_idx);
 	  if ( acc_layer(*pixelCluster2) != layer )
 	      continue;
 	  if ( acc_eta_module(*pixelCluster) != acc_eta_module(*pixelCluster2) )
@@ -578,6 +612,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
         highestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
+        // @TODO could invalidate siHitIter
         siHitIter2 = multiMatchingHits.erase( siHitIter2 );
       }else if (fabs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<0.00005 &&
                 fabs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<0.00005 &&
@@ -586,6 +621,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
         lowestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
+        // @TODO could invalidate siHitIter
         siHitIter2 = multiMatchingHits.erase( siHitIter2 );
       } else {
         ++siHitIter2;
@@ -634,7 +670,8 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
 }
 
 void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xprd, 
-                                           const InDet::PixelCluster* pixelCluster ) const
+                                            const InDet::PixelCluster* pixelCluster,
+                                            const PixelChargeCalibCondData *calibData) const
 {
   ATH_MSG_VERBOSE( " Starting creating input from cluster "   );
 
@@ -652,8 +689,6 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   std::vector<float> ATerm;
   std::vector<float> ETerm;
 
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
-
   ATH_MSG_VERBOSE( "Number of RDOs: " << rdos.size() );
   
   //Itererate over all elements hits in the cluster and fill the charge and tot matricies 
@@ -662,6 +697,11 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
 
   ATH_MSG_VERBOSE(" Putting together the n. " << rdos.size() << " rdos into a matrix.");
 
+  phiIndexList.reserve( rdos.size());
+  etaIndexList.reserve( rdos.size());
+  CTerm.reserve( rdos.size());
+  ATerm.reserve( rdos.size());
+  ETerm.reserve( rdos.size());
   for (; rdosBegin!= rdosEnd; ++rdosBegin)
   {
     Identifier rId =  *rdosBegin;

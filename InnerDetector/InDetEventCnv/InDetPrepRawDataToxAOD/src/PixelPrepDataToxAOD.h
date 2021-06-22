@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file InDetPrepRawDataToxAOD/PixelPrepDataToxAOD.h
@@ -95,8 +95,9 @@ private:
                          const unsigned int SizeX, 
                          const unsigned int SizeY ) const;
 
-  void  addRdoInformation( xAOD::TrackMeasurementValidation* xprd, 
-                         const InDet::PixelCluster* pixelCluster) const;
+  void  addRdoInformation( xAOD::TrackMeasurementValidation* xprd,
+                           const InDet::PixelCluster* pixelCluster,
+                           const PixelChargeCalibCondData *calibData) const;
 
 
 
@@ -105,16 +106,6 @@ private:
                                                  int *rrowMax = 0,
                                                  int *rcolMin = 0,
                                                  int *rcolMax = 0 ) const;
-
-  const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &getClusterSplittingProbability(const InDet::PixelCluster*pix) const {
-     if (!pix || m_clusterSplitProbContainer.key().empty())  return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
-
-     SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(m_clusterSplitProbContainer);
-     if (!splitProbContainer.isValid()) {
-        ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
-     }
-     return splitProbContainer->splitProbability(pix);
-  }
 
   const PixelID *m_PixelHelper;
 
