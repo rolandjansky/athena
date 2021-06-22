@@ -52,30 +52,23 @@ namespace Rec {
         /**IMuidCaloTrackStateOnSurface interface:
            to get the 3 scattering and energy deposit TSOS'es representing the calorimeter.
            The input TrackParameters may be anywhere along the track. */
-        std::vector<const Trk::TrackStateOnSurface*>* caloTSOS(const Trk::TrackParameters& parameters) const override;
         std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> caloTSOS(const EventContext& ctx,
-                                                                              const Trk::TrackParameters& parameters) const;
+                                                                              const Trk::TrackParameters& parameters) const override;
 
         /**IMuidCaloTrackStateOnSurface interface:
            to get individually the scattering TSOS'es representing the calorimeter.
            The input TrackParameters may be anywhere along the track. */
-        const Trk::TrackStateOnSurface* innerTSOS(const Trk::TrackParameters& parameters) const override;
-        const Trk::TrackStateOnSurface* outerTSOS(const Trk::TrackParameters& parameters) const override;
-
-        std::unique_ptr<Trk::TrackStateOnSurface> innerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const;
-        std::unique_ptr<Trk::TrackStateOnSurface> outerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const;
+        std::unique_ptr<Trk::TrackStateOnSurface> innerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const override;
+        std::unique_ptr<Trk::TrackStateOnSurface> outerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const override;
 
         /**IMuidCaloTrackStateOnSurface interface:
            to get the energy deposit TSOS representing the calorimeter.
            The input TrackParameters may be anywhere along the track, but when the inner
            or outer parameters are provided they must be expressed at the appropriate surface.
            The return TSOS surface is at the material midpoint. */
-        const Trk::TrackStateOnSurface* middleTSOS(const Trk::TrackParameters& middleParameters,
-                                                   const Trk::TrackParameters* innerParameters,
-                                                   const Trk::TrackParameters* outerParameters) const override;
         std::unique_ptr<Trk::TrackStateOnSurface> middleTSOS(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
                                                              const Trk::TrackParameters* innerParameters,
-                                                             const Trk::TrackParameters* outerParameters) const;
+                                                             const Trk::TrackParameters* outerParameters) const override;
 
     private:
         // private methods
