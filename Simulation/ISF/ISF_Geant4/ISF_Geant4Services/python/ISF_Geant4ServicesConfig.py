@@ -15,7 +15,7 @@ def usingGeant4():
     global cache
     return bool(cache)
 
-def getIGeant4(**kwargs):
+def getIGeant4(name, **kwargs):
     global cache
     FullGeant4 = kwargs.pop('FullGeant4',False)
     if 'iGeant4' in cache:
@@ -27,7 +27,7 @@ def getIGeant4(**kwargs):
                 sys.exit()
     else:
         from .iGeant4 import iGeant4
-        i = iGeant4(**kwargs)
+        i = iGeant4(name, **kwargs)
         cache['iGeant4'] = i
     return i
 
@@ -35,7 +35,7 @@ def getGeant4SimSvc(name="ISF_Geant4SimSvc", **kwargs):
     kwargs.setdefault('SimulatorTool'        , 'ISF_Geant4Tool'         )
     kwargs.setdefault('Identifier'            , "Geant4"                     )
     kwargs.setdefault('FullGeant4'            , False                        )
-    return getIGeant4(**kwargs).getSimSvc()
+    return getIGeant4(name, **kwargs).getSimSvc()
 
 def getFullGeant4SimSvc(name="ISF_FullGeant4SimSvc", **kwargs):
     kwargs.setdefault('SimulatorTool'        , 'ISF_FullGeant4Tool'         )

@@ -46,9 +46,10 @@ def PileupParticleKillerSelectorCfg(flags, name="ISF_PileupParticleKillerSelecto
 
 def DefaultGeant4SelectorCfg(flags, name="ISF_DefaultGeant4Selector", **kwargs):
     acc = ComponentAccumulator()
-    if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
-        acc.merge(Geant4SimCfg(flags))
-        kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
+    if "Simulator" not in kwargs:
+        if flags.Concurrency.NumThreads == 0 and 'MT' not in flags.Sim.ISF.Simulator:
+            acc.merge(Geant4SimCfg(flags))
+            kwargs.setdefault("Simulator", acc.getService("ISFG4SimSvc"))
     kwargs.setdefault("SimulationFlavor", SimulationFlavor.Geant4)
     acc.setPrivateTools(CompFactory.ISF.DefaultSimSelector(name, **kwargs))
     return acc
