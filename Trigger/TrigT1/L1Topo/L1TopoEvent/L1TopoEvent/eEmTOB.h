@@ -19,10 +19,10 @@ namespace TCS {
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
       // default constructor
-      eEmTOB(uint32_t roiWord = 0, std::string tobName = "eEmTOB");
+      eEmTOB(uint32_t roiWord = 0, const std::string& tobName = "eEmTOB");
       
       // constructor with individual values
-      eEmTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, std::string tobName = "eEmTOB");
+      eEmTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eEmTOB");
 
       // constructor with initial values
       eEmTOB(const eEmTOB & eem);
