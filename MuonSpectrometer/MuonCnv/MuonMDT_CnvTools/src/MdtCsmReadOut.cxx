@@ -23,7 +23,6 @@ MdtCsmReadOut::MdtCsmReadOut() :
     m_error(0),
     m_zeroSupp(0) {}
 
-MdtCsmReadOut::~MdtCsmReadOut() {}
 
 void MdtCsmReadOut::decodeWord(uint32_t dataWord) {
     setZero();
@@ -33,20 +32,20 @@ void MdtCsmReadOut::decodeWord(uint32_t dataWord) {
     m_wordHeader = (dataWord >> s_headerPos) & s_headerBits;
 
     if (is_BOB()) {
-        m_lvl1Id = getBits(23, 0);
+        m_lvl1Id = getBits(getBitsWord(23, 0));
     } else if (is_LWC()) {
-        m_ftyp = getBits(23, 20);
-        m_clwc = getBits(19, 0);
+        m_ftyp = getBits(getBitsWord(23, 20));
+        m_clwc = getBits(getBitsWord(19, 0));
     } else if (is_BOL()) {
-        m_error = (bool)getBits(20, 20);
-        m_zeroSupp = (bool)getBits(16, 16);
-        m_mrodId = getBits(15, 4);
-        m_csmId = getBits(3, 0);
+        m_error = (bool)getBits(getBitsWord(20, 20));
+        m_zeroSupp = (bool)getBits(getBitsWord(16, 16));
+        m_mrodId = getBits(getBitsWord(15, 4));
+        m_csmId = getBits(getBitsWord(3, 0));
     } else if (is_TLP()) {
-        m_flags = getBits(17, 0);
+        m_flags = getBits(getBitsWord(17, 0));
     } else if (is_TWC()) {
-        m_ecnt = getBits(23, 12);
-        m_ctwc = getBits(11, 0);
+        m_ecnt = getBits(getBitsWord(23, 12));
+        m_ctwc = getBits(getBitsWord(11, 0));
     }
 }
 

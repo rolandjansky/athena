@@ -11,9 +11,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 
-const uint32_t MdtRODReadOut::s_RODstart = 0xee1234ee;
-const uint32_t MdtRODReadOut::s_RODheadersize = 0x8;
-const uint32_t MdtRODReadOut::s_RODversion = 0;  // ??
 
 MdtRODReadOut::MdtRODReadOut() :
     // m_dataWord(0),
@@ -23,7 +20,6 @@ MdtRODReadOut::MdtRODReadOut() :
     m_bcId(0),
     m_triggerTypeId(0) {}
 
-MdtRODReadOut::~MdtRODReadOut() {}
 
 // Decode the ROD header
 void MdtRODReadOut::decodeHeader(const std::vector<uint32_t>& p) {
@@ -52,20 +48,20 @@ void MdtRODReadOut::decodeHeader(const std::vector<uint32_t>& p) {
     // decode the rest of the header
     // Subdetector Id and mrodId
     m_word = p[3];
-    m_subdetId = getBits(15, 8);
-    m_mrodId = getBits(7, 0);
+    m_subdetId = getBits(getBitsWord(15, 8));
+    m_mrodId = getBits(getBitsWord(7, 0));
 
     // Lvl1Id
     m_word = p[4];
-    m_lvl1Id = getBits(23, 0);
+    m_lvl1Id = getBits(getBitsWord(23, 0));
 
     // Bunch crossing identifier
     m_word = p[5];
-    m_bcId = getBits(11, 0);
+    m_bcId = getBits(getBitsWord(11, 0));
 
     // Trigger type Id
     m_word = p[6];
-    m_triggerTypeId = getBits(7, 0);
+    m_triggerTypeId = getBits(getBitsWord(7, 0));
 }
 
 // Decode the ROD footer
