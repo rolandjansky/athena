@@ -127,7 +127,7 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
                                                         MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
                                                         PrintSummary = muonStandaloneFlags.printSummary() )
     # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
-    if muonRecFlags.doCSCs():
+    if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC():
         getPublicTool("CscSegmentUtilTool")
         getPublicTool("Csc2dSegmentMaker")
         getPublicTool("Csc4dSegmentMaker")
