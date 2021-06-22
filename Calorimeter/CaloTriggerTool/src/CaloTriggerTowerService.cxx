@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
@@ -105,6 +105,7 @@ StatusCode CaloTriggerTowerService::initialize ()
   // context.  So force the needed dictionaries to load now.
   TClass::GetClass ("LArTTCell_P");
   TClass::GetClass ("LArTTCell_P::LArTTCell_P_t");
+  TClass::GetClass ("std::vector<LArTTCell_P::LArTTCell_P_t>");
 
   msg()<<MSG::INFO<<" ====> ...CaloTriggerTowerService::init() OK "<< endmsg;
   return StatusCode::SUCCESS;
