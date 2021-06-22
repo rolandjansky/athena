@@ -326,20 +326,22 @@ class DatasetsSelector(Selector):
             self.selpattern = pattern.split(',')
     
     def runAfterQuery(self,runlist):
-        # do show selection here
-        from CoolRunQuery.AtlRunQueryTier0 import GetTier0_allDatasets
-        runnrlist = [r.runNr for r in runlist]
-        tier0connection  = coolDbConn.GetTier0DBConnection()
-        tier0retdico     = GetTier0_allDatasets( tier0connection.cursor(), runnrlist, self.selpattern )
+        useTier0DB = False # ATLAS_T0 responsible refusing to allow access to their DB
+        if useTier0DB:
+            # do show selection here
+            from CoolRunQuery.AtlRunQueryTier0 import GetTier0_allDatasets
+            runnrlist = [r.runNr for r in runlist]
+            tier0connection  = coolDbConn.GetTier0DBConnection()
+            tier0retdico     = GetTier0_allDatasets( tier0connection.cursor(), runnrlist, self.selpattern )
 
-        for run in runlist: # go through old runlist and see
-            if run.runNr in tier0retdico:
-                run.addResult('Datasets', tier0retdico[run.runNr])
-            else:
-                run.addResult('Datasets', {})
+            for run in runlist: # go through old runlist and see
+                if run.runNr in tier0retdico:
+                    run.addResult('Datasets', tier0retdico[run.runNr])
+                else:
+                    run.addResult('Datasets', {})
 
-        Run.AddToShowOrder(DataKey('Datasets'))
-        Run.showCAFLinks = self.showCAFLinks
+            Run.AddToShowOrder(DataKey('Datasets'))
+            Run.showCAFLinks = self.showCAFLinks
 
 
 

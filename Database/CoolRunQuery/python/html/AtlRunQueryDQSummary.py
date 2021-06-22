@@ -17,9 +17,9 @@ from CoolRunQuery.utils.AtlRunQueryUtils import timer
 from CoolRunQuery.AtlRunQueryRun import Run
 from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
 
-import xmlrpclib
+import xmlrpc.client
 global server
-server = xmlrpclib.ServerProxy('http://atlasdqm.cern.ch')
+server = xmlrpc.client.ServerProxy('http://atlasdqm.cern.ch')
 
 from DQDefects import DefectsDB
 
@@ -103,7 +103,7 @@ def GetLBLiveFraction(dic,run):
         for item in trigrate:
             (lb, tbp, tap, tav) = map(int, item)
             livefraction[lb]= 0.
-            if tbp != 0:
+            if tap != 0:
                 livefraction[lb] = float(tav)/tap
     except KeyError:
         print ("%s trigger not found - no live fraction computation" % livetrigger)
@@ -429,7 +429,7 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,ignored,dic,run):
     ## Tolerable ##
     if len(tolerable) > 0 :
 
-        all = dict(tolerable.items() + intolerable.items() + ignored.items())
+        all = {**tolerable, **intolerable, **ignored}
 
         TCol1 = TColor.GetColor("#0f3a60")
         TCol2 = TColor.GetColor("#a3c0d9")
@@ -581,17 +581,17 @@ class DQSummary:
             ## Retrieve DQ primary defects relative to GRL
             # Check if defect data base has correct format (should be always the case)
             if len(dbbTag) != 2:
-                warning += '<center><font color="red"> WARNING (DQSummary): The defect database tag "%s" must be a 2-element sequence. Will use "HEAD" tag instead!</font></center><br>' %(dbbTag)
+                warning += '<font color="red"> WARNING (DQSummary): The defect database tag "%s" must be a 2-element sequence. Will use "HEAD" tag instead!</font><br>' %(dbbTag)
                 dbbTag = ("HEAD", "HEAD")
             #Create dbb dummy with HEAD tag
             ddb = DefectsDB()
             #check if defect tag is defined in defect database
             if dbbTag[0] not in ['HEAD'] + ddb.defects_tags:
-                warning += '<center><font color="red"> WARNING (DQSummary): The defined defect tag "%s" is not defined in defect database. Will use "HEAD" tag instead!</font></center><br>' %(dbbTag[0])
+                warning += '<font color="red"> WARNING (DQSummary): The defined defect tag "%s" is not defined in defect database. Will use "HEAD" tag instead!</font><br>' %(dbbTag[0])
                 dbbTag = ("HEAD", dbbTag[1])
             #check if defect and logic tag is defined in defect database
             if dbbTag[1] not in ['HEAD'] + ddb.logics_tags:
-                warning += '<center><font color="red"> WARNING (DQSummary): The defined logic tag "%s" is not defined in defect database. Will use "HEAD" tag instead!</font></center><br>' %(dbbTag[1])
+                warning += '<font color="red"> WARNING (DQSummary): The defined logic tag "%s" is not defined in defect database. Will use "HEAD" tag instead!</font><br>' %(dbbTag[1])
                 dbbTag = (dbbTag[0], "HEAD")
             #Now set tags
             ddb = DefectsDB(tag=(dbbTag[0], dbbTag[1]))
@@ -599,7 +599,7 @@ class DQSummary:
             if dqsumGRL in ddb.virtual_defect_logics.keys():
                 defects_primary_grl = ddb.resolve_primary_defects(ddb._resolve_evaluation_order([dqsumGRL]))
             else:
-                warning += '<center><font color="red"> WARNING (DQSummary): The defined virtual defect or GRL "%s" is not defined in logic. Will use no GRL for calculation!</font></center><br>' %(dqsumGRL)
+                warning += '<font color="red"> WARNING (DQSummary): The defined virtual defect or GRL "%s" is not defined in logic. Will use no GRL for calculation!</font><br>' %(dqsumGRL)
                 dqsumGRL = 'no'
 
             #Check if cosmic run
@@ -693,6 +693,9 @@ class DQSummary:
                 for r,run in enumerate(dic[DataKey('Run')]):
                     tot_nlb += dic[DataKey('#LB')][r][0]
 
+            runsWithoutReadyForPhysics = []
+            runsWithoutOfflineLumiInfo = []
+
             ### loop over runs ###
             for r,run in enumerate(dic[DataKey('Run')]):
 
@@ -710,7 +713,7 @@ class DQSummary:
 
                 ## If no ATLAS ready LB: skip the run
                 if len(readylb) == 0:
-                    warning += '<center><font color="red">WARNING! Run %s has 0 ATLAS Ready LB</font></center><br>'%run
+                    runsWithoutReadyForPhysics += [ str(run) ]
                     continue
 
                 ## Get lumi per LB and live fraction for the current run
@@ -723,7 +726,7 @@ class DQSummary:
                     livefrac = GetLBLiveFraction(dic,r)
 
                 if len(lumiperlb) == 0:
-                    warning += '<center><font color="red">WARNING! Run %s has no offline lumi info</font></center><br>'%run
+                    runsWithoutOfflineLumiInfo += [ str(run) ]
                     continue
 
                 ## Correct lumi per LB with live fraction
@@ -1100,6 +1103,11 @@ class DQSummary:
             ### end of run loop ###
             summarytable += '</table></div><br>'            
             ### end of results table ###
+            if runsWithoutReadyForPhysics:
+                warning += '<font color="red">WARNING! The following runs have 0 ATLAS Ready LB: %s</font><br>' % ", ".join(runsWithoutReadyForPhysics)
+            if runsWithoutOfflineLumiInfo:
+                warning += '<font color="red">WARNING! The following runs have no offline lumi info: %s</font><br>' % ", ".join(runsWithoutOfflineLumiInfo)
+
 
 
         ##########################
