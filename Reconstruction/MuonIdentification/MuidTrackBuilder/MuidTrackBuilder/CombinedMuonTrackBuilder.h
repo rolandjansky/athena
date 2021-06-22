@@ -148,8 +148,8 @@ namespace Rec {
 
         void finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const;
 
-        void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false, double deltaPhi = 0.,
-                            double deltaTheta = 0.) const;
+        void momentumUpdate(std::unique_ptr<const Trk::TrackParameters>& parameters, double updatedP, bool directionUpdate = false,
+                            double deltaPhi = 0., double deltaTheta = 0.) const;
 
         double normalizedChi2(const Trk::Track& track) const;
         std::unique_ptr<Trk::Track> reallocateMaterial(const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
@@ -330,6 +330,10 @@ namespace Rec {
         const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const;
         const AtlasFieldCacheCondObj* getFieldCacheObj(const EventContext& ctx) const;
         bool loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& field_cache) const;
+        /// Helper method to retrieve the CaloTSO from the Material provider
+        /// in a memory safe way
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> getCaloTSOSfromMatProvider(const Trk::TrackParameters& track_params,
+                                                                                                const Trk::Track& me_track) const;
 
     };  // end of class CombinedMuonTrackBuilder
 
