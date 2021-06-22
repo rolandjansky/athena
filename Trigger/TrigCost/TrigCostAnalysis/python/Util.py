@@ -80,7 +80,6 @@ def exploreTree(inputFile):
         for table in obj.GetListOfKeys():
             tableObj = table.ReadObj()
             if not tableObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
-
             log.info("Processing Table %s", table.GetName())
             # Find and create Table Constructor for specific Table
             try:
@@ -88,8 +87,11 @@ def exploreTree(inputFile):
                 exec("from TrigCostAnalysis." + className + " import " + className)
                 t = eval(className + "(tableObj)")
 
-                if table.GetName() == "Chain_HLT":
+                if table.GetName() == "Chain_HLT" or table.GetName() == "Chain_Algorithm_HLT":
                     t.totalTime = getAlgorithmTotalTime(inputFile, obj.GetName())
+
+                if table.GetName() == "Global_HLT":
+                    t.lbLength = walltime
 
                 fileName = getFileName(table.GetName(), key.GetName())
                 histPrefix = getHistogramPrefix(table.GetName(), key.GetName())
