@@ -137,7 +137,9 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     # Schedule towermaker
     from TrigT1CaloFexPerf.TrigT1CaloFexPerfConf import (
         LVL1__JGTowerBuilder, LVL1__JTowerMappingMaker, LVL1__GTowerMappingMaker, LVL1__JGTowerNoiseAlg, LVL1__GBlockBuilder,
-        LVL1__JTowerRhoSubtractionAlg, LVL1__GTowersFromGCaloTowers, LVL1__GTowerRhoSubtractionAlg, LVL1__METNoiseCutPerfFex, LVL1__METJWoJPerfFex, LVL1__FwdCellReader)
+        LVL1__JTowerRhoSubtractionAlg, LVL1__GTowersFromGCaloTowers, LVL1__GTowerRhoSubtractionAlg, LVL1__METNoiseCutPerfFex, LVL1__METJWoJPerfFex, 
+        LVL1__JJetBuilder,
+        LVL1__FwdCellReader)
     from AthenaCommon.AppMgr import ToolSvc
     global ToolSvc
     ToolSvc += LVL1__JTowerMappingMaker(
@@ -296,7 +298,27 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
     enableEfexAlgorithms(l1simAlgSeq, 
                          SuperCellContainer=SCIn, 
                          )
-    
+
+    #JFex Jet algorithms 
+    l1simAlgSeq += LVL1__JJetBuilder(
+        "JFexJetsPUSub", 
+        MappingMaker = ToolSvc.JTowerMappingMaker,
+        InputTowers = "JTowersRhoSubtractedPerf",
+        InputTowerNoise = "",
+        OutputSmallJets = "jRoundJetsPUsubPerf",
+        OutputLargeJets = "jRoundLargeJetsPUsubPerf",
+        OutputSeedJets = "jSeedsPUsubPerf"
+    )
+
+    l1simAlgSeq += LVL1__JJetBuilder(
+        "JFexJetsNC",
+        MappingMaker = ToolSvc.JTowerMappingMaker,
+        InputTowers = "JTowersPerf",
+        InputTowerNoise = "noise",
+        OutputSmallJets = "jRoundJetsPerf",
+        OutputLargeJets = "jRoundLargeJetsPerf",
+        OutputSeedJets = "jSeedsPerf"
+    )
 
     if simflags.EnableDebugOutput():
         log.debug("Algorithm sequence after L1 simulation setup")

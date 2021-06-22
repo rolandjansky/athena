@@ -15,6 +15,7 @@
 #include "../JGTowerNoiseAlg.h"
 #include "../GBlockBuilder.h"
 #include "../METJWoJPerfFex.h"
+#include "../JJetBuilder.h" 
 // eFEX
 #include "../EFexEMAlgorithm.h"
 #include "../EFexTauAlgorithm.h"
@@ -35,6 +36,7 @@ DECLARE_ALGORITHM_FACTORY(LVL1::GTowerRhoSubtractionAlg)
 DECLARE_ALGORITHM_FACTORY(LVL1::JGTowerNoiseAlg)
 DECLARE_ALGORITHM_FACTORY(LVL1::GBlockBuilder)
 DECLARE_ALGORITHM_FACTORY(LVL1::METJWoJPerfFex)
+DECLARE_ALGORITHM_FACTORY(LVL1::JJetBuilder)
 DECLARE_TOOL_FACTORY(LVL1::JTowerMappingMaker)
 DECLARE_TOOL_FACTORY(LVL1::GTowerMappingMaker)
 // ffex
@@ -56,6 +58,7 @@ DECLARE_FACTORY_ENTRIES(TrigT1CaloFexPerf)
   DECLARE_ALGORITHM(LVL1::JGTowerNoiseAlg)
   DECLARE_ALGORITHM(LVL1::GBlockBuilder)
   DECLARE_ALGORITHM(LVL1::METJWoJPerfFex)
+  DECLARE_ALGORITHM(LVL1::JJetBuilder)
   DECLARE_TOOL(LVL1::JTowerMappingMaker)
   DECLARE_TOOL(LVL1::GTowerMappingMaker)
   // ffex
