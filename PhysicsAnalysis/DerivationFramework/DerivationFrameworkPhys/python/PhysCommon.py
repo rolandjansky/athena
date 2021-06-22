@@ -88,7 +88,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 if ConfigFlags.Trigger.EDMVersion == 3:
    r_tau = re.compile("HLT_.*tau.*")
-   r_notau = re.compile("HLT_[1-9]*(e|mu|g).*") 
+   r_notau = re.compile("HLT_[1-9]*(e|mu).*") 
    r_veto = re.compile("HLT_.*(LRT).*")   
    for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
       result_tau = r_tau.match(chain_name)
