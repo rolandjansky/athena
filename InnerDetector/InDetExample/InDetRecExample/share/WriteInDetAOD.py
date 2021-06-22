@@ -41,7 +41,6 @@ if InDetFlags.doxAOD():
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
-  # save a separate LRT container anyway. Currently it does not create problems if the container does not exist.
   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsPixel():

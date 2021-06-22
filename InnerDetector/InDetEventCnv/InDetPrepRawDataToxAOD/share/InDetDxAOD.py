@@ -508,6 +508,33 @@ if (printIdTrkDxAODConf):
     print(DFTSOS)
     print(DFTSOS.properties())
 
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+
+  # LRT Dev: Add the LRT TSOS augmentation tool as well
+  DFTSOSLRT = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecoratorLRT_InDetDxAOD",
+                                                                ContainerName = "InDetLargeD0TrackParticles",
+                                                                DecorationPrefix = prefixName,
+                                                                StoreTRT   = dumpTrtInfo,
+                                                                TrtMsosName = 'TRT_LargeD0Tracks_MSOSs',
+                                                                StoreSCT   = dumpSctInfo,
+                                                                SctMsosName = 'SCT_LargeD0Tracks_MSOSs',
+                                                                StorePixel = dumpPixInfo,
+                                                                PixelMsosName = 'Pixel_LargeD0Tracks_MSOSs',
+                                                                IsSimulation = isIdTrkDxAODSimulation,
+                                                                PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.ExtendedLargeD0Tracks(),
+                                                                TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
+                                                                OutputLevel = INFO)
+
+  if dumpTrtInfo:
+      #Add tool to calculate TRT-based dEdx
+      DFTSOSLRT.TRT_ToT_dEdx = TRT_dEdx_Tool
+
+  ToolSvc += DFTSOSLRT
+  augmentationTools+=[DFTSOSLRT]
+  if (printIdTrkDxAODConf):
+      print(DFTSOSLRT)
+      print(DFTSOSLRT.properties())
+
 # If requested, decorate also split tracks (for cosmics)
 if makeSplitTracks:
     DFTSOS_SplitTracks = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFSplitTracksTrackStateOnSurfaceDecorator",

@@ -179,8 +179,6 @@ if InDetFlags.doxAOD():
   if InDetFlags.doConversions():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
     InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
-
-  #Save separate LRT container all the time as it does not crash even LRT was not turned on 
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsPixel():
