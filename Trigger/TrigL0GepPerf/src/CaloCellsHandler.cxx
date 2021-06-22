@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <vector>
@@ -33,7 +33,7 @@ void CaloCellsHandler::fillCellsInformation(const CaloCellContainer* cells){
   m_caloCells.clear();  
 
   for(auto cell: *cells){
-    CustomCaloCell caloCell; 
+    Gep::CustomCaloCell caloCell; 
     
     caloCell.e          = cell->energy();
     caloCell.et         = cell->energy() * 1.0/TMath::CosH(cell->eta());
@@ -109,7 +109,7 @@ void CaloCellsHandler::fillCellsInformation(const CaloCellContainer* cells){
     caloCell.phiGranularity = dphi;
     
     // store cells map    
-    m_caloCells.insert(std::pair<unsigned int, CustomCaloCell>(caloCell.id, caloCell));
+    m_caloCells.insert(std::pair<unsigned int, Gep::CustomCaloCell>(caloCell.id, caloCell));
     
   }
 }
