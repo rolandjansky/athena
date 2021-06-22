@@ -283,6 +283,7 @@ namespace top {
 
     //some event weights
     float m_weight_mc;
+    float m_weight_beamspot;
     float m_weight_pileup;
     ///-- Pileup SF systematics --///
     float m_weight_pileup_UP;

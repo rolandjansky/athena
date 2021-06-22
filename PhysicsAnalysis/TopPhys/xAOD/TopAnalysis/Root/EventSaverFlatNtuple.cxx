@@ -37,6 +37,7 @@ namespace top {
     m_particleLevelTreeManager(nullptr),
 
     m_weight_mc(0.),
+    m_weight_beamspot(0.),
     m_weight_pileup(0.),
 
     m_weight_fwdElSF(0.),
@@ -309,6 +310,7 @@ namespace top {
       m_truthTreeManager->makeOutputVariable(m_mu, "mu");
       m_truthTreeManager->makeOutputVariable(m_mu_actual, "mu_actual");
       m_truthTreeManager->makeOutputVariable(m_weight_pileup, "weight_pileup");
+      m_truthTreeManager->makeOutputVariable(m_weight_beamspot, "weight_beamspot");
       if (m_config->isMC() && m_config->doPileupReweighting()) m_truthTreeManager->makeOutputVariable(m_randomRunNumber,
                                                                                                       "randomRunNumber");
 
@@ -422,6 +424,7 @@ namespace top {
 
         //some event weights
         systematicTree->makeOutputVariable(m_weight_pileup, "weight_pileup");
+        systematicTree->makeOutputVariable(m_weight_beamspot, "weight_beamspot");
         systematicTree->makeOutputVariable(m_weight_leptonSF, "weight_leptonSF");
 
         if (m_config->useFwdElectrons()) systematicTree->makeOutputVariable(m_weight_fwdElSF, "weight_fwdElSF");
@@ -1526,6 +1529,7 @@ namespace top {
     m_particleLevelTreeManager->makeOutputVariable(m_mu, "mu");
     m_particleLevelTreeManager->makeOutputVariable(m_mu_actual, "mu_actual");
     m_particleLevelTreeManager->makeOutputVariable(m_weight_pileup, "weight_pileup");
+    m_particleLevelTreeManager->makeOutputVariable(m_weight_beamspot, "weight_beamspot");
 
     if (m_config->doPseudoTop()) {
       m_particleLevelTreeManager->makeOutputVariable(m_PseudoTop_Particle_ttbar_pt, "PseudoTop_Particle_ttbar_pt");
@@ -1969,7 +1973,11 @@ namespace top {
 
     //some event weights
     m_weight_mc = 0.;
-    if (m_config->isMC()) m_weight_mc = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
+    m_weight_beamspot = 0.;
+    if (m_config->isMC()) {
+      m_weight_mc       = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
+      m_weight_beamspot = event.m_info->beamSpotWeight();
+    }
 
     if (m_config->isMC()) {
       m_weight_pileup = m_sfRetriever->pileupSF(event);
@@ -4179,6 +4187,7 @@ namespace top {
     }
 
     m_weight_mc = eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
+    m_weight_beamspot = eventInfo->beamSpotWeight();
     m_eventNumber = eventInfo->eventNumber();
     m_runNumber = eventInfo->runNumber();
     m_mcChannelNumber = eventInfo->mcChannelNumber();
@@ -4285,6 +4294,7 @@ namespace top {
     }
 
     m_weight_mc = plEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
+    m_weight_beamspot = plEvent.m_info->beamSpotWeight();
 
     m_eventNumber = plEvent.m_info->eventNumber();
     m_runNumber = plEvent.m_info->runNumber();
