@@ -65,8 +65,8 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     if flags.Sim.ISF.Simulator in ["FullG4", "FullG4MT", "PassBackG4", "PassBackG4MT", "G4FastCalo", "G4FastCaloMT"]:
         acc.setPrivateTools(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
     else:
-        acc.merge(G4RunManagerHelperCfg(flags))
-        kwargs.setdefault("G4RunManagerHelper", acc.getPublicTool("ISF_G4RunManagerHelper"))
+        tool = acc.popToolsAndMerge(G4RunManagerHelperCfg(flags))
+        kwargs.setdefault("G4RunManagerHelper", tool)
         acc.setPrivateTools(CompFactory.iGeant4.G4LegacyTransportTool(name, **kwargs))
     return acc
 

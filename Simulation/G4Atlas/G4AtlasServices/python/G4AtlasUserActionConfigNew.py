@@ -13,7 +13,7 @@ from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
 from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
-    TruthServiceCfg, ParticleBrokerSvcCfg, 
+    TruthServiceCfg, ParticleBrokerSvcCfg, AFIIParticleBrokerSvcCfg
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
 
@@ -69,6 +69,9 @@ def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUse
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "G4FastCaloMT"]:
         kwargs.setdefault("ParticleBroker", "")
+    if flags.Sim.ISF.Simulator in ["ATLFASTII","ATLFASTIIF_G4MS"]:
+        result.merge(AFIIParticleBrokerSvcCfg(flags))
+        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
     result.merge(AFIIGeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
     kwargs.setdefault("PassBackEkinThreshold", 0.05*MeV)
