@@ -72,6 +72,8 @@ namespace top {
     m_isAFII(false),
     // Is Data Overlay
     m_isDataOverlay(false),
+    // Generators
+    m_generators("SetMe"),
     // AMITag
     m_AMITag("SetMe"),
     // Is Primary xAOD
@@ -898,6 +900,9 @@ namespace top {
             aodMetaDataIsAFII);
           this->setIsAFII(aodMetaDataIsAFII);
           auto AMITagName = m_aodMetaData->get("/TagInfo", "AMITag");
+          auto generatorsName = m_aodMetaData->get("/TagInfo", "generators");
+          ATH_MSG_INFO("AodMetaData :: Generators Type " << generatorsName);
+          this->setGenerators(generatorsName);
           ATH_MSG_INFO("AodMetaData :: AMITag " << AMITagName);
           this->setAMITag(AMITagName);
         }
@@ -907,6 +912,8 @@ namespace top {
           this->ReadIsAFII(settings);
           ATH_MSG_WARNING("We will attempt to read the IsDataOverlay flag from your config.");
           this->ReadIsDataOverlay(settings);
+          ATH_MSG_WARNING("Unfortunately, we can not read MC generators and AMITag without valid MetaData.");
+          this->setGenerators("unknown");
           this->setAMITag("unknown");
         }
       } else {
@@ -956,6 +963,17 @@ namespace top {
         ATH_MSG_WARNING("You provided \"FilterNominalLooseBranches\" option but you did not provide any meaningful values. Ignoring");
       }
       this->setFilterNominalLooseBranches(branches);
+    }
+
+    // Get list of nominal branches to be filtered
+    if (settings->value("FilterNominalBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterNominalBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterNominalBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterNominalBranches(branches);
     }
 
     // Force recomputation of CP variables?
