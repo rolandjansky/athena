@@ -1,0 +1,22 @@
+
+template< class CONTAINER >
+  StatusCode FTAGValidationAlgorithm::retrieveCollectionfromStoreGate( const EventContext& context,
+                                                                       const CONTAINER*& Collection,
+                                                                       const SG::ReadHandleKey< CONTAINER >& inputKey ) const {
+
+  ATH_MSG_DEBUG( "Retrieving collection from StoreGate with key '" << inputKey.key() << "' ..." );
+
+  if ( Collection != nullptr ) {
+    ATH_MSG_ERROR( "Input Collection is not empty. We are overwriting objects!" );
+    return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle< CONTAINER  > ContainerHandle = SG::makeHandle( inputKey,context );
+  CHECK( ContainerHandle.isValid() );
+
+  Collection = ContainerHandle.get();
+  ATH_MSG_DEBUG( "Found a total of " << Collection->size() << " objects inside the collection ['" << inputKey.key() << "']" );
+
+  return StatusCode::SUCCESS;
+}
+
