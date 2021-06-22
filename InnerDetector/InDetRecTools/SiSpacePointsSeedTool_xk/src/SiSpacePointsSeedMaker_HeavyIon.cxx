@@ -601,14 +601,14 @@ bool InDet::SiSpacePointsSeedMaker_HeavyIon::newVertices(EventData& data, const 
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::buildFrameWork() 
 {
-  m_ptmin     = fabs(m_ptmin)                  ;
+  m_ptmin     = std::abs(m_ptmin)                  ;
   if (m_ptmin < 100.) m_ptmin = 100.;
-  m_rapcut    = fabs(m_rapcut)                 ;
-  m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut)));
+  m_rapcut    = std::abs(m_rapcut)                 ;
+  m_dzdrmax   = 1.f/std::tan(2.f*std::atan(exp(-m_rapcut)));
   m_dzdrmin   =-m_dzdrmax                      ;
   m_r3max     = m_r_rmax                       ;
   m_COF       =  134*.05*9.                    ;
-  m_ipt       = 1./fabs(.9*m_ptmin)            ;
+  m_ipt       = 1.f/std::abs(.9f*m_ptmin)            ;
   m_ipt2      = m_ipt*m_ipt                    ;
 
   // Build radius sorted containers
@@ -632,7 +632,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildFrameWork()
   //
   const int   NFtmax = SizeRFV;
   const float sFvmax = static_cast<float>(NFtmax)/pi2;
-  m_sFv = m_ptmin/120.;
+  m_sFv = m_ptmin/120.f;
   if (m_sFv > sFvmax) m_sFv = sFvmax; 
   m_fvNmax = static_cast<int>(pi2*m_sFv);
   if (m_fvNmax>=NFtmax) m_fvNmax = NFtmax-1;
@@ -951,7 +951,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp(EventData& data) cons
 	    float UR = Ut*R+1.              ; if (UR == 0.) continue;
 	    float A  = Vt*R/UR              ;
 	    float B  = Vt-A*Ut              ;
-	    if (std::abs(B*data.K) > m_ipt*sqrt(1.+A*A)) continue;
+	    if (std::abs(B*data.K) > m_ipt*sqrt(1.f+A*A)) continue;
             ++nseed;
 	    newSeed(data, (*r)->spacepoint, (*r0)->spacepoint,Zo);
 	  }
@@ -1121,7 +1121,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
       float dz  = sp->z()-Z   ;
       float x   = dx*ax+dy*ay ;
       float y   =-dx*ay+dy*ax ;
-      float r2  = 1./(x*x+y*y);
+      float r2  = 1.f/(x*x+y*y);
       float dr  = std::sqrt(r2)    ;
       float tz  = dz*dr       ;
       if (i < Nb) tz = -tz;
@@ -1156,20 +1156,20 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
       float  Erb  = data.Er[b]      ;
       float  Vb   = data.V [b]      ;
       float  Ub   = data.U [b]      ;
-      float  Tzb2 = (1.+Tzb*Tzb) ;
+      float  Tzb2 = (1.f+Tzb*Tzb) ;
       float  CSA  = Tzb2*COFK    ;
       float ICSA  = Tzb2*ipt2C   ;
       float dZ    = dZVertexMin(data, Zob);
       float Iz    = (dZ*dZ)/Tzb2 ;
 
       for (int t=Nb; t<Nt; ++t) {
-	float Ts  = .5*(Tzb+data.Tz[t])                          ;
+	float Ts  = .5f*(Tzb+data.Tz[t])                          ;
 	float dt  =     Tzb-data.Tz[t]                           ;
 	float dT  = dt*dt-Erb-data.Er[t]-data.R[t]*(Ts*Ts*Rb2r+Rb2z);
 	if ( dT > ICSA) continue;
 	float dU  = data.U[t]-Ub; if (dU == 0.) continue ;
 	float A   = (data.V[t]-Vb)/dU                   ;
-	float S2  = 1.+A*A                           ;
+	float S2  = 1.f+A*A                           ;
 	float B   = Vb-A*Ub                          ;
 	float B2  = B*B                              ;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
@@ -1311,7 +1311,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
       float dz  = sp->z()-Z   ;
       float x   = dx*ax+dy*ay ;
       float y   =-dx*ay+dy*ax ;
-      float r2  = 1./(x*x+y*y);
+      float r2  = 1.f/(x*x+y*y);
       float dr  = std::sqrt(r2)    ;
       float tz  = dz*dr       ;
       if (i < Nb) tz = -tz;
@@ -1347,20 +1347,20 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
       float  Erb  = data.Er[b]      ;
       float  Vb   = data.V [b]      ;
       float  Ub   = data.U [b]      ;
-      float  Tzb2 = (1.+Tzb*Tzb) ;
+      float  Tzb2 = (1.f+Tzb*Tzb) ;
       float  CSA  = Tzb2*COFK    ;
       float ICSA  = Tzb2*ipt2C   ;
       float dZ    = dZVertexMin(data, Zob);
       float Iz    = (dZ*dZ)/Tzb2 ;
 
       for (int t=Nb; t!=Nt; ++t) {
-	float Ts  = .5*(Tzb+data.Tz[t])                          ;
+	float Ts  = .5f*(Tzb+data.Tz[t])                          ;
 	float dt  =     Tzb-data.Tz[t]                           ;
 	float dT  = dt*dt-Erb-data.Er[t]-data.R[t]*(Ts*Ts*Rb2r+Rb2z);
 	if ( dT > ICSA) continue;
 	float dU  = data.U[t]-Ub; if (dU == 0.) continue ;
 	float A   = (data.V[t]-Vb)/dU                   ;
-	float S2  = 1.+A*A                           ;
+	float S2  = 1.f+A*A                           ;
 	float B   = Vb-A*Ub                          ;
 	float B2  = B*B                              ;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
@@ -1371,7 +1371,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
 	// Azimuthal angle test
 	//
 	float y  = 1.;
-	float x  = 2.*B*R-A;
+	float x  = 2.f*B*R-A;
 	float df = std::abs(std::atan2(ay*y-ax*x,ax*y+ay*x)-m_ftrig);
 	if (df > M_PI) df=pi2-df;
 	if (df > m_ftrigW) continue;
@@ -1496,7 +1496,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
       float dz  = sp->z()-Z   ;
       float x   = dx*ax+dy*ay ;
       float y   =-dx*ay+dy*ax ;
-      float r2  = 1./(x*x+y*y);
+      float r2  = 1.f/(x*x+y*y);
       float dr  = std::sqrt(r2)    ;
       float tz  = dz*dr       ;
       if (i < Nb) tz = -tz;
@@ -1533,19 +1533,19 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
       float  Erb  = data.Er[b]      ;
       float  Vb   = data.V [b]      ;
       float  Ub   = data.U [b]      ;
-      float  Tzb2 = (1.+Tzb*Tzb) ;
+      float  Tzb2 = (1.f+Tzb*Tzb) ;
       float  CSA  = Tzb2*COFK    ;
       float ICSA  = Tzb2*ipt2C   ;
 
       for (int t=Nb; t<Nt; ++t) {
-	float Ts  = .5*(Tzb+data.Tz[t])                          ;
+	float Ts  = .5f*(Tzb+data.Tz[t])                          ;
 	float dt  =     Tzb-data.Tz[t]                           ;
 	float dT  = dt*dt-Erb-data.Er[t]-data.R[t]*(Ts*Ts*Rb2r+Rb2z);
 	if ( dT > ICSA) continue;
 	float dU  = data.U[t]-Ub;
         if (dU == 0.) continue;
 	float A   = (data.V[t]-Vb)/dU                   ;
-	float S2  = 1.+A*A                           ;
+	float S2  = 1.f+A*A                           ;
 	float B   = Vb-A*Ub                          ;
 	float B2  = B*B                              ;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
