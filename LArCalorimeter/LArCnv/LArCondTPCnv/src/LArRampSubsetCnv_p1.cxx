@@ -16,6 +16,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
     // Copy conditions
     unsigned int nfebids      = persObj->m_subset.m_febIds.size();
     unsigned int nRamps       = persObj->m_vRampSize;
+    const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
     unsigned int rampIndex    = 0;
     
     // Loop over febs
@@ -40,7 +41,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
         }
             
         // Loop over channels in feb - only some channels are filled
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+        for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 
             bool copyChannel = true;
             if (hasSparseData) {
@@ -168,6 +169,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
     // Get the number of channels, corrections and the size of ramp 
     unsigned int nsubsetsNotEmpty = 0;
     unsigned int ncorrs           = transObj->correctionVecSize();
+    const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
     unsigned int nchans           = 0;
     unsigned int nRamps           = 0;
     bool foundNRamps              = false;
@@ -182,7 +184,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
     {
         unsigned int nfebChans = subsetIt->second.size();
 
-        if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+        if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
             log << MSG::ERROR 
                 << "LArRampSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
                 << endmsg;

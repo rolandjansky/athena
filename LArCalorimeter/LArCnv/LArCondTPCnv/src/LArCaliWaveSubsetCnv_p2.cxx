@@ -12,8 +12,13 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
   log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p2  begin persToTrans"<<endmsg;
 
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
-  unsigned int nfebids = persObj->m_subset.m_febIds.size();			log<<MSG::DEBUG<<"Total febs:"<<nfebids;
-  unsigned int ncorrs	 = persObj->m_subset.m_corrChannels.size();		log<<MSG::DEBUG<<"\tCorrections:"<<ncorrs<<endmsg;
+  unsigned int nfebids = persObj->m_subset.m_febIds.size();	       
+  log<<MSG::DEBUG<<"Total febs:"<<nfebids;
+  unsigned int ncorrs	 = persObj->m_subset.m_corrChannels.size();	       
+  log<<MSG::DEBUG<<"\tCorrections:"<<ncorrs<<endmsg;
+
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
+
 
   unsigned int cwvIndex=0, waveIndex=0, chIndex = 0;
    
@@ -38,7 +43,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
       
     log<<MSG::DEBUG<<"\tFeb sparse? "<< hasSparseData <<endmsg;
   
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
       bool copyChannel = true;
       if (hasSparseData) {  		  
         if (!(chansSet & (1 << (j - chansOffset)))) {	// Channel is missing data - skip
@@ -168,7 +173,9 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
   log<<MSG::DEBUG<<"total febs:"<<nfebs;
   unsigned int ncorrs 		= transObj->correctionVecSize();
   log<<MSG::DEBUG<<"\tCorrections: "<<ncorrs<<endmsg;
-
+  
+  const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
+  
   unsigned int nsubsetsNotEmpty = 0;
   unsigned int nchans 		  = 0;
 
@@ -183,7 +190,7 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
   {
     unsigned int nfebChans = subsetIt->second.size();
 
-    if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+    if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
       log << MSG::ERROR << "LArCaliWaveSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
       return;
     }
