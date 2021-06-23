@@ -290,6 +290,8 @@ void
 Trk::Track::setTrackStateOnSurfaces(
   DataVector<const Trk::TrackStateOnSurface>&& input)
 {
+  //move assignement of DataVector does not clear this 
+  m_trackStateVector.clear();
   m_trackStateVector = std::move(input);
   reset(); // reset caches
 }
