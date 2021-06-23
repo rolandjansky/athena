@@ -79,6 +79,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   StatusCode          bookTrees ();
   StatusCode          CheckTriggerStatusAndPrescale ();
   void                Clear4MuNtupleVariables (); 
+  void                ExtractIDHitsInformation(const xAOD::Muon* muon_pos, const xAOD::Muon* muon_neg);
   int                 GetMuonQualityValue(std::string qualityname);
   void                RegisterHistograms ();
   void                ResetCommonNtupleVectors ();
@@ -203,6 +204,8 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_positive_d0_PV{};
   double m_positive_z0_PVerr{};
   double m_positive_d0_PVerr{};
+  double m_positive_qoverp{};
+  double m_positive_sigma_qoverp{};
   int m_positive_1_vtx{};
   int m_positive_parent{};
 
@@ -234,6 +237,8 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_negative_d0_PV{};
   double m_negative_z0_PVerr{};
   double m_negative_d0_PVerr{};
+  double m_negative_qoverp{};
+  double m_negative_sigma_qoverp{};
   int m_negative_1_vtx{};
   int m_negative_parent{};
 
@@ -333,6 +338,50 @@ class IDPerfMonZmumu : public AthAlgorithm
   std::vector<float> m_Refit2_phi;
   std::vector<float> m_Truth_phi;
 
+  std::vector<float> m_IDTrack_d0;
+  std::vector<float> m_CBTrack_d0;
+  std::vector<float> m_Refit1_d0;
+  std::vector<float> m_Refit2_d0;
+  std::vector<float> m_Truth_d0;
+
+  std::vector<float> m_IDTrack_z0;
+  std::vector<float> m_CBTrack_z0;
+  std::vector<float> m_Refit1_z0;
+  std::vector<float> m_Refit2_z0;
+  std::vector<float> m_Truth_z0;
+
+  std::vector<float> m_IDTrack_qoverp;
+  std::vector<float> m_CBTrack_qoverp;
+  std::vector<float> m_Refit1_qoverp;
+  std::vector<float> m_Refit2_qoverp;
+  std::vector<float> m_Truth_qoverp;
+
+  std::vector<int> m_Truth_parent;
+
+  std::vector<float> m_IDTrack_sigma_pt;
+  std::vector<float> m_CBTrack_sigma_pt;
+  std::vector<float> m_Refit1_sigma_pt;
+  std::vector<float> m_Refit2_sigma_pt;
+
+  std::vector<float> m_IDTrack_sigma_d0;
+  std::vector<float> m_CBTrack_sigma_d0;
+  std::vector<float> m_Refit1_sigma_d0;
+  std::vector<float> m_Refit2_sigma_d0;
+
+  std::vector<float> m_IDTrack_sigma_z0;
+  std::vector<float> m_CBTrack_sigma_z0;
+  std::vector<float> m_Refit1_sigma_z0;
+  std::vector<float> m_Refit2_sigma_z0;
+
+  std::vector<float> m_IDTrack_sigma_qoverp;
+  std::vector<float> m_CBTrack_sigma_qoverp;
+  std::vector<float> m_Refit1_sigma_qoverp;
+  std::vector<float> m_Refit2_sigma_qoverp;
+
+  std::vector<int> m_nBLhits;
+  std::vector<int> m_nPIXhits;
+  std::vector<int> m_nSCThits;
+  std::vector<int> m_nTRThits;
 
   //
   std::string m_sTriggerChainName;

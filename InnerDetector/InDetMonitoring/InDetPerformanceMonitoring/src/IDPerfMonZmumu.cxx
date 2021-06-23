@@ -279,25 +279,61 @@ StatusCode IDPerfMonZmumu::bookTrees()
     ATH_MSG_INFO("initialize() ** defining m_commonTree with name: " << m_commonTreeName.c_str());    
     m_commonTree = new TTree((m_commonTreeName).c_str(), m_ValidationTreeDescription.c_str());
 
-    m_commonTree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
-    m_commonTree->Branch("eventNumber"    ,  &m_evtNumber,  "eventNumber/I");
-    m_commonTree->Branch("lumi_block"     ,  &m_lumi_block, "lumi_block/I");
-    m_commonTree->Branch("mu"             ,  &m_event_mu,   "mu/I");
-    m_commonTree->Branch("IDTrack_pt"     ,  &m_IDTrack_pt); 
-    m_commonTree->Branch("IDTrack_eta"    ,  &m_IDTrack_eta); 
-    m_commonTree->Branch("IDTrack_phi"    ,  &m_IDTrack_phi); 
-    m_commonTree->Branch("CBTrack_pt"     ,  &m_CBTrack_pt); 
-    m_commonTree->Branch("CBTrack_eta"    ,  &m_CBTrack_eta); 
-    m_commonTree->Branch("CBTrack_phi"    ,  &m_CBTrack_phi); 
-    m_commonTree->Branch("Refit1_pt"      ,  &m_Refit1_pt); 
-    m_commonTree->Branch("Refit1_eta"     ,  &m_Refit1_eta); 
-    m_commonTree->Branch("Refit1_phi"     ,  &m_Refit1_phi); 
-    m_commonTree->Branch("Refit2_pt"      ,  &m_Refit2_pt); 
-    m_commonTree->Branch("Refit2_eta"     ,  &m_Refit2_eta); 
-    m_commonTree->Branch("Refit2_phi"     ,  &m_Refit2_phi); 
-    m_commonTree->Branch("Truth_pt"       ,  &m_Truth_pt); 
-    m_commonTree->Branch("Truth_eta"      ,  &m_Truth_eta); 
-    m_commonTree->Branch("Truth_phi"      ,  &m_Truth_phi); 
+    m_commonTree->Branch("runNumber"           , &m_runNumber,  "runNumber/I");
+    m_commonTree->Branch("eventNumber"         , &m_evtNumber,  "eventNumber/I");
+    m_commonTree->Branch("lumi_block"          , &m_lumi_block, "lumi_block/I");
+    m_commonTree->Branch("mu"                  , &m_event_mu,   "mu/I");
+    m_commonTree->Branch("IDTrack_pt"          , &m_IDTrack_pt); 
+    m_commonTree->Branch("IDTrack_eta"         , &m_IDTrack_eta); 
+    m_commonTree->Branch("IDTrack_phi"         , &m_IDTrack_phi);
+    m_commonTree->Branch("IDTrack_d0"          , &m_IDTrack_d0);
+    m_commonTree->Branch("IDTrack_z0"          , &m_IDTrack_z0);
+    m_commonTree->Branch("IDTrack_qoverp"      , &m_IDTrack_qoverp);
+    m_commonTree->Branch("IDTrack_sigma_pt"    , &m_IDTrack_sigma_pt);
+    m_commonTree->Branch("IDTrack_sigma_d0"    , &m_IDTrack_sigma_d0);
+    m_commonTree->Branch("IDTrack_sigma_z0"    , &m_IDTrack_sigma_z0);
+    m_commonTree->Branch("IDTrack_sigma_qoverp", &m_IDTrack_sigma_qoverp);
+    m_commonTree->Branch("CBTrack_pt"          , &m_CBTrack_pt); 
+    m_commonTree->Branch("CBTrack_eta"         , &m_CBTrack_eta); 
+    m_commonTree->Branch("CBTrack_phi"         , &m_CBTrack_phi); 
+    m_commonTree->Branch("CBTrack_d0"          , &m_CBTrack_d0); 
+    m_commonTree->Branch("CBTrack_z0"          , &m_CBTrack_z0); 
+    m_commonTree->Branch("CBTrack_qoverp"      , &m_CBTrack_qoverp);
+    m_commonTree->Branch("CBTrack_sigma_pt"    , &m_CBTrack_sigma_pt);
+    m_commonTree->Branch("CBTrack_sigma_d0"    , &m_CBTrack_sigma_d0);
+    m_commonTree->Branch("CBTrack_sigma_z0"    , &m_CBTrack_sigma_z0);
+    m_commonTree->Branch("CBTrack_sigma_qoverp", &m_CBTrack_sigma_qoverp);
+    m_commonTree->Branch("Refit1_pt"           , &m_Refit1_pt); 
+    m_commonTree->Branch("Refit1_eta"          , &m_Refit1_eta); 
+    m_commonTree->Branch("Refit1_phi"          , &m_Refit1_phi); 
+    m_commonTree->Branch("Refit1_d0"           , &m_Refit1_d0); 
+    m_commonTree->Branch("Refit1_z0"           , &m_Refit1_z0); 
+    m_commonTree->Branch("Refit1_qoverp"       , &m_Refit1_qoverp); 
+    m_commonTree->Branch("Refit1_sigma_pt"     , &m_Refit1_sigma_pt);
+    m_commonTree->Branch("Refit1_sigma_d0"     , &m_Refit1_sigma_d0);
+    m_commonTree->Branch("Refit1_sigma_z0"     , &m_Refit1_sigma_z0);
+    m_commonTree->Branch("Refit1_sigma_qoverp" , &m_Refit1_sigma_qoverp);
+    m_commonTree->Branch("Refit2_pt"           , &m_Refit2_pt); 
+    m_commonTree->Branch("Refit2_eta"          , &m_Refit2_eta); 
+    m_commonTree->Branch("Refit2_phi"          , &m_Refit2_phi); 
+    m_commonTree->Branch("Refit2_d0"           , &m_Refit2_d0); 
+    m_commonTree->Branch("Refit2_z0"           , &m_Refit2_z0); 
+    m_commonTree->Branch("Refit2_qoverp"       , &m_Refit2_qoverp); 
+    m_commonTree->Branch("Refit2_sigma_pt"     , &m_Refit2_sigma_pt);
+    m_commonTree->Branch("Refit2_sigma_d0"     , &m_Refit2_sigma_d0);
+    m_commonTree->Branch("Refit2_sigma_z0"     , &m_Refit2_sigma_z0);
+    m_commonTree->Branch("Refit2_sigma_qoverp" , &m_Refit2_sigma_qoverp);
+    m_commonTree->Branch("Truth_pt"            , &m_Truth_pt); 
+    m_commonTree->Branch("Truth_eta"           , &m_Truth_eta); 
+    m_commonTree->Branch("Truth_phi"           , &m_Truth_phi); 
+    m_commonTree->Branch("Truth_d0"            , &m_Truth_d0); 
+    m_commonTree->Branch("Truth_z0"            , &m_Truth_z0); 
+    m_commonTree->Branch("Truth_qoverp"        , &m_Truth_qoverp); 
+    m_commonTree->Branch("Truth_parent"        , &m_Truth_parent);
+    m_commonTree->Branch("numberOfBLayerHits"  , &m_nBLhits);
+    m_commonTree->Branch("numberOfPixelHits"   , &m_nPIXhits);
+    m_commonTree->Branch("numberOfSCTHits"     , &m_nSCThits);
+    m_commonTree->Branch("numberOfTRTHits"     , &m_nTRThits);
   }
 
   if ( m_defaultTree == 0){
@@ -979,6 +1015,7 @@ StatusCode IDPerfMonZmumu::execute()
       
       // Fill Inner Detector Tree 
       if (m_IDTree) {
+	ATH_MSG_DEBUG("-- >> going to fill ID muons params << --");
 	success_pos = FillRecParametersTP (muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), 
 					   muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), 
 					   muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),
@@ -989,6 +1026,10 @@ StatusCode IDPerfMonZmumu::execute()
 					   p2_comb_v);
 	
 	if (success_pos && success_neg) {
+	  // before filling the ntuple, extract the hits information. This is filled once and it is used for all track collections
+	  this->ExtractIDHitsInformation(muon_pos, muon_neg);
+
+	  // Fill ntuple
 	  ATH_MSG_DEBUG("-- Filling m_IDTree ntuple " << m_IDTree->GetName() << " entry " << m_IDTree->GetEntries()
 			<< " for run: " << m_runNumber 
 			<< "  event: " << m_evtNumber 
@@ -1015,12 +1056,25 @@ StatusCode IDPerfMonZmumu::execute()
 	  // Fill vectors for common ntuple
 	  m_IDTrack_pt.push_back(m_positive_pt);
 	  m_IDTrack_pt.push_back(m_negative_pt);
-	  
 	  m_IDTrack_eta.push_back(m_positive_eta);
 	  m_IDTrack_eta.push_back(m_negative_eta);
-	  
 	  m_IDTrack_phi.push_back(m_positive_phi);
 	  m_IDTrack_phi.push_back(m_negative_phi);
+	  m_IDTrack_d0.push_back(m_positive_d0);
+	  m_IDTrack_d0.push_back(m_negative_d0);
+	  m_IDTrack_z0.push_back(m_positive_z0);
+	  m_IDTrack_z0.push_back(m_negative_z0);
+	  m_IDTrack_qoverp.push_back(m_positive_qoverp);
+	  m_IDTrack_qoverp.push_back(m_negative_qoverp);
+	  
+	  m_IDTrack_sigma_pt.push_back(m_positive_sigma_pt);
+	  m_IDTrack_sigma_pt.push_back(m_negative_sigma_pt);
+	  m_IDTrack_sigma_d0.push_back(m_positive_d0_err);
+	  m_IDTrack_sigma_d0.push_back(m_negative_d0_err);
+	  m_IDTrack_sigma_z0.push_back(m_positive_z0_err);
+	  m_IDTrack_sigma_z0.push_back(m_negative_z0_err);
+	  m_IDTrack_sigma_qoverp.push_back(m_positive_sigma_qoverp);
+	  m_IDTrack_sigma_qoverp.push_back(m_negative_sigma_qoverp);
 	}
       }
       else {
@@ -1034,6 +1088,7 @@ StatusCode IDPerfMonZmumu::execute()
       
       //
       // combined muons ntuple
+      ATH_MSG_DEBUG("-- >> going to fill CB muons params << --");
       success_pos = FillRecParametersTP(muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle), 
 					muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), 
 					p1_comb->charge(), 
@@ -1069,12 +1124,21 @@ StatusCode IDPerfMonZmumu::execute()
 	// Fill vectors for common ntuple
 	m_CBTrack_pt.push_back(m_positive_pt);
 	m_CBTrack_pt.push_back(m_negative_pt);
-	
 	m_CBTrack_eta.push_back(m_positive_eta);
 	m_CBTrack_eta.push_back(m_negative_eta);
-	
 	m_CBTrack_phi.push_back(m_positive_phi);
 	m_CBTrack_phi.push_back(m_negative_phi);
+	m_CBTrack_d0.push_back(m_positive_d0);
+	m_CBTrack_d0.push_back(m_negative_d0);
+	m_CBTrack_z0.push_back(m_positive_z0);
+	m_CBTrack_z0.push_back(m_negative_z0);
+	
+	m_CBTrack_sigma_pt.push_back(m_positive_sigma_pt);
+	m_CBTrack_sigma_pt.push_back(m_negative_sigma_pt);
+	m_CBTrack_sigma_d0.push_back(m_positive_d0_err);
+	m_CBTrack_sigma_d0.push_back(m_negative_d0_err);
+	m_CBTrack_sigma_z0.push_back(m_positive_z0_err);
+	m_CBTrack_sigma_z0.push_back(m_negative_z0_err);
       }
       else {
 	ATH_MSG_INFO("** IDPerfMonZmumu::execute ** FAILED filling " << m_combTree->GetName() 
@@ -1216,7 +1280,7 @@ StatusCode IDPerfMonZmumu::execute()
 	if (muonTrksRefit2->size() != 2) ATH_MSG_WARNING("** IDPerfMonZmumu::execute ** WARNING ** size of muonTrksRefit2: " << muonTrksRefit2->size());
       }
       
-      //save tracks to storegrate	/
+      //save tracks to storegrate
       muonTrks->push_back(defaultMuonTrk1);
       muonTrks->push_back(defaultMuonTrk2);
       
@@ -1274,20 +1338,29 @@ StatusCode IDPerfMonZmumu::execute()
 	    m_refit1Tree->Fill();
 	    // Fill vectors for common ntuple
 	    m_Refit1_pt.push_back(m_positive_pt);
-	    m_Refit1_pt.push_back(m_negative_pt);
-	    
+	    m_Refit1_pt.push_back(m_negative_pt);	    
 	    m_Refit1_eta.push_back(m_positive_eta);
 	    m_Refit1_eta.push_back(m_negative_eta);
-	    
 	    m_Refit1_phi.push_back(m_positive_phi);
 	    m_Refit1_phi.push_back(m_negative_phi);
+	    m_Refit1_d0.push_back(m_positive_d0);
+	    m_Refit1_d0.push_back(m_negative_d0);
+	    m_Refit1_z0.push_back(m_positive_z0);
+	    m_Refit1_z0.push_back(m_negative_z0);
+
+	    m_Refit1_sigma_pt.push_back(m_positive_sigma_pt);
+	    m_Refit1_sigma_pt.push_back(m_negative_sigma_pt);
+	    m_Refit1_sigma_d0.push_back(m_positive_d0_err);
+	    m_Refit1_sigma_d0.push_back(m_negative_d0_err);
+	    m_Refit1_sigma_z0.push_back(m_positive_z0_err);
+	    m_Refit1_sigma_z0.push_back(m_negative_z0_err);
 	  }
-	  else {
-	    ATH_MSG_DEBUG("FAILED filling " << m_refit1Tree->GetName() 
-			  << "  for run: " << m_runNumber 
-			  << "  event: " << m_evtNumber 
-			  << "  Lumiblock: " << m_lumi_block);
-	  }
+	}
+	else {
+	  ATH_MSG_DEBUG("FAILED filling " << m_refit1Tree->GetName() 
+			<< "  for run: " << m_runNumber 
+			<< "  event: " << m_evtNumber 
+			<< "  Lumiblock: " << m_lumi_block);
 	}
       }
       
@@ -1323,12 +1396,21 @@ StatusCode IDPerfMonZmumu::execute()
 	    // Fill vectors for common ntuple
 	    m_Refit2_pt.push_back(m_positive_pt);
 	    m_Refit2_pt.push_back(m_negative_pt);
-	    
 	    m_Refit2_eta.push_back(m_positive_eta);
 	    m_Refit2_eta.push_back(m_negative_eta);
-	    
 	    m_Refit2_phi.push_back(m_positive_phi);
 	    m_Refit2_phi.push_back(m_negative_phi);
+	    m_Refit2_d0.push_back(m_positive_d0);
+	    m_Refit2_d0.push_back(m_negative_d0);
+	    m_Refit2_z0.push_back(m_positive_z0);
+	    m_Refit2_z0.push_back(m_negative_z0);
+
+	    m_Refit2_sigma_pt.push_back(m_positive_sigma_pt);
+	    m_Refit2_sigma_pt.push_back(m_negative_sigma_pt);
+	    m_Refit2_sigma_d0.push_back(m_positive_d0_err);
+	    m_Refit2_sigma_d0.push_back(m_negative_d0_err);
+	    m_Refit2_sigma_z0.push_back(m_positive_z0_err);
+	    m_Refit2_sigma_z0.push_back(m_negative_z0_err);
 	  }
 	  else {
 	    ATH_MSG_DEBUG("FAILED filling " << m_refit2Tree->GetName() 
@@ -1389,6 +1471,14 @@ StatusCode IDPerfMonZmumu::execute()
       m_Truth_eta.push_back(m_negative_eta);
       m_Truth_phi.push_back(m_positive_phi);
       m_Truth_phi.push_back(m_negative_phi);
+      m_Truth_d0.push_back(m_positive_d0);
+      m_Truth_d0.push_back(m_negative_d0);
+      m_Truth_z0.push_back(m_positive_z0);
+      m_Truth_z0.push_back(m_negative_z0);
+      m_Truth_qoverp.push_back(m_positive_qoverp);
+      m_Truth_qoverp.push_back(m_negative_qoverp);
+      m_Truth_parent.push_back(m_positive_parent);
+      m_Truth_parent.push_back(m_negative_parent);
       
     } // truth info properly filled
     else {
@@ -1454,7 +1544,8 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   double PVd0 = 0;
   double PVz0 = 0;
   double sigma_pt = 0;
-  
+  double qoverp = 0;
+
   px = trackp->p4().Px();
   py = trackp->p4().Py();
   pt = trackp->p4().Pt();
@@ -1475,6 +1566,8 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
   double sigma_pt_term2 = (1./thePerigee->parameters()[Trk::qOverP]) * cos(thePerigee->parameters()[Trk::theta]) * sigma_theta;
   double sigma_pt_term3 = (cos(thePerigee->parameters()[Trk::theta]) / pow(thePerigee->parameters()[Trk::qOverP],2)) * sigma_theta * sigma_qOverP;
   sigma_pt = sqrt( pow(sigma_pt_term1,2) + pow(sigma_pt_term2,2) + 2 * sigma_pt_term3 * trackp->definingParametersCovMatrix()(Trk::qOverP,Trk::theta));
+  qoverp = thePerigee->parameters()[Trk::qOverP];
+
 
   if (vertex == nullptr) {
     ATH_MSG_WARNING("in FillRecParametersTP. WARNING: Vertex is NULL");
@@ -1521,6 +1614,8 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     m_positive_d0 = d0;
     m_positive_d0_err = d0res;
     m_positive_sigma_pt = sigma_pt;
+    m_positive_qoverp = qoverp;
+    m_positive_sigma_qoverp = sigma_qOverP;
     if(m_doIP){
       m_positive_z0_PV = PVz0;
       m_positive_d0_PV = PVd0;
@@ -1542,6 +1637,8 @@ StatusCode IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp
     m_negative_d0 = d0;
     m_negative_d0_err = d0res;
     m_negative_sigma_pt = sigma_pt;
+    m_negative_qoverp = qoverp;
+    m_negative_sigma_qoverp = sigma_qOverP;
     if(m_doIP){
       m_negative_z0_PV = PVz0;
       m_negative_d0_PV = PVd0;
@@ -1800,8 +1897,9 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   ATH_MSG_DEBUG("reco IPs (pos): > d0 : "<<d0recoPos << " z0: " << z0recoPos << " trackp z0 : " << trackParticle->z0() << " trackp d0 : " << trackParticle->d0());
   ATH_MSG_DEBUG("reco IPs (neg): > d0 : "<<d0recoNeg << " z0: " << z0recoNeg << " trackp z0 : " << trackParticle->z0() <<" trackp d0 : " << trackParticle->d0() );
 
+  double qOverP_truth = 0.;
   if (tP){
-    double qOverP_truth = tP->parameters()[Trk::qOverP];
+    qOverP_truth = tP->parameters()[Trk::qOverP];
     if( qOverP_truth ){
 
       px = tP->momentum().x();
@@ -1836,6 +1934,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
     m_positive_d0 = d0recoPos -d0;
     m_positive_d0_err = d0res;
     m_positive_d0_PVerr = PVd0res;
+    m_positive_qoverp = qOverP_truth;
 
     bool parentfound = false;
     if (particle->nParents()>0) {
@@ -1851,6 +1950,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
 		  <<"  pz: "<<m_positive_pz 
 		  <<"  d0: "<<m_positive_d0 
 		  <<"  z0: "<< m_positive_z0
+		  <<"  qoverp: " << m_positive_qoverp
 		 << "  parent: " << m_positive_parent);
 
   } else  if (charge == -1) {
@@ -1866,6 +1966,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
     m_negative_d0 = d0recoNeg-d0;
     m_negative_d0_err = d0res;
     m_negative_d0_PVerr = PVd0res;
+    m_negative_qoverp = qOverP_truth;
 
     bool parentfound = false;
     if (particle->nParents()>0) {
@@ -1881,7 +1982,8 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
 		  << "  pz: "<<m_negative_pz 
 		  << "  d0: "<<m_negative_d0 
 		  << "  z0: "<< m_negative_z0
-		 << "  parent:" << m_negative_parent);
+		  <<"  qoverp: " << m_negative_qoverp
+		  << "  parent:" << m_negative_parent);
   }
   return StatusCode::SUCCESS;
 }
@@ -2008,6 +2110,51 @@ void IDPerfMonZmumu::ResetCommonNtupleVectors()
   m_Refit1_phi.clear();
   m_Refit2_phi.clear();
   m_Truth_phi.clear();
+
+  m_IDTrack_d0.clear();
+  m_CBTrack_d0.clear();
+  m_Refit1_d0.clear();
+  m_Refit2_d0.clear();
+  m_Truth_d0.clear();
+
+  m_IDTrack_z0.clear();
+  m_CBTrack_z0.clear();
+  m_Refit1_z0.clear();
+  m_Refit2_z0.clear();
+  m_Truth_z0.clear();
+
+  m_IDTrack_qoverp.clear();
+  m_CBTrack_qoverp.clear();
+  m_Refit1_qoverp.clear();
+  m_Refit2_qoverp.clear();
+  m_Truth_qoverp.clear();
+
+  m_Truth_parent.clear();
+
+  m_IDTrack_sigma_pt.clear();
+  m_CBTrack_sigma_pt.clear();
+  m_Refit1_sigma_pt.clear();
+  m_Refit2_sigma_pt.clear();
+
+  m_IDTrack_sigma_d0.clear();
+  m_CBTrack_sigma_d0.clear();
+  m_Refit1_sigma_d0.clear();
+  m_Refit2_sigma_d0.clear();
+
+  m_IDTrack_sigma_z0.clear();
+  m_CBTrack_sigma_z0.clear();
+  m_Refit1_sigma_z0.clear();
+  m_Refit2_sigma_z0.clear();
+
+  m_IDTrack_sigma_qoverp.clear();
+  m_CBTrack_sigma_qoverp.clear();
+  m_Refit1_sigma_qoverp.clear();
+  m_Refit2_sigma_qoverp.clear();
+
+  m_nBLhits.clear();
+  m_nPIXhits.clear();
+  m_nSCThits.clear();
+  m_nTRThits.clear();
 
   return;
 }
@@ -2342,4 +2489,64 @@ StatusCode IDPerfMonZmumu::RunFourLeptonAnalysis()
   } // end of fourMuon Analysis
 
   return thisStatus;
+}
+
+//==================================================================================
+void IDPerfMonZmumu::ExtractIDHitsInformation(const xAOD::Muon* muon_pos, const xAOD::Muon* muon_neg)
+{
+  // hits info
+  // positive Muon
+  const xAOD::TrackParticle* IDTrkMuPos = muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+  const xAOD::TrackParticle* IDTrkMuNeg = muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+
+  int nBLhits, nhitsPIX, nhitsSCT, nhitsTRT, nContribPixLayers;
+  int nPIXholes, nSCTholes;
+  if (IDTrkMuPos && IDTrkMuNeg) { // make sure both summaries are available
+    uint8_t dummy(-1);
+    nBLhits  = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfBLayerHits ) ? dummy :-1;
+    nhitsPIX = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfPixelHits ) ? dummy :-1;
+    nhitsSCT = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfSCTHits ) ? dummy :-1;
+    nhitsTRT = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfTRTHits ) ? dummy :-1;
+    nContribPixLayers = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1;
+
+    nPIXholes = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfPixelHoles )? dummy :-1;
+    nSCTholes = IDTrkMuPos->summaryValue( dummy, xAOD::numberOfSCTHoles )? dummy :-1;
+
+
+    m_nBLhits.push_back(nBLhits);
+    m_nPIXhits.push_back(nhitsPIX);
+    m_nSCThits.push_back(nhitsSCT);
+    m_nTRThits.push_back(nhitsTRT);
+
+    ATH_MSG_DEBUG (" -- mu_pos -- HITS --"
+		   << "  nBLhits:  " << nBLhits
+		   << "  nhitsPIX: " << nhitsPIX
+		   << "  nPIXLayers: " << nContribPixLayers
+		   << "  nhitsSCT: " << nhitsSCT
+		   << "  Silicon holes: " << nPIXholes + nSCTholes
+		   << "    nhitsTRT: " << nhitsTRT);
+
+    nBLhits  = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfBLayerHits ) ? dummy :-1;
+    nhitsPIX = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfPixelHits ) ? dummy :-1;
+    nhitsSCT = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfSCTHits ) ? dummy :-1;
+    nhitsTRT = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfTRTHits ) ? dummy :-1;
+    nContribPixLayers = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1;
+    nPIXholes = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfPixelHoles )? dummy :-1;
+    nSCTholes = IDTrkMuNeg->summaryValue( dummy, xAOD::numberOfSCTHoles )? dummy :-1;
+
+    m_nBLhits.push_back(nBLhits);
+    m_nPIXhits.push_back(nhitsPIX);
+    m_nSCThits.push_back(nhitsSCT);
+    m_nTRThits.push_back(nhitsTRT);
+
+    ATH_MSG_DEBUG (" -- mu_neg -- HITS --"
+		   << "  nBLhits:  " << nBLhits
+		   << "  nhitsPIX: " << nhitsPIX
+		   << "  nPIXLayers: " << nContribPixLayers
+		   << "  nhitsSCT: " << nhitsSCT
+		   << "  Silicon holes: " << nPIXholes + nSCTholes
+		   << "    nhitsTRT: " << nhitsTRT);
+
+  }
+  return;
 }
