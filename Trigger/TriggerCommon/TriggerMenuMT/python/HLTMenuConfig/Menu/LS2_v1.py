@@ -68,13 +68,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
         ChainProp(name="HLT_noalg_L1MU6",  groups=SingleMuonGroup+LowMuGroup),
 
-
-        ChainProp(name='HLT_mu6_LRT_idperf_l2lrt_L1MU6',     groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_LRT_idperf_L1MU6',           groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_idperf_L1MU20',           groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_LRT_l2lrt_d0loose_L1MU20',     groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_LRT_l2lrt_d0medium_L1MU20',     groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_LRT_l2lrt_d0tight_L1MU20',     groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_d0loose_L1MU20',     groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_d0medium_L1MU20',     groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_d0tight_L1MU20',     groups=SingleMuonGroup),
@@ -173,7 +168,8 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhloosenopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhvloosenopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e28_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-
+        ChainProp(name='HLT_e26_lhmediumnopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e28_lhmediumnopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
 
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
