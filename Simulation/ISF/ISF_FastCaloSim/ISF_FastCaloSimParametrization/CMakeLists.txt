@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventInfo
                           Event/NavFourMom
+			  Event/xAOD/xAODCaloEvent
                           Generators/GeneratorObjects
                           LArCalorimeter/LArSimEvent
                           Simulation/ISF/ISF_Core/ISF_Event
@@ -73,13 +74,13 @@ atlas_add_library( ISF_FastCaloSimParametrizationLib
                    PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaKernel Identifier GaudiKernel ISF_Interfaces TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests TileConditionsLib
-                   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GEANT4_LIBRARIES} CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack )
+                   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GEANT4_LIBRARIES} CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack xAODCaloEvent )
 
 atlas_add_component( ISF_FastCaloSimParametrization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} CaloDetDescrLib CaloGeoHelpers AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel ISF_Interfaces TrkEventPrimitives TrkParameters TrkExInterfaces CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileConditionsLib TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack ISF_FastCaloSimParametrizationLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} CaloDetDescrLib CaloGeoHelpers AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel ISF_Interfaces TrkEventPrimitives TrkParameters TrkExInterfaces CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileConditionsLib TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack ISF_FastCaloSimParametrizationLib xAODCaloEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

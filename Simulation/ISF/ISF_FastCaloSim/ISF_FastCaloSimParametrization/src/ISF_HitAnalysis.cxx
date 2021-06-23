@@ -31,6 +31,9 @@
 
 //CaloCell
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloEvent/CaloClusterCellLinkContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
@@ -108,6 +111,11 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_truth_pdg(0)
    , m_truth_barcode(0)
    , m_truth_vtxbarcode(0)
+   , m_cluster_energy(0)
+   , m_cluster_eta(0)
+   , m_cluster_phi(0)
+   , m_cluster_size(0)
+   , m_cluster_cellID(0)
    , m_cell_identifier(0)
    , m_cell_energy(0)
    , m_cell_sampling(0)
@@ -220,6 +228,7 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
   declareProperty("SaveAllBranches", m_saveAllBranches = false);
   declareProperty("DoAllCells", m_doAllCells = false);
+  declareProperty("DoClusterInfo", m_doClusterInfo = false);
   declareProperty("DoLayers", m_doLayers = true);
   declareProperty("DoLayerSums", m_doLayerSums = true);
   declareProperty("DoG4Hits", m_doG4Hits = false);
@@ -514,6 +523,13 @@ StatusCode ISF_HitAnalysis::initialize()
   m_truth_barcode = new std::vector<int>;
   m_truth_vtxbarcode = new std::vector<int>;
 
+  m_cluster_energy = new std::vector<float>;
+  m_cluster_eta    = new std::vector<float>;
+  m_cluster_phi    = new std::vector<float>;
+  m_cluster_size   = new std::vector<unsigned>;
+  m_cluster_cellID = new std::vector<std::vector<Long64_t > >;
+
+
   m_cell_identifier = new std::vector<Long64_t>;
   m_cell_energy = new std::vector<float>;
   m_cell_sampling = new std::vector<int>;
@@ -606,6 +622,13 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tree->Branch("TruthBarcode",         &m_truth_barcode);
   m_tree->Branch("TruthVtxBarcode",      &m_truth_vtxbarcode);
 
+  if(m_doClusterInfo){
+    m_tree->Branch("ClusterE",               &m_cluster_energy);
+    m_tree->Branch("ClusterEta",             &m_cluster_eta);
+    m_tree->Branch("ClusterPhi",             &m_cluster_phi);
+    m_tree->Branch("ClusterSize",            &m_cluster_size);
+    m_tree->Branch("ClusterCellID",          &m_cluster_cellID);
+  }
   m_oneeventcells = new FCS_matchedcellvector;
   if(m_doAllCells){
     m_tree->Branch("AllCells", &m_oneeventcells);
@@ -814,6 +837,11 @@ StatusCode ISF_HitAnalysis::execute()
  m_truth_pdg->clear();
  m_truth_barcode->clear();
  m_truth_vtxbarcode->clear();
+ m_cluster_energy->clear();
+ m_cluster_eta->clear();
+ m_cluster_phi->clear();
+ m_cluster_size->clear();
+ m_cluster_cellID->clear();
  m_cell_identifier->clear();
  m_cell_energy->clear();
  m_cell_sampling->clear();
@@ -911,7 +939,7 @@ StatusCode ISF_HitAnalysis::execute()
        sampling = layer; //use CaloCell layer immediately
      } else {
        ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
-     } 
+     }
 
      if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id)) sampfrac=m_dd_fSampl->FSAMPL(id);
 
@@ -943,7 +971,7 @@ StatusCode ISF_HitAnalysis::execute()
        if(tile_sampling!= -1) sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
      } else {
        ATH_MSG_WARNING( "This hit is somewhere. Please check!");
-     }  
+     }
 
      m_hit_identifier->push_back(id.get_compact());
      m_hit_cellidentifier->push_back(cell_id.get_compact());
@@ -1127,6 +1155,49 @@ StatusCode ISF_HitAnalysis::execute()
    } //mcEvent
  }//truth event
 
+// Get the reco clusters if available
+// retreiving cluster container
+  const DataHandle<xAOD::CaloClusterContainer > theClusters;
+  std::string clusterContainerName = "CaloCalTopoClusters";
+  sc = evtStore()->retrieve(theClusters, clusterContainerName);
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING(" Couldn't get cluster container '" << clusterContainerName << "'");
+    return 0;
+  }
+  xAOD::CaloClusterContainer::const_iterator itrClus = theClusters->begin();
+  xAOD::CaloClusterContainer::const_iterator itrLastClus = theClusters->end();
+  for ( ; itrClus!=itrLastClus; ++itrClus){
+    const xAOD::CaloCluster *cluster =(*itrClus);
+    m_cluster_energy->push_back(cluster->e());
+    m_cluster_eta->push_back(cluster->eta());
+    m_cluster_phi->push_back(cluster->phi());
+    ATH_MSG_VERBOSE("Cluster energy: " << cluster->e() << " cells: " << " links: " << cluster->getCellLinks());
+    //cluster->getCellLinks();
+    const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
+    if (!cellLinks) {
+      ATH_MSG_DEBUG( "No cell links for this cluster"  );
+      continue;
+    }
+
+    const CaloCellContainer* cellCont=cellLinks->getCellContainer();
+    if (!cellCont) {
+      ATH_MSG_DEBUG( "DataLink to cell container is broken"  );
+      continue;
+    }
+    unsigned cellcount = 0;
+    std::vector<Long64_t> cellIDs_in_cluster;
+    xAOD::CaloCluster::const_cell_iterator cellIter =cluster->cell_begin();
+    xAOD::CaloCluster::const_cell_iterator cellIterEnd =cluster->cell_end();
+    for ( ;cellIter !=cellIterEnd;cellIter++) {
+      ++cellcount;
+      const CaloCell* cell= (*cellIter);
+      cellIDs_in_cluster.push_back(cell->ID().get_compact());
+      float EnergyCell=cell->energy(); //ID, time, phi, eta
+      ATH_MSG_DEBUG("   Cell energy: " << EnergyCell);
+    }// end of cells inside cluster loop
+    m_cluster_size->push_back(cellcount);
+    m_cluster_cellID->push_back(cellIDs_in_cluster);
+  }
 
 
  //Retrieve and save MuonEntryLayer information 
@@ -1149,7 +1220,6 @@ StatusCode ISF_HitAnalysis::execute()
     m_MuonEntryLayer_pdg->push_back((record).GetPDGCode());
   }
  }
-
 
  //Get reco cells if available
  const CaloCellContainer *cellColl = 0;
