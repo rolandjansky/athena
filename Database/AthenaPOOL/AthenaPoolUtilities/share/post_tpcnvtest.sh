@@ -39,6 +39,7 @@ PP="$PP"'|Py:PropertyProxy  WARNING Found .* duplicates among the .* genConfDb f
 PP="$PP"'|Py:PropertyProxy  WARNING --------------------------------------------------'
 PP="$PP"'|Py:PropertyProxy  WARNING   -<component name>: <module> - . <duplicates> .'
 PP="$PP"'|Py:PropertyProxy  WARNING   -.* - '
+PP="$PP"'|Py:PropertyProxy  WARNING Fix your cmt/requirements file'
 PP="$PP"'|^ *Welcome to ApplicationMgr'
 PP="$PP"'|^ *running on .* on '
 PP="$PP"'|No duplicates have been found: that.s good'
