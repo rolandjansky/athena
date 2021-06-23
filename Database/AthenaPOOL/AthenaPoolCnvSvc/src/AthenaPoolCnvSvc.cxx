@@ -108,6 +108,14 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       ATH_MSG_DEBUG("setInputAttribute failed setting POOL domain attributes.");
    }
    m_doChronoStat = m_skipFirstChronoCommit.value() ? false : true;
+
+   // Load these dictionaries now, so we don't need to try to do so
+   // while multiple threads are running.
+   TClass::GetClass ("TLeafI");
+   TClass::GetClass ("TLeafL");
+   TClass::GetClass ("TLeafD");
+   TClass::GetClass ("TLeafF");
+
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
