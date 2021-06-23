@@ -38,14 +38,10 @@ SimplePoolFile5...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23
 SimplePoolFile5...  DEBUG --->Reading Shape[8 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --->Reading Shape[9 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[10 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[11 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[12 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG --->Reading Shape[10 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 13 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 11 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -86,21 +82,17 @@ SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(BunchId) [20
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventWeight) [202]  (13 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [202]  (14 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (14 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (15 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (15 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (16 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [202]  (16 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [202]  (17 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (17 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [202]  (18 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (18 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (19 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (1a , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 25 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 23 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
