@@ -19,7 +19,7 @@ def LArCellMonConfigOld(inputFlags):
     else:
        isMC=True
 
-    from AthenaMonitoring.DQMonFlags import DQMonFlags   
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
     if not isMC and DQMonFlags.enableLumiAccess():
         from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault
         LBDurationCondAlgDefault()

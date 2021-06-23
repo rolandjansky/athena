@@ -60,8 +60,19 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        persClass="AthenaAttributeList"
        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
        if isRun3Cfg():
-          iovDbSvc=helper.resobj.getService("IOVDbSvc")
-          condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+          havethem=False
+          for c in helper.resobj.getServices(): 
+              if c.getName()=="IOVDbSvc":
+                 iovDbSvc=c
+                 condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+                 havethem=True
+                 break
+              pass
+          if not havethem:
+             from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+             helper.resobj.merge(IOVDbSvcCfg(inputFlags))
+             condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+             iovDbSvc=helper.resobj.getService("IOVDbSvc")
        else:   
           from AthenaCommon import CfgGetter
           iovDbSvc=CfgGetter.getService("IOVDbSvc")
