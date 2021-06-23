@@ -21,7 +21,7 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 # additional settings for this derivation
 thinCells = False
 keepCells = False
-
+RecomputeEGammaSelectors = True
 
 #====================================================================
 # check if we run on data or MC (DataSource = geant4)
@@ -187,10 +187,17 @@ if thinCells:
 #====================================================================
 # offline based selection
 #====================================================================
-# TODO: use DF flags
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-photon_selection ='count(Photons.pt > 9.5*GeV &&  Photons.Loose>0 )>0'
-electron_selection = ' count(Electrons.pt > 10.0*GeV && Electrons.LHMedium>0)>0 '
+photon_selection = ''
+electron_selection = ''
+if RecomputeEGammaSelectors:
+    photon_selection = 'count(Photons.pt > 9.5*GeV && Photons.DFCommonPhotonsIsEMLoose)>0'
+    electron_selection = ' count(Electrons.pt > 9.5*GeV && Electrons.DFCommonElectronsLHMedium)>0 '
+else:
+    photon_selection = 'count(Photons.pt > 9.5*GeV && Photons.Loose)>0'
+    electron_selection = ' count(Electrons.pt > 9.5*GeV && Electrons.LHMedium>0)>0 '
+
+
 objectSelection = '( (' + photon_selection + ') || ('+ electron_selection +' ) )'
 EGAM9_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM9_OfflineSkimmingTool",
                                                                          expression = objectSelection)
