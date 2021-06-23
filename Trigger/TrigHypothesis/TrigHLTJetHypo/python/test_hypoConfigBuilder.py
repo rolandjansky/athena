@@ -40,6 +40,14 @@ chains = [
  
     ChainProp(name='HLT_j420_subresjesgscIS_ftf_L1J100',groups=SingleJetGroup),
 
+    ChainProp(name='HLT_j0_perf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_pf_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_pf_ftf_nojcalib_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_a10sd_cssk_pf_nojcalib_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
     ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',
               groups=SingleJetGroup),
 
