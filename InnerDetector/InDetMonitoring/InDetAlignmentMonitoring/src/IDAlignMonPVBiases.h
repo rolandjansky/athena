@@ -68,74 +68,74 @@ public:
 	/////////////////////////////////////////////////
     	///////Declare histo's 400MeV until 600MeV///////
     	/////////////////////////////////////////////////
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive;
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive{};
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative{};
  
 	/////////////////////////////////////////////////
     	////////Declare histo's 600MeV until 1GeV////////
     	/////////////////////////////////////////////////
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive;
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive{};
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative{};
   
 	/////////////////////////////////////////////////
     	/////////Declare histo's 1GeV until 2GeV/////////
     	/////////////////////////////////////////////////
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive;
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive{};
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative{};
   
 	/////////////////////////////////////////////////
     	/////////Declare histo's 2GeV until 5GeV/////////
     	/////////////////////////////////////////////////
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive;
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive{};
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative{};
   
 	/////////////////////////////////////////////////
     	////////Declare histo's 5GeV until 10GeV/////////
     	/////////////////////////////////////////////////
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive;
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive{};
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative{};
   
-	TH2F* m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative{};
   
 	/////////////////////////////////////////////////
     	/////////Declare histo's larger than 10GeV///////
     	/////////////////////////////////////////////////
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive;
-	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive{};
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_phi_10GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_phi_10GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_phi_10GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_phi_10GeV_negative{};
 
-	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_positive;
-  	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_negative;
+	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_positive{};
+  	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_negative{};
 
 private:
 
@@ -156,21 +156,21 @@ private:
   //TTree* m_Tree;
   //std::string m_TreeName;
 
-  unsigned int            m_runNumber;
-  unsigned int            m_evtNumber;
-  unsigned int            m_lumi_block;
+  unsigned int            m_runNumber{};
+  unsigned int            m_evtNumber{};
+  unsigned int            m_lumi_block{};
 
-  double m_charge;
-  double m_pt;
-  double m_eta;
-  double m_phi;
-  double m_z0;
-  double m_d0;
-  double m_z0_err;
-  double m_d0_err;
-  double m_vertex_x;
-  double m_vertex_y;
-  double m_vertex_z;
+  double m_charge{};
+  double m_pt{};
+  double m_eta{};
+  double m_phi{};
+  double m_z0{};
+  double m_d0{};
+  double m_z0_err{};
+  double m_d0_err{};
+  double m_vertex_x{};
+  double m_vertex_y{};
+  double m_vertex_z{};
 	
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 
 

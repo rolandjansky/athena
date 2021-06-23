@@ -9,9 +9,9 @@
 
 #include "IDAlignMonNtuple.h"
 
-#include <sstream>
-#include <math.h>
 #include "TMath.h"
+#include <cmath>
+#include <sstream>
 
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -51,11 +51,11 @@ static const int s_n_ERRORVALUE = 99999;
 IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
    m_doPulls(false),
-   m_idHelper(0),
-   m_pixelID(0),
-   m_sctID(0),
-   m_ntupleSvc(0),
-   m_ntuple(0)
+   m_idHelper(nullptr),
+   m_pixelID(nullptr),
+   m_sctID(nullptr),
+   m_ntupleSvc(nullptr),
+   m_ntuple(nullptr)
 {
   m_truthToTrack = ToolHandle<Trk::ITruthToTrack>("Trk::TruthToTrack/InDetTruthToTrack");
   m_residualPullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
@@ -288,7 +288,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
     //const Trk::Track* track = (*trackItr)->originalTrack();
     const Trk::Track* track = *trackItr;
-    if(track == NULL){
+    if(track == nullptr){
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracks << endmsg;
       continue;
     }
@@ -363,7 +363,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       //Trk::RIO_OnTrack object contains information on the hit used to fit the track at this surface
       const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
 
-      if (hit== NULL) {
+      if (hit== nullptr) {
 	//for some reason the first tsos has no associated hit - maybe because this contains the defining parameters?
 	if (nHits > 0) if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No hit associated with TrkSurface - probably a hole"<< nHits << endmsg;
 	continue;
@@ -373,7 +373,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       const InDet::SiCluster* hitPRD;
       if(m_usePRD){
 	hitPRD = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
-      } else {hitPRD = NULL;}
+      } else {hitPRD = nullptr;}
 
       const Identifier & hitId = hit->identify();
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit Identifier " << endmsg;
@@ -391,7 +391,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       }
 
       //finding local error on hit
-      if(m_usePRD && hitPRD != NULL){
+      if(m_usePRD && hitPRD != nullptr){
 	errorX = Amg::error(hitPRD->localCovariance(),Trk::locX);
 	errorY = Amg::error(hitPRD->localCovariance(),Trk::locY);
       }
@@ -411,8 +411,8 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	modPhi = m_pixelID->phi_module(id);
 
 	const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
-	if ( pCluster != NULL ){
-	  InDet::SiWidth width = pCluster->width();
+	if ( pCluster != nullptr ){
+	  const InDet::SiWidth& width = pCluster->width();
 	  phiWidth = int(width.colRow().x());
 	  zWidth = int(width.colRow().y());
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel hit phi cluster width = " << phiWidth << endmsg;
@@ -432,8 +432,8 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	modPhi = m_sctID->phi_module(id);
 
 	const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
-	if ( pCluster != NULL ){
-	  InDet::SiWidth width = pCluster->width();
+	if ( pCluster != nullptr ){
+	  const InDet::SiWidth& width = pCluster->width();
 	  phiWidth = int(width.colRow().x());
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT hit phi cluster width = " << phiWidth << endmsg;
 	}
@@ -458,15 +458,15 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	  //finding track incidence angle (taken from InDetAlignTools/InDetAlignHitQualSelectTool)
 	  const InDetDD::SiDetectorElement *detEle = dynamic_cast<const InDetDD::SiDetectorElement*>( hit->detectorElement() ) ;
 
-	  if ( detEle != NULL ){
+	  if ( detEle != nullptr ){
 	    Amg::Vector3D trkDir       = trackParameter->momentum() ;
-	    Amg::Vector3D detElePhi    = detEle->phiAxis() ; //!< local x axis in global frame
-	    Amg::Vector3D detEleNormal = detEle->normal() ; //!< local z axis in global frame
+	    const Amg::Vector3D& detElePhi    = detEle->phiAxis() ; //!< local x axis in global frame
+	    const Amg::Vector3D& detEleNormal = detEle->normal() ; //!< local z axis in global frame
 	    double trkDotPhi = trkDir.dot( detElePhi ) ; //!< scalar product
 	    double trkDotNormal = trkDir.dot( detEleNormal ) ;
 	    trkIncidAngle = (float)atan( trkDotPhi/trkDotNormal ) ;
 	  }
-	  if(m_usePRD && hitPRD != NULL){
+	  if(m_usePRD && hitPRD != nullptr){
 	    hitX = hitPRD->localPosition().x();
 	    hitY = hitPRD->localPosition().y();
 	  }
@@ -587,7 +587,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
       	TrackTruth trkTruth = found->second;//getting the TrackTruth object - the map element
       	float trkTruthProb =  trkTruth.probability();//probability of the reco<->truth match
-      	HepMcParticleLink HMPL = trkTruth.particleLink();
+      	const HepMcParticleLink& HMPL = trkTruth.particleLink();
 
 	if ( HMPL.isValid()) {
 #ifdef HEPMC3
@@ -709,11 +709,11 @@ StatusCode  IDAlignMonNtuple::getSiResiduals(const Trk::Track* track, const Trk:
   const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
 
   //get the unbiased track parameters (can fail if no MeasuredTrackParameters exists)
-  const Trk::TrackParameters* trackParameterUnbiased = NULL;
+  const Trk::TrackParameters* trackParameterUnbiased = nullptr;
   if(unBias) trackParameterUnbiased = getUnbiasedTrackParameters(track,tsos);
 
   //updator can fail in defining unbiased parameters, in which case we use biased
-  const Trk::TrackParameters* trackParameterForResiduals = NULL;
+  const Trk::TrackParameters* trackParameterForResiduals = nullptr;
   if(trackParameterUnbiased) trackParameterForResiduals = trackParameterUnbiased;
   else {
     //use the original biased track parameters
@@ -727,7 +727,7 @@ StatusCode  IDAlignMonNtuple::getSiResiduals(const Trk::Track* track, const Trk:
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" got hit and track parameters " << endmsg;
 
       //const Trk::ResidualPull* residualPull = m_residualPullCalculator->residualPull(hit, trackParameterForResiduals, unBias);
-      const Trk::ResidualPull* residualPull = NULL;
+      const Trk::ResidualPull* residualPull = nullptr;
       if(unBias) residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals, Trk::ResidualPull::Unbiased);
       else residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals, Trk::ResidualPull::Biased);
 
@@ -792,9 +792,9 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 {
 
   const Trk::TrackParameters* TrackParams;
-  const Trk::TrackParameters* UnbiasedTrackParams(0);
-  const Trk::TrackParameters* PropagatedTrackParams(0);
-  const Trk::TrackParameters* OtherSideUnbiasedTrackParams(0);
+  const Trk::TrackParameters* UnbiasedTrackParams(nullptr);
+  const Trk::TrackParameters* PropagatedTrackParams(nullptr);
+  const Trk::TrackParameters* OtherSideUnbiasedTrackParams(nullptr);
 
   //controls if the SCT residuals will be 'truly' unbiased - removing also the opposite side hit.
   bool trueUnbiased = true;
@@ -809,8 +809,8 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
 
-  if (hitOnTrack == NULL)
-    return NULL;
+  if (hitOnTrack == nullptr)
+    return nullptr;
 
 
   surfaceID = hitOnTrack->identify();
@@ -818,7 +818,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
   if (trueUnbiased && m_idHelper->is_sct(surfaceID)) {  //there's no TrueUnbiased for non-SCT (pixel) hits)
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
     // check if other module side was also hit and try to remove other hit as well
-    const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
+    const Trk::TrackStateOnSurface* OtherModuleSideHit(nullptr);
     const Identifier waferID = m_sctID->wafer_id(surfaceID);
     const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
     IdentifierHash otherSideHash;
@@ -828,10 +828,10 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
 
       const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
-      if (hitOnTrack != 0) {
+      if (hitOnTrack != nullptr) {
 	const Identifier& trkID = hitOnTrack->identify();
 	if (m_sctID->wafer_id(trkID) == OtherModuleSideID) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') << endmsg;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,nullptr,'/') << endmsg;
 	  OtherModuleSideHit = TempTsos;
 	}
       }
@@ -859,7 +859,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 
 	  const Trk::Surface& TempSurface = OtherModuleSideHit->measurementOnTrack()->associatedSurface();
 
-	  const Trk::MagneticFieldProperties* TempField = 0;
+	  const Trk::MagneticFieldProperties* TempField = nullptr;
 
 
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After OtherSide surface call. Surface exists" << endmsg;
@@ -925,7 +925,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
   delete PropagatedTrackParams;
 
   if (UnbiasedTrackParams) {
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,0,'/') << endmsg;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,nullptr,'/') << endmsg;
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased Trackparameters: " << *UnbiasedTrackParams << endmsg;
 
     TrackParams = UnbiasedTrackParams->clone();

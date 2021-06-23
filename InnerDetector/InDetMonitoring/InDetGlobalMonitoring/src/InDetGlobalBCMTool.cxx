@@ -562,13 +562,13 @@ void FillGlobalHistos(TH2F* h1, TH2F* h2, TH2F* h3, TH1F* h4, TH1F* h5, int puls
   }
 }
 
-void FillPulseHistos(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4, int pulsepos, int pulsewid, int tmp = 0, TH1F* h5 = NULL){
+void FillPulseHistos(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4, int pulsepos, int pulsewid, int tmp = 0, TH1F* h5 = nullptr){
   if (pulsewid!=0){
     h1->Fill(pulsepos);
     h2->Fill(pulsewid);
     h3->Fill(pulsepos);
     h4->Fill(pulsewid);
-    if (h5 != NULL){
+    if (h5 != nullptr){
       h5->Fill(tmp);
     }
   }
@@ -585,7 +585,7 @@ deltat_data::deltat_data():
 {
 }
 
-bool deltat_data::operator<(const deltat_data &data){
+bool deltat_data::operator<(const deltat_data &data) const{
   return (bcid<data.bcid);
 }
 
@@ -657,7 +657,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   }
 
   
-  if ( m_BCM_RDO != 0 && !m_BCM_RDO->empty() ){
+  if ( m_BCM_RDO != nullptr && !m_BCM_RDO->empty() ){
     BCM_RDO_Container::const_iterator BCM_RDO_itr     = m_BCM_RDO->begin();
     BCM_RDO_Container::const_iterator BCM_RDO_itr_end = m_BCM_RDO->end();
 
@@ -685,7 +685,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
     for (; BCM_RDO_itr != BCM_RDO_itr_end; BCM_RDO_itr++) { // loops over 16 channels (HR counter 0 to 15)
       channel_counter++;
       //ATH_MSG_WARNING ( "channel_counter: " << channel_counter);
-      if ( (*BCM_RDO_itr)->size() != 0) {
+      if ( !(*BCM_RDO_itr)->empty()) {
 	BCM_RDO_Collection::const_iterator RDO_element        = (*BCM_RDO_itr)->begin();
 	BCM_RDO_Collection::const_iterator RDO_element_last   = (*BCM_RDO_itr)->end();
     	BC_counter = -1;
@@ -693,7 +693,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	for (; RDO_element != RDO_element_last; RDO_element++){ // loops over 31 BCs read out per L1A
           BC_counter++;
           //ATH_MSG_WARNING ( "BC_counter: " << BC_counter);
-	  if (*RDO_element == NULL)
+	  if (*RDO_element == nullptr)
 	  {
 	      ATH_MSG_WARNING ("NULL pointer!");
 	      continue;
@@ -959,7 +959,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
      ********************************************/    
     unsigned int n_pix_hits[3] = {0};
 
-    if(m_pixRdoContainer != 0){
+    if(m_pixRdoContainer != nullptr){
         PixelRDO_Container::const_iterator colNextpix = m_pixRdoContainer->begin();
         PixelRDO_Container::const_iterator colNextpix_end = m_pixRdoContainer->end();
         for( ; colNextpix != colNextpix_end; ++colNextpix){
@@ -988,7 +988,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
      ********************************************/    
     unsigned int n_sct_hits[3] = {0};
 
-    if(m_sctRdoContainer != 0){
+    if(m_sctRdoContainer != nullptr){
         SCT_RDO_Container::const_iterator colNextsct = m_sctRdoContainer->begin();
         SCT_RDO_Container::const_iterator colNextsct_end = m_sctRdoContainer->end();
         for( ; colNextsct != colNextsct_end; ++colNextsct){

@@ -9,20 +9,19 @@
 
 #include "IDAlignMonResiduals.h"
 
-#include <sstream>
-#include <math.h>
-#include "TH1.h"
 #include "LWHists/TH1F_LW.h"
-#include "TF1.h"
-#include "TH2.h"
-#include "TH3.h"
-#include "TProfile.h"
-#include "TMath.h"
-#include "TProfile2D.h"
-#include "TGraphErrors.h"
 #include "TF1.h"
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
+#include "TGraphErrors.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
+#include "TMath.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
+#include <cmath>
+#include <sstream>
 
 #include "StoreGate/ReadHandle.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -196,8 +195,8 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::string & name, const IInterface* parent )
  :ManagedMonitorToolBase( type, name, parent ),
   m_trtcaldbTool("TRT_CalDbTool",this),
-  m_hWeightInFile(0),
-  m_etapTWeight(0)
+  m_hWeightInFile(nullptr),
+  m_etapTWeight(nullptr)
 {
 	m_iUpdator               = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
 	m_propagator             = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
@@ -314,250 +313,250 @@ IDAlignMonResiduals::~IDAlignMonResiduals() {
 void IDAlignMonResiduals::InitializeHistograms()
 {
 
-  m_totalEvents = 0;
-  m_hTotalTracks = 0;
+  m_totalEvents = nullptr;
+  m_hTotalTracks = nullptr;
   m_oldlumiblock = 0;
-  m_sirescalcfailure =0;
-  m_pix_eca_xresvsmodphidisk_3d = 0;
-  m_pix_ecc_xresvsmodphidisk_3d = 0;
-  m_pix_eca_yresvsmodphidisk_3d = 0;
-  m_pix_ecc_yresvsmodphidisk_3d = 0;
-  m_dbm_xresvsmodphi_2d = 0;
-  m_sct_b_pullx_pt = 0;
-  m_sct_eca_pullx_pt = 0;
-  m_sct_ecc_pullx_pt = 0;
-  m_sct_b0_xresvsmodetaphi_3d = 0;
-  m_sct_b1_xresvsmodetaphi_3d = 0;
-  m_sct_b2_xresvsmodetaphi_3d = 0;
-  m_sct_b3_xresvsmodetaphi_3d = 0;
+  m_sirescalcfailure =nullptr;
+  m_pix_eca_xresvsmodphidisk_3d = nullptr;
+  m_pix_ecc_xresvsmodphidisk_3d = nullptr;
+  m_pix_eca_yresvsmodphidisk_3d = nullptr;
+  m_pix_ecc_yresvsmodphidisk_3d = nullptr;
+  m_dbm_xresvsmodphi_2d = nullptr;
+  m_sct_b_pullx_pt = nullptr;
+  m_sct_eca_pullx_pt = nullptr;
+  m_sct_ecc_pullx_pt = nullptr;
+  m_sct_b0_xresvsmodetaphi_3d = nullptr;
+  m_sct_b1_xresvsmodetaphi_3d = nullptr;
+  m_sct_b2_xresvsmodetaphi_3d = nullptr;
+  m_sct_b3_xresvsmodetaphi_3d = nullptr;
 
-  m_si_residualx = 0;
-  m_si_b_residualx = 0;
+  m_si_residualx = nullptr;
+  m_si_b_residualx = nullptr;
 
-  m_si_barrel_resX_mean = 0;
-  m_si_eca_resX_mean = 0;
-  m_si_ecc_resX_mean = 0;
-  m_si_barrel_resY_mean = 0;
-  m_si_eca_resY_mean = 0;
-  m_si_ecc_resY_mean = 0;
+  m_si_barrel_resX_mean = nullptr;
+  m_si_eca_resX_mean = nullptr;
+  m_si_ecc_resX_mean = nullptr;
+  m_si_barrel_resY_mean = nullptr;
+  m_si_eca_resY_mean = nullptr;
+  m_si_ecc_resY_mean = nullptr;
 
-  m_si_barrel_resX_mean_profile = 0;
-  m_si_barrel_resY_mean_profile = 0;
+  m_si_barrel_resX_mean_profile = nullptr;
+  m_si_barrel_resY_mean_profile = nullptr;
 
 
-  m_si_barrel_resX_rms = 0;
-  m_si_eca_resX_rms = 0;
-  m_si_ecc_resX_rms = 0;
-  m_si_barrel_resY_rms = 0;
-  m_si_eca_resY_rms = 0;
-  m_si_ecc_resY_rms = 0;
+  m_si_barrel_resX_rms = nullptr;
+  m_si_eca_resX_rms = nullptr;
+  m_si_ecc_resX_rms = nullptr;
+  m_si_barrel_resY_rms = nullptr;
+  m_si_eca_resY_rms = nullptr;
+  m_si_ecc_resY_rms = nullptr;
 
-  m_si_barrel_pullX = 0;
-  m_si_eca_pullX = 0;
-  m_si_ecc_pullX = 0;
-  m_si_barrel_pullY = 0;
-  m_si_eca_pullY = 0;
-  m_si_ecc_pullY = 0;
+  m_si_barrel_pullX = nullptr;
+  m_si_eca_pullX = nullptr;
+  m_si_ecc_pullX = nullptr;
+  m_si_barrel_pullY = nullptr;
+  m_si_eca_pullY = nullptr;
+  m_si_ecc_pullY = nullptr;
 
-  m_si_barrel_resX = 0;
-  m_si_eca_resX = 0;
-  m_si_ecc_resX = 0;
-  m_si_barrel_resY = 0;
-  m_si_eca_resY = 0;
-  m_si_ecc_resY = 0;
+  m_si_barrel_resX = nullptr;
+  m_si_eca_resX = nullptr;
+  m_si_ecc_resX = nullptr;
+  m_si_barrel_resY = nullptr;
+  m_si_eca_resY = nullptr;
+  m_si_ecc_resY = nullptr;
 
-  m_si_barrel_pullX_width = 0;
-  m_si_eca_pullX_width = 0;
-  m_si_ecc_pullX_width = 0;
-  m_si_barrel_pullY_width = 0;
-  m_si_eca_pullY_width = 0;
-  m_si_ecc_pullY_width = 0;
+  m_si_barrel_pullX_width = nullptr;
+  m_si_eca_pullX_width = nullptr;
+  m_si_ecc_pullX_width = nullptr;
+  m_si_barrel_pullY_width = nullptr;
+  m_si_eca_pullY_width = nullptr;
+  m_si_ecc_pullY_width = nullptr;
 
-  m_si_barrel_pullX_mean = 0;
-  m_si_eca_pullX_mean = 0;
-  m_si_ecc_pullX_mean = 0;
-  m_si_barrel_pullY_mean = 0;
-  m_si_eca_pullY_mean = 0;
-  m_si_ecc_pullY_mean = 0;
-  m_pix_b_residualx = 0;
-  m_pix_b_residualy = 0;
-  m_pix_b_residualx_fine = 0;
-  m_pix_b_residualy_fine = 0;
-  m_pix_b_biased_residualx = 0;
-  m_pix_b_biased_residualy = 0;
-  m_pix_eca_residualx = 0;
-  m_pix_eca_residualy = 0;
-  m_pix_ecc_residualx = 0;
-  m_pix_ecc_residualy = 0;
-  m_pix_eca_residualx_fine = 0;
-  m_pix_eca_residualy_fine = 0;
-  m_pix_ecc_residualx_fine = 0;
-  m_pix_ecc_residualy_fine = 0;
+  m_si_barrel_pullX_mean = nullptr;
+  m_si_eca_pullX_mean = nullptr;
+  m_si_ecc_pullX_mean = nullptr;
+  m_si_barrel_pullY_mean = nullptr;
+  m_si_eca_pullY_mean = nullptr;
+  m_si_ecc_pullY_mean = nullptr;
+  m_pix_b_residualx = nullptr;
+  m_pix_b_residualy = nullptr;
+  m_pix_b_residualx_fine = nullptr;
+  m_pix_b_residualy_fine = nullptr;
+  m_pix_b_biased_residualx = nullptr;
+  m_pix_b_biased_residualy = nullptr;
+  m_pix_eca_residualx = nullptr;
+  m_pix_eca_residualy = nullptr;
+  m_pix_ecc_residualx = nullptr;
+  m_pix_ecc_residualy = nullptr;
+  m_pix_eca_residualx_fine = nullptr;
+  m_pix_eca_residualy_fine = nullptr;
+  m_pix_ecc_residualx_fine = nullptr;
+  m_pix_ecc_residualy_fine = nullptr;
 
-  m_pix_eca_pullx = 0;
-  m_pix_eca_pully = 0;
-  m_pix_ecc_pullx = 0;
-  m_pix_ecc_pully = 0;
-  m_pix_bec_Oxresx_mean = 0;
-  m_pix_bec_Oyresx_mean = 0;
-  m_pix_bec_Oxresy_mean = 0;
-  m_pix_bec_Oyresy_mean = 0;
-  m_pix_bec_Oxresx_rms = 0;
-  m_pix_bec_Oyresx_rms = 0;
-  m_pix_bec_Oxresy_rms = 0;
-  m_pix_bec_Oyresy_rms = 0;
+  m_pix_eca_pullx = nullptr;
+  m_pix_eca_pully = nullptr;
+  m_pix_ecc_pullx = nullptr;
+  m_pix_ecc_pully = nullptr;
+  m_pix_bec_Oxresx_mean = nullptr;
+  m_pix_bec_Oyresx_mean = nullptr;
+  m_pix_bec_Oxresy_mean = nullptr;
+  m_pix_bec_Oyresy_mean = nullptr;
+  m_pix_bec_Oxresx_rms = nullptr;
+  m_pix_bec_Oyresx_rms = nullptr;
+  m_pix_bec_Oxresy_rms = nullptr;
+  m_pix_bec_Oyresy_rms = nullptr;
 
-  m_pix_b_xresvsmodeta = 0;
-  m_pix_b_xresvsmodphi = 0;
-  m_pix_b_yresvsmodeta = 0;
-  m_pix_b_yresvsmodphi = 0;
-  m_pix_eca_xresvsmodphi = 0;
-  m_pix_ecc_xresvsmodphi = 0;
-  m_pix_eca_yresvsmodphi = 0;
-  m_pix_ecc_yresvsmodphi = 0;
-  m_pix_b_biased_residualx_pt = 0;
-  m_pix_b_biased_residualy_pt  = 0;
-  m_pix_eca_biased_residualx  = 0;
-  m_pix_eca_biased_residualy  = 0;
-  m_pix_eca_biased_residualx_pt = 0;
-  m_pix_eca_biased_residualy_pt = 0;
-  m_pix_ecc_biased_residualx  = 0;
-  m_pix_ecc_biased_residualy  = 0;
-  m_pix_ecc_biased_residualx_pt = 0;
-  m_pix_ecc_biased_residualy_pt = 0;
-  m_pix_eca_xresvsmodphi_2d = 0;
-  m_pix_ecc_xresvsmodphi_2d = 0;
-  m_pix_eca_yresvsmodphi_2d = 0;
-  m_pix_ecc_yresvsmodphi_2d = 0;
+  m_pix_b_xresvsmodeta = nullptr;
+  m_pix_b_xresvsmodphi = nullptr;
+  m_pix_b_yresvsmodeta = nullptr;
+  m_pix_b_yresvsmodphi = nullptr;
+  m_pix_eca_xresvsmodphi = nullptr;
+  m_pix_ecc_xresvsmodphi = nullptr;
+  m_pix_eca_yresvsmodphi = nullptr;
+  m_pix_ecc_yresvsmodphi = nullptr;
+  m_pix_b_biased_residualx_pt = nullptr;
+  m_pix_b_biased_residualy_pt  = nullptr;
+  m_pix_eca_biased_residualx  = nullptr;
+  m_pix_eca_biased_residualy  = nullptr;
+  m_pix_eca_biased_residualx_pt = nullptr;
+  m_pix_eca_biased_residualy_pt = nullptr;
+  m_pix_ecc_biased_residualx  = nullptr;
+  m_pix_ecc_biased_residualy  = nullptr;
+  m_pix_ecc_biased_residualx_pt = nullptr;
+  m_pix_ecc_biased_residualy_pt = nullptr;
+  m_pix_eca_xresvsmodphi_2d = nullptr;
+  m_pix_ecc_xresvsmodphi_2d = nullptr;
+  m_pix_eca_yresvsmodphi_2d = nullptr;
+  m_pix_ecc_yresvsmodphi_2d = nullptr;
 
-  m_pix_b_Oxresxvsmodeta = 0;
-  m_pix_b_Oxresxvsmodphi = 0;
-  m_pix_b_Oyresyvsmodeta = 0;
-  m_pix_b_Oyresyvsmodphi = 0;
-  m_pix_eca_Oxresxvsmodphi = 0;
-  m_pix_ecc_Oxresxvsmodphi = 0;
-  m_pix_eca_Oyresyvsmodphi = 0;
-  m_pix_ecc_Oyresyvsmodphi = 0;
-  m_pix_eca_unbiased_xresvsmodphi = 0;
-  m_pix_eca_unbiased_yresvsmodphi = 0;
-  m_pix_ecc_unbiased_xresvsmodphi = 0;
-  m_pix_ecc_unbiased_yresvsmodphi = 0;
-  m_sct_b_residualx = 0;
-  m_sct_b_residualx_fine = 0;
-  m_sct_b_biasedresidualx = 0;
-  m_sct_eca_residualx = 0;
-  m_sct_ecc_residualx = 0;
-  m_sct_eca_residualx_fine = 0;
-  m_sct_ecc_residualx_fine = 0;
+  m_pix_b_Oxresxvsmodeta = nullptr;
+  m_pix_b_Oxresxvsmodphi = nullptr;
+  m_pix_b_Oyresyvsmodeta = nullptr;
+  m_pix_b_Oyresyvsmodphi = nullptr;
+  m_pix_eca_Oxresxvsmodphi = nullptr;
+  m_pix_ecc_Oxresxvsmodphi = nullptr;
+  m_pix_eca_Oyresyvsmodphi = nullptr;
+  m_pix_ecc_Oyresyvsmodphi = nullptr;
+  m_pix_eca_unbiased_xresvsmodphi = nullptr;
+  m_pix_eca_unbiased_yresvsmodphi = nullptr;
+  m_pix_ecc_unbiased_xresvsmodphi = nullptr;
+  m_pix_ecc_unbiased_yresvsmodphi = nullptr;
+  m_sct_b_residualx = nullptr;
+  m_sct_b_residualx_fine = nullptr;
+  m_sct_b_biasedresidualx = nullptr;
+  m_sct_eca_residualx = nullptr;
+  m_sct_ecc_residualx = nullptr;
+  m_sct_eca_residualx_fine = nullptr;
+  m_sct_ecc_residualx_fine = nullptr;
 
-  m_sct_eca_pullx = 0;
-  m_sct_ecc_pullx = 0;
+  m_sct_eca_pullx = nullptr;
+  m_sct_ecc_pullx = nullptr;
 
-  m_sct_bec_Oxresx_mean = 0;
-  m_sct_bec_Oyresx_mean = 0;
-  m_sct_bec_Oxresx_rms = 0;
-  m_sct_bec_Oyresx_rms = 0;
+  m_sct_bec_Oxresx_mean = nullptr;
+  m_sct_bec_Oyresx_mean = nullptr;
+  m_sct_bec_Oxresx_rms = nullptr;
+  m_sct_bec_Oyresx_rms = nullptr;
 
-  m_sct_eca_xresvsmodphi_2d = 0;
-  m_sct_ecc_xresvsmodphi_2d = 0;
+  m_sct_eca_xresvsmodphi_2d = nullptr;
+  m_sct_ecc_xresvsmodphi_2d = nullptr;
 
-  m_sct_b_xresvsmodeta = 0;
-  m_sct_b_xresvsmodphi = 0;
-  m_sct_eca_xresvsmodphi = 0;
-  m_sct_ecc_xresvsmodphi = 0;
+  m_sct_b_xresvsmodeta = nullptr;
+  m_sct_b_xresvsmodphi = nullptr;
+  m_sct_eca_xresvsmodphi = nullptr;
+  m_sct_ecc_xresvsmodphi = nullptr;
 
-  m_sct_b_Oxresxvsmodeta = 0;
-  m_sct_b_Oxresxvsmodphi = 0;
-  m_sct_b_Oyresxvsmodeta = 0;
-  m_sct_b_Oyresxvsmodphi = 0;
-  m_sct_eca_Oxresxvsmodphi = 0;
-  m_sct_ecc_Oxresxvsmodphi = 0;
-  m_pix_b_residualx_pt = 0;
-  m_pix_b_residualy_pt = 0;
-  m_pix_eca_residualx_pt = 0;
-  m_pix_eca_residualy_pt = 0;
-  m_pix_ecc_residualx_pt = 0;
-  m_pix_ecc_residualy_pt = 0;
+  m_sct_b_Oxresxvsmodeta = nullptr;
+  m_sct_b_Oxresxvsmodphi = nullptr;
+  m_sct_b_Oyresxvsmodeta = nullptr;
+  m_sct_b_Oyresxvsmodphi = nullptr;
+  m_sct_eca_Oxresxvsmodphi = nullptr;
+  m_sct_ecc_Oxresxvsmodphi = nullptr;
+  m_pix_b_residualx_pt = nullptr;
+  m_pix_b_residualy_pt = nullptr;
+  m_pix_eca_residualx_pt = nullptr;
+  m_pix_eca_residualy_pt = nullptr;
+  m_pix_ecc_residualx_pt = nullptr;
+  m_pix_ecc_residualy_pt = nullptr;
 
-  m_sct_b_biased_residualx = 0;
-  m_sct_b_biased_residualx_pt = 0;
-  m_sct_b_residualx_pt = 0;
-  m_sct_b_biased_residualx_qoverp2 = 0;
-  m_sct_b_unbiased_residualx_qoverp2 = 0;
+  m_sct_b_biased_residualx = nullptr;
+  m_sct_b_biased_residualx_pt = nullptr;
+  m_sct_b_residualx_pt = nullptr;
+  m_sct_b_biased_residualx_qoverp2 = nullptr;
+  m_sct_b_unbiased_residualx_qoverp2 = nullptr;
 
-  m_sct_eca_biased_residualx = 0;
-  m_sct_eca_biased_residualy = 0;
-  m_sct_ecc_biased_residualx = 0;
-  m_sct_ecc_biased_residualy = 0;
+  m_sct_eca_biased_residualx = nullptr;
+  m_sct_eca_biased_residualy = nullptr;
+  m_sct_ecc_biased_residualx = nullptr;
+  m_sct_ecc_biased_residualy = nullptr;
 
-  m_sct_eca_biased_residualx_pt = 0;
-  m_sct_ecc_biased_residualx_pt = 0;
+  m_sct_eca_biased_residualx_pt = nullptr;
+  m_sct_ecc_biased_residualx_pt = nullptr;
 
-  m_sct_eca_residualx_pt = 0;
-  m_sct_ecc_residualx_pt = 0;
+  m_sct_eca_residualx_pt = nullptr;
+  m_sct_ecc_residualx_pt = nullptr;
 
-  m_sct_eca_biased_residualx_qoverp2 =0 ;
-  m_sct_ecc_biased_residualx_qoverp2= 0;
+  m_sct_eca_biased_residualx_qoverp2 =nullptr ;
+  m_sct_ecc_biased_residualx_qoverp2= nullptr;
 
-  m_sct_eca_unbiased_residualx_qoverp2= 0;
-  m_sct_ecc_unbiased_residualx_qoverp2= 0;
+  m_sct_eca_unbiased_residualx_qoverp2= nullptr;
+  m_sct_ecc_unbiased_residualx_qoverp2= nullptr;
   // Local positions (extrapolated)
-  m_pix_b_extrapolated_localx= 0;
-  m_pix_b_extrapolated_localy= 0;
-  m_sct_b_extrapolated_st_localx= 0;
-  m_sct_b_extrapolated_st_localy= 0;
-  m_sct_b_extrapolated_nst_localx= 0;
-  m_sct_b_extrapolated_nst_localy= 0;
+  m_pix_b_extrapolated_localx= nullptr;
+  m_pix_b_extrapolated_localy= nullptr;
+  m_sct_b_extrapolated_st_localx= nullptr;
+  m_sct_b_extrapolated_st_localy= nullptr;
+  m_sct_b_extrapolated_nst_localx= nullptr;
+  m_sct_b_extrapolated_nst_localy= nullptr;
 
   // Local positions (mesasured)
-  m_pix_b_measured_localx= 0;
-  m_pix_b_measured_localy= 0;
-  m_sct_b_measured_st_localx= 0;
-  m_sct_b_measured_st_localy= 0;
-  m_sct_b_measured_nst_localx= 0;
-  m_sct_b_measured_nst_localy= 0;
+  m_pix_b_measured_localx= nullptr;
+  m_pix_b_measured_localy= nullptr;
+  m_sct_b_measured_st_localx= nullptr;
+  m_sct_b_measured_st_localy= nullptr;
+  m_sct_b_measured_nst_localx= nullptr;
+  m_sct_b_measured_nst_localy= nullptr;
 
 
   // Hit errors
 
-  m_hiterror_sct_b= 0;
-  m_hiterror_sct_ec= 0;
-  m_hiterror_sct_b_WideRange= 0;
-  m_hiterror_sct_ec_WideRange= 0;
+  m_hiterror_sct_b= nullptr;
+  m_hiterror_sct_ec= nullptr;
+  m_hiterror_sct_b_WideRange= nullptr;
+  m_hiterror_sct_ec_WideRange= nullptr;
 
-  m_hiterror_x_pix_b= 0;
-  m_hiterror_x_pix_ec= 0;
-  m_hiterror_x_pix_eca= 0;
-  m_hiterror_x_pix_ecc= 0;
-  m_hiterror_y_pix_b= 0;
-  m_hiterror_y_pix_ec= 0;
-  m_hiterror_y_pix_eca= 0;
-  m_hiterror_y_pix_ecc= 0;
+  m_hiterror_x_pix_b= nullptr;
+  m_hiterror_x_pix_ec= nullptr;
+  m_hiterror_x_pix_eca= nullptr;
+  m_hiterror_x_pix_ecc= nullptr;
+  m_hiterror_y_pix_b= nullptr;
+  m_hiterror_y_pix_ec= nullptr;
+  m_hiterror_y_pix_eca= nullptr;
+  m_hiterror_y_pix_ecc= nullptr;
 
-  m_hiterror_x_pix_b_WideRange= 0;
-  m_hiterror_x_pix_ec_WideRange= 0;
-  m_hiterror_y_pix_b_WideRange= 0;
-  m_hiterror_y_pix_ec_WideRange= 0;
+  m_hiterror_x_pix_b_WideRange= nullptr;
+  m_hiterror_x_pix_ec_WideRange= nullptr;
+  m_hiterror_y_pix_b_WideRange= nullptr;
+  m_hiterror_y_pix_ec_WideRange= nullptr;
 
-  m_hiterror_x_ibl_b= 0;
-  m_hiterror_x_ibl_ec= 0;
-  m_hiterror_y_ibl_b= 0;
-  m_hiterror_y_ibl_ec= 0;
+  m_hiterror_x_ibl_b= nullptr;
+  m_hiterror_x_ibl_ec= nullptr;
+  m_hiterror_y_ibl_b= nullptr;
+  m_hiterror_y_ibl_ec= nullptr;
 
-  m_hiterror_x_ibl_b_WideRange= 0;
-  m_hiterror_x_ibl_ec_WideRange= 0;
-  m_hiterror_y_ibl_b_WideRange= 0;
-  m_hiterror_y_ibl_ec_WideRange= 0;
+  m_hiterror_x_ibl_b_WideRange= nullptr;
+  m_hiterror_x_ibl_ec_WideRange= nullptr;
+  m_hiterror_y_ibl_b_WideRange= nullptr;
+  m_hiterror_y_ibl_ec_WideRange= nullptr;
 
   // Pulls vs pt
   // Pixel
 
-  m_pix_b_pullx_pt= 0;
-  m_pix_b_pully_pt= 0;
-  m_pix_eca_pullx_pt= 0;
-  m_pix_eca_pully_pt= 0;
-  m_pix_ecc_pullx_pt= 0;
-  m_pix_ecc_pully_pt =0;
+  m_pix_b_pullx_pt= nullptr;
+  m_pix_b_pully_pt= nullptr;
+  m_pix_eca_pullx_pt= nullptr;
+  m_pix_eca_pully_pt= nullptr;
+  m_pix_ecc_pullx_pt= nullptr;
+  m_pix_ecc_pully_pt =nullptr;
 }
 
 
@@ -1234,9 +1233,9 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
       if (side){
 	Amg::Vector3D mytrack = trackParameter->momentum(); // track parameters at that surface
-	Amg::Vector3D mynormal = side->normal();
-	Amg::Vector3D myphiax = side->phiAxis();
-	Amg::Vector3D myetaax = side->etaAxis();
+	const Amg::Vector3D& mynormal = side->normal();
+	const Amg::Vector3D& myphiax = side->phiAxis();
+	const Amg::Vector3D& myetaax = side->etaAxis();
 	float trketacomp = mytrack.dot(myetaax);
 	float trkphicomp = mytrack.dot(myphiax);
 	float trknormcomp = mytrack.dot(mynormal);
@@ -1244,7 +1243,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	incidenceTheta = atan2(trketacomp,trknormcomp);
       }
 
-      const AmgSymMatrix(5)* TrackParCovariance = trackParameter ? trackParameter->covariance() : NULL;
+      const AmgSymMatrix(5)* TrackParCovariance = trackParameter ? trackParameter->covariance() : nullptr;
 
       if( TrackParCovariance == nullptr) {
 	//if no MeasuredTrackParameters the hit will not have associated convariance error matrix and will not
@@ -1355,9 +1354,9 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
 	const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(tsos->measurementOnTrack());
 
-	const InDet::TRT_DriftCircle *RawDriftCircle(NULL);
+	const InDet::TRT_DriftCircle *RawDriftCircle(nullptr);
 
-	if (trtCircle!=NULL) {
+	if (trtCircle!=nullptr) {
 	  ATH_MSG_DEBUG(" --> Getting TRT RawDriftCircle");
 	  RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
 	}
@@ -1386,16 +1385,16 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      straw and the track theta */
 	  float hitZ = -999.;
 	  Amg::Vector3D  center(-9999.,-9999.,-9999);
-	  if (RawDriftCircle!=NULL)
+	  if (RawDriftCircle!=nullptr)
 	    center = RawDriftCircle->detectorElement()->surface( id ).center() ;
 
-	  if( fabs(barrel_ec) == 1 && RawDriftCircle!=NULL){
+	  if( fabs(barrel_ec) == 1 && RawDriftCircle!=nullptr){
 	    hitZ = sqrt(center.x()*center.x()+center.y()*center.y())*tan(M_PI/2. - theta) + trkz0;
 	  }
 	  /* Estimates the global R position of a TRT EC hit using the global z position of the straw
 	     and the track theta */
 	  float hitGlobalR = -9999.; // -999. is a possible value :)
-	  if( fabs(barrel_ec) == 2 && trtCircle!=NULL){
+	  if( fabs(barrel_ec) == 2 && trtCircle!=nullptr){
 	    float center_z = trtCircle->detectorElement()->surface( id ).center().z();
 	    hitGlobalR = (center_z - trkz0) / tan(M_PI/2. - theta);
 	    ATH_MSG_DEBUG("** fillHistograms() ** TRT endcap hit in layer_or_wheel: " <<  layer_or_wheel << "  hitGlobalR: " << hitGlobalR);
@@ -1433,7 +1432,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
 
 	  hit = m_hitQualityTool->getGoodHit(tsos);
-	  if(hit==NULL) {
+	  if(hit==nullptr) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
 	    continue;
 	  }
@@ -1445,9 +1444,9 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
 	  if(side){
 	    Amg::Vector3D mytrack = trackParameter->momentum(); // track parameters at that surface
-	    Amg::Vector3D mynormal = side->normal();
-	    Amg::Vector3D myphiax = side->phiAxis();
-	    Amg::Vector3D myetaax = side->etaAxis();
+	    const Amg::Vector3D& mynormal = side->normal();
+	    const Amg::Vector3D& myphiax = side->phiAxis();
+	    const Amg::Vector3D& myetaax = side->etaAxis();
 	    float trketacomp = mytrack.dot(myetaax);
 	    float trkphicomp = mytrack.dot(myphiax);
 	    float trknormcomp = mytrack.dot(mynormal);
@@ -1467,7 +1466,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  modPhi    = m_pixelID -> phi_module(id);
 	  const InDet::PixelCluster *clus = dynamic_cast<const InDet::PixelCluster*>(hit->prepRawData());
 	  if (clus){
-	    const InDet::SiWidth cw = clus->width();
+	    const InDet::SiWidth& cw = clus->width();
 	    ClusSizePhi = (int)cw.colRow()[0];
 	    ClusSizeZ   = (int)cw.colRow()[1];
 	    ClusSize    = (int)clus->rdoList().size();
@@ -1485,7 +1484,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    isStereo = siDet->isStereo();
 	    const InDet::SCT_Cluster *clus = dynamic_cast<const InDet::SCT_Cluster*>(hit->prepRawData());
 	    if(clus){
-	      const InDet::SiWidth cw = clus->width();
+	      const InDet::SiWidth& cw = clus->width();
 	      ClusSizePhi = (int)cw.colRow()[0];
 	      ClusSize = (int)clus->rdoList().size();
 	    }
@@ -1546,7 +1545,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      /// See previous method
 	      ////SiDetectorElement -->double sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const;
 
-	      if (siDet != NULL)
+	      if (siDet != nullptr)
 		{
 		  double sinAlpha = siDet->sinStereoLocal(siDet->localPosition(mesh->globalPosition()));
 		  double cosAlpha = sqrt(1 - sinAlpha*sinAlpha);
@@ -2470,11 +2469,11 @@ StatusCode  IDAlignMonResiduals::getSiResiduals(const Trk::Track* track, const T
   const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
 
   //get the unbiased track parameters (can fail if no MeasuredTrackParameters exists)
-  const Trk::TrackParameters* trackParameterUnbiased = NULL;
+  const Trk::TrackParameters* trackParameterUnbiased = nullptr;
   if(unBias) trackParameterUnbiased = getUnbiasedTrackParameters(track,tsos);
 
   //updator can fail in defining unbiased parameters, in which case we use biased
-  const Trk::TrackParameters* trackParameterForResiduals = NULL;
+  const Trk::TrackParameters* trackParameterForResiduals = nullptr;
   if(trackParameterUnbiased) trackParameterForResiduals = trackParameterUnbiased;
   else {
     //use the original biased track parameters
@@ -2488,7 +2487,7 @@ StatusCode  IDAlignMonResiduals::getSiResiduals(const Trk::Track* track, const T
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" got hit and track parameters " << endmsg;
 
       //const Trk::ResidualPull* residualPull = m_residualPullCalculator->residualPull(hit, trackParameterForResiduals, unBias);
-      const Trk::ResidualPull* residualPull = NULL;
+      const Trk::ResidualPull* residualPull = nullptr;
       if(unBias) residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals, Trk::ResidualPull::Unbiased);
       else residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals, Trk::ResidualPull::Biased);
 
@@ -2615,8 +2614,8 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 
 
 
-  const Trk::TrackStateOnSurface* xOverlap = NULL;
-  const Trk::TrackStateOnSurface* yOverlap = NULL;
+  const Trk::TrackStateOnSurface* xOverlap = nullptr;
+  const Trk::TrackStateOnSurface* yOverlap = nullptr;
   if (isEdge(hit))
     {
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an edge hit (1st hit)" << endmsg;
@@ -2657,7 +2656,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       for (const Trk::TrackStateOnSurface* tsos2 : *trk->trackStateOnSurfaces()) {
 	const Trk::MeasurementBase* mesh =tsos2->measurementOnTrack();
 	const Trk::RIO_OnTrack* hit2 = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
-	if (hit2== NULL) continue;//the first hit on the track never has associated RIO_OnTrack - just stores track parameters
+	if (hit2== nullptr) continue;//the first hit on the track never has associated RIO_OnTrack - just stores track parameters
 	++nHits;
 	int detType2 = -99;
 	int barrelEC2 = -99;
@@ -2743,8 +2742,8 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 
 
 	const Trk::TrackParameters* measuredTrackParameter = tsos2->trackParameters();
-	const AmgSymMatrix(5)* MeasTrackParCovariance = measuredTrackParameter ? measuredTrackParameter->covariance() : NULL;
-	if(MeasTrackParCovariance==NULL) {
+	const AmgSymMatrix(5)* MeasTrackParCovariance = measuredTrackParameter ? measuredTrackParameter->covariance() : nullptr;
+	if(MeasTrackParCovariance==nullptr) {
 
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because overlap hit does not have associated measuredTrackParameters" << endmsg;
 	  continue;
@@ -2756,7 +2755,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endmsg;
 
 	    hit2 = m_hitQualityTool->getGoodHit(tsos2);
-	    if(hit2==NULL) {
+	    if(hit2==nullptr) {
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endmsg;
 	      continue;
 	    }
@@ -2833,9 +2832,9 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
 {
 
   const Trk::TrackParameters* TrackParams;
-  const Trk::TrackParameters* UnbiasedTrackParams(0);
-  const Trk::TrackParameters* PropagatedTrackParams(0);
-  const Trk::TrackParameters* OtherSideUnbiasedTrackParams(0);
+  const Trk::TrackParameters* UnbiasedTrackParams(nullptr);
+  const Trk::TrackParameters* PropagatedTrackParams(nullptr);
+  const Trk::TrackParameters* OtherSideUnbiasedTrackParams(nullptr);
 
   //controls if the SCT residuals will be 'truly' unbiased - removing also the opposite side hit.
   bool trueUnbiased = true;
@@ -2851,7 +2850,7 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
 
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
 
-  if (hitOnTrack != 0)
+  if (hitOnTrack != nullptr)
     surfaceID = hitOnTrack->identify();
 
 
@@ -2859,7 +2858,7 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
   if (surfaceID.is_valid() && trueUnbiased && m_idHelper->is_sct(surfaceID)) {  //there's no TrueUnbiased for non-SCT (pixel) hits)
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
     // check if other module side was also hit and try to remove other hit as well
-    const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
+    const Trk::TrackStateOnSurface* OtherModuleSideHit(nullptr);
     const Identifier waferID = m_sctID->wafer_id(surfaceID);
     const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
     IdentifierHash otherSideHash;
@@ -2869,11 +2868,11 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
 
       const Trk::RIO_OnTrack* TempHitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
-      if (TempHitOnTrack != 0) {
+      if (TempHitOnTrack != nullptr) {
 	//const Identifier& trkID = TempHitOnTrack->identify();
 	//if (m_sctID->wafer_id(trkID) == OtherModuleSideID) {
 	if (m_sctID->wafer_id(TempHitOnTrack->identify()) == OtherModuleSideID) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') << endmsg;
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,nullptr,'/') << endmsg;
 	  OtherModuleSideHit = TempTsos;
 	}
       }
@@ -2882,7 +2881,7 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
     if (OtherModuleSideHit) {
 
       const Trk::TrackParameters* OMSHmeasuredTrackParameter = OtherModuleSideHit->trackParameters();
-      const AmgSymMatrix(5)* OMSHmeasuredTrackParameterCov = OMSHmeasuredTrackParameter ? OMSHmeasuredTrackParameter->covariance() : NULL;
+      const AmgSymMatrix(5)* OMSHmeasuredTrackParameterCov = OMSHmeasuredTrackParameter ? OMSHmeasuredTrackParameter->covariance() : nullptr;
 
       // check that the hit on the other module side has measuredtrackparameters, otherwise it cannot be removed from the track
       if (OMSHmeasuredTrackParameterCov) {
@@ -2898,7 +2897,7 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
 
 	  const Trk::Surface* TempSurface = &(OtherModuleSideHit->measurementOnTrack()->associatedSurface());
 
-	  const Trk::MagneticFieldProperties* TempField = 0;
+	  const Trk::MagneticFieldProperties* TempField = nullptr;
 	  if (TempSurface)
 	    {
 	      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After OtherSide surface call. Surface exists" << endmsg;
@@ -2965,7 +2964,7 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
   delete PropagatedTrackParams;
 
   if (UnbiasedTrackParams) {
-    if(msgLvl(MSG::VERBOSE) && surfaceID.is_valid()) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,0,'/') << endmsg;
+    if(msgLvl(MSG::VERBOSE) && surfaceID.is_valid()) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,nullptr,'/') << endmsg;
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased Trackparameters: " << *UnbiasedTrackParams << endmsg;
 
     TrackParams = UnbiasedTrackParams->clone();
@@ -3121,14 +3120,14 @@ bool IDAlignMonResiduals::trackRequiresRefit(const Trk::Track* track)
     if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) continue;
 
     const Trk::MeasurementBase* mesh =tsos->measurementOnTrack();
-    if (mesh==NULL) continue;
+    if (mesh==nullptr) continue;
     const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
-    if (hit==NULL) continue;
+    if (hit==nullptr) continue;
 
     ++nHits;
 
     const Trk::TrackParameters* trackParameter = tsos->trackParameters();
-    if(trackParameter==NULL) ++nHitsNoParams; //if no TrackParameters for TSOS we cannot define residuals
+    if(trackParameter==nullptr) ++nHitsNoParams; //if no TrackParameters for TSOS we cannot define residuals
   }
 
   if (nHitsNoParams>0) refitTrack = true;
@@ -3398,7 +3397,7 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
       if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
 	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use"<<endmsg;
 	continue;}
-      m_siliconBarrelLayersLabels.push_back("PIXL"+intToString(iLayer));
+      m_siliconBarrelLayersLabels.emplace_back("PIXL"+intToString(iLayer));
       float EtaModules= m_PIX_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_PIX_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2)
       totalEtaModules+=EtaModules;
 
@@ -3796,7 +3795,7 @@ void IDAlignMonResiduals::MakePIXEndCapsHistograms(MonGroup& al_mon){
 	    {
 	      rings=m_PIX_Mgr->numerology().numRingsForDisk(iWheel);
 	      if (iSide>0)
-		m_siliconEndcapLayersLabels.push_back("PIXL"+intToString(iWheel));
+		m_siliconEndcapLayersLabels.emplace_back("PIXL"+intToString(iWheel));
 	    }
 	  maxPhiModulesPerRing=0;
 	  for (int iEta = 0; iEta < rings; ++iEta)  //actually number of rings for PIX = 1
@@ -4201,8 +4200,8 @@ void IDAlignMonResiduals::MakeSCTBarrelHistograms(MonGroup& al_mon){
 	    continue;
 	  //ATH_MSG_INFO("iEta= " << iEta);
 	}
-      m_siliconBarrelLayersLabels.push_back("SCTL"+intToString(iLayer)+" S0");
-      m_siliconBarrelLayersLabels.push_back("SCTL"+intToString(iLayer)+" S1");
+      m_siliconBarrelLayersLabels.emplace_back("SCTL"+intToString(iLayer)+" S0");
+      m_siliconBarrelLayersLabels.emplace_back("SCTL"+intToString(iLayer)+" S1");
       float EtaModules= m_SCT_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_SCT_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2. I am not skipping the empty layer. It might be nice to see the separation)
       totalEtaModules+=EtaModules;
       //residuals
@@ -4425,8 +4424,8 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon){
 	      //rings=m_SCT_Mgr->numerology().numRingsForDisk(iWheel);
 	      if (iSide>0)
 		{//I assume symmetry between the two endcaps to avoid double counting
-		  m_siliconEndcapLayersLabels.push_back("SCTL"+intToString(iWheel)+" S0");
-		  m_siliconEndcapLayersLabels.push_back("SCTL"+intToString(iWheel)+" S1");
+		  m_siliconEndcapLayersLabels.emplace_back("SCTL"+intToString(iWheel)+" S0");
+		  m_siliconEndcapLayersLabels.emplace_back("SCTL"+intToString(iWheel)+" S1");
 		  }
 	    }
 
@@ -5225,10 +5224,10 @@ void IDAlignMonResiduals::fillTRTHistograms(int barrel_ec, int layer_or_wheel, i
 //Filling barrel histograms
 void IDAlignMonResiduals::fillTRTBarrelHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitZ, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight){
   //Logic to determine Left, Right, Upper, Lower
-  bool isUpper = (phi_module > 4 && phi_module < 12 ) ? true : false;
-  bool isLower = (phi_module > 20 && phi_module < 28 ) ? true : false;
-  bool isRight = (phi_module <= 4 || phi_module >= 28 ) ? true : false;
-  bool isLeft = (phi_module >= 12 && phi_module <= 20 ) ? true : false;
+  bool isUpper = phi_module > 4 && phi_module < 12;
+  bool isLower = phi_module > 20 && phi_module < 28;
+  bool isRight = phi_module <= 4 || phi_module >= 28;
+  bool isLeft = phi_module >= 12 && phi_module <= 20;
 
   //Loop over the barrel sides
   for(unsigned int side = 0; side<3; ++side){

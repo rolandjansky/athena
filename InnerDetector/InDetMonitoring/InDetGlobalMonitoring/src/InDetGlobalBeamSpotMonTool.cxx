@@ -311,7 +311,7 @@ StatusCode InDetGlobalBeamSpotMonTool::procHistograms()
 
 
 TH1F_LW* InDetGlobalBeamSpotMonTool::makeAndRegisterTH1F(MonGroup& mon,
-               const char* hName, std::string hTitle, int nBins, float minX, float maxX) {
+               const char* hName, const std::string& hTitle, int nBins, float minX, float maxX) {
   TH1F_LW* h = TH1F_LW::create(hName,hTitle.c_str(),nBins,minX,maxX);
   //h->Sumw2();
   if (mon.regHist(h).isFailure()) {
@@ -322,7 +322,7 @@ TH1F_LW* InDetGlobalBeamSpotMonTool::makeAndRegisterTH1F(MonGroup& mon,
 
 
 TH2F_LW* InDetGlobalBeamSpotMonTool::makeAndRegisterTH2F(MonGroup& mon,
-               const char* hName, std::string hTitle,
+               const char* hName, const std::string& hTitle,
                int nBinsX, float minX, float maxX,
                int nBinsY, float minY, float maxY) {
   TH2F_LW* h = TH2F_LW::create(hName,hTitle.c_str(),nBinsX,minX,maxX,nBinsY,minY,maxY);

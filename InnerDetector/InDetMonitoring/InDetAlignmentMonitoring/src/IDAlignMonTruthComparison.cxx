@@ -385,9 +385,9 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
     // get fit quality and chi2 probability of track
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
     const Trk::Perigee* measPer = (*trksItr)->perigeeParameters();
-    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
+    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : nullptr;
     
-    if (covariance==0) {
+    if (covariance==nullptr) {
       msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
     }
     else{  
@@ -417,7 +417,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
       if (found != TruthMap->end())
 	{
 	  TrackTruth trtruth = found->second;
-	  HepMcParticleLink HMPL = trtruth.particleLink();
+	  const HepMcParticleLink& HMPL = trtruth.particleLink();
           
 	  if ( HMPL.isValid()) 
 	    {
@@ -551,9 +551,9 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
     // get fit quality and chi2 probability of track
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
     const Trk::Perigee* measPer = (*trksItr)->perigeeParameters();
-    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
+    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : nullptr;
     
-    if (covariance==0) {
+    if (covariance==nullptr) {
       msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
     }
     else{  
@@ -579,7 +579,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
       if (found != TruthMap->end())
 	{
 	  TrackTruth trtruth = found->second;
-	  HepMcParticleLink HMPL = trtruth.particleLink();
+	  const HepMcParticleLink& HMPL = trtruth.particleLink();
           
 	  if ( HMPL.isValid()) 
 	    {
@@ -665,66 +665,66 @@ StatusCode IDAlignMonTruthComparison::procHistograms()
   if( endOfRunFlag() ) {
 
     // deta vs eta
-    m_Deta_vs_eta->FitSlicesY(0,1,0,10);
+    m_Deta_vs_eta->FitSlicesY(nullptr,1,0,10);
     TH1F* Deta_vs_eta_1 = (TH1F*)gDirectory->Get("Deta_vs_eta_1");
     TH1F* Deta_vs_eta_2 = (TH1F*)gDirectory->Get("Deta_vs_eta_2");
     TH1F* Deta_vs_eta_chi2 = (TH1F*)gDirectory->Get("Deta_vs_eta_chi2");
 
     // vs pt
-    m_Dqopt_vs_pt_barrel->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_pt_barrel->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_pt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_1");
     TH1F* Dqopt_vs_pt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_2");
     TH1F* Dqopt_vs_pt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_chi2");
 
-    m_Dqopt_vs_pt_eca->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_pt_eca->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_pt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_1");
     TH1F* Dqopt_vs_pt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_2");
     TH1F* Dqopt_vs_pt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_chi2");
 
-    m_Dqopt_vs_pt_ecc->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_pt_ecc->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_pt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_1");
     TH1F* Dqopt_vs_pt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_2");
     TH1F* Dqopt_vs_pt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_chi2");
 
     // vs eta
-    m_Dqopt_vs_eta_highpt->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_eta_highpt->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_eta_highpt_1 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_1");
     TH1F* Dqopt_vs_eta_highpt_2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_2");
     TH1F* Dqopt_vs_eta_highpt_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_chi2");
 
-    m_Dqopt_vs_eta_lowpt->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_eta_lowpt->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_eta_lowpt_1 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_1");
     TH1F* Dqopt_vs_eta_lowpt_2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_2");
     TH1F* Dqopt_vs_eta_lowpt_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_chi2");
 
     // vs phi
-    m_Dqopt_vs_phi_highpt_barrel->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_phi_highpt_barrel->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_phi_highpt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_1");
     TH1F* Dqopt_vs_phi_highpt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_2");
     TH1F* Dqopt_vs_phi_highpt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_chi2");
 
-    m_Dqopt_vs_phi_highpt_eca->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_phi_highpt_eca->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_phi_highpt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_1");
     TH1F* Dqopt_vs_phi_highpt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_2");
     TH1F* Dqopt_vs_phi_highpt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_chi2");
 
-    m_Dqopt_vs_phi_highpt_ecc->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_phi_highpt_ecc->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_phi_highpt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_1");
     TH1F* Dqopt_vs_phi_highpt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_2");
     TH1F* Dqopt_vs_phi_highpt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_chi2");
 
     // vs phi
-    m_Dqopt_vs_phi_lowpt_barrel->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_phi_lowpt_barrel->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_phi_lowpt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_1");
     TH1F* Dqopt_vs_phi_lowpt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_2");
     TH1F* Dqopt_vs_phi_lowpt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_chi2");
 
-    m_Dqopt_vs_phi_lowpt_eca->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_phi_lowpt_eca->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_phi_lowpt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_1");
     TH1F* Dqopt_vs_phi_lowpt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_2");
     TH1F* Dqopt_vs_phi_lowpt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_chi2");
 
-    m_Dqopt_vs_phi_lowpt_ecc->FitSlicesY(0,1,0,10);
+    m_Dqopt_vs_phi_lowpt_ecc->FitSlicesY(nullptr,1,0,10);
     TH1F* Dqopt_vs_phi_lowpt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_1");
     TH1F* Dqopt_vs_phi_lowpt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_2");
     TH1F* Dqopt_vs_phi_lowpt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_chi2");

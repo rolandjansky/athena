@@ -7,14 +7,14 @@
 // AUTHORS: Ambrosius  Vermeulen, Pierfrancesco Butti
 // **********************************************************************
 
-#include <sstream>
-#include <math.h>
+#include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TF1.h"
+#include "TMath.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "TMath.h"
+#include <cmath>
+#include <sstream>
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -78,74 +78,74 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 	/////////////////////////////////////////////////
     	//////Initialize histo's 400MeV until 600MeV/////
     	/////////////////////////////////////////////////
-    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive = 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative = 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive = nullptr;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative = nullptr;
 
-    	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative 	= 0;
+    	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative 	= nullptr;
  
 	/////////////////////////////////////////////////
     	///////Initialize histo's 600MeV until 1GeV//////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive = 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative = 0;
+	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive = nullptr;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative = nullptr;
 
-	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative 	= nullptr;
   
 	/////////////////////////////////////////////////
     	////////Initialize histo's 1GeV until 2GeV///////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive	= 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative	= 0;
+	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive	= nullptr;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative	= nullptr;
 
-	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative 	= nullptr;
   
 	/////////////////////////////////////////////////
     	////////Initialize histo's 2GeV until 5GeV///////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= nullptr;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative 	= nullptr;
   
 	/////////////////////////////////////////////////
     	///////Initialize histo's 5GeV until 10GeV///////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive = 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative = 0;
+	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive = nullptr;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative = nullptr;
 
-	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive 	= nullptr;
+  	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative 	= nullptr;
   
 	/////////////////////////////////////////////////
     	///////Initialize histo's larger than 10GeV//////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= 0;
+	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= nullptr;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= nullptr;
 
-	m_trkd0_wrtPV_vs_phi_10GeV_positive 		= 0;
-  	m_trkd0_wrtPV_vs_phi_10GeV_negative 		= 0;
+	m_trkd0_wrtPV_vs_phi_10GeV_positive 		= nullptr;
+  	m_trkd0_wrtPV_vs_phi_10GeV_negative 		= nullptr;
 
-	m_trkd0_wrtPV_vs_eta_10GeV_positive 		= 0;
-  	m_trkd0_wrtPV_vs_eta_10GeV_negative 		= 0;
+	m_trkd0_wrtPV_vs_eta_10GeV_positive 		= nullptr;
+  	m_trkd0_wrtPV_vs_eta_10GeV_negative 		= nullptr;
 } 
 
 
@@ -227,7 +227,7 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
   MonGroup al_mon ( this, outputDirName, run );
   MonGroup al_mon_ls ( this, outputDirName, lowStat );
   
-  ITHistSvc* tHistSvc = 0;
+  ITHistSvc* tHistSvc = nullptr;
   if (service("THistSvc",tHistSvc).isFailure()){
     ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
     //m_validationMode = false;
@@ -526,7 +526,7 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
   *******************************************************************/
   for (; track_itr!=track_itrE; ++track_itr) {
     const xAOD::Vertex* foundVertex = nullptr;
-    for (const auto vx : *vertices)
+    for (const auto *const vx : *vertices)
     {
       for (const auto& tpLink : vx->trackParticleLinks())
       {
@@ -545,7 +545,7 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 	// require at least 10 tracks associated
         if(foundVertex->nTrackParticles() < 10) continue;
 
-        const Trk::ImpactParametersAndSigma* myIPandSigma(NULL);
+        const Trk::ImpactParametersAndSigma* myIPandSigma(nullptr);
         myIPandSigma = m_trackToVertexIPEstimator->estimate(*track_itr, foundVertex, true);
 
         // require d0_pv to be smaller than 4

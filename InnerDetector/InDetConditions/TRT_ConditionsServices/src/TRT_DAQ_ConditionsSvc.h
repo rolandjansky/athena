@@ -69,7 +69,7 @@ class TRT_DAQ_ConditionsSvc : public AthService,
   std::string m_FolderName;
 
   // Straw Helpers
-  const TRT_ID* m_TRT_ID_Helper;
+  const TRT_ID* m_TRT_ID_Helper{};
 
   // Read Key
   SG::ReadCondHandleKey<CondAttrListCollection> m_RobinsReadKey{this,"RobinsReadKey","/TDAQ/Resources/ATLAS/TRT/Robins","Robins in-key"};

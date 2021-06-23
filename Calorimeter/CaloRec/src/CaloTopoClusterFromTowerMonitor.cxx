@@ -45,18 +45,18 @@ CaloTopoClusterFromTowerMonitor::CaloTopoClusterFromTowerMonitor(const std::stri
   , m_hsPhiMax(0.1)
   , m_doGeoAutoBins(true)
   , m_doHotspot(false)
-  ,  m_h_n((TH1D*)0),  m_h_pt((TH1D*)0),  m_h_eta((TH1D*)0),  m_h_phi((TH1D*)0),  m_h_nc((TH1D*)0),  m_h_samp((TH1D*)0)
-  , m_d_n_eta_phi((TH2D*)0), m_d_nc_eta_phi((TH2D*)0)
-  , m_d_pt_eta((TH2D*)0), m_d_nc_eta((TH2D*)0)
-  , m_d_wgt_samp((TH2D*)0), m_d_ntt_samp((TH2D*)0), m_d_geo_samp((TH2D*)0)
-  , m_d_maxtowers_samp((TH2D*)0), m_d_wgttowers_samp((TH2D*)0) 
-  , m_d_maxcells_eta((TH2D*)0), m_d_allwghts_eta((TH2D*)0)
-  , m_d_deta_eta((TH2D*)0),  m_d_dphi_eta((TH2D*)0),  m_d_dphi_deta((TH2D*)0)
-  , m_d_detac_eta((TH2D*)0), m_d_dphic_eta((TH2D*)0), m_d_dphic_detac((TH2D*)0), m_d_detac_samp((TH2D*)0), m_d_dphic_samp((TH2D*)0)
-  ,  m_h_nc_hs((TH1D*)0),  m_h_n_hs((TH1D*)0),  m_h_pt_hs((TH1D*)0),  m_h_eta_hs((TH1D*)0),  m_h_phi_hs((TH1D*)0),  m_h_samp_hs((TH1D*)0)
-  , m_d_n_eta_phi_hs((TH2D*)0), m_d_nc_eta_phi_hs((TH2D*)0)
-  , m_d_deta_eta_hs((TH2D*)0), m_d_dphi_eta_hs((TH2D*)0), m_d_dphi_deta_hs((TH2D*)0)
-  , m_d_detac_eta_hs((TH2D*)0), m_d_dphic_eta_hs((TH2D*)0), m_d_dphic_detac_hs((TH2D*)0), m_d_detac_samp_hs((TH2D*)0), m_d_dphic_samp_hs((TH2D*)0) 
+  ,  m_h_n((TH1D*)nullptr),  m_h_pt((TH1D*)nullptr),  m_h_eta((TH1D*)nullptr),  m_h_phi((TH1D*)nullptr),  m_h_nc((TH1D*)nullptr),  m_h_samp((TH1D*)nullptr)
+  , m_d_n_eta_phi((TH2D*)nullptr), m_d_nc_eta_phi((TH2D*)nullptr)
+  , m_d_pt_eta((TH2D*)nullptr), m_d_nc_eta((TH2D*)nullptr)
+  , m_d_wgt_samp((TH2D*)nullptr), m_d_ntt_samp((TH2D*)nullptr), m_d_geo_samp((TH2D*)nullptr)
+  , m_d_maxtowers_samp((TH2D*)nullptr), m_d_wgttowers_samp((TH2D*)nullptr) 
+  , m_d_maxcells_eta((TH2D*)nullptr), m_d_allwghts_eta((TH2D*)nullptr)
+  , m_d_deta_eta((TH2D*)nullptr),  m_d_dphi_eta((TH2D*)nullptr),  m_d_dphi_deta((TH2D*)nullptr)
+  , m_d_detac_eta((TH2D*)nullptr), m_d_dphic_eta((TH2D*)nullptr), m_d_dphic_detac((TH2D*)nullptr), m_d_detac_samp((TH2D*)nullptr), m_d_dphic_samp((TH2D*)nullptr)
+  ,  m_h_nc_hs((TH1D*)nullptr),  m_h_n_hs((TH1D*)nullptr),  m_h_pt_hs((TH1D*)nullptr),  m_h_eta_hs((TH1D*)nullptr),  m_h_phi_hs((TH1D*)nullptr),  m_h_samp_hs((TH1D*)nullptr)
+  , m_d_n_eta_phi_hs((TH2D*)nullptr), m_d_nc_eta_phi_hs((TH2D*)nullptr)
+  , m_d_deta_eta_hs((TH2D*)nullptr), m_d_dphi_eta_hs((TH2D*)nullptr), m_d_dphi_deta_hs((TH2D*)nullptr)
+  , m_d_detac_eta_hs((TH2D*)nullptr), m_d_dphic_eta_hs((TH2D*)nullptr), m_d_dphic_detac_hs((TH2D*)nullptr), m_d_detac_samp_hs((TH2D*)nullptr), m_d_dphic_samp_hs((TH2D*)nullptr) 
 {
   declareProperty("CaloTowerContainerKey", m_towerContainerKey, "Input container key"     );
   declareProperty("CaloTowerGeometrySvc",  m_towerGeometrySvc,  "Tower geometry provider" );
@@ -273,8 +273,8 @@ StatusCode CaloTopoClusterFromTowerMonitor::book()
   double deta((m_etaMax-m_etaMin)/(1.*m_etaBins)); 
   double eta0(m_etaMin);
 
-  m_d_maxcells_phi_eta_slice.resize(m_etaBins,(TH2D*)0);
-  m_d_allwghts_phi_eta_slice.resize(m_etaBins,(TH2D*)0);
+  m_d_maxcells_phi_eta_slice.resize(m_etaBins,(TH2D*)nullptr);
+  m_d_allwghts_phi_eta_slice.resize(m_etaBins,(TH2D*)nullptr);
 
   std::string hname; std::string htitle;
   for ( int i(0); i<m_etaBins; ++i, eta0+=deta ) { 
@@ -348,7 +348,7 @@ StatusCode CaloTopoClusterFromTowerMonitor::execute()
     double phi(CaloPhiRange::fix(ptow->phi()));
     double nc(1.0*ptow->size());
     // tower composition and get distances
-    this->fillComposition(*ptow,deta,dphi,csam);
+    CaloTopoClusterFromTowerMonitor::fillComposition(*ptow,deta,dphi,csam);
     double deltaEta(ptow->eta()-ptow->eta0());
     double deltaPhi(CaloPhiRange::fix(ptow->phi()-ptow->phi0()));
     // inclusive plots
@@ -409,7 +409,7 @@ StatusCode CaloTopoClusterFromTowerMonitor::execute()
   return StatusCode::SUCCESS;
 }
 
-bool CaloTopoClusterFromTowerMonitor::fillComposition(const xAOD::CaloCluster& ptow,std::vector<double>& deta,std::vector<double>& dphi,std::vector<CaloSampling::CaloSample>& csam) const
+bool CaloTopoClusterFromTowerMonitor::fillComposition(const xAOD::CaloCluster& ptow,std::vector<double>& deta,std::vector<double>& dphi,std::vector<CaloSampling::CaloSample>& csam) 
 {
   deta.clear(); dphi.clear(); csam.clear();
   for ( auto fCell(ptow.getCellLinks()->begin()); fCell != ptow.getCellLinks()->end(); ++fCell ) { 

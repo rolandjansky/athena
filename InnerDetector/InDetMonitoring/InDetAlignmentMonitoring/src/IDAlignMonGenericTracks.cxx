@@ -45,15 +45,15 @@
 
 IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, const std::string & name, const IInterface* parent )
        :ManagedMonitorToolBase( type, name, parent ),
-	m_idHelper(0),
-	m_pixelID(0),
-	m_sctID(0),
-	m_trtID(0),
+	m_idHelper(nullptr),
+	m_pixelID(nullptr),
+	m_sctID(nullptr),
+	m_trtID(nullptr),
 	m_events(0),
 	m_histosBooked(0),
         m_triggerChainName("NoTriggerSelection"),
         m_barrelEta(0.8),
-	m_vertices(0),
+	m_vertices(nullptr),
 	m_doHitQuality(0),
 	m_d0Range(2.0),
 	m_d0BsRange(0.5),
@@ -64,8 +64,8 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_rangePixHits (10),
         m_rangeSCTHits (20),
         m_rangeTRTHits (60),
-	m_hWeightInFile (0),
-	m_etapTWeight (0)
+	m_hWeightInFile (nullptr),
+	m_etapTWeight (nullptr)
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
@@ -104,310 +104,310 @@ IDAlignMonGenericTracks::~IDAlignMonGenericTracks() { }
 
 void IDAlignMonGenericTracks::InitializeHistograms() {
   
-  m_summary = 0;
+  m_summary = nullptr;
   
-  m_trk_chi2oDoF = 0;
-  m_trk_chi2Prob = 0;
+  m_trk_chi2oDoF = nullptr;
+  m_trk_chi2Prob = nullptr;
 
 
 
   //Histo for self beam spot calculatio = 0n
-  m_trk_d0_vs_phi0_z0 = 0;
+  m_trk_d0_vs_phi0_z0 = nullptr;
 
   // barrel
-  m_trk_d0_barrel = 0;
-  m_trk_d0_barrel_zoomin = 0;
-  m_trk_d0c_barrel = 0;
-  m_trk_z0_barrel = 0;
-  m_trk_z0_barrel_zoomin = 0;
-  m_trk_qopT_vs_phi_barrel = 0;
-  m_trk_d0_vs_phi_barrel = 0;
-  m_trk_d0_vs_z0_barrel = 0;
-  m_trk_phi0_neg_barrel = 0;
-  m_trk_phi0_pos_barrel = 0;
-  m_trk_phi0_asym_barrel = 0;
-  m_trk_pT_neg_barrel = 0;
-  m_trk_pT_pos_barrel = 0;
-  m_trk_pT_asym_barrel = 0;
-  m_npixhits_per_track_barrel = 0;
-  m_nscthits_per_track_barrel = 0;
-  m_ntrthits_per_track_barrel = 0;
-  m_chi2oDoF_barrel = 0;
-  m_phi_barrel = 0;
-  m_hitMap_barrel = 0;
-  m_hitMap_endcapA = 0;
-  m_hitMap_endcapC = 0;
+  m_trk_d0_barrel = nullptr;
+  m_trk_d0_barrel_zoomin = nullptr;
+  m_trk_d0c_barrel = nullptr;
+  m_trk_z0_barrel = nullptr;
+  m_trk_z0_barrel_zoomin = nullptr;
+  m_trk_qopT_vs_phi_barrel = nullptr;
+  m_trk_d0_vs_phi_barrel = nullptr;
+  m_trk_d0_vs_z0_barrel = nullptr;
+  m_trk_phi0_neg_barrel = nullptr;
+  m_trk_phi0_pos_barrel = nullptr;
+  m_trk_phi0_asym_barrel = nullptr;
+  m_trk_pT_neg_barrel = nullptr;
+  m_trk_pT_pos_barrel = nullptr;
+  m_trk_pT_asym_barrel = nullptr;
+  m_npixhits_per_track_barrel = nullptr;
+  m_nscthits_per_track_barrel = nullptr;
+  m_ntrthits_per_track_barrel = nullptr;
+  m_chi2oDoF_barrel = nullptr;
+  m_phi_barrel = nullptr;
+  m_hitMap_barrel = nullptr;
+  m_hitMap_endcapA = nullptr;
+  m_hitMap_endcapC = nullptr;
 
-  m_trk_d0_vs_phi_vs_eta_barrel = 0;
-  m_trk_pT_vs_eta_barrel = 0;
-  m_trk_d0_wrtPV_vs_phi_vs_eta_barrel = 0;
-  m_trk_z0_wrtPV_vs_phi_vs_eta_barrel = 0;
+  m_trk_d0_vs_phi_vs_eta_barrel = nullptr;
+  m_trk_pT_vs_eta_barrel = nullptr;
+  m_trk_d0_wrtPV_vs_phi_vs_eta_barrel = nullptr;
+  m_trk_z0_wrtPV_vs_phi_vs_eta_barrel = nullptr;
 
   // endcap A
-  m_trk_d0_eca = 0 ;
-  m_trk_d0_eca_zoomin = 0 ;
-  m_trk_d0c_eca = 0;
-  m_trk_z0_eca = 0;
-  m_trk_z0_eca_zoomin = 0;
-  m_trk_qopT_vs_phi_eca = 0;
-  m_trk_d0_vs_phi_eca = 0;
-  m_trk_d0_vs_z0_eca = 0;
-  m_trk_phi0_neg_eca = 0;
-  m_trk_phi0_pos_eca = 0;
-  m_trk_phi0_asym_eca = 0;
-  m_trk_pT_neg_eca = 0;
-  m_trk_pT_pos_eca = 0;
-  m_trk_pT_asym_eca = 0;
-  m_npixhits_per_track_eca = 0;
-  m_nscthits_per_track_eca = 0;
-  m_ntrthits_per_track_eca = 0;
-  m_chi2oDoF_eca = 0;
-  m_phi_eca = 0;
+  m_trk_d0_eca = nullptr ;
+  m_trk_d0_eca_zoomin = nullptr ;
+  m_trk_d0c_eca = nullptr;
+  m_trk_z0_eca = nullptr;
+  m_trk_z0_eca_zoomin = nullptr;
+  m_trk_qopT_vs_phi_eca = nullptr;
+  m_trk_d0_vs_phi_eca = nullptr;
+  m_trk_d0_vs_z0_eca = nullptr;
+  m_trk_phi0_neg_eca = nullptr;
+  m_trk_phi0_pos_eca = nullptr;
+  m_trk_phi0_asym_eca = nullptr;
+  m_trk_pT_neg_eca = nullptr;
+  m_trk_pT_pos_eca = nullptr;
+  m_trk_pT_asym_eca = nullptr;
+  m_npixhits_per_track_eca = nullptr;
+  m_nscthits_per_track_eca = nullptr;
+  m_ntrthits_per_track_eca = nullptr;
+  m_chi2oDoF_eca = nullptr;
+  m_phi_eca = nullptr;
 
-  m_trk_d0_vs_phi_vs_eta_eca = 0;
-  m_trk_pT_vs_eta_eca = 0;
-  m_trk_d0_wrtPV_vs_phi_vs_eta_eca = 0;
-  m_trk_z0_wrtPV_vs_phi_vs_eta_eca = 0;
+  m_trk_d0_vs_phi_vs_eta_eca = nullptr;
+  m_trk_pT_vs_eta_eca = nullptr;
+  m_trk_d0_wrtPV_vs_phi_vs_eta_eca = nullptr;
+  m_trk_z0_wrtPV_vs_phi_vs_eta_eca = nullptr;
 
 
   // endcap C
-  m_trk_d0_ecc = 0;
-  m_trk_d0_ecc_zoomin = 0;
-  m_trk_d0c_ecc = 0;
-  m_trk_z0_ecc = 0;
-  m_trk_z0_ecc_zoomin = 0;
-  m_trk_qopT_vs_phi_ecc = 0;
-  m_trk_d0_vs_phi_ecc = 0;
-  m_trk_d0_vs_z0_ecc = 0;
-  m_trk_phi0_neg_ecc = 0;
-  m_trk_phi0_pos_ecc = 0;
-  m_trk_phi0_asym_ecc = 0;
-  m_trk_pT_neg_ecc = 0;
-  m_trk_pT_pos_ecc = 0;
-  m_trk_pT_asym_ecc = 0;
-  m_npixhits_per_track_ecc = 0;
-  m_nscthits_per_track_ecc = 0;
-  m_ntrthits_per_track_ecc = 0;
-  m_chi2oDoF_ecc = 0;
-  m_phi_ecc = 0;
+  m_trk_d0_ecc = nullptr;
+  m_trk_d0_ecc_zoomin = nullptr;
+  m_trk_d0c_ecc = nullptr;
+  m_trk_z0_ecc = nullptr;
+  m_trk_z0_ecc_zoomin = nullptr;
+  m_trk_qopT_vs_phi_ecc = nullptr;
+  m_trk_d0_vs_phi_ecc = nullptr;
+  m_trk_d0_vs_z0_ecc = nullptr;
+  m_trk_phi0_neg_ecc = nullptr;
+  m_trk_phi0_pos_ecc = nullptr;
+  m_trk_phi0_asym_ecc = nullptr;
+  m_trk_pT_neg_ecc = nullptr;
+  m_trk_pT_pos_ecc = nullptr;
+  m_trk_pT_asym_ecc = nullptr;
+  m_npixhits_per_track_ecc = nullptr;
+  m_nscthits_per_track_ecc = nullptr;
+  m_ntrthits_per_track_ecc = nullptr;
+  m_chi2oDoF_ecc = nullptr;
+  m_phi_ecc = nullptr;
 
-  m_trk_d0_vs_phi_vs_eta_ecc = 0;
-  m_trk_pT_vs_eta_ecc = 0;
+  m_trk_d0_vs_phi_vs_eta_ecc = nullptr;
+  m_trk_pT_vs_eta_ecc = nullptr;
 
-  m_trk_d0_wrtPV_vs_phi_vs_eta_ecc = 0;
-  m_trk_z0_wrtPV_vs_phi_vs_eta_ecc = 0;
+  m_trk_d0_wrtPV_vs_phi_vs_eta_ecc = nullptr;
+  m_trk_z0_wrtPV_vs_phi_vs_eta_ecc = nullptr;
 
   // Whole detector
 
 
-  m_nhits_per_event = 0;
-  m_nhits_per_track = 0;
-  m_ntrk = 0;
-  m_ngtrk = 0;
-  m_npixhits_per_track = 0;
-  m_nscthits_per_track = 0;
-  m_ntrthits_per_track = 0;
-  m_chi2oDoF = 0;
-  m_eta = 0;
-  m_phi = 0;
-  m_z0 = 0;
-  m_z0sintheta = 0;
-  m_z0_pvcorr = 0;
-  m_z0sintheta_pvcorr = 0;
-  m_d0 = 0;
-  m_d0_pvcorr = 0;
-  m_d0_bscorr = 0;
-  m_pT = 0;
-  m_pTRes = 0;
-  m_pTResOverP = 0;
-  m_P = 0;
+  m_nhits_per_event = nullptr;
+  m_nhits_per_track = nullptr;
+  m_ntrk = nullptr;
+  m_ngtrk = nullptr;
+  m_npixhits_per_track = nullptr;
+  m_nscthits_per_track = nullptr;
+  m_ntrthits_per_track = nullptr;
+  m_chi2oDoF = nullptr;
+  m_eta = nullptr;
+  m_phi = nullptr;
+  m_z0 = nullptr;
+  m_z0sintheta = nullptr;
+  m_z0_pvcorr = nullptr;
+  m_z0sintheta_pvcorr = nullptr;
+  m_d0 = nullptr;
+  m_d0_pvcorr = nullptr;
+  m_d0_bscorr = nullptr;
+  m_pT = nullptr;
+  m_pTRes = nullptr;
+  m_pTResOverP = nullptr;
+  m_P = nullptr;
   
-  m_trk_d0_vs_phi_vs_eta = 0;
-  m_trk_pT_vs_eta = 0;
+  m_trk_d0_vs_phi_vs_eta = nullptr;
+  m_trk_pT_vs_eta = nullptr;
   
-  m_trk_d0_wrtPV_vs_phi_vs_eta = 0;
-  m_trk_z0_wrtPV_vs_phi_vs_eta = 0;
+  m_trk_d0_wrtPV_vs_phi_vs_eta = nullptr;
+  m_trk_z0_wrtPV_vs_phi_vs_eta = nullptr;
 
 
   // extended plots
-  m_trk_PIXvSCTHits = 0;
-  m_trk_PIXHitsvEta = 0;
-  m_trk_SCTHitsvEta = 0;
-  m_trk_TRTHitsvEta = 0;
-  m_trk_chi2oDoF_Phi = 0;
-  m_trk_chi2oDoF_Pt = 0;
-  m_trk_chi2oDoF_P = 0;
-  m_trk_chi2ProbDist = 0;
-  m_errCotTheta = 0;
-  m_errCotThetaVsD0BS = 0;
-  m_errCotThetaVsPt = 0;
-  m_errCotThetaVsP = 0;
-  m_errCotThetaVsPhi = 0;
-  m_errCotThetaVsEta = 0;
-  m_errTheta = 0;
-  m_errThetaVsD0BS = 0;
-  m_errThetaVsPt = 0;
-  m_errThetaVsP = 0;
-  m_errThetaVsPhi = 0;
-  m_errThetaVsEta = 0;
-  m_errD0 = 0;
-  m_errD0VsD0BS = 0;
-  m_errD0VsPt = 0;
-  m_errD0VsP = 0;
-  m_errD0VsPhi = 0;
-  m_errD0VsPhiBarrel = 0;
-  m_errD0VsPhiECA = 0;
-  m_errD0VsPhiECC = 0;
-  m_errD0VsEta = 0;
-  m_errPhi0 = 0;
-  m_errPhi0VsD0BS = 0;
-  m_errPhi0VsPt = 0;
-  m_errPhi0VsP = 0;
-  m_errPhi0VsPhi0 = 0;
-  m_errPhi0VsEta = 0;
-  m_errZ0 = 0;
-  m_errZ0VsD0BS = 0;
-  m_errZ0VsPt = 0;
-  m_errZ0VsP = 0;
-  m_errZ0VsPhi0 = 0;
-  m_errZ0VsEta = 0;
-  m_errPt = 0;
-  m_PtVsPhi0Pos = 0;
-  m_PtVsPhi0Neg = 0;
-  m_errPtVsD0BS = 0;
-  m_errPtVsPt = 0;
-  m_errPtVsP = 0;
-  m_errPt_Pt2 = 0;
-  m_errPt_Pt2VsPt = 0;
-  m_errPt_Pt2VsPhi0 = 0;
-  m_errPt_Pt2VsEta = 0;
-  m_errPtVsPhi0 = 0;
-  m_errPtVsEta = 0;
+  m_trk_PIXvSCTHits = nullptr;
+  m_trk_PIXHitsvEta = nullptr;
+  m_trk_SCTHitsvEta = nullptr;
+  m_trk_TRTHitsvEta = nullptr;
+  m_trk_chi2oDoF_Phi = nullptr;
+  m_trk_chi2oDoF_Pt = nullptr;
+  m_trk_chi2oDoF_P = nullptr;
+  m_trk_chi2ProbDist = nullptr;
+  m_errCotTheta = nullptr;
+  m_errCotThetaVsD0BS = nullptr;
+  m_errCotThetaVsPt = nullptr;
+  m_errCotThetaVsP = nullptr;
+  m_errCotThetaVsPhi = nullptr;
+  m_errCotThetaVsEta = nullptr;
+  m_errTheta = nullptr;
+  m_errThetaVsD0BS = nullptr;
+  m_errThetaVsPt = nullptr;
+  m_errThetaVsP = nullptr;
+  m_errThetaVsPhi = nullptr;
+  m_errThetaVsEta = nullptr;
+  m_errD0 = nullptr;
+  m_errD0VsD0BS = nullptr;
+  m_errD0VsPt = nullptr;
+  m_errD0VsP = nullptr;
+  m_errD0VsPhi = nullptr;
+  m_errD0VsPhiBarrel = nullptr;
+  m_errD0VsPhiECA = nullptr;
+  m_errD0VsPhiECC = nullptr;
+  m_errD0VsEta = nullptr;
+  m_errPhi0 = nullptr;
+  m_errPhi0VsD0BS = nullptr;
+  m_errPhi0VsPt = nullptr;
+  m_errPhi0VsP = nullptr;
+  m_errPhi0VsPhi0 = nullptr;
+  m_errPhi0VsEta = nullptr;
+  m_errZ0 = nullptr;
+  m_errZ0VsD0BS = nullptr;
+  m_errZ0VsPt = nullptr;
+  m_errZ0VsP = nullptr;
+  m_errZ0VsPhi0 = nullptr;
+  m_errZ0VsEta = nullptr;
+  m_errPt = nullptr;
+  m_PtVsPhi0Pos = nullptr;
+  m_PtVsPhi0Neg = nullptr;
+  m_errPtVsD0BS = nullptr;
+  m_errPtVsPt = nullptr;
+  m_errPtVsP = nullptr;
+  m_errPt_Pt2 = nullptr;
+  m_errPt_Pt2VsPt = nullptr;
+  m_errPt_Pt2VsPhi0 = nullptr;
+  m_errPt_Pt2VsEta = nullptr;
+  m_errPtVsPhi0 = nullptr;
+  m_errPtVsEta = nullptr;
   
-  m_D0VsPhi0 = 0;
-  m_Z0VsEta = 0;
-  m_QoverPtVsPhi0 = 0;
-  m_QoverPtVsEta = 0;
-  m_QPtVsPhi0 = 0;
-  m_QPtVsEta = 0;
+  m_D0VsPhi0 = nullptr;
+  m_Z0VsEta = nullptr;
+  m_QoverPtVsPhi0 = nullptr;
+  m_QoverPtVsEta = nullptr;
+  m_QPtVsPhi0 = nullptr;
+  m_QPtVsEta = nullptr;
        
   //BeamSpot Plot = 0s
 
-  m_D0bsVsPhi0 = 0;
-  m_D0bsVsPhi0ECC = 0;
-  m_D0bsVsPhi0ECA = 0;
-  m_D0bsVsPhi0Barrel = 0;
-  m_D0bsVsEta = 0;
-  m_D0bsVsPt = 0;
-  m_D0bsVsPtECC = 0;
-  m_D0bsVsPtECA = 0;
-  m_D0bsVsPtBarrel = 0;
+  m_D0bsVsPhi0 = nullptr;
+  m_D0bsVsPhi0ECC = nullptr;
+  m_D0bsVsPhi0ECA = nullptr;
+  m_D0bsVsPhi0Barrel = nullptr;
+  m_D0bsVsEta = nullptr;
+  m_D0bsVsPt = nullptr;
+  m_D0bsVsPtECC = nullptr;
+  m_D0bsVsPtECA = nullptr;
+  m_D0bsVsPtBarrel = nullptr;
 
 
   //BeamSpot Position Plot = 0s
 
-  m_YBs_vs_XBs = 0;
-  m_YBs_vs_ZBs = 0;
-  m_XBs_vs_ZBs = 0;
+  m_YBs_vs_XBs = nullptr;
+  m_YBs_vs_ZBs = nullptr;
+  m_XBs_vs_ZBs = nullptr;
 
-  m_XBs = 0;
-  m_YBs = 0;
-  m_ZBs = 0;
-  m_TiltX_Bs = 0;
-  m_TiltY_Bs = 0;
+  m_XBs = nullptr;
+  m_YBs = nullptr;
+  m_ZBs = nullptr;
+  m_TiltX_Bs = nullptr;
+  m_TiltY_Bs = nullptr;
 
   //versus lumibloc = 0k
-  m_XBs_vs_LumiBlock = 0;
-  m_YBs_vs_LumiBlock = 0;
-  m_ZBs_vs_LumiBlock = 0;
-  m_BeamSpotTiltX_vs_LumiBlock = 0;
-  m_BeamSpotTiltY_vs_LumiBlock = 0;
+  m_XBs_vs_LumiBlock = nullptr;
+  m_YBs_vs_LumiBlock = nullptr;
+  m_ZBs_vs_LumiBlock = nullptr;
+  m_BeamSpotTiltX_vs_LumiBlock = nullptr;
+  m_BeamSpotTiltY_vs_LumiBlock = nullptr;
   
   // End of extended plots
   
-  m_phi_barrel_pos_2_5GeV = 0;
-  m_phi_barrel_pos_5_10GeV = 0;
-  m_phi_barrel_pos_10_20GeV = 0;
-  m_phi_barrel_pos_20plusGeV = 0;
-  m_phi_barrel_neg_2_5GeV = 0;
-  m_phi_barrel_neg_5_10GeV = 0;
-  m_phi_barrel_neg_10_20GeV = 0;
-  m_phi_barrel_neg_20plusGeV = 0;
+  m_phi_barrel_pos_2_5GeV = nullptr;
+  m_phi_barrel_pos_5_10GeV = nullptr;
+  m_phi_barrel_pos_10_20GeV = nullptr;
+  m_phi_barrel_pos_20plusGeV = nullptr;
+  m_phi_barrel_neg_2_5GeV = nullptr;
+  m_phi_barrel_neg_5_10GeV = nullptr;
+  m_phi_barrel_neg_10_20GeV = nullptr;
+  m_phi_barrel_neg_20plusGeV = nullptr;
 
-  m_phi_eca_pos_2_5GeV = 0;
-  m_phi_eca_pos_5_10GeV = 0;
-  m_phi_eca_pos_10_20GeV = 0;
-  m_phi_eca_pos_20plusGeV = 0;
-  m_phi_eca_neg_2_5GeV = 0;
-  m_phi_eca_neg_5_10GeV = 0;
-  m_phi_eca_neg_10_20GeV = 0;
-  m_phi_eca_neg_20plusGeV = 0;
+  m_phi_eca_pos_2_5GeV = nullptr;
+  m_phi_eca_pos_5_10GeV = nullptr;
+  m_phi_eca_pos_10_20GeV = nullptr;
+  m_phi_eca_pos_20plusGeV = nullptr;
+  m_phi_eca_neg_2_5GeV = nullptr;
+  m_phi_eca_neg_5_10GeV = nullptr;
+  m_phi_eca_neg_10_20GeV = nullptr;
+  m_phi_eca_neg_20plusGeV = nullptr;
 
-  m_phi_ecc_pos_2_5GeV = 0;
-  m_phi_ecc_pos_5_10GeV = 0;
-  m_phi_ecc_pos_10_20GeV = 0;
-  m_phi_ecc_pos_20plusGeV = 0;
-  m_phi_ecc_neg_2_5GeV = 0;
-  m_phi_ecc_neg_5_10GeV = 0;
-  m_phi_ecc_neg_10_20GeV = 0;
-  m_phi_ecc_neg_20plusGeV = 0;
+  m_phi_ecc_pos_2_5GeV = nullptr;
+  m_phi_ecc_pos_5_10GeV = nullptr;
+  m_phi_ecc_pos_10_20GeV = nullptr;
+  m_phi_ecc_pos_20plusGeV = nullptr;
+  m_phi_ecc_neg_2_5GeV = nullptr;
+  m_phi_ecc_neg_5_10GeV = nullptr;
+  m_phi_ecc_neg_10_20GeV = nullptr;
+  m_phi_ecc_neg_20plusGeV = nullptr;
 
-  m_eta_phi_pos_2_5GeV = 0;
-  m_eta_phi_pos_5_10GeV = 0;
-  m_eta_phi_pos_10_20GeV = 0;
-  m_eta_phi_pos_20plusGeV = 0;
-  m_eta_phi_neg_2_5GeV = 0;
-  m_eta_phi_neg_5_10GeV = 0;
-  m_eta_phi_neg_10_20GeV = 0;
-  m_eta_phi_neg_20plusGeV = 0;
+  m_eta_phi_pos_2_5GeV = nullptr;
+  m_eta_phi_pos_5_10GeV = nullptr;
+  m_eta_phi_pos_10_20GeV = nullptr;
+  m_eta_phi_pos_20plusGeV = nullptr;
+  m_eta_phi_neg_2_5GeV = nullptr;
+  m_eta_phi_neg_5_10GeV = nullptr;
+  m_eta_phi_neg_10_20GeV = nullptr;
+  m_eta_phi_neg_20plusGeV = nullptr;
 
-  m_Zmumu = 0;
-  m_Zmumu_barrel = 0;
-  m_Zmumu_eca = 0;
-  m_Zmumu_ecc = 0;
-  m_Zmumu_barrel_eca = 0;
-  m_Zmumu_barrel_ecc = 0;
-  m_ZpT_n = 0;
-  m_ZpT_p = 0;
-  m_ZpT_diff = 0;
+  m_Zmumu = nullptr;
+  m_Zmumu_barrel = nullptr;
+  m_Zmumu_eca = nullptr;
+  m_Zmumu_ecc = nullptr;
+  m_Zmumu_barrel_eca = nullptr;
+  m_Zmumu_barrel_ecc = nullptr;
+  m_ZpT_n = nullptr;
+  m_ZpT_p = nullptr;
+  m_ZpT_diff = nullptr;
 
-  m_pT_n = 0;
-  m_pT_p = 0;
-  m_pT_diff = 0;
-  m_trk_pT_asym = 0;
+  m_pT_n = nullptr;
+  m_pT_p = nullptr;
+  m_pT_diff = nullptr;
+  m_trk_pT_asym = nullptr;
 
-  m_eta_neg = 0;
-  m_eta_pos = 0;
-  m_eta_asym = 0;
+  m_eta_neg = nullptr;
+  m_eta_pos = nullptr;
+  m_eta_asym = nullptr;
 
-  m_LumiBlock = 0;
-  m_Tracks_per_LumiBlock = 0;
+  m_LumiBlock = nullptr;
+  m_Tracks_per_LumiBlock = nullptr;
 
-  m_trk_d0c_pos = 0;
-  m_trk_d0c_neg = 0;
-  m_trk_d0c_pos_barrel = 0;
-  m_trk_d0c_neg_barrel = 0;
-  m_trk_d0c_pos_eca = 0;
-  m_trk_d0c_neg_eca = 0;
-  m_trk_d0c_pos_ecc = 0;
-  m_trk_d0c_neg_ecc = 0;
-  m_trk_d0c_asym = 0;
-  m_trk_d0c_asym_barrel = 0;
-  m_trk_d0c_asym_eca = 0;
-  m_trk_d0c_asym_ecc = 0;
+  m_trk_d0c_pos = nullptr;
+  m_trk_d0c_neg = nullptr;
+  m_trk_d0c_pos_barrel = nullptr;
+  m_trk_d0c_neg_barrel = nullptr;
+  m_trk_d0c_pos_eca = nullptr;
+  m_trk_d0c_neg_eca = nullptr;
+  m_trk_d0c_pos_ecc = nullptr;
+  m_trk_d0c_neg_ecc = nullptr;
+  m_trk_d0c_asym = nullptr;
+  m_trk_d0c_asym_barrel = nullptr;
+  m_trk_d0c_asym_eca = nullptr;
+  m_trk_d0c_asym_ecc = nullptr;
 
-  m_trk_z0c_pos = 0;
-  m_trk_z0c_neg = 0;
-  m_trk_z0c_pos_barrel = 0;
-  m_trk_z0c_neg_barrel = 0;
-  m_trk_z0c_pos_eca = 0;
-  m_trk_z0c_neg_eca = 0;
-  m_trk_z0c_pos_ecc = 0;
-  m_trk_z0c_neg_ecc = 0;
-  m_trk_z0c_asym = 0;
-  m_trk_z0c_asym_barrel = 0;
-  m_trk_z0c_asym_eca = 0;
-  m_trk_z0c_asym_ecc = 0;
+  m_trk_z0c_pos = nullptr;
+  m_trk_z0c_neg = nullptr;
+  m_trk_z0c_pos_barrel = nullptr;
+  m_trk_z0c_neg_barrel = nullptr;
+  m_trk_z0c_pos_eca = nullptr;
+  m_trk_z0c_neg_eca = nullptr;
+  m_trk_z0c_pos_ecc = nullptr;
+  m_trk_z0c_neg_ecc = nullptr;
+  m_trk_z0c_asym = nullptr;
+  m_trk_z0c_asym_barrel = nullptr;
+  m_trk_z0c_asym_eca = nullptr;
+  m_trk_z0c_asym_ecc = nullptr;
 
 }
 
@@ -1828,9 +1828,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
     
     const Trk::Perigee* measPer = (*trksItr)->perigeeParameters();
-    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
+    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : nullptr;
 
-    const Trk::ImpactParametersAndSigma* myIPandSigma=0;
+    const Trk::ImpactParametersAndSigma* myIPandSigma=nullptr;
     
     
     if (m_doIP){
@@ -1840,7 +1840,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       if (m_pvtx) myIPandSigma = m_trackToVertexIPEstimator->estimate((*trksItr)->perigeeParameters(), m_pvtx, true);
     } 
     
-    if (covariance == NULL) {
+    if (covariance == nullptr) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
     }
     else{  
@@ -1883,7 +1883,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       }
     }    
 
-    if (fitQual==0) {
+    if (fitQual==nullptr) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No fit quality assigned to the track" << endmsg; 
       chi2Prob = -1e12; // return big value
     }
@@ -1923,7 +1923,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       Identifier surfaceID;
       const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
       // hits, outliers
-      if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!=NULL) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+      if (mesb != nullptr && mesb->associatedSurface().associatedDetectorElement()!=nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 
       // holes, perigee 
       else continue; 
@@ -2390,9 +2390,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
  
     const Trk::Perigee* measPer = (*trksItr)->perigeeParameters();
-    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
+    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : nullptr;
     
-    if (covariance == 0) {
+    if (covariance == nullptr) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track or no covariance matrix associated to the perigee" << endmsg; 
     }
     else{  
@@ -2519,22 +2519,22 @@ const xAOD::Vertex* IDAlignMonGenericTracks::findAssociatedVertexTP(const std::m
 
   if (tpVx == trackVertexMapTP.end() ){
     ATH_MSG_VERBOSE("Did not find the vertex. Returning 0");
-    return 0;
+    return nullptr;
   } 
   return (*tpVx).second;
 
 }
 
 
-const Trk::Track* IDAlignMonGenericTracks::getTrkTrack(const Trk::VxTrackAtVertex *trkAtVx)const
+const Trk::Track* IDAlignMonGenericTracks::getTrkTrack(const Trk::VxTrackAtVertex *trkAtVx)
 {
 
   //find the link to the TrackParticleBase
   const Trk::ITrackLink* trkLink = trkAtVx->trackOrParticleLink();
-  const Trk::TrackParticleBase* trkPB(0);
-  if(0!= trkLink){
+  const Trk::TrackParticleBase* trkPB(nullptr);
+  if(nullptr!= trkLink){
     const Trk::LinkToTrackParticleBase* linktrkPB = dynamic_cast<const Trk::LinkToTrackParticleBase *>(trkLink);
-    if(0!= linktrkPB){
+    if(nullptr!= linktrkPB){
       if(linktrkPB->isValid()) trkPB = linktrkPB->cachedElement();
     }//end of dynamic_cast check
   }//end of ITrackLink existance check
@@ -2547,7 +2547,7 @@ const Trk::Track* IDAlignMonGenericTracks::getTrkTrack(const Trk::VxTrackAtVerte
       return trktrk;
     } 
   } 
-  return 0;
+  return nullptr;
 }
 
 
@@ -2578,7 +2578,7 @@ bool IDAlignMonGenericTracks::fillVertexInformation(std::map<const xAOD::TrackPa
       ATH_MSG_DEBUG("tpLinks size " << tpLinks.size());
 
       if (tpLinks.size() > 4 ) {
-	for(auto link: tpLinks) {
+	for(const auto& link: tpLinks) {
 	  const xAOD::TrackParticle *TP = *link;
           if(TP) {
             trackVertexMapTP.insert( std::make_pair( TP, *vxI )  );

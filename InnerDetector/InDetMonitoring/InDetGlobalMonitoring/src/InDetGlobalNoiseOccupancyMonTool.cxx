@@ -60,7 +60,7 @@ namespace{
 
   enum Pattern{ IXX=0, XIX, XXI };
 
-  static bool timeBinInPattern(const int tbin, const Pattern xxx){
+  bool timeBinInPattern(const int tbin, const Pattern xxx){
     switch(xxx){
     case IXX:
       return (tbin>3);
@@ -86,7 +86,7 @@ InDetGlobalNoiseOccupancyMonTool::InDetGlobalNoiseOccupancyMonTool(
 								   const string & name,
 								   const IInterface* parent)
   :InDetGlobalMotherMonTool(type, name, parent),
-   m_tracks(0),
+   m_tracks(nullptr),
    m_nStraws(0),
    m_nStraws_B(0),
    m_nStraws_ECA(0),
@@ -107,37 +107,37 @@ InDetGlobalNoiseOccupancyMonTool::InDetGlobalNoiseOccupancyMonTool(
    m_trt_nBins(100),  
    m_start(true),
    m_doData(true),
-   m_SCT_TRT_NO(0),
-   m_SCT_PIX_NO(0),
-   m_PIX_TRT_NO(0),
+   m_SCT_TRT_NO(nullptr),
+   m_SCT_PIX_NO(nullptr),
+   m_PIX_TRT_NO(nullptr),
    //m_PIX_SCT_TRT_NO(0),
-   m_TRT_SCTvTRT_PIX_10evt(0),
-   m_TRT_SCTvSCT_PIX_10evt(0),
-   m_TRT_PIXvSCT_PIX_10evt(0),
-   m_PIX_NO_evt(0),
-   m_PIX_NO(0),
-   m_PIX_NO_B(0),
-   m_PIX_NO_ECA(0),
-   m_PIX_NO_ECC(0),
-   m_PIX_NO_nseg(0),
-   m_PIX_NO_ntrk(0),
-   m_SCT_NO_evt(0),
-   m_SCT_NO(0),
-   m_SCT_NO_B(0),
-   m_SCT_NO_ECA(0),
-   m_SCT_NO_ECC(0),
-   m_SCT_NO_nseg(0),
-   m_SCT_NO_ntrk(0),
-   m_TRT_NO_evt(0),
-   m_TRT_NO_BA_phi(0),
-   m_TRT_NO_BC_phi(0),
-   m_TRT_NO_ECA_phi(0),
-   m_TRT_NO_ECC_phi(0),
-   m_TRT_HL_NO_evt(0),
-   m_TRT_NO(0),
-   m_TRT_HL_NO(0),
-   m_TRT_NO_nseg(0),
-   m_TRT_NO_ntrk(0)
+   m_TRT_SCTvTRT_PIX_10evt(nullptr),
+   m_TRT_SCTvSCT_PIX_10evt(nullptr),
+   m_TRT_PIXvSCT_PIX_10evt(nullptr),
+   m_PIX_NO_evt(nullptr),
+   m_PIX_NO(nullptr),
+   m_PIX_NO_B(nullptr),
+   m_PIX_NO_ECA(nullptr),
+   m_PIX_NO_ECC(nullptr),
+   m_PIX_NO_nseg(nullptr),
+   m_PIX_NO_ntrk(nullptr),
+   m_SCT_NO_evt(nullptr),
+   m_SCT_NO(nullptr),
+   m_SCT_NO_B(nullptr),
+   m_SCT_NO_ECA(nullptr),
+   m_SCT_NO_ECC(nullptr),
+   m_SCT_NO_nseg(nullptr),
+   m_SCT_NO_ntrk(nullptr),
+   m_TRT_NO_evt(nullptr),
+   m_TRT_NO_BA_phi(nullptr),
+   m_TRT_NO_BC_phi(nullptr),
+   m_TRT_NO_ECA_phi(nullptr),
+   m_TRT_NO_ECC_phi(nullptr),
+   m_TRT_HL_NO_evt(nullptr),
+   m_TRT_NO(nullptr),
+   m_TRT_HL_NO(nullptr),
+   m_TRT_NO_nseg(nullptr),
+   m_TRT_NO_ntrk(nullptr)
 {
   declareProperty("doData", m_doData);
   declareProperty("pixelMax",m_pixelMax);
@@ -411,7 +411,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	
 	    // Get track
 	    const Trk::Track *track=(*itrack);
-	    if (track == 0){
+	    if (track == nullptr){
               if ( msgLvl(MSG::WARNING) ) {
                 msg(MSG::WARNING) << "no pointer to track!!!" << endmsg;
               }
@@ -420,7 +420,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	
 	    const DataVector<const Trk::TrackStateOnSurface>*
 		trackStates=track->trackStateOnSurfaces();
-	    if (trackStates == 0) {
+	    if (trackStates == nullptr) {
 		if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR)
 		    << "for current track is TrackStateOnSurfaces == Null "
 		    << endmsg;
@@ -432,12 +432,12 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 		for ( ; it != it_end ; it++) {
 		    const Trk::TrackStateOnSurface* trackState=(*it);
 	    
-		    if (trackState == 0) {
+		    if (trackState == nullptr) {
 			if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "TrackStateOnSurface == Null, is the tracking OK?" << endmsg;
 			continue;
 		    }
 		    const InDet::TRT_DriftCircleOnTrack *trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trackState->measurementOnTrack());
-		    if (trtcircle!=0) {
+		    if (trtcircle!=nullptr) {
 			nTRT_trk++;
 			m_dcidOnTrack.push_back(trtcircle->identify());
 			Identifier rdoId  = trtcircle->identify();
@@ -473,7 +473,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 			    continue;
 			}
 	      
-			if (RawDataClus==0) {
+			if (RawDataClus==nullptr) {
 			    if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING)
 				<< "SiCluster WITHOUT prepRawData!!!!"
 				<< endmsg;
@@ -527,7 +527,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
     int TRT_nRDOs_phi_ECA[32] = {0};
     int TRT_nRDOs_phi_ECC[32] = {0};
 
-    if(m_driftCircleContainer!=0){
+    if(m_driftCircleContainer!=nullptr){
 	TRT_DriftCircleContainer::const_iterator colIt =
 	    m_driftCircleContainer->begin();
 	TRT_DriftCircleContainer::const_iterator colIt_end =
@@ -585,7 +585,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
     int nSCT_RDOs_ECA=0;
     int nSCT_RDOs_ECC=0;
 
-    if(m_sctRdoContainer != 0){
+    if(m_sctRdoContainer != nullptr){
 	SCT_RDO_Container::const_iterator colNextsct =
 	    m_sctRdoContainer->begin();
 	SCT_RDO_Container::const_iterator colNextsct_end =
@@ -645,7 +645,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
     int nPIX_RDOs_B=0;
     int nPIX_RDOs_ECA=0;
     int nPIX_RDOs_ECC=0;
-    if ( m_pixRdoContainer != 0 ){
+    if ( m_pixRdoContainer != nullptr ){
 	PixelRDO_Container::const_iterator colNextpix =
 	    m_pixRdoContainer->begin();
 	PixelRDO_Container::const_iterator colNextpix_end =
@@ -733,7 +733,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	nSCT_RDOs > nSCT_trk &&
 	nPIX_RDOs > nPIX_trk ){
 	/* create a struct of type noise to contain the NOs */
-	struct noise noise_occupancy;
+	struct noise noise_occupancy{};
       
 	/*set the elements of the struct*/
 	noise_occupancy.trt_no = dTRTstraw;
@@ -967,9 +967,9 @@ int InDetGlobalNoiseOccupancyMonTool::histIdx(const vector<int> &aList,
  * Pearson Moment correlation coefficient
  * Added by m
  */
-float InDetGlobalNoiseOccupancyMonTool::calc_correlation(float *sum_x,
-							 float *sum_y, float *sum_xy, float *sum_x_sq, float *sum_y_sq,
-							 int *points)
+float InDetGlobalNoiseOccupancyMonTool::calc_correlation(const float *sum_x,
+							 const float *sum_y, const float *sum_xy, const float *sum_x_sq, const float *sum_y_sq,
+							 const int *points)
 {
     /* define tmp floats */
     float r;

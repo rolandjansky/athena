@@ -10,10 +10,10 @@
 
 #include "TRT_StrawNeighbourSvc.h"
 
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -45,7 +45,7 @@ TRT_StrawNeighbourSvc::TRT_StrawNeighbourSvc( const std::string& name,
 					    ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),
     m_detStore("DetectorStore",name),
-    m_trtid(0)
+    m_trtid(nullptr)
 {
   declareProperty("DetectorStore",m_detStore);
 }
@@ -103,9 +103,9 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   //Geometry db
   // RDBAccessSvc (Interface to the DD database).
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
-  IRDBAccessSvc* iAccessSvc = NULL;
+  IRDBAccessSvc* iAccessSvc = nullptr;
   StatusCode result = svcLocator->service("RDBAccessSvc",iAccessSvc);
-  if ( result.isFailure()  ||  iAccessSvc == NULL ) {
+  if ( result.isFailure()  ||  iAccessSvc == nullptr ) {
     msg(MSG::FATAL) << "Could not initialize RDBAccessSvc!" << endmsg;
     throw GaudiException("Could not initalize RDBAccessSvc","TRT_GeoModel",StatusCode::FAILURE);
   }
@@ -117,8 +117,8 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
     throw GaudiException("Could not locate GeoModelSvc","TRT_GeoModel",StatusCode::FAILURE);
   }
   DecodeVersionKey versionKey(geoModel, "TRT");
-  std::string detectorKey  = versionKey.tag();
-  std::string detectorNode = versionKey.node();
+  const std::string& detectorKey  = versionKey.tag();
+  const std::string& detectorNode = versionKey.node();
   IRDBRecordset_ptr RDB_TRTElec  = iAccessSvc->getRecordsetPtr("TRTBarElecToStrawRel",detectorKey,detectorNode);
   
   if (RDB_TRTElec->size()==0) {
@@ -470,7 +470,7 @@ void TRT_StrawNeighbourSvc::getChip(Identifier offlineID, int& chip ){
   if (strawlayer%8 >= 4) chip++; 
 
   int nominal_reversed = 1 - ( (phi - phi%8)/8 ) %2 ;
-  int *map = 0;
+  int *map = nullptr;
   if (bec==2) { 
      map = nominal_reversed ? m_endcapChipMapA8 : m_endcapChipMapA0;
      chip = map[chip];

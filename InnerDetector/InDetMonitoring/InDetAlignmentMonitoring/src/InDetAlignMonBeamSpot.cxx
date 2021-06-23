@@ -29,32 +29,32 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const st
    m_extrapolator("Trk::Extrapolator"),
    m_hasExtrapolator(false),
    m_hasBeamCondSvc(false),
-   m_hTrNPt(0),
-   m_hTrPt(0),
-   m_hTrDPhi(0),
-   m_hTrDPhiCorr(0),
-   m_hBsX(0),
-   m_hBsY(0),
-   m_hBsZ(0),
-   m_hBsTiltX(0),
-   m_hBsTiltY(0),
-   m_hPvN(0),
-   m_hPvNPriVtx(0),
-   m_hPvNPileupVtx(0),
-   m_hPvX(0),
-   m_hPvY(0),
-   m_hPvZ(0),
-   m_hPvErrX(0),
-   m_hPvErrY(0),
-   m_hPvErrZ(0),
-   m_hPvChiSqDoF(0),
-   m_hPvXZ(0),
-   m_hPvYZ(0),
-   m_hPvYX(0),
-   m_hPvNTracksAll(0),
-   m_hPvNTracks(0),
-   m_hPvTrackPt(0),
-   m_hPvTrackEta(0)
+   m_hTrNPt(nullptr),
+   m_hTrPt(nullptr),
+   m_hTrDPhi(nullptr),
+   m_hTrDPhiCorr(nullptr),
+   m_hBsX(nullptr),
+   m_hBsY(nullptr),
+   m_hBsZ(nullptr),
+   m_hBsTiltX(nullptr),
+   m_hBsTiltY(nullptr),
+   m_hPvN(nullptr),
+   m_hPvNPriVtx(nullptr),
+   m_hPvNPileupVtx(nullptr),
+   m_hPvX(nullptr),
+   m_hPvY(nullptr),
+   m_hPvZ(nullptr),
+   m_hPvErrX(nullptr),
+   m_hPvErrY(nullptr),
+   m_hPvErrZ(nullptr),
+   m_hPvChiSqDoF(nullptr),
+   m_hPvXZ(nullptr),
+   m_hPvYZ(nullptr),
+   m_hPvYX(nullptr),
+   m_hPvNTracksAll(nullptr),
+   m_hPvNTracks(nullptr),
+   m_hPvTrackPt(nullptr),
+   m_hPvTrackEta(nullptr)
 {
   declareProperty("extrapolator",m_extrapolator);
   declareProperty("useBeamspot",m_useBeamspot=true);
@@ -309,8 +309,8 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
       m_hPvYX->Fill(x,y);
 
       // Histograms on original tracks used for primary vertex
-      const std::vector< ElementLink< xAOD::TrackParticleContainer > > tpLinks =  vx->trackParticleLinks();
-      if(tpLinks.size() > 0) {
+      const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tpLinks =  vx->trackParticleLinks();
+      if(!tpLinks.empty()) {
 	for(const auto& tp_elem : tpLinks ){
 	  const xAOD::TrackParticle* trkp = *tp_elem;
 	  const Trk::Track *trk = trkp->track();
@@ -320,9 +320,9 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
 	  //	  const Trk::MeasuredPerigee* measuredPerigee = dynamic_cast<const Trk::MeasuredPerigee*>(trk->initialPerigee());
 	  //	  const Trk::TrackParameters* measuredPerigee = trk->initialPerigee();
 	  	  const Trk::TrackParameters* measuredPerigee = trk->perigeeParameters();
-	  	  const AmgSymMatrix(5)* covariance = measuredPerigee ? measuredPerigee->covariance() : NULL;
-	  	  m_hPvTrackEta->Fill(measuredPerigee!=0 && covariance!=0 ? measuredPerigee->eta() : -999.);
-	  	  m_hPvTrackPt->Fill(measuredPerigee!=0 && covariance ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
+	  	  const AmgSymMatrix(5)* covariance = measuredPerigee ? measuredPerigee->covariance() : nullptr;
+	  	  m_hPvTrackEta->Fill(measuredPerigee!=nullptr && covariance!=nullptr ? measuredPerigee->eta() : -999.);
+	  	  m_hPvTrackPt->Fill(measuredPerigee!=nullptr && covariance ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
 
 	}
       }

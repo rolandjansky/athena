@@ -79,11 +79,11 @@ protected:
 	TH1F_LW* m_hVrt_split_dist_probe; ///< Distance between probe-split and original non-BC vertex (used for selection efficiency)
 
 private:
-        TH1F_LW* makeAndRegisterTH1F(MonGroup& mon, const char* name, std::string title, int nBins, float minX, float maxX);
-        TH2F_LW* makeAndRegisterTH2F(MonGroup& mon, const char* hName, std::string hTitle,
+        TH1F_LW* makeAndRegisterTH1F(MonGroup& mon, const char* name, const std::string& title, int nBins, float minX, float maxX);
+        TH2F_LW* makeAndRegisterTH2F(MonGroup& mon, const char* hName, const std::string& hTitle,
                                      int nBinsX, float minX, float maxX,
                                      int nBinsY, float minY, float maxY);
-        TH2F_LW* makeAndRegisterTH2FVariableXBins(MonGroup& mon, const char* hName, std::string hTitle,
+        TH2F_LW* makeAndRegisterTH2FVariableXBins(MonGroup& mon, const char* hName, const std::string& hTitle,
                                      int nBinsX, double* xRange,
                                      int nBinsY, float minY, float maxY);
         // athena monitoring needs dummy registration of histos nad graphs which are created during post processing by a macro

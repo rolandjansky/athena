@@ -78,7 +78,7 @@ protected:
 	
 	//private functions
 	StatusCode fillEfficiencyHisto(TH1* num, TH1* den, TH1* eff);
-	StatusCode fillEfficiencyProfileHisto(TH1*, TH1*, TProfile*);
+	static StatusCode fillEfficiencyProfileHisto(TH1*, TH1*, TProfile*);
        
 
 	//tools

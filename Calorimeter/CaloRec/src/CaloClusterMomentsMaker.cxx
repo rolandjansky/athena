@@ -229,9 +229,9 @@ StatusCode CaloClusterMomentsMaker::initialize()
       ATH_MSG_ERROR( "Moment name " << mom << " not known; known moments are:" );
       char buffer[128]; std::string::size_type lstr(nstr); 
       // determine field size
-      for ( auto fmom : momentNameToEnumMap ) { lstr = std::max(lstr,fmom.first.length()); } 
+      for ( const auto& fmom : momentNameToEnumMap ) { lstr = std::max(lstr,fmom.first.length()); } 
       // print available moments
-      for ( auto fmom : momentNameToEnumMap ) { 
+      for ( const auto& fmom : momentNameToEnumMap ) { 
 	sprintf(buffer,"moment name: %-*.*s - enumerator: %i",(int)lstr,(int)lstr,fmom.first.c_str(),(int)fmom.second); 
 	ATH_MSG_INFO(buffer);
       }

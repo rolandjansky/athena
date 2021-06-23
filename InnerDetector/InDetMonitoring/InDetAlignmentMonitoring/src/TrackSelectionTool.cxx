@@ -94,7 +94,7 @@ const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(SG
 
   auto selected_tracks = std::make_unique<ConstDataVector<DataVector<Trk::Track> > >(SG::VIEW_ELEMENTS); //new track collection view
   
-  const Trk::RecVertex* pVtx = NULL;
+  const Trk::RecVertex* pVtx = nullptr;
   if(m_usePrimVtx){
 
     //get primary vertex container
@@ -113,7 +113,7 @@ const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(SG
       if ((*vxIter)->vertexType() != Trk::PriVtx) continue;
       if ((*vxIter)->recVertex().fitQuality().numberDoF() <= 0) continue;
       const std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
-      if (vxTrackAtVertex==0 || vxTrackAtVertex->size() < m_minTracksPerVtx) continue;
+      if (vxTrackAtVertex==nullptr || vxTrackAtVertex->size() < m_minTracksPerVtx) continue;
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << vxTrackAtVertex->size() << " tracks" << endmsg;
       pVtx = &((*vxIter)->recVertex());//set pointer to identified primary vertex
       break;//best pvtx is the first one, so can quit loop once find it

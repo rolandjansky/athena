@@ -148,9 +148,9 @@ StatusCode CaloTopoClusterTowerMerger::execute(const EventContext& ctx) const
   ATH_CHECK(this->addContainerWriteHandle(signalHandle));
 
   // fill output from topo-clusters
-  for ( auto pClus : *clusterHandle ) { if ( clusterFilter(*pClus) ) { this->makeDeepCopy(*pClus,signalHandle.ptr()); } }
+  for ( const auto *pClus : *clusterHandle ) { if ( clusterFilter(*pClus) ) { CaloTopoClusterTowerMerger::makeDeepCopy(*pClus,signalHandle.ptr()); } }
   // fill output from topo-towers
-  for ( auto pTowr : *towerHandle )   { if ( towerFilter(*pTowr) )   { this->makeDeepCopy(*pTowr,signalHandle.ptr()); } }
+  for ( const auto *pTowr : *towerHandle )   { if ( towerFilter(*pTowr) )   { CaloTopoClusterTowerMerger::makeDeepCopy(*pTowr,signalHandle.ptr()); } }
 
   // finalize the clusters/towers
   lhandle_t linkHandle(m_cellLinkContainerKey,ctx);
@@ -159,7 +159,7 @@ StatusCode CaloTopoClusterTowerMerger::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
-bool CaloTopoClusterTowerMerger::makeDeepCopy(const xAOD::CaloCluster& rClus,xAOD::CaloClusterContainer* pClusCont) const
+bool CaloTopoClusterTowerMerger::makeDeepCopy(const xAOD::CaloCluster& rClus,xAOD::CaloClusterContainer* pClusCont) 
 { pClusCont->push_back(new xAOD::CaloCluster(rClus)); return true; }
 
 StatusCode CaloTopoClusterTowerMerger::addContainerWriteHandle(whandle_t& signalHandle) const
