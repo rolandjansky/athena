@@ -186,9 +186,9 @@ public:
   TrackStateOnSurface(
     std::unique_ptr<const MeasurementBase> meas,
     std::unique_ptr<const TrackParameters> trackParameters,
-    const FitQualityOnSurface* fitQoS,
-    const MaterialEffectsBase* materialEffects = nullptr,
-    const AlignmentEffectsOnTrack* alignmentEffectsOnTrack = nullptr);
+    std::unique_ptr<const FitQualityOnSurface> fitQoS,
+    std::unique_ptr<const MaterialEffectsBase> materialEffects = nullptr,
+    std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack = nullptr);
 
   /**
    * Full constructor.
@@ -229,11 +229,11 @@ public:
   explicit TrackStateOnSurface(
     std::unique_ptr<const MeasurementBase> meas,
     std::unique_ptr<const TrackParameters> trackParameters,
-    const FitQualityOnSurface* fitQoS,
-    const MaterialEffectsBase* materialEffectsOnTrack,
+    std::unique_ptr<const FitQualityOnSurface> fitQoS,
+    std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack,
     const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
       typePattern,
-    const AlignmentEffectsOnTrack* alignmentEffectsOnTrack =
+    std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack =
       nullptr /// @todo remove =0 at some point
   );
 
