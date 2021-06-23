@@ -431,9 +431,9 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
             m_region    = 0;
             m_detector  = 4;
           }
-          connected=true;
        }
      } // m_OffId
+     connected=true;
    }//end if is connected
  }catch (LArID_Exception & except) {}
 

@@ -21,9 +21,15 @@
 
 #include <string>
 #include <vector>
+#include <atomic> 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "tbb/blocked_range.h"
+#include "LArRawConditions/LArWFParams.h"
+
+class LArCaliWave;
+class LArWFParamTool;
 
 class LArRTMParamExtractor : public AthAlgorithm
 {
@@ -75,6 +81,51 @@ class LArRTMParamExtractor : public AthAlgorithm
   // Calib line selection
   bool m_Calibselection;
   int m_Cline;
+
+
+   //Elements for TBB
+
+  bool m_useTBB;
+  mutable std::atomic<unsigned> m_counter{0};
+
+  class helperParams {
+  public:
+    helperParams(const LArCaliWave* cw,
+		 LArCaliWave* os, LArCaliWave* rO0, LArCaliWave* rO1,
+		 const HWIdentifier id, const unsigned g) : 
+      caliWave(cw), omegaScan(os), resOscill0(rO0), resOscill1(rO1),
+      chid(id),gain(g) {};
+
+    const LArCaliWave* caliWave;  //Input object
+    LArCaliWave* omegaScan;       //optional output object
+    LArCaliWave* resOscill0;	  //optional output object		
+    LArCaliWave* resOscill1;      //optional output object
+    LArWFParams wfParams;         //Outut object
+    HWIdentifier chid;
+    unsigned gain;
+    bool success=true;
+  };
+
+  class Looper
+  { 
+  public:
+    //Looper() = delete;
+    Looper(std::vector<helperParams>* p, const LArOnOffIdMapping* cabling, const LArWFParamTool* t, 
+	   MsgStream& ms,std::atomic<unsigned>& cnt ) : 
+      m_tbbparams(p), m_cabling(cabling), m_tool(t), 
+      m_msg(ms), m_counter(cnt) {};
+
+    void operator() (const tbb::blocked_range<size_t>& r) const;
+
+  private:
+    std::vector<helperParams>* m_tbbparams;
+    const LArOnOffIdMapping* m_cabling;
+    const LArWFParamTool* m_tool;
+    MsgStream& m_msg;
+    std::atomic<unsigned>& m_counter;
+  };
+
+
 
 };
 
