@@ -22,6 +22,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
+#include "tbb/parallel_for.h"
 
 LArRTMParamExtractor::LArRTMParamExtractor (const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
@@ -69,7 +70,8 @@ LArRTMParamExtractor::LArRTMParamExtractor (const std::string& name, ISvcLocator
 
   declareProperty("calibLineSelection", m_Calibselection = false);
   declareProperty("cLineGroup",         m_Cline=0);
-
+  
+  declareProperty("useTBB",            m_useTBB = false);
 }
 
 LArRTMParamExtractor::~LArRTMParamExtractor() {}
@@ -346,6 +348,9 @@ StatusCode LArRTMParamExtractor::stop()
 
   unsigned nWaveConts=0;
 
+  //Collect all input params into this flat vector:
+  std::vector<helperParams> inputParams;
+
   for (const std::string& key : m_keylist) { //Loop over all containers that are to be processed 
     
     // Get current LArCaliWaveContainer
@@ -448,17 +453,32 @@ StatusCode LArRTMParamExtractor::stop()
 				   << " not match group "<<m_Cline<<" skipping...");
                     continue; 
              }
-          } 
+          }//end if calibLine selection
 
    	  nDACproc++;
 	  
 	  nchannel++ ;
 	  if ( nchannel < 100 || ( nchannel < 1000 && nchannel%100==0 ) || nchannel%1000==0 ) 
-	    ATH_MSG_INFO( "Processing calibration waveform number " << nchannel);
+	    ATH_MSG_INFO( "Ingesting calibration waveform number " << nchannel);
+
+	  LArCaliWave* omegaScan = NULL ;
+	  if ( omegaScanContainer ) {
+	    omegaScan = new LArCaliWave() ;
+	  }
 	  
-	  // Get the waveform parameters:
-	  // ---------------------------
-          LArWFParams wfParams ;
+	  LArCaliWave* resOscill0 = NULL ;
+	  if ( resOscillContainerBefore ) {
+	    resOscill0 = new LArCaliWave() ;
+	  }
+	  
+	  LArCaliWave* resOscill1 = NULL ;
+	  if ( resOscillContainerAfter ) {
+	    resOscill1 = new LArCaliWave() ;
+	  }
+	  
+
+	  inputParams.emplace_back(&larCaliWave,omegaScan,resOscill0,resOscill1,chid,gain);
+	  LArWFParams& wfParams=inputParams.back().wfParams ;
 	  float retrievedParam ;
 
 	  ATH_MSG_VERBOSE("Extracting parameters for channel " << MSG::hex << chid << MSG::dec 
@@ -472,7 +492,7 @@ StatusCode LArRTMParamExtractor::stop()
 	    wfParams.setTcal( retrievedParam = prevCaliPulseParams->Tcal(chid,gain) ) ;
 	    if ( retrievedParam == emptyCaliPulse.m_Tcal ) {
 	      ATH_MSG_WARNING( "Parameters Tcal requested from DB but not found for channel " 
-				<< MSG::hex << chid << MSG::dec 
+			       << onlineHelper->channel_name(chid) 
 				<< " gain=" << gain << " DAC=" << larCaliWave.getDAC());
 	      if (m_recoverEmptyDB) {
 	        wfParams.setTcal( LArWFParamTool::DoExtract ) ;
@@ -492,8 +512,8 @@ StatusCode LArRTMParamExtractor::stop()
 	    wfParams.setFstep( retrievedParam = prevCaliPulseParams->Fstep(chid,gain) ) ;
 	    if ( retrievedParam == emptyCaliPulse.m_Fstep ) {
 	      ATH_MSG_WARNING( "Parameters Fstep requested from DB but not found for channel " 
-				<< MSG::hex << chid << MSG::dec 
-				<< " gain=" << gain << " DAC=" << larCaliWave.getDAC());
+			       << onlineHelper->channel_name(chid)  
+			       << " gain=" << gain << " DAC=" << larCaliWave.getDAC());
 	      if (m_recoverEmptyDB) {
 	        ATH_MSG_WARNING( " -> Recovering with RTM extraction." );
 	        wfParams.setFstep( LArWFParamTool::DoExtract ) ;
@@ -512,7 +532,7 @@ StatusCode LArRTMParamExtractor::stop()
 	    wfParams.setOmega0( retrievedParam = prevDetCellParams->Omega0(chid,gain) ) ;
 	    if ( retrievedParam == emptyDetCell.m_Omega0 ) {
 	      ATH_MSG_WARNING( "Parameters Omega0 requested from DB but not found for channel " 
-				<< MSG::hex << chid << MSG::dec 
+				<< onlineHelper->channel_name(chid)
 				<< " gain=" << gain << " DAC=" << larCaliWave.getDAC() );
 	      if (m_recoverEmptyDB) {
 	        ATH_MSG_WARNING( " -> Recovering with RTM extraction." ); 
@@ -532,8 +552,8 @@ StatusCode LArRTMParamExtractor::stop()
 	    wfParams.setTaur( retrievedParam = prevDetCellParams->Taur(chid,gain) ) ;
 	    if ( retrievedParam == emptyDetCell.m_Taur ) {
 	      ATH_MSG_WARNING( "Parameters Taur requested from DB but not found for channel " 
-				<< MSG::hex << chid << MSG::dec 
-				<< " gain=" << gain << " DAC=" << larCaliWave.getDAC());
+			       << onlineHelper->channel_name(chid)  
+			       << " gain=" << gain << " DAC=" << larCaliWave.getDAC());
 	      if (m_recoverEmptyDB) {
 	        ATH_MSG_WARNING( " -> Recovering with RTM extraction." ); 
 	        wfParams.setTaur( LArWFParamTool::DoExtract ) ;
@@ -549,108 +569,103 @@ StatusCode LArRTMParamExtractor::stop()
 	  ATH_MSG_VERBOSE( "Pre-setting: Omega0   = " << wfParams.omega0() ) ;
 	  ATH_MSG_VERBOSE( "Pre-setting: Taur     = " << wfParams.taur() ) ;
 
-	  LArCaliWave* omegaScan = NULL ;
-	  if ( omegaScanContainer ) {
-	    omegaScan = new LArCaliWave() ;
-	  }
+	  //end collection of input values. All stored in inputParams vector
 	  
-	  LArCaliWave* resOscill0 = NULL ;
-	  if ( resOscillContainerBefore ) {
-	    resOscill0 = new LArCaliWave() ;
-	  }
-	  
-	  LArCaliWave* resOscill1 = NULL ;
-	  if ( resOscillContainerAfter ) {
-	    resOscill1 = new LArCaliWave() ;
-	  }
-	  //time_t t1=clock();
-	  sc = larWFParamTool->getLArWaveParams(larCaliWave, 
-						chid, (CaloGain::CaloGain)gain, 
-                                                wfParams,
-                                                cabling,
-						omegaScan,
-						resOscill0,
-						resOscill1 );					
-	  //ATH_MSG_INFO( "Time for larWFParamTool->getLArWaveParams chid=" << std::hex << chid.get_compact() << std::dec << ":"  << (clock() - t1)/(double)CLOCKS_PER_SEC << " sec" << std::endl;
-          if (sc.isFailure()) {   // bad parameters
-	    ATH_MSG_WARNING( "Bad parameters for channel " << MSG::hex << chid << MSG::dec 
-		<< " gain=" << gain << " DAC=" << larCaliWave.getDAC() ) ;
-	    continue ; 
-	  } 
-          
-	  ATH_MSG_VERBOSE( "parameters extracted for channel " << MSG::hex << chid << MSG::dec 
-	      << " gain=" << gain << " DAC=" << larCaliWave.getDAC() ) ;
-          
-	  // fill params structures to be registered in detStore
-	  if ( newCaliPulseParams->Tcal(chid,gain) != emptyCaliPulse.m_Tcal ) {
-	    ATH_MSG_WARNING( "Already present in LArCaliPulseParams, don't add: channel " 
-		<< MSG::hex << chid << MSG::dec << " gain=" << gain ) ;
-	  } else {
-	    ATH_MSG_VERBOSE( "add to LArCaliPulseParams..." ) ;
-            NCalibParams++;
-            if(m_Calibselection) {
-                newCaliPulseParams->set(chid,(int)(gain),wfParams.tcal(),wfParams.fstep(),0.,0.,larCaliWave.getIsPulsedInt() ) ;
-            } else {
-                newCaliPulseParams->set(chid,(int)(gain),wfParams.tcal(),wfParams.fstep() ) ;
-            }
-	  }
-	  
-	  if ( newDetCellParams->Omega0(chid,gain) != emptyDetCell.m_Omega0 ) {
-	    ATH_MSG_WARNING( "Already present in LArDetCellParams, don't add: channel " 
-		<< MSG::hex << chid << MSG::dec << " gain=" << gain ) ;
-	  } else {
-	    ATH_MSG_VERBOSE( "add to LArDetCellParams..." ) ;
-	    newDetCellParams->set(chid,(int)(gain),wfParams.omega0(),wfParams.taur() ) ;
-            NDetParams++;
-	  }
-
-	  // collect this omega scan
-	  if ( omegaScanContainer ) {
-	    LArCaliWaveContainer::LArCaliWaves& dacScans = omegaScanContainer->get(chid, gain);
-	    dacScans.push_back( *omegaScan ) ;
-	    delete omegaScan; omegaScan=0; //copied to caliwave container
-	    ATH_MSG_VERBOSE( "omega scan added to container, channel=" << MSG::hex << chid << MSG::dec 
-		<< " gain=" << gain ) ;
-	  }
-	  
-	  // collect this residual oscillation before Taur extraction
-	  if ( resOscillContainerBefore ) {
-	    LArCaliWaveContainer::LArCaliWaves& dacResOsc0 = resOscillContainerBefore->get(chid, gain);
-	    dacResOsc0.push_back( *resOscill0 ) ;
-	    delete resOscill0; resOscill0=0; //copied to caliwave container
-	    ATH_MSG_VERBOSE( "residual oscillation before Taur extraction added to container, channel=" << MSG::hex << chid << MSG::dec 
-		<< " gain=" << gain ) ;
-	  }
-	  
-	  // collect this residual oscillation after Taur extraction
-	  if ( resOscillContainerAfter ) {
-	    LArCaliWaveContainer::LArCaliWaves& dacResOsc1 = resOscillContainerAfter->get(chid, gain);
-	    dacResOsc1.push_back( *resOscill1 ) ;
-	    delete resOscill1; resOscill1=0; //copied to caliwave container
-	    ATH_MSG_VERBOSE( "residual oscillation after Taur extraction added to container, channel=" << MSG::hex << chid << MSG::dec 
-		<< " gain=" << gain ) ;
-	  }
-	  
-	  
-        } // end loop over dac for a given channel
-        
-	if (nDACproc==0) {
-	  ATH_MSG_WARNING( "No pulse corresponding to selected DAC = " << m_DAC 
-	      << " was found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec 
-	      << " in Gain = " << gain );
+	}//end loop over DAC values
+	if ( m_testmode ) {
+	  ATH_MSG_INFO( "Test mode selected, process only one channel per gain per container!" ) ;
+	  break ;
 	}
-	
-        if ( m_testmode ) {
-          ATH_MSG_INFO( "Test mode selected, process only one channel per gain per container!" ) ;
-          break ;
-	}
-    
-      }  // end loop over cells for a given gain
+      }//end loop over channels
+    }//end loop over gains
+  }//end loop over input containers (SG keys)
 
-    } // end loop over gains for a give container
 
-  }// End loop over all CaliWave containers 
-  
+  if (!m_useTBB) { //traditional, serial processing:
+    Looper looper(&inputParams,cabling,larWFParamTool.operator->(),msg(),m_counter);
+    tbb::blocked_range<size_t> r(0,inputParams.size());
+    looper(r);
+  }
+  else {
+    ATH_MSG_INFO("Now calling TBB parallel_for");
+    // NOW CALL TBB PARALLEL FOR
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, inputParams.size()),Looper(&inputParams,cabling,
+									       larWFParamTool.operator->(),
+									       msg(),m_counter));
+
+    ATH_MSG_INFO("Done with parallel_for");
+  }
+
+  //Loop over inputParams to collect output:
+  for (const helperParams& params : inputParams) {
+    if (!params.success) { // bad parameters
+      ATH_MSG_WARNING( "Bad parameters for channel " << onlineHelper->channel_name(params.chid) << MSG::dec 
+		       << " gain=" << params.gain << " DAC=" << params.caliWave->getDAC() ) ;
+      continue ; 
+    } 
+    const LArWFParams& wfParams=params.wfParams;
+    const HWIdentifier& chid=params.chid;
+    const unsigned& gain=params.gain;
+    const LArCaliWave& larCaliWave=*(params.caliWave);
+    const LArCaliWave* omegaScan = params.omegaScan; 
+    const LArCaliWave* resOscill0 = params.resOscill0;
+    const LArCaliWave* resOscill1 = params.resOscill1;
+
+    ATH_MSG_VERBOSE( "parameters extracted for channel " << MSG::hex << chid << MSG::dec 
+		     << " gain=" << gain << " DAC=" << larCaliWave.getDAC() ) ;
+          
+    // fill params structures to be registered in detStore
+    if ( newCaliPulseParams->Tcal(chid,gain) != emptyCaliPulse.m_Tcal ) {
+      ATH_MSG_WARNING( "Already present in LArCaliPulseParams, don't add: channel " 
+		       << MSG::hex << chid << MSG::dec << " gain=" << gain ) ;
+    } else {
+      ATH_MSG_VERBOSE( "add to LArCaliPulseParams..." ) ;
+      NCalibParams++;
+      if(m_Calibselection) {
+	newCaliPulseParams->set(chid,(int)(gain),wfParams.tcal(),wfParams.fstep(),0.,0.,larCaliWave.getIsPulsedInt() ) ;
+      } else {
+	newCaliPulseParams->set(chid,(int)(gain),wfParams.tcal(),wfParams.fstep() ) ;
+      }
+    }
+	  
+    if ( newDetCellParams->Omega0(chid,gain) != emptyDetCell.m_Omega0 ) {
+      ATH_MSG_WARNING( "Already present in LArDetCellParams, don't add: channel " 
+		       << MSG::hex << chid << MSG::dec << " gain=" << gain ) ;
+    } else {
+      ATH_MSG_VERBOSE( "add to LArDetCellParams..." ) ;
+      newDetCellParams->set(chid,(int)(gain),wfParams.omega0(),wfParams.taur() ) ;
+      NDetParams++;
+    }
+
+    // collect this omega scan
+    if ( omegaScanContainer ) {
+      LArCaliWaveContainer::LArCaliWaves& dacScans = omegaScanContainer->get(chid, gain);
+      dacScans.push_back( *omegaScan ) ;
+      delete omegaScan; omegaScan=0; //copied to caliwave container
+      ATH_MSG_VERBOSE( "omega scan added to container, channel=" << MSG::hex << chid << MSG::dec 
+		       << " gain=" << gain ) ;
+    }
+	  
+    // collect this residual oscillation before Taur extraction
+    if ( resOscillContainerBefore ) {
+      LArCaliWaveContainer::LArCaliWaves& dacResOsc0 = resOscillContainerBefore->get(chid, gain);
+      dacResOsc0.push_back( *resOscill0 ) ;
+      delete resOscill0; resOscill0=0; //copied to caliwave container
+      ATH_MSG_VERBOSE( "residual oscillation before Taur extraction added to container, channel=" << MSG::hex << chid << MSG::dec 
+		<< " gain=" << gain ) ;
+    }
+	  
+    // collect this residual oscillation after Taur extraction
+    if ( resOscillContainerAfter ) {
+      LArCaliWaveContainer::LArCaliWaves& dacResOsc1 = resOscillContainerAfter->get(chid, gain);
+      dacResOsc1.push_back( *resOscill1 ) ;
+      delete resOscill1; resOscill1=0; //copied to caliwave container
+      ATH_MSG_VERBOSE( "residual oscillation after Taur extraction added to container, channel=" << MSG::hex << chid << MSG::dec 
+		       << " gain=" << gain ) ;
+    }
+	  
+  } // end loop over input/output container
+          
   if (nWaveConts==0) {
     ATH_MSG_ERROR( "Did not process any caliwave container!" );
     return StatusCode::FAILURE;
@@ -726,5 +741,31 @@ StatusCode LArRTMParamExtractor::stop()
 
   ATH_MSG_INFO( "LArRTMParamExtractor finalized!" );  
   
-  return StatusCode::SUCCESS;
-      }
+return StatusCode::SUCCESS;
+}
+
+
+void LArRTMParamExtractor::Looper::operator() (const tbb::blocked_range<size_t>& r) const {
+
+  for (size_t i=r.begin();i!=r.end();++i) {
+    helperParams& p=m_tbbparams->at(i);
+    StatusCode sc = m_tool->getLArWaveParams(*(p.caliWave), 
+					     p.chid, 
+					     (CaloGain::CaloGain)p.gain, 
+					     p.wfParams,
+					     m_cabling,
+					     p.omegaScan,
+					     p.resOscill0,
+					     p.resOscill1 );	
+
+    p.success=sc.isSuccess() ;
+
+    
+    unsigned cnt=(++m_counter);
+    if (cnt % 100 == 0) {
+      m_msg << MSG::INFO << "Processing wavefrom No " << cnt << endmsg;
+    }
+    
+  }
+  return;
+}
