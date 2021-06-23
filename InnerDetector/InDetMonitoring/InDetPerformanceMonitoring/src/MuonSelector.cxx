@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 //==================================================================================
 //
 //  ZMM_Event.cxx :       Class designed to reconstruct di-boson events
@@ -94,6 +98,8 @@ MuonSelector::MuonSelector():
   m_passip = 0;
   m_passmcp = 0;
   m_passall = 0;
+
+  // done
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,6 +107,37 @@ MuonSelector::~MuonSelector()
 {
   --m_uNumInstances;
   delete m_msgStream;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MuonSelector::Init()
+{
+  ISvcLocator* serviceLocator = Gaudi::svcLocator();
+  IToolSvc* toolSvc;
+  StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
+
+  if ( sc.isFailure() || toolSvc == 0 ) {
+    (*m_msgStream) << MSG::ERROR << "  * MuonSelector::Init * Unable to retrieve ToolSvc " << endmsg;
+    return;
+  }
+
+  // check muon selection tool is available 
+  if (m_muonSelectionTool.retrieve().isSuccess()) {
+    ( *m_msgStream) << MSG::INFO << "  * MuonSelector::Init * m_muonSelectionTool.initialize() success :)" << endmsg;
+    if(m_doDebug){ std::cout << "  * MuonSelector::Init * m_muonSelectionTool.initialize() success :)" << std::endl;}
+  }
+  else {
+    (*m_msgStream) << MSG::ERROR << "  * MuonSelector::Init * FAILURE * Muon selction tool retrieving failed :( " << endmsg;    
+  }
+
+  PARENT::Init();
+}
+
+
+
+bool MuonSelector::Reco()
+{
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,12 +168,13 @@ bool MuonSelector::passSelection( const xAOD::Muon* pxMuon)
       if (pass) m_passiso++;
     }
 
+
     if (m_doPtSelection){
       pass = passPtCuts();
       passes.push_back(pass);
       if (m_doDebug && !pass) std::cout<<"  * MuonSelector::passSelection * Muon Fails pT Selection"<<std::endl;
       if (pass) m_passpt++;
-    }
+    } 
 
     if (m_doIPSelection){
       pass = passIPCuts();
@@ -176,37 +214,6 @@ bool MuonSelector::passSelection( const xAOD::Muon* pxMuon)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MuonSelector::Init()
-{
-  ISvcLocator* serviceLocator = Gaudi::svcLocator();
-  IToolSvc* toolSvc;
-  StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
-
-  if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "  * MuonSelector::Init * Unable to retrieve ToolSvc " << endmsg;
-    return;
-  }
-
-  // check muon selection tool is available 
-  if (m_muonSelectionTool.retrieve().isSuccess()) {
-    ( *m_msgStream) << MSG::INFO << "  * MuonSelector::Init * m_muonSelectionTool.initialize() success :)" << endmsg;
-    if(m_doDebug){ std::cout << "  * MuonSelector::Init * m_muonSelectionTool.initialize() success :)" << std::endl;}
-  }
-  else {
-    (*m_msgStream) << MSG::ERROR << "  * MuonSelector::Init * FAILURE * Muon selction tool retrieving failed :( " << endmsg;    
-  }
-
-  PARENT::Init();
-}
-
-
-
-bool MuonSelector::Reco()
-{
-  return true;
-}
-
 //==================================================================================
 // Protected Methods
 //==================================================================================
@@ -220,16 +227,10 @@ void MuonSelector::BookHistograms( )
 //==================================================================================
 bool MuonSelector::passQualCuts()
 {
-  // Apply muon hit criteria
-  // First get the muon track, then the summarys
-  
-  //const xAOD::TrackParticle* IDTrk = m_pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);  // Always use combined track
-  const xAOD::TrackParticle* IDTrk = m_pxMuon->trackParticle(xAOD::Muon::CombinedTrackParticle);
+  bool goodTrack = false;
 
-  //    if ( !m_pxMuon->isCombinedMuon()) return false;
-  //  if ( m_pxMuon->trackParticle(xAOD::Muon::CombinedTrackParticle) ) return false;
-  //???? if( xAOD::Muon::Combined ) return false;  //PF: ??
-  
+  // First get the muon track, then the summary  
+  const xAOD::TrackParticle* IDTrk = m_pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle); // use the Inner Detector segment
   
   if (IDTrk) {
     uint8_t dummy(-1);
@@ -238,31 +239,44 @@ bool MuonSelector::passQualCuts()
 
     int nhitsPIX = IDTrk->summaryValue( dummy, xAOD::numberOfPixelHits ) ? dummy :-1;
     int nhitsSCT = IDTrk->summaryValue( dummy, xAOD::numberOfSCTHits ) ? dummy :-1;
+    int nhitsTRT = IDTrk->summaryValue( dummy, xAOD::numberOfTRTHits ) ? dummy :-1;
 
     int nPIXDS = IDTrk->summaryValue( dummy, xAOD::numberOfPixelDeadSensors ) ? dummy :-1;
     int nSCTDS = IDTrk->summaryValue( dummy, xAOD::numberOfSCTDeadSensors ) ? dummy :-1;
 
     int nPIXH = IDTrk->summaryValue( dummy, xAOD::numberOfPixelHoles )? dummy :-1;
     int nSCTH = IDTrk->summaryValue( dummy, xAOD::numberOfSCTHoles )? dummy :-1;
+    int nTRTH = IDTrk->summaryValue( dummy, xAOD::numberOfTRTHoles )? dummy :-1;
 
-    if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * eBLhits: " << eBLhits
+    int nContribPixLayers = IDTrk->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1; 
+
+    if(m_doDebug) std::cout << "  * MuonSelector * passQualCuts() * eBLhits: " << eBLhits
 			    << "  nBLhits:  " << nBLhits
 			    << "  nhitsPIX: " << nhitsPIX
+			    << "  nPIXLayers: " << nContribPixLayers 
 			    << "  nhitsSCT: " << nhitsSCT
-			    << "  holes: " << nPIXH + nSCTH
+			    << "  Silicon holes: " << nPIXH + nSCTH
+			    << "    nhitsTRT: " << nhitsTRT
+			    << "  nTRTholes: " << nTRTH
 			    << std::endl;
 
     if (((!eBLhits) || (nBLhits > 0))
 	&&   (nhitsPIX + nPIXDS > 1 )
 	&&   (nhitsSCT + nSCTDS >=6 )
 	&&   (nPIXH    + nSCTH  < 2 ) ) {
-      if (m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * this muon satisfies the hits number QualCuts  "  << std::endl;
-      return true;
+      goodTrack = true;
     }
   }
 
-  if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * this muon did not pass the hits number QualCuts  "  << std::endl;
-  return false;
+  if (m_doDebug) {
+    if (goodTrack) {
+      std::cout << "   * MuonSelector * passQualCuts() * this muon satisfies the hits number QualCuts  "  << std::endl;
+    }
+    else {
+      std::cout << "   * MuonSelector * passQualCuts() * this muon did not pass the hits number QualCuts  "  << std::endl;
+    }
+  }
+  return goodTrack;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -447,13 +461,13 @@ void MuonSelector::finalize()
 {
   // statistics report 
   std::cout << "    * MuonSelector*  -- STATS -- " << std::endl
-	    << "    tested  : " << m_testedmuons << std::endl
-	    << "    passQual: " << m_passqual << std::endl
-	    << "    passIso : " << m_passiso << std::endl
-	    << "    passpt  : " << m_passpt << std::endl
-	    << "    passip  : " << m_passip << std::endl
-	    << "    passmcp : " << m_passmcp << std::endl
-	    << "    passall : " << m_passall << std::endl
+	    << "    tested  : " << m_testedmuons << std::endl;
+  if (m_doQualSelection) std::cout << "    passQual: " << m_passqual << std::endl;
+  if (m_doIsoSelection)  std::cout << "    passIso : " << m_passiso << std::endl;
+  if (m_doPtSelection)   std::cout << "    passpt  : " << m_passpt << std::endl;
+  if (m_doIPSelection)   std::cout << "    passip  : " << m_passip << std::endl;
+  if (m_doMCPSelection)  std::cout << "    passmcp : " << m_passmcp << std::endl;
+  std::cout << "    passall : " << m_passall << std::endl
 	    << std::endl;
   
   return;
