@@ -604,6 +604,12 @@ HLT_e26_lhmedium_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhmedium_mu8noL1_L1EM22VHI:
   eventCount: 0
+HLT_e26_lhmediumnopix_lrttight_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_e26_lhtight_L1EM15VH:
   eventCount: 0
 HLT_e26_lhtight_L1EM22VHI:
@@ -677,6 +683,8 @@ HLT_e28_idperf_loose_L1EM24VHI:
 HLT_e28_lhloosenopix_lrtmedium_L1EM22VHI:
   eventCount: 0
 HLT_e28_lhmedium_mu8noL1_L1EM24VHI:
+  eventCount: 0
+HLT_e28_lhmediumnopix_lrttight_L1EM22VHI:
   eventCount: 0
 HLT_e300_etcut_L1EM22VHI:
   eventCount: 0
@@ -2546,24 +2554,6 @@ HLT_mu24_LRT_idperf_L1MU20:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu24_LRT_l2lrt_d0loose_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_LRT_l2lrt_d0medium_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_LRT_l2lrt_d0tight_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
 HLT_mu24_idperf_L1MU20:
   eventCount: 0
   stepCounts:
@@ -2758,14 +2748,6 @@ HLT_mu6_L1MU6:
     1: 1
 HLT_mu6_LRT_idperf_L1MU6:
   eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_mu6_LRT_idperf_l2lrt_L1MU6:
-  eventCount: 1
   stepCounts:
     0: 1
     1: 1
