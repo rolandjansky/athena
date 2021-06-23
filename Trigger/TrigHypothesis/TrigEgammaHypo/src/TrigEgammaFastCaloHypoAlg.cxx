@@ -95,48 +95,36 @@ StatusCode TrigEgammaFastCaloHypoAlg::execute( const EventContext& context ) con
     auto clusterHandle = ViewHelper::makeHandle( *viewEL, m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
+    auto emCluster = clusterHandle.cptr()->at(0);
 
+    // get rings
+    auto ringsHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context); 
+    ATH_CHECK( ringsHandle.isValid());
+    ATH_MSG_DEBUG ( "Rings handle size: " << ringsHandle->size() << "..." );
+    auto ringsCluster = ringsHandle.cptr()->at(0);
+
+    // create new decision (node)
     auto d = TCU::newDecisionIn( decisions, TCU::hypoAlgNodeName() );
-    
-    const xAOD::TrigRingerRings* ringerShape = nullptr; 
-    const xAOD::TrigEMCluster* emCluster = nullptr;
-
-    if ( not m_ringsKey.empty() ) {  
-
-      auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);      
-      ATH_CHECK( ringerShapeHandle.isValid());
-      auto ringHandle = ringerShapeHandle.cptr();	
-      ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
-
-      // link the rings      
-      auto el = ViewHelper::makeLink( *viewEL, ringerShapeHandle, 0 );
-      ATH_CHECK( el.isValid() );
-      d->setObjectLink( "ringer",  el );
-      ringerShape = ringHandle->at(0);
-      if(ringerShape)
-        emCluster = ringerShape->emCluster();
-    }
-
-    ITrigEgammaFastCaloHypoTool::FastClusterInfo info(d, roi, clusterHandle.cptr()->at(0), ringerShape , previousDecision);
 
 
+    ITrigEgammaFastCaloHypoTool::FastClusterInfo info(d, roi, emCluster, ringsCluster , previousDecision);
 
     float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
     info.valueDecorator["avgmu"] = avgmu;
 
     // Decorate the info object with NN ringer decision
-    if(ringerShape && emCluster){
+    if(ringsCluster && emCluster){
       int idx=0;
       for (auto& pidname : m_pidNames ){
         if (m_useRun3){
-          auto inputs = m_ringerNNTools[0]->prepare_inputs( ringerShape , nullptr);
+          auto inputs = m_ringerNNTools[0]->prepare_inputs( ringsCluster , nullptr);
           timer_predict.start();
-          float nnOutput = m_ringerNNTools[0]->predict(ringerShape, inputs);
+          float nnOutput = m_ringerNNTools[0]->predict(ringsCluster, inputs);
           timer_predict.stop();
-          info.pidDecorator[pidname] = (bool)m_ringerNNTools[idx]->accept(ringerShape, nnOutput, avgmu);
+          info.pidDecorator[pidname] = (bool)m_ringerNNTools[idx]->accept(ringsCluster, nnOutput, avgmu);
           info.valueDecorator[pidname+"NNOutput"] = nnOutput;
         }else{
-          const std::vector<float> rings = ringerShape->rings();
+          const std::vector<float> rings = ringsCluster->rings();
           std::vector<float> refRings(rings.size());
           refRings.assign(rings.begin(), rings.end());
           timer_predict.start();
@@ -158,10 +146,21 @@ StatusCode TrigEgammaFastCaloHypoAlg::execute( const EventContext& context ) con
       ATH_CHECK( clus.isValid() );
       d->setObjectLink( TCU::featureString(),  clus );
     }
+
+    // link the rings
+    {
+      auto rings =  ViewHelper::makeLink( *viewEL, ringsHandle, 0 );
+      ATH_CHECK( rings.isValid() );
+      d->setObjectLink( "ringer",  rings );
+    }
     
-    d->setObjectLink( TCU::roiString(), roiELInfo.link );
+    // link the RoI
+    {
+      d->setObjectLink( TCU::roiString(), roiELInfo.link );
+    }
     
     TCU::linkToPrevious( d, previousDecision, context );
+
     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
     counter++;
   }

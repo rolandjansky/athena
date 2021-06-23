@@ -8,11 +8,16 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "AthViews/View.h"
-#include "TrigEgammaFastElectronHypoTool.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
+#include "AthViews/View.h"
+#include "RingerSelectorTools/IAsgRingerSelectorTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "ITrigEgammaFastElectronHypoTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 
 
 /**
@@ -22,18 +27,23 @@
 
 class TrigEgammaFastElectronHypoAlg  :  public ::HypoBase 
 { 
- public: 
+  public: 
 
-  TrigEgammaFastElectronHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+    TrigEgammaFastElectronHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  execute(const EventContext& context) const override;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute(const EventContext& context) const override;
 
- private: 
-  ToolHandleArray< TrigEgammaFastElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
-  Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
-  // internally used to getch from views
-  SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
+  private: 
+  
+    ToolHandle<ILumiBlockMuTool>                      m_lumiBlockMuTool;
+
+    SG::ReadHandleKey< xAOD::TrigElectronContainer >  m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
+    ToolHandleArray<ITrigEgammaFastElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
+    ToolHandleArray<Ringer::IAsgRingerSelectorTool>   m_ringerNNTools{this, "RingerNNSelectorTools", {}, "Ringer Neural Network tools." };
+    ToolHandle< GenericMonitoringTool >               m_monTool{ this, "MonTool", "", "Monitoring tool" };
+    Gaudi::Property<std::vector<std::string>>         m_pidNames{this, "PidNames", {}, "Ringer pid names"};
+    Gaudi::Property< bool >                           m_runInView { this, "RunInView", false , "Set input DH for running in views" };
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOALG_H
