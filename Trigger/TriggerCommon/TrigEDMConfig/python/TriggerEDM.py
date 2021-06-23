@@ -1009,6 +1009,15 @@ TriggerLvl1List=[
     ( 'xAOD::EnergySumRoIAuxInfo#jNOISECUTPerfAux.',              'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoI#jXERHOPerf',                         'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoIAuxInfo#jXERHOPerfAux.',              'ESD AODFULL', 'L1'),
+     # jFEX jets                                                                                                                                                                                              
+    ( 'xAOD::JetRoIContainer#jRoundJetsPerf',                      'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundJetsPerfAux.',               'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundJetsPUsubPerf',                      'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundJetsPUsubPerfAux.',               'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundLargeRJetsPerf',                'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsPerfAux.',         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundLargeRJetsPUsubPerf',                'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsPUsubPerfAux.',         'ESD AODFULL', 'L1'),
     # eFEX electrons
     ("xAOD::TrigEMClusterContainer#eElesPerf" ,               'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterAuxContainer#eElesPerfAux." ,        'ESD AODFULL', 'L1'),
