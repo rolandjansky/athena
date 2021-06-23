@@ -31,24 +31,26 @@ class RpcPrepDataContainerCnv_p1;
 
 namespace Trk {
 
-namespace PrepRawDataType {
+
 /* The various kind of PrepRawData
  * to avoid dynamic_cast via using the type method
  */
-enum Type
+enum class PrepRawDataType
 {
-  SiCluster = 0,
-  TRT_DriftCircle = 1,
-  PlanarCluster = 2,
-  MdtPrepData = 3,
-  CscStripPrepData = 4,
-  CscPrepData = 5,
-  MMPrepData = 6,
-  RpcPrepData = 7,
-  TgcPrepData = 8,
-  sTgcPrepData = 9
+  SiCluster,
+  PixelCluster,
+  SCT_Cluster,
+  TRT_DriftCircle,
+  PlanarCluster,
+  MdtPrepData,
+  CscStripPrepData,
+  CscPrepData,
+  MMPrepData,
+  RpcPrepData,
+  TgcPrepData,
+  sTgcPrepData
 };
-}
+
 
 class TrkDetElementBase;
 
@@ -131,7 +133,7 @@ public:
   virtual const TrkDetElementBase* detectorElement() const = 0;
 
   /** Interface method checking the type*/
-  virtual bool type(PrepRawDataType::Type type) const = 0;
+  virtual bool type(PrepRawDataType type) const = 0;
 
   /** dump information about the PRD object. */
   virtual MsgStream& dump(MsgStream& stream) const;

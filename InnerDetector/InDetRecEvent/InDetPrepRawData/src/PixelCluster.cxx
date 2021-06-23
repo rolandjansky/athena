@@ -213,6 +213,12 @@ namespace InDet{
     {
     }
     
+    bool 
+    PixelCluster::type(Trk::PrepRawDataType type) const{
+      return (type == Trk::PrepRawDataType::PixelCluster or type == Trk::PrepRawDataType::SiCluster);
+    }
+
+    
 
     MsgStream& PixelCluster::dump( MsgStream&    stream) const
     {

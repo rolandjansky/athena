@@ -107,7 +107,7 @@ namespace Muon
     virtual const MuonGM::sTgcReadoutElement* detectorElement() const override final;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override final
+    virtual bool type(Trk::PrepRawDataType type) const override final
     {
       return type == Trk::PrepRawDataType::sTgcPrepData;
     }
