@@ -476,71 +476,87 @@ namespace top {
 
     // Triggers
     inline virtual void allTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Tight = triggers;
       }
     }
 
     inline virtual void electronTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Tight = triggers;
       }
     }
 
     inline virtual void muonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Tight = triggers;
       }
     }
 
     inline virtual void tauTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Tight = triggers;
       }
     }
 
+    inline virtual void photonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
+      if (!m_configFixed) {
+        m_photonTriggers_Tight = triggers;
+      }
+    }
+
     inline virtual void allTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Loose = triggers;
       }
     }
 
     inline virtual void electronTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Loose = triggers;
       }
     }
 
     inline virtual void muonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Loose = triggers;
       }
     }
 
     inline virtual void tauTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Loose = triggers;
       }
     }
 
-    inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
-    virtual const std::vector<std::string>& allTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Tight(const std::string& selection) const;
+    inline virtual void photonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
+      if (!m_configFixed) {
+        m_photonTriggers_Loose = triggers;
+      }
+    }
 
-    virtual const std::vector<std::string>& allTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Loose(const std::string& selection) const;
+    inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Tight(const std::string& selection) const;
+
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Loose(const std::string& selection) const;
 
     // StoreGate Keys
     virtual void sgKeyMCParticle(const std::string& s);
@@ -2013,7 +2029,8 @@ namespace top {
     inline bool isNominalAvailable() const {return m_isNominalAvailable;}
 
     // Function to set the options for global trigger tool
-    void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
+    void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>,
+                                       std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
     inline bool useGlobalTrigger() const {return m_trigGlobalConfiguration.isActivated;} // Was this requested by the
                                                                                          // user
     inline auto const& getGlobalTriggers() const {return m_trigGlobalConfiguration.trigger;}
@@ -2023,8 +2040,10 @@ namespace top {
                                                                                                        // configured
     inline std::vector<std::string> getGlobalTriggerElectronSystematics() const {return m_trigGlobalConfiguration.electron_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const {return m_trigGlobalConfiguration.muon_trigger_systematics;}
+    inline std::vector<std::string> getGlobalTriggerPhotonSystematics()   const {return m_trigGlobalConfiguration.photon_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerElectronTools()       const {return m_trigGlobalConfiguration.electron_trigger_tool_names;}
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
+    inline std::vector<std::string> getGlobalTriggerPhotonTools()         const {return m_trigGlobalConfiguration.photon_trigger_tool_names;}
     
     inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
 
@@ -2606,7 +2625,7 @@ namespace top {
     // manage systematic variations through this tool
 
     struct {
-      typedef std::unordered_map<std::string, std::vector<std::string> > triggermap_t;
+      typedef std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > triggermap_t;
       // -- Set from cutfile --//
       // Boolean to be set to true if the user activates a flag
       bool isActivated = false;
@@ -2621,10 +2640,14 @@ namespace top {
       std::vector<std::string> electron_trigger_systematics;
       // Names of CP::SystematicSet from muon trigger tools
       std::vector<std::string> muon_trigger_systematics;
+      // Names of CP::SystematicSet from photon trigger tools
+      std::vector<std::string> photon_trigger_systematics;
       // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
       std::vector<std::string> electron_trigger_tool_names;
       // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet
       std::vector<std::string> muon_trigger_tool_names;
+      // Name of the underlying photon tools, to be accessed and passes CP::SystematicSet
+      std::vector<std::string> photon_trigger_tool_names;
     } m_trigGlobalConfiguration;
 
     // Muon Trigger SF configuration
@@ -2635,15 +2658,17 @@ namespace top {
     std::shared_ptr<std::vector<std::string> > m_allSelectionNames;
     // Trigger configuration
     // First string is the selection name, second string is the trigger
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Loose;
-    std::vector<std::string> m_dummyTrigger;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_dummyTrigger;
 
     // Where the sum of event weights
     // before derivation framework is kept

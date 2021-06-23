@@ -26,12 +26,8 @@ namespace top {
     std::string name() const override;
   private:
     ///List of triggers to 'or' together for each event. If any one passes, the event passes
-    std::vector<std::string> m_electronTriggers_Tight;
-    std::vector<std::string> m_muonTriggers_Tight;
-    std::vector<std::string> m_tauTriggers_Tight;
-    std::vector<std::string> m_electronTriggers_Loose;
-    std::vector<std::string> m_muonTriggers_Loose;
-    std::vector<std::string> m_tauTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_allTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_allTriggers_Loose;
   };
 }
 

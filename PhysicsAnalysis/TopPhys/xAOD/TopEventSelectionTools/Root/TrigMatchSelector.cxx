@@ -11,12 +11,8 @@
 
 namespace top {
   TrigMatchSelector::TrigMatchSelector(const std::string& selectorName, std::shared_ptr<top::TopConfig> config) {
-    m_electronTriggers_Tight = config->electronTriggers_Tight(selectorName);
-    m_muonTriggers_Tight = config->muonTriggers_Tight(selectorName);
-    m_tauTriggers_Tight = config->tauTriggers_Tight(selectorName);
-    m_electronTriggers_Loose = config->electronTriggers_Loose(selectorName);
-    m_muonTriggers_Loose = config->muonTriggers_Loose(selectorName);
-    m_tauTriggers_Loose = config->tauTriggers_Loose(selectorName);
+    m_allTriggers_Tight = config->allTriggers_Tight(selectorName);
+    m_allTriggers_Loose = config->allTriggers_Loose(selectorName);
   }
 
   bool TrigMatchSelector::apply(const top::Event& event) const {
@@ -26,55 +22,59 @@ namespace top {
     // if no trigger menu us associated to this selection, return true
     // no effect of TRIGMATCH if TRIGDEC wasn't used
     if (!loose) {
-      if (m_electronTriggers_Tight.size() + m_muonTriggers_Tight.size() + m_tauTriggers_Tight.size() == 0) return true;
+      if (m_allTriggers_Tight.size() == 0) return true;
     } else {
-      if (m_electronTriggers_Loose.size() + m_muonTriggers_Loose.size() + m_tauTriggers_Loose.size() == 0) return true;
+      if (m_allTriggers_Loose.size() == 0) return true;
     }
 
     bool trigMatch(false);
 
-    // Loop over electrons
-    for (const auto* const elPtr : event.m_electrons) {
-      // Loop over triggers; loose ones for loose events, tight ones for tight events
-      for (const auto& trigger : loose ? m_electronTriggers_Loose : m_electronTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+    
+
+    // Loop over triggers; loose ones for loose events, tight ones for tight events
+    for (const auto& trigger : loose ? m_allTriggers_Loose : m_allTriggers_Tight) {
+      int nObjects(0);
+      // Loop over electrons
+      for (const auto* const elPtr : event.m_electrons) {
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (elPtr->isAvailable<char>(trig)) {
           if (elPtr->auxdataConst<char>(trig) == 1) {
-            trigMatch = true;
-            return trigMatch;
+            nObjects++;
           }
         } // decoration isAvailable
-      } // Loop over triggers
-    } // Loop over electrons
+      } // Loop over electron
 
-    // Loop over muons
-    for (const auto* const muPtr : event.m_muons) {
-      // Loop over triggers; loose ones for loose events, tight ones for tight events
-      for (const auto& trigger : loose ? m_muonTriggers_Loose : m_muonTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+      // Loop over muons
+      for (const auto* const muPtr : event.m_muons) {
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (muPtr->isAvailable<char>(trig)) {
           if (muPtr->auxdataConst<char>(trig) == 1) {
-            trigMatch = true;
-            return trigMatch;
+            nObjects++;
           }
         } // decoration isAvailable
-      } // Loop over triggers
-    } // Loop over muons
+      } // Loop over muons
 
-
-    // Loop over taus
-    for (const auto* const tauPtr : event.m_tauJets) {
-      // Loop over triggers; loose ones for loose events, tight ones for tight events
-      for (const auto& trigger : loose ? m_tauTriggers_Loose : m_tauTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+      // Loop over taus
+      for (const auto* const tauPtr : event.m_tauJets) {
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (tauPtr->isAvailable<char>(trig)) {
           if (tauPtr->auxdataConst<char>(trig) == 1) {
-            trigMatch = true;
-            return trigMatch;
+            nObjects++;
           }
         } // decoration isAvailable
-      } // Loop over triggers
-    } // Loop over taus
+      } // Loop over taus
+
+      // Loop over photons
+      for (const auto* const photonPtr : event.m_photons) {
+        std::string trig = "TRIGMATCH_" + trigger.first;
+        if (photonPtr->isAvailable<char>(trig)) {
+          if (photonPtr->auxdataConst<char>(trig) == 1) {
+            nObjects++;
+          }
+        } // decoration isAvailable
+      } // Loop over photons
+      if (nObjects >= trigger.second) trigMatch = true;
+    } // Loop over triggers
 
     return trigMatch;
   }
