@@ -25,14 +25,18 @@ def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs
 
     comboTools = []
     for topoInfo in theTopoInfo:
-        # if "dR" in topoInfo :  # I think we don't need this anymore, 
-        #                        # because TrigComboHypoToolFromDict checks 
-        #                        # if the observable is present in the dict of the allowed ones
-        log.debug("[addTopoInfo] topoInfo being added is %s", topoInfo)
-        comboTools += [TrigComboHypoToolFromDict]
-        # else:
-        #     log.error("[addTopoInfo] does not yet know what to do with topo %s",theTopoInfo)
-        #     raise Exception("[addTopoInfo] cannot proceed, exiting.")
+        if 'dR' in topoInfo or 'invm' in topoInfo:  # We definitely do need this because not all combo hypos 
+                                                    # are TrigComboHypoToolFromDict
+            log.debug("[addTopoInfo] topoInfo being added is %s", topoInfo)
+            comboTools += [TrigComboHypoToolFromDict]
+        elif 'afpdijet' in theTopoInfo:
+
+            from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasChainConfiguration import TrigAFPDijetComboHypoToolCfg
+            comboTools += [TrigAFPDijetComboHypoToolCfg]
+            
+        else:
+             log.error("[addTopoInfo] does not yet know what to do with topo %s",theTopoInfo)
+             raise Exception("[addTopoInfo] cannot proceed, exiting.")
 
     for comboTool in comboTools:
         theChainConfig.steps[-1].addComboHypoTools(comboTool)

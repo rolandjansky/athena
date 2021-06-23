@@ -5371,7 +5371,7 @@ HLT_larpsallem_L1EM3:
     0: 20
   stepFeatures:
     0: 166
-HLT_mb_afprec_2j20_L1RD0_FILLED:
+HLT_mb_afprec_2j20_afpdijet_L1RD0_FILLED:
   eventCount: 20
   stepCounts:
     0: 20

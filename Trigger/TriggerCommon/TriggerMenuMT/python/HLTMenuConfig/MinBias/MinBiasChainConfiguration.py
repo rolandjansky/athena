@@ -71,7 +71,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         # afp reco chain
         if "afprec" == self.chainPart['recoAlg'][0]:
             steps.append(self.getAFPRecoStep())
-
+            
         if "_alfaperf" in self.chainName:
             steps.append(self.getALFAPerfStep())
 
@@ -93,7 +93,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         return self.getStep(4,'TrkCount',[MinBiasTrkSequenceCfg])
 
     def getAFPRecoStep(self):
-        return self.getStep(1,'AFPReco',[AFPrecoSequenceCfg],comboTools=[TrigAFPDijetComboHypoToolCfg])
+         return self.getStep(1,'AFPReco',[AFPrecoSequenceCfg])
 
     def getALFAPerfStep(self):
         return self.getStep(1,'ALFAPerf',[ALFAPerfSequenceCfg])
