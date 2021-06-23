@@ -67,9 +67,51 @@ def generateChains( flags, chainDict ):
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
+    def __ftfCore():                                                                                                                                                                 
+        selAcc=SelectionCA('tauCoreFTF')                                                                                                                                      
+        name = 'FTFCore'
+        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauCore',
+                                                                           InViewRoIs = 'UpdatedCaloRoI')                                                                                                                                                      
+        evtViewMaker = CompFactory.EventViewCreatorAlgorithm('IM'+name,                                                                                                         
+                                                            ViewFallThrough   = True,                                                                                                
+                                                            RoIsLink          = 'UpdatedCaloRoI',                                                                                    
+                                                            RoITool           = newRoITool,
+                                                            InViewRoIs        = 'Tau'+name+'RoIs',                                                                                   
+                                                            Views             = 'Tau'+name+'Views',                                                                                  
+                                                            ViewNodeName      = 'Tau'+name+'InView',                                                       
+                                                            RequireParentView = True,                                                                                                
+                                                            mergeUsingFeature = True   )                                                                               
+
+        from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg                                                                                                   
+        idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="TauCore")                                                                       
+        fastInDetReco = InViewRecoCA('FastTauCore', viewMaker=evtViewMaker)                                                                                             
+        fastInDetReco.mergeReco(idTracking)                                                                                         
+        fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTauCore',                                                 
+                                DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),                                                        
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )                                                                         
+
+        fastInDetReco.addRecoAlgo(CompFactory.TrigTauTrackRoiUpdater('TrackRoiUpdater',                                                                                                       
+                                                               RoIInputKey                  = evtViewMaker.InViewRoIs,                                                               
+                                                               RoIOutputKey                 = 'UpdatedTrackRoI',                                                                     
+                                                               fastTracksKey                = flags.Trigger.InDetTracking.TauCore.trkTracks_FTF,                                                            
+                                                               Key_trigTauJetInputContainer = "" ))                                                                            
+        fastInDetReco.addRecoAlgo(CompFactory.TrigTauTrackRoiUpdater("TrackRoiUpdaterBDT",                                                                                                   
+                                                               RoIInputKey                  = evtViewMaker.InViewRoIs,                                                               
+                                                               RoIOutputKey                 = "UpdatedTrackBDTRoI",                                                              
+                                                               fastTracksKey                = flags.Trigger.InDetTracking.TauCore.trkTracks_FTF,                                                            
+                                                               useBDT                       = True,                                                                                  
+                                                               Key_trigTauJetInputContainer = "HLT_TrigTauRecMerged_CaloOnly" ))                                                   
+        selAcc.mergeReco(fastInDetReco)                                                                                                                     
+        hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_RejectEmpty",                                                                                             
+                                                    trackcollection = flags.Trigger.InDetTracking.TauCore.trkTracks_FTF )                                                            
+        selAcc.addHypoAlgo(hypoAlg)                                                                                                                                            
+        from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict                                                                                                          
+        menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)                                                                                                     
+        return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))   
+
 
     thresholds = [p["L1threshold"] for p in chainDict['chainParts'] if p['signature'] == 'Tau' ]
-    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ __calo(), __ftfTau() ] )
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ __calo(), __ftfTau(), __ftfCore() ] )
     return chain
 
 
