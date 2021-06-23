@@ -5,8 +5,9 @@
 # art-include: master/Athena
 # art-output: myHIST.root
 # art-output: log*
+# art-athena-mt: 2
 
-Reco_tf.py --athenaopts='--threads=1' --AMI=q431 --steering doRAWtoALL --imf False > log.HIST_Creation 2>&1
+Reco_tf.py --athenaopts='--threads=2' --AMI=q431 --steering doRAWtoALL --imf False > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 rm -rf ref-*
