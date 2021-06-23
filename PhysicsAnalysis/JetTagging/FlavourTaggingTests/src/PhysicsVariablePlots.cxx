@@ -297,7 +297,7 @@ namespace FTAGValidation {
     ATH_CHECK( fillHistogram( chain+flavour+"numTracks_perJet",assocTracks.size() ) );
     ATH_MSG_DEBUG( "  ** nBTagTracksInJet: " << assocTracks.size() );
 
-    for ( const ElementLink< xAOD::TrackParticleContainer > trackEL : assocTracks ) {
+    for ( const ElementLink< xAOD::TrackParticleContainer >& trackEL : assocTracks ) {
       if ( not trackEL.isValid() ) continue;
 
       const xAOD::TrackParticle* trackParticle = *trackEL;

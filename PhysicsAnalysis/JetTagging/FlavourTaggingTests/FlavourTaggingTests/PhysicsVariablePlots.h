@@ -23,7 +23,7 @@ namespace FTAGValidation {
     PhysicsVariablePlots( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~PhysicsVariablePlots(); 
     
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
     virtual StatusCode finalize() override;
 
