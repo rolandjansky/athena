@@ -38,7 +38,8 @@ atlas_add_library( xAODJet
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODJet/selection.xml
    OUTPUT _selectionFile
-   CONTAINERS "xAOD::JetContainer_v1" )
+   CONTAINERS "xAOD::JetContainer_v1"
+   OBJECTS "xAOD::Jet_v1")
 
 atlas_add_dictionary( xAODJetDict
    xAODJet/xAODJetDict.h
