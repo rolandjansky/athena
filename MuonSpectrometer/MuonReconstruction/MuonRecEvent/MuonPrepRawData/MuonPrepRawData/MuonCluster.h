@@ -82,7 +82,7 @@ namespace Muon
     virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const override = 0;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override = 0;
+    virtual bool type(Trk::PrepRawDataType type) const override = 0;
 
     /** @brief Dumps information about the PRD*/
     virtual MsgStream&    dump( MsgStream&    stream) const override;

@@ -139,7 +139,7 @@ public:
   virtual const InDetDD::SiDetectorElement* detectorElement() const override final;
 
   /** Interface method checking the type*/
-  virtual bool type(Trk::PrepRawDataType::Type type) const override final;
+  virtual bool type(Trk::PrepRawDataType type) const override;
 
   /// dump information about the SiCluster
   virtual MsgStream& dump(MsgStream& stream) const override;

@@ -96,7 +96,7 @@ public:
     virtual const MuonGM::MdtReadoutElement* detectorElement() const override;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override
+    virtual bool type(Trk::PrepRawDataType type) const override
     {
       return type == Trk::PrepRawDataType::MdtPrepData;
     }
