@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCollisionTimeMonConfigOld(inputFlags):
@@ -156,7 +156,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
     if ConfigFlags.Common.isOnline:
 
         collTimeGroupName_intrain=collTimeGroupName+"_intrain"
-        collTimeGroup_intrain = helper.collTime.addGroup( 
+        collTimeGroup_intrain = helper.addGroup( 
             larCollTimeMonAlg,
             collTimeGroupName_intrain,
             "/LAr/"
