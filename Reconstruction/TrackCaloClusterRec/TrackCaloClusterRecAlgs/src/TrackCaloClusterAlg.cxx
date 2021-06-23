@@ -42,8 +42,8 @@ StatusCode TrackCaloClusterAlg::execute() {
   SG::WriteHandle<xAOD::FlowElementContainer> tccContainer(m_outputTCCHandle) ;
   ATH_CHECK( tccContainer.record (std::make_unique<xAOD::FlowElementContainer>(),
 				  std::make_unique<xAOD::FlowElementAuxContainer>()) );
-  ATH_MSG_DEBUG( "Recorded TrackCaloClusterContainer with key: " << m_outputTCCHandle.key()  );    
-
+  ATH_MSG_DEBUG( "Recorded TrackCaloClusterContainer with key: " << m_outputTCCHandle.key()  );
+  
   // Optionnaly recopy an existing container.
   // This option is mainly to enable functionalities of the original alg. 
   if(! m_copiedTCCHandle.empty() ){

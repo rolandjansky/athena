@@ -143,7 +143,7 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
 
     
 def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
-                         assocPostfix="TCC", doCombined=False, doNeutral=True, doCharged=True, outputTCCName="TrackCaloClusters"):
+                         assocPostfix="TCC", doCombined=False, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
     """Create a TrackCaloCluster collection from clusters and tracks (caloClusterName and trackParticleName). 
     Depending on options, the collection contains combined, neutral and/or charged TCC.
     This functions schedules 2 TCC spécific algs : 
@@ -229,14 +229,14 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
                                                     )
         components.addEventAlgo(chargedtccAlg)
 
-    if(doCombined):
-        print("TCC: Combined mode not setup")
+    if(doCombined or (doCharged and doNeutral)):
+        print("TCC: Combined mode not setup - exiting gracefully")
         exit(0)
     if((not doCombined) and (not doCharged) and (not doNeutral)):
         print("runTCCReco: no mode set for input, this is an unexpected state")
         exit(0)
 
-
+    
     return components
 
 
