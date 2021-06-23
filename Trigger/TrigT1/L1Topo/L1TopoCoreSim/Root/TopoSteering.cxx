@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoInterfaces/AlgFactory.h" 
@@ -403,11 +403,13 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
       if (sc==NULL) {
 	 TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " could not cast as SortingConnector* the input connector " << inConn->name());
       }
-      const TOBArray * tobA = dynamic_cast<const TOBArray *>( sc->outputData());
-      if(tobA==NULL) {
-         TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " expects TOBArray(s) as input, but did not get it from connector " << inConn->name());
+      else {
+        const TOBArray * tobA = dynamic_cast<const TOBArray *>( sc->outputData());
+        if(tobA==NULL) {
+          TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " expects TOBArray(s) as input, but did not get it from connector " << inConn->name());
+        }
+        input.push_back( tobA );
       }
-      input.push_back( tobA );
    }
 
    alg->reset();
