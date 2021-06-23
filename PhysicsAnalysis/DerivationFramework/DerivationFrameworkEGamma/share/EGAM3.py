@@ -5,15 +5,16 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM3ExtraContent import *
 
+
+#====================================================================
 # read common DFEGamma settings from egammaDFFlags
+#====================================================================
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
@@ -27,7 +28,10 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 #DoCellReweighting = False
 #DoCellReweighting = True
 
+
+#====================================================================
 # check if we run on data or MC (DataSource = geant4)
+#====================================================================
 from AthenaCommon.GlobalFlags import globalflags
 print("EGAM3 globalflags.DataSource(): ", globalflags.DataSource())
 if globalflags.DataSource()!='geant4':
@@ -37,23 +41,42 @@ if globalflags.DataSource()!='geant4':
 
 
 #====================================================================
-# SET UP STREAM (to be done early in the game to set up thinning Svc
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM3Sequence = CfgMgr.AthSequencer("EGAM3Sequence")
+DerivationFrameworkJob += EGAM3Sequence
+
+
+#====================================================================
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_EGAM3Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM3Stream )
 EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM3Stream.AcceptAlgs(["EGAM3Kernel"])
+
+
+### Thinning and augmentation tools lists
+augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
-# SET UP SKIMMING
+# SET UP AUGMENTATIONS
 #====================================================================
 
 
 #====================================================================
-# eegamma and eee selection for photon efficiency studies, di-electron triggers
-# two opposite-sign medium el, pT>10 GeV, |eta|<2.5, mee>40 GeV
-# eegamma: one reco photon, ET>10 GeV< |eta|<2.5
-# eee: 3 electrons, pT>10 GeV, mee>40 GeV
+# 1. ee invariant mass of events passing eegamma or eee selection for
+#    photon efficiency studies, di-electron triggers
+#
+#   two opposite-sign medium el, pT>10 GeV, |eta|<2.5, mee>40 GeV
+#   eegamma: one reco photon, ET>10 GeV< |eta|<2.5
+#   eee: 3 electrons, pT>10 GeV, mee>40 GeV
 #====================================================================
 
 # if skim size too large either require tight electrons (at least one) or raise electron pT threshold (at least one)
@@ -75,15 +98,17 @@ EGAM3_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMas
                                                              DoTransverseMass = False,
                                                              MinDeltaR = 0.0)
 ToolSvc += EGAM3_EEMassTool
+augmentationTools += [EGAM3_EEMassTool]
 print(EGAM3_EEMassTool)
-skimmingExpression1a = '(count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1)'
-skimmingExpression1b = '(count(Electrons.pt>9.5*GeV)>=3 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1)'
+
 
 #====================================================================
-# eegamma selection for low-pT electron studies with T&P
-# tag e: tight, |eta|<2.5, pT>25 GeV
-# probe e: reco, ET>7 GeV, central electron
-# gamma: tight, ET>10 GeV
+# 2. dielectron invariant mass for eegamma selection for low-pT
+#    electron studies with T&P
+#
+#    tag e: tight, |eta|<2.5, pT>25 GeV
+#    probe e: reco, ET>7 GeV, central electron
+#    gamma: tight, ET>10 GeV
 #====================================================================
 # asymmetric electron cuts/single e trigger, low pT cut for subleading e (for e calibration studies at low pT)
 if RecomputeEGammaSelectors :
@@ -95,7 +120,6 @@ if RecomputeEGammaSelectors :
     requirementPhoton = 'Photons.DFCommonPhotonsIsEMTight'
 else :
     requirementPhoton = 'Photons.Tight'
-
 
 EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool2",
                                                               Object1Requirements = requirementElectron1,
@@ -111,15 +135,15 @@ EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
                                                               MinDeltaR = 0.0)
 
 ToolSvc += EGAM3_EEMassTool2
+augmentationTools += [EGAM3_EEMassTool2]
 print(EGAM3_EEMassTool2)
-skimmingExpression2 = '(count(DFCommonPhotons_et>9.5*GeV && '+ requirementPhoton + ')>=1 && count(EGAM3_DiElectronMass2 > 40.0*GeV)>=1)'
 
 
 #====================================================================
-# eegamma selection for low-pT electron studies with T&P
-# tag e: tight, |eta|<2.5, pT>25 GeV
-# probe e: reco, ET>7 GeV, forward electron
-# gamma: tight, ET>10 GeV
+# 3. eegamma selection for low-pT electron studies with T&P
+#    tag e: tight, |eta|<2.5, pT>25 GeV
+#    probe e: reco, ET>7 GeV, forward electron
+#    gamma: tight, ET>10 GeV
 #====================================================================
 
 if RecomputeEGammaSelectors :
@@ -141,46 +165,8 @@ EGAM3_EEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
                                                               DoTransverseMass = False,
                                                               MinDeltaR = 0.0)
 ToolSvc += EGAM3_EEMassTool3
+augmentationTools += [EGAM3_EEMassTool3]
 print(EGAM3_EEMassTool3)
-skimmingExpression3 = '(count(DFCommonPhotons_et>9.5*GeV && '+ requirementPhoton + ')>=1 && count(EGAM3_DiElectronMass3 > 40.0*GeV)>=1)'
-
-
-#====================================================================
-# SKIMMING TOOL
-#====================================================================
-
-skimmingExpression = skimmingExpression1a + ' || ' + skimmingExpression1b + ' || ' + skimmingExpression2 + ' || ' + skimmingExpression3
-print("EGAM3 skimming expression: ", skimmingExpression)
-
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM3_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM3_SkimmingTool",
-                                                                 expression = skimmingExpression)
-ToolSvc += EGAM3_SkimmingTool
-
-
-
-#====================================================================
-# SET UP AUGMENTATIONS
-#====================================================================
-
-
-#====================================================================
-# Gain and cluster energies per layer decoration tool
-#====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
-EGAM3_GainDecoratorTool = GainDecorator()
-ToolSvc += EGAM3_GainDecoratorTool
-
-cluster_sizes = (3,7), (5,5), (7,11)
-EGAM3_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
-if DoCellReweighting:
-    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorNew
-    EGAM3_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorNew(neta, nphi)() for neta, nphi in cluster_sizes]
-    if DoCellReweightingVariations:
-        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
-        EGAM3_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMaxVar(neta, nphi)() for neta, nphi in cluster_sizes]
-        EGAM3_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
 #====================================================================
@@ -191,6 +177,7 @@ EGAM3_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
                                                                     SGKey_electrons         = "Electrons",
                                                                     SGKey_photons           = "Photons" )
 ToolSvc += EGAM3_MaxCellDecoratorTool
+augmentationTools += [EGAM3_MaxCellDecoratorTool]
 
 
 #====================================================================
@@ -209,6 +196,7 @@ if DoCellReweighting:
                                     ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs10.root" )
     print(EGAM3_NewCellTool)
     ToolSvc += EGAM3_NewCellTool
+    augmentationTools += [EGAM3_NewCellTool]
 
     # second, run a tool that creates the clusters and objects from these new cells
     EGAM3_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM3_ClusterDecoratorTool",
@@ -220,11 +208,12 @@ if DoCellReweighting:
                                                               SGKey_photons = "Photons")
     print(EGAM3_ClusterDecoratorTool)
     ToolSvc += EGAM3_ClusterDecoratorTool
+    augmentationTools += [EGAM3_ClusterDecoratorTool]
 
     # third, run a tool that creates the shower shapes with the new cells
     from egammaTools.egammaToolsFactories import EMShowerBuilder
     EGAM3_EMShowerBuilderTool = EMShowerBuilder("EGAM3_EMShowerBuilderTool", 
-                                                CellsName="NewCellContainer")
+                                                CellsName = "NewCellContainer")
     print(EGAM3_EMShowerBuilderTool)
     ToolSvc += EGAM3_EMShowerBuilderTool
 
@@ -232,20 +221,21 @@ if DoCellReweighting:
     EGAM3_EGammaReweightTool = EGammaReweightTool("EGAM3_EGammaReweightTool",
                                                   #OutputLevel=DEBUG,
                                                   SGKey_electrons = "Electrons",
-                                                  SGKey_photons="Photons",
-                                                  NewCellContainerName="NewCellContainer",
+                                                  SGKey_photons = "Photons",
+                                                  NewCellContainerName = "NewCellContainer",
                                                   NewElectronContainer = "NewSwElectrons",
                                                   #NewElectronContainer = "", # no container for electrons
                                                   NewPhotonContainer = "NewSwPhotons",
                                                   EMShowerBuilderTool = EGAM3_EMShowerBuilderTool,
                                                   ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
-                                                  CaloClusterLinkName="NewSwClusterLink",
+                                                  CaloClusterLinkName = "NewSwClusterLink",
                                                   DecorateEGammaObjects = False,
                                                   DecorationPrefix = "RW_",
                                                   SaveReweightedContainer = True)
 
     print(EGAM3_EGammaReweightTool)
     ToolSvc += EGAM3_EGammaReweightTool
+    augmentationTools += [EGAM3_EGammaReweightTool]
 
     if DoCellReweightingVariations:
         
@@ -285,8 +275,8 @@ if DoCellReweighting:
         EGAM3_EGammaMaxVarReweightTool = EGammaReweightTool("EGAM3_EGammaMaxVarReweightTool",
                                                             #OutputLevel = DEBUG,
                                                             SGKey_electrons = "Electrons",
-                                                            SGKey_photons="Photons",
-                                                            NewCellContainerName="MaxVarCellContainer",
+                                                            SGKey_photons = "Photons",
+                                                            NewCellContainerName = "MaxVarCellContainer",
                                                             #NewElectronContainer = "MaxVarSwElectrons",
                                                             NewElectronContainer = "",
                                                             NewPhotonContainer = "MaxVarSwPhotons",
@@ -337,8 +327,8 @@ if DoCellReweighting:
         EGAM3_EGammaMinVarReweightTool = EGammaReweightTool("EGAM3_EGammaMinVarReweightTool",
                                                             #OutputLevel = DEBUG,
                                                             SGKey_electrons = "Electrons",
-                                                            SGKey_photons="Photons",
-                                                            NewCellContainerName="MinVarCellContainer",
+                                                            SGKey_photons = "Photons",
+                                                            NewCellContainerName = "MinVarCellContainer",
                                                             #NewElectronContainer = "MinVarSwElectrons",
                                                             NewElectronContainer = "",
                                                             NewPhotonContainer = "MinVarSwPhotons",
@@ -352,17 +342,38 @@ if DoCellReweighting:
         print(EGAM3_EGammaMinVarReweightTool)
         ToolSvc += EGAM3_EGammaMinVarReweightTool
 
+        augmentationTools += [EGAM3_MaxVarCellTool, EGAM3_MaxVarClusterDecoratorTool, EGAM3_EGammaMaxVarReweightTool, EGAM3_MinVarCellTool, EGAM3_MinVarClusterDecoratorTool, EGAM3_EGammaMinVarReweightTool]
+
+
+#====================================================================
+# Gain and cluster energies per layer decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
+EGAM3_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM3_GainDecoratorTool
+augmentationTools += [EGAM3_GainDecoratorTool]
+
+cluster_sizes = (3,7), (5,5), (7,11)
+EGAM3_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+if DoCellReweighting:
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorNew
+    EGAM3_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorNew(neta, nphi)() for neta, nphi in cluster_sizes]
+    if DoCellReweightingVariations:
+        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
+        EGAM3_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMaxVar(neta, nphi)() for neta, nphi in cluster_sizes]
+        EGAM3_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
+augmentationTools += EGAM3_ClusterEnergyPerLayerDecorators
+
 
 #====================================================================
 # SET UP THINNING
 #====================================================================
+
 print('WARNING, Thinning of trigger navigation has to be properly implemented in R22')
 #from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 #EGAM3ThinningHelper = ThinningHelper( "EGAM3ThinningHelper" )
 #EGAM3ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
 #EGAM3ThinningHelper.AppendToStream( EGAM3Stream, ExtraContainersTrigger )
-
-thinningTools=[]
 
 # Track thinning
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
@@ -456,11 +467,12 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         thinningTools.append(EGAM3TauTPThinningTool)
 
     # Tracks from primary vertex
+    thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM3TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM3TPThinningTool",
                                                                           StreamName              = streamName,
-                                                                          SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                          SelectionString         = thinning_expression,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM3TPThinningTool
         print(EGAM3TPThinningTool)
@@ -468,25 +480,31 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
 
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-EGAM3Sequence = CfgMgr.AthSequencer("EGAM3Sequence")
-DerivationFrameworkJob += EGAM3Sequence
+#====================================================================
+# Setup the skimming criteria
+#====================================================================
+# eegamma or eee selection for photon efficiency studies, di-electron triggers
+skimmingExpression1a = '(count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1)'
+skimmingExpression1b = '(count(Electrons.pt>9.5*GeV)>=3 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1)'
+# eegamma selection for low-pT central electron studies with T&P
+skimmingExpression2 = '(count(DFCommonPhotons_et>9.5*GeV && '+ requirementPhoton + ')>=1 && count(EGAM3_DiElectronMass2 > 40.0*GeV)>=1)'
+# eegamma selection for low-pT forward electron studies with T&P
+skimmingExpression3 = '(count(DFCommonPhotons_et>9.5*GeV && '+ requirementPhoton + ')>=1 && count(EGAM3_DiElectronMass3 > 40.0*GeV)>=1)'
+# take OR of previous selections
+skimmingExpression = skimmingExpression1a + ' || ' + skimmingExpression1b + ' || ' + skimmingExpression2 + ' || ' + skimmingExpression3
+print("EGAM3 skimming expression: ", skimmingExpression)
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM3_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM3_SkimmingTool",
+                                                                 expression = skimmingExpression)
+ToolSvc += EGAM3_SkimmingTool
+
 
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool,EGAM3_MaxCellDecoratorTool]
-if DoCellReweighting:
-    augmentationTools += [EGAM3_NewCellTool, EGAM3_ClusterDecoratorTool, EGAM3_EGammaReweightTool]
-    if DoCellReweightingVariations:
-        augmentationTools += [EGAM3_MaxVarCellTool, EGAM3_MaxVarClusterDecoratorTool, EGAM3_EGammaMaxVarReweightTool, EGAM3_MinVarCellTool, EGAM3_MinVarClusterDecoratorTool, EGAM3_EGammaMinVarReweightTool]
-
-augmentationTools += EGAM3_ClusterEnergyPerLayerDecorators
-
 print("EGAM3 skimming tools: ", [EGAM3_SkimmingTool])
 print("EGAM3 thinning tools: ", thinningTools)
 print("EGAM3 augmentation tools: ", augmentationTools)
@@ -500,15 +518,10 @@ EGAM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4TruthJets"]
+reducedJetList = []
+if (DerivationFrameworkIsMonteCarlo):
+    reducedJetList.append("AntiKt4TruthJets")
 replaceAODReducedJets(reducedJetList,EGAM3Sequence,"EGAM3")
-
-
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',EGAM3Sequence)
 
 
 #========================================
@@ -523,21 +536,12 @@ if (DerivationFrameworkIsMonteCarlo):
             EGAM3Sequence += edtalg
 
 
-#====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM3Stream.AcceptAlgs(["EGAM3Kernel"])
 
 
 #====================================================================
 # SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-
 EGAM3SlimmingHelper = SlimmingHelper("EGAM3SlimmingHelper")
 EGAM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",

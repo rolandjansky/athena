@@ -5,15 +5,16 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM4ExtraContent import *
 
+
+#====================================================================
 # read common DFEGamma settings from egammaDFFlags
+#====================================================================
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
@@ -23,7 +24,10 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 #DoCellReweighting = False
 #DoCellReweighting = True
 
+
+#====================================================================
 # check if we run on data or MC (DataSource = geant4)
+#====================================================================
 from AthenaCommon.GlobalFlags import globalflags
 print("EGAM4 globalflags.DataSource(): ", globalflags.DataSource())
 if globalflags.DataSource()!='geant4':
@@ -31,29 +35,44 @@ if globalflags.DataSource()!='geant4':
     DoCellReweightingVariations = False
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
+
 #====================================================================
-# SET UP STREAM (to be done early in the game to set up thinning Svc
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM4Sequence = CfgMgr.AthSequencer("EGAM4Sequence")
+DerivationFrameworkJob += EGAM4Sequence
+
+
+#====================================================================
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_EGAM4Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM4Stream )
 EGAM4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM4Stream.AcceptAlgs(["EGAM4Kernel"])
+
+
+### Thinning and augmentation tools lists
+augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
-# SET UP SKIMMING
+# SET UP AUGMENTATIONS
 #====================================================================
 
-
 #====================================================================
-# mumugamma and mumue selection for photon studies, single & di-muon triggers
-# two opposite-sign muons, pT>15 GeV, |eta|<2.5, mmumu>40 GeV
-# gamma: reco, ET>10 GeV, |eta|<2.5
-# mumueegamma: one reco photon, ET>10 GeV< |eta|<2.5
-# mumue: one reco electron, pT>10 GeV
+# 1. mumu invariant mass of events passing the mumugamma and mumue
+#    selection for photon studies, single & di-muon triggers
+#    two opposite-sign muons, pT>15 GeV, |eta|<2.5
 #====================================================================
 
 #requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
-requirementMuons = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonsPreselection'
+requirementMuons = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonPassPreselection'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM4_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM4_MuMuMassTool",
@@ -68,47 +87,8 @@ EGAM4_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM4_MuM
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM4_MuMuMassTool
+augmentationTools += [EGAM4_MuMuMassTool]
 print(EGAM4_MuMuMassTool)
-
-skimmingExpression1a = 'count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
-skimmingExpression1b = 'count(Electrons.pt>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
-
-
-#====================================================================
-# SKIMMING TOOL
-#====================================================================
-
-skimmingExpression = skimmingExpression1a + ' || ' + skimmingExpression1b
-print("EGAM4 skimming expression: ", skimmingExpression)
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM4_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM4_SkimmingTool",
-                                                                 expression = skimmingExpression)
-ToolSvc += EGAM4_SkimmingTool
-
-
-#====================================================================
-# SET UP AUGMENTATIONS
-#====================================================================
-
-
-#====================================================================
-# Gain and cluster energies per layer decoration tool
-#====================================================================
-# GM: do we really need new, different tools: getClusterEnergyPerLayerDecoratorNew, getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar?
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
-EGAM4_GainDecoratorTool = GainDecorator()
-ToolSvc += EGAM4_GainDecoratorTool
-
-cluster_sizes = (3,7), (5,5), (7,11)
-EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
-if DoCellReweighting:
-    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorNew
-    EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorNew(neta, nphi)() for neta, nphi in cluster_sizes]
-    if DoCellReweightingVariations:
-        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
-        EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMaxVar(neta, nphi)() for neta, nphi in cluster_sizes]
-        EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
-
 
 
 #====================================================================
@@ -119,6 +99,7 @@ EGAM4_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
                                                                     SGKey_electrons         = "Electrons",
                                                                     SGKey_photons           = "Photons")
 ToolSvc += EGAM4_MaxCellDecoratorTool
+augmentationTools += [EGAM4_MaxCellDecoratorTool]
 
 
 #====================================================================
@@ -131,13 +112,14 @@ if DoCellReweighting:
     EGAM4_NewCellTool = NewCellTool("EGAM4_NewCellTool",
                                     #OutputLevel = DEBUG
                                     CellContainerName = "AllCalo",
-                                    ReweightCellContainerName="NewCellContainer",
+                                    ReweightCellContainerName = "NewCellContainer",
                                     SGKey_electrons = "Electrons",
                                     SGKey_photons = "Photons",
                                     ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs10.root" )
     print(EGAM4_NewCellTool)
     ToolSvc += EGAM4_NewCellTool
-
+    augmentationTools += [EGAM4_NewCellTool]
+	
     # second, run a tool that creates the clusters and objects from these new cells
     EGAM4_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM4_ClusterDecoratorTool",
                                                               #OutputLevel=DEBUG,
@@ -148,11 +130,12 @@ if DoCellReweighting:
                                                               SGKey_photons = "Photons")
     print(EGAM4_ClusterDecoratorTool)
     ToolSvc += EGAM4_ClusterDecoratorTool
+    augmentationTools += [EGAM4_ClusterDecoratorTool]
 
     # third, run a tool that creates the shower shapes with the new cells
     from egammaTools.egammaToolsFactories import EMShowerBuilder
     EGAM4_EMShowerBuilderTool = EMShowerBuilder("EGAM4_EMShowerBuilderTool", 
-                                                CellsName="NewCellContainer")
+                                                CellsName = "NewCellContainer")
     print(EGAM4_EMShowerBuilderTool)
     ToolSvc += EGAM4_EMShowerBuilderTool
 
@@ -160,20 +143,21 @@ if DoCellReweighting:
     EGAM4_EGammaReweightTool = EGammaReweightTool("EGAM4_EGammaReweightTool",
                                                   #OutputLevel=DEBUG,
                                                   SGKey_electrons = "Electrons",
-                                                  SGKey_photons="Photons",
-                                                  NewCellContainerName="NewCellContainer",
+                                                  SGKey_photons = "Photons",
+                                                  NewCellContainerName = "NewCellContainer",
                                                   #NewElectronContainer = "", # no container for electrons
                                                   #NewElectronContainer = "NewSwElectrons",
                                                   NewPhotonContainer = "NewSwPhotons",
                                                   EMShowerBuilderTool = EGAM4_EMShowerBuilderTool,
                                                   ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
-                                                  CaloClusterLinkName="NewSwClusterLink",
+                                                  CaloClusterLinkName = "NewSwClusterLink",
                                                   DecorateEGammaObjects = False,
                                                   DecorationPrefix = "RW_",
                                                   SaveReweightedContainer = True)
 
     print(EGAM4_EGammaReweightTool)
     ToolSvc += EGAM4_EGammaReweightTool
+    augmentationTools += [EGAM4_EGammaReweightTool]
 
     if DoCellReweightingVariations:
         
@@ -213,15 +197,15 @@ if DoCellReweighting:
         EGAM4_EGammaMaxVarReweightTool = EGammaReweightTool("EGAM4_EGammaMaxVarReweightTool",
                                                             #OutputLevel = DEBUG,
                                                             SGKey_electrons = "Electrons",
-                                                            SGKey_photons="Photons",
-                                                            NewCellContainerName="MaxVarCellContainer",
+                                                            SGKey_photons = "Photons",
+                                                            NewCellContainerName = "MaxVarCellContainer",
                                                             #NewElectronContainer = "MaxVarSwElectrons",
                                                             NewElectronContainer = "",
                                                             NewPhotonContainer = "MaxVarSwPhotons",
                                                             #NewPhotonContainer = "",
                                                             EMShowerBuilderTool = EGAM4_EMMaxVarShowerBuilderTool,
                                                             ClusterCorrectionToolName = "DFEgammaSWToolWithMaxVarCells",
-                                                            CaloClusterLinkName="MaxVarSwClusterLink",
+                                                            CaloClusterLinkName = "MaxVarSwClusterLink",
                                                             DecorateEGammaObjects = False,
                                                             DecorationPrefix = "Max_",
                                                             SaveReweightedContainer = True)
@@ -266,15 +250,15 @@ if DoCellReweighting:
         EGAM4_EGammaMinVarReweightTool = EGammaReweightTool("EGAM4_EGammaMinVarReweightTool",
                                                             #OutputLevel = DEBUG,
                                                             SGKey_electrons = "Electrons",
-                                                            SGKey_photons="Photons",
-                                                            NewCellContainerName="MinVarCellContainer",
+                                                            SGKey_photons = "Photons",
+                                                            NewCellContainerName = "MinVarCellContainer",
                                                             NewElectronContainer = "",
                                                             #NewElectronContainer = "MinVarSwElectrons",
                                                             NewPhotonContainer = "MinVarSwPhotons",
                                                             #NewPhotonContainer = "",
                                                             EMShowerBuilderTool = EGAM4_EMMinVarShowerBuilderTool,
                                                             ClusterCorrectionToolName = "DFEgammaSWToolWithMinVarCells",
-                                                            CaloClusterLinkName="MinVarSwClusterLink",
+                                                            CaloClusterLinkName = "MinVarSwClusterLink",
                                                             DecorateEGammaObjects = False,
                                                             DecorationPrefix = "Min_",
                                                             SaveReweightedContainer = True)
@@ -282,7 +266,30 @@ if DoCellReweighting:
         print(EGAM4_EGammaMinVarReweightTool)
         ToolSvc += EGAM4_EGammaMinVarReweightTool
 
+        augmentationTools += [EGAM4_MaxVarCellTool, EGAM4_MaxVarClusterDecoratorTool, EGAM4_EGammaMaxVarReweightTool, EGAM4_MinVarCellTool, EGAM4_MinVarClusterDecoratorTool, EGAM4_EGammaMinVarReweightTool]
 
+
+#====================================================================
+# Gain and cluster energies per layer decoration tool
+#====================================================================
+# GM: do we really need new, different tools: getClusterEnergyPerLayerDecoratorNew, getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar?
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
+EGAM4_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM4_GainDecoratorTool
+augmentationTools += [EGAM4_GainDecoratorTool]
+
+cluster_sizes = (3,7), (5,5), (7,11)
+EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+if DoCellReweighting:
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorNew
+    EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorNew(neta, nphi)() for neta, nphi in cluster_sizes]
+    if DoCellReweightingVariations:
+        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
+        EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMaxVar(neta, nphi)() for neta, nphi in cluster_sizes]
+        EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
+augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
+
+		
 #====================================================================
 # SET UP THINNING
 #====================================================================
@@ -292,9 +299,9 @@ print('WARNING, Thinning of trigger navigation has to be properly implemented in
 #EGAM4ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_g[1-9].*|HLT_2g[1-9].*|HLT_mu.*|HLT_2mu.*))'
 #EGAM4ThinningHelper.AppendToStream( EGAM4Stream, ExtraContainersTrigger )
 
-thinningTools=[]
-
 # Track thinning
+# See recommedations here:
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
     TrackThinningKeepElectronTracks = True
@@ -386,44 +393,47 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         thinningTools.append(EGAM4TauTPThinningTool)
 
     # Tracks from primary vertex
+    thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM4TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM4TPThinningTool",
                                                                           StreamName              = streamName,
-                                                                          SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
+                                                                          SelectionString         = thinning_expression,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM4TPThinningTool
         print(EGAM4TPThinningTool)
         thinningTools.append(EGAM4TPThinningTool)
 
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-EGAM4Sequence = CfgMgr.AthSequencer("EGAM4Sequence")
-DerivationFrameworkJob += EGAM4Sequence
+#====================================================================
+# Setup the skimming criteria
+#====================================================================
+# mumugamma: one reco photon (ET>10 GeV< |eta|<2.5)
+# mumue: one reco electron (pT>10 GeV)
+# both: m(mumu)>40 GeV
+skimmingExpression1a = 'count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
+skimmingExpression1b = 'count(Electrons.pt>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
+skimmingExpression = skimmingExpression1a + ' || ' + skimmingExpression1b
+print("EGAM4 skimming expression: ", skimmingExpression)
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM4_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM4_SkimmingTool",
+                                                                 expression = skimmingExpression)
+ToolSvc += EGAM4_SkimmingTool
 
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool,EGAM4_MaxCellDecoratorTool]
-if DoCellReweighting:
-    augmentationTools += [EGAM4_NewCellTool, EGAM4_ClusterDecoratorTool, EGAM4_EGammaReweightTool]
-    if DoCellReweightingVariations:
-        augmentationTools += [EGAM4_MaxVarCellTool, EGAM4_MaxVarClusterDecoratorTool, EGAM4_EGammaMaxVarReweightTool, EGAM4_MinVarCellTool, EGAM4_MinVarClusterDecoratorTool, EGAM4_EGammaMinVarReweightTool]
-
-augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
-
 print("EGAM4 skimming tools: ", [EGAM4_SkimmingTool])
 print("EGAM4 thinning tools: ", thinningTools)
 print("EGAM4 augmentation tools: ", augmentationTools)
 EGAM4Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
-                                                         AugmentationTools = augmentationTools,
-                                                         SkimmingTools = [EGAM4_SkimmingTool],
-                                                         ThinningTools = thinningTools
-                                                         )
+                                                              AugmentationTools = augmentationTools,
+                                                              SkimmingTools = [EGAM4_SkimmingTool],
+                                                              ThinningTools = thinningTools
+                                                             )
 
 
 #====================================================================
@@ -436,13 +446,6 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,EGAM4Sequence,"EGAM4")
 
 
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',EGAM4Sequence)
-
-
 #========================================
 # ENERGY DENSITY
 #========================================
@@ -453,16 +456,6 @@ if (DerivationFrameworkIsMonteCarlo):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
             EGAM4Sequence += edtalg
-
-
-#====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM4Stream.AcceptAlgs(["EGAM4Kernel"])
 
 
 #====================================================================

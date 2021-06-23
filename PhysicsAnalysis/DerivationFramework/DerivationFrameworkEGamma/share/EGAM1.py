@@ -5,15 +5,16 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM1ExtraContent import *
 
+
+#====================================================================
 # read common DFEGamma settings from egammaDFFlags
+#====================================================================
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
@@ -31,7 +32,9 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 #DoCellReweightingVariations = True
 
 
+#====================================================================
 # check if we run on data or MC (DataSource = geant4)
+#====================================================================
 from AthenaCommon.GlobalFlags import globalflags
 print("EGAM1 globalflags.DataSource(): ", globalflags.DataSource())
 if globalflags.DataSource()!='geant4':
@@ -40,29 +43,43 @@ if globalflags.DataSource()!='geant4':
 
 
 #====================================================================
-# SET UP STREAM (to be done early in the game to set up thinning Svc
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM1Sequence = CfgMgr.AthSequencer("EGAM1Sequence")
+DerivationFrameworkJob += EGAM1Sequence
+
+
+#====================================================================
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_EGAM1Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM1Stream )
 EGAM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM1Stream.AcceptAlgs(["EGAM1Kernel"])
 
+
+### Thinning and augmentation tools lists
 augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
-# SET UP SKIMMING
+# SET UP AUGMENTATIONS
 #====================================================================
 
-# 1. SELECTION FOR CALIBRATION
 
 #====================================================================
-# Z->ee selection based on single e trigger:
-# 1 tight e, central, pT>25 GeV
-# 1 medium e, pT>20 GeV
-# OS, mee>50 GeV
-# it would be nice if we could add a tag-bit to flag
-# events passing the T&P selection, perhaps using an augmentation
-# tool?
+# 1. di-electron invariant mass for events passing the Z->ee
+#    selection for the e-gamma calibration, based on single e trigger
+#
+#    1 tight e, central, pT>25 GeV
+#    1 medium e, pT>20 GeV
+#    opposite-sign
+#    mee>50 GeV (cut applied in skimming step later)
 #====================================================================
 
 if RecomputeElectronSelectors :
@@ -88,10 +105,14 @@ ToolSvc += EGAM1_ZEEMassTool1
 augmentationTools += [EGAM1_ZEEMassTool1]
 print(EGAM1_ZEEMassTool1)
 
+
 #====================================================================
-# Z->ee selection based on di-electron trigger
-# 2 medium e, central, pT>20 GeV
-# OS, mee>50 GeV
+# 2. di-electron invariant mass for events passing the Z->e selection
+#    for the e-gamma calibration, based on di-electron triggers
+#
+#    2 medium e, central, pT>20 GeV
+#    opposite-sign
+#    mee>50 GeV (cut applied in skimming step later)
 #====================================================================
 
 if RecomputeElectronSelectors:
@@ -114,13 +135,15 @@ augmentationTools += [EGAM1_ZEEMassTool2]
 print(EGAM1_ZEEMassTool2)
 
 
-# 2. SELECTION FOR T&P
-
 #====================================================================
-# Z->ee selection based on single e trigger, for reco (central) and ID SF(central)
-# 1 tight e, central, pT>25 GeV
-# 1 e, central, pT>4 GeV
-# OS+SS, mee>50 GeV
+# 3. di-electron invariant mass for events passing the Z->ee
+#    selection for the e efficiencies with tag and probe.
+#    Based on single e trigger, for reco (central) and ID SF(central)
+#
+#    1 tight e, central, pT>25 GeV
+#    1 e, central, pT>4 GeV
+#    opposite-sign + same-sign
+#    mee>50 GeV (cut applied in skimming step later)
 #====================================================================
 
 if RecomputeElectronSelectors :
@@ -144,12 +167,14 @@ augmentationTools += [EGAM1_ZEEMassTool3]
 print(EGAM1_ZEEMassTool3)
 
 
-
 #====================================================================
-# Z->eg selection based on single e trigger, for reco SF (central)
-# 1 tight e, central, pT>25 GeV
-# 1 gamma, pT>15 GeV, central
-# OS+SS, mee>50 GeV
+# 4. Z->eg selection based on single e trigger, for reco SF (central)
+#    for tag and probe
+#
+#    1 tight e, central, pT>25 GeV
+#    1 gamma, pT>15 GeV, central
+#    opposite sign + same sign
+#    mey>50 GeV (cut applied in skimming step later)
 #====================================================================
 
 if RecomputeElectronSelectors:
@@ -175,20 +200,6 @@ EGAM1_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEGM
 ToolSvc += EGAM1_ZEGMassTool
 augmentationTools += [EGAM1_ZEGMassTool]
 print(EGAM1_ZEGMassTool)
-
-
-# Skimming criteria
-expression = 'count(EGAM1_DiElectronMass > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass2 > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass3 > 50.0*GeV)>=1 ||  count (EGAM1_ElectronPhotonMass > 50.0*GeV)>=1'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM1_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM1SkimmingTool",
-                                                                  expression = expression)
-ToolSvc += EGAM1_SkimmingTool
-
-
-
-#====================================================================
-# SET UP AUGMENTATIONS
-#====================================================================
 
 
 #====================================================================
@@ -398,9 +409,7 @@ print('WARNING, Thinning of trigger navigation has to be properly implemented in
 #EGAM1ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
 #EGAM1ThinningHelper.AppendToStream( EGAM1Stream, ExtraContainersTrigger )
 
-
-thinningTools=[]
-
+# Track thinning
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
     TrackThinningKeepElectronTracks = True
@@ -469,7 +478,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
 
     # Tracks associated with Muons
-    if (TrackThinningKeepMuonTracks) : 
+    if (TrackThinningKeepMuonTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
         EGAM1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM1MuonTPThinningTool",
                                                                                   StreamName              = streamName,
@@ -478,7 +487,6 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         ToolSvc += EGAM1MuonTPThinningTool
         print(EGAM1MuonTPThinningTool)
         thinningTools.append(EGAM1MuonTPThinningTool)
-        
 
     # Tracks associated with Taus
     if (TrackThinningKeepTauTracks) : 
@@ -539,26 +547,29 @@ if globalflags.DataSource()=='geant4':
 
 
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-EGAM1Sequence = CfgMgr.AthSequencer("EGAM1Sequence")
-DerivationFrameworkJob += EGAM1Sequence
+#====================================================================
+# Setup the skimming criteria
+#====================================================================
+expression = 'count(EGAM1_DiElectronMass > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass2 > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass3 > 50.0*GeV)>=1 ||  count (EGAM1_ElectronPhotonMass > 50.0*GeV)>=1'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM1_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM1SkimmingTool",
+                                                                  expression = expression)
+ToolSvc += EGAM1_SkimmingTool
+
 
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-
 print("EGAM1 skimming tools: ", [EGAM1_SkimmingTool])
 print("EGAM1 thinning tools: ", thinningTools)
 print("EGAM1 augmentation tools: ", augmentationTools)
 EGAM1Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
-                                                         AugmentationTools = augmentationTools,
-                                                         SkimmingTools = [EGAM1_SkimmingTool],
-                                                         ThinningTools = thinningTools
-                                                         )
+                                                              AugmentationTools = augmentationTools,
+                                                              SkimmingTools = [EGAM1_SkimmingTool],
+                                                              ThinningTools = thinningTools
+                                                              )
 
 
 #====================================================================
@@ -569,13 +580,6 @@ reducedJetList = []
 if (DerivationFrameworkIsMonteCarlo):
     reducedJetList.append("AntiKt4TruthJets")
 replaceAODReducedJets(reducedJetList,EGAM1Sequence,"EGAM1")
-
-
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',EGAM1Sequence)
 
 
 #=======================================
@@ -599,16 +603,6 @@ if (DerivationFrameworkIsMonteCarlo):
             edtalg = getattr(topSequence, alg)
             delattr(topSequence, alg)
             EGAM1Sequence += edtalg
-
-
-#====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM1Stream.AcceptAlgs(["EGAM1Kernel"])
 
 
 

@@ -5,15 +5,16 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM2ExtraContent import *
 
+
+#====================================================================
 # read common DFEGamma settings from egammaDFFlags
+#====================================================================
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
@@ -21,31 +22,50 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+
+#====================================================================
 # check if we run on data or MC
+#====================================================================
 from AthenaCommon.GlobalFlags import globalflags
 print("EGAM2 globalflags.DataSource(): ", globalflags.DataSource())
 
 
+#====================================================================
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM2Sequence = CfgMgr.AthSequencer("EGAM2Sequence")
+DerivationFrameworkJob += EGAM2Sequence
+
 
 #====================================================================
-# SET UP STREAM (to be done early in the game to set up thinning Svc
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_EGAM2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM2Stream )
 EGAM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM2Stream.AcceptAlgs(["EGAM2Kernel"])
 
+
+### Thinning and augmentation tools lists
 augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
-# SET UP SKIMMING
+# SET UP AUGMENTATIONS
 #====================================================================
 
-# SELECTION FOR CALIBRATION
 
 #====================================================================
-# J/psi->ee selection for e/gamma calibration
-# 2 tight or medium e (depends on Run2 triggers..), pT>4.5 GeV, OS, 1<Mee<5 GeV
+# 1. di-electron invariant mass for events passing the J/psi->ee
+#    selection for e/gamma calibration
+#
+#    2 tight or medium e (depends on Run2 triggers..), pT>4.5 GeV, OS
+#    1<Mee<5 GeV (applied in skimming step later)
 #====================================================================
 electronPtRequirement = '(Electrons.pt > 4.5*GeV)'
 if RecomputeElectronSelectors :
@@ -71,15 +91,16 @@ ToolSvc += EGAM2_JPSIEEMassTool
 augmentationTools += [EGAM2_JPSIEEMassTool]
 print(EGAM2_JPSIEEMassTool)
 
-# SELECTION FOR T&P
-
 #====================================================================
-# Jpsi->ee selection based on Jpsi->e+cluster trigger, for low pT (7-20 GeV) central photons
+# 2. di-electron invariant mass for events passing the J/psi->ee 
+#    selection based on Jpsi->e+cluster trigger, for low pT (7-20 GeV)
+#    central photon efficiencies with tag and probe
+#
 # Tag: 1 tight e, central, pT>4.5 GeV
 # Probe: 1 e, central, pT>4.5 GeV
 # OS+SS
-# 1<mee<6 GeV
 # dR>0.15
+# 1<mee<6 GeV (applied in skimming step later)
 #====================================================================
 if RecomputeElectronSelectors :
     requirement_el_tag = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 4.5*GeV)'
@@ -101,63 +122,6 @@ EGAM2_JPSIEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM2_
 ToolSvc += EGAM2_JPSIEEMassTool2
 augmentationTools += [EGAM2_JPSIEEMassTool2]
 print(EGAM2_JPSIEEMassTool2)
-
-
-# Skimming criteria (offline selection)
-expression_calib = '(count(EGAM2_DiElectronMass > 1.0*GeV && EGAM2_DiElectronMass < 5.0*GeV)>=1)'
-expression_TP = '(count(EGAM2_DiElectronMass2 > 1.0*GeV && EGAM2_DiElectronMass2 < 6.0*GeV)>=1)'
-expression = expression_calib + ' || ' + expression_TP
-#expression = expression_calib
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM2_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM2_OfflineSkimmingTool",
-                                                                        expression = expression)
-ToolSvc += EGAM2_OfflineSkimmingTool
-print("EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool)
-
-#====================================================================
-# trigger-based selection
-#====================================================================
-triggers=['HLT_e5_lhtight_e4_etcut_Jpsiee']
-triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
-triggers+=['HLT_e5_lhtight_e4_etcut']
-triggers+=['HLT_e5_lhtight_nod0_e4_etcut']
-
-triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
-triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
-triggers+=['HLT_e9_etcut_e5_lhtight_nod0_Jpsiee']
-triggers+=['HLT_e9_etcut_e5_lhtight_Jpsiee']
-
-triggers+=['HLT_e14_etcut_e5_lhtight_Jpsiee']
-triggers+=['HLT_e14_etcut_e5_lhtight_nod0_Jpsiee']
-triggers+=['HLT_e14_lhtight_e4_etcut_Jpsiee']
-triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee']
-
-triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED']
-triggers+=['HLT_e5_lhtight_nod0_e9_etcut_Jpsiee']
-triggers+=['HLT_e5_lhtight_nod0_e14_etcut_Jpsiee']
-triggers+=['HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7']
-triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7']
-triggers+=['HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12']
-triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12']
-
-
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
-
-ToolSvc += EGAM2_TriggerSkimmingTool
-print("EGAM2 trigger skimming tool:", EGAM2_TriggerSkimmingTool)
-
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-EGAM2_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM2SkimmingTool", FilterList=[EGAM2_OfflineSkimmingTool,EGAM2_TriggerSkimmingTool] )
-ToolSvc+=EGAM2_SkimmingTool
-
-
-
-#====================================================================
-# SET UP AUGMENTATIONS
-#====================================================================
 
 
 #====================================================================
@@ -183,8 +147,6 @@ print('WARNING, Thinning of trigger navigation has to be properly implemented in
 #EGAM2ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Jpsiee.*'
 #EGAM2ThinningHelper.AppendToStream( EGAM2Stream, ExtraContainersTrigger )
 
-
-thinningTools=[]
 
 # Track thinning
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
@@ -274,11 +236,53 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         thinningTools.append(EGAM2TPThinningTool)
 
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-EGAM2Sequence = CfgMgr.AthSequencer("EGAM2Sequence")
-DerivationFrameworkJob += EGAM2Sequence
+#====================================================================
+# Setup the skimming criteria
+#====================================================================
+
+# off-line based selection
+expression_calib = '(count(EGAM2_DiElectronMass > 1.0*GeV && EGAM2_DiElectronMass < 5.0*GeV)>=1)'
+expression_TP = '(count(EGAM2_DiElectronMass2 > 1.0*GeV && EGAM2_DiElectronMass2 < 6.0*GeV)>=1)'
+expression = expression_calib + ' || ' + expression_TP
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM2_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM2_OfflineSkimmingTool",
+                                                                        expression = expression)
+ToolSvc += EGAM2_OfflineSkimmingTool
+print("EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool)
+
+# trigger-based selection
+triggers=['HLT_e5_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_e4_etcut']
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut']
+
+triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_etcut_e5_lhtight_nod0_Jpsiee']
+triggers+=['HLT_e9_etcut_e5_lhtight_Jpsiee']
+
+triggers+=['HLT_e14_etcut_e5_lhtight_Jpsiee']
+triggers+=['HLT_e14_etcut_e5_lhtight_nod0_Jpsiee']
+triggers+=['HLT_e14_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee']
+
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED']
+triggers+=['HLT_e5_lhtight_nod0_e9_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e14_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7']
+triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7']
+triggers+=['HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12']
+triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12']
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
+ToolSvc += EGAM2_TriggerSkimmingTool
+print("EGAM2 trigger skimming tool:", EGAM2_TriggerSkimmingTool)
+
+# do the OR of trigger-based and offline-based selection
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+EGAM2_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM2SkimmingTool", FilterList=[EGAM2_OfflineSkimmingTool,EGAM2_TriggerSkimmingTool] )
+ToolSvc+=EGAM2_SkimmingTool
 
 
 #=======================================
@@ -305,15 +309,9 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,EGAM2Sequence,"EGAM2")
 
 
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',EGAM2Sequence)
-
-
 #========================================
 # ENERGY DENSITY
+#========================================
 if (DerivationFrameworkIsMonteCarlo):
     # Schedule the two energy density tools for running after the pseudojets are created.
     for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
@@ -323,14 +321,6 @@ if (DerivationFrameworkIsMonteCarlo):
             EGAM2Sequence += edtalg
 
 			
-#====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM2Stream.AcceptAlgs(["EGAM2Kernel"])
 
 
 
@@ -339,7 +329,6 @@ EGAM2Stream.AcceptAlgs(["EGAM2Kernel"])
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM2SlimmingHelper = SlimmingHelper("EGAM2SlimmingHelper")
-
 EGAM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
