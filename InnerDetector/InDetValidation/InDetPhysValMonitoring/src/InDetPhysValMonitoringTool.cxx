@@ -188,6 +188,8 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("DirName", m_dirName = "IDPerformanceMon/");
   declareProperty("SubFolder", m_folder);
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
+  declareProperty("LowProb", m_lowProb=0.50);
+  declareProperty("HighProb", m_highProb=0.50);
   declareProperty("FillITkResolutionPlots", m_fillITkResolutionPlots = false);
   declareProperty("FillAdditionalITkPlots", m_fillAdditionalITkPlots=false);
   declareProperty("FillLargeRadiusTrackingPlots", m_fillLargeRadiusTrackingPlots=false);
@@ -315,14 +317,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
   if (not truthVertex) ATH_MSG_INFO ("Truth vertex did not pass cuts");
   unsigned int num_truth_selected(0), nSelectedTracks(0), num_truthmatch_match(0);
-  // the truth matching probability must not be <= 0., otherwise the tool will seg fault in case of missing truth (e.g.
-  // data):
-  const float minProbEffLow(0.50); // if the probability of a match is less than this, we call it a fake
-  //    const float minProbEffHigh(0.80); //if the probability of a match is higher than this, it either feeds the NUM
-  // or is a duplicate
-  // VJ - Mar 14, 2016 - even for effs, use 0.51
-  const float minProbEffHigh(0.5); // if the probability of a match is higher than this, it either feeds the NUM or is
-                                   // a duplicate
 
   // check if we are doing track selection relative to PV (or the default, which is the Beam Spot)
   if (!m_TrkSelectPV) {
@@ -388,10 +382,10 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     if (associatedTruth) m_monPlots->track_vs_truth(*thisTrack, *associatedTruth, prob);
 
-    if (prob < minProbEffHigh) {
+    if (prob < m_highProb) {
       BMR_w = 1;
     }
-    if (prob < minProbEffLow) {
+    if (prob < m_lowProb) {
       RF_w = 1;
     }
     m_monPlots->fillBMR(*thisTrack, BMR_w);
@@ -407,11 +401,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       if (not std::isnan(prob)) {
         // Fixing double counting of fake rates --> fill fake rates only once within track loop
-        const bool isFake = (prob < minProbEffLow);
+        const bool isFake = (prob < m_lowProb);
         m_monPlots->fillFakeRate(*thisTrack, isFake, puEvents, nVertices);
       }
 
-      if (prob < minProbEffLow) { // nan will also fail this test
+      if (prob < m_lowProb) { // nan will also fail this test
         if ((associatedTruth->barcode() < 200e3)and(associatedTruth->barcode() != 0)) {
           Prim_w = 1; // Fake Primary, set weight to 1
         }
@@ -419,13 +413,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
           Sec_w = 1;                                         // Fake Secondary, set weight to 1
         }
       }
-      if (prob > minProbEffLow) {
+      if (prob > m_lowProb) {
         hashighprob += 1;
       }
       if (m_truthSelectionTool->accept(associatedTruth)) {
         passtruthsel += 1;
       }
-      if ((prob > minProbEffLow) and m_truthSelectionTool->accept(associatedTruth)  && (!m_usingSpecialPileupSwitch || isSelectedByPileupSwitch(*associatedTruth))) {
+      if ((prob > m_lowProb) and m_truthSelectionTool->accept(associatedTruth)  && (!m_usingSpecialPileupSwitch || isSelectedByPileupSwitch(*associatedTruth))) {
         m_monPlots->fill(*thisTrack, *associatedTruth); // Make all plots requiring both truth & track (meas, res, &
                                                         // pull)
       }
@@ -539,7 +533,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       std::vector <std::pair<float, const xAOD::TrackParticle*> > matches; // Vector of pairs:
                                                                            // <truth_matching_probability, track> if
-                                                                           // prob > minProbEffLow (0.5)
+                                                                           // prob > m_lowProb (0.5)
       float bestMatch = 0;
       const xAOD::TrackParticle* bestMatchedTrack = nullptr;
       
@@ -552,7 +546,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
               bestMatch = std::max(prob, bestMatch);
               bestMatchedTrack = thisTrack;
             }
-            if (prob > minProbEffLow) {
+            if (prob > m_lowProb) {
               matches.push_back(std::make_pair(prob, thisTrack));
             }
           }
@@ -608,7 +602,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
 
       // fill truth-only plots
-      if (bestMatch >= minProbEffHigh) {
+      if (bestMatch >= m_highProb) {
         ++num_truthmatch_match;
         const xAOD::TruthParticle* associatedTruth = matches.empty() ? nullptr : getAsTruth.getTruth(
           matches.back().second);
@@ -894,7 +888,6 @@ InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptrac
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
   SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > ghosttruth("GhostTruth");
   SG::AuxElement::ConstAccessor<int> btagLabel("HadronConeExclTruthLabelID");
-  const float minProbEffLow(0.50);
 
   if (!jets or truthParticlesVec.empty()) {
     ATH_MSG_WARNING(
@@ -949,7 +942,7 @@ InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptrac
 	  const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
 	  if (associatedTruth and associatedTruth == truth) {
 	    float prob = getMatchingProbability(*thisTrack);
-	    if (not std::isnan(prob) && prob > minProbEffLow) {
+	    if (not std::isnan(prob) && prob > m_lowProb) {
 	      isEfficient = true;
 	      break;
 	    }
@@ -972,7 +965,7 @@ InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptrac
 
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
         const bool unlinked = (associatedTruth==nullptr);
-        const bool isFake = (associatedTruth && prob < minProbEffLow);
+        const bool isFake = (associatedTruth && prob < m_lowProb);
         m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);
         if (associatedTruth){
           m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake,isBjet);

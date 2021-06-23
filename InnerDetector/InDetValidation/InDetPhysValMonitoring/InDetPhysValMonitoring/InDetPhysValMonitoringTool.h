@@ -120,6 +120,10 @@ private:
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
 	ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
         ToolHandle<IAthSelectionTool> m_truthSelectionTool;
+
+	float m_lowProb;
+	float m_highProb;
+
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;
