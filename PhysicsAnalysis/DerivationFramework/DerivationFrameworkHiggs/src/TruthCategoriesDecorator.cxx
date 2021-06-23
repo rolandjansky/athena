@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "DerivationFrameworkHiggs/TruthCategoriesDecorator.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODJet/JetContainer.h"
@@ -18,7 +19,6 @@
 // Note: must include TLorentzVector before the next one
 #include "TLorentzVector.h"
 #include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
-#include "StoreGate/WriteDecorHandle.h"
 
 #include <TObjString.h>
 #include <TObjArray.h>
@@ -45,10 +45,19 @@ namespace DerivationFramework {
     ATH_MSG_INFO("Initialize " );
 
     // FOR xAOD->HEPMC ::  xAODtoHepMC tool
-    ATH_CHECK(m_xAODtoHepMCTool.retrieve());
+    if (m_xAODtoHepMCTool.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Failed to retrieve tool: " << m_xAODtoHepMCTool); 
+      return StatusCode::FAILURE; 
+    } 
+    ATH_MSG_INFO("Retrieved tool: " << m_xAODtoHepMCTool);
+
  
     // Higgs truth category tool 
-    ATH_CHECK(m_higgsTruthCatTool.retrieve());
+    if (m_higgsTruthCatTool.retrieve().isFailure()) { 
+      ATH_MSG_FATAL("Failed to retrieve tool: " << m_higgsTruthCatTool); 
+      return StatusCode::FAILURE; 
+    } 
+    ATH_MSG_INFO("Retrieved tool: " << m_higgsTruthCatTool); 
 
     // Open the TEnv configuration file
     m_config = new TEnv();
@@ -57,51 +66,10 @@ namespace DerivationFramework {
       ATH_MSG_FATAL("Failed to open TEnv file "<<m_configPath);
       return StatusCode::FAILURE;
     }
-
-    //All the decorations we want to add go here
-    m_eventInfoIntDecorNames.push_back("HTXS_prodMode");
-    m_eventInfoIntDecorNames.push_back("HTXS_errorCode");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage0_Category");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_Category_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_Category_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_FineIndex_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_FineIndex_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_Category_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_Category_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_FineIndex_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_FineIndex_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_Fine_Category_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_Fine_Category_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_Fine_FineIndex_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Stage1_2_Fine_FineIndex_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_Njets_pTjet25");
-    m_eventInfoIntDecorNames.push_back("HTXS_Njets_pTjet30");
-    m_eventInfoIntDecorNames.push_back("HTXS_isZ2vvDecay");
-
-    m_eventInfoFloatDecorNames.push_back("HTXS_Higgs_pt");
-    std::string fourvecconts[4]={"_pt","_eta","_phi","_m"};
-    for(int i=0;i<4;i++){
-      m_eventInfoFloatDecorNames.push_back("HTXS_Higgs"+fourvecconts[i]);
-      m_eventInfoFloatDecorNames.push_back("HTXS_V"+fourvecconts[i]);
-      m_eventInfoFloatDecorNames.push_back("HTXS_Higgs_Decay"+fourvecconts[i]);
-      m_eventInfoFloatDecorNames.push_back("HTXS_V_Decay"+fourvecconts[i]);
-      m_eventInfoVectorFloatDecorNames.push_back("HTXS_V_jets25"+fourvecconts[i]);
-      m_eventInfoVectorFloatDecorNames.push_back("HTXS_V_jets30"+fourvecconts[i]);
-    }
-
-    for(auto name : m_eventInfoIntDecorNames) m_eventInfoIntDecors.emplace_back("EventInfo."+name);
-    for(auto name : m_eventInfoFloatDecorNames) m_eventInfoFloatDecors.emplace_back("EventInfo."+name);
-    for(auto name : m_eventInfoVectorFloatDecorNames) m_eventInfoVectorFloatDecors.emplace_back("EventInfo."+name);
-
-    ATH_CHECK(m_eventInfoIntDecors.initialize());
-    ATH_CHECK(m_eventInfoFloatDecors.initialize());
-    ATH_CHECK(m_eventInfoVectorFloatDecors.initialize());
-    ATH_CHECK(m_truthEventCont.initialize());
     return StatusCode::SUCCESS;
   }
   
   StatusCode TruthCategoriesDecorator::finalize(){
-    if(m_config) delete m_config;
     return StatusCode::SUCCESS;
   }
 
@@ -153,43 +121,37 @@ namespace DerivationFramework {
     return HTXS::HiggsProdMode::UNKNOWN;
   }
 
-  float TruthCategoriesDecorator::getFloatDecor(const std::string key, const TLorentzVector p4) const {
-    if(key.find("_pt")!=std::string::npos) return p4.Pt()*CLHEP::GeV;
-    else if(key.find("_eta")!=std::string::npos) return p4.Eta();
-    else if(key.find("_phi")!=std::string::npos) return p4.Phi();
-    else return p4.M()*CLHEP::GeV;
+  // Save a TLV as 4 floats
+  void TruthCategoriesDecorator::decorateFourVec(const xAOD::EventInfo *eventInfo, TString prefix, const TLorentzVector p4) const {
+    eventInfo->auxdecor<float>((prefix+"_pt").Data())  = p4.Pt()*CLHEP::GeV;
+    eventInfo->auxdecor<float>((prefix+"_eta").Data()) = p4.Eta();
+    eventInfo->auxdecor<float>((prefix+"_phi").Data()) = p4.Phi();
+    eventInfo->auxdecor<float>((prefix+"_m").Data())   = p4.M()*CLHEP::GeV;
   }
 
-  std::vector<float> TruthCategoriesDecorator::getVectorFloatDecor(const std::string key, const std::vector<TLorentzVector> p4s) const {
-    std::vector<float> vec;
-    if(key.find("_pt")!=std::string::npos){
-      for (auto p4:p4s) vec.push_back(p4.Pt()*CLHEP::GeV);
-    }
-    else if(key.find("_eta")!=std::string::npos){
-      for (auto p4:p4s) vec.push_back(p4.Eta());
-    }
-    else if(key.find("_phi")!=std::string::npos){
-      for (auto p4:p4s) vec.push_back(p4.Phi());
-    }
-    else if(key.find("_m")!=std::string::npos){
-      for (auto p4:p4s) vec.push_back(p4.M()*CLHEP::GeV);
-    }
-    return vec;
+  // Save a vector of TLVs as vectors of float
+  void TruthCategoriesDecorator::decorateFourVecs(const xAOD::EventInfo *eventInfo, TString prefix, const std::vector<TLorentzVector> p4s) const {
+    std::vector<float> pt, eta, phi, mass;
+    for (auto p4:p4s) { pt.push_back(p4.Pt()*CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()*CLHEP::GeV); }
+    eventInfo->auxdecor<std::vector<float> >((prefix+"_pt").Data())  = pt;
+    eventInfo->auxdecor<std::vector<float> >((prefix+"_eta").Data()) = eta;
+    eventInfo->auxdecor<std::vector<float> >((prefix+"_phi").Data()) = phi;
+    eventInfo->auxdecor<std::vector<float> >((prefix+"_m").Data())   = mass;
   }
+  
+  StatusCode TruthCategoriesDecorator::addBranches() const{    
 
-
-  StatusCode TruthCategoriesDecorator::addBranches() const{
-
-    // Get a handle so we can retrieve the eventInfo information
-    SG::WriteDecorHandle<xAOD::EventInfo, int> prodModeHandle(m_eventInfoIntDecors.at(0));
+    // Retrieve the xAOD event info
+    const xAOD::EventInfo *eventInfo = nullptr;
+    ATH_CHECK( evtStore()->retrieve(eventInfo,"EventInfo") );
 
     // Extract the prodocution mode the first time 
     static bool first = true;
     static HTXS::HiggsProdMode prodMode = HTXS::HiggsProdMode::UNKNOWN;
     static HTXS::tH_type th_type = HTXS::tH_type::noTH;
     if (first) {
-      uint32_t mcChannelNumber = prodModeHandle->mcChannelNumber();
-      if(mcChannelNumber==0) mcChannelNumber = prodModeHandle->runNumber(); // EVNT input
+      uint32_t mcChannelNumber = eventInfo->mcChannelNumber();
+      if(mcChannelNumber==0) mcChannelNumber = eventInfo->runNumber(); // EVNT input
       prodMode = getHiggsProductionMode(mcChannelNumber,th_type);
       first = false;
     }
@@ -197,16 +159,16 @@ namespace DerivationFramework {
     // If the production mode is unkown, the categorization will return -99
     // Set HTXS_prodMode decoration to indicate that HTXS categorization was indeed run
     if ( prodMode == HTXS::HiggsProdMode::UNKNOWN) {
-      //cheating a bit here, prodMode is the first decorator
-      prodModeHandle(0) = (int)prodMode;
+      eventInfo->auxdecor<int>("HTXS_prodMode") = (int)prodMode;
       return StatusCode::SUCCESS;
     }
 
     // Retrieve the xAOD truth
-    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventCont);
+    const xAOD::TruthEventContainer* xTruthEventContainer = nullptr;
+    ATH_CHECK( evtStore()->retrieve(xTruthEventContainer,"TruthEvents") );
 
     // convert xAOD -> HepMC
-    std::vector<HepMC::GenEvent> hepmc_evts = m_xAODtoHepMCTool->getHepMCEvents( truthEventCont.cptr(), prodModeHandle.cptr() );
+    std::vector<HepMC::GenEvent> hepmc_evts = m_xAODtoHepMCTool->getHepMCEvents( xTruthEventContainer, eventInfo );
 
     if (hepmc_evts.size()==0) {
       // ANGRY MESSAGE HERE
@@ -215,65 +177,57 @@ namespace DerivationFramework {
 
     // classify event according to simplified template cross section
     HTXS::HiggsClassification *htxs =  m_higgsTruthCatTool->getHiggsTruthCategoryObject(hepmc_evts[0],prodMode);
+    
+    // Decorate the enums
+    eventInfo->auxdecor<int>("HTXS_prodMode")   = (int)htxs->prodMode;
+    eventInfo->auxdecor<int>("HTXS_errorCode")  = (int)htxs->errorCode;
+    eventInfo->auxdecor<int>("HTXS_Stage0_Category") = (int)htxs->stage0_cat;
 
-    // Decorate
-    prodModeHandle(0)=(int)htxs->prodMode;
-    for( auto& key : m_eventInfoIntDecors){
-      //already did this one
-      if(key.key().find("HTXS_prodMode")!=std::string::npos) continue;
-      SG::WriteDecorHandle<xAOD::EventInfo, int> handle(key);
-      if(key.key().find("HTXS_errorCode")!=std::string::npos) handle(0) = (int)htxs->errorCode;
-      else if(key.key().find("HTXS_Stage0_Category")!=std::string::npos) handle(0) = (int)htxs->stage0_cat;
-      // Stage-1 binning
-      else if(key.key().find("HTXS_Stage1_Category_pTjet25")!=std::string::npos) handle(0) = (int)htxs->stage1_cat_pTjet25GeV;
-      else if(key.key().find("HTXS_Stage1_Category_pTjet30")!=std::string::npos) handle(0) = (int)htxs->stage1_cat_pTjet30GeV;
-      else if(key.key().find("HTXS_Stage1_FineIndex_pTjet25")!=std::string::npos) handle(0) = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type);
-      else if(key.key().find("HTXS_Stage1_FineIndex_pTjet30")!=std::string::npos) handle(0) = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type,true);
-      // Stage-1.2 binning
-      else if(key.key().find("HTXS_Stage1_2_Category_pTjet25")!=std::string::npos) handle(0) = (int)htxs->stage1_2_cat_pTjet25GeV;
-      else if(key.key().find("HTXS_Stage1_2_Category_pTjet30")!=std::string::npos) handle(0) = (int)htxs->stage1_2_cat_pTjet30GeV;
-      else if(key.key().find("HTXS_Stage1_2_FineIndex_pTjet25")!=std::string::npos) handle(0) = HTXSstage1_2_to_HTXSstage1_2_FineIndex(*htxs,th_type);
-      else if(key.key().find("HTXS_Stage1_2_FineIndex_pTjet30")!=std::string::npos) handle(0) = HTXSstage1_2_to_HTXSstage1_2_FineIndex(*htxs,th_type,true);
-      // Stage-1.2 finer binning
-      else if(key.key().find("HTXS_Stage1_2_Fine_Category_pTjet25")!=std::string::npos) handle(0) = (int)htxs->stage1_2_fine_cat_pTjet25GeV;
-      else if(key.key().find("HTXS_Stage1_2_Fine_Category_pTjet30")!=std::string::npos) handle(0) = (int)htxs->stage1_2_fine_cat_pTjet30GeV;
-      else if(key.key().find("HTXS_Stage1_2_Fine_FineIndex_pTjet25")!=std::string::npos) handle(0) = HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(*htxs,th_type);
-      else if(key.key().find("HTXS_Stage1_2_Fine_FineIndex_pTjet30")!=std::string::npos) handle(0) = HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(*htxs,th_type,true);
-      //Njets
-      else if(key.key().find("HTXS_Njets_pTjet25")!=std::string::npos) handle(0) = (int)htxs->jets25.size();
-      else if(key.key().find("HTXS_Njets_pTjet30")!=std::string::npos) handle(0) = (int)htxs->jets30.size();
-      else if(key.key().find("HTXS_isZ2vvDecay")!=std::string::npos) handle(0) = (bool)htxs->isZ2vvDecay;
-    }
-    for( auto& key : m_eventInfoFloatDecors){
-      SG::WriteDecorHandle<xAOD::EventInfo, float> handle(key);
-      // At the very least, save the Higgs boson pT
-      if(key.key().find("HTXS_Higgs_pt")!=std::string::npos){
-	if (m_detailLevel==0) handle(0) = htxs->higgs.Pt()*CLHEP::GeV;
-      }
+    // Stage-1 binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet25") = (int)htxs->stage1_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet30") = (int)htxs->stage1_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type,true);
+
+    // Stage-1.2 binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Category_pTjet25") = (int)htxs->stage1_2_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Category_pTjet30") = (int)htxs->stage1_2_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_FineIndex_pTjet30") = HTXSstage1_2_to_HTXSstage1_2_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_FineIndex_pTjet25") = HTXSstage1_2_to_HTXSstage1_2_FineIndex(*htxs,th_type,true);
+
+    // Stage-1.2 finer binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_Category_pTjet25") = (int)htxs->stage1_2_fine_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_Category_pTjet30") = (int)htxs->stage1_2_fine_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_FineIndex_pTjet30") = HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_FineIndex_pTjet25") = HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(*htxs,th_type,true);
+
+    eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs->jets25.size();
+    eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs->jets30.size();
+    
+    eventInfo->auxdecor<int>("HTXS_isZ2vvDecay")  = (bool)htxs->isZ2vvDecay;
+
+    // At the very least, save the Higgs boson pT
+    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()*CLHEP::GeV;
+
+    if (m_detailLevel>0) {
       // The Higgs and the associated V (last instances prior to decay)
-      else if(key.key().find("HTXS_Higgs")!=std::string::npos && key.key().find("decay")==std::string::npos){
-	if (m_detailLevel>0) handle(0)=getFloatDecor(key.key(),htxs->higgs);
-      }
-      else if(key.key().find("HTXS_V")!=std::string::npos && key.key().find("decay")==std::string::npos && key.key().find("jets")==std::string::npos){
-	if (m_detailLevel>0) handle(0)=getFloatDecor(key.key(),htxs->V);
-      }
-      // Everybody might not want this ... but good for validation
-      else if(key.key().find("HTXS_Higgs_decay")!=std::string::npos){
-	if (m_detailLevel>2) handle(0)=getFloatDecor(key.key(),htxs->p4decay_higgs);
-      }
-      else if(key.key().find("HTXS_V_decay")!=std::string::npos){
-	if (m_detailLevel>2) handle(0)=getFloatDecor(key.key(),htxs->p4decay_V);
-      }
+      decorateFourVec(eventInfo,"HTXS_Higgs",htxs->higgs);
+      decorateFourVec(eventInfo,"HTXS_V",htxs->V);
     }
-    for( auto& key : m_eventInfoVectorFloatDecors){
-      SG::WriteDecorHandle<xAOD::EventInfo, std::vector<float> > handle(key);
+
+    if (m_detailLevel>1) {
       // Jets built excluding Higgs decay products
-      if(key.key().find("HTXS_V_jets25")!=std::string::npos){
-	if (m_detailLevel>1) handle(0)=getVectorFloatDecor(key.key(),htxs->jets25);
-      }
-      else if(key.key().find("HTXS_V_jets30")!=std::string::npos){
-        if (m_detailLevel>1) handle(0)=getVectorFloatDecor(key.key(),htxs->jets30);
-      }
+      decorateFourVecs(eventInfo,"HTXS_V_jets25",htxs->jets25);
+      decorateFourVecs(eventInfo,"HTXS_V_jets30",htxs->jets30);
+    }
+
+    if (m_detailLevel>2) {
+      // Everybody might not want this ... but good for validation
+      decorateFourVec(eventInfo,"HTXS_Higgs_decay",htxs->p4decay_higgs);
+      decorateFourVec(eventInfo,"HTXS_V_decay",htxs->p4decay_V);
     }
 
     delete htxs;
