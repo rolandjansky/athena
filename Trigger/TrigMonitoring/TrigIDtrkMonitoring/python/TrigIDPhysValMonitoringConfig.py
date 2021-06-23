@@ -164,7 +164,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+        "HLT_tau.*idperf.*tracktwo.*BDT.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
+        "HLT_tau.*idperf.*tracktwo.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT"
       ]
     else:
       chainnames = [
