@@ -112,7 +112,7 @@ bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination
   // Calculate dijet quantities
   dijetMass = dijet.M() * m_GeV;
   ATH_MSG_DEBUG("AFP ComboHypo::DijetMass "<<dijetMass);
-  //double dijetEta = dijet.Eta();
+  Monitored::fill(m_monTool, dijetMass);
   double dijetRapidity = dijet.Rapidity();
 
   // Calculate relative energy loos
