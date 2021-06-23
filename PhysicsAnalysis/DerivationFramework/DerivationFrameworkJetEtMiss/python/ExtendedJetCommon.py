@@ -459,7 +459,7 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
 ##################################################################  
 
 def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",trackVertexAssociation="JetTrackVtxAssoc",overlapLabel="",outLabel="fJvt",includePV=False):
-    supportedJets = ['AntiKt4EMPFlow','AntiKt4PFlowCustomVtxHgg']
+    supportedJets = ['AntiKt4EMPFlow','AntiKt4PFlowCustomVtx']
     if jetalg not in supportedJets:
         extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
@@ -499,12 +499,12 @@ def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",tra
             jetcalibrationtool = getattr(ToolSvc,jetcalibtoolname)
         else:
             jetcalibrationtool = CfgMgr.JetCalibrationTool(jetcalibtoolname,
-                                                           JetCollection=jetalg,
+                                                           JetCollection=jetalg_basename,
                                                            ConfigFile="JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
                                                            CalibSequence="JetArea_Residual_EtaJES",
                                                            CalibArea="00-04-82",
-                                                           IsData=False)
-
+                                                           IsData=False,
+                                                           PrimaryVerticesContainerName = primaryVertexCont)
             ToolSvc += jetcalibrationtool
 
         wpfotoolname = "DFwPFO_"+jetalg+algname

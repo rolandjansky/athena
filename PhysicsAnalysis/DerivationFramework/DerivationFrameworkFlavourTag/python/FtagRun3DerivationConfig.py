@@ -11,12 +11,17 @@ from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # for backward compatability
-def FtagJetCollection(jetcol, seq, OutputLevel=WARNING):
-    FtagJetCollections([jetcol], seq, OutputLevel)
+def FtagJetCollection(jetcol, seq, pvCol='PrimaryVertices', OutputLevel=WARNING):
+    FtagJetCollections([jetcol], seq, [pvCol], OutputLevel)
 
 # this should be able to tag a few collections
-def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
+def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
 
+    if len(pvCols) != len(jetcols):
+        if pvCols:
+            print( 'FtagJetCollections:  PV collection length is not the same as Jets using PrimaryVertices for all' )
+        pvCols=['PrimaryVertices']*len(jetcols)
+    
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
@@ -29,8 +34,8 @@ def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
     if 'AntiKt4EMTopoJets' in jetcols:
         acc.merge(RenameInputContainerEmTopoHacksCfg('oldAODVersion'))
 
-    for jetcol in jetcols:
-        acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel))
+    for jetcol,pvCol in zip(jetcols, pvCols):
+        acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol, OutputLevel))
 
     Configurable.configurableRun3Behavior=0
     algs = findAllAlgorithms(acc.getSequence("AthAlgSeq"))
@@ -43,7 +48,7 @@ def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
 
 # this returns a component accumulator, which is merged across jet
 # collections in FtagJetCollections above
-def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
+def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', OutputLevel=WARNING):
 
     from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
     from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
@@ -75,12 +80,12 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
     SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
     for k, v in SecVertexingAndAssociators.items():
 
-        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, "PrimaryVertices", k, v))
+        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, pvCol, k, v))
 
-        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, "PrimaryVertices", k, v))
+        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, pvCol, k, v))
 
 
-    acc.merge( JetBTaggingAlgCfg(cfgFlags, BTaggingCollection = BTaggingCollection, JetCollection = jetcol_name_without_Jets, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
+    acc.merge( JetBTaggingAlgCfg(cfgFlags, BTaggingCollection = BTaggingCollection, JetCollection = jetcol_name_without_Jets, PrimaryVertexCollectionName=pvCol, TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
 
 
     postTagDL2JetToTrainingMap={
@@ -92,6 +97,11 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
             'BTagging/20210517/dips/antikt4empflow/network.json',
             'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
             'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
+        ],
+        'AntiKt4PFlowCustomVtx': [
+            'BTagging/201903/rnnip/antikt4empflow/network.json',
+            'BTagging/201903/dl1r/antikt4empflow/network.json',
+            'BTagging/201903/dl1/antikt4empflow/network.json',
         ],
         'AntiKt4EMTopo': [
             'BTagging/201903/rnnip/antikt4empflow/network.json',
@@ -113,7 +123,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
         ]
     }
 
-    acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags))
+    acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags,  PrimaryVertexCollectionName = pvCol))
 
     acc.merge(BTagHighLevelAugmenterAlgCfg(
         cfgFlags,

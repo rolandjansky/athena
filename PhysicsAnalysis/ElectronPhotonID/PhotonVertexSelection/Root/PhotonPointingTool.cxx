@@ -46,7 +46,7 @@ PhotonPointingTool::~PhotonPointingTool()
 //____________________________________________________________________________
 StatusCode PhotonPointingTool::initialize()
 {
-  ATH_MSG_INFO("Initializing PhotonPointingTool...");
+  ATH_MSG_INFO("Initializing PhotonVertexSelectionTool..." << name());
 
   ATH_CHECK( m_evtInfo.initialize() );
 
@@ -126,6 +126,10 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
   // Loop over photons and add calo pointing auxdata
   std::pair<float, float> result;
   for (const auto *egamma: egammas) {
+    if(egamma==nullptr){
+      ATH_MSG_WARNING("Passed Egamma was a nullptr  -- skipping");
+      continue;
+    }
     // Get calo pointing variables
     result = getCaloPointing(egamma);
 

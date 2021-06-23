@@ -100,16 +100,18 @@ def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
     from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
     jettype = {'AntiKt4EMTopo':'EMJet',
            'AntiKt4LCTopo':'LCJet',
-           'AntiKt4EMPFlow':'PFlowJet'}
+           'AntiKt4EMPFlow':'PFlowJet',
+           'AntiKt4PFlowCustomVtx':'PFlowJet'}
     associators = [AssocConfig(jettype[jetcoll]),
                AssocConfig('Muon'),
                AssocConfig('Ele'),
                AssocConfig('Gamma'),
                AssocConfig('Tau'),
                AssocConfig('Soft')]
+
     cfg = METAssocConfig(jetcoll+vxColl,
                  associators,
-                 jetcoll=='AntiKt4EMPFlow' # doPFlow
+                 'PFlow' in jetcoll # doPFlow
                  )
     for assoc in cfg.assoclist:
         assoc.PrimVxColl = vxColl+'PrimaryVertices'

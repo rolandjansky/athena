@@ -182,6 +182,11 @@ namespace met {
       else {
         const TrackParticle* pfotrk = pfo->track(0);
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
+          static const SG::AuxElement::Accessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
+          if (!(trackAcc(*ttrk)[0])){
+            ATH_MSG_DEBUG("skipping thinned track");
+            continue;
+          }
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
             ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
