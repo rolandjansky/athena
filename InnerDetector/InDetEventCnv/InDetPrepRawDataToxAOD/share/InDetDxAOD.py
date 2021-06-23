@@ -11,11 +11,13 @@ from DerivationFrameworkInDet.InDetCommon import *
 
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 from InDetRecExample import TrackingCommon
+from AthenaCommon.CFElements import seqAND, parOR
 
 # Select active sub-systems
 dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
 dumpSctInfo = InDetDxAODFlags.DumpSctInfo()
 dumpTrtInfo = InDetDxAODFlags.DumpTrtInfo()
+need_pix_ToTList = dumpPixInfo and ( InDetDxAODFlags.DumpPixelRdoInfo() or InDetDxAODFlags.DumpPixelNNInfo() )
 
 # event selection for TRT tag and probe
 TrtZSel = InDetDxAODFlags.TrtZSelection()
@@ -93,7 +95,9 @@ prefixName = ""
 ### Setup tools
 #################
 from AthenaCommon import CfgMgr
-IDDerivationSequence = CfgMgr.AthSequencer("InDetDxAOD_seq")
+IDDerivationSequenceAfterPresel = topSequence
+IDDerivationSequence = topSequence #  in case there are algorithms which should be run after the DF KERNEL: seqAND("IDTRKVALIDSequence")
+
 
 if dumpTrtInfo:
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
@@ -105,10 +109,12 @@ if dumpTrtInfo:
 
 
 #Setup charge->ToT back-conversion to restore ToT info as well
-if dumpPixInfo:
+if dumpPixInfo and need_pix_ToTList:
     from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion
-    PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter")
-    IDDerivationSequence += PixelChargeToTConversionSetter
+    PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter",
+                                                              ExtraOutputs = ['PixelClusters_ToTList'])
+    # @TODO should go to IDDerivationSequence
+    IDDerivationSequenceAfterPresel += PixelChargeToTConversionSetter
     if (printIdTrkDxAODConf):
         print(PixelChargeToTConversionSetter)
         print(PixelChargeToTConversionSetter.properties())
@@ -133,7 +139,7 @@ if makeSplitTracks:
     TrackSplitterTool     = splittertoolcomb,
     TrackCollection       = "Tracks",
     OutputTrackCollection = "Tracks_splitID")
-    IDDerivationSequence +=splittercomb
+    IDDerivationSequenceAfterPresel +=splittercomb
     if (printIdTrkDxAODConf):
         print(splittercomb)
         print(splittercomb.properties())
@@ -161,7 +167,7 @@ if makeSplitTracks:
     xAODSplitTrackParticleCnvAlg.AddTruthLink = False #isIdTrkDxAODSimulation
     if (isIdTrkDxAODSimulation):
         xAODSplitTrackParticleCnvAlg.TrackTruthContainerName = 'SplitTrackTruth'
-    IDDerivationSequence += xAODSplitTrackParticleCnvAlg
+    IDDerivationSequenceAfterPresel += xAODSplitTrackParticleCnvAlg
 
 
 # setup Z and J/psi selectors for TRT
@@ -372,7 +378,7 @@ if dumpTrtInfo:
     xAOD_TRT_PrepDataToxAOD.UseTruthInfo = dumpTruthInfo
     #xAOD_TRT_PrepDataToxAOD.WriteSDOs    = True
 
-    IDDerivationSequence += xAOD_TRT_PrepDataToxAOD
+    IDDerivationSequenceAfterPresel += xAOD_TRT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
         print(xAOD_TRT_PrepDataToxAOD)
         print(xAOD_TRT_PrepDataToxAOD.properties())
@@ -412,7 +418,7 @@ if dumpSctInfo:
     #xAOD_SCT_PrepDataToxAOD.WriteSDOs           = True
     #xAOD_SCT_PrepDataToxAOD.WriteSiHits         = True # if available
 
-    IDDerivationSequence += xAOD_SCT_PrepDataToxAOD
+    IDDerivationSequenceAfterPresel += xAOD_SCT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
         print(xAOD_SCT_PrepDataToxAOD)
         print(xAOD_SCT_PrepDataToxAOD.properties())
@@ -445,7 +451,8 @@ if dumpPixInfo:
 
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
     xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
-                                                    ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
+                                                    ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName(),
+                                                    ExtraInputs = ['PixelClusters_ToTList'] if need_pix_ToTList  else [])
     xAOD_PixelPrepDataToxAOD.LorentzAngleTool       = ToolSvc.PixelLorentzAngleTool
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
@@ -456,7 +463,7 @@ if dumpPixInfo:
     if InDetFlags.doSLHC():
         xAOD_PixelPrepDataToxAOD.WriteNNinformation=False
 
-    IDDerivationSequence += xAOD_PixelPrepDataToxAOD
+    IDDerivationSequenceAfterPresel += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
         print(xAOD_PixelPrepDataToxAOD)
         print(xAOD_PixelPrepDataToxAOD.properties())
@@ -602,7 +609,14 @@ if dumpLArCollisionTime:
     from RecExConfig.ObjKeyStore           import cfgKeyStore
     # We can only do this if we have the cell container.
     if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
-        LArCollisionTimeGetter (IDDerivationSequence)
+        the_name = 'LArCollisionTimeAlg'
+        has_alg=False
+        for seq in [topSequence] :
+            if hasattr(seq,the_name) :
+                has_alg=True
+                break
+        if not has_alg :
+            LArCollisionTimeGetter (IDDerivationSequenceAfterPresel)
 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__LArCollisionTimeDecorator
         lArCollisionTimeDecorator = DerivationFramework__LArCollisionTimeDecorator (name ='lArCollisionTimeDecorator',
@@ -661,7 +675,7 @@ IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThin
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
 
-if pixelClusterThinningExpression:
+if pixelClusterThinningExpression and dumpPixInfo:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
     trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning(
         name                          = "TrackMeasurementThinningTool",
