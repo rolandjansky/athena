@@ -175,6 +175,8 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
 	     }
       }
     }
+  }else{
+    return false;
   }
  
   if (nTracksInCore > m_tracksInCoreCut || nTracksInIso > m_tracksInIsoCut) 
