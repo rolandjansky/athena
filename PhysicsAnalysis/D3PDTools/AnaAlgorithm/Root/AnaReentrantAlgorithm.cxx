@@ -27,13 +27,15 @@ namespace EL
 {
   AnaReentrantAlgorithm ::
   AnaReentrantAlgorithm (const std::string& name,
-                         [[maybe_unused]] ISvcLocator *pSvcLocator)
+                         ISvcLocator *pSvcLocator)
 #ifdef XAOD_STANDALONE
     : AsgComponent (name)
 #else
     : AthReentrantAlgorithm (name, pSvcLocator)
 #endif
   {
+    (void) pSvcLocator;
+
     ANA_MSG_DEBUG ("AnaReentrantAlgorithm: " << name);
   }
 
