@@ -160,16 +160,17 @@ def Lvl1MuRdo2Digit(flags):
                                                                  mmRdoDecoderTool="",
                                                                  RpcDigitContainer = "RPC_DIGITS_L1",
                                                                  TgcDigitContainer = "TGC_DIGITS_L1")
-    MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
+    MuonRdoToMuonDigitTool.cscCalibTool = ""
     rdo2digit = CompFactory.MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
                                                 MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool)
     return rdo2digit
     
 def TGCTriggerConfig(flags):
     tmdbInput = "rerunTileMuRcvCnt"
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     tgc = CompFactory.LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                                      InputData_perEvent  = "TGC_DIGITS_L1",
-                                                     MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
+                                                     MaskFileName12      = "" if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM() else "TrigT1TGCMaskedChannel._12.db",
                                                      useRun3Config = flags.Trigger.enableL1MuonPhase1,
                                                      TileMuRcv_Input = tmdbInput )
     from IOVDbSvc.CondDB import conddb
