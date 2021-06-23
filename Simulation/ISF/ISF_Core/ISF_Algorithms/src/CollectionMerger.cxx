@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionMerger.h"
@@ -20,6 +20,10 @@ StatusCode ISF::CollectionMerger::initialize()
   ATH_CHECK( m_inputSCTHits.initialize(not m_inputSCTHits.empty()) );
   ATH_CHECK( m_inputTRTUncompressedHits.initialize(not m_inputTRTUncompressedHits.empty()) );
 
+  ATH_CHECK( m_inputITkPixelHits.initialize(not m_inputITkPixelHits.empty()) );
+  ATH_CHECK( m_inputITkStripHits.initialize(not m_inputITkStripHits.empty()) );
+  ATH_CHECK( m_inputHGTDHits.initialize(not m_inputHGTDHits.empty()) );  
+
   ATH_CHECK( m_inputLArEMBHits.initialize(not m_inputLArEMBHits.empty()) );
   ATH_CHECK( m_inputLArEMECHits.initialize(not m_inputLArEMECHits.empty()) );
   ATH_CHECK( m_inputLArFCALHits.initialize(not m_inputLArFCALHits.empty()) );
@@ -39,6 +43,10 @@ StatusCode ISF::CollectionMerger::initialize()
   ATH_CHECK( m_outputPixelHits.initialize(not m_outputPixelHits.key().empty()          ) );
   ATH_CHECK( m_outputSCTHits.initialize(not m_outputSCTHits.key().empty()            ) );
   ATH_CHECK( m_outputTRTUncompressedHits.initialize(not m_outputTRTUncompressedHits.key().empty()) );
+
+  ATH_CHECK( m_outputITkPixelHits.initialize(not m_outputITkPixelHits.key().empty()          ) );
+  ATH_CHECK( m_outputITkStripHits.initialize(not m_outputITkStripHits.key().empty()            ) );
+  ATH_CHECK( m_outputHGTDHits.initialize(not m_outputHGTDHits.key().empty()          ) );
 
   ATH_CHECK( m_outputLArEMBHits.initialize(not m_outputLArEMBHits.key().empty()         ) );
   ATH_CHECK( m_outputLArEMECHits.initialize(not m_outputLArEMECHits.key().empty()        ) );
@@ -65,6 +73,10 @@ StatusCode ISF::CollectionMerger::execute(const EventContext& ctx) const
   ATH_CHECK(mergeCollections( m_inputPixelHits,           m_outputPixelHits,           ctx ));
   ATH_CHECK(mergeCollections( m_inputSCTHits,             m_outputSCTHits,             ctx ));
   ATH_CHECK(mergeCollections( m_inputTRTUncompressedHits, m_outputTRTUncompressedHits, ctx ));
+
+  ATH_CHECK(mergeCollections( m_inputITkPixelHits,        m_outputITkPixelHits,        ctx ));
+  ATH_CHECK(mergeCollections( m_inputITkStripHits,        m_outputITkStripHits,        ctx ));
+  ATH_CHECK(mergeCollections( m_inputHGTDHits,            m_outputHGTDHits,            ctx ));
 
   ATH_CHECK(mergeCollections( m_inputLArEMBHits,          m_outputLArEMBHits,          ctx ));
   ATH_CHECK(mergeCollections( m_inputLArEMECHits,         m_outputLArEMECHits,         ctx ));
