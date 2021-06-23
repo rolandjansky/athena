@@ -92,8 +92,8 @@ StatusCode
     FileMetaDataCreatorTool::preFinalize() {
       std::lock_guard lock(m_toolMutex);
 
-      if (!m_filledEvent && !m_filledNonEvent) {
-        ATH_MSG_DEBUG("FileMetaData is incomplete");
+      if (!m_filledEvent || !m_filledNonEvent) {
+        ATH_MSG_DEBUG("Not writing incomplete FileMetaData object");
         return StatusCode::SUCCESS;
       }
 

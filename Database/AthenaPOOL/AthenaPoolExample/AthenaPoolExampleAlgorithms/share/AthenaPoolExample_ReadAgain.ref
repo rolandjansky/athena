@@ -19,37 +19,29 @@ EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 ##Shapes            DEBUG    attributes# = 1
 ##Shapes            DEBUG Opened container ##Shapes of type ROOT_Tree
 EmptyPoolFile.root  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeader_p6 Typ:DataHeader_p6 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 6 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
 ##Links             DEBUG Opened container ##Links of type ROOT_Tree
 EmptyPoolFile.root  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (3 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream3) [203]  (3 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream3) [203]  (4 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream3) [203]  (4 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (5 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (5 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream3) [203]  (6 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (6 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (7 , ffffffff)
-EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (8 , ffffffff)
-EmptyPoolFile.root  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 7 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 5 Entries in total.
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -189,37 +181,29 @@ EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 ##Shapes            DEBUG    attributes# = 1
 ##Shapes            DEBUG Opened container ##Shapes of type ROOT_Tree
 EmptyPoolFile.root  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeader_p6 Typ:DataHeader_p6 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 6 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
 ##Links             DEBUG Opened container ##Links of type ROOT_Tree
 EmptyPoolFile.root  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (3 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream3) [203]  (3 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream3) [203]  (4 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream3) [203]  (4 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (5 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (5 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream3) [203]  (6 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (6 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (7 , ffffffff)
-EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (8 , ffffffff)
-EmptyPoolFile.root  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 7 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 5 Entries in total.
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -623,37 +607,29 @@ EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 ##Shapes            DEBUG    attributes# = 1
 ##Shapes            DEBUG Opened container ##Shapes of type ROOT_Tree
 EmptyPoolFile.root  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeader_p6 Typ:DataHeader_p6 [21] Size:0 Offset:0 #Elements:1
-EmptyPoolFile.root  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
+EmptyPoolFile.root  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 6 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
 ##Links             DEBUG Opened container ##Links of type ROOT_Tree
 EmptyPoolFile.root  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (3 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream3) [203]  (3 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream3) [203]  (4 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream3) [203]  (4 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (5 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (5 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream3) [203]  (6 , ffffffff)
+EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (6 , ffffffff)
 EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (7 , ffffffff)
-EmptyPoolFile.root  DEBUG ---->ClassID:????
-EmptyPoolFile.root  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (8 , ffffffff)
-EmptyPoolFile.root  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 7 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 5 Entries in total.
 EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -695,14 +671,10 @@ SimplePoolFile2...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Element
 SimplePoolFile2...  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
 SimplePoolFile2...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
 SimplePoolFile2...  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
-SimplePoolFile2...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile2...  DEBUG --->Reading Shape[6 , ????]: [1 Column(s)]
 SimplePoolFile2...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile2...  DEBUG --->Reading Shape[7 , ????]: [1 Column(s)]
-SimplePoolFile2...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile2...  DEBUG --->Reading Shape[8 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG --->Reading Shape[6 , ????]: [1 Column(s)]
 SimplePoolFile2...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 9 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 7 Entries in total.
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -723,19 +695,15 @@ SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber)
 SimplePoolFile2...  DEBUG ---->ClassID:????
 SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (9 , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (a , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream2) [203]  (a , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream2) [203]  (b , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (b , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (c , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (c , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (d , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (d , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (e , ffffffff)
-SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (f , ffffffff)
-SimplePoolFile2...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 14 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1

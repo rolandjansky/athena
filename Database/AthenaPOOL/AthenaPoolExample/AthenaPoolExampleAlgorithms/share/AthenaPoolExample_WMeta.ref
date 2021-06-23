@@ -852,6 +852,7 @@ WriteCond            INFO in finalize()
 WriteCond            INFO Pedestal x = 193136 y = -5580.01 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
+Stream1.FileMet...  DEBUG Not writing incomplete FileMetaData object
 Stream1             DEBUG addItemObjects(9102,"PedestalWriteData") called
 Stream1             DEBUG            Key:PedestalWriteData
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -861,7 +862,6 @@ Stream1             DEBUG addItemObjects(73252552,"FileMetaDataAux.") called
 Stream1             DEBUG            Key:FileMetaDataAux.
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
-Stream1             DEBUG  Added object 73252552,"FileMetaDataAux."
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
 Stream1             DEBUG            Key:Stream1
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -871,7 +871,6 @@ Stream1             DEBUG addItemObjects(178309087,"FileMetaData") called
 Stream1             DEBUG            Key:FileMetaData
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
-Stream1             DEBUG  Added object 178309087,"FileMetaData"
 Stream1             DEBUG addItemObjects(243004407,"EventFormatStream1") called
 Stream1             DEBUG            Key:EventFormatStream1
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -882,24 +881,12 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG connectOutput done for ROOTTREE:SimplePoolFile5.root
-StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO xAOD::FileMetaDataAuxInfo_v1 [????]
-SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.)
-MetaData(xAOD::...  DEBUG Opening
-MetaData(xAOD::...  DEBUG    attributes# = 1
-MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.'
-MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [202]  (14 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
-SimplePoolFile5...  DEBUG ---->Class:xAOD::FileMetaDataAuxInfo_v1
-SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(ExampleHitContainer_p1/PedestalWriteData)
 MetaData(Exampl...  DEBUG Opening
 MetaData(Exampl...  DEBUG    attributes# = 1
 MetaData(Exampl...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWriteData'
 MetaData(Exampl...  DEBUG Opened container MetaData(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (15 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (14 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO EventStreamInfo_p3 [????]
@@ -908,23 +895,11 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (16 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (15 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
+SimplePoolFile5...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:EventStreamInfo_p3
 SimplePoolFile5...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO xAOD::FileMetaData_v1 [????]
-SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaData_v1/FileMetaData)
-MetaData(xAOD::...  DEBUG Opening
-MetaData(xAOD::...  DEBUG    attributes# = 1
-MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaData_v1_FileMetaData'
-MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaData_v1/FileMetaData) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [202]  (17 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Adding Shape[11 , ????]:  [1 Column(s)] 
-SimplePoolFile5...  DEBUG ---->Class:xAOD::FileMetaData_v1
-SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO xAOD::EventFormat_v1 [????]
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::EventFormat_v1/EventFormatStream1)
@@ -932,9 +907,9 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream1'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream1) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [202]  (18 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [202]  (16 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
+SimplePoolFile5...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile5...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
@@ -942,19 +917,15 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (19 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (17 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (1a , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (18 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
-MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=52: type=float, mcProcID
-MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
 PoolSvc             DEBUG Disconnect request for contextId=0
