@@ -124,6 +124,12 @@ def setupMenu():
 
         #ATR-23614 
         ChainProp(name='HLT_mu20_mu2noL1_invmJPsi_os_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+
+        #ART-23577
+        ChainProp(name='HLT_mu20_L1MU6_AFP_A_OR_C',     l1SeedThresholds=['MU6'],   groups=SingleMuonGroup+LowMuGroup),
+        ChainProp(name='HLT_mu20_L1MU6_AFP_A_AND_C',     l1SeedThresholds=['MU6'],   groups=SingleMuonGroup+LowMuGroup),
+        ChainProp(name='HLT_mu20_L1MU6',     l1SeedThresholds=['MU6'],   groups=SingleMuonGroup+LowMuGroup),
+
    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -205,6 +211,11 @@ def setupMenu():
 
         #ATR-22749
         ChainProp(name='HLT_2e5_lhvloose_bBeeM6000_L12EM3', l1SeedThresholds=['EM3'], groups=BphysElectronGroup),
+
+        #ART-23577
+        ChainProp(name='HLT_e20_lhloose_L1EM7_AFP_A_OR_C', l1SeedThresholds=['EM7'], groups=SingleElectronGroup+LowMuGroup),
+        ChainProp(name='HLT_e20_lhloose_L1EM7_AFP_A_AND_C', l1SeedThresholds=['EM7'], groups=SingleElectronGroup+LowMuGroup),
+        ChainProp(name='HLT_e20_lhloose_L1EM7', l1SeedThresholds=['EM7'], groups=LowMuGroup),
 
 
         # PhotonChains------------

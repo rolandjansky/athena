@@ -536,6 +536,12 @@ HLT_e17_lhvloose_nod0_L1EM15VH:
   eventCount: 0
 HLT_e17_lhvloose_nod0_L1EM15VHI:
   eventCount: 0
+HLT_e20_lhloose_L1EM7:
+  eventCount: 0
+HLT_e20_lhloose_L1EM7_AFP_A_AND_C:
+  eventCount: 0
+HLT_e20_lhloose_L1EM7_AFP_A_OR_C:
+  eventCount: 0
 HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH:
   eventCount: 0
 HLT_e20_lhtight_ivarloose_L1EM15VH:
@@ -2568,6 +2574,18 @@ HLT_mu20_2mu4noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu20_L1MU6:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_mu20_L1MU6_AFP_A_AND_C:
+  eventCount: 0
+HLT_mu20_L1MU6_AFP_A_OR_C:
+  eventCount: 0
 HLT_mu20_bJpsi_MuonTrkPEB_L1MU20:
   eventCount: 0
 HLT_mu20_ivarloose_tau20_medium1_tracktwo_03dRAB_L1MU20:
