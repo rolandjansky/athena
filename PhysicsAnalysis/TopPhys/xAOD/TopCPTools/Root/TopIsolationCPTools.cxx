@@ -87,8 +87,8 @@ namespace top {
 					     "HighPtTrackOnly",
 					     "TightTrackOnly_VarRad",
 					     "TightTrackOnly_FixedRad",
-					     "PLVTight",
-					     "PLVLoose",
+					     // "PLVTight",
+					     // "PLVLoose",
 					     "Tight_VarRad",
 					     "Tight_FixedRad",
 					     "Loose_VarRad",
@@ -97,10 +97,7 @@ namespace top {
 
     // Electron Isolation WPs
     std::set<std::string> electron_isolations {{
-                                                 "Gradient",
                                                  "FCHighPtCaloOnly",
-                                                 "FCTight",
-                                                 "FCLoose",
                                                  "HighPtCaloOnly",
                                                  "Loose",
                                                  "Tight",
@@ -108,8 +105,8 @@ namespace top {
 						 "TightTrackOnly_FixedRad",
                                                  "PflowTight",
                                                  "PflowLoose",
-						 "PLVTight",
-						 "PLVLoose",
+						 // "PLVTight",
+						 // "PLVLoose",
                                                }};
 
     // Photon Isolation WPs

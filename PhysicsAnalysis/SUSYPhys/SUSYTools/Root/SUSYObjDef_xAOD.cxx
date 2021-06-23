@@ -733,9 +733,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   // -- see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RecommendedIsolationWPs#Current_official_working_points
   // -- the el iso points are those which have (or will have) SFs available
   m_el_iso_support = {
-     "FCLoose", "FCTight",             // current WPs
-     "FCHighPtCaloOnly",               // current HighPtCaloOnly WPs
-     "Gradient"                        // 
+     "Loose_VarRad", "Tight_VarRad",                    // current WPs
+     "HighPtCaloOnly",                                  // current HighPtCaloOnly WPs
+     "TightTrackOnly_VarRad", "TightTrackOnly_FixedRad" //
   };
   // -- the muon iso points are those which have SFs available
   // -- more details https://indico.cern.ch/event/878781/contributions/3721998/attachments/1976194/3289315/20200127_IFFshort_2.pdf
@@ -748,8 +748,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   // Construct electron fallback WPs for SFs
   for (auto x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
-  m_el_iso_fallback["PLVTight"] = "FCTight";                    // plus actual fallback
-  m_el_iso_fallback["PLVLoose"] = "FCLoose";
+  m_el_iso_fallback["Tight_VarRad"] = "FCTight";                // plus actual fallback
+  m_el_iso_fallback["Loose_VarRad"] = "FCLoose";
+  m_el_iso_fallback["HighPtCaloOnly"] = "FCHighPtCaloOnly";
+  m_el_iso_fallback["TightTrackOnly_VarRad"] = "FCTight";
+  m_el_iso_fallback["TightTrackOnly_FixedRad"] = "FCTight";
 
   // Construct muon fallback WPs for SFs
   m_mu_iso_fallback = {};
@@ -1301,8 +1304,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elePt, "Ele.Et", rEnv, 25000.);
   configFromFile(m_eleEta, "Ele.Eta", rEnv, 2.47);
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
-  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "FCLoose");
-  configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
+  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Loose_VarRad");
+  configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "HighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleChIso, "Ele.CFTIso", rEnv, true); // use charge ID SFs without iso applied

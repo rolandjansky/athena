@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 # @author Tadej Novak
@@ -29,7 +29,7 @@ def makeOverlapSequence (dataType) :
     # Include, and then set up the electron analysis sequence:
     from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
         makeElectronAnalysisSequence
-    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose',
+    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.Loose_VarRad',
                                                      recomputeLikelihood = True )
     electronSequence.configure( inputName = 'Electrons',
                                 outputName = 'AnalysisElectrons_%SYS%' )

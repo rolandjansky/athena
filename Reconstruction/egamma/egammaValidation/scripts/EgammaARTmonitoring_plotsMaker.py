@@ -81,8 +81,8 @@ electron_comparison_list = [
      'title': 'True Prompt Electron with GSFTrack'},
     {'name': 'truthPromptElectronWithReco',
      'title': 'True Prompt Electron with Reco Electron'},
-    {'name': 'recoElectronIsoFixedCutTightTrackOnly',
-     'title': 'Reconstructed Electron FixedCutTightTrackOnly'},
+    {'name': 'recoElectronIsoTightTrackOnly_VarRad',
+     'title': 'Reconstructed Electron TightTrackOnly_VarRad'},
     {'name': 'trackingEfficiency',
      'title': 'Tracking Efficiency'},
     {'name': 'GSFEfficiency',
@@ -97,8 +97,8 @@ electron_comparison_list = [
      'title': 'Reconstructed Electron MediumLH Efficiency'},
     {'name': 'recoElectronTightLHEfficiency',
      'title': 'Reconstructed Electron TightLH Efficiency'},
-    {'name': 'recoElectronIsoFixedCutTightTrackOnlyEfficiency',
-     'title': 'Reconstructed Electron FixedCutTighTrackOnly Efficiency'},
+    {'name': 'recoElectronIsoTightTrackOnly_VarRadEfficiency',
+     'title': 'Reconstructed Electron TightTrackOnly_VarRad Efficiency'},
 ]
 
 photon_comparison_list = [

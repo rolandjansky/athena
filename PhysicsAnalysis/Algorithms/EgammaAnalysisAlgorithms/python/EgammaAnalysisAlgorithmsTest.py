@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createService
@@ -21,9 +21,9 @@ def makeSequence (dataType, likelihood=True) :
     from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
         makeElectronAnalysisSequence
     if likelihood:
-        workingpoint = 'LooseLHElectron.GradientLoose'
+        workingpoint = 'LooseLHElectron.Loose_VarRad'
     else:
-        workingpoint = 'LooseDNNElectron.GradientLoose'
+        workingpoint = 'LooseDNNElectron.Loose_VarRad'
     electronSequence = makeElectronAnalysisSequence( dataType, workingpoint, postfix = 'loose',
                                                      recomputeLikelihood=True, enableCutflow=True, enableKinematicHistograms=True )
     electronSequence.configure( inputName = 'Electrons',
