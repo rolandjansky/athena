@@ -39,6 +39,14 @@ StatusCode TauTrackFinder::initialize() {
   // allow empty for LRT
   ATH_CHECK( m_largeD0TracksInputContainer.initialize(SG::AllowEmpty) );
 
+  if(m_useGhostTracks) {
+    if(inTrigger()) {
+      ATH_MSG_ERROR ("Ghost matching is not a valid tau-track association scheme for trigger, use cone association. Aborting.");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO ("Using ghost matching for tau-track association" << m_ghostTrackDR );
+  }
+
   if (inTrigger()) {
     ATH_CHECK(m_beamSpotKey.initialize());
   }
@@ -95,12 +103,13 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
 
-  getTauTracksFromPV(pTau, *trackParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
+  getTauTracksFromPV(pTau, *trackParticleCont, pVertex, m_useGhostTracks, tauTracks, wideTracks, otherTracks);
 
   bool foundLRTCont = bool (largeD0TracksParticleCont != nullptr);
   // additional LRT with vertex association added to tracks
   if (foundLRTCont){
-    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
+    // for now, use cone association for LRTs, not ghost association
+    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, false, tauTracks, wideTracks, otherTracks);
   }
 
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
@@ -114,7 +123,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
       {
 	alreadyUsed = false;
 	//loop over all up-to-now core tracks	
-	for( const xAOD::TauTrack* tau_trk : (tauTrackCon) ) {
+	for( const xAOD::TauTrack* tau_trk : tauTrackCon ) {
 	  //originally it was coreTrack&passTrkSelector
 	  if(! tau_trk->flagWithMask( (1<<xAOD::TauJetParameters::TauTrackFlag::coreTrack) | (1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector))) continue; 
 	  if( (*track_it) == tau_trk->track()) alreadyUsed = true;
@@ -126,7 +135,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
       }
   }
 
-  // associated track to tau candidate and calculate charge                                                                                                    
+  // associate track to tau candidate and calculate charge                                                                                                    
   float charge = 0.;  
   for (unsigned int i = 0; i < tauTracks.size(); ++i) {
     const xAOD::TrackParticle* trackParticle = tauTracks.at(i);
@@ -144,7 +153,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
       linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, true);
-    }else{
+    }
+    else {
       linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, false);
     }
@@ -182,7 +192,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
       linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, true);
-    }else{
+    }
+    else {
       linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, false);
     }
@@ -219,7 +230,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
       linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, true); 
-    }else{
+    }
+    else {
       linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, false);
     }
@@ -251,7 +263,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
 
   if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
     vxcand = pTau.vertex();
-  } else if (inTrigger()) { // online: use vertex with x-y coordinates from the beamspot and the z from the leading track
+  }
+  else if (inTrigger()) { // online: use vertex with x-y coordinates from the beamspot and the z from the leading track
     vxbkp.setX(0); vxbkp.setY(0); vxbkp.setZ(0);
 
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
@@ -338,15 +351,35 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& p
 void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
 					 const xAOD::TrackParticleContainer& trackParticleCont,
 					 const xAOD::Vertex* primaryVertex,
+					 const bool& useGhostTracks,
 					 std::vector<const xAOD::TrackParticle*> &tauTracks,
 					 std::vector<const xAOD::TrackParticle*> &wideTracks,
 					 std::vector<const xAOD::TrackParticle*> &otherTracks) const
 {
-  for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont.begin(); tpcItr != trackParticleCont.end(); ++tpcItr) {
-    const xAOD::TrackParticle *trackParticle = *tpcItr;
-
+  std::vector<const xAOD::TrackParticle*> ghostTracks;
+  if(useGhostTracks) {
+    const xAOD::Jet* seedJet = pTau.jet();
+    if(seedJet) {
+      if(!seedJet->getAssociatedObjects("GhostTrack", ghostTracks)) {
+	ATH_MSG_WARNING("Could not retrieve GhostTrack from seed jet.");
+      }
+    }
+  }
+  
+  for (const xAOD::TrackParticle *trackParticle : trackParticleCont) {
     TauTrackType type = tauTrackType(pTau, *trackParticle, primaryVertex);
-		
+    if(type == NotTauTrack) continue;
+
+    if(useGhostTracks) {
+      // require that tracks are ghost-matched with the seed jet at large dR(tau,track), to avoid using tracks from another tau
+      double dR = pTau.p4().DeltaR(trackParticle->p4());
+      if (dR > m_ghostTrackDR) {
+	if(std::find(ghostTracks.begin(), ghostTracks.end(), trackParticle) == ghostTracks.end() ) {
+	  continue;
+	}
+      }
+    }
+    
     if (type == TauTrackCore)
       tauTracks.push_back(trackParticle);
     else if (type == TauTrackWide)
@@ -398,7 +431,8 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
           Gaudi::Hive::currentContext(), *orgTrack);
         caloExtension = uniqueExtension.get();
       }
-    }else{
+    }
+    else {
       /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
       ATH_MSG_VERBOSE("Using the CaloExtensionTool");
       uniqueExtension = m_caloExtensionTool->caloExtension(
