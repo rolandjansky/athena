@@ -39,6 +39,8 @@ class Global_HLT_TableConstructor(TableConstructorBase):
         self.columns['totalTimeSec']         = Column("Alg Total Time [s]", "Total weighted integrated walltime of all algs")
         self.columns['timePerCall']          = Column("Alg Time/Call [ms]", "Mean weighted alg time normalised to all alg calls")
         self.columns['timePerEvent']         = Column("Alg Time/Event [ms]", "Mean weighted alg time normalised to all events")
+        self.columns['nPU']                  = Column("Number of PU", "Estimated number of needed CPU with 100 kHz input rate")
+        self.columns['nPUErr']               = Column("Error on number of CPUs", "Error on number of CPUs based on Algorithm tome per event error")
 
 
     def fillColumns(self, histName):
@@ -57,4 +59,6 @@ class Global_HLT_TableConstructor(TableConstructorBase):
         self.columns['totalTimeSec'].addValue(self.getXWeightedIntegral("AlgTime_perEvent", isLog=True) * 1e-3)
         self.columns['timePerCall'].addValue(self.getHistogram("AlgTime_perCall").GetMean())
         self.columns['timePerEvent'].addValue(self.getHistogram("AlgTime_perEvent").GetMean())
+        self.columns['nPU'].addValue(self.getHistogram("AlgTime_perEvent").GetMean() * 1e-3 * 100) # 100 kHz L1 input rate
+        self.columns['nPUErr'].addValue(self.getHistogram("AlgTime_perEvent").GetMeanError() * 1e-3 * 100)
 
