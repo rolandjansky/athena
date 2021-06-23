@@ -32,14 +32,14 @@ TrackStateOnSurface::TrackStateOnSurface(
 TrackStateOnSurface::TrackStateOnSurface(
   std::unique_ptr<const MeasurementBase> meas,
   std::unique_ptr<const TrackParameters> trackParameters,
-  const FitQualityOnSurface* fitQoS,
-  const MaterialEffectsBase* materialEffects,
-  const AlignmentEffectsOnTrack* alignmentEffectsOnTrack)
-  : m_fitQualityOnSurface(fitQoS)
+  std::unique_ptr<const FitQualityOnSurface> fitQoS,
+  std::unique_ptr<const MaterialEffectsBase> materialEffects,
+  std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack)
+  : m_fitQualityOnSurface(std::move(fitQoS))
   , m_trackParameters(std::move(trackParameters))
   , m_measurementOnTrack(std::move(meas))
-  , m_materialEffectsOnTrack(materialEffects)
-  , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
+  , m_materialEffectsOnTrack(std::move(materialEffects))
+  , m_alignmentEffectsOnTrack(std::move(alignmentEffectsOnTrack))
 {
   if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
   assert(isSane());
@@ -68,16 +68,16 @@ TrackStateOnSurface::TrackStateOnSurface(
 TrackStateOnSurface::TrackStateOnSurface(
   std::unique_ptr<const MeasurementBase> meas,
   std::unique_ptr<const TrackParameters> trackParameters,
-  const FitQualityOnSurface* fitQoS,
-  const MaterialEffectsBase* materialEffects,
+  std::unique_ptr<const FitQualityOnSurface> fitQoS,
+  std::unique_ptr<const MaterialEffectsBase> materialEffects,
   const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
     typePattern,
-  const AlignmentEffectsOnTrack* alignmentEffectsOnTrack)
-  : m_fitQualityOnSurface(fitQoS)
+  std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack)
+  : m_fitQualityOnSurface(std::move(fitQoS))
   , m_trackParameters(std::move(trackParameters))
   , m_measurementOnTrack(std::move(meas))
-  , m_materialEffectsOnTrack(materialEffects)
-  , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
+  , m_materialEffectsOnTrack(std::move(materialEffects))
+  , m_alignmentEffectsOnTrack(std::move(alignmentEffectsOnTrack))
   , m_typeFlags(typePattern)
 {
   if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();

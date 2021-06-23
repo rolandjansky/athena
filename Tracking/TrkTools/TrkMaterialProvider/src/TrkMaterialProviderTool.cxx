@@ -1634,12 +1634,13 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           auto surfLast =
             Trk::PlaneSurface(surfaceTransformLast);
           //        make MaterialEffectsOnTracks
-          const Trk::MaterialEffectsOnTrack* meotFirst =
-            new Trk::MaterialEffectsOnTrack(
+          auto meotFirst =
+            std::make_unique<const Trk::MaterialEffectsOnTrack>(
               X0_tot / 2., std::move(scatFirst), energyLoss0, surfFirst, meotPattern);
-          const Trk::MaterialEffectsOnTrack* meotLast =
-            new Trk::MaterialEffectsOnTrack(
+          auto meotLast =
+            std::make_unique<const Trk::MaterialEffectsOnTrack>(
               X0_tot / 2., std::move(scatNew), caloEnergyNew, surfLast, meotPattern);
+
 
           //        calculate TrackParameters at first surface
           double qOverP0 = m->trackParameters()->charge()/ (m->trackParameters()->momentum().mag()-std::abs(energyLoss->deltaE()));
@@ -1658,10 +1659,10 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           //
           const Trk::TrackStateOnSurface* newTSOSFirst =
             new Trk::TrackStateOnSurface(
-              nullptr, std::move(parsFirst), nullptr, meotFirst, typePattern);
+              nullptr, std::move(parsFirst), nullptr, std::move(meotFirst), typePattern);
           const Trk::TrackStateOnSurface* newTSOS =
             new Trk::TrackStateOnSurface(
-              nullptr, std::move(parsLast), nullptr, meotLast, typePattern);
+              nullptr, std::move(parsLast), nullptr, std::move(meotLast), typePattern);
 
 
           newTSOSvector->push_back(newTSOSFirst);
@@ -1835,16 +1836,16 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         //
         //          prepare for first MaterialEffectsOnTrack with X0 = X0/2
         //          Eloss = 0 and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack* meotFirst =
-          new Trk::MaterialEffectsOnTrack(X0_tot / 2.,
+        auto meotFirst =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(X0_tot / 2.,
                                           std::move(scatFirst),
                                           nullptr,
                                           surfFirst,
                                           meotPattern);
         //          prepare for second MaterialEffectsOnTrack with X0 =  X0/2
         //          Eloss = Eloss total and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack* meotLast =
-          new Trk::MaterialEffectsOnTrack(X0_tot / 2.,
+        auto meotLast =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(X0_tot / 2.,
                                           std::move(scatNew),
                                           caloEnergyNew,
                                           surfLast,
@@ -1853,13 +1854,13 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         //
         const Trk::TrackStateOnSurface* newTSOSFirst =
           new Trk::TrackStateOnSurface(
-            nullptr, std::move(parsFirst), nullptr, meotFirst, typePattern);
+            nullptr, std::move(parsFirst), nullptr, std::move(meotFirst), typePattern);
         const Trk::TrackStateOnSurface* newTSOS =
           (elossFlag != 0
              ? new Trk::TrackStateOnSurface(
-                 nullptr, std::move(parsLast), nullptr, meotLast, typePatternDeposit)
+                 nullptr, std::move(parsLast), nullptr, std::move(meotLast), typePatternDeposit)
              : new Trk::TrackStateOnSurface(
-                 nullptr, std::move(parsLast), nullptr, meotLast, typePattern));
+                 nullptr, std::move(parsLast), nullptr, std::move(meotLast), typePattern));
         newTSOSvector->push_back(newTSOSFirst);
         newTSOSvector->push_back(newTSOS);
       } else {
@@ -1874,30 +1875,31 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 
         //        prepare for first MaterialEffectsOnTrack with X0 = X0/2 Eloss
         //        = 0 and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack* meotFirst =
-          new Trk::MaterialEffectsOnTrack(
+        auto meotFirst =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(
             X0_tot / 2., std::move(scatFirst), nullptr, surfFirst, meotPattern);
 
         //        prepare for middle MaterialEffectsOnTrack with X0 =  0 Eloss =
         //        ElossNew and scattering2 = 0. depth = 0
-        const Trk::MaterialEffectsOnTrack* meot =
-          new Trk::MaterialEffectsOnTrack(
+        auto meot =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(
             0.,std::nullopt, caloEnergyNew, surf, meotPattern);
 
         //        prepare for last MaterialEffectsOnTrack with X0 =  X0/2 Eloss
         //        = 0 total and scattering2 = total2 / 2. depth = 0
-        const Trk::MaterialEffectsOnTrack* meotLast =
-          new Trk::MaterialEffectsOnTrack(
+        auto meotLast =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(
             X0_tot / 2., std::move(scatNew), nullptr, surfLast, meotPattern);
+
 
         const Trk::TrackStateOnSurface* newTSOSFirst =
           new Trk::TrackStateOnSurface(
-            nullptr, std::move(parsFirst), nullptr, meotFirst, typePatternScat);
+            nullptr, std::move(parsFirst), nullptr, std::move(meotFirst), typePatternScat);
         const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(
-          nullptr, std::move(pars), nullptr, meot, typePatternDeposit);
+          nullptr, std::move(pars), nullptr, std::move(meot), typePatternDeposit);
         const Trk::TrackStateOnSurface* newTSOSLast =
           new Trk::TrackStateOnSurface(
-            nullptr, std::move(parsLast), nullptr, meotLast, typePatternScat);
+            nullptr, std::move(parsLast), nullptr, std::move(meotLast), typePatternScat);
 
         newTSOSvector->push_back(newTSOSFirst);
         newTSOSvector->push_back(newTSOS);

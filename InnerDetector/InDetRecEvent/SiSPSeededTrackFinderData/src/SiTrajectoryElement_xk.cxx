@@ -700,13 +700,13 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
     return nullptr;
   }
 
-  const Trk::FitQualityOnSurface* fq = nullptr;
+  std::unique_ptr<const Trk::FitQualityOnSurface> fq;
   std::unique_ptr<const Trk::MeasurementBase> ro{};
 
   if (m_status == 1) {
-    fq = new Trk::FitQualityOnSurface(m_xi2Forward, m_ndf);
+    fq.reset(new Trk::FitQualityOnSurface(m_xi2Forward, m_ndf));
   } else {
-    fq = new Trk::FitQualityOnSurface(m_xi2Backward, m_ndf);
+    fq.reset(new Trk::FitQualityOnSurface(m_xi2Backward, m_ndf));
   }
 
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pat(
@@ -720,25 +720,22 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
     pat.set(Trk::TrackStateOnSurface::Outlier);
   }
   auto sa = Trk::ScatteringAngles(
-    0., 0., sqrt(m_noise.covarianceAzim()), sqrt(m_noise.covariancePola()));
+    0., 0., std::sqrt(m_noise.covarianceAzim()), std::sqrt(m_noise.covariancePola()));
 
-  const Trk::MaterialEffectsOnTrack* me = new Trk::MaterialEffectsOnTrack(
+  auto meTemplate = std::make_unique<const Trk::MaterialEffectsOnTrack>(
     m_radlengthN, std::move(sa), tp->associatedSurface());
 
   pat.set(Trk::TrackStateOnSurface::Scatterer);
   Trk::TrackStateOnSurface* sos =
-    new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), fq, me, pat);
+    new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), meTemplate->uniqueClone(), pat);
 
   m_tsos[0] = sos;
   m_utsos[0] = true;
   m_ntsos = 1;
 
   if (multi && m_cluster && m_ndf == 2 && m_nlinksBackward > 1) {
-
     for(int i=1; i!= m_nlinksBackward; ++i) {
-
       if(m_linkBackward[i].xi2() > m_xi2multi) break;
-
       std::unique_ptr<Trk::TrackParameters> tpn{};
       if (!change) {
         tpn = trackParameters(cov, Q);
@@ -748,13 +745,10 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
       if (!tpn){
         break;
       }
-
-      const Trk::FitQualityOnSurface   * fqn = new Trk::FitQualityOnSurface(m_linkBackward[i].xi2(),m_ndf);
+      auto fqn = std::make_unique<const Trk::FitQualityOnSurface>(m_linkBackward[i].xi2(),m_ndf);
       std::unique_ptr<const Trk::MeasurementBase> ron(m_riotool->correct(
         *m_linkBackward[i].cluster(), *(sos->trackParameters())) );
-      const Trk::MaterialEffectsOnTrack* men =
-        new Trk::MaterialEffectsOnTrack(*me);
-      m_tsos [m_ntsos] = new Trk::TrackStateOnSurface(std::move(ron),std::move(tpn),fqn,men,pat);    
+      m_tsos [m_ntsos] = new Trk::TrackStateOnSurface(std::move(ron),std::move(tpn),std::move(fqn),meTemplate->uniqueClone(),pat);    
       m_utsos[m_ntsos] = false;
       if(++m_ntsos == 3) break;
     }
@@ -801,9 +795,9 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
   Trk::LocalParameters locp = Trk::LocalParameters(cl->localPosition());
   Amg::MatrixX cv = cl->localCovariance();
 
-  const Trk::FitQualityOnSurface* fq = nullptr;
-  if     (m_status == 1) fq = new Trk::FitQualityOnSurface(m_xi2Forward,m_ndf);
-  else                   fq = new Trk::FitQualityOnSurface(m_xi2Backward,m_ndf);
+  std::unique_ptr<const Trk::FitQualityOnSurface> fq{};
+  if     (m_status == 1) fq.reset(new Trk::FitQualityOnSurface(m_xi2Forward,m_ndf));
+  else                   fq.reset(new Trk::FitQualityOnSurface(m_xi2Backward,m_ndf));
 
   if (m_ndf == 1) {
     const InDet::SCT_Cluster* sc = static_cast<const InDet::SCT_Cluster*>(cl);
@@ -816,7 +810,7 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
       ro.reset(new InDet::PixelClusterOnTrack(
         pc, locp, cv, iH, pc->globalPosition(), pc->gangedPixel()));
   }
-  return new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), fq, nullptr, pat);
+  return new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), nullptr, pat);
 }
 
 ///////////////////////////////////////////////////////////////////
