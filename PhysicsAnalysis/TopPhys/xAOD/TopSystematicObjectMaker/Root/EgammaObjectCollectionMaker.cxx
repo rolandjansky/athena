@@ -116,7 +116,6 @@ namespace top {
     }
 
     if (m_config->useElectrons()) {
-      top::check(m_isolationTool_Gradient.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_FCTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_FCLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_FCHighPtCaloOnly.retrieve(), "Failed to retrieve Isolation Tool");
@@ -127,8 +126,6 @@ namespace top {
       top::check(m_isolationTool_TightTrackOnly_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
 //      top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     }
 
@@ -365,9 +362,6 @@ namespace top {
         char passIsol_Gradient(0);
         char passIsol_FCHighPtCaloOnly(0);
         char passIsol_HighPtCaloOnly(0);
-        if (m_isolationTool_Gradient->accept(*electron)) {
-          passIsol_Gradient = 1;
-        }
         if (m_isolationTool_FCHighPtCaloOnly->accept(*electron)) {
           passIsol_FCHighPtCaloOnly = 1;
         }
@@ -417,16 +411,6 @@ namespace top {
 //	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
 //	else
 //	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
-	if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
-	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
-	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
-	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
-	}
-	else {
-	  // decorate with special character to indicate failure to retrieve necessary variables
-	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
-	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
-	}
       }
 
       ///-- set links to original objects- needed for MET calculation --///

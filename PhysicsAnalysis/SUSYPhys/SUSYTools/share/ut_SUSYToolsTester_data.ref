@@ -32,7 +32,7 @@ Package.SUSYToolsTester  INFO    GRL tool retrieve & initialized...
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /afs/cern.ch/user/y/yoyamagu/work/IFF/IsolationSelectionTool_cleanup/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -56,8 +56,8 @@ SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.ForceNoI
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.Et" with value 10000
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.Eta" with value 2.47
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.CrackVeto" with value 0
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.Iso" with value FCLoose
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.IsoHighPt" with value FCHighPtCaloOnly
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.Iso" with value Loose_VarRad
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.IsoHighPt" with value HighPtCaloOnly
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.IsoHighPtThresh" with value 200000
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.CFT" with value 
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.CFTIso" with value 1
@@ -267,7 +267,7 @@ Info in <CP::TPileupReweighting::UsePeriodConfig>: Using MC16 Period configurati
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xbfaa6f0
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xac38fe0
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
@@ -719,7 +719,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBase/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBase/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -741,26 +741,6 @@ ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram
 ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram: tightWP_mediumPt_rhoCuts
 ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MCaST_Own_MST    INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
 ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter0/CB_data.root
 ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter1/CB_data.root
 ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter2/CB_data.root
@@ -815,26 +795,6 @@ ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram
 ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram: tightWP_mediumPt_rhoCuts
 ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MuonSelectionT...INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
 ToolSvc.MuonSelectionT...INFO    Initialising...
 ToolSvc.MuonSelectionT...INFO    Maximum eta: 2.7
 ToolSvc.MuonSelectionT...INFO    Muon quality: 1
@@ -845,26 +805,6 @@ ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram
 ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram: tightWP_mediumPt_rhoCuts
 ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MuonSelectionT...INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
 ToolSvc.MuonSelectionH...INFO    Initialising...
 ToolSvc.MuonSelectionH...INFO    Maximum eta: 2.7
 ToolSvc.MuonSelectionH...INFO    Muon quality: 4
@@ -875,26 +815,6 @@ ToolSvc.MuonSelectionH...INFO    Successfully read tight working point histogram
 ToolSvc.MuonSelectionH...INFO    Successfully read tight working point histogram: tightWP_mediumPt_rhoCuts
 ToolSvc.MuonSelectionH...INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MuonSelectionH...INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
-                         : Booking "BDTG" of type "BDT" from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml.
-                         : Reading weight file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Background"
-                         : Booked classifier "BDTG" of type: "BDT"
 ToolSvc.MuonEfficiency...INFO    Efficiency type is = RECO
 ToolSvc.MuonEfficiency...INFO    JPsi based low pt SF will start to rock below 15 GeV!
 ToolSvc.MuonEfficiency...INFO    Trying to initialize, with working point Medium, using calibration release 210222_Precision_r21
@@ -934,7 +854,18 @@ ToolSvc.PhotonSelIsEMB...INFO    initialize : WP 11 0
 ToolSvc.PhotonSelIsEMB...INFO    operating point : Tight
 Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
 Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_iso_TightLLHFCLoose) Your electron Iso WP: FCLoose is no longer supported. This will almost certainly cause a crash now.
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_isoHigPt_TightLLHFCHighPtCaloOnly) Your electron high-pt Iso WP: FCHighPtCaloOnly is no longer supported. This will almost certainly cause a crash now.
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_singleLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
+SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING Your Electron Iso WP (FCLoose) is not supported for ECID SFs, falling back to Gradient for SF purposes
+SUSYObjDef_xAOD          WARNING (ElectronChargeEfficiencyCorrectionTool_TightLLHFCLoose) Your electron Iso WP: FCLoose is no longer supported. This will almost certainly cause a crash now.
 ToolSvc.ElectronPhoton...INFO    No config file set! Using default shift values for the electron shifter.
 Info in <FudgeMCTool>: Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root
 ToolSvc.EgammaCalibrat...INFO    Initialization
@@ -1036,8 +967,8 @@ CalibrationDataInterface: retrieved container DL1/AntiKt4EMPFlowJets_BTagging201
 ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
-ToolSvc.METSystTool      INFO    PWD: /data/CERN/workdir/ST_r22/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
-ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/data:/data/CERN/workdir/ST_r22/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBase/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBase/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBaseExternals/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-05-10T0354/AnalysisBaseExternals/22.2.24/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
+ToolSvc.METSystTool      INFO    PWD: /afs/cern.ch/work/y/yoyamagu/private/IFF/IsolationSelectionTool_cleanup/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
+ToolSvc.METSystTool      INFO    CALIBPATH: /afs/cern.ch/user/y/yoyamagu/work/IFF/IsolationSelectionTool_cleanup/build/x86_64-centos7-gcc8-opt/data:/afs/cern.ch/user/y/yoyamagu/work/IFF/IsolationSelectionTool_cleanup/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBase/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBase/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBaseExternals/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBaseExternals/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
 ToolSvc.METSystTool      INFO    Configuring from file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    Will read histograms from : METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
 ToolSvc.METSystTool      INFO    Systpath :/
@@ -1161,14 +1092,8 @@ ToolSvc.IsoCorrTool      INFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/data
 ToolSvc.IsoCorrTool      INFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/IsolationCorrections/v3/isolation_ddcorrection_shift.root
 ToolSvc.IsoCorrTool      INFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/IsolationCorrections/v1/isolation_ddcorrection_smearing.root
 ToolSvc.IsoTool          INFO    Initialising...
-ToolSvc.IsoTool          INFO    Reading input file IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root
-ToolSvc.IsoTool          INFO    VersionInfo:2015_Sep_29_v2a
 ToolSvc.IsoBaselineTool  INFO    Initialising...
-ToolSvc.IsoBaselineTool  INFO    Reading input file IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root
-ToolSvc.IsoBaselineTool  INFO    VersionInfo:2015_Sep_29_v2a
 ToolSvc.IsoHighPtTool    INFO    Initialising...
-ToolSvc.IsoHighPtTool    INFO    Reading input file IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root
-ToolSvc.IsoHighPtTool    INFO    VersionInfo:2015_Sep_29_v2a
 ToolSvc.IsoCloseByTool   INFO    The following isolation cones are considered for Electron
 ToolSvc.IsoCloseByTool   INFO    No TrackSelectionTool provided, so I will create and configure my own, called: TrackParticleSelectionTool
 ToolSvc.TrackParticleS...INFO    Initializing track selection tool.
@@ -1191,7 +1116,7 @@ ToolSvc.ttva_selection...INFO    (For Custom WP:) cut on Δz * sin θ: -1	(dzSin
 ToolSvc.ttva_selection...INFO    (For Custom WP:) allow UsedInFit MatchStatus: 1	(doUsedInFit).
 ToolSvc.ttva_selection...INFO    Require VxType::PriVtx for unique match: 1	(requirePriVtx).
 ToolSvc.IsoCloseByTool   INFO    The following isolation cones are considered for Electron
-ToolSvc.IsoCloseByTool   INFO         --- ptvarcone20_TightTTVA_pt1000
+ToolSvc.IsoCloseByTool   INFO         --- ptvarcone30_TightTTVALooseCone_pt1000
 ToolSvc.IsoCloseByTool   INFO         --- topoetcone20
 ToolSvc.IsoCloseByTool   INFO    The following isolation cones are considered for Muon
 ToolSvc.IsoCloseByTool   INFO         --- ptvarcone30_TightTTVA_pt1000
@@ -1247,9 +1172,9 @@ Info in <SUSYToolsTester>: ===>>>  done processing event #252990016, run #358031
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 253017498run #358031 499 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #253017498, run #358031 500 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 211.620000 / 492.149240 ms
-  First event           - 340.000000 / 52073.816061 ms
-  Excluding first event - 211.362725 / 388.779162 ms
+  Entire loop           - 321.840000 / 343.053210 ms
+  First event           - 600.000000 / 1775.295973 ms
+  Excluding first event - 321.282565 / 340.183000 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 500, mu: 500
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 500, mu: 500
@@ -1257,9 +1182,9 @@ Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 500, mu: 500
 Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 500, mu: 500
 Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 496, mu: 496
 Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 47, mu: 67
-Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 39, mu: 54
-Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 39, mu: 53
-Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 33, mu: 52
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 38, mu: 54
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 38, mu: 53
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 32, mu: 52
 Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 1, mu: 0
 ToolSvc.TrigDecisionTool INFO    TDT finalized and removed from instance list
 		CalibrationDataInterfaceROOT object out-of-bounds summary:

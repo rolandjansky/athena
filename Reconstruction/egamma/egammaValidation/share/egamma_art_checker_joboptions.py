@@ -42,12 +42,12 @@ IsoFixedCutTight = CfgMgr.CP__IsolationSelectionTool(
     name="IsoFixedCutTight", 
     PhotonWP="FixedCutTight")
 
-IsoFixedCutTightTrackOnly = CfgMgr.CP__IsolationSelectionTool(
-    name="IsoFixedCutTightTrackOnly",
-    ElectronWP="FixedCutTightTrackOnly")
+IsoTightTrackOnly_VarRad = CfgMgr.CP__IsolationSelectionTool(
+    name="IsoTightTrackOnly_VarRad",
+    ElectronWP="TightTrackOnly_VarRad")
 
 IsoFixedCutTightCaloOnly = CfgMgr.CP__IsolationSelectionTool(
-    name="IsoFixedCutTightTrackOnly",
+    name="IsoFixedCutTightCaloOnly",
     PhotonWP="FixedCutTightCaloOnly")
 
 IsoFixedCutLoose = CfgMgr.CP__IsolationSelectionTool(
@@ -91,7 +91,7 @@ job += CfgMgr.EgammaMonitoring(
     IsoFixedCutTight=IsoFixedCutTight,
     IsoFixedCutLoose=IsoFixedCutLoose,
     IsoFixedCutTightCaloOnly=IsoFixedCutTightCaloOnly,
-    IsoFixedCutTightTrackOnly=IsoFixedCutTightTrackOnly
+    IsoTightTrackOnly_VarRad=IsoTightTrackOnly_VarRad
 )
 
 

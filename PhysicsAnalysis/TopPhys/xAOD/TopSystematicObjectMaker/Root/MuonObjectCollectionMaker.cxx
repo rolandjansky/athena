@@ -98,8 +98,6 @@ namespace top {
     top::check(m_isolationTool_HighPtTrackOnly.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_TightTrackOnly_VarRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_TightTrackOnly_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
-    top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
-    top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
 //    top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Tight_VarRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Tight_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
@@ -294,10 +292,6 @@ namespace top {
 //	    top::check(m_isolationTool_LowPtPLV->augmentPLV(*muon), "Failed to agument muon with LowPtPLV decorations");
 //	  else
 //	    byhand_LowPtPLV(*muon) = 1.1;
-	  if (PLV_PromptLeptonVeto.isAvailable(*muon)) {
-	    passIsol_PLVTight = m_isolationTool_PLVTight->accept(*muon) ? 1 : 0;
-	    passIsol_PLVLoose = m_isolationTool_PLVLoose->accept(*muon) ? 1 : 0;
-	  }
         }
 	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) && ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_Tight_FixedRad = m_isolationTool_Tight_FixedRad->accept(*muon) ? 1 : 0;

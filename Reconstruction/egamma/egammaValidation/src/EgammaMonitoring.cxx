@@ -84,8 +84,8 @@ StatusCode EgammaMonitoring::initialize() {
     truthRecoElectronTightLH = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
       "truthRecoElectronTightLH","TLH Electrons Reco Electron", "/MONITORING/truthRecoElectronTightLH/", rootHistSvc);
 
-    recoElectronIsoFixedCutTightTrackOnly = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
-      "recoElectronIsoFixedCutTightTrackOnly","Isolation Fixed Cut Tight Track Only Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTightTrackOnly/", rootHistSvc);
+    recoElectronIsoTightTrackOnly_VarRad = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+      "recoElectronIsoTightTrackOnly_VarRad","Isolation Fixed Cut Tight Track Only Electrons Reco Electron", "/MONITORING/recoElectronIsoTightTrackOnly_VarRad/", rootHistSvc);
 
     ATH_CHECK(recoElectronAll->initializePlots());
     ATH_CHECK(truthRecoElectronLooseLH->initializePlots());
@@ -97,7 +97,7 @@ StatusCode EgammaMonitoring::initialize() {
     ATH_CHECK(truthPromptElectronWithTrack->initializePlots(true));
     ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots(true));
     ATH_CHECK(truthPromptElectronWithReco->initializePlots());
-    ATH_CHECK(recoElectronIsoFixedCutTightTrackOnly->initializePlots());
+    ATH_CHECK(recoElectronIsoTightTrackOnly_VarRad->initializePlots());
 
   } // electron Hists
 
@@ -364,7 +364,7 @@ StatusCode EgammaMonitoring::initialize() {
 
   //*****************Iso Requirements********************
   ATH_CHECK(m_IsoFixedCutTight.retrieve());
-  ATH_CHECK(m_IsoFixedCutTightTrackOnly.retrieve());
+  ATH_CHECK(m_IsoTightTrackOnly_VarRad.retrieve());
   ATH_CHECK(m_IsoFixedCutTightCaloOnly.retrieve());
   ATH_CHECK(m_IsoFixedCutLoose.retrieve());
   //*****************MC Truth Classifier Requirement********************
@@ -649,7 +649,7 @@ StatusCode EgammaMonitoring::execute() {
         if (m_LooseLH->accept(elrec)) truthRecoElectronLooseLH->fill(truth,elrec);
         if (m_MediumLH->accept(elrec)) truthRecoElectronMediumLH->fill(truth,elrec);
         if (m_TightLH->accept(elrec)) truthRecoElectronTightLH->fill(truth,elrec);
-        if (m_IsoFixedCutTightTrackOnly->accept(*elrec)) recoElectronIsoFixedCutTightTrackOnly->fill(truth,elrec);
+        if (m_IsoTightTrackOnly_VarRad->accept(*elrec)) recoElectronIsoTightTrackOnly_VarRad->fill(truth,elrec);
 
       } else {
         const xAOD::TruthParticle *firstElTruth = xAOD::EgammaHelpers::getBkgElectronMother(truth);
@@ -664,7 +664,7 @@ StatusCode EgammaMonitoring::execute() {
             if (m_LooseLH->accept(elrec)) truthRecoElectronLooseLH->fill(firstElTruth,elrec);
             if (m_MediumLH->accept(elrec)) truthRecoElectronMediumLH->fill(firstElTruth,elrec);
             if (m_TightLH->accept(elrec)) truthRecoElectronTightLH->fill(firstElTruth,elrec);
-            if (m_IsoFixedCutTightTrackOnly->accept(*elrec)) recoElectronIsoFixedCutTightTrackOnly->fill(firstElTruth,elrec);
+            if (m_IsoTightTrackOnly_VarRad->accept(*elrec)) recoElectronIsoTightTrackOnly_VarRad->fill(firstElTruth,elrec);
           }
 
         }
@@ -869,8 +869,8 @@ StatusCode EgammaMonitoring::finalize() {
     ATH_CHECK(recoElectronMediumLHEfficiency.divide(truthRecoElectronMediumLH.get(), truthPromptElectronAll.get()));
     egammaMonitoring::EfficiencyPlot recoElectronTightLHEfficiency("recoElectronTightLHEfficiency", "/MONITORING/recoElectronTightLHEfficiency/", rootHistSvc );
     ATH_CHECK(recoElectronTightLHEfficiency.divide( truthRecoElectronTightLH.get(), truthPromptElectronAll.get()));
-    egammaMonitoring::EfficiencyPlot recoElectronIsoFixedCutTightTrackOnlyEfficiency("recoElectronIsoFixedCutTightTrackOnlyEfficiency", "/MONITORING/recoElectronIsoFixedCutTightTrackOnlyEfficiency/", rootHistSvc );
-    ATH_CHECK(recoElectronIsoFixedCutTightTrackOnlyEfficiency.divide( recoElectronIsoFixedCutTightTrackOnly.get(), truthPromptElectronWithReco.get()));
+    egammaMonitoring::EfficiencyPlot recoElectronIsoTightTrackOnly_VarRadEfficiency("recoElectronIsoTightTrackOnly_VarRadEfficiency", "/MONITORING/recoElectronIsoTightTrackOnly_VarRadEfficiency/", rootHistSvc );
+    ATH_CHECK(recoElectronIsoTightTrackOnly_VarRadEfficiency.divide( recoElectronIsoTightTrackOnly_VarRad.get(), truthPromptElectronWithReco.get()));
   }
 
   if ("gamma" == m_sampleType) {

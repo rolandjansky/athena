@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -101,7 +101,7 @@ public:
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
     recoElectronIsoFixedCutTight;
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
-    recoElectronIsoFixedCutTightTrackOnly;
+    recoElectronIsoTightTrackOnly_VarRad;
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
     recoElectronIsoFixedCutLoose;
 
@@ -208,10 +208,10 @@ private:
     "CP::IsolationSelectionTool/IsoFixedCutTight",
     ""
   };
-  ToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightTrackOnly{
+  ToolHandle<CP::IIsolationSelectionTool> m_IsoTightTrackOnly_VarRad{
     this,
-    "IsoFixedCutTightTrackOnly",
-    "CP::IsolationSelectionTool/IsoFixedCutTightTrackOnly",
+    "IsoTightTrackOnly_VarRad",
+    "CP::IsolationSelectionTool/IsoTightTrackOnly_VarRad",
     ""
   };
   ToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightCaloOnly{
