@@ -28,6 +28,8 @@ namespace Trig{
       
     private:
 
+        Gaudi::Property< bool > m_acceptAll { this, "AcceptAll", false , "Accept all" };
+
   };
 
 }//namespace

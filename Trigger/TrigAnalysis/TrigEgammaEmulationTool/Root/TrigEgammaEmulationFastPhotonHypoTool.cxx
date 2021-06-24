@@ -26,7 +26,7 @@ bool TrigEgammaEmulationFastPhotonHypoTool::emulate(const Trig::TrigData &input,
     return false;
   }
 
-  if(!input.trigPhoton){
+  if(!input.trig_photon){
     ATH_MSG_DEBUG( "Cluster is null ptr");
     return false;
   }
@@ -50,7 +50,7 @@ bool TrigEgammaEmulationFastPhotonHypoTool::decide(  const Trig::TrigData &input
   float HadET        = -99.0;
   int cutCounter     = 0;
 
-  const xAOD::TrigPhoton* photon = input.trigPhoton;
+  const xAOD::TrigPhoton* photon = input.trig_photon;
 
   
   // Determine which eta bin to apply the cuts                                                                                                                                                              

@@ -16,10 +16,16 @@ TrigEgammaEmulationBaseHypoTool::TrigEgammaEmulationBaseHypoTool( const std::str
 //**********************************************************************
 StatusCode TrigEgammaEmulationBaseHypoTool::initialize() {
 
-  ATH_CHECK(m_trigdec.retrieve());
+  ATH_CHECK(m_trigdec.retrieve() );
   ATH_CHECK( m_lumiBlockMuTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
+//**********************************************************************
+
+float TrigEgammaEmulationBaseHypoTool::avgmu() const 
+{
+  return m_lumiBlockMuTool->averageInteractionsPerCrossing();
+}
 
 

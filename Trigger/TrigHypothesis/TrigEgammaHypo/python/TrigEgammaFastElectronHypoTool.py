@@ -58,7 +58,7 @@ class TrigEgammaFastElectronHypoToolConfig:
                              'lrttight' :5.0
                            }
 
-  def __init__(self, name, threshold, sel, trkinfo, lrtinfo):
+  def __init__(self, name, threshold, sel, trkinfo, lrtinfo, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastElectronHypoTool')
@@ -68,10 +68,11 @@ class TrigEgammaFastElectronHypoToolConfig:
     self.__trkInfo    = trkinfo
     self.__lrtInfo    = lrtinfo
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastElectronHypoTool(name)
+    if not tool:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaFastElectronHypoTool(name)
+    
     self.__tool = tool
-
     tool.AcceptAll            = False
     tool.DoRinger             = False
     tool.TrackPt              = 0.0
@@ -150,7 +151,8 @@ class TrigEgammaFastElectronHypoToolConfig:
       self.nominal()
 
     # add mon tool
-    self.addMonitoring()
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -177,14 +179,14 @@ class TrigEgammaFastElectronHypoToolConfig:
 
 
 
-def _IncTool(name, threshold, sel, trk, lrt):
-  config = TrigEgammaFastElectronHypoToolConfig(name, threshold, sel, trk, lrt)
+def _IncTool(name, threshold, sel, trk, lrt, tool=None):
+  config = TrigEgammaFastElectronHypoToolConfig(name, threshold, sel, trk, lrt, tool=tool)
   config.compile()
   return config.tool()
 
 
 
-def TrigEgammaFastElectronHypoToolFromDict( d ):
+def TrigEgammaFastElectronHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if (i['signature']=='Electron')]
 
@@ -202,18 +204,18 @@ def TrigEgammaFastElectronHypoToolFromDict( d ):
 
     name = d['chainName']
 
-    return _IncTool( name, __th(cparts[0]), __sel(cparts[0]), __trk(cparts[0]) , __lrt(cparts[0]) )
+    return _IncTool( name, __th(cparts[0]), __sel(cparts[0]), __trk(cparts[0]) , __lrt(cparts[0]) , tool=tool)
 
 
 
-def TrigEgammaFastElectronHypoToolFromName( name, conf ):
+def TrigEgammaFastElectronHypoToolFromName( name, conf, tool=None ):
     """ provides configuration of the hypo tool giben the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastElectronHypoToolFromDict( decodedDict )
+    return TrigEgammaFastElectronHypoToolFromDict( decodedDict, tool=tool )
 
 
 if __name__ == "__main__":

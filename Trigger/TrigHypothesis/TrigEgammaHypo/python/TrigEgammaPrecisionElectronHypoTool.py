@@ -82,7 +82,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
       }
 
 
-  def __init__(self, name, threshold, sel, iso, d0):
+  def __init__(self, name, threshold, sel, iso, d0, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionElectronHypoTool')
@@ -92,15 +92,16 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__iso = iso
     self.__d0  = d0
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
-    tool = TrigEgammaPrecisionElectronHypoTool( name )
+    if not tool:
+      from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
+      tool = TrigEgammaPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( self.__threshold*GeV, tool )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
     tool.RelPtConeCut   = -999
-    tool.PidName        = ":wq!"
+    tool.PidName        = ""
     tool.d0Cut          = self.__lrtD0Cut[d0]
     self.__tool         = tool    
 
@@ -181,7 +182,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     else:
       self.nominal()
 
-    self.addMonitoring()
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -209,14 +211,14 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.tool().MonTool = monTool
 
 
-def _IncTool( name, threshold, sel, iso, d0 ):
-    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso, d0)
+def _IncTool( name, threshold, sel, iso, d0 , tool=None):
+    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso, d0 , tool=tool)
     config.compile()
     return config.tool()
 
 
 
-def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
+def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Electron'))]
 
@@ -236,10 +238,10 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
         return cpart['lrtInfo']
 
     name = d['chainName']
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0]), __d0(cparts[0])  )
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0]), __d0(cparts[0]) , tool=tool )
                    
     
-def TrigEgammaPrecisionElectronHypoToolFromName(name, conf):
+def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-    return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict )
+    return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict , tool=tool )

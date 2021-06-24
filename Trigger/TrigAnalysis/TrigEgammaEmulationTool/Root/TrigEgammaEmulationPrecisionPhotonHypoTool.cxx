@@ -128,11 +128,11 @@ bool TrigEgammaEmulationPrecisionPhotonHypoTool::decide(  const Trig::TrigData &
   bool pass=false;
 
   if (m_pidName=="tight"){
-    pass = (bool)input.photonIsEMTools[0]->accept(ph);
+    pass = (bool)input.egammaPhotonCBTools[0]->accept(ph);
   }else if (m_pidName=="medium"){
-    pass = (bool)input.photonIsEMTools[1]->accept(ph);
+    pass = (bool)input.egammaPhotonCBTools[1]->accept(ph);
   }else if (m_pidName=="loose"){
-    pass =  (bool)input.photonIsEMTools[2]->accept(ph);
+    pass =  (bool)input.egammaPhotonCBTools[2]->accept(ph);
   }else{
     pass = true;
   }

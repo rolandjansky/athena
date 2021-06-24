@@ -9,7 +9,6 @@
 #include "AsgTools/AsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationInfo.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationBaseHypoTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -31,17 +30,16 @@ namespace Trig{
 
       StatusCode initialize();
 
-      bool emulate( const TrigData &, bool &) const{return true;};
-
-
+      bool emulate( const TrigData &, bool &) const {return true;};
 
     protected:
       
+      float avgmu() const ;
+
       /*! Trigger decision tool */
       ToolHandle<Trig::TrigDecisionTool> m_trigdec;
       ToolHandle<ILumiBlockMuTool>       m_lumiBlockMuTool;
 
-      float avgmu() const {return m_lumiBlockMuTool->averageInteractionsPerCrossing();};
   };
 
 

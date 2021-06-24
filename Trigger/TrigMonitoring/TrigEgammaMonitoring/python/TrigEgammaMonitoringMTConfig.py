@@ -325,6 +325,9 @@ class TrigEgammaMonAlgBuilder:
       raise RuntimeError( 'Wrong run flag configuration' )
     
 
+
+    
+
     if self.activate_zee:
 
       self.__logger.info( "Creating the Zee monitor algorithm...")

@@ -14,13 +14,14 @@ atlas_add_library( TrigEgammaEmulationToolLib
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigSteeringEvent xAODRootAccess
    LINK_LIBRARIES AsgTools AthContainers 
+   ElectronPhotonSelectorToolsLib
    EgammaAnalysisInterfacesLib InDetTrackSelectionToolLib 
    LumiBlockCompsLib PATCoreLib RecoToolInterfaces 
    TrigNavStructure TrigDecisionToolLib TrigEgammaMatchingToolLib 
    xAODBase xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo 
    xAODTrigRinger xAODTrigger RingerSelectorToolsLib
    AthOnnxruntimeServiceLib
-    )
+   )
 
 atlas_add_component( TrigEgammaEmulationTool
    src/*.cxx 

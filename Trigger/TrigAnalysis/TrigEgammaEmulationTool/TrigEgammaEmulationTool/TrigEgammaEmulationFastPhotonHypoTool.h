@@ -30,9 +30,9 @@ namespace Trig{
         bool decide(  const Trig::TrigData &input ) const;
         
         Gaudi::Property<bool>                 m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-        Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
-        Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" }; 
-        Gaudi::Property< std::vector<float> > m_eTthr       { this, "ETThr"         , {} , "" };  
+        Gaudi::Property<float>                m_detacluster { this, "dETACLUSTERthr", 0. , "" };
+        Gaudi::Property<float>                m_dphicluster { this, "dPHICLUSTERthr", 0. , "" }; 
+        Gaudi::Property< std::vector<float> > m_eTthr       { this, "ETthr"         , {} , "" };  
         Gaudi::Property< std::vector<float> > m_eT2thr { this, "ET2thr", {}, "Second layer ET threshold" };
         Gaudi::Property< std::vector<float> > m_hadeTthr { this, "HADETthr", {}, "" };
         Gaudi::Property< std::vector<float> > m_hadeT2thr { this, "HADET2thr", {}, "" };
