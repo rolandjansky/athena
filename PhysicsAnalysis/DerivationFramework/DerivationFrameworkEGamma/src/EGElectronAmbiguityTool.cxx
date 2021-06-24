@@ -18,6 +18,33 @@
 
 #include "TMath.h"
 
+namespace {
+void
+helix(const xAOD::TrackParticle* trkP,
+      const xAOD::Vertex* pvtx,
+      std::vector<double>& he)
+{
+  constexpr double PTTOCURVATURE = -0.301;
+
+  he[0] = 1. / tan(trkP->theta());
+  he[1] = PTTOCURVATURE * trkP->charge() / trkP->pt();
+
+  if (trkP->phi0() > 0.)
+    he[4] = trkP->phi0();
+  else
+    he[4] = TMath::TwoPi() + trkP->phi0();
+
+  double c1 = cos(trkP->phi0());
+  double s1 = sin(trkP->phi0());
+  he[3] = trkP->d0() + c1 * pvtx->y() - s1 * pvtx->x();
+
+  c1 *= he[0];
+  s1 *= he[0];
+  he[2] = trkP->z0() - c1 * pvtx->x() - s1 * pvtx->y() + pvtx->z();
+}
+}//end anonymous
+
+
 namespace DerivationFramework {
 
 EGElectronAmbiguityTool::EGElectronAmbiguityTool(const std::string& t,
@@ -166,13 +193,11 @@ EGElectronAmbiguityTool::addBranches() const
 
     // Just for debug
     const xAOD::TrackParticle* eleGSFtp = ele->trackParticle();
-    if (eleGSFtpStored.find(eleGSFtp) == eleGSFtpStored.end())
-      eleGSFtpStored.insert(eleGSFtp);
+    eleGSFtpStored.insert(eleGSFtp);
 
     const xAOD::TrackParticle* eleIDtp =
       xAOD::EgammaHelpers::getOriginalTrackParticle(ele);
-    if (eleIDtpStored.find(eleIDtp) == eleIDtpStored.end())
-      eleIDtpStored.insert(eleIDtp);
+    eleIDtpStored.insert(eleIDtp);
 
     // The loop on track
     for (const auto* tp : *idtpC) {
@@ -452,30 +477,5 @@ DerivationFramework::EGElectronAmbiguityTool::decorateSimple(
       dambi(*ele) = 0;
   }
   return StatusCode::SUCCESS;
-}
-
-void
-DerivationFramework::EGElectronAmbiguityTool::helix(
-  const xAOD::TrackParticle* trkP,
-  const xAOD::Vertex* pvtx,
-  std::vector<double>& he) const
-{
-  constexpr double PTTOCURVATURE = -0.301;
-
-  he[0] = 1. / tan(trkP->theta());
-  he[1] = PTTOCURVATURE * trkP->charge() / trkP->pt();
-
-  if (trkP->phi0() > 0.)
-    he[4] = trkP->phi0();
-  else
-    he[4] = TMath::TwoPi() + trkP->phi0();
-
-  double c1 = cos(trkP->phi0());
-  double s1 = sin(trkP->phi0());
-  he[3] = trkP->d0() + c1 * pvtx->y() - s1 * pvtx->x();
-
-  c1 *= he[0];
-  s1 *= he[0];
-  he[2] = trkP->z0() - c1 * pvtx->x() - s1 * pvtx->y() + pvtx->z();
 }
 

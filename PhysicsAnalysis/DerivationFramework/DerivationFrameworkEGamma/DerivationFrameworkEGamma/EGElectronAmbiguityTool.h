@@ -104,11 +104,8 @@ private:
     std::unique_ptr<ConstDataVector<xAOD::TrackParticleContainer>>& tpC,
     const xAOD::Electron* ele,
     const xAOD::Vertex* pvtx) const;
-  void helix(const xAOD::TrackParticle* trkP,
-             const xAOD::Vertex* pvtx,
-             std::vector<double>& h) const;
 
-  bool m_isMC;
+  bool m_isMC{};
 
   // cuts to select the electron to run on
   double m_elepTCut;
