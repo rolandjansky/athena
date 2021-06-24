@@ -27,7 +27,6 @@ StatusCode Run2ToRun3TrigNavConverter::initialize()
 
 
   ATH_CHECK(m_trigNavWriteKey.initialize());
-  ATH_CHECK(m_trigSummaryWriteKey.initialize());
   ATH_CHECK(m_configSvc.retrieve());
   ATH_CHECK(m_clidSvc.retrieve());
   ATH_CHECK( m_tdt.empty() != m_trigNavKey.key().empty() ); //either of the two has to be enabled but not both
@@ -96,9 +95,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
 
   SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputNavigation = TrigCompositeUtils::createAndStore(m_trigNavWriteKey, context);
   auto decisionOutput = outputNavigation.ptr();
-  SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputSummary = TrigCompositeUtils::createAndStore(m_trigSummaryWriteKey, context);
-  auto decisionSummary = outputSummary.ptr();
-  TrigCompositeUtils::Decision *passRawOutput = TrigCompositeUtils::newDecisionIn(decisionSummary, "HLTPassRaw");
+  TrigCompositeUtils::Decision *passRawOutput = TrigCompositeUtils::newDecisionIn(decisionOutput, "HLTPassRaw");
 
   if (m_doPrint)
   {
