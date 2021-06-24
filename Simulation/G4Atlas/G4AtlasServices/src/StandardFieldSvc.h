@@ -57,7 +57,6 @@ class AtlasField : public G4MagneticField
     /// Pointer to the magnetic field service.
     /// We use a raw pointer here to avoid ServiceHandle overhead.
     MagField::IMagFieldSvc* m_magFieldSvc{nullptr};
-    
 };
 
 
