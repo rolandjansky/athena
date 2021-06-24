@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_ALGS_COLLECTIONMERGER_H
@@ -84,6 +84,10 @@ namespace ISF {
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputSCTHits{this, "InputSCTHits", {}, ""};
     SG::ReadHandleKeyArray<TRTUncompressedHitCollection> m_inputTRTUncompressedHits{this, "InputTRTUncompressedHits", {}, ""};
 
+    SG::ReadHandleKeyArray<SiHitCollection>              m_inputITkPixelHits{this, "InputITkPixelHits", {}, ""};
+    SG::ReadHandleKeyArray<SiHitCollection>              m_inputITkStripHits{this, "InputITkStripHits", {}, ""};
+    SG::ReadHandleKeyArray<SiHitCollection>              m_inputHGTDHits{this, "InputHGTDHits", {}, ""};
+
     SG::ReadHandleKeyArray<LArHitContainer>              m_inputLArEMBHits{this, "InputLArEMBHits", {}, ""};
     SG::ReadHandleKeyArray<LArHitContainer>              m_inputLArEMECHits{this, "InputLArEMECHits", {}, ""};
     SG::ReadHandleKeyArray<LArHitContainer>              m_inputLArFCALHits{this, "InputLArFCALHits", {}, ""};
@@ -103,6 +107,10 @@ namespace ISF {
     SG::WriteHandleKey<SiHitCollection>                 m_outputPixelHits{this, "OutputPixelHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputSCTHits{this, "OutputSCTHits", "", ""};
     SG::WriteHandleKey<TRTUncompressedHitCollection>    m_outputTRTUncompressedHits{this, "OutputTRTUncompressedHits", "", ""};
+
+    SG::WriteHandleKey<SiHitCollection>                 m_outputITkPixelHits{this, "OutputITkPixelHits", "", ""};
+    SG::WriteHandleKey<SiHitCollection>                 m_outputITkStripHits{this, "OutputITkStripHits", "", ""};
+    SG::WriteHandleKey<SiHitCollection>                 m_outputHGTDHits{this, "OutputHGTDHits", "", ""};
 
     SG::WriteHandleKey<LArHitContainer>                 m_outputLArEMBHits{this, "OutputLArEMBHits", "", ""};
     SG::WriteHandleKey<LArHitContainer>                 m_outputLArEMECHits{this, "OutputLArEMECHits", "", ""};
