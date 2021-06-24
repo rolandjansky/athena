@@ -135,7 +135,7 @@ class tauRecCombinedTESConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='CalibLoopResult_v04-04.root'
+    StoredValue='CombinedTES_R22_v0.root'
 
 class tauRecTauJetRNNConfig(JobProperty):
     """Config files for TauJetRNNEvaluator jet ID

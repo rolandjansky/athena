@@ -92,7 +92,7 @@ private:
                        Variables& variables) const;
   
   /** Get the allowed difference between calo TES and PanTau */ 
-  double getNsigmaCompatibility(const double& caloEt) const;
+  double getNsigmaCompatibility(const double& caloEt, const int& decayModeIndex) const;
 
   /// Switch of adding the intermediate results
   bool m_addCalibrationResultVariables;
@@ -136,8 +136,8 @@ private:
   /// Calibration histogram: correlation coefficient of calo TES and PanTau
   std::array<std::unique_ptr<TH1F>, DecayModeBinning> m_correlationHists; //!
 
-  /// Calibration histogram: maximum tolerence in unit of combined sigma
-  std::unique_ptr<TF1> m_nSigmaCompatibility; //!
+  /// Maximum tolerence in unit of combined sigma, as a function of calo Et
+  std::array<std::unique_ptr<TF1>, DecayModeBinning> m_nSigmaCompatibility; //!
 };
 
 #endif // TAURECTOOLS_TAUCOMBINEDTES_H
