@@ -1174,7 +1174,13 @@ namespace top {
         m_largeRJetUncertainties_NPModel = largeR_config;
       }
     }
-    
+ 
+    inline virtual void largeRJetUncertainties_JMR_NPModel(const std::string& largeR_JMR_config) {
+      if (!m_configFixed) {
+        m_largeRJetUncertainties_JMR_NPModel = largeR_JMR_config;
+      }
+    }
+   
     inline virtual void largeRJetUncertaintiesConfigDir(const std::string& largeRConfigDir) {
       if (!m_configFixed) {
         m_largeRJetUncertaintiesConfigDir = largeRConfigDir;
@@ -1192,6 +1198,7 @@ namespace top {
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::map<std::string,std::string> largeRJetSubstructureVariables() const {return m_largeRJetSubstructureVariables;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
+    inline virtual const std::string& largeRJetUncertainties_JMR_NPModel() const {return m_largeRJetUncertainties_JMR_NPModel;}
     inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
@@ -1358,9 +1365,7 @@ namespace top {
     inline bool doMultipleJES() const {return m_doMultipleJES;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
-    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
-                                                                                            return m_jetUncertainties_QGHistPatterns;
-                                                                                                                                     }
+    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
     inline virtual void jetJERSmearingModel(const std::string& s) {
       if (!m_configFixed) {
@@ -1369,6 +1374,14 @@ namespace top {
     }
 
     inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
+
+    inline virtual void largeRSysts_TreatMCasPseudodata(const bool& b) {
+      if (!m_configFixed) {
+        m_largeRSysts_TreatMCasPseudodata = b;
+      }
+    }
+
+    inline virtual bool largeRSysts_TreatMCasPseudodata() const {return m_largeRSysts_TreatMCasPseudodata;}
 
     inline virtual void jetCalibSequence(const std::string& s) {
       if (!m_configFixed) {
@@ -1765,10 +1778,6 @@ namespace top {
     const std::unordered_map<std::string, std::vector<std::string>>& boostedTaggersSFSysNames() const {return m_boostedTaggersSFSysNames;}
     void setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname);
     void setBoostedTaggersSFSysNames(const std::unordered_map<std::string, std::vector<std::string>>& sysNames) {m_boostedTaggersSFSysNames=sysNames;}
-    // TEMPORARY methods to enable/disable boosted tagging SF uncertainties
-    // TODO implemented for testing of JetUncertainties in r22 until porting is fully done
-    inline bool applyBoostedJetTaggersUncertainties() const { return m_applyBoostedTaggerUncertainties; }
-    void applyBoostedJetTaggersUncertainties(bool flag);
 
     // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
     const std::vector<std::pair<std::string, std::string> > bTagWP() const {return m_chosen_btaggingWP_caloJet;}
@@ -2351,6 +2360,7 @@ namespace top {
                                                                 // more flexibility
     bool m_doMultipleJES;
     std::string m_jetJERSmearingModel; // Full or Simple
+    bool m_largeRSysts_TreatMCasPseudodata; // True or False
     std::string m_jetCalibSequence; // GCC or JMS
     bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False
@@ -2375,6 +2385,7 @@ namespace top {
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::map<std::string,std::string> m_largeRJetSubstructureVariables;
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
+    std::string m_largeRJetUncertainties_JMR_NPModel; //large R JMR uncertainties configuration
     std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file
     //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
@@ -2525,7 +2536,6 @@ namespace top {
     std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
     std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
     std::unordered_map<std::string, std::vector<std::string>> m_boostedTaggersSFSysNames;
-    bool m_applyBoostedTaggerUncertainties;
 
     // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;

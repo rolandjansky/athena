@@ -42,6 +42,7 @@
 // CP Tool include(s):
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
+#include "JetCPInterfaces/ICPJetCorrectionTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
@@ -104,13 +105,14 @@ namespace top {
 
     virtual StatusCode applyTaggingSFSystematic();
 
+
     StatusCode printout(const bool isLargeR);
 
   private:
     std::shared_ptr<top::TopConfig> m_config;
-    bool m_doJER;
     bool m_doFull_JER;
     bool m_doFull_JER_Pseudodata;
+    bool m_doOnly_JER_largeR;
     bool m_isMC;
     bool m_doMultipleJES;
     bool m_do_fjvt = false;
@@ -134,7 +136,7 @@ namespace top {
     std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;
     std::unordered_map<std::string, std::vector<CP::SystematicSet>> m_tagSFUncorrelatedSystematics; // Uncertainties name fo
     std::unordered_map<std::string, std::vector<std::string>> m_tagSFSysNames;
-
+    ToolHandle<ICPJetCorrectionTool> m_FFJetSmearingTool;
 
     // do decorate the large-R jets with the boosted-tagging flags
     // and decorate jets with TAccept object containing detailed tag result informaiton

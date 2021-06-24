@@ -257,6 +257,7 @@ namespace top {
     m_jetUncertainties_QGHistPatterns(),
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
+    m_largeRSysts_TreatMCasPseudodata(false),
     m_jetCalibSequence("GSC"),
     m_allowSmallRJMSforAFII(false),
     m_jetStoreTruthLabels("True"),
@@ -278,7 +279,8 @@ namespace top {
     m_largeRJetPtcut(25000.),
     m_largeRJetMasscut(0.),
     m_largeRJetEtacut(2.5),
-    m_largeRJetUncertainties_NPModel("CategoryReduction"),
+    m_largeRJetUncertainties_NPModel("CategoryJES_FullJER_FullJMS"),
+    m_largeRJetUncertainties_JMR_NPModel("FullJMR"),
     m_largeRJetUncertaintiesConfigDir("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
 
@@ -1297,6 +1299,11 @@ namespace top {
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
+    if (settings->value("LargeRSysts_TreatMCasPseudodata") == "False") {
+      this->largeRSysts_TreatMCasPseudodata(false);
+    } else if (settings->value("LargeRSysts_TreatMCasPseudodata") == "True") {
+      this->largeRSysts_TreatMCasPseudodata(true);
+    }
     this->jetCalibSequence(settings->value("JetCalibSequence"));
     this->allowSmallRJMSforAFII(settings->value("AllowJMSforAFII") == "True");
     this->doJVTinMET(settings->retrieve("JVTinMETCalculation"));
@@ -1339,7 +1346,8 @@ namespace top {
       };
     }
 
-    this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
+    this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_JESJERJMS_NPModel"));
+    this->largeRJetUncertainties_JMR_NPModel(settings->value("LargeRJetUncertainties_JMR_NPModel"));
     this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
 
@@ -1546,8 +1554,6 @@ namespace top {
         };
       m_chosen_boostedJetTaggers.push_back(std::make_pair(helpvec[0], helpvec[1]));
     }
-
-    m_applyBoostedTaggerUncertainties = (settings->value("BoostedJetTaggingUncertainties") == "True");
 
     m_btagging_cdi_path = settings->value("BTagCDIPath");
 
@@ -2114,11 +2120,6 @@ namespace top {
     m_boostedTaggerSFnames[WP] = SFname;
   }
 
-  void TopConfig::applyBoostedJetTaggersUncertainties(bool flag) {
-    if (!m_configFixed)
-      m_applyBoostedTaggerUncertainties = flag;
-  }
-
   std::string TopConfig::FormatedWP(std::string raw_WP) {
     // just to have some backward compatibility...
     if (raw_WP == "60%") return "FixedCutBEff_60";
@@ -2342,7 +2343,7 @@ namespace top {
 
   void TopConfig::systematicsJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {	
+      for (auto s : syst) {
         m_systHashJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_list_systHash_electronInJetSubtraction->push_back(s.hash());
@@ -2358,7 +2359,7 @@ namespace top {
 
   void TopConfig::systematicsLargeRJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {	
+      for (auto s : syst) {
         m_systHashLargeRJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapLargeRJets->insert(std::make_pair(s.hash(), s));
