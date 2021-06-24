@@ -7,6 +7,8 @@ tdaq_package ()
 tdaq_add_library (MuonNSWCommonDecode 
 		    src/NSWCommonDecoder.cxx 
 		    src/NSWElink.cxx
+		    src/VMMChannel.cxx
+		    src/sTGCMapper.cxx
 		  LINK_LIBRARIES
 		    tdaq-common::DataReader
 		    tdaq-common::EventStorage
