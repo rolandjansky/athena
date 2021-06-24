@@ -1079,7 +1079,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                 for oldC in oldCset & newCset:
                     __areSettingsSame( toolDict[oldC], newCdict[oldC], __indent(indent))
                 # And now just the new properties in conf2 (the stuff just in conf1 is already in the objec)
-                for newC in newCset-oldCset:
+                for newC in sorted(newCset-oldCset):
                     className = newCdict[newC].getFullJobOptName().split( "/" )[0]
                     _log.debug('%s %s not in oldconfig. Will try to create conf1 instance using this className: %s, and merge.',indent, newC, className)
                     configurableClass = __findConfigurableClass( className )
