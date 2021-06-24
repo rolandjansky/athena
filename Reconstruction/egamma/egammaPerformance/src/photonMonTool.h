@@ -125,45 +125,45 @@ class photonHist
   TH1 *m_hLB_NConv; // Histogram for number of photons vs LB
   TH1 *m_hLB_fConv; // Histogram of Conv. photon fraction vs LB
 
- photonHist(std::string name)
-   :m_hN(nullptr),
-    m_hNUnconv(nullptr),
-    m_hNConv(nullptr),
-    m_hEt(nullptr),
-    m_hEtUnconv(nullptr),
-    m_hEtConv(nullptr),
-    m_hEta(nullptr),
-    m_hEtaUnconv(nullptr),
-    m_hEtaConv(nullptr),
-    m_hPhi(nullptr),
-    m_hPhiUnconv(nullptr),
-    m_hPhiConv(nullptr),
-    m_hEtaPhi(nullptr),
-    m_hEtaPhi4GeV(nullptr),
-    m_hEtaPhi20GeV(nullptr),
-    m_hEtaPhiUnconv(nullptr),
-    m_hEtaPhiConv(nullptr),
-    m_hTopoEtCone40(nullptr),
-    m_hTopoEtCone40Unconv(nullptr),
-    m_hTopoEtCone40Conv(nullptr),
-    m_hPtCone20(nullptr),
-    m_hPtCone20Unconv(nullptr),
-    m_hPtCone20Conv(nullptr),
-    m_hTime(nullptr),
-    m_hRConv(nullptr),
-    m_hLB_N(nullptr),
-    m_hLB_NUnconv(nullptr),
-    m_hLB_NConv(nullptr),
-    m_hLB_fConv(nullptr)
-    {
-      m_nameOfPhotonType = std::move(name);
-      m_lumiBlockNumber = 0;
-      m_nPhotonsInCurrentLB = 0;
-      m_nPhotonsInCurrentLBUnconv = 0;
-      m_nPhotonsInCurrentLBConv = 0;
-      m_nPhotons = 0;
-      m_nPhotonsUnconv = 0;
-      m_nPhotonsConv = 0;
+  photonHist(std::string name)
+    : m_nameOfPhotonType(std::move(name))
+    , m_hN(nullptr)
+    , m_hNUnconv(nullptr)
+    , m_hNConv(nullptr)
+    , m_hEt(nullptr)
+    , m_hEtUnconv(nullptr)
+    , m_hEtConv(nullptr)
+    , m_hEta(nullptr)
+    , m_hEtaUnconv(nullptr)
+    , m_hEtaConv(nullptr)
+    , m_hPhi(nullptr)
+    , m_hPhiUnconv(nullptr)
+    , m_hPhiConv(nullptr)
+    , m_hEtaPhi(nullptr)
+    , m_hEtaPhi4GeV(nullptr)
+    , m_hEtaPhi20GeV(nullptr)
+    , m_hEtaPhiUnconv(nullptr)
+    , m_hEtaPhiConv(nullptr)
+    , m_hTopoEtCone40(nullptr)
+    , m_hTopoEtCone40Unconv(nullptr)
+    , m_hTopoEtCone40Conv(nullptr)
+    , m_hPtCone20(nullptr)
+    , m_hPtCone20Unconv(nullptr)
+    , m_hPtCone20Conv(nullptr)
+    , m_hTime(nullptr)
+    , m_hRConv(nullptr)
+    , m_hLB_N(nullptr)
+    , m_hLB_NUnconv(nullptr)
+    , m_hLB_NConv(nullptr)
+    , m_hLB_fConv(nullptr)
+  {
+    m_lumiBlockNumber = 0;
+    m_nPhotonsInCurrentLB = 0;
+    m_nPhotonsInCurrentLBUnconv = 0;
+    m_nPhotonsInCurrentLBConv = 0;
+    m_nPhotons = 0;
+    m_nPhotonsUnconv = 0;
+    m_nPhotonsConv = 0;
 
     }
   
