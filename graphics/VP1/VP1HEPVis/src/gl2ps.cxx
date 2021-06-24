@@ -2929,10 +2929,9 @@ static void gl2psParseStipplePattern(GLushort pattern, GLint factor,
      couples (our longest possible array is thus [on4 off4 on3 off3
      on2 off2 on1 off1 on0 off0]) */
   *nb = 0;
-  for(n = i - 1; n >= 0; n--){
+  for(n = i - 1; n >= 0 && *nb <= 8; n--){
     array[(*nb)++] = factor * on[n];
     array[(*nb)++] = factor * off[n];
-    if(*nb == 10) break;
   }
 }
 
@@ -5913,7 +5912,8 @@ GL2PSDLL_API GLint gl2psDrawImageMap(GLsizei width, GLsizei height,
   glPassThrough((GLfloat)width);
   glPassThrough((GLfloat)height);
   for(i = 0; i < size; i += sizeoffloat){
-    float *value = (float*)imagemap;
+    // cppcheck-suppress invalidPointerCast
+    const float *value = reinterpret_cast<const float*>(imagemap);
     glPassThrough(*value);
     imagemap += sizeoffloat;
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -44,15 +44,17 @@ HEPVis::SbPlane::SbPlane(void) //private to avoid problems.
 :m_normal(0,0,1) //CLHEP initialize with x-y plane (normal to z and distance 0)
 ,m_distance(0)
 {}
-HEPVis::SbPlane::SbPlane(const SbVec3d& a_normal,double a_D) {
-  m_normal = a_normal;
+HEPVis::SbPlane::SbPlane(const SbVec3d& a_normal,double a_D)
+  : m_normal (a_normal),
+    m_distance (a_D)
+{
   m_normal.normalize();
-  m_distance = a_D;
   //NOTE : equation of the plan is then : n[0]*x+n[1]*y+n[2]*z-distance = 0
 }
-HEPVis::SbPlane::SbPlane(const SbVec3d& a_normal,const SbVec3d& a_point) {
+HEPVis::SbPlane::SbPlane(const SbVec3d& a_normal,const SbVec3d& a_point)
+  : m_normal (a_normal)
+{
   //FIXME if(normalref.sqrLength()==0) //throw
-  m_normal = a_normal;
   m_normal.normalize();
   m_distance = m_normal.dot(a_point);
 }

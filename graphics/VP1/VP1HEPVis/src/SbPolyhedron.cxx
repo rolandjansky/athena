@@ -2009,7 +2009,6 @@ void SbPolyhedronPolygonXSect::Internals::initEdgeClassificationsAndNeighbours()
     for (unsigned iedge=0;iedge<3;++iedge) {
       Edge eun = GetEdge(&(*itt),iedge,false/*unoriented!*/);
       if (edge2triangles_map.find(eun)==edge2triangles_map.end()) {
-	edge2triangles_map[eun] = std::vector<Triangles::const_iterator>();
 	alledges.insert(eun);
       }
       edge2triangles_map[eun].push_back(itt);
@@ -2081,8 +2080,7 @@ void SbPolyhedronPolygonXSect::Internals::addExtraVertices() {
       Edge e = GetEdge(&(*itt),iedge,true/*oriented!*/);
       const Triangle* trneighbour = neighbourmap[e];
       assert(trneighbour);//fixme
-      if (triangles_with_extra_vertex.find(trneighbour)==triangles_with_extra_vertex.end()) {
-	triangles_with_extra_vertex.insert(trneighbour);
+      if (triangles_with_extra_vertex.insert(trneighbour).second) {
 	triangles_with_extra_vertex.insert(&(*itt));
 	Edge eun = GetEdge(&(*itt),iedge,false/*unoriented*/);
 	edges_with_extra_vertex.insert(eun);
@@ -2408,7 +2406,7 @@ void SbPolyhedronArbitrary::Finalize()
   SetReferences();
 }
 
-SbPolyhedronGenericTrap::SbPolyhedronGenericTrap(double Dz, const std::vector<std::pair<double,double> > Vertices)
+SbPolyhedronGenericTrap::SbPolyhedronGenericTrap(double Dz, const std::vector<std::pair<double,double> >& Vertices)
 {
   AllocateMemory(8,6);
 
