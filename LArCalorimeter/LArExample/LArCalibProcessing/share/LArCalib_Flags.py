@@ -71,5 +71,5 @@ def LArCalibFolderTag(folder,tag):
 
 
 # backward compatiblity with 'include' ...
-from LArCalibProcessing.utils import FolderTagResolver as FolderTagResover, _globaltag
-_globaltag=LArCalib_Flags.globalFlagDB
+from LArCalibProcessing.utils import FolderTagResolver as FolderTagResover
+FolderTagResover._globalTag=LArCalib_Flags.globalFlagDB
