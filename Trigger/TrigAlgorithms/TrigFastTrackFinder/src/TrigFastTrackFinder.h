@@ -60,8 +60,7 @@
 
 #include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 
-
-//for UTT
+// for UTT
 #include "TrigT1Interfaces/RecJetRoI.h"
 
 //for GPU acceleration
@@ -143,11 +142,10 @@ protected:
 
   // DataHandles for UTT
   SG::ReadHandleKey<DataVector<LVL1::RecJetRoI>> m_recJetRoiCollectionKey {this, "RecJetRoI", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey{this, "HitDVSeed", "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey{this, "HitDVTrk", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey{this, "HitDVSP", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey{this, "dEdxTrk", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey{this, "dEdxHit", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey {this, "HitDVSP",  "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey {this, "dEdxTrk",  "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey {this, "dEdxHit",  "", ""};
 
   // Control flags
 
@@ -221,13 +219,17 @@ protected:
   std::string m_trigseedML_LUT;//ML-based track seeding LUT name
 
   // L1 J seeded hit-based displaced vertex
-  bool m_doJseedHitDV;
-  StatusCode findJseedHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;
-  StatusCode calcdEdx(const EventContext&, const TrackCollection&) const;
+  bool m_doHitDV;
+  bool m_doHitDV_Seeding;
+  StatusCode findHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;
+  StatusCode findSPSeeds( const std::vector<float>&, const std::vector<float>&, const std::vector<int>&, const std::vector<int>&,
+			  std::vector<float>&, std::vector<float>& ) const;
+  int   getSPLayer(int, float) const;
   float deltaR(float, float, float, float) const;
 
   // dEdx calculation
   bool m_dodEdxTrk;
+  StatusCode calcdEdx(const EventContext&, const TrackCollection&) const;
   StatusCode finddEdxTrk(const EventContext&, const TrackCollection&) const;
   float dEdx(const Trk::Track*, int&, int&, std::vector<float>&, std::vector<float>&,
 	     std::vector<float>&, std::vector<float>&, std::vector<int>&, std::vector<int>&, std::vector<int>&) const;

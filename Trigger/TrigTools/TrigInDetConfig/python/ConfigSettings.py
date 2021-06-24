@@ -176,8 +176,9 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._TripletDoPPS    = False
       self._nClustersMin    = 8
       self._RoadWidth       = 5
-      self._dodEdxTrk       = False
       self._UseTrigSeedML   = 4
+      self._dodEdxTrk       = False
+      self._doHitDV         = True
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
