@@ -13,7 +13,6 @@
 #include <AnaAlgorithm/AnaReentrantAlgorithm.h>
 
 #include <AsgMessaging/MessageCheck.h>
-#include <RootCoreUtils/Assert.h>
 #include <stdexcept>
 
 #ifdef XAOD_STANDALONE
@@ -28,13 +27,15 @@ namespace EL
 {
   AnaReentrantAlgorithm ::
   AnaReentrantAlgorithm (const std::string& name,
-                         [[maybe_unused]] ISvcLocator *pSvcLocator)
+                         ISvcLocator *pSvcLocator)
 #ifdef XAOD_STANDALONE
     : AsgComponent (name)
 #else
     : AthReentrantAlgorithm (name, pSvcLocator)
 #endif
   {
+    (void) pSvcLocator;
+
     ANA_MSG_DEBUG ("AnaReentrantAlgorithm: " << name);
   }
 
@@ -84,6 +85,7 @@ namespace EL
 
 
 
+#ifdef XAOD_STANDALONE
   ::StatusCode AnaReentrantAlgorithm ::
   initialize ()
   {
@@ -105,6 +107,7 @@ namespace EL
   {
     return StatusCode::SUCCESS;
   }
+#endif
 
 
 

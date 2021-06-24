@@ -11,10 +11,12 @@
 #include <memory>
 #include <AnaAlgorithm/AnaAlgorithmWrapper.h>
 #include <AnaAlgorithm/AnaReentrantAlgorithmWrapper.h>
+#include <AnaAlgorithm/PythonConfigBase.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/AlgorithmWrapper.h>
 #include <EventLoop/AsgServiceWrapper.h>
+#include <EventLoop/AsgToolWrapper.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/CheckRootVersion.h>
@@ -281,6 +283,25 @@ namespace EL
   {
     // no invariant used
     algsAdd (std::make_unique<AsgServiceWrapper> (config));
+  }
+
+
+
+  void Job ::
+  algsAdd (const EL::PythonConfigBase& config)
+  {
+    // no invariant used
+    useXAOD ();
+    if (config.componentType() == "AnaAlgorithm")
+      algsAdd (std::make_unique<AnaAlgorithmWrapper> (AnaAlgorithmConfig (config)));
+    else if (config.componentType() == "AnaReentrantAlgorithm")
+      algsAdd (std::make_unique<AnaReentrantAlgorithmWrapper> (AnaReentrantAlgorithmConfig (config)));
+    else if (config.componentType() == "AsgTool")
+      algsAdd (std::make_unique<AsgToolWrapper> (asg::AsgToolConfig (config)));
+    else if (config.componentType() == "AsgService")
+      algsAdd (std::make_unique<AsgServiceWrapper> (asg::AsgServiceConfig (config)));
+    else
+      RCU_THROW_MSG ("unknown component type: \"" + config.componentType() + "\"");
   }
 
 

@@ -26,6 +26,7 @@ atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
    LINK_LIBRARIES AsgTools PATInterfaces AnaAlgorithmLib xAODBase xAODCore AthContainers xAODEventInfo
+   AsgServicesLib
    PRIVATE_LINK_LIBRARIES RootCoreUtils
    xAODJet xAODMuon xAODEgamma xAODTau )
 
@@ -37,6 +38,17 @@ atlas_add_test( cc_SysCopyHandle
    SOURCES test/cc_SysCopyHandle.cxx
    LINK_LIBRARIES AsgTools AnaAlgorithmLib xAODEventInfo xAODJet
    SystematicsHandlesLib )
+
+atlas_add_dictionary( SystematicsHandlesDict
+   SystematicsHandles/SystematicsHandlesDict.h
+   SystematicsHandles/selection.xml
+   LINK_LIBRARIES SystematicsHandlesLib )
+
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( SystematicsHandles
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES GaudiKernel SystematicsHandlesLib )
+endif()
 
 if( XAOD_STANDALONE )
    atlas_add_test( ut_CopyHelpers

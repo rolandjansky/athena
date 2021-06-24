@@ -121,6 +121,7 @@ namespace EL
     // virtual interface
     //
 
+#ifdef XAOD_STANDALONE
     /// \brief initialize this algorithm
     ///
     /// Note that unlike the original EventLoop algorithms, this gets
@@ -144,6 +145,7 @@ namespace EL
     /// try to access it.
   protected:
     virtual ::StatusCode finalize ();
+#endif
 
 
 

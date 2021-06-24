@@ -141,6 +141,34 @@ namespace asg
 
 
 
+  TEST (AsgToolConfigTest, basic_subtoolConfigureIndirect)
+  {
+    const std::string name = makeUniqueName();
+    AsgToolConfig config ("asg::UnitTestTool2/" + name);
+    {
+      AsgToolConfig subconfig ("asg::UnitTestTool1A");
+      subconfig.setPropertyFromString ("propertyInt", "17");
+      ASSERT_SUCCESS (config.addPrivateTool ("regPrivateHandle", subconfig));
+    }
+    {
+      AsgToolConfig subconfig ("asg::UnitTestTool1A");
+      subconfig.setPropertyFromString ("propertyInt", "42");
+      ASSERT_SUCCESS (config.addPrivateTool ("anaPrivateHandle", subconfig));
+    }
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
+    EXPECT_SUCCESS (tool->retrieveToolHandle("regPrivateHandle"));
+    EXPECT_TRUE (tool->getToolHandle ("regPrivateHandle")->isInitialized());
+    EXPECT_EQ (17, tool->getToolHandle ("regPrivateHandle")->getPropertyInt());
+    EXPECT_TRUE (tool->wasUserConfigured("anaPrivateHandle"));
+    EXPECT_TRUE (tool->getToolHandle ("anaPrivateHandle")->isInitialized());
+    EXPECT_EQ (42, tool->getToolHandle ("anaPrivateHandle")->getPropertyInt());
+  }
+
+
+
   TEST (AsgToolConfigTest, privateTool)
   {
     const std::string name1 = makeUniqueName();
@@ -172,6 +200,47 @@ namespace asg
     ToolHandle<IUnitTestTool1> tool2 ("", &*tool1);
     ASSERT_SUCCESS (config2.makePrivateTool (tool2));
     EXPECT_EQ ("ToolSvc." + name1 + ".myPrivateTool", tool2->name());
+  }
+
+
+
+  TEST (AsgToolConfigTest, emptyArray)
+  {
+    const std::string name = makeUniqueName();
+    AsgToolConfig mainConfig ("asg::UnitTestTool2/" + name);
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (mainConfig.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
+    ASSERT_EQ (0u, tool->getArray().size());
+  }
+
+
+
+  TEST (AsgToolConfigTest, fillArray)
+  {
+    const std::string name = makeUniqueName();
+
+    AsgToolConfig mainConfig ("asg::UnitTestTool2/" + name);
+    {
+      auto subtool = mainConfig.createPrivateToolInArray ("regPrivateArray", "asg::UnitTestTool1");
+      ANA_MSG_INFO ("subtool = " << subtool);
+      ASSERT_SUCCESS (mainConfig.setProperty (subtool + ".propertyInt", 19));
+    }
+    {
+      AsgToolConfig subconfig ("asg::UnitTestTool1");
+      ANA_CHECK_THROW (subconfig.setProperty ("propertyInt", 22));
+      auto subtool = mainConfig.addPrivateToolInArray ("regPrivateArray", subconfig);
+      ANA_MSG_INFO ("subtool = " << subtool);
+    }
+
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (mainConfig.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
+    ASSERT_EQ (2u, tool->getArray().size());
+    EXPECT_EQ (19, tool->getArray()[0]->getPropertyInt());
+    EXPECT_EQ (22, tool->getArray()[1]->getPropertyInt());
   }
 }
 

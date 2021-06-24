@@ -5,15 +5,13 @@
 /// @author Nils Krumnack
 
 
-
 //
 // includes
 //
-
 #include <AnaAlgorithm/AnaAlgorithmWrapper.h>
-
 #include <AnaAlgorithm/MessageCheck.h>
-#include <RootCoreUtils/Assert.h>
+
+#include "RootCoreUtils/Assert.h"
 
 //
 // method implementations
