@@ -7,6 +7,10 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
+#include <cmath>
+
+
+
 #include "TrackSelectionAlg.h"
 
 #include "AthContainers/ConstDataVector.h"
@@ -114,7 +118,7 @@ StatusCode TrackSelectionAlg::execute()
   }
 
   //if there is no primary vertex set to zero
-  if(vertices->size() < 1){
+  if(vertices->empty()){
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0.0"<<endmsg;
     zVtx=0.0;
   }
@@ -148,21 +152,21 @@ bool TrackSelectionAlg::makeTrackCuts(const Trk::Track* track, float zVtx)
   const Trk::Perigee* startPerigee = track->perigeeParameters();
   
   float theta = startPerigee->parameters()[Trk::theta];  
-  float qOverPt = startPerigee->parameters()[Trk::qOverP]/sin(theta);
+  float qOverPt = startPerigee->parameters()[Trk::qOverP]/std::sin(theta);
   float charge = startPerigee->charge();
   float eta = startPerigee->eta();
   float z0 = startPerigee->parameters()[Trk::z0];
   float d0 = startPerigee->parameters()[Trk::d0];
   float pT = (1/qOverPt)*(charge)/1000;
 
-  float z0zVtx = (fabs(z0 - zVtx))*sin(theta);
+  float z0zVtx = (std::fabs(z0 - zVtx))*std::sin(theta);
   
   //making kinematic cuts on tracks
   if(pT < m_trackMinPt) trackPassed = false;
-  if(fabs(eta) > m_trackMaxEta) trackPassed = false;
-  if(fabs(eta) < m_trackMinEta) trackPassed = false;
+  if(std::fabs(eta) > m_trackMaxEta) trackPassed = false;
+  if(std::fabs(eta) < m_trackMinEta) trackPassed = false;
   if(z0zVtx > m_trackMaxVtxZ0) trackPassed = false;
-  if(fabs(d0) > m_trackMaxD0) trackPassed = false;
+  if(std::fabs(d0) > m_trackMaxD0) trackPassed = false;
 
   std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(*track);
   

@@ -9,12 +9,12 @@
 
 #include "IDAlignMonSivsTRT.h"
 
-#include <sstream>
-#include <math.h>
 #include "TH1.h"
 #include "TH2.h"
-#include "TProfile.h"
 #include "TMath.h"
+#include "TProfile.h"
+#include <cmath>
+#include <sstream>
 
 
 
@@ -243,7 +243,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
   }
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "Retrieved "<< tracksSi->size() <<" ResolvedTracks tracks from StoreGate" << endmsg;
-    if(tracksSi->size()==0) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ResolvedTracks (track collection probably doesn't exist)" << endmsg;
+    if(tracksSi->empty()) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ResolvedTracks (track collection probably doesn't exist)" << endmsg;
   } 
   
   //tracks that are fitted with Si and TRT hits
@@ -259,7 +259,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
   }
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "Retrieved "<< tracksTRT->size() <<" ExtendedTracks tracks from StoreGate" << endmsg;
-    if(tracksTRT->size()==0) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ExtendedTracks (track collection probably doesn't exist)" << endmsg;
+    if(tracksTRT->empty()) msg(MSG::DEBUG) << "Histograms will not be filled because 0 tracks in ExtendedTracks (track collection probably doesn't exist)" << endmsg;
   } 
 
   int nTracksTRT = 0;
@@ -270,7 +270,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 
     
     const Trk::Track* trackTRT = *trackItr;
-    if(trackTRT == NULL){
+    if(trackTRT == nullptr){
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracksTRT << endmsg;
       continue;
     }
@@ -291,9 +291,9 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
       msg(MSG::WARNING) << "TRTPerigee is NULL. Track Information may be missing"<<endmsg;
     
 
-    const AmgSymMatrix(5)* TRTPerCovariance = TRTPerigee ? TRTPerigee->covariance() : NULL;
+    const AmgSymMatrix(5)* TRTPerCovariance = TRTPerigee ? TRTPerigee->covariance() : nullptr;
     
-    if ( TRTPerCovariance == 0 )  
+    if ( TRTPerCovariance == nullptr )  
       msg(MSG::WARNING) << " failed dynamic_cast TRT track perigee to measured perigee, some parameters may be missing" << endmsg; 
 
     double d0 = -999;
@@ -313,7 +313,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 	eta0 = TRTPerigee->eta();
 	z0 = TRTPerigee->parameters()[Trk::z0];
 	charge = TRTPerigee->charge();
-	if ( TRTPerCovariance != 0 )  pt = TRTPerigee->pT()/1000.; 
+	if ( TRTPerCovariance != nullptr )  pt = TRTPerigee->pT()/1000.; 
       }
     
 
@@ -376,7 +376,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
     for (; trackItr2 != trackItrE2; ++trackItr2) { //looping over Sionly tracks
 
       const Trk::Track* trackSi = *trackItr2;
-      if(trackSi == NULL){
+      if(trackSi == nullptr){
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracksSi << endmsg;
       continue;
     }
@@ -387,9 +387,9 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
       if (!SiPerigee)
 	msg(MSG::WARNING) << " SiPerigee is NULL. Track information may be missing"<<endmsg;
       
-      const AmgSymMatrix(5)* SiPerCovariance = SiPerigee ? SiPerigee->covariance() : NULL;
+      const AmgSymMatrix(5)* SiPerCovariance = SiPerigee ? SiPerigee->covariance() : nullptr;
 
-      if ( SiPerCovariance == 0 )  
+      if ( SiPerCovariance == nullptr )  
 	msg(MSG::WARNING) << " failed dynamic_cast Si track perigee to measured perigee, some parameters may be missing" << endmsg; 
       
       double Siphi0 = -9999;
@@ -419,7 +419,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 	    Xz0 = SiPerigee->parameters()[Trk::z0];
 	    Xcharge = SiPerigee->charge();
 	    //Xpt = (1/Xqoverp)*Xcharge*sin(Xtheta);
-	    if ( SiPerCovariance != 0 ) Xpt = SiPerigee->pT()/1000.; 
+	    if ( SiPerCovariance != nullptr ) Xpt = SiPerigee->pT()/1000.; 
 	    if(dR < m_matchdRcut) matchFound = true;
 	  }
 	}

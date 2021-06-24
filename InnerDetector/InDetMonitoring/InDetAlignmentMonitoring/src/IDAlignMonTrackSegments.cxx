@@ -34,31 +34,31 @@ struct IDAlignMonTrackSegments::UpperLowerHistograms{
   TH1F_LW* d0;
   TH1F_LW* z0;
   TH1F_LW* pt;
-  UpperLowerHistograms() : nhitstrt(0), nhitsSi(0), nhitsPix(0), nhitsSct(0), phi0(0), eta0(0), qOverPt(0), charge(0), d0(0), z0(0), pt(0) {};
+  UpperLowerHistograms() : nhitstrt(nullptr), nhitsSi(nullptr), nhitsPix(nullptr), nhitsSct(nullptr), phi0(nullptr), eta0(nullptr), qOverPt(nullptr), charge(nullptr), d0(nullptr), z0(nullptr), pt(nullptr) {};
 
 };
 
 struct IDAlignMonTrackSegments::DeltaTrackParamHistograms{
   
   // All Tracks, Positive Tracks, Negative Tracks
-  TH1F_LW* dTp[3];
-  TH1F_LW* dTpPull[3];
-  TH2F_LW* VsD0[3];
-  TH2F_LW* VsZ0[3];
-  TH2F_LW* VsPhi0[3];
-  TH2F_LW* VsPt[3];
-  TH2F_LW* VsEta[3];
+  TH1F_LW* dTp[3]{};
+  TH1F_LW* dTpPull[3]{};
+  TH2F_LW* VsD0[3]{};
+  TH2F_LW* VsZ0[3]{};
+  TH2F_LW* VsPhi0[3]{};
+  TH2F_LW* VsPt[3]{};
+  TH2F_LW* VsEta[3]{};
   
   DeltaTrackParamHistograms(){
     
     for(unsigned int charge=0; charge<3; ++charge){
-      dTp[charge] = 0;
-      dTpPull[charge] = 0;
-      VsD0[charge] = 0;
-      VsZ0[charge] = 0;
-      VsPhi0[charge] = 0;
-      VsPt[charge] = 0;
-      VsEta[charge] = 0;
+      dTp[charge] = nullptr;
+      dTpPull[charge] = nullptr;
+      VsD0[charge] = nullptr;
+      VsZ0[charge] = nullptr;
+      VsPhi0[charge] = nullptr;
+      VsPt[charge] = nullptr;
+      VsEta[charge] = nullptr;
     }
     
   };
@@ -148,12 +148,12 @@ IDAlignMonTrackSegments::~IDAlignMonTrackSegments(){
 void IDAlignMonTrackSegments::InitializeHistograms()
 {
   
-  m_debug_phi0 = 0 ;
-  m_debug_eta0 = 0;
+  m_debug_phi0 = nullptr ;
+  m_debug_eta0 = nullptr;
   
   // pt 
-  m_delta_pt = 0 ;
-  m_reldelta_pt = 0 ;
+  m_delta_pt = nullptr ;
+  m_reldelta_pt = nullptr ;
   
 }
 
@@ -593,8 +593,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   
   m_events++;
   //Get the track collections
-  const DataVector<Trk::Track>* tracksUpper(0);
-  const DataVector<Trk::Track>* tracksLower(0);
+  const DataVector<Trk::Track>* tracksUpper(nullptr);
+  const DataVector<Trk::Track>* tracksLower(nullptr);
 
   //if (false) {
   //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName.key() << std::endl
@@ -674,7 +674,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   DataVector<Trk::Track>::const_iterator trackItrUpperE = tracksUpper->end();
   for (; trackItrUpper != trackItrUpperE; ++trackItrUpper) { 
     const Trk::Track* trackUpper = *trackItrUpper;
-    if(trackUpper == NULL){
+    if(trackUpper == nullptr){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endmsg;
       continue;
     }else
@@ -691,7 +691,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 
     
     const Trk::Perigee* measUpperPer = trackUpper->perigeeParameters();
-    const AmgSymMatrix(5)* covariance = measUpperPer ? measUpperPer->covariance() : NULL;
+    const AmgSymMatrix(5)* covariance = measUpperPer ? measUpperPer->covariance() : nullptr;
     
     float d0Up            = -999.;
     float d0UpErr         = -999.;
@@ -712,7 +712,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       
     //control on the measUpperPer!
     //Get the track parameters
-    if ( covariance != NULL ){
+    if ( covariance != nullptr ){
       d0Up = measUpperPer->parameters()[Trk::d0];
       d0UpErr = Amg::error(*measUpperPer->covariance(),Trk::d0);
       
@@ -789,7 +789,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     for (; trackItrLower != trackItrLowerE; ++trackItrLower) { //looping over Lower tracks
       
       const Trk::Track* trackLower = *trackItrLower;
-      if(trackLower == NULL){
+      if(trackLower == nullptr){
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endmsg;
 	continue;
       }
@@ -805,7 +805,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 
       
       const Trk::Perigee* measLowerPer = trackLower->perigeeParameters();
-      const AmgSymMatrix(5)* covariance = measLowerPer ? measLowerPer->covariance() : NULL;
+      const AmgSymMatrix(5)* covariance = measLowerPer ? measLowerPer->covariance() : nullptr;
 
       float d0Low          = -999.;
       float d0LowErr       = -999.;
@@ -824,7 +824,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       float chargeLow      = -999.;
       float ptLow          = -999.;
 
-      if ( covariance != NULL ){
+      if ( covariance != nullptr ){
 	d0Low          = measLowerPer->parameters()[Trk::d0];						     
 	d0LowErr       = Amg::error(*measLowerPer->covariance(),Trk::d0);					     
 	phi0Low        = measLowerPer->parameters()[Trk::phi0];						           

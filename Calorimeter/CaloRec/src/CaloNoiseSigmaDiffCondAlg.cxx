@@ -37,7 +37,7 @@ StatusCode CaloNoiseSigmaDiffCondAlg::execute(const EventContext& context) const
 		return StatusCode::SUCCESS;
 	}
 	
-	const CaloIdManager* calo_id_manager(0);
+	const CaloIdManager* calo_id_manager(nullptr);
 	CHECK( detStore()->retrieve (calo_id_manager, "CaloIdManager") );
 	const CaloCell_ID * calo_cell_id =  calo_id_manager->getCaloCell_ID();
 	int hash_max = calo_cell_id->calo_cell_hash_max();

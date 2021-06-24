@@ -39,7 +39,7 @@ StatusCode CaloCellDumper::execute() {
   m_outfile << "Event " << evt << " contains " << cells->size() << " CaloCells" << std::endl;
   m_outfile << "ID\tEnergy\tTime\tQual\tprov" << std::endl;
 
-  for (auto cell : *cells) {
+  for (const auto *cell : *cells) {
     if (cell->e()>m_eCut.value()) {
       std::stringstream id;
       if (!m_compact.value()) {

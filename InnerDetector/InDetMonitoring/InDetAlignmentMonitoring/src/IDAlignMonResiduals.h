@@ -92,18 +92,18 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void fillTRTHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitZ, float hitGlobalR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
   void fillTRTBarrelHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitZ, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
   void fillTRTEndcapHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitGlobalR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  unsigned int getRing(unsigned int wheel,unsigned int strawlayer);
+  static unsigned int getRing(unsigned int wheel,unsigned int strawlayer);
 
   /** Convert from an int to a string */
-  std::string intToString(int input);
+  static std::string intToString(int input);
 
   /** Make Histograms */
-  TH1F_LW* MakeHist(const std::string& name, const std::string& title, int nBins, float xLow, float xUp, const std::string& xAxisTitle, const std::string& yAxisTitle);
-  TH2F* MakeHist( const std::string& name, const std::string& title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string& xAxisTitle, const std::string& yAxisTitle);
+  static TH1F_LW* MakeHist(const std::string& name, const std::string& title, int nBins, float xLow, float xUp, const std::string& xAxisTitle, const std::string& yAxisTitle);
+  static TH2F* MakeHist( const std::string& name, const std::string& title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string& xAxisTitle, const std::string& yAxisTitle);
   
  
   /** Make Profiles */
-  TProfile* MakeProfile(const std::string& name, const std::string& title, int nBins, float xLow, float xUp, float yLow, float yUp, const std::string& xAxisTitle, const std::string& yAxisTitle, bool setMinZero=true);
+  static TProfile* MakeProfile(const std::string& name, const std::string& title, int nBins, float xLow, float xUp, float yLow, float yUp, const std::string& xAxisTitle, const std::string& yAxisTitle, bool setMinZero=true);
 	
   void RegisterHisto(MonGroup& mon, TH1* histo);
   void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
@@ -129,15 +129,15 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::Track*, const Trk::TrackStateOnSurface*);
   void meanRMSProjections(TH2F*, TH1F*, int);
   void meanRMSProjection2D(TH3F*, TH2F*, int, bool);
-  void fillRMSFromProfile(TProfile*, TProfile*);
+  static void fillRMSFromProfile(TProfile*, TProfile*);
   void fillGaussianMeanOrWidth(TH2F*, TH1F*, float, float, int);
   bool trackRequiresRefit(const Trk::Track*);
 
   //================================================================
   // Establishes a minimim window for the histograms 
   //================================================================
-  void SetMinWindow(TProfile* hProf, float min, float max);
-  void SetMinWindow(TH1* h1, float min, float max);
+  static void SetMinWindow(TProfile* hProf, float min, float max);
+  static void SetMinWindow(TH1* h1, float min, float max);
 
   std::string m_stream{};
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};

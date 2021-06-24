@@ -64,15 +64,15 @@ struct IDAlignMonEfficiencies::TRTBarrelHistograms{
 	
   /** TRT Barrel */
   /**  total hits (hits + tubeHits + outliers) in the TRT barel modules(0-2) vs phi sector */
-  TH1F_LW* totHits_vs_phiSector[3];
+  TH1F_LW* totHits_vs_phiSector[3]{};
 	
   /** total hits (hits + tubeHits + outliers) in the TRT barel modules(0-2) vs phi sector */
   TH1F_LW* totHits_vs_StrawLay;
 
   /** number of (hits/tubeHits/outliers) in the TRT barel modules(0-2) vs phi sector */
-  TH1F_LW* outliers_vs_phiSector[3];
-  TH1F_LW* hits_vs_phiSector[3];
-  TH1F_LW* tubeHits_vs_phiSector[3];
+  TH1F_LW* outliers_vs_phiSector[3]{};
+  TH1F_LW* hits_vs_phiSector[3]{};
+  TH1F_LW* tubeHits_vs_phiSector[3]{};
 
   /** number of (hits/tubeHits/outliers) in the TRT barel modules(0-2) vs straw layer (0-72) */
   TH1F_LW* outliers_vs_StrawLay;
@@ -81,9 +81,9 @@ struct IDAlignMonEfficiencies::TRTBarrelHistograms{
 
   /** ratio of (hits/tubeHits/outliers) to total measurements (outl + hits + tubeHits) in the TRT barrel
       for the three modules (0-2) */
-  TProfile* outliers_eff_vs_phiSector[3];
-  TProfile* hits_eff_vs_phiSector[3];
-  TProfile* tubeHits_eff_vs_phiSector[3];
+  TProfile* outliers_eff_vs_phiSector[3]{};
+  TProfile* hits_eff_vs_phiSector[3]{};
+  TProfile* tubeHits_eff_vs_phiSector[3]{};
 
   /** ratio of (hits/tubeHits/outliers) to total measurements (outl + hits + tubeHits) vs phi sector 
       in the TRT Barrel for the three modules (0-2) */
@@ -93,23 +93,23 @@ struct IDAlignMonEfficiencies::TRTBarrelHistograms{
   
   TRTBarrelHistograms(){
     
-    totHits_vs_StrawLay = 0;
-    outliers_vs_StrawLay = 0;
-    hits_vs_StrawLay = 0;
-    tubeHits_vs_StrawLay = 0;
-    outliers_eff_vs_StrawLay = 0;
-    hits_eff_vs_StrawLay = 0;
-    tubeHits_eff_vs_StrawLay = 0;
+    totHits_vs_StrawLay = nullptr;
+    outliers_vs_StrawLay = nullptr;
+    hits_vs_StrawLay = nullptr;
+    tubeHits_vs_StrawLay = nullptr;
+    outliers_eff_vs_StrawLay = nullptr;
+    hits_eff_vs_StrawLay = nullptr;
+    tubeHits_eff_vs_StrawLay = nullptr;
     
     for(unsigned int lay=0; lay<3; ++lay){
-      totHits_vs_phiSector[lay] = 0;
-      outliers_vs_phiSector[lay] =0;
-      hits_vs_phiSector[lay] =0;
-      tubeHits_vs_phiSector[lay] =0;
+      totHits_vs_phiSector[lay] = nullptr;
+      outliers_vs_phiSector[lay] =nullptr;
+      hits_vs_phiSector[lay] =nullptr;
+      tubeHits_vs_phiSector[lay] =nullptr;
 
-      outliers_eff_vs_phiSector[lay] = 0;
-      hits_eff_vs_phiSector[lay] = 0;
-      tubeHits_eff_vs_phiSector[lay] = 0;
+      outliers_eff_vs_phiSector[lay] = nullptr;
+      hits_eff_vs_phiSector[lay] = nullptr;
+      tubeHits_eff_vs_phiSector[lay] = nullptr;
     }
     
   
@@ -121,49 +121,49 @@ struct IDAlignMonEfficiencies::TRTEndcapHistograms{
 
   /** TRT Endcap Histograms */
   /** total hits (measurements+outliers+tubeHits) in the trt endcap vs ring layer */
-  TH1F_LW* totHits_vs_ring[2];
+  TH1F_LW* totHits_vs_ring[2]{};
 
   /** outliers/hits/tubeHits in the trt endcap vs ring layer */
-  TH1F_LW* outliers_vs_ring[2];
-  TH1F_LW* hits_vs_ring[2];
-  TH1F_LW* tubeHits_vs_ring[2];
+  TH1F_LW* outliers_vs_ring[2]{};
+  TH1F_LW* hits_vs_ring[2]{};
+  TH1F_LW* tubeHits_vs_ring[2]{};
 
   /** ratio of outliers/hits/tubeHits  to total measurements (outl + hits) vs ring in the TRT Endcap */
-  TProfile* outliers_eff_vs_ring[2];
-  TProfile* hits_eff_vs_ring[2];
-  TProfile* tubeHits_eff_vs_ring[2];
+  TProfile* outliers_eff_vs_ring[2]{};
+  TProfile* hits_eff_vs_ring[2]{};
+  TProfile* tubeHits_eff_vs_ring[2]{};
 
   /** total hits (measurements+outliers+tubeHits) in the trt endcap vs phiSector layer */
-  TH1F_LW* totHits_vs_phiSector[2];
+  TH1F_LW* totHits_vs_phiSector[2]{};
 
   /** outliers/hits/tubeHits in the trt endcap vs phiSector layer */
-  TH1F_LW* outliers_vs_phiSector[2];
-  TH1F_LW* hits_vs_phiSector[2];
-  TH1F_LW* tubeHits_vs_phiSector[2];
+  TH1F_LW* outliers_vs_phiSector[2]{};
+  TH1F_LW* hits_vs_phiSector[2]{};
+  TH1F_LW* tubeHits_vs_phiSector[2]{};
 
   /** ratio of outliers/hits/tubeHits  to total measurements (outl + hits) vs phiSector in the TRT Endcap */
-  TProfile* outliers_eff_vs_phiSector[2];
-  TProfile* hits_eff_vs_phiSector[2];
-  TProfile* tubeHits_eff_vs_phiSector[2];
+  TProfile* outliers_eff_vs_phiSector[2]{};
+  TProfile* hits_eff_vs_phiSector[2]{};
+  TProfile* tubeHits_eff_vs_phiSector[2]{};
   
   TRTEndcapHistograms(){
     
     for(unsigned int side=0; side<2; ++side){
-      totHits_vs_ring[side] = 0;
-      outliers_vs_ring[side] = 0;
-      hits_vs_ring[side] = 0;
-      tubeHits_vs_ring[side] = 0;
-      outliers_eff_vs_ring[side] = 0;
-      hits_eff_vs_ring[side] = 0;
-      tubeHits_eff_vs_ring[side] = 0;
+      totHits_vs_ring[side] = nullptr;
+      outliers_vs_ring[side] = nullptr;
+      hits_vs_ring[side] = nullptr;
+      tubeHits_vs_ring[side] = nullptr;
+      outliers_eff_vs_ring[side] = nullptr;
+      hits_eff_vs_ring[side] = nullptr;
+      tubeHits_eff_vs_ring[side] = nullptr;
       
-      totHits_vs_phiSector[side] = 0;
-      outliers_vs_phiSector[side] = 0;
-      hits_vs_phiSector[side] = 0;
-      tubeHits_vs_phiSector[side] = 0;
-      outliers_eff_vs_phiSector[side] = 0;
-      hits_eff_vs_phiSector[side] = 0;
-      tubeHits_eff_vs_phiSector[side] = 0;
+      totHits_vs_phiSector[side] = nullptr;
+      outliers_vs_phiSector[side] = nullptr;
+      hits_vs_phiSector[side] = nullptr;
+      tubeHits_vs_phiSector[side] = nullptr;
+      outliers_eff_vs_phiSector[side] = nullptr;
+      hits_eff_vs_phiSector[side] = nullptr;
+      tubeHits_eff_vs_phiSector[side] = nullptr;
     }
     
   };
@@ -176,12 +176,12 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   :ManagedMonitorToolBase( type, name, parent ),
    m_trt_b_hist(new TRTBarrelHistograms),
    m_trt_ec_hist(new TRTEndcapHistograms),
-   m_idHelper(0),
-   m_pixelID(0),
-   m_sctID(0),
-   m_trtID(0),
-   m_PIX_Mgr(0),
-   m_SCT_Mgr(0),
+   m_idHelper(nullptr),
+   m_pixelID(nullptr),
+   m_sctID(nullptr),
+   m_trtID(nullptr),
+   m_PIX_Mgr(nullptr),
+   m_SCT_Mgr(nullptr),
    m_NPixLayers(0),
    m_events(0),
    m_histosBooked(0),
@@ -229,81 +229,81 @@ IDAlignMonEfficiencies::~IDAlignMonEfficiencies() {
 void IDAlignMonEfficiencies::InitializeHistograms()
 {
   
-  m_hits_vs_layer_barrel = 0;
-  m_hits_vs_layer_eca = 0;
-  m_hits_vs_layer_ecc = 0;
+  m_hits_vs_layer_barrel = nullptr;
+  m_hits_vs_layer_eca = nullptr;
+  m_hits_vs_layer_ecc = nullptr;
 
-  m_measurements_vs_layer_barrel = 0;
-  m_measurements_vs_layer_eca = 0;
-  m_measurements_vs_layer_ecc = 0;
+  m_measurements_vs_layer_barrel = nullptr;
+  m_measurements_vs_layer_eca = nullptr;
+  m_measurements_vs_layer_ecc = nullptr;
 
-  m_outliers_vs_layer_barrel = 0;
-  m_outliers_vs_layer_eca = 0;
-  m_outliers_vs_layer_ecc = 0;
+  m_outliers_vs_layer_barrel = nullptr;
+  m_outliers_vs_layer_eca = nullptr;
+  m_outliers_vs_layer_ecc = nullptr;
   
-  m_holes_vs_layer_barrel = 0;
-  m_holes_vs_layer_eca = 0;
-  m_holes_vs_layer_ecc = 0;
+  m_holes_vs_layer_barrel = nullptr;
+  m_holes_vs_layer_eca = nullptr;
+  m_holes_vs_layer_ecc = nullptr;
   
-  m_noholes_vs_layer_barrel = 0;
-  m_noholes_vs_layer_eca = 0;
-  m_noholes_vs_layer_ecc = 0;
+  m_noholes_vs_layer_barrel = nullptr;
+  m_noholes_vs_layer_eca = nullptr;
+  m_noholes_vs_layer_ecc = nullptr;
 
-  m_overlapX_vs_layer_barrel = 0;
-  m_overlapX_vs_layer_eca = 0;
-  m_overlapX_vs_layer_ecc = 0;
-  m_overlapY_vs_layer_barrel = 0;
-  m_overlapY_vs_layer_eca = 0;
-  m_overlapY_vs_layer_ecc = 0;
+  m_overlapX_vs_layer_barrel = nullptr;
+  m_overlapX_vs_layer_eca = nullptr;
+  m_overlapX_vs_layer_ecc = nullptr;
+  m_overlapY_vs_layer_barrel = nullptr;
+  m_overlapY_vs_layer_eca = nullptr;
+  m_overlapY_vs_layer_ecc = nullptr;
 
-  m_measurements_eff_vs_layer_barrel = 0;
-  m_measurements_eff_vs_layer_eca = 0;
-  m_measurements_eff_vs_layer_ecc = 0;
+  m_measurements_eff_vs_layer_barrel = nullptr;
+  m_measurements_eff_vs_layer_eca = nullptr;
+  m_measurements_eff_vs_layer_ecc = nullptr;
 
-  m_outliers_eff_vs_layer_barrel = 0;
-  m_outliers_eff_vs_layer_eca = 0;
-  m_outliers_eff_vs_layer_ecc = 0;
+  m_outliers_eff_vs_layer_barrel = nullptr;
+  m_outliers_eff_vs_layer_eca = nullptr;
+  m_outliers_eff_vs_layer_ecc = nullptr;
   
-  m_holes_eff_vs_layer_barrel = 0;
-  m_holes_eff_vs_layer_eca = 0;
-  m_holes_eff_vs_layer_ecc = 0;
+  m_holes_eff_vs_layer_barrel = nullptr;
+  m_holes_eff_vs_layer_eca = nullptr;
+  m_holes_eff_vs_layer_ecc = nullptr;
   
-  m_noholes_eff_vs_layer_barrel = 0;
-  m_noholes_eff_vs_layer_eca = 0;
-  m_noholes_eff_vs_layer_ecc = 0;
+  m_noholes_eff_vs_layer_barrel = nullptr;
+  m_noholes_eff_vs_layer_eca = nullptr;
+  m_noholes_eff_vs_layer_ecc = nullptr;
 
-  m_overlapX_eff_vs_layer_barrel = 0;
-  m_overlapX_eff_vs_layer_eca = 0;
-  m_overlapX_eff_vs_layer_ecc = 0;
-  m_overlapY_eff_vs_layer_barrel = 0;
-  m_overlapY_eff_vs_layer_eca = 0;
-  m_overlapY_eff_vs_layer_ecc = 0;
+  m_overlapX_eff_vs_layer_barrel = nullptr;
+  m_overlapX_eff_vs_layer_eca = nullptr;
+  m_overlapX_eff_vs_layer_ecc = nullptr;
+  m_overlapY_eff_vs_layer_barrel = nullptr;
+  m_overlapY_eff_vs_layer_eca = nullptr;
+  m_overlapY_eff_vs_layer_ecc = nullptr;
 
-  m_measurements_eff_vs_Eta_Phi_pix_eca = 0;
-  m_measurements_eff_vs_Eta_Phi_pix_ecc = 0;
-  m_measurements_vs_Eta_Phi_pix_eca = 0;
-  m_measurements_vs_Eta_Phi_pix_ecc = 0;
-  m_hits_vs_Eta_Phi_pix_eca = 0;
-  m_hits_vs_Eta_Phi_pix_ecc = 0;
-  m_outliers_vs_Eta_Phi_pix_eca = 0;
-  m_outliers_vs_Eta_Phi_pix_ecc = 0;
-  m_holes_vs_Eta_Phi_pix_eca = 0;
-  m_holes_vs_Eta_Phi_pix_ecc = 0;
+  m_measurements_eff_vs_Eta_Phi_pix_eca = nullptr;
+  m_measurements_eff_vs_Eta_Phi_pix_ecc = nullptr;
+  m_measurements_vs_Eta_Phi_pix_eca = nullptr;
+  m_measurements_vs_Eta_Phi_pix_ecc = nullptr;
+  m_hits_vs_Eta_Phi_pix_eca = nullptr;
+  m_hits_vs_Eta_Phi_pix_ecc = nullptr;
+  m_outliers_vs_Eta_Phi_pix_eca = nullptr;
+  m_outliers_vs_Eta_Phi_pix_ecc = nullptr;
+  m_holes_vs_Eta_Phi_pix_eca = nullptr;
+  m_holes_vs_Eta_Phi_pix_ecc = nullptr;
 
-  m_measurements_eff_vs_Eta_Phi_sct_eca = 0;
-  m_measurements_eff_vs_Eta_Phi_sct_ecc = 0;
-  m_measurements_vs_Eta_Phi_sct_eca = 0;
-  m_measurements_vs_Eta_Phi_sct_ecc = 0;
-  m_measurements_vs_Eta_Phi_sct_eca_3d_s0 = 0;
-  m_measurements_vs_Eta_Phi_sct_eca_3d_s1 = 0;
-  m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 = 0;
-  m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 = 0;
-  m_hits_vs_Eta_Phi_sct_eca = 0;
-  m_hits_vs_Eta_Phi_sct_ecc = 0;
-  m_outliers_vs_Eta_Phi_sct_eca = 0;
-  m_outliers_vs_Eta_Phi_sct_ecc = 0;
-  m_holes_vs_Eta_Phi_sct_eca = 0;
-  m_holes_vs_Eta_Phi_sct_ecc = 0;
+  m_measurements_eff_vs_Eta_Phi_sct_eca = nullptr;
+  m_measurements_eff_vs_Eta_Phi_sct_ecc = nullptr;
+  m_measurements_vs_Eta_Phi_sct_eca = nullptr;
+  m_measurements_vs_Eta_Phi_sct_ecc = nullptr;
+  m_measurements_vs_Eta_Phi_sct_eca_3d_s0 = nullptr;
+  m_measurements_vs_Eta_Phi_sct_eca_3d_s1 = nullptr;
+  m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 = nullptr;
+  m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 = nullptr;
+  m_hits_vs_Eta_Phi_sct_eca = nullptr;
+  m_hits_vs_Eta_Phi_sct_ecc = nullptr;
+  m_outliers_vs_Eta_Phi_sct_eca = nullptr;
+  m_outliers_vs_Eta_Phi_sct_ecc = nullptr;
+  m_holes_vs_Eta_Phi_sct_eca = nullptr;
+  m_holes_vs_Eta_Phi_sct_ecc = nullptr;
 }
 
 
@@ -744,7 +744,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile* histo, const
     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endmsg;
   }
 
-  if(yAxisName != ""){
+  if(!yAxisName.empty()){
     histo->GetYaxis()->SetTitle(yAxisName.c_str()); 
   }else{
     histo->GetYaxis()->SetTitle("Hit Efficiency"); 
@@ -862,7 +862,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
 
       // hits, outliers
-      if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!= nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+      if (mesb != nullptr && mesb->associatedSurface().associatedDetectorElement()!= nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 
       // holes, perigee 
       else surfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier(); 
@@ -1260,7 +1260,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	Identifier surfaceID;
 	const Trk::MeasurementBase* mesb=(*HTSOSItr)->measurementOnTrack();
 	// hits, outliers
-	if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!= nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+	if (mesb != nullptr && mesb->associatedSurface().associatedDetectorElement()!= nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 	// holes, perigee
 	else surfaceID = (*HTSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
 	
@@ -1548,7 +1548,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
   return StatusCode::SUCCESS;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
+void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) const {
 
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
       h_eff->Reset("ICE");
@@ -1624,7 +1624,7 @@ void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TP
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
+void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) const {
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
       h_eff->Reset("ICE");
   }

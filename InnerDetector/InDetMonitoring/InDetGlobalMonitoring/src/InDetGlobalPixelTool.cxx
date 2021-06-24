@@ -45,26 +45,26 @@ InDetGlobalPixelTool::InDetGlobalPixelTool(
 					   const IInterface* parent)
   : InDetGlobalMotherMonTool(type, name, parent),
     m_detector("ID"),
-    m_tracks(0),
-    m_Pixel_track_clus_groupsize(0),
-    m_Pixel_track_cluster_ToT(0),
-    m_Pixel_track_res_phi(0),
-    m_Pixel_track_pull_phi(0),
-    m_Pixel_track_res_eta(0),
-    m_Pixel_track_pull_eta(0),
-    m_Pixel_track_ecA_cluster_occupancy(0),
-    m_Pixel_track_ecC_cluster_occupancy(0),
-    m_Pixel_track_bar_lay0_cluster_occupancy(0),
-    m_Pixel_track_bar_lay1_cluster_occupancy(0),
-    m_Pixel_track_bar_lay2_cluster_occupancy(0),
-    m_Pixel_track_Lvl1A(0),
-    m_Pixel_track_chi2(0),
-    m_Pixel_track_qOverP(0),
-    m_Pixel_track_d0(0),
-    m_Pixel_track_z0(0),
-    m_Pixel_track_phi0(0),
-    m_Pixel_track_theta(0),
-    m_Pixel_track_eta(0)
+    m_tracks(nullptr),
+    m_Pixel_track_clus_groupsize(nullptr),
+    m_Pixel_track_cluster_ToT(nullptr),
+    m_Pixel_track_res_phi(nullptr),
+    m_Pixel_track_pull_phi(nullptr),
+    m_Pixel_track_res_eta(nullptr),
+    m_Pixel_track_pull_eta(nullptr),
+    m_Pixel_track_ecA_cluster_occupancy(nullptr),
+    m_Pixel_track_ecC_cluster_occupancy(nullptr),
+    m_Pixel_track_bar_lay0_cluster_occupancy(nullptr),
+    m_Pixel_track_bar_lay1_cluster_occupancy(nullptr),
+    m_Pixel_track_bar_lay2_cluster_occupancy(nullptr),
+    m_Pixel_track_Lvl1A(nullptr),
+    m_Pixel_track_chi2(nullptr),
+    m_Pixel_track_qOverP(nullptr),
+    m_Pixel_track_d0(nullptr),
+    m_Pixel_track_z0(nullptr),
+    m_Pixel_track_phi0(nullptr),
+    m_Pixel_track_theta(nullptr),
+    m_Pixel_track_eta(nullptr)
 {
   declareProperty("Detector", m_detector); 
   declareProperty("tracks", m_TracksName="CombinedInDetTracks");
@@ -141,7 +141,7 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
   for (int i=0; i<(int)m_tracks->size(); i++)
     {
       const Trk::Track *track=(*m_tracks)[i];
-      if (track == 0) 
+      if (track == nullptr) 
 	{
 	  if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg;
 	  break;
@@ -152,7 +152,7 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
 	  continue;
       }
                
-      const Trk::TrackParameters *trkParameters = 0;
+      const Trk::TrackParameters *trkParameters = nullptr;
 
       //get the track state on surfaces (a vector, on element per surface) and loop over it
       const DataVector< const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
@@ -188,7 +188,7 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
 	      {
 		  // Get local error matrix for hit and track and calc pull
 		  const AmgSymMatrix(5) * trackErrMat = trkParameters->covariance();
-		  const Amg::MatrixX clusErrMat = clus->localCovariance();
+		  const Amg::MatrixX& clusErrMat = clus->localCovariance();
 
 		  //pulls  and residuals Phi
 		  double error_sum = sqrt(pow( Amg::error( *trackErrMat, Trk::u ), 2) + pow( Amg::error( clusErrMat, Trk::locX ), 2));

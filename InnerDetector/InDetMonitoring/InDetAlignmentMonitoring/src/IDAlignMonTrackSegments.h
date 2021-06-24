@@ -66,8 +66,8 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
  private:
   
   StatusCode setupTools();
-  TH1F_LW* MakeHist(const std::string & name, const std::string & title, int nBins, float xLow, float xUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
-  TH2F_LW* MakeHist(const std::string & name, const std::string & title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
+  static TH1F_LW* MakeHist(const std::string & name, const std::string & title, int nBins, float xLow, float xUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
+  static TH2F_LW* MakeHist(const std::string & name, const std::string & title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
   void InitializeHistograms();
   std::string m_stream;
   SG::ReadHandleKey<TrackCollection> m_inputTracksName{this, "InputTracksName", "InDetCosmic_Tracks"};
@@ -118,12 +118,12 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   DeltaTrackParamHistograms* m_delta_charge;
   
   // Debuging
-  TH1F_LW* m_debug_phi0;
-  TH1F_LW* m_debug_eta0;
+  TH1F_LW* m_debug_phi0{};
+  TH1F_LW* m_debug_eta0{};
   
   // pt 
-  TH1F_LW* m_delta_pt;
-  TH1F_LW* m_reldelta_pt;
+  TH1F_LW* m_delta_pt{};
+  TH1F_LW* m_reldelta_pt{};
   
 };
 

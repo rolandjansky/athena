@@ -37,8 +37,8 @@ TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocato
   : AthService(name,pSvcLocator),
     m_detStore("DetectorStore",name),
     m_trtStrawAlignDbSvc("TRT_StrawAlignDbSvc",name),
-    m_trtid(0),
-    m_trtman(0),
+    m_trtid(nullptr),
+    m_trtman(nullptr),
     m_alignroot("/TRT/Align"),
     m_alignString("AL"),
     m_par_alitextfile(""),
@@ -85,7 +85,7 @@ StatusCode TRT_AlignDbSvc::initialize()
   // Get the geometry.
   InDetDD::TRT_DetElementCollection::const_iterator iter,itermin,itermax;
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtman,"TRT") || 
-    m_trtman==0) {
+    m_trtman==nullptr) {
     msg(MSG::FATAL) << "Could not find TRT manager " << endmsg;
     return StatusCode::FAILURE;
   } else {
@@ -119,7 +119,7 @@ StatusCode TRT_AlignDbSvc::initialize()
   // Include a level 1 alignment
   int ichan(0) ;
   if (!m_dynamicDB){
-    m_alignobjs.push_back("/TRT/Align/TRT");
+    m_alignobjs.emplace_back("/TRT/Align/TRT");
     msg(MSG::INFO) << "Adding key: /TRT/Align/TRT --> We are using static DB folder scheme" << endmsg;
     m_alignchans.push_back(ichan++);
   }
@@ -127,7 +127,7 @@ StatusCode TRT_AlignDbSvc::initialize()
   //Check all detector elements in the present geometry setup
   for (iter=itermin;iter!=itermax;++iter) {
     const InDetDD::TRT_BaseElement* element=*iter;
-    if (element!=0) {
+    if (element!=nullptr) {
       const Identifier ident=element->identify();
       if (m_trtid->is_trt(ident)) {           //OK this Element is included
 	std::string key = findkey(ident,m_alignString); 
@@ -268,7 +268,7 @@ StatusCode TRT_AlignDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 {
   msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
-  std::ofstream* outfile=0;
+  std::ofstream* outfile=nullptr;
   msg(MSG::INFO) << " Write AlignableTransforms to text file: "<< file << endmsg;
   outfile=new std::ofstream(file.c_str());
 
@@ -427,7 +427,7 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
   int nobj=0;
   int ntrans=0;
   std::string atname;
-  AlignableTransform* pat(0) ;
+  AlignableTransform* pat(nullptr) ;
   char line[512] ;
   
   while( infile.getline(line,512) ) {
@@ -445,7 +445,7 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 	} else {
 	  nobj++;
 	} 
-      } else if(pat!=0) {
+      } else if(pat!=nullptr) {
 	// this must be a line with constants
 	std::istringstream is(line) ;
 	
@@ -685,7 +685,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformPtr(const Identifie
     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Call to trans wrong!" << endmsg;
     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Level must be 1 or 2!" << endmsg;
     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Returning NULL" << endmsg;
-    return NULL;
+    return nullptr;
   }
 
   return (level == 1) ? getAlignmentTransformL1Ptr(ident) : getAlignmentTransformL2Ptr(ident);
@@ -695,7 +695,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformPtr(const Identifie
 const Amg::Transform3D*  TRT_AlignDbSvc::getAlignmentTransformL1Ptr(Identifier const& ident) const{
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL1Ptr" << endmsg;
   // get level 1 (despite name, will change soon) AlignableTransform for the subdetector containing ident
-  const Amg::Transform3D* rc(0) ;
+  const Amg::Transform3D* rc(nullptr) ;
   if( m_trtid->is_trt(ident) ) {
     const AlignableTransform* pat = cgetTransPtr( "/TRT/Align/TRT" ) ;
     if( pat ) {
@@ -719,7 +719,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier co
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL2Ptr" << endmsg;
   // set level 2 (despite name, will change soon) AlignableTransform for the module containing ident
   // or add a new one.
-  const Amg::Transform3D* rc(0) ;
+  const Amg::Transform3D* rc(nullptr) ;
   //does a folder exist corresponding to this identifier?
   if( m_trtid->is_trt(ident) ) {
     std::string key=findkey(ident,m_alignString);
@@ -790,7 +790,7 @@ StatusCode TRT_AlignDbSvc::setAlignTransform(Identifier ident, Amg::Transform3D 
 }
 
 /** set Level 1 AlignableTransform for an identifier */
-StatusCode TRT_AlignDbSvc::setAlignTransformL1(Identifier ident, Amg::Transform3D trans) {
+StatusCode TRT_AlignDbSvc::setAlignTransformL1(Identifier ident, const Amg::Transform3D& trans) {
   /** AlignableTransform for the subdetector containing ident
    or add a new one.
   */
@@ -918,7 +918,7 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL3 (Identifier ident, Amg::Transform
     // Now we need to know the real meaning of dx1 and dx2. Alas, we
     // are in the frame of either of the two barrel sides, but not
     // both, so we need to know which one.
-    bool sideA = m_trtid->barrel_ec(ident) == 1 ? true : false;
+    bool sideA = m_trtid->barrel_ec(ident) == 1;
 	
     // Straw position closest to the electronics 
     double dx1_new = sideA ? delta_dx_atLargerZ : delta_dx_atSmallerZ;
@@ -1019,7 +1019,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransform(Identifier ident, Amg::Transform3
 }
 
 /** tweak Level 1 AlignableTransform for an identifier */
-StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transform3D trans) {
+StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, const Amg::Transform3D& trans) {
   /** multiply level 1 AlignableTransform for the module containing ident
       by an additional transform.
   */
@@ -1068,7 +1068,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transfor
 }
 
 /** tweak Level 2 AlignableTransform for an identifier */
-StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transform3D trans) {
+StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, const Amg::Transform3D& trans) {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL2" << endmsg;
   // multiply level 2 AlignableTransform for the module containing ident
   // by an additional transform.
@@ -1136,7 +1136,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transfo
     // Now we need to know the real meaning of dx1 and dx2. Alas, we
     // are in the frame of either of the two barrel sides, but not
     // both, so we need to know which one.
-    bool sideA = m_trtid->barrel_ec(ident) == 1 ? true : false;
+    bool sideA = m_trtid->barrel_ec(ident) == 1;
 
     float rotz = atan2(trans.rotation()(0,2),trans.rotation()(0,0));
 
@@ -1237,7 +1237,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transfo
 }
 
 /** return the object key for a given identifier and data type */
-std::string TRT_AlignDbSvc::findkey(const Identifier& ident, std::string type) const {
+std::string TRT_AlignDbSvc::findkey(const Identifier& ident, const std::string& type) const {
   /** given a TRT identifier and a type ("RT", "T0", "DF" or "AL")
       return the key for the associated ArrayStore or AlignableTransForm in TDS
       
@@ -1308,7 +1308,7 @@ std::string TRT_AlignDbSvc::findkey(const Identifier& ident, std::string type) c
 }     
 
 /** return the prefix tag for a given calibration folder */
-std::string TRT_AlignDbSvc::prefixtag(std::string key) const {
+std::string TRT_AlignDbSvc::prefixtag(const std::string& key) {
   /** given a TRT calibration folder key, return the prefix tag for the
       associated (Float)ArrayStore or AlignableTransform.
       
@@ -1487,18 +1487,18 @@ void TRT_AlignDbSvc::printCondObjects() const {
 }
 
 /** get AlignableTransform pointer for an object key */
-AlignableTransform* TRT_AlignDbSvc::getTransPtr(const std::string key) const {
+AlignableTransform* TRT_AlignDbSvc::getTransPtr(const std::string& key) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In (and leaving) getTransPtr" << endmsg;
   return const_cast<AlignableTransform*>(cgetTransPtr(key)) ;
 }
 
 /** get const AlignableTransform pointer for an object key */
-const AlignableTransform* TRT_AlignDbSvc::cgetTransPtr(const std::string key) const {
+const AlignableTransform* TRT_AlignDbSvc::cgetTransPtr(const std::string& key) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In cgetTransPtr" << endmsg;
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Getting the poiter for key " << key << endmsg;
 
   // Retrieve AlignableTransform pointer for a given key - const version
-  const AlignableTransform* pat=0;
+  const AlignableTransform* pat=nullptr;
   const AlignableTransformContainer* patc= m_aligncontainerhandle ;
   // the retrieve is unnecessary. in fact, if patc==0, retrieve should
   // fail as well.
@@ -1523,14 +1523,14 @@ const AlignableTransform* TRT_AlignDbSvc::cgetTransPtr(const std::string key) co
 
 /** Returns the ring for a given strawLayer
  */
-int TRT_AlignDbSvc::getRingForStrawLayer(int strawlayer) const{
+int TRT_AlignDbSvc::getRingForStrawLayer(int strawlayer) {
   return strawlayer / 4 * 4;
 }
 
 
 /** Returns the true if the input key is from the old endcap scheme
  */
-bool TRT_AlignDbSvc::isOldKey(std::string input) const{
+bool TRT_AlignDbSvc::isOldKey(const std::string& input) const{
   
   for(unsigned int i=0; i<14; ++i){
     std::string testA = "A"+intToString(i);
@@ -1553,14 +1553,14 @@ bool TRT_AlignDbSvc::isOldKey(std::string input) const{
 }
 
 /** Convert from an int to a string */
-std::string TRT_AlignDbSvc::intToString(int input) const{
+std::string TRT_AlignDbSvc::intToString(int input) {
   std::ostringstream stm;
   stm << input;
   return stm.str();
 }
 
 /** Out put the transfor to the cout, for debugging */
-void TRT_AlignDbSvc::printTransform(std::string thisName,  const Amg::Transform3D& transform) const{ 
+void TRT_AlignDbSvc::printTransform(const std::string& thisName,  const Amg::Transform3D& transform) { 
   std::cout << thisName << " " << transform(0,3) << " " << transform(1,3) << "  " << transform(2,3) << std::endl;
   std::cout << thisName << " " << transform(0,0) << " " << transform(0,1) << "  " << transform(0,2) << std::endl;
   std::cout << thisName << " " << transform(1,0) << " " << transform(1,1) << "  " << transform(1,2) << std::endl;
@@ -1571,7 +1571,7 @@ void TRT_AlignDbSvc::printTransform(std::string thisName,  const Amg::Transform3
 // write global DB to file
 StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
   const {
-  std::ofstream* outfile=0;
+  std::ofstream* outfile=nullptr;
 
   if (m_dynamicDB){
     ATH_MSG_DEBUG( "writeFile: Write GlobalFolder DB in text file: " << file );
@@ -1581,7 +1581,7 @@ StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
     for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); ++it){
 
       *outfile << *it << std::endl;
-      const CondAttrListCollection* atrlistcol=0;
+      const CondAttrListCollection* atrlistcol=nullptr;
       if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,*it)) {
         // loop over objects in collection
         for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -1620,11 +1620,11 @@ StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
 
 
 
-StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ) {
+StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, const Amg::Transform3D& trans ) {
 
   // find transform key, then set appropriate transform
-  const CondAttrListCollection* atrlistcol1=0;
-  CondAttrListCollection* atrlistcol2=0;
+  const CondAttrListCollection* atrlistcol1=nullptr;
+  CondAttrListCollection* atrlistcol2=nullptr;
   bool result = false;
   std::string key="/TRT/AlignL1/TRT";
   msg(MSG::DEBUG) << " Identifier is valid: "<< ident.is_valid() << endmsg;
@@ -1635,7 +1635,7 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol1,key)) {
     // loop over objects in collection
     atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
-    if (atrlistcol1!=0){
+    if (atrlistcol1!=nullptr){
       for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
 
         const coral::AttributeList& atrlist=citr->second;
