@@ -142,7 +142,7 @@ TMemberAdapter::operator TMethodArg*() const
 }
 
 //____________________________________________________________________________
-TTypeAdapter TMemberAdapter::TypeOf ATLAS_NOT_THREAD_SAFE () const
+TTypeAdapter TMemberAdapter::TypeOf() const
 {
    // get the type of the data member
    TDataMember* dataMember = (TDataMember*)*this;
