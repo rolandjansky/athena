@@ -2986,7 +2986,9 @@ namespace Rec {
 
         if (!measuredPerigee || !measuredPerigee->covariance() || !Amg::valid_cov(*measuredPerigee->covariance())) {
             // missing MeasuredPerigee for spectrometer track
-            m_messageHelper->printWarning(38);
+	    if (!measuredPerigee) m_messageHelper->printWarning(38);
+	    else if(!measuredPerigee->covariance()) m_messageHelper->printWarning(38);
+	    else ATH_MSG_DEBUG("createSpectrometerTSOS::perigee covariance not valid");
             return nullptr;
         }
 
