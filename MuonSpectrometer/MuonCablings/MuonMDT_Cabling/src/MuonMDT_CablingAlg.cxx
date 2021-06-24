@@ -44,10 +44,10 @@ StatusCode MuonMDT_CablingAlg::initialize(){
 StatusCode MuonMDT_CablingAlg::execute(){
   
   ATH_MSG_DEBUG( "execute " << name() );  
-  
+  const auto ctx = Gaudi::Hive::currentContext();
   // Write Cond Handle
 
-  SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey};
+  SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
 		  << ". In theory this should not be called, but may happen"
@@ -58,7 +58,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
 
   // Read Cond Handle
   
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez };
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez, ctx };
   const CondAttrListCollection* readCdoMez{*readHandleMez}; 
   if(readCdoMez==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -72,7 +72,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMez.fullKey() << " readCdoMez->size()= " << readCdoMez->size());
   ATH_MSG_INFO("Range of input is " << rangeMez);
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap };
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap, ctx };
   const CondAttrListCollection* readCdoMap{*readHandleMap}; 
   if(readCdoMap==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");

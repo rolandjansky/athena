@@ -4,20 +4,16 @@
 
 #include "MuonCablingData/MdtMezzanineType.h"
 
-MdtMezzanineType::MdtMezzanineType(uint8_t typeId, uint8_t nOfLayers, MsgStream &log) :
+MdtMezzanineType::MdtMezzanineType(uint8_t typeId, uint8_t nOfLayers) :
   m_type(typeId),
   m_nOfLayers(nOfLayers)
 {
-  m_debug = (log.level() <= MSG::VERBOSE);
-
 }
 
-MdtMezzanineType::MdtMezzanineType(uint8_t typeId, MsgStream &log) :
+MdtMezzanineType::MdtMezzanineType(uint8_t typeId) :
   m_type(typeId),
   m_nOfLayers(0)
 {
-  m_debug = (log.level() <= MSG::VERBOSE);
-  
 }
 
 /** Destructor */
@@ -40,9 +36,9 @@ bool MdtMezzanineType::addLayer(uint8_t layerNumber, MdtLayer layer, MsgStream &
   }
     
   m_layers[layerNumber]=std::move(layer);
-  
+  bool debug = (log.level() <= MSG::VERBOSE);
   // dump the layer content for debugging
-  if (m_debug) {
+  if (debug) {
     log << MSG::VERBOSE << "Adding layer " << (int) layerNumber << " ";
     for (unsigned int i=0 ; i<m_layers[layerNumber].size() ; ++i) {
       log << MSG::VERBOSE << (int) m_layers[layerNumber][i];
