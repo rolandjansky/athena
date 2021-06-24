@@ -54,7 +54,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
             if type=='jet':
-                # self.defineHistogram('TIME_JseedHitDV',       path='EXPERT',type='TH1F',title="Jet-seeded Hit DV (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
+                self.defineHistogram('TIME_HitDV',            path='EXPERT',type='TH1F',title="Hit-based DV search (ms)",    xbins = 200, xmin=0.0, xmax=200.0)
                 self.defineHistogram('TIME_dEdxTrk',          path='EXPERT',type='TH1F',title="Large dEdx search (ms)",      xbins = 200, xmin=0.0, xmax=20.0)
         elif type=='fullScanLRT':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=500.0)
@@ -209,10 +209,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         remapped_type = config.name
 
-        if slice_name == "fullScanUTT" :
-            self.doJseedHitDV = True
-
-
         #Global keys/names for collections
         from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
 
@@ -299,10 +295,15 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.dodEdxTrk = config.dodEdxTrk
         if config.dodEdxTrk:
-            print("UTT: setting dEdxTrk output collection names...")
             self.dEdxTrk = "HLT_dEdxTrk"
             self.dEdxHit = "HLT_dEdxHit"
 
+        self.doHitDV = config.doHitDV
+        if config.doHitDV:
+            self.doHitDV_Seeding = True
+            self.RecJetRoI = "HLT_RecJETRoIs"
+            self.HitDVTrk  = "HLT_HitDVTrk"
+            self.HitDVSP   = "HLT_HitDVSP"
 
         ## SCT and Pixel detector elements road builder
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
@@ -421,10 +422,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
           self.doCloneRemoval = config.doCloneRemoval
           self.TracksName     = config.trkTracks_FTF()
-
-          if config.name == 'fullScanUTT' :
-              self.RecJetRoI      = "HLT_RecJETRoIs"
-              self.HitDVSeed      = "HLT_HitDVSeed"
 
 
 

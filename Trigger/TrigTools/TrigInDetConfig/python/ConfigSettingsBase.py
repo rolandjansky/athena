@@ -56,7 +56,8 @@ class _ConfigSettingsBase() :
       self._minNSiHits_vtx      = None
       self._vertex_jet          = None
       self._adaptiveVertex_jet  = False
-      self._dodEdxTrk           = False
+      self._dodEdxTrk           = False 
+      self._doHitDV             = False 
 
       if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
          self.override()
@@ -288,6 +289,10 @@ class _ConfigSettingsBase() :
    def dodEdxTrk(self):
        return self._dodEdxTrk
 
+   @property
+   def doHitDV(self):
+       return self._doHitDV
+
    def printout(self):
       from AthenaCommon.Logging import logging
       log = logging.getLogger("InDetTrigConfig: ")
@@ -319,7 +324,7 @@ class _ConfigSettingsBase() :
       log.info( "   isLRT                 : {}".format( self._isLRT ) )
       log.info( "   LRTD0Min              : {}".format( self._LRTD0Min ) )
       log.info( "   LRTHardPtmin          : {}".format( self._LRTHardPtMin ) )
-      log.info( "   doJseedHitDV          : {}".format( self._doJseedHitDV ) )
+      log.info( "   doHitDV               : {}".format( self._doHitDV ) )
       log.info( "   nClustersMin          : {}".format( self._nClustersMin ) )
       log.info( "   useBremModel          : {}".format( self._useBremModel ) )
       log.info( "   suffix                : {}".format( self._suffix ) )

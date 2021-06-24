@@ -63,7 +63,8 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "isohpttrack" : [['getIsoHPtTrackEmtpy'],['getFTFTrackReco'],['getIsoHPtTrackTrigger']],
             "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']],
-            "dedx" : [['getdEdxEmpty'], ['getFTFTrackReco'],['getdEdxTrigger']]
+            "dedx" : [['getdEdxEmpty'], ['getFTFTrackReco'],['getdEdxTrigger']],
+            "hitdv": [['getJetReco'],['getFTFTrackReco'],['getHitDVTrigger']]
         }
 
         return stepDictionary
@@ -91,10 +92,20 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
     def getdEdxEmpty(self):
         return self.getEmptyStep(1, 'dEdxEmptyStep')
 
+    def getHitDVTrigger(self):
+        return self.getStep(7,'HitDVTriggerCfg',[HitDVTriggerCfg])
+
+    def getHitDVEmpty(self):
+        return self.getEmptyStep(1, 'HitDVEmptyStep')
+
+    def getJetReco(self):
+        return self.getStep(1,'JetRecoOnlyCfg',[JetRecoOnlyCfg])
+
 
 def IsoHPtTrackTriggerCfg(flags):
     from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.IsoHighPtTrackTriggerConfiguration import IsoHPtTrackTriggerHypoSequence
     return IsoHPtTrackTriggerHypoSequence()
+
 def FTFRecoOnlyCfg(flags):
     from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.IsoHighPtTrackTriggerConfiguration import FTFRecoOnlySequence
     return FTFRecoOnlySequence()
@@ -106,3 +117,12 @@ def FSLRTTriggerCfg(flags):
 def dEdxTriggerCfg(flags):
     from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.dEdxTriggerConfiguration import dEdxTriggerHypoSequence
     return dEdxTriggerHypoSequence()
+
+def HitDVTriggerCfg(flags):
+    from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.HitDVConfiguration import HitDVHypoSequence
+    return HitDVHypoSequence()
+
+def JetRecoOnlyCfg(flags):
+    from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.HitDVConfiguration import JetRecoSequence
+    return JetRecoSequence()
+

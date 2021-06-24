@@ -97,6 +97,9 @@ BTagVars = '.'.join(BTagOutput)
 BTagJetOutput = ['btaggingLink', 'Jvt', 'JVFCorr', 'SumPtTrkPt500']
 BTagJetVars  ='.'.join(BTagJetOutput)
 
+hitDVToKeep = ['hitdv_seed_eta','hitdv_seed_phi','hitdv_seed_type','hitdv_n_track_qual','hitdv_ly0_sp_frac','hitdv_ly1_sp_frac','hitdv_ly2_sp_frac','hitdv_ly3_sp_frac','hitdv_ly4_sp_frac','hitdv_ly5_sp_frac','hitdv_ly6_sp_frac','hitdv_ly7_sp_frac','hitdv_bdt_score']
+hitDVVars = '.'.join(hitDVToKeep)
+
 dEdxTrkToKeep = ['trk_id','trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
 dEdxTrkVars = '.'.join(dEdxTrkToKeep)
 
@@ -707,12 +710,11 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
 
     # UTT
-    ('xAOD::TrigCompositeContainer#HLT_HitDVSeed',           'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSeedAux.seed_eta.seed_phi.seed_et_small.seed_et_large',  'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HitDVTrk',            'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.trk_id.trk_pt.trk_eta.trk_phi.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct.trk_a0beam',     'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HitDVSP',             'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.sp_eta.sp_r.sp_phi.sp_z.sp_layer.sp_isPix.sp_isSct.sp_usedTrkId',      'BS ESD AODFULL', 'ID'),
+    # hit-based displaced vertex
+    ('xAOD::TrigCompositeContainer#HLT_HitDV',                             'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVAux.',                      'BS ESD AODFULL AODSLIM', 'ID'),
+
+    # dE/dx
     #('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                          'BS ESD AODFULL', 'ID'),
     #('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,       'BS ESD AODFULL', 'ID'),
     #('xAOD::TrigCompositeContainer#HLT_dEdxHit',                          'BS ESD AODFULL', 'ID'),

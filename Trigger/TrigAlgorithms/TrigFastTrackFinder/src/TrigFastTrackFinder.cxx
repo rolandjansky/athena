@@ -67,7 +67,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_LRTD0Min(0.0),
   m_LRTHardMinPt(0.0),
   m_trigseedML_LUT(""),
-  m_doJseedHitDV(false),
+  m_doHitDV(false),
+  m_doHitDV_Seeding(false),
   m_dodEdxTrk(false)
 {
 
@@ -147,8 +148,9 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("LRT_HardMinPt", m_LRTHardMinPt=0.0);
 
   // UTT
-  declareProperty("doJseedHitDV", m_doJseedHitDV = false);
-  declareProperty("dodEdxTrk",    m_dodEdxTrk    = false);
+  declareProperty("doHitDV",         m_doHitDV         = false);
+  declareProperty("doHitDV_Seeding", m_doHitDV_Seeding = false);
+  declareProperty("dodEdxTrk",       m_dodEdxTrk       = false);
 
 }
 
@@ -254,9 +256,8 @@ StatusCode TrigFastTrackFinder::initialize() {
   }
 
   // UTT read/write handles
-  if( m_doJseedHitDV ) {
+  if( m_doHitDV ) {
     ATH_CHECK(m_recJetRoiCollectionKey.initialize());
-    ATH_CHECK(m_hitDVSeedKey.initialize());
     ATH_CHECK(m_hitDVTrkKey.initialize());
     ATH_CHECK(m_hitDVSPKey.initialize());
   }
@@ -309,7 +310,7 @@ StatusCode TrigFastTrackFinder::initialize() {
   ATH_MSG_DEBUG("	m_useNewLayerNumberScheme  : " <<  m_useNewLayerNumberScheme   );
   ATH_MSG_DEBUG("	m_useGPU                   : " <<  m_useGPU            );
   ATH_MSG_DEBUG("	m_LRTmode                  : " <<  m_LRTmode           );
-  ATH_MSG_DEBUG("	m_doJseedHitDV             : " <<  m_doJseedHitDV      );
+  ATH_MSG_DEBUG("	m_doHitDV                  : " <<  m_doHitDV      );
   ATH_MSG_DEBUG("	m_dodEdxTrk                : " <<  m_dodEdxTrk         );
 
   ATH_MSG_DEBUG(" Initialized successfully");
@@ -397,11 +398,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   auto mnt_timer_TripletMaking         = Monitored::Timer<std::chrono::milliseconds>("TIME_Triplets");
   auto mnt_timer_CombTracking          = Monitored::Timer<std::chrono::milliseconds>("TIME_CmbTrack");
   auto mnt_timer_TrackFitter           = Monitored::Timer<std::chrono::milliseconds>("TIME_TrackFitter");
-  auto mnt_timer_JseedHitDV            = Monitored::Timer<std::chrono::milliseconds>("TIME_JseedHitDV");
+  auto mnt_timer_HitDV                 = Monitored::Timer<std::chrono::milliseconds>("TIME_HitDV");
   auto mnt_timer_dEdxTrk               = Monitored::Timer<std::chrono::milliseconds>("TIME_dEdxTrk");
   auto monTime = Monitored::Group(m_monTool, mnt_roi_nTracks, mnt_roi_nSPs, mnt_timer_Total, mnt_timer_SpacePointConversion,
 				  mnt_timer_PatternReco, mnt_timer_TripletMaking, mnt_timer_CombTracking, mnt_timer_TrackFitter,
-				  mnt_timer_JseedHitDV, mnt_timer_dEdxTrk);
+				  mnt_timer_HitDV, mnt_timer_dEdxTrk);
 
   auto mnt_roi_lastStageExecuted = Monitored::Scalar<int>("roi_lastStageExecuted", 0);
   auto monDataError              = Monitored::Group(m_monTool, mnt_roi_lastStageExecuted);
@@ -708,10 +709,10 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   mnt_roi_lastStageExecuted = 6;
 
   // find L1 J seeded Hit-based displaced vertex
-  if( m_doJseedHitDV ) {
-     mnt_timer_JseedHitDV.start();
-     ATH_CHECK(findJseedHitDV(ctx,convertedSpacePoints,outputTracks));
-     mnt_timer_JseedHitDV.stop();
+  if( m_doHitDV ) {
+     mnt_timer_HitDV.start();
+     ATH_CHECK(findHitDV(ctx,convertedSpacePoints,outputTracks));
+     mnt_timer_HitDV.stop();
   }
 
   //monitor Z-vertexing
@@ -1271,15 +1272,10 @@ void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, c
   delete dataBuffer;
 }
 
-StatusCode TrigFastTrackFinder::findJseedHitDV(const EventContext& ctx, const std::vector<TrigSiSpacePointBase>& convertedSpacePoints,
-					       const TrackCollection& outputTracks) const
+StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::vector<TrigSiSpacePointBase>& convertedSpacePoints,
+					  const TrackCollection& outputTracks) const
 {
    // Output containers & writeHandle
-   auto hitDVSeedContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto hitDVSeedContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   hitDVSeedContainer->setStore(hitDVSeedContainerAux.get());
-   SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSeedHandle(m_hitDVSeedKey, ctx);
-
    auto hitDVTrkContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
    auto hitDVTrkContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
    hitDVTrkContainer->setStore(hitDVTrkContainerAux.get());
@@ -1290,67 +1286,35 @@ StatusCode TrigFastTrackFinder::findJseedHitDV(const EventContext& ctx, const st
    hitDVSPContainer->setStore(hitDVSPContainerAux.get());
    SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
 
-   // J30 RoIs
-   const unsigned int UTT_ET_CUT = 30;
-
-   auto recJetRoiCollectionHandle = SG::makeHandle( m_recJetRoiCollectionKey, ctx );
-   const DataVector<LVL1::RecJetRoI> *recJetRoiCollection = recJetRoiCollectionHandle.cptr();
-   if (!recJetRoiCollectionHandle.isValid()){
-      ATH_MSG_ERROR("ReadHandle for DataVector<LVL1::RecJetRoI> key:" << m_recJetRoiCollectionKey.key() << " isn't Valid");
-      return StatusCode::FAILURE;
-   }
-   std::vector< const LVL1::RecJetRoI* > recJetRoiVector;
-   for (size_t size=0; size<recJetRoiCollection->size(); size++){
-      const LVL1::RecJetRoI* recRoI = recJetRoiCollection->at(size);
-      if( recRoI == nullptr ) continue;
-      unsigned int etS = recRoI->etSmall();
-      unsigned int etL = recRoI->etLarge();
-      if( etL < UTT_ET_CUT && etS < UTT_ET_CUT ) continue;
-      recJetRoiVector.push_back(recRoI);
-      xAOD::TrigComposite *hitDVSeed = new xAOD::TrigComposite();
-      hitDVSeed->makePrivateStore();
-      float l1j_eta = recRoI->eta(); float l1j_phi = recRoI->phi();
-      int   l1j_et_small = recRoI->etSmall(); int l1j_et_large = recRoI->etLarge();
-      hitDVSeed->setDetail("seed_eta", l1j_eta);
-      hitDVSeed->setDetail("seed_phi", l1j_phi);
-      hitDVSeed->setDetail("seed_et_small", l1j_et_small);
-      hitDVSeed->setDetail("seed_et_large", l1j_et_large);
-      ATH_MSG_DEBUG("UTT: " << m_recJetRoiCollectionKey.key() << " eta / phi / etSmall / etLarge = " << recRoI->eta() << " / " << recRoI->phi() << " / " << recRoI->etSmall() << " / " << recRoI->etLarge());
-      hitDVSeedContainer->push_back(hitDVSeed);
-   }
-   ATH_MSG_DEBUG("UTT: Nr of J30 RoIs = " << recJetRoiVector.size());
-
-   // if no J30 RoI, return
-   if( recJetRoiVector.size() == 0 ) {
-      ATH_CHECK(hitDVSeedHandle.record(std::move(hitDVSeedContainer), std::move(hitDVSeedContainerAux)));
-      ATH_CHECK(hitDVTrkHandle.record(std::move(hitDVTrkContainer), std::move(hitDVTrkContainerAux)));
-      ATH_CHECK(hitDVSPHandle.record(std::move(hitDVSPContainer), std::move(hitDVSPContainerAux)));
-      return StatusCode::SUCCESS;
-   }
-
-   // select good tracks near jets
-   const float  TRKCUT_PT             = 0.5;
-   const float  TRKCUT_A0BEAM         = 2.5;
-   const int    TRKCUT_N_HITS_INNER   = 1;
-   const int    TRKCUT_N_HITS_PIX     = 2;
-   const int    TRKCUT_N_HITS         = 4;
-   const float  TRKCUT_DELTA_R_TO_JET = 1.0;
-   std::vector< const Trk::Track* > fittedTrackVector;
+   // select good tracks
+   const float  TRKCUT_PT               = 0.5;
+   const float  TRKCUT_A0BEAM           = 2.5;
+   const int    TRKCUT_N_HITS_INNERMOST = 1;
+   const int    TRKCUT_N_HITS_PIX       = 2;
+   const int    TRKCUT_N_HITS           = 4;
    std::unordered_map<const Trk::PrepRawData*, int> umap_fittedTrack_prd;
    int fittedTrack_id = -1;
+   std::vector<int>   v_dvtrk_id;
+   std::vector<float> v_dvtrk_pt;
+   std::vector<float> v_dvtrk_eta;
+   std::vector<float> v_dvtrk_phi;
+   std::vector<int>   v_dvtrk_n_hits_innermost;
+   std::vector<int>   v_dvtrk_n_hits_pix;
+   std::vector<int>   v_dvtrk_n_hits_sct;
+   std::vector<float> v_dvtrk_a0beam;
    for (auto track : outputTracks) {
       if ( ! track->perigeeParameters() ) continue;
       if ( ! track->trackSummary() )      continue;
       int n_hits_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits);
-      int n_hits_next_to_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits);
-      int n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
-      int n_hits_pix = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
-      int n_hits_sct = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
-      if( n_hits_inner < TRKCUT_N_HITS_INNER )      continue;
-      if( n_hits_pix < TRKCUT_N_HITS_PIX )          continue;
-      if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS ) continue;
-      float theta = track->perigeeParameters()->parameters()[Trk::theta];
-      float pt    = std::abs(1./track->perigeeParameters()->parameters()[Trk::qOverP]) * sin(theta);
+      int n_hits_pix       = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
+      int n_hits_sct       = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
+      if( n_hits_innermost < TRKCUT_N_HITS_INNERMOST )  continue;
+      if( n_hits_pix < TRKCUT_N_HITS_PIX )              continue;
+      if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS )     continue;
+      float theta  = track->perigeeParameters()->parameters()[Trk::theta];
+      float qOverP = track->perigeeParameters()->parameters()[Trk::qOverP];
+      if( std::abs(qOverP)<1e-12 ) qOverP = 1e-12;
+      float pt = std::sin(theta)/qOverP;
       pt /= 1000.0;
       if( pt < TRKCUT_PT ) continue;
       float a0   = track->perigeeParameters()->parameters()[Trk::d0];
@@ -1359,38 +1323,10 @@ StatusCode TrigFastTrackFinder::findJseedHitDV(const EventContext& ctx, const st
       if( m_useBeamSpot ) getBeamSpot(shift_x, shift_y, ctx);
       float a0beam = a0 + shift_x*sin(phi0)-shift_y*cos(phi0);
       if( std::abs(a0beam) > TRKCUT_A0BEAM ) continue;
-      //
-      float phi = track->perigeeParameters()->parameters()[Trk::phi];
-      TVector3 p3Trk; p3Trk.SetPtThetaPhi(pt,theta,phi);
-      float eta = p3Trk.Eta();
-      bool isNearJet = false;
-      for (unsigned int iRoi=0; iRoi<recJetRoiVector.size(); iRoi++){
-	 const LVL1::RecJetRoI* recRoI = recJetRoiVector[iRoi];
-	 float roi_eta = recRoI->eta();
-	 float roi_phi = recRoI->phi();
-	 float dR = deltaR(eta,phi,roi_eta,roi_phi);
-	 if( dR <= TRKCUT_DELTA_R_TO_JET ) { isNearJet = true; break; }
-      }
-      if( ! isNearJet ) continue;
 
       // track is selected
       fittedTrack_id++;
-      ATH_MSG_DEBUG("UTT: Selected track pT / eta / phi = " << pt << " / " << eta << " / " << phi);
-      fittedTrackVector.push_back(track);
-
-      xAOD::TrigComposite *hitDVTrk = new xAOD::TrigComposite();
-      hitDVTrk->makePrivateStore();
-      hitDVTrk->setDetail("trk_id",  fittedTrack_id);
-      hitDVTrk->setDetail("trk_pt",  pt);
-      hitDVTrk->setDetail("trk_eta", eta);
-      hitDVTrk->setDetail("trk_phi", phi);
-      hitDVTrk->setDetail("trk_n_hits_innermost", n_hits_innermost);
-      hitDVTrk->setDetail("trk_n_hits_inner", n_hits_inner);
-      hitDVTrk->setDetail("trk_n_hits_pix", n_hits_pix);
-      hitDVTrk->setDetail("trk_n_hits_sct", n_hits_sct);
-      hitDVTrk->setDetail("trk_a0beam", a0beam);
-      hitDVTrkContainer->push_back(hitDVTrk);
-
+      ATH_MSG_DEBUG("Selected track pT = " << pt);
       DataVector<const Trk::MeasurementBase>::const_iterator
 	 m  = track->measurementsOnTrack()->begin(),
 	 me = track->measurementsOnTrack()->end  ();
@@ -1401,14 +1337,32 @@ StatusCode TrigFastTrackFinder::findJseedHitDV(const EventContext& ctx, const st
 	    umap_fittedTrack_prd.insert(std::make_pair(prd,fittedTrack_id));
 	 }
       }
-   }
-   ATH_MSG_DEBUG("UTT: Nr of selected tracks = " << fittedTrackVector.size());
-   ATH_MSG_DEBUG("UTT: Nr of PRDs used by selected tracks = " << umap_fittedTrack_prd.size());
 
-   // select space points near jets
-   const float SPCUT_DELTA_R_TO_JET = 0.6;
-   int n_sp = 0;
+      float eta = -std::log(std::tan(0.5*theta));
+      float phi = track->perigeeParameters()->parameters()[Trk::phi];
+      v_dvtrk_id.push_back(fittedTrack_id);
+      v_dvtrk_pt.push_back(pt*1000.0);
+      v_dvtrk_eta.push_back(eta);
+      v_dvtrk_phi.push_back(phi);
+      v_dvtrk_n_hits_innermost.push_back(n_hits_innermost);
+      v_dvtrk_n_hits_pix.push_back(n_hits_pix);
+      v_dvtrk_n_hits_sct.push_back(n_hits_sct);
+      v_dvtrk_a0beam.push_back(a0beam);
+   }
+   ATH_MSG_DEBUG("Nr of selected tracks = " << fittedTrack_id);
+   ATH_MSG_DEBUG("Nr of PRDs used by selected tracks = " << umap_fittedTrack_prd.size());
+
+   // space points
+   int n_sp           = 0;
    int n_sp_usedByTrk = 0;
+   std::vector<float> v_sp_eta;
+   std::vector<float> v_sp_r;
+   std::vector<float> v_sp_phi;
+   std::vector<int>   v_sp_layer;
+   std::vector<int>   v_sp_isPix;
+   std::vector<int>   v_sp_isSct;
+   std::vector<int>   v_sp_usedTrkId;
+
    for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); iSp++) {
 
       const Trk::SpacePoint* sp = convertedSpacePoints[iSp].offlineSpacePoint();
@@ -1420,27 +1374,17 @@ StatusCode TrigFastTrackFinder::findJseedHitDV(const EventContext& ctx, const st
       float sp_eta = p3Sp.Eta();
       float sp_phi = p3Sp.Phi();
 
-      bool isNearJet = false;
-      for (unsigned int iRoi=0; iRoi<recJetRoiVector.size(); iRoi++){
-	 const LVL1::RecJetRoI* recRoI = recJetRoiVector[iRoi];
-	 float roi_eta = recRoI->eta();
-	 float roi_phi = recRoI->phi();
-	 float dR = deltaR(sp_eta,sp_phi,roi_eta,roi_phi);
-	 if( dR <= SPCUT_DELTA_R_TO_JET ) { isNearJet = true; break; }
-      }
-      if( ! isNearJet ) continue;
-
       // whether used by selected tracks
       const Trk::PrepRawData* prd = sp->clusterList().first;
       int usedTrack_id = -1;
       if( prd != nullptr && umap_fittedTrack_prd.find(prd) != umap_fittedTrack_prd.end() ) {
-	 ATH_MSG_DEBUG("UTT: prd first is there in umap");
+	 ATH_MSG_DEBUG("prd first is there in umap");
 	 usedTrack_id = umap_fittedTrack_prd[prd];
       }
       else {
 	 const Trk::PrepRawData* prd = sp->clusterList().second;
 	 if( prd != nullptr && umap_fittedTrack_prd.find(prd) != umap_fittedTrack_prd.end() ) {
-	    ATH_MSG_DEBUG("UTT: prd second is there in umap");
+	    ATH_MSG_DEBUG("prd second is there in umap");
 	    usedTrack_id = umap_fittedTrack_prd[prd];
 	 }
       }
@@ -1448,32 +1392,329 @@ StatusCode TrigFastTrackFinder::findJseedHitDV(const EventContext& ctx, const st
       //
       n_sp++;
       if( usedTrack_id != -1 ) n_sp_usedByTrk++;
-      int layer = convertedSpacePoints[iSp].layer();
-      int isPix = convertedSpacePoints[iSp].isPixel() ? 1 : 0;
-      int isSct = convertedSpacePoints[iSp].isSCT() ? 1 : 0;
-      ATH_MSG_DEBUG("UTT: +++ SP eta / phi / layer / ixPix / usedTrack_id = " << sp_eta << " / " << sp_phi << " / " << layer << " / " << isPix << " / " << usedTrack_id);
+      int  layer = convertedSpacePoints[iSp].layer();
+      int  isPix = convertedSpacePoints[iSp].isPixel() ? 1 : 0;
+      int  isSct = convertedSpacePoints[iSp].isSCT() ?   1 : 0;
+      float sp_r = convertedSpacePoints[iSp].r();
 
+      v_sp_eta.push_back(sp_eta);
+      v_sp_r.push_back(sp_r);
+      v_sp_phi.push_back(sp_phi);
+      v_sp_layer.push_back(layer);
+      v_sp_isPix.push_back(isPix);
+      v_sp_isSct.push_back(isSct);
+      v_sp_usedTrkId.push_back(usedTrack_id);
+
+      ATH_MSG_DEBUG("+++ SP eta / phi / layer / ixPix / usedTrack_id = " << sp_eta << " / " << sp_phi << " / " << layer << " / " << isPix << " / " << usedTrack_id);
+
+   }
+   ATH_MSG_DEBUG("Nr of SPs = " << n_sp);
+   ATH_MSG_DEBUG("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
+
+   // Seed
+   std::vector<float> v_seeds_eta;
+   std::vector<float> v_seeds_phi;
+
+   if( m_doHitDV_Seeding ) {
+
+      // space-point based (unseeded mode)
+      ATH_CHECK( findSPSeeds(v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_seeds_eta, v_seeds_phi) );
+      ATH_MSG_DEBUG("Nr of SP seeds = " << v_seeds_eta.size());
+
+      // add J1 J30 seeds
+      const unsigned int L1JET_ET_CUT = 30;
+
+      auto recJetRoiCollectionHandle = SG::makeHandle( m_recJetRoiCollectionKey, ctx );
+      const DataVector<LVL1::RecJetRoI> *recJetRoiCollection = recJetRoiCollectionHandle.cptr();
+      if (!recJetRoiCollectionHandle.isValid()){
+	 ATH_MSG_ERROR("ReadHandle for DataVector<LVL1::RecJetRoI> key:" << m_recJetRoiCollectionKey.key() << " isn't Valid");
+	 return StatusCode::FAILURE;
+      }
+      for (size_t size=0; size<recJetRoiCollection->size(); ++size){
+	 const LVL1::RecJetRoI* recRoI = recJetRoiCollection->at(size);
+	 if( recRoI == nullptr ) continue;
+	 bool isSeed = false;
+	 for( const unsigned int thrMapping : recRoI->thresholdsPassed()) {
+	    double thrValue = recRoI->triggerThreshold(thrMapping) * Gaudi::Units::GeV;
+	    if( thrValue >= L1JET_ET_CUT ) {
+	       isSeed = true;
+	       break;
+	    }
+	 }
+	 if( ! isSeed ) continue;
+	 // Convert to ATLAS phi convention: see RoIResultToAOD.cxx
+	 float roiPhi = recRoI->phi();
+	 if( roiPhi > TMath::Pi() ) roiPhi -= 2 * TMath::Pi();
+	 v_seeds_eta.push_back(recRoI->eta());
+	 v_seeds_phi.push_back(roiPhi);
+      }
+      ATH_MSG_DEBUG("Nr of SP + L1_J30 seeds = " << v_seeds_eta.size());
+   }
+
+   // fill objects
+   
+   // track
+   const float TRKCUT_DELTA_R_TO_SEED = 1.0;
+   for(unsigned int iTrk=0; iTrk<v_dvtrk_pt.size(); ++iTrk) {
+      float trk_eta = v_dvtrk_eta[iTrk];
+      float trk_phi = v_dvtrk_phi[iTrk];
+      if( m_doHitDV_Seeding ) {
+	 bool isNearSeed = false;
+	 for (unsigned int iSeed=0; iSeed<v_seeds_eta.size(); ++iSeed) {
+	    float seed_eta = v_seeds_eta[iSeed];
+	    float seed_phi = v_seeds_phi[iSeed];
+	    float dR = deltaR(trk_eta,trk_phi,seed_eta,seed_phi);
+	    if( dR <= TRKCUT_DELTA_R_TO_SEED ) { isNearSeed = true; break; }
+	 }
+	 if( ! isNearSeed ) continue;
+      }
+      xAOD::TrigComposite *hitDVTrk = new xAOD::TrigComposite();
+      hitDVTrk->makePrivateStore();
+      hitDVTrkContainer->push_back(hitDVTrk);
+      hitDVTrk->setDetail<int>  ("dvtrk_id",  v_dvtrk_id[iTrk]);
+      hitDVTrk->setDetail<float>("dvtrk_pt",  v_dvtrk_pt[iTrk]);
+      hitDVTrk->setDetail<float>("dvtrk_eta", v_dvtrk_eta[iTrk]);
+      hitDVTrk->setDetail<float>("dvtrk_phi", v_dvtrk_phi[iTrk]);
+      hitDVTrk->setDetail<int>  ("dvtrk_n_hits_innermost", v_dvtrk_n_hits_innermost[iTrk]);
+      hitDVTrk->setDetail<int>  ("dvtrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]); 
+      hitDVTrk->setDetail<int>  ("dvtrk_n_hits_sct", v_dvtrk_n_hits_sct[iTrk]);
+      hitDVTrk->setDetail<float>("dvtrk_a0beam",     v_dvtrk_a0beam[iTrk]); 
+   }
+
+   // space points
+   const float SPCUT_DELTA_R_TO_SEED = 0.6;
+   for(unsigned int iSp=0; iSp<v_sp_eta.size(); ++iSp) {
+      float sp_eta = v_sp_eta[iSp];
+      float sp_phi = v_sp_phi[iSp];
+      if( m_doHitDV_Seeding ) {
+	 bool isNearSeed = false;
+	 for (unsigned int iSeed=0; iSeed<v_seeds_eta.size(); ++iSeed) {
+	    float seed_eta = v_seeds_eta[iSeed];
+	    float seed_phi = v_seeds_phi[iSeed];
+	    float dR = deltaR(sp_eta,sp_phi,seed_eta,seed_phi);
+	    if( dR <= SPCUT_DELTA_R_TO_SEED ) { isNearSeed = true; break; }
+	 }
+	 if( ! isNearSeed ) continue;
+      }
       xAOD::TrigComposite *hitDVSP = new xAOD::TrigComposite();
       hitDVSP->makePrivateStore();
-      float sp_r = convertedSpacePoints[iSp].r();
-      hitDVSP->setDetail("sp_eta", sp_eta);
-      hitDVSP->setDetail("sp_r",   sp_r);
-      hitDVSP->setDetail("sp_phi", sp_phi);
-      hitDVSP->setDetail("sp_z",   sp_z);
-      hitDVSP->setDetail("sp_layer", layer);
-      hitDVSP->setDetail("sp_isPix", isPix);
-      hitDVSP->setDetail("sp_isSct", isSct);
-      hitDVSP->setDetail("sp_usedTrkId", usedTrack_id);
       hitDVSPContainer->push_back(hitDVSP);
+      hitDVSP->setDetail<float>("sp_eta",       v_sp_eta[iSp]);
+      hitDVSP->setDetail<float>("sp_r",         v_sp_r[iSp]);
+      hitDVSP->setDetail<float>("sp_phi",       v_sp_phi[iSp]);
+      hitDVSP->setDetail<int>  ("sp_layer",     v_sp_layer[iSp]);
+      hitDVSP->setDetail<int>  ("sp_isPix",     v_sp_isPix[iSp]);
+      hitDVSP->setDetail<int>  ("sp_isSct",     v_sp_isSct[iSp]);
+      hitDVSP->setDetail<int>  ("sp_usedTrkId", v_sp_usedTrkId[iSp]);
    }
-   ATH_MSG_DEBUG("UTT: Nr of selected SPs = " << n_sp);
-   ATH_MSG_DEBUG("UTT: Nr of selected SPs used by selected tracks = " << n_sp_usedByTrk);
 
    // record
-   ATH_CHECK(hitDVSeedHandle.record(std::move(hitDVSeedContainer), std::move(hitDVSeedContainerAux)));
    ATH_CHECK(hitDVTrkHandle.record(std::move(hitDVTrkContainer), std::move(hitDVTrkContainerAux)));
    ATH_CHECK(hitDVSPHandle.record(std::move(hitDVSPContainer), std::move(hitDVSPContainerAux)));
 
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta, const std::vector<float>& v_sp_phi,
+					     const std::vector<int>& v_sp_layer, const std::vector<int>& v_sp_usedTrkId,
+					     std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
+{
+   seeds_eta.clear();
+   seeds_phi.clear();
+
+   const int   NBINS_ETA = 50;
+   const float ETA_MIN   = -2.5; 
+   const float ETA_MAX   =  2.5;
+
+   const int   NBINS_PHI = 80;
+   const float PHI_MIN   = -4.0; 
+   const float PHI_MAX   =  4.0;
+
+   std::string hname;
+
+   hname = "ly6_h2_nsp";
+   TH2F*    ly6_h2_nsp = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   hname = "ly7_h2_nsp";
+   TH2F*    ly7_h2_nsp = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+
+   hname = "ly6_h2_nsp_notrk";
+   TH2F*    ly6_h2_nsp_notrk = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   hname = "ly7_h2_nsp_notrk";
+   TH2F*    ly7_h2_nsp_notrk = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+
+   for(unsigned int iSeed=0; iSeed<v_sp_eta.size(); ++iSeed) {
+
+      int sp_layer = v_sp_layer[iSeed];
+      float sp_eta = v_sp_eta[iSeed];
+      int ilayer = getSPLayer(sp_layer,sp_eta);
+      if( ilayer<6 ) continue;
+
+      int sp_trkid = v_sp_usedTrkId[iSeed];
+      bool isUsedByTrk = (sp_trkid != -1);
+      float sp_phi = v_sp_phi[iSeed];
+
+      bool fill_out_of_pi = false;
+      float sp_phi2 = 0;
+      if( sp_phi < 0 ) {
+	 sp_phi2 = 2*TMath::Pi() + sp_phi;
+	 if( sp_phi2 < PHI_MAX ) fill_out_of_pi = true;
+      }
+      else {
+	 sp_phi2 = -2*TMath::Pi() + sp_phi;
+	 if( PHI_MIN < sp_phi2 ) fill_out_of_pi = true;
+      }
+      if( ilayer==6 ) {
+	                      ly6_h2_nsp->Fill(sp_eta,sp_phi);
+	 if( fill_out_of_pi ) ly6_h2_nsp->Fill(sp_eta,sp_phi2);
+	 if( ! isUsedByTrk )                  ly6_h2_nsp_notrk->Fill(sp_eta,sp_phi);
+	 if( ! isUsedByTrk && fill_out_of_pi) ly6_h2_nsp_notrk->Fill(sp_eta,sp_phi2);
+      }
+      if( ilayer==7 ) {
+	                      ly7_h2_nsp->Fill(sp_eta,sp_phi);
+	 if( fill_out_of_pi ) ly7_h2_nsp->Fill(sp_eta,sp_phi2);
+	 if( ! isUsedByTrk )                  ly7_h2_nsp_notrk->Fill(sp_eta,sp_phi);
+	 if( ! isUsedByTrk && fill_out_of_pi) ly7_h2_nsp_notrk->Fill(sp_eta,sp_phi2);
+      }
+   }
+
+   ATH_MSG_DEBUG("looking for ly6/ly6 doublet seeds");
+
+   // (idx, sort/weight, eta, phi)
+   std::vector<std::tuple<int,float,float,float>> QT;
+
+   for(int ly6_ieta=1; ly6_ieta<=NBINS_ETA; ly6_ieta++) {
+      float ly6_eta = (ly6_h2_nsp->GetXaxis()->GetBinLowEdge(ly6_ieta) + ly6_h2_nsp->GetXaxis()->GetBinUpEdge(ly6_ieta))/2.0;
+      for(int ly6_iphi=1; ly6_iphi<=NBINS_PHI; ly6_iphi++) {
+	 float ly6_phi = (ly6_h2_nsp->GetYaxis()->GetBinLowEdge(ly6_iphi) + ly6_h2_nsp->GetYaxis()->GetBinUpEdge(ly6_iphi))/2.0;
+
+	 float ly6_nsp       = ly6_h2_nsp      ->GetBinContent(ly6_ieta,ly6_iphi);
+	 float ly6_nsp_notrk = ly6_h2_nsp_notrk->GetBinContent(ly6_ieta,ly6_iphi);
+	 float ly6_frac      = ( ly6_nsp > 0 ) ? ly6_nsp_notrk / ly6_nsp : 0;
+	 if( ly6_nsp < 10 || ly6_frac < 0.85 ) continue;
+
+	 float ly7_frac_max = 0;
+	 float ly7_eta_max  = 0;
+	 float ly7_phi_max  = 0;
+	 for(int ly7_ieta=std::max(1,ly6_ieta-1); ly7_ieta<std::min(NBINS_ETA,ly6_ieta+1); ly7_ieta++) {
+	    for(int ly7_iphi=std::max(1,ly6_iphi-1); ly7_iphi<=std::min(NBINS_PHI,ly6_iphi+1); ly7_iphi++) {
+	       float ly7_nsp       = ly7_h2_nsp      ->GetBinContent(ly7_ieta,ly7_iphi);
+	       float ly7_nsp_notrk = ly7_h2_nsp_notrk->GetBinContent(ly7_ieta,ly7_iphi);
+	       float ly7_frac      = ( ly7_nsp > 0 ) ? ly7_nsp_notrk / ly7_nsp : 0;
+	       if( ly7_nsp < 10 ) continue;
+	       if( ly7_frac > ly7_frac_max ) {
+		  ly7_frac_max = ly7_frac;
+		  ly7_eta_max  = (ly7_h2_nsp->GetXaxis()->GetBinLowEdge(ly7_ieta) + ly7_h2_nsp->GetXaxis()->GetBinUpEdge(ly7_ieta))/2.0;
+		  ly7_phi_max  = (ly7_h2_nsp->GetXaxis()->GetBinLowEdge(ly7_iphi) + ly7_h2_nsp->GetXaxis()->GetBinUpEdge(ly7_iphi))/2.0;
+	       }
+	    }
+	 }
+	 if( ly7_frac_max < 0.85 ) continue;
+	 //
+	 float wsum = ly6_frac + ly7_frac_max;
+	 float weta = (ly6_eta*ly6_frac + ly7_eta_max*ly7_frac_max) / wsum;
+	 float wphi = (ly6_phi*ly6_frac + ly7_phi_max*ly7_frac_max) / wsum;
+	 float w = wsum / 2.0;
+	 QT.push_back(std::make_tuple(-1,w,weta,wphi));
+      }
+   }
+   delete ly6_h2_nsp;
+   delete ly7_h2_nsp;
+   delete ly6_h2_nsp_notrk;
+   delete ly7_h2_nsp_notrk;
+   ATH_MSG_DEBUG("nr of ly6/ly7 doublet candidate seeds=" << QT.size() << ", doing clustering...");
+
+   // sort
+   std::sort(QT.begin(), QT.end(),
+	     [](const std::tuple<int,float,float,float>& lhs, const std::tuple<int,float,float,float>& rhs) {
+		return std::get<1>(lhs) > std::get<1>(rhs); } );
+   
+   // clustering
+   const double CLUSTCUT_DIST      = 0.2;
+   const double CLUSTCUT_SEED_FRAC = 0.9;
+
+   std::vector<float> seeds_wsum;
+
+   for(unsigned int i=0; i<QT.size(); i++) {
+      float phi  = std::get<3>(QT[i]);
+      float eta  = std::get<2>(QT[i]);
+      float w    = std::get<1>(QT[i]);
+      if(i==0) {
+	 seeds_eta.push_back(w*eta); seeds_phi.push_back(w*phi);
+	 seeds_wsum.push_back(w);
+	 continue;
+      }
+      const int IDX_INITIAL = 100;
+      float dist_min = 100.0;
+      int idx_min     = IDX_INITIAL;
+      for(unsigned j=0; j<seeds_eta.size(); j++) {
+	 float ceta = seeds_eta[j]/seeds_wsum[j];
+	 float cphi = seeds_phi[j]/seeds_wsum[j];
+	 // intentionally calculate in this way as phi is defined beyond -Pi/Pi (no boundary)
+	 float deta = std::fabs(ceta-eta);
+	 float dphi = std::fabs(cphi-phi);
+	 float dist = std::sqrt(dphi*dphi+deta*deta);
+	 if( dist < dist_min ) {
+	    dist_min = dist;
+	    idx_min  = j; 
+	 }
+      }
+      int match_idx = IDX_INITIAL;
+      if( idx_min != IDX_INITIAL ) {
+	 if( dist_min < CLUSTCUT_DIST ) { match_idx = idx_min; }
+      }
+      if( match_idx == IDX_INITIAL ) {
+	 if( w > CLUSTCUT_SEED_FRAC && dist_min > CLUSTCUT_DIST ) {
+	    seeds_eta.push_back(w*eta); seeds_phi.push_back(w*phi);
+	    seeds_wsum.push_back(w);
+	 }
+	 continue;
+      }
+      float new_eta   = seeds_eta[match_idx]  + w*eta;
+      float new_phi   = seeds_phi[match_idx]  + w*phi;
+      float new_wsum  = seeds_wsum[match_idx] + w;
+      seeds_eta[match_idx]   = new_eta;
+      seeds_phi[match_idx]   = new_phi;
+      seeds_wsum[match_idx]  = new_wsum;
+   }
+   QT.clear();
+   for(unsigned int i=0; i<seeds_eta.size(); i++) {
+      float eta = seeds_eta[i] / seeds_wsum[i];
+      float phi = seeds_phi[i] / seeds_wsum[i];
+      seeds_eta[i] = eta;
+      seeds_phi[i] = phi;
+      if( phi < -TMath::Pi() ) phi =  2*TMath::Pi() + phi;
+      if( phi >  TMath::Pi() ) phi = -2*TMath::Pi() + phi;
+      seeds_phi[i] = phi;
+   }
+   ATH_MSG_DEBUG("after clustering, nr of seeds = " << seeds_eta.size());
+
+   // delete overlap (can happen at phi=-Pi/Pi bounadry)
+   std::vector<unsigned int> idx_to_delete;
+   for(unsigned int i=0; i<seeds_eta.size(); i++) {
+      if( std::find(idx_to_delete.begin(),idx_to_delete.end(),i) != idx_to_delete.end() ) continue;
+      float eta_i = seeds_eta[i];
+      float phi_i = seeds_phi[i];
+      for(unsigned int j=i+1; j<seeds_eta.size(); j++) {
+	 if( std::find(idx_to_delete.begin(),idx_to_delete.end(),j) != idx_to_delete.end() ) continue;
+	 float eta_j = seeds_eta[j];
+	 float phi_j = seeds_phi[j];
+	 float dr = deltaR(eta_i,phi_i,eta_j,phi_j);
+	 if( dr < CLUSTCUT_DIST ) idx_to_delete.push_back(j);
+      }
+   }
+   ATH_MSG_DEBUG("nr of duplicated seeds to be removed = " << idx_to_delete.size());
+   if( idx_to_delete.size() > 0 ) {
+      std::sort(idx_to_delete.begin(),idx_to_delete.end());
+      for(unsigned int j=idx_to_delete.size(); j>0; j--) {
+	 unsigned int idx = idx_to_delete[j-1];
+	 seeds_eta.erase(seeds_eta.begin()+idx);
+	 seeds_phi.erase(seeds_phi.begin()+idx);
+      }
+   }
+
+   ATH_MSG_DEBUG("nr of ly6/ly7 seeds=" << seeds_eta.size());
+
+   // return
    return StatusCode::SUCCESS;
 }
 
@@ -1483,6 +1724,125 @@ float TrigFastTrackFinder::deltaR(float eta_1, float phi_1, float eta_2, float p
    if (dPhi >  TMath::Pi()) dPhi -= 2*TMath::Pi();
    float dEta = eta_1 - eta_2;
    return sqrt(dPhi*dPhi+dEta*dEta);
+}
+
+int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
+{
+   float abseta = std::fabs(eta);
+
+   // Pixel barrel or SCT barrel
+   if( 0<=layer && layer <=7 ) {
+      ATH_MSG_DEBUG("layer=" << layer << ", eta=" << abseta);
+      return layer;
+   }
+
+   int base = 0;
+
+   // 
+   const float PixBR6limit = 1.29612;
+   const float PixBR5limit = 1.45204;
+   const float PixBR4limit = 1.64909;
+   const float PixBR3limit = 1.90036;
+   const float PixBR2limit = 2.2146;
+
+   // Pixel Endcap #1
+   base = 8;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Pix EC1, eta=" << abseta);
+      if( abseta > PixBR2limit ) return 2;
+      return 3;
+   }
+
+   // Pixel Endcap #2
+   base = 9;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Pix EC2, eta=" << abseta);
+      if( abseta > PixBR2limit ) return 2;
+      return 3;
+   }
+
+   // Pixel Endcap #3
+   base = 10;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Pix EC3, eta=" << abseta);
+      return 3;
+   }
+
+   // SCT Endcap #1
+   base = 11;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC1, eta=" << abseta);
+      if( abseta < PixBR6limit )      return 7;
+      else if( abseta < PixBR5limit ) return 6;
+      return 5;
+   }
+
+   // SCT Endcap #2
+   base = 12;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC2, eta=" << abseta);
+      if( abseta < PixBR5limit )      return 7;
+      else if( abseta < PixBR4limit ) return 6;
+      return 4;
+   }
+
+   // SCT Endcap #3
+   base = 13;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC3, eta=" << abseta);
+      if( abseta < PixBR4limit ) return 7;
+      return 5;
+   }
+
+   // SCT Endcap #4
+   base = 14;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC4, eta=" << abseta);
+      if( abseta < PixBR4limit ) return 6;
+      else if( abseta < PixBR3limit ) return 6;
+      return 4;
+   }
+
+   // SCT Endcap #5
+   base = 15;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC5, eta=" << abseta);
+      if( abseta < PixBR3limit ) return 7;
+      return 5;
+   }
+
+   // SCT Endcap #6
+   base = 16;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC6, eta=" << abseta);
+      if( abseta < PixBR3limit ) return 6;
+      return 4;
+   }
+
+   // SCT Endcap #7
+   base = 17;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC7, eta=" << abseta);
+      if( abseta < PixBR3limit ) return 7;
+      return 5;
+   }
+
+   // SCT Endcap #8
+   base = 18;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC8, eta=" << abseta);
+      if( abseta < PixBR3limit ) return 7;
+      return 6;
+   }
+
+   // SCT Endcap #9
+   base = 19;
+   if( layer==base || layer==(base+12) ) {
+      ATH_MSG_DEBUG("Sct EC9, eta=" << abseta);
+      return 7;
+   }
+
+   return 0;
 }
 
 StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const TrackCollection& outputTracks) const
@@ -1505,7 +1865,7 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
 
    int i_track=0;
 
-   ATH_MSG_DEBUG("UTT: ========== in finddEdxTrk ==========");
+   ATH_MSG_DEBUG("========== in finddEdxTrk ==========");
 
    const float  TRKCUT_A0BEAM       = 2.5;
    const int    TRKCUT_N_HITS_INNER = 1;
@@ -1519,7 +1879,7 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
 
    for (auto track : outputTracks) {
 
-      ATH_MSG_DEBUG("UTT: +++++++ i_track: " << i_track << " +++++++");
+      ATH_MSG_DEBUG("+++++++ i_track: " << i_track << " +++++++");
 
       i_track++;
       if ( ! track->perigeeParameters() ) continue;
@@ -1544,13 +1904,13 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       float a0beam = a0 + shift_x*sin(phi0)-shift_y*cos(phi0);
       if( std::abs(a0beam) > TRKCUT_A0BEAM ) continue;
 
-      ATH_MSG_DEBUG("UTT: calculate dEdx -->");
+      ATH_MSG_DEBUG("calculate dEdx -->");
       int pixelhits=0; int n_usedhits=0;
       std::vector<float> v_pixhit_dedx; std::vector<float> v_pixhit_tot; std::vector<float> v_pixhit_trkchi2; std::vector<float> v_pixhit_trkndof;
       std::vector<int> v_pixhit_iblovfl; std::vector<int> v_pixhit_loc; std::vector<int> v_pixhit_layer;
       float dedx = dEdx(track,pixelhits,n_usedhits,v_pixhit_dedx,v_pixhit_tot,v_pixhit_trkchi2,v_pixhit_trkndof,
 			v_pixhit_iblovfl,v_pixhit_loc,v_pixhit_layer);
-      ATH_MSG_DEBUG("UTT: --> dedx = " << dedx);
+      ATH_MSG_DEBUG("--> dedx = " << dedx);
 
       mnt_dedx.push_back(dedx);
       mnt_dedx_nusedhits.push_back(n_usedhits);
@@ -1645,38 +2005,38 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
       // Loop over track states on surfaces (i.e. generalized hits):
       for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
 
-	 ATH_MSG_DEBUG("UTT: -------- TSoS: " << i_tsos++  << " --------");
+	 ATH_MSG_DEBUG("-------- TSoS: " << i_tsos++  << " --------");
 
 	 const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
 	 if ( measurement == nullptr ) {
-	    ATH_MSG_DEBUG("UTT: no measurement on this TSoS, skip it");
+	    ATH_MSG_DEBUG("no measurement on this TSoS, skip it");
 	    continue;
 	 }
 	 const Trk::TrackParameters* tp = (*tsosIter)->trackParameters();
 	 if( tp == nullptr ) {
-	    ATH_MSG_DEBUG("UTT: no trackParameters() to this TSoS, skip it");
+	    ATH_MSG_DEBUG("no trackParameters() to this TSoS, skip it");
 	    continue;
 	 }
 	 const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
 	 if ( pixclus == nullptr ) {
-	    ATH_MSG_DEBUG("UTT: this TSoS is not Pixel, skip it");
+	    ATH_MSG_DEBUG("this TSoS is not Pixel, skip it");
 	    continue;
 	 }
 	 const InDet::PixelCluster* prd = pixclus->prepRawData();
 	 if( prd == nullptr ) {
-	    ATH_MSG_DEBUG("UTT: no PrepRawData(), skip it");
+	    ATH_MSG_DEBUG("no PrepRawData(), skip it");
 	    continue;
 	 }
 
 	 float dotProd  = tp->momentum().dot(tp->associatedSurface().normal());
 	 float cosalpha = std::abs(dotProd/tp->momentum().mag());
-	 ATH_MSG_DEBUG("UTT: dotProd / cosalpha = " << dotProd  << " / " << cosalpha);
+	 ATH_MSG_DEBUG("dotProd / cosalpha = " << dotProd  << " / " << cosalpha);
 	 if (std::abs(cosalpha)<.16) continue;
 
 	 const std::vector<int>& v_tots = prd->totList();
 	 float charge = prd->totalCharge();
 	 float tot    = prd->totalToT();
-	 ATH_MSG_DEBUG("UTT: charge / ToT = " << charge << " / " << tot);
+	 ATH_MSG_DEBUG("charge / ToT = " << charge << " / " << tot);
 	 charge *= cosalpha; // path length correction
 
 	 double locx = pixclus->localParameters()[Trk::locX];
@@ -1705,7 +2065,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 		  break; //no need to check other hits of this cluster
 	       }
 	    }
-	    if(iblOverflow==1) ATH_MSG_DEBUG("UTT: IBL overflow");
+	    if(iblOverflow==1) ATH_MSG_DEBUG("IBL overflow");
 
 	    if(((eta_module>=-10 && eta_module<=-7)||(eta_module>=6 && eta_module<=9)) && (std::abs(locy)<10. && (locx>-8.33 && locx <8.3)) ){ // IBL 3D
 	       thickness = IBL_3D_sensorthickness;
@@ -1716,7 +2076,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	       loc = PIXLOC_IBL_PL;
 	    }
 	    else {
-	       ATH_MSG_DEBUG("UTT: unknown IBL module");
+	       ATH_MSG_DEBUG("unknown IBL module");
 	       loc = PIXLOC_IBL_UNKNOWN;
 	    }
 	 }
@@ -1729,7 +2089,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	    loc = PIXLOC_PIX_EC;
 	 }
 	 else {
-	    ATH_MSG_DEBUG("UTT: unknown Pixel module");
+	    ATH_MSG_DEBUG("unknown Pixel module");
 	    loc = PIXLOC_IBL_UNKNOWN;
 	 }
 
@@ -1740,8 +2100,8 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	    pixelhits++;
 	    if(iblOverflow==1)n_usedIBLOverflowHits++;
 	 }
-	 ATH_MSG_DEBUG("UTT: dEdx=" << dEdxValue);
-	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot);
+	 ATH_MSG_DEBUG("dEdx=" << dEdxValue);
+	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot); 
 	 v_pixhit_trkchi2.push_back(chi2); v_pixhit_trkndof.push_back(ndof);
 	 v_pixhit_iblovfl.push_back(iblOverflow); v_pixhit_loc.push_back(loc); v_pixhit_layer.push_back(layer);
       }
@@ -1756,39 +2116,39 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    int i_map=0;
 
    for (std::pair<float,int> itdEdx : dEdxMap) {
-      ATH_MSG_DEBUG("UTT: ++++++++ i_map: " << i_map++  << " ++++++++");
+      ATH_MSG_DEBUG("++++++++ i_map: " << i_map++  << " ++++++++");
       if(itdEdx.second==0){
-	 ATH_MSG_DEBUG("UTT: usedhits, dEdx=" << itdEdx.first);
+	 ATH_MSG_DEBUG("usedhits, dEdx=" << itdEdx.first);
          averagedEdx += itdEdx.first;
          n_usedhits++;
       }
-      if(itdEdx.second > 0){
-	 ATH_MSG_DEBUG("UTT: IBLOverflow");
+      if(itdEdx.second > 0){ 
+	 ATH_MSG_DEBUG("IBLOverflow");
          IBLOverflow++;
       }
       // break, skipping last or the two last elements depending on total measurements
       if (((int)pixelhits >= 5) and ((int)n_usedhits >= (int)pixelhits-2)) {
-	 ATH_MSG_DEBUG("UTT: break, skipping last or two last elements");
+	 ATH_MSG_DEBUG("break, skipping last or two last elements");
 	 break;
       }
 
       // break, IBL Overflow case pixelhits==3 and 4
       if((int)IBLOverflow>0 and ((int)pixelhits==3) and (int)n_usedhits==1) {
-	 ATH_MSG_DEBUG("UTT: break, IBL overflow case, pixel hits=3");
+	 ATH_MSG_DEBUG("break, IBL overflow case, pixel hits=3");
 	 break;
       }
       if((int)IBLOverflow>0 and ((int)pixelhits==4) and (int)n_usedhits==2) {
-	 ATH_MSG_DEBUG("UTT: break, IBL overflow case, pixel hits=4");
+	 ATH_MSG_DEBUG("break, IBL overflow case, pixel hits=4");
 	 break;
       }
 
       if (((int)pixelhits > 1) and ((int)n_usedhits >=(int)pixelhits-1)) {
-	 ATH_MSG_DEBUG("UTT: break, skipping last??");
-	 break;
+	 ATH_MSG_DEBUG("break, skipping last??");
+	 break; 
       }
 
       if((int)IBLOverflow>0 and (int)pixelhits==1){ // only IBL in overflow
-	 ATH_MSG_DEBUG("UTT: break, only IBL in overflow");
+	 ATH_MSG_DEBUG("break, only IBL in overflow");
          averagedEdx=itdEdx.first;
          break;
       }
@@ -1797,13 +2157,13 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    if (n_usedhits > 0 or (n_usedhits==0 and(int)IBLOverflow>0 and (int)pixelhits==1)) {
       if(n_usedhits > 0) averagedEdx = averagedEdx / n_usedhits;
       //if(n_usedhits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx;  //no-op
-      ATH_MSG_DEBUG("UTT: =====> averaged dEdx = " << averagedEdx << " =====>");;
-      ATH_MSG_DEBUG("UTT:    +++ Used hits: " << n_usedhits << ", IBL overflows: " << IBLOverflow );;
-      ATH_MSG_DEBUG("UTT:    +++ Original number of measurements = " << pixelhits << " (map size = " << dEdxMap.size() << ") ");
-      return averagedEdx;
+      ATH_MSG_DEBUG("=====> averaged dEdx = " << averagedEdx << " =====>");;
+      ATH_MSG_DEBUG("   +++ Used hits: " << n_usedhits << ", IBL overflows: " << IBLOverflow );;
+      ATH_MSG_DEBUG("   +++ Original number of measurements = " << pixelhits << " (map size = " << dEdxMap.size() << ") ");
+      return averagedEdx;  
    }
 
    // -- false return
-   ATH_MSG_DEBUG("UTT: dEdx not calculated, return 0");
+   ATH_MSG_DEBUG("dEdx not calculated, return 0");
    return 0.;
 }
