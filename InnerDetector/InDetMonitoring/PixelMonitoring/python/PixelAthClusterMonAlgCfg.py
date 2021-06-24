@@ -64,18 +64,19 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 ### begin track histograms
     path        = '/Pixel/TrackOnTrack/'
     pathLowStat = '/Pixel/LumiBlockOnTrack/'
+    
+    if not doOnline:
+        histoGroupName = 'TSOSMeasurement' 
+        title = 'TSOS of type Measurement'
+        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-    histoGroupName = 'TSOSMeasurement' 
-    title = 'TSOS of type Measurement'
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+        histoGroupName = 'TSOSHole' 
+        title = 'TSOS of type Hole'
+        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-    histoGroupName = 'TSOSHole' 
-    title = 'TSOS of type Hole'
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
-
-    histoGroupName = 'TSOSOutlier' 
-    title = 'TSOS of type Outlier'
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+        histoGroupName = 'TSOSOutlier' 
+        title = 'TSOS of type Outlier'
+        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     histoGroupName = 'HitEffAll'
     title          = 'hit efficiency'
@@ -153,7 +154,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
         varName += ';NPixHitsPerTrackPerLumiLast100LB'
         trackGroup.defineHistogram(varName,
                                 type='TH2F', path=path, title=title, weight='npixhits_per_track_wgt',
-                                xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                xbins=100, xmin=-0.5, xmax=-0.5+100,
                                 ybins=10, ymin=-0.5, ymax=9.5, opt='kLive=100')
         if forceOnline: athenaCommonFlags.isOnline = False
 

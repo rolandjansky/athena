@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -416,6 +416,10 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
     assert(set(onlylayers).issubset(layers))
     if histname is None:
         histname = name
+    if "kLive" in opt:
+        xbins = int(opt.split('=')[1])
+    else:
+        xbins = lumibinsx
     for layer in layers:
         if layer not in onlylayers: 
             continue
@@ -426,7 +430,7 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
         fullvarstring += ';' + histname + '_{0}'.format(layer)
         layerGroup.defineHistogram(fullvarstring, 
                                     type=type, path=path, title=fulltitle,
-                                    xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx, opt=opt)
+                                    xbins=xbins, xmin=-0.5, xmax=-0.5+xbins, opt=opt)
 
 def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, opt='', type='TH2F', histname=None, onlylayers=layers):
     '''
@@ -448,6 +452,10 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
     assert(set(onlylayers).issubset(layers))
     if histname is None:
         histname = name
+    if "kLive" in opt:
+        xbins = int(opt.split('=')[1])
+    else:
+        xbins = lumibinsx
     for idx,layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
@@ -460,17 +468,17 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
         if ( len(ybins)==1 and len(ymins)==1 and len(binsizes)==1):
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
-                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       xbins=xbins, xmin=-0.5, xmax=-0.5+xbins,
                                        ybins=ybins[0], ymin=ymins[0], ymax=ymins[0]+binsizes[0]*ybins[0], opt=opt)
         elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==len(layers) and len(ylabels)==len(layers)):
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
-                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       xbins=xbins, xmin=-0.5, xmax=-0.5+xbins,
                                        ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx], ylabels=ylabels[idx], opt=opt)
         elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==1 and ylabels is None):
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
-                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       xbins=xbins, xmin=-0.5, xmax=-0.5+xbins,
                                        ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+ybins[idx], opt=opt)
 
 
