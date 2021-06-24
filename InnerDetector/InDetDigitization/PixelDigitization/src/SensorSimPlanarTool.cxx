@@ -300,7 +300,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       int nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
       int nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
 
-      std::array<double, 3> sensorScales;
+      std::array<double, 3> sensorScales{};
 
       const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
       const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
@@ -551,7 +551,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   return StatusCode::SUCCESS;
 }
 
-void SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, double& eta_drifted) const{
+void SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, double& eta_drifted) {
   if (std::abs(eta_drifted) > 20.440) {
     energy_per_step = 0.0;
   }

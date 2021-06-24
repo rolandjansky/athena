@@ -276,7 +276,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           int extraNPixYHole = nPixY;
           
 	  //Apply drift due to diffusion
-          std::array<double, 4> randomNumbers;
+          std::array<double, 4> randomNumbers{};
 	  CLHEP::RandGaussZiggurat::shootArray(rndmEngine, 4, randomNumbers.data());
           
           double xposDiffElectron = x_pix + rdifElectron[j] * randomNumbers[0];
@@ -596,9 +596,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 // read the Charge Collection Prob Map from text file
 StatusCode SensorSim3DTool::readProbMap(const std::string& fileE) {
   std::string line;
-  const std::string fileName = fileE;
+  const std::string& fileName = fileE;
   std::string inputFile = PathResolverFindCalibFile(fileName);
-  if (inputFile == "") {
+  if (inputFile.empty()) {
     ATH_MSG_ERROR("Could not open input file!!!!!");
     return StatusCode::FAILURE;
   }

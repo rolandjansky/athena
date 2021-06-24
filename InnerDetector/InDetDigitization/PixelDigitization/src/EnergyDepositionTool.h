@@ -55,7 +55,7 @@ public:
 
   std::vector<std::pair<double, double> > ClusterHits(std::vector<std::pair<double, double> >& rawHitRecord,
                                                       int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
-  int trfPDG(int pdgId) const;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
+  static int trfPDG(int pdgId) ;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
 
   virtual StatusCode depositEnergy(const TimedHitPtr<SiHit>& phit, const InDetDD::SiDetectorElement& Module,
                                    std::vector<std::pair<double, double> >& trfHitRecord,
@@ -129,14 +129,14 @@ private:
 private:
   void simulateBow(const InDetDD::SiDetectorElement* element, double& xi, double& yi, const double zi, double& xf,
                    double& yf, const double zf) const;
-  std::pair<int, int> FastSearch(std::vector<double> vec, double item) const;               // A quick implementation of binary search in 2D table
-  std::pair<int, int> GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const; // get beta-gamma index. This is so commonly used by other functions that a caching would be beneficial
-  double GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const;       // return ColE NOT ColELog10
+  static std::pair<int, int> FastSearch(std::vector<double> vec, double item) ;               // A quick implementation of binary search in 2D table
+  static std::pair<int, int> GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) ; // get beta-gamma index. This is so commonly used by other functions that a caching would be beneficial
+  static double GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) ;       // return ColE NOT ColELog10
                                                                                            // ! unit is eV
-  double GetColE(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) const;       // return ColE NOT ColELog10 ! unit is eV
-  double GetUpperBound(double BetaGammaLog10, BichselData& iData) const;                   // return IntX upper bound
-  double GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) const;// return IntX upper bound
-  void SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) const; // return (-1,-1) which indicates failure in running BichselSim
+  static double GetColE(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) ;       // return ColE NOT ColELog10 ! unit is eV
+  static double GetUpperBound(double BetaGammaLog10, BichselData& iData) ;                   // return IntX upper bound
+  static double GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) ;// return IntX upper bound
+  static void SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) ; // return (-1,-1) which indicates failure in running BichselSim
 };
 
 #endif //PIXELDIGITIZATION_EnergyDepositionTool_H
