@@ -29,7 +29,7 @@ template<class T> class MdtMapBase
 
 
   /** constructor */
-  MdtMapBase(uint8_t moduleId, const std::string itemName);
+  MdtMapBase(uint8_t moduleId, std::string itemName);
 
   /** destructor */
   ~MdtMapBase() = default;
@@ -47,8 +47,6 @@ template<class T> class MdtMapBase
   
   /** Module ID */
   uint8_t m_moduleId;  
-  /** Output level and message service */
-  bool m_debug;
 
   /** set function */
   bool addItem(uint8_t itemId, T* item, MsgStream &log);
@@ -89,7 +87,7 @@ template<class T> void MdtMapBase<T>::clear() {
 template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item, MsgStream &log) {
 
   bool itemAdded = false;
-  
+  bool debug = (log.level() <= MSG::VERBOSE);
   // check if the id are matching
   if (itemId != item->moduleId() ) {
     log << MSG::ERROR << m_itemName << " Id different from the module one: " 
@@ -104,7 +102,7 @@ template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item, MsgStream
 	   << (int) m_moduleId << endmsg;
   }
   else {
-    if (m_debug) {
+    if (debug) {
       log << MSG::VERBOSE << "Adding " << m_itemName << " with id: 0x" 
 	     << MSG::hex << (int) itemId << MSG::dec << " to module 0x" 
 	     << MSG::hex << (int) m_moduleId << MSG::dec << endmsg;

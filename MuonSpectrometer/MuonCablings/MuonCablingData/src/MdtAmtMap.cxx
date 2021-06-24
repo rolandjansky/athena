@@ -14,7 +14,7 @@ MdtAmtMap::MdtAmtMap(uint8_t tdcId) :
   m_phi(0),
   m_multiLayer(0),
   m_mezType(0),
-  m_mdtIdHelper(0),m_debug(false)
+  m_mdtIdHelper(0)
 { }
 
 
@@ -35,9 +35,9 @@ MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t cha
 
 
   //std::cout<<" Here we are "<<std::endl;
-  m_debug = (ext_log.level() <= MSG::VERBOSE);
+  bool debug = (ext_log.level() <= MSG::VERBOSE);
 
-  if (m_debug) { 
+  if (debug) { 
     ext_log << MSG::VERBOSE << "Adding Tdc number: " << (int) tdcId << endmsg;
   }
 
@@ -51,14 +51,14 @@ MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t cha
   // call the function that initializes the actual map
   if ( initMap(mezType, channel, layer, tube, ext_log) ) {
 
-    if (m_debug) {
+    if (debug) {
       ext_log << MSG::VERBOSE << "Map initialized successfully for tdc number: " << MSG::hex 
 	     << (int) tdcId << MSG::dec << endmsg;
     }
 
   }
   else {
-    if (m_debug) {
+    if (debug) {
       ext_log << MSG::VERBOSE << "Could not initialize completely the TDC map" << endmsg;
     }
   }
@@ -71,8 +71,8 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
 {
 
   bool successful = true;
-
-  if (m_debug) {
+  bool debug = (log.level() <= MSG::VERBOSE);
+  if (debug) {
     log << MSG::VERBOSE << "Initializing the map, the mezzanine type is " 
 	   << (int) m_mezType << " with " << (int) mezType->nOfTubesInLayer() << " tubes per layer and " << (int) mezType->nOfLayers() << " layers"  
 	   << endmsg;
@@ -195,8 +195,8 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube, MsgStre
 					       m_multiLayer,layer,tube);
 
       if ( tube > m_mdtIdHelper->tubeMax(id) || tube < m_mdtIdHelper->tubeMin(id) ) {
-	
-	if (m_debug) {
+	bool debug = (log.level() <= MSG::VERBOSE);
+	if (debug) {
 	  log << MSG::VERBOSE << "The tube is invalid (as expected) ! not adding it..." 
 		 << endmsg;
 	}

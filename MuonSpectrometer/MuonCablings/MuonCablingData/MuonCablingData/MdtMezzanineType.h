@@ -28,10 +28,10 @@ class MdtMezzanineType {
  public:
 
   /** constructors with arguments */
-  MdtMezzanineType(uint8_t typeId, uint8_t nOfLayers, MsgStream &log);
+  MdtMezzanineType(uint8_t typeId, uint8_t nOfLayers);
 
   /** constructor only with typeId */
-  MdtMezzanineType(uint8_t typeId, MsgStream &log);
+  MdtMezzanineType(uint8_t typeId);
   
   ~MdtMezzanineType();
 
@@ -67,8 +67,6 @@ class MdtMezzanineType {
   /** Array with the layers (maximum 4) */
   std::array<MdtLayer, 5> m_layers;
 
-  /** Output level and message service */
-  bool m_debug;
 };
 
 #endif // MUONMDT_CABLING_MDTMEZZANINETYPE_H
