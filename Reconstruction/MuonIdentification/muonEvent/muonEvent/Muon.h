@@ -604,7 +604,7 @@ class Muon : public ParticleImpl<
   }
   /** set the Calorimeter information */
   void set_cluster( const CaloCluster* cluster) {
-     m_cluster.setElement(const_cast<CaloCluster*>(cluster));
+     m_cluster.setElement(cluster);
   }
   /** set the Calorimeter information, by link */
   void set_cluster( const ElementLink<CaloClusterContainer>& cluster) {
