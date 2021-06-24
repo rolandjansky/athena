@@ -110,7 +110,7 @@ private:
                                const std::string& typeInfoName);
 
   /// Test to see if anything new has been added to the registry.
-  void maybeRescan() const;
+  bool maybeRescan() const;
 
   /// @name Properties
   //@{
