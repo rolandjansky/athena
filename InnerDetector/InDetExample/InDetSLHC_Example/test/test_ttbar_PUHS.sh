@@ -53,7 +53,7 @@ dcubemon_HS_rec=physval_alt_HS.root
 dcubemon_PU_rec=physval_alt_PU.root
 dcubecfg_sim=$artdata/InDetSLHC_Example/dcube/config/ttbar_SiHitValid.xml
 
-dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/ttbar_physval.xml
+dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/ttbar_physval_PUHS.xml
 dcuberef_sim=$artdata/InDetSLHC_Example/ReferenceHistograms/ttbar_SiHitValid.root
 ### Use reference data
 
