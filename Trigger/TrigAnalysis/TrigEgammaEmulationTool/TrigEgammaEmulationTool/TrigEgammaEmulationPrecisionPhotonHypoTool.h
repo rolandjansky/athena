@@ -9,7 +9,6 @@
 
 #include "AsgTools/AsgTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationInfo.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationBaseHypoTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationBaseHypoTool.h"
 

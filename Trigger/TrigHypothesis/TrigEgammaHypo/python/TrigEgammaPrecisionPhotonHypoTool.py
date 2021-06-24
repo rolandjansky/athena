@@ -38,7 +38,7 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
                           'icalotight'  : 0.
                         }
 
-  def __init__(self, name, threshold, sel, isoinfo):
+  def __init__(self, name, threshold, sel, isoinfo,tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionPhotonHypoTool')
@@ -47,8 +47,10 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
     self.__sel        = sel
     self.__isoinfo    = isoinfo
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoTool    
-    tool = TrigEgammaPrecisionPhotonHypoTool( name ) 
+    if not tool:
+      from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoTool    
+      tool = TrigEgammaPrecisionPhotonHypoTool( name )
+     
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( float(threshold) , tool)
     tool.dETACLUSTERthr = 0.1
@@ -118,7 +120,8 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
     else:
       self.nominal()
 
-    self.addMonitoring()
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -145,14 +148,14 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
 
 
 
-def _IncTool( name, threshold, sel, iso ):
-    config = TrigEgammaPrecisionPhotonHypoToolConfig(name, threshold, sel, iso)
+def _IncTool( name, threshold, sel, iso, tool=None ):
+    config = TrigEgammaPrecisionPhotonHypoToolConfig(name, threshold, sel, iso, tool=tool)
     config.compile()
     return config.tool()
 
  
 
-def TrigEgammaPrecisionPhotonHypoToolFromDict( d ):
+def TrigEgammaPrecisionPhotonHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
 
@@ -168,6 +171,6 @@ def TrigEgammaPrecisionPhotonHypoToolFromDict( d ):
     
     name = d['chainName']
         
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso( cparts[0])  )
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso( cparts[0]) , tool=tool )
                    
     

@@ -130,18 +130,30 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   PassedCuts = PassedCuts + 1; // ET_em
 
 
+  // d0 for LRT
+  if (m_d0 and m_d0>0.)
+  {
+    float trk_d0 = std::abs(el->trackParticle()->d0());
+    ATH_MSG_DEBUG( "Electron: trk_d0=" << trk_d0 << " cut: >"  << m_d0 );
+    if ( trk_d0 < m_d0 ) {
+      ATH_MSG_DEBUG("REJECT d0 cut failed");
+      return false;
+    }
+    PassedCuts = PassedCuts + 1; // d0
+  }
+
   
   ATH_MSG_DEBUG("Average mu " << avgmu());
 
   bool pass=false;
   if (m_pidName=="lhtight"){
-    pass = (bool)input.electronLHTools[0]->accept(Gaudi::Hive::currentContext(),el,avgmu());
+    pass = (bool)input.egammaElectronLHTools[0]->accept(Gaudi::Hive::currentContext(),el,avgmu());
   }else if (m_pidName=="lhmedium"){
-    pass = (bool)input.electronLHTools[1]->accept(Gaudi::Hive::currentContext(),el,avgmu());
+    pass = (bool)input.egammaElectronLHTools[1]->accept(Gaudi::Hive::currentContext(),el,avgmu());
   }else if (m_pidName=="lhloose"){
-    pass = (bool)input.electronLHTools[2]->accept(Gaudi::Hive::currentContext(),el,avgmu());
+    pass = (bool)input.egammaElectronLHTools[2]->accept(Gaudi::Hive::currentContext(),el,avgmu());
   }else if (m_pidName=="lhvloose"){
-    pass =  (bool)input.electronLHTools[3]->accept(Gaudi::Hive::currentContext(),el,avgmu());
+    pass =  (bool)input.egammaElectronLHTools[3]->accept(Gaudi::Hive::currentContext(),el,avgmu());
   }else{
     pass = true;
   }
@@ -256,6 +268,9 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );
   return pass;
+
+
+
 }
 
 

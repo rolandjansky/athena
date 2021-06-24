@@ -29,10 +29,14 @@ StatusCode TrigEgammaEmulationToolMT::initialize()
     ATH_CHECK(m_trigdec.retrieve());
     m_trigdec->ExperimentalAndExpertMethods()->enable();
 
-    ATH_CHECK( m_electronLHTools.retrieve() );
-    ATH_CHECK( m_photonIsEMTools.retrieve() );
-    ATH_CHECK( m_ringerTools.retrieve() );
-    ATH_CHECK(m_hypoTools.retrieve());
+    // retrieve all hypo chains
+    ATH_CHECK( m_hypoTools.retrieve() );
+    
+    ATH_CHECK( m_egammaElectronDNNTools.retrieve()  );
+    ATH_CHECK( m_egammaElectronCBTools.retrieve()   );
+    ATH_CHECK( m_egammaElectronLHTools.retrieve()   );        
+    ATH_CHECK( m_egammaPhotonCBTools.retrieve()     );      
+    ATH_CHECK( m_ringerTools.retrieve()             );
 
     //add cuts into TAccept
     m_accept.addCut("L1Calo"  , "Trigger L1Calo step"     );
@@ -52,23 +56,23 @@ asg::AcceptData TrigEgammaEmulationToolMT::emulate(const TrigCompositeUtils::Dec
                                                    std::string trigger) const
 {
   asg::AcceptData acceptData (&m_accept);
+
   for ( auto& tool : m_hypoTools ){
-    if( tool->getChain() == trigger )
+
+    if( tool->chain() == trigger )
     {
-      Trig::TrigData input{};
+      Trig::TrigData input(tool->signature());
+      match(roi, input);
 
-      if(tool->getSignature()=="electron"){
-        matchElectron(roi,input);
-      }else if(tool->getSignature()=="photon"){
-        matchPhoton(roi,input);
-      }
-
-      if(input.isValid){
-        input.electronLHTools=m_electronLHTools;
-        input.photonIsEMTools=m_photonIsEMTools;
-        input.ringerTools=m_ringerTools;
+      if(input.isValid()){
+        input.egammaElectronDNNTools  = m_egammaElectronDNNTools;
+        input.egammaElectronCBTools   = m_egammaElectronCBTools;
+        input.egammaElectronLHTools   = m_egammaElectronLHTools;        
+        input.egammaPhotonCBTools     = m_egammaPhotonCBTools;      
+        input.ringerTools             = m_ringerTools;
         return tool->emulate(input);
       }
+      
     }
   }// Loop over all hypo tool chains
 
@@ -78,30 +82,36 @@ asg::AcceptData TrigEgammaEmulationToolMT::emulate(const TrigCompositeUtils::Dec
 
 //**********************************************************************
 
+bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi, Trig::TrigData &output) const
+{
+  if(output.signature == "electron"){
+    return match_electron(roi, output, m_trigElectronList);
+  }else if (output.signature == "photon"){
+    return match_photon(roi, output, m_trigPhotonList);
+  }else{
+    return false;
+  }
+}
 
-bool TrigEgammaEmulationToolMT::matchElectron( const TrigCompositeUtils::Decision *roi ,
-                                               Trig::TrigData &output ) const
+
+//**********************************************************************
+
+bool TrigEgammaEmulationToolMT::match_electron( const TrigCompositeUtils::Decision *roi ,
+                                                Trig::TrigData &output, 
+                                                std::vector<std::string> trigList ) const
 {
   unsigned int condition=TrigDefs::includeFailedDecisions;
-  output.isValid = false;
+  output.clear();
 
   if(!roi) return false;
 
-  for (auto& trigger : m_trigElectronList){
+  for (auto& trigger : trigList){
 
     auto vec_el_linkInfo = match()->getFeatures<xAOD::ElectronContainer>(roi,trigger,condition);
 
     if( !vec_el_linkInfo.empty() ){
 
-      // clean all vectors before fill it
-      output.electrons.clear();
-      output.trigElectrons.clear();
-      output.clusters.clear();
-      output.roi = nullptr;
-      output.l1 = nullptr;
-      output.emCluster = nullptr;
-      output.rings = nullptr;
-      output.isValid = false;
+      output.clear();
 
       // Step 5
       {
@@ -126,7 +136,7 @@ bool TrigEgammaEmulationToolMT::matchElectron( const TrigCompositeUtils::Decisio
         auto vec_feat = match()->getFeatures<xAOD::TrigElectronContainer>(roi, trigger, condition);
         for ( auto& featLinkInfo : vec_feat ){
           if(!featLinkInfo.isValid()) continue;
-          output.trigElectrons.push_back(*featLinkInfo.link);
+          output.trig_electrons.push_back(*featLinkInfo.link);
         }    
       }
 
@@ -148,29 +158,19 @@ bool TrigEgammaEmulationToolMT::matchElectron( const TrigCompositeUtils::Decisio
         }
       }
       
-      if( output.roi && 
-          output.l1 && 
-          output.emCluster && 
-          output.rings && 
-          !output.trigElectrons.empty() &&
-          !output.clusters.empty() && 
-          !output.electrons.empty())
-      {
-        output.isValid = true;
-      }
 
 
       ATH_MSG_DEBUG( "L1 RoI TDET  = " << (output.roi?"Yes":"No")); 
       ATH_MSG_DEBUG( "L1 RoI EmTau = " << (output.l1?"Yes":"No")); 
       ATH_MSG_DEBUG( "L2 Cluster   = " << (output.emCluster?"Yes":"No")); 
       ATH_MSG_DEBUG( "L2 Rings     = " << (output.rings?"Yes":"No")); 
-      ATH_MSG_DEBUG( "L2 Electrons = " << (output.trigElectrons.size())); 
+      ATH_MSG_DEBUG( "L2 Electrons = " << (output.trig_electrons.size())); 
       ATH_MSG_DEBUG( "HLT Cluster  = " << output.clusters.size()); 
       ATH_MSG_DEBUG( "HLT el       = " << output.electrons.size()); 
     }// has electron
 
     // stop the trigger loop since we have all features inside
-    if(output.isValid) return true;
+    if(output.isValid()) return true;
 
   }// Loop over triggers
 
@@ -181,29 +181,23 @@ bool TrigEgammaEmulationToolMT::matchElectron( const TrigCompositeUtils::Decisio
 //**********************************************************************
 
 
-bool TrigEgammaEmulationToolMT::matchPhoton( const TrigCompositeUtils::Decision *roi ,
-                                               Trig::TrigData &output ) const
+bool TrigEgammaEmulationToolMT::match_photon( const TrigCompositeUtils::Decision *roi ,
+                                              Trig::TrigData &output,
+                                              std::vector<std::string> trigList ) const
 {
   unsigned int condition=TrigDefs::includeFailedDecisions;
-  output.isValid = false;
+  output.clear();
 
   if(!roi) return false;
 
-  for (auto& trigger : m_trigPhotonList){
+  for (auto& trigger : trigList){
 
     auto vec_ph_linkInfo = match()->getFeatures<xAOD::PhotonContainer>(roi,trigger,condition);
 
     if( !vec_ph_linkInfo.empty() ){
 
       // clean all vectors before fill it
-      output.photons.clear();
-      output.clusters.clear();
-      output.roi = nullptr;
-      output.l1 = nullptr;
-      output.emCluster = nullptr;
-      output.rings = nullptr;
-      output.trigPhoton = nullptr;
-      output.isValid = false;
+      output.clear();
       
       // Step 5
       {
@@ -213,7 +207,6 @@ bool TrigEgammaEmulationToolMT::matchPhoton( const TrigCompositeUtils::Decision 
         }
       }
 
-
       // Step 3
       {
         auto vec_feat = match()->getFeatures<xAOD::CaloClusterContainer>(roi,trigger,condition);
@@ -222,7 +215,6 @@ bool TrigEgammaEmulationToolMT::matchPhoton( const TrigCompositeUtils::Decision 
           output.clusters.push_back(*featLinkInfo.link);
         }
       }
-
 
       // Step 1
       {
@@ -241,29 +233,18 @@ bool TrigEgammaEmulationToolMT::matchPhoton( const TrigCompositeUtils::Decision 
           output.roi = *featLinkInfo.link;
         }
       }
-      
-      if( output.roi && 
-          output.l1 && 
-          output.emCluster && 
-          output.rings && 
-          output.trigPhoton &&
-          !output.clusters.empty() && 
-          !output.photons.empty())
-      {
-        output.isValid = true;
-      }
-
+  
       ATH_MSG_DEBUG( "L1 RoI TDET  = " << (output.roi?"Yes":"No")); 
       ATH_MSG_DEBUG( "L1 RoI EmTau = " << (output.l1?"Yes":"No")); 
       ATH_MSG_DEBUG( "L2 Cluster   = " << (output.emCluster?"Yes":"No")); 
       ATH_MSG_DEBUG( "L2 Rings     = " << (output.rings?"Yes":"No")); 
-      ATH_MSG_DEBUG( "L2 Photon    = " << (output.trigPhoton?"Yes":"No")); 
+      ATH_MSG_DEBUG( "L2 Photon    = " << (output.trig_photon?"Yes":"No")); 
       ATH_MSG_DEBUG( "HLT Cluster  = " << output.clusters.size()); 
       ATH_MSG_DEBUG( "HLT ph       = " << output.photons.size()); 
     }// has electron
 
     // stop the trigger loop since we have all features inside
-    if(output.isValid) return true;
+    if(output.isValid()) return true;
 
   }// Loop over triggers
 

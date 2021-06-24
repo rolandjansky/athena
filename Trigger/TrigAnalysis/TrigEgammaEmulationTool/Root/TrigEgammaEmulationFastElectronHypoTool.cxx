@@ -24,9 +24,9 @@ bool TrigEgammaEmulationFastElectronHypoTool::emulate(const Trig::TrigData &inpu
 
   if( !input.roi )  return false;
 
-  if( input.trigElectrons.empty() )  return false;
+  if( input.trig_electrons.empty() )  return false;
 
-  for ( const auto &el : input.trigElectrons )
+  for ( const auto &el : input.trig_electrons )
   {
     if( decide( input, el ) ){
       pass=true;

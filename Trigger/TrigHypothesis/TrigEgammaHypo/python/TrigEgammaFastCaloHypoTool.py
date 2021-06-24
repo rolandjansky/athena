@@ -105,7 +105,7 @@ class TrigEgammaFastCaloHypoToolConfig:
                            ]
 
 
-  def __init__(self, name, cand, threshold, sel, trackinfo, noringerinfo):
+  def __init__(self, name, cand, threshold, sel, trackinfo, noringerinfo, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastCaloHypoTool')
@@ -118,8 +118,10 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__trackinfo  = trackinfo
     self.__noringerinfo = noringerinfo
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastCaloHypoTool( name )
+    if not tool:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaFastCaloHypoTool( name )
+    
     tool.AcceptAll      = False
     tool.UseRinger      = False
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
@@ -239,7 +241,8 @@ class TrigEgammaFastCaloHypoToolConfig:
     elif self.etthr()==0:
       self.nocut()
 
-    self.addMonitoring()
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -303,13 +306,13 @@ class TrigEgammaFastCaloHypoToolConfig:
 
 
 
-def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo):
-  config = TrigEgammaFastCaloHypoToolConfig(name, cand, threshold, sel, trackinfo, noringerinfo )
+def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo, tool=None):
+  config = TrigEgammaFastCaloHypoToolConfig(name, cand, threshold, sel, trackinfo, noringerinfo, tool=tool )
   config.compile()
   return config.tool()
 
 
-def TrigEgammaFastCaloHypoToolFromDict( d ):
+def TrigEgammaFastCaloHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
 
@@ -330,16 +333,16 @@ def TrigEgammaFastCaloHypoToolFromDict( d ):
 
     name = d['chainName']
 
-    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]), __trackinfo(cparts[0]), __noringer(cparts[0]))
+    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]), __trackinfo(cparts[0]), __noringer(cparts[0]), tool=tool)
 
 
-def TrigEgammaFastCaloHypoToolFromName( name, conf ):
+def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastCaloHypoToolFromDict( decodedDict )
+    return TrigEgammaFastCaloHypoToolFromDict( decodedDict , tool=tool)
 
 
 

@@ -3,6 +3,43 @@
 #
 
 
+#
+# Configure legacy L1
+#
+def createL1Calo( name , info, OutputLevel=0 ):
+    
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    from AthenaCommon.SystemOfUnits import GeV
+    import re
+
+    #chainName = info['chainName']
+    L1Item = info['chainParts'][0]['L1threshold']
+    L1thr = float( re.findall(r'\d+', L1Item)[0] )
+    wp = 0 # default
+
+    #                        [Default, Tight , Medium, Loose ]
+    HadCoreCutMin          = [ 1.0   ,  1.0  ,  1.0  ,  1.0  ]
+    HadCoreCutOff          = [-0.2   , -0,2  , -0.2  , -0.2  ]
+    HadCoreSlope           = [ 1/23. ,  1/23.,  1/23.,  1/23.]
+    EmIsolCutMin           = [ 2.0   ,  1.0  ,  1.0  ,  1.5  ]
+    EmIsolCutOff           = [-1.8   , -2.6  , -2.0  , -1.8  ]
+    EmIsolSlope            = [ 1/8.  ,  1/8. ,  1/8. ,  1/8. ]
+
+    # Configure L1
+    L1CaloTool = CompFactory.Trig.TrigEgammaEmulationL1CaloHypoTool(
+                                name                   = name,
+                                L1Item                 = L1Item,
+                                L1Thr                  = L1thr * GeV,
+                                HadCoreCutMin          = HadCoreCutMin[wp],
+                                HadCoreCutOff          = HadCoreCutOff[wp],
+                                HadCoreSlope           = HadCoreSlope[wp],
+                                EmIsolCutMin           = EmIsolCutMin[wp],
+                                EmIsolCutOff           = EmIsolCutOff[wp],
+                                EmIsolSlope            = EmIsolSlope[wp],
+                                IsolCutMax             = 50,
+                                OutputLevel            = OutputLevel)
+
+    return L1CaloTool
 
 #
 # Setup chain by name (only single chains)
@@ -15,63 +52,38 @@ def setupChain( trigger , OutputLevel=0):
     d = dictFromChainName(trigger)
 
     signature = d['signatures'][0]
-
     from pprint import pprint
     pprint(d)
 
+    from TrigEgammaHypo.TrigEgammaFastCaloHypoTool          import TrigEgammaFastCaloHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaFastElectronHypoTool      import TrigEgammaFastElectronHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool        import TrigEgammaFastPhotonHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool     import TrigEgammaPrecisionCaloHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool   import TrigEgammaPrecisionPhotonHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
 
     # Configure L1Calo 
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationL1CaloHypoConfig import createL1Calo
     L1CaloTool = createL1Calo(trigger + "_Step0" , d)
 
-    from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastCaloHypoConfig import TrigEgammaFastCaloHypoToolFromDict
-    FastCaloTool = TrigEgammaFastCaloHypoToolFromDict(trigger+"_Step1", d)
-
-
+    # Configure HLT
+    FastCaloTool = TrigEgammaFastCaloHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastCaloHypoTool(trigger+'_Step1') )
+    PrecisionCaloTool       = TrigEgammaPrecisionCaloHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionCaloHypoTool(trigger+'_Step3'))
+    PrecisionTrackingTool   = TrigEgammaPrecisionTrackingHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionTrackingHypoTool(trigger+'_Step4'))
+    
     if signature == 'Electron':
-        
-        # Configure Fast Electron
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastElectronHypoConfig import TrigEgammaFastElectronHypoToolFromDict
-        FastTool = TrigEgammaFastElectronHypoToolFromDict(trigger + "_Step2", d)
-
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionCaloHypoConfig import TrigEgammaPrecisionCaloHypoToolFromDict
-        PrecisionCaloTool = TrigEgammaPrecisionCaloHypoToolFromDict(trigger+"_Step3", d)
-
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionTrackingHypoConfig import TrigEgammaPrecisionTrackingHypoToolFromDict
-        PrecisionTrackingTool = TrigEgammaPrecisionTrackingHypoToolFromDict(trigger+"_Step4", d)
-
-        # Configure Precision Electron
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionElectronHypoConfig import TrigEgammaPrecisionElectronHypoToolFromDict
-        PrecisionTool = TrigEgammaPrecisionElectronHypoToolFromDict(trigger + "_Step5", d)
-
+        FastTool                = TrigEgammaFastElectronHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastElectronHypoTool(trigger+'_Step2'))
+        PrecisionTool           = TrigEgammaPrecisionElectronHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionElectronHypoTool(trigger+'_Step5'))
     elif signature == 'Photon':
-
-        # Configure Fast Photon
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationFastPhotonHypoConfig import TrigEgammaFastPhotonHypoToolFromDict
-        FastTool = TrigEgammaFastPhotonHypoToolFromDict(trigger + "_Step2", d)
-
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionCaloHypoConfig import TrigEgammaPrecisionCaloHypoToolFromDict
-        PrecisionCaloTool = TrigEgammaPrecisionCaloHypoToolFromDict(trigger+"_Step3", d)
-
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionTrackingHypoConfig import TrigEgammaPrecisionTrackingHypoToolFromDict
-        PrecisionTrackingTool = TrigEgammaPrecisionTrackingHypoToolFromDict(trigger+"_Step4", d)
-
-        # Configure Precision Photon
-        from TrigEgammaEmulationToolMT.TrigEgammaEmulationPrecisionPhotonHypoConfig import TrigEgammaPrecisionPhotonHypoToolFromDict
-        PrecisionTool = TrigEgammaPrecisionPhotonHypoToolFromDict(trigger + "_Step5", d)
-
+        FastTool                = TrigEgammaFastPhotonHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastPhotonHypoTool(trigger+'_Step2'))
+        PrecisionTool           = TrigEgammaPrecisionPhotonHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionPhotonHypoTool(trigger+'_Step5'))
 
 
     chain = CompFactory.Trig.TrigEgammaEmulationChain(
                                 name                    = trigger,
-                                L1CaloTool              = L1CaloTool, # Step 0
-                                FastCaloTool            = FastCaloTool, # Step 1
-                                FastTool                = FastTool, # Step 2
-                                PrecisionCaloTool       = PrecisionCaloTool, # Step 3
-                                PrecisionTrackingTool   = PrecisionTrackingTool, # Step 4
-                                PrecisionTool           = PrecisionTool, # Step 5
+                                L1Seed                  = L1CaloTool,
+                                Steps                   = [FastCaloTool, FastTool, PrecisionCaloTool, PrecisionTrackingTool, PrecisionTool],
                                 Chain                   = trigger,
-                                L1Item                  = "",
                                 Signature               = signature.lower(),
                                 OutputLevel             = OutputLevel
     )

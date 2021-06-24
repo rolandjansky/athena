@@ -9,7 +9,6 @@
 #include "AsgTools/IAsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationInfo.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -25,7 +24,6 @@ namespace Trig{
     public:
 
       virtual StatusCode initialize()=0;
-      //virtual StatusCode finalize()=0;
 
       virtual bool emulate( const TrigData &input, bool &pass) const=0;
 

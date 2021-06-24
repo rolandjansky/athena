@@ -260,23 +260,23 @@ bool TrigEgammaEmulationFastCaloHypoTool::decide_ringer( const Trig::TrigData &i
     return false;
   }
   
-  
-  if( m_pidName == "lhtight"){
+  std::string pidName = m_pidName;
+  if( boost::contains( pidName , "tight") ){
     auto inputs = input.ringerTools[0]->prepare_inputs( input.rings , nullptr);
     float output = input.ringerTools[0]->predict( input.rings, inputs );
     return bool( input.ringerTools[0]->accept(input.rings, output, avgmu() ) );
-  }else if( m_pidName == "lhmedium"){
+  }else if( boost::contains( pidName , "medium")){
     auto inputs = input.ringerTools[1]->prepare_inputs( input.rings , nullptr);
     float output = input.ringerTools[1]->predict( input.rings, inputs );
     return bool( input.ringerTools[1]->accept(input.rings, output, avgmu() ) );
-  }else if( m_pidName == "lhloose"){
-    auto inputs = input.ringerTools[2]->prepare_inputs( input.rings , nullptr);
-    float output = input.ringerTools[2]->predict( input.rings, inputs );
-    return bool( input.ringerTools[2]->accept(input.rings, output, avgmu() ) );
-  }else if( m_pidName == "lhvloose"){
+  }else if( boost::contains( pidName , "vloose")){
     auto inputs = input.ringerTools[3]->prepare_inputs( input.rings , nullptr);
     float output = input.ringerTools[3]->predict( input.rings, inputs );
     return bool( input.ringerTools[3]->accept(input.rings, output, avgmu() ) );
+  }else if( boost::contains( pidName , "loose")){
+    auto inputs = input.ringerTools[2]->prepare_inputs( input.rings , nullptr);
+    float output = input.ringerTools[2]->predict( input.rings, inputs );
+    return bool( input.ringerTools[2]->accept(input.rings, output, avgmu() ) );
   }
   
   // got this far => passed!
