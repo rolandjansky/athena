@@ -26,9 +26,9 @@ namespace top {
   JetObjectCollectionMaker::JetObjectCollectionMaker(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-    m_doJER(false),
     m_doFull_JER(false),
     m_doFull_JER_Pseudodata(false),
+    m_doOnly_JER_largeR(false),
     m_isMC(false),
     m_doMultipleJES(false),
 
@@ -47,6 +47,7 @@ namespace top {
     m_jetUncertaintiesToolReducedNPScenario3("JetUncertaintiesToolReducedNPScenario3"),
     m_jetUncertaintiesToolReducedNPScenario4("JetUncertaintiesToolReducedNPScenario4"),
     m_jetUncertaintiesToolLargeR("JetUncertaintiesToolLargeR"),
+    m_FFJetSmearingTool("FFJetSmearingTool"),
 
     m_jetUpdateJvtTool("JetUpdateJvtTool"),
     m_jetSelectfJvtTool("JetSelectfJvtTool"),
@@ -70,6 +71,7 @@ namespace top {
     declareProperty("JetUncertaintiesToolReducedNPScenario3", m_jetUncertaintiesToolReducedNPScenario3);
     declareProperty("JetUncertaintiesToolReducedNPScenario4", m_jetUncertaintiesToolReducedNPScenario4);
     declareProperty("JetUncertaintiesToolLargeR", m_jetUncertaintiesToolLargeR);
+    declareProperty("FFJetSmearingTool", m_FFJetSmearingTool);
 
     declareProperty("JetUpdateJvtTool", m_jetUpdateJvtTool);
 
@@ -94,6 +96,8 @@ namespace top {
       if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
 	top::check(m_jetUncertaintiesToolLargeR.retrieve(),
 		   "Failed to retrieve JetUncertaintiesToolLargeR");
+        top::check(m_FFJetSmearingTool.retrieve(),
+                   "Failed to retrieve FFJetSmearingTool");
       }
     }
 
@@ -101,21 +105,24 @@ namespace top {
       m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
     }
 
-    ///-- JER uncertainties model --///
+    ///-- Small-R JER (Pseudo-)Data Smearing Config --///
     if (m_config->jetJERSmearingModel() == "Full" || m_config->jetJERSmearingModel() == "All") m_doFull_JER = true;
     if (m_config->jetJERSmearingModel() == "Simple") m_doFull_JER = false;
     if (m_config->jetJERSmearingModel() == "Full_PseudoData" ||
         m_config->jetJERSmearingModel() == "All_PseudoData") m_doFull_JER_Pseudodata = true;
     else m_doFull_JER_Pseudodata = false;
 
+    ///-- Large-R JER (Pseudo-)Data Smearing Config --///
+    if ((!m_config->isMC() || m_config->largeRSysts_TreatMCasPseudodata())
+        && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") == std::string::npos) m_doOnly_JER_largeR = true;
+    else m_doOnly_JER_largeR = false;
+    bool skip_systs = false;
+    if (m_config->largeRSysts_TreatMCasPseudodata()
+        && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") != std::string::npos) skip_systs = true;
 
     m_isMC = m_config->isMC();
     m_doMultipleJES = m_config->doMultipleJES();
 
-    ///-- Are we doing JER? Let's not repeat this logic over and over --///
-    if (m_isMC) m_doJER = true;
-    if (!m_isMC && m_doFull_JER) m_doJER = true;
-    /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
 
     if (m_isMC || m_doFull_JER) {
       if (!m_doMultipleJES) {
@@ -137,10 +144,6 @@ namespace top {
     }
 
 
-
-
-
-
     top::check(m_jetUpdateJvtTool.retrieve(), "Failed to retrieve JetUpdateJvtTool");
     //fJVT tool isn't setup unless requested
     if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
@@ -152,9 +155,12 @@ namespace top {
     const std:: string& syststr = m_config->systematics();
     std::set<std::string> syst, systLargeR;
 
+
     if (!m_config->isSystNominal(syststr) && !m_config->isSystAll(syststr)) {
       bool ok = m_config->getSystematicsList(syststr, syst);
       bool okLargeR = m_config->getSystematicsList(syststr, systLargeR);
+
+
       if (!ok || !okLargeR) {
         ATH_MSG_ERROR(" top::JetObjectCollectionMaker could not determine systematic list");
         return StatusCode::FAILURE;
@@ -176,7 +182,7 @@ namespace top {
 
     ///-- JES systematics --///
     if (m_isMC || m_doFull_JER) {
-      std::string allNP(m_config->jetUncertainties_NPModel() + "_"),
+      std::string allNP(""),
       np1("SR_Scenario1_"), np2("SR_Scenario2_"), np3("SR_Scenario3_"), np4("SR_Scenario4_");
 
       bool onlyJER = ((!m_isMC) && m_doFull_JER) || (m_isMC && m_doFull_JER_Pseudodata);
@@ -198,21 +204,23 @@ namespace top {
                        onlyJER);
       }
     }
-    ///-- Large-R JES systematics --///
-    std::string largeRModName = getLargeRModName(m_config->largeRJetUncertainties_NPModel());
+
+
+    ///-- Large-R JES/JER/JMS/JMR systematics --///
     CP::SystematicSet largeRsysts;
-    if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
-      if ((m_config->largeRJESJMSConfig() == "CombMass")
-          || (m_config->largeRJESJMSConfig() == "TCCMass")) {
+    if ((m_config->isMC() || m_doOnly_JER_largeR) && m_config->useLargeRJets()) {
+      if (m_config->largeRJESJMSConfig() == "CombMass") { // Only CombMass is supported for large-R JES/JER/JMS/JMR systematics at the moment
         largeRsysts.insert(m_jetUncertaintiesToolLargeR->recommendedSystematics());
+        largeRsysts.insert(m_FFJetSmearingTool->recommendedSystematics());
       } else {
         ATH_MSG_WARNING(
-          "TA Mass & Calo Mass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
+          "TA Mass & Calo Mass & TCCMass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
       }
     }
 
+
     ///-- Large R jet tagger scale factor uncertainties -- ///
-    if (m_config->isMC() && m_config->useLargeRJets() && m_config->applyBoostedJetTaggersUncertainties()) {
+    if (m_config->isMC() && m_config->useLargeRJets()) {
       for (const auto& name : m_config->boostedTaggerSFnames()) {
         ToolHandle<ICPJetUncertaintiesTool> tmp_SF_uncert_tool("JetSFuncert_" + name.first);
         if (tmp_SF_uncert_tool.retrieve()) {
@@ -222,19 +230,17 @@ namespace top {
 	  const CP::SystematicSet& recommendedSys = tmp_SF_uncert_tool->recommendedSystematics();
 	  
 	  for (const CP::SystematicVariation& sys : recommendedSys) {
+	    // Splitting uncertainties into two categories
+	    // correlated will get a special tree
+	    // uncorrelated SFs will be stored in the nominal tree
 	    bool res = ((sys.name().find("TopTag") == std::string::npos) &&
 			(sys.name().find("WTag") == std::string::npos) &&
 			(sys.name().find("ZTag") == std::string::npos) &&
-			(sys.name().find("JetTag") == std::string::npos));
-	    
-	    if(res) {
-	      correlatedSys.insert(sys);
-	    }
-	    else {
-	      uncorrelatedSys.insert(sys);
-	    }
+			(sys.name().find("JetTag") == std::string::npos) &&
+			(sys.name().find("bTag") == std::string::npos));
+	    res ? correlatedSys.insert(sys) : uncorrelatedSys.insert(sys);
 	  }
-	  
+
 	  m_tagSFUncorrelatedSystematics[name.first] = CP::make_systematics_vector(uncorrelatedSys);
 	  for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[name.first]) {
 	    if(sys.name()!="") m_tagSFSysNames[name.first].push_back(name.first + "_" + sys.name());
@@ -244,12 +250,16 @@ namespace top {
         }
       }
       m_config->setBoostedTaggersSFSysNames(m_tagSFSysNames);
-      
+
     }
 
-    // add the merged set of systematics for large-R jets including the tagging SF systs
-    addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeRModName, true);
 
+    // add the merged set of systematics for large-R jets including the tagging SF systs
+    if ((m_config->isMC() || m_doOnly_JER_largeR) && (m_config->useLargeRJets()) && (!skip_systs)) {
+      std::string allNPlargeR("");
+      addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, allNPlargeR, true, m_doOnly_JER_largeR);
+    }
+    
     ///-- Large R jet substructure --///
     if (m_config->jetSubstructureName() == "Trimmer") m_jetSubstructure.reset(new top::LargeJetTrimmer);
 
@@ -265,6 +275,7 @@ namespace top {
       top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
       top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
     }
+
 
     // set the systematics list
     m_config->systematicsJets(specifiedSystematics());
@@ -364,9 +375,8 @@ namespace top {
       // tag calibrated (nominal) jets -- the tagging information will be available
       // for systematically-shifted shallow copies as well
       top::check(tagNominalLargeRJets(), "Failed to tag large-R jets");
-      if (m_config->isMC()) {
-        if (m_config->applyBoostedJetTaggersUncertainties())
-          top::check(applyTaggingSFSystematic(),"Failed to apply large-R tagging SFs syst.");
+      if (m_isMC || m_doOnly_JER_largeR) {
+        top::check(applyTaggingSFSystematic(), "Failed to apply large-R tagging SFs syst.");
         top::check(applySystematic(m_jetUncertaintiesToolLargeR, m_systMap_LargeR,
                                    true), "Failed to apply large-R syst.");
       }
@@ -529,18 +539,13 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
+ 
   StatusCode JetObjectCollectionMaker::applyTaggingSFSystematic() {
     
     ///-- Get calibrated jets --///
     const xAOD::JetContainer* ljets(nullptr);
     top::check(evtStore()->retrieve(ljets, m_config->sgKeyLargeRJets(
-                                        m_nominalSystematicSet.hash())), "Failed to retrieve Jets");
-					
-					
-    ///-- Shallow copy of the xAOD --///
-    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
-    shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
-    
+                                    m_nominalSystematicSet.hash())), "Failed to retrieve Jets");
     const size_t njets = ljets->size();
     
     const std::unordered_map<std::string,std::string>& sfNames = m_config->boostedTaggerSFnames();
@@ -551,31 +556,41 @@ namespace top {
       
       const std::string sfNameNominal =  sfNames.at(fullName);
       const SG::AuxElement::Accessor<float> accSF(sfNameNominal);
-      const SG::AuxElement::Decorator<float> decNominalSF(sfNameNominal);
+      // accessor to retrieve nominal efficiency decoration from BoostedJetTaggers
+      std::string taggerName = sfNameNominal;
+      taggerName.erase(taggerName.length()-3);
+      const SG::AuxElement::Accessor<float> accEff(taggerName + "_efficiency");
       
       for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[fullName]) {
+
+        // shallow copy with nominal tagging SFs and efficiencies
+        // JetUncertainties may apply relative variations, so we need to make sure we always apply on
+        // shallow copy from nominal tagged jets
+        std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
+          shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
+        auto shallowJets = std::make_pair(std::unique_ptr<xAOD::JetContainer>{shallow_xaod_copy.first},
+          std::unique_ptr<xAOD::ShallowAuxContainer>{shallow_xaod_copy.second});
 	  
 	top::check(tool->applySystematicVariation(sys), "Failed to applySystematicVariation");
 	
 	const std::string sfNameShifted = fullName + "_" + sys.name();
 
-        // first reset the shallow-copy SF to nominal value from the original calibrated jet container
-        // this is because some of the uncertainties are a (1+/-delta) correction for already decorated SF
-        for (size_t i = 0; i < njets; ++i) {
-          xAOD::Jet* shallowJet = shallow_xaod_copy.first->at(i);
-          const xAOD::Jet* jet = ljets->at(i);
-          decNominalSF(*shallowJet) = accSF(*jet);
-        }
-
         top::check(tool->applyContainerCorrection(*shallow_xaod_copy.first),
                    "Failed to apply large-R jet SF uncertainties in nominal TTree");
       
 	for(size_t i = 0; i < njets; i++) {
-	  xAOD::Jet* shallowJet = shallow_xaod_copy.first->at(i);
+	  xAOD::Jet* shallowJet = shallowJets.first->at(i);
 	  const xAOD::Jet* jet = ljets->at(i);
       
           float sf = accSF.isAvailable(*shallowJet) ? accSF(*shallowJet) : -999.;
           jet->auxdecor<float>(sfNameShifted.c_str()) = sf;
+
+          // decorate efficiencies for inefficiency SF variations
+          if (sys.name().find("TagEffUnc") != std::string::npos) {
+            if (accEff.isAvailable(*shallowJet)) {
+              jet->auxdecor<float>(fullName + "_" + sys.name() + "_efficiency") = accEff(*shallowJet);
+            }
+          }
 	} // end loop over jets
       } // end loop over SF systs
     } // end loop over tagging WP
@@ -602,16 +617,28 @@ namespace top {
                                       m_nominalSystematicSet.hash())), "Failed to retrieve " + msg_jet_collection);
     }
 
-    ///-- Loop over the systematics --///
 
+    ///-- Loop over the systematics --///
     for (Itr syst = map.begin(); syst != map.end(); ++syst) {
       ///-- Don't do the nominal, we've already done that --///
       if ((*syst).second.hash() == m_nominalSystematicSet.hash())
         continue;
+
+      ///-- Grab systematic name, check if systematic is JMR-type --///
+      bool isJMR = false;
+      CP::SystematicSet::iterator itr = (*syst).second.begin();
+      std::string systname = itr->name();
+      if (systname.find("JMR") != std::string::npos) isJMR = true;
+
       ///-- Tell the tool which systematic to use --///
       ///-- Here we use the second, original CP::SystematicSet --///
-      top::check(tool->applySystematicVariation((*syst).second),
-                 "Failed to applySystematicVariation for " + msg_jet_collection);
+      if (!isJMR) {
+        top::check(tool->applySystematicVariation((*syst).second),
+                   "Failed to applySystematicVariation for " + msg_jet_collection);
+      } else {
+        top::check(m_FFJetSmearingTool->applySystematicVariation((*syst).second),
+                   "Failed to applySystematicVariation (JMR) for " + msg_jet_collection);
+      }
 
       if (isLargeR && m_config->isMC()) {
         // for boosted tagging SFs, apply syst variation for all initialized WPs
@@ -634,9 +661,13 @@ namespace top {
       }
 
       // apply JES/JER uncertainties -- for large-R jets only on MC
-      if ((isLargeR && m_config->isMC()) || (!isLargeR)) {
-          top::check(tool->applyContainerCorrection(*shallow_xaod_copy.first),
-                     "Failed to apply JES/JER uncertainties for " + msg_jet_collection);
+      // also apply large-R jet JMR on MC only
+      if (!isJMR) {
+        top::check(tool->applyContainerCorrection(*shallow_xaod_copy.first),
+                   "Failed to apply JES/JER uncertainties for " + msg_jet_collection);
+      } else {
+        top::check(m_FFJetSmearingTool->applyContainerCorrection(*shallow_xaod_copy.first),
+                   "Failed to JMR uncertainties for " + msg_jet_collection);
       }
 
       ///-- Loop over the xAOD Container --///
@@ -765,12 +796,14 @@ namespace top {
                                                 const CP::SystematicSet& recommendedSysts,
                                                 std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map,
                                                 const std::string& modName, bool isLargeR, bool onlyJER) {
+
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector(recommendedSysts);
 
     for (const CP::SystematicSet& s : systList) {
       if (s.size() == 1) {
         CP::SystematicSet::const_iterator ss = s.begin();
+
 	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
         if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
