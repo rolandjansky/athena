@@ -702,6 +702,10 @@ namespace top {
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
                                                "weight_photonSF_effIso_DOWN");
+            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_UP,
+                                               "weight_photonSF_Trigger_UNCERT_UP");
+            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_DOWN,
+                                               "weight_photonSF_Trigger_UNCERT_DOWN");
           }
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
@@ -1458,27 +1462,34 @@ namespace top {
         systematicTree->makeOutputVariable(m_selectionDecisions[index], branchName);
         // Add all triggers to a map so we don't get any duplicates
         for (auto& trigger_name : m_config->allTriggers_Tight(branchName)) {
-          m_triggerDecisions [trigger_name] = 0;
+          m_triggerDecisions [trigger_name.first] = 0;
         }
         for (auto& trigger_name : m_config->allTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_triggerDecisions.find(trigger_name) != m_triggerDecisions.end()
-              && m_triggerPrescales.find(trigger_name) != m_triggerPrescales.end()) continue;
-          m_triggerDecisions [trigger_name] = 0;
+          if (m_triggerDecisions.find(trigger_name.first) != m_triggerDecisions.end()
+              && m_triggerPrescales.find(trigger_name.first) != m_triggerPrescales.end()) continue;
+          m_triggerDecisions [trigger_name.first] = 0;
         }
         for (auto& trigger_name : m_config->electronTriggers_Tight(branchName))
-          m_el_trigMatched [trigger_name] = std::vector<char>();
+          m_el_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->electronTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_el_trigMatched.find(trigger_name) != m_el_trigMatched.end()) continue;
-          m_el_trigMatched [trigger_name] = std::vector<char>();
+          if (m_el_trigMatched.find(trigger_name.first) != m_el_trigMatched.end()) continue;
+          m_el_trigMatched [trigger_name.first] = std::vector<char>();
         }
         for (auto& trigger_name : m_config->muonTriggers_Tight(branchName))
-          m_mu_trigMatched [trigger_name] = std::vector<char>();
+          m_mu_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->muonTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_mu_trigMatched.find(trigger_name) != m_mu_trigMatched.end()) continue;
-          m_mu_trigMatched [trigger_name] = std::vector<char>();
+          if (m_mu_trigMatched.find(trigger_name.first) != m_mu_trigMatched.end()) continue;
+          m_mu_trigMatched [trigger_name.first] = std::vector<char>();
+        }
+        for (auto& trigger_name : m_config->photonTriggers_Tight(branchName))
+          m_ph_trigMatched [trigger_name.first] = std::vector<char>();
+        for (auto& trigger_name : m_config->photonTriggers_Loose(branchName)) {
+          // let's make sure this isn't done twice
+          if (m_ph_trigMatched.find(trigger_name.first) != m_ph_trigMatched.end()) continue;
+          m_ph_trigMatched [trigger_name.first] = std::vector<char>();
         }
         ++index;
       }
@@ -1489,6 +1500,8 @@ namespace top {
         systematicTree->makeOutputVariable(trig_name.second, "el_trigMatch_" + trig_name.first);
       for (auto& trig_name : m_mu_trigMatched)
         systematicTree->makeOutputVariable(trig_name.second, "mu_trigMatch_" + trig_name.first);
+      for (auto& trig_name : m_ph_trigMatched)
+        systematicTree->makeOutputVariable(trig_name.second, "ph_trigMatch_" + trig_name.first);
     }
 
     setupUpgradeTreeManager();
@@ -2138,6 +2151,8 @@ namespace top {
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
+          m_weight_photonSF_Trigger_UNCERT_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP);
+          m_weight_photonSF_Trigger_UNCERT_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN);
         }
 
 
@@ -2651,6 +2666,8 @@ namespace top {
       m_ph_phi.resize(event.m_photons.size());
       m_ph_e.resize(event.m_photons.size());
       m_ph_iso.resize(event.m_photons.size());
+      for (const auto& trigger : m_ph_trigMatched)
+        m_ph_trigMatched[trigger.first].resize(event.m_photons.size());
       for (const auto* const phPtr : event.m_photons) {
         m_ph_pt[i] = phPtr->pt();
         m_ph_eta[i] = phPtr->eta();
@@ -2659,6 +2676,10 @@ namespace top {
 
         m_ph_iso[i] = 0.;
         if (phPtr->isAvailable<float>("ptvarcone20")) m_ph_iso[i] = phPtr->auxdata<float>("ptvarcone20");
+        for (const auto& trigger : m_ph_trigMatched) {
+          std::string trig = "TRIGMATCH_" + trigger.first;
+          m_ph_trigMatched[trigger.first][i] = phPtr->auxdataConst<char>(trig);
+        }
 
         ++i;
       }

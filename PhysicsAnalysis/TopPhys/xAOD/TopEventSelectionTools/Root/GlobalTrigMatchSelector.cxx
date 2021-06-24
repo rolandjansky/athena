@@ -27,6 +27,7 @@ namespace top {
     std::vector<xAOD::IParticle const*> particles;
     particles.insert(particles.end(), event.m_electrons.begin(), event.m_electrons.end());
     particles.insert(particles.end(), event.m_muons.begin(), event.m_muons.end());
+    particles.insert(particles.end(), event.m_photons.begin(), event.m_photons.end());
     top::check(tool->checkTriggerMatching(result,
                                           particles),
                "TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching failed");

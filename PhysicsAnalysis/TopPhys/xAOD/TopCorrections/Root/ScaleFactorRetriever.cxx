@@ -25,16 +25,20 @@ namespace top {
     declareProperty("config", m_config);
   }
 
+  size_t ScaleFactorRetriever::s_warn_counter = 0;
+
   StatusCode ScaleFactorRetriever::initialize() {
     ATH_MSG_INFO("Initialising " << this->name());
 
     std::shared_ptr<std::vector<std::string> > selectors = m_config->allSelectionNames();
 
     for (std::string selPtr : *selectors) {
-      std::vector<std::string> muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
-      std::vector<std::string> electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
-      std::vector<std::string> muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
-      std::vector<std::string> electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > photonTrig_Tight = m_config->photonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > photonTrig_Loose = m_config->photonTriggers_Loose(selPtr);
 
       for (auto trig : muonTrig_Tight)
         m_muonTriggers_Tight.push_back(trig);
@@ -45,6 +49,11 @@ namespace top {
         m_electronTriggers_Tight.push_back(trig);
       for (auto trig : electronTrig_Loose)
         m_electronTriggers_Loose.push_back(trig);
+      
+      for (auto trig : photonTrig_Tight)
+        m_photonTriggers_Tight.push_back(trig);
+      for (auto trig : photonTrig_Loose)
+        m_photonTriggers_Loose.push_back(trig);
     }
 
     return StatusCode::SUCCESS;
@@ -89,6 +98,7 @@ namespace top {
     top::check(eventInfo, "Failed to retrieve SystematicEvent");
     const bool electronTriggerIsEmpty = event.m_isLoose ? m_electronTriggers_Loose.empty() : m_electronTriggers_Tight.empty();
     const bool muonTriggerIsEmpty     = event.m_isLoose ? m_muonTriggers_Loose.empty()     : m_muonTriggers_Tight.empty();
+    const bool photonTriggerIsEmpty   = event.m_isLoose ? m_photonTriggers_Loose.empty()   : m_photonTriggers_Tight.empty();
 
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch (SFSyst) {
@@ -140,6 +150,22 @@ namespace top {
       }
       break;
 
+    case top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP:
+      if (photonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "PH_EFF_TRIGGER_Uncertainty__1up");
+      }
+      break;
+
+    case top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN:
+      if (photonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "PH_EFF_TRIGGER_Uncertainty__1down");
+      }
+      break;
+
     default:
       // Nominal weight
       sf = eventInfo->auxdataConst<float>(prefix);
@@ -150,8 +176,30 @@ namespace top {
 
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
+
+    // if it has photon triggers return 1;
+    if (event.m_isLoose) {
+      if (!m_photonTriggers_Loose.empty()) return 1.;
+    } else {
+      if (!m_photonTriggers_Tight.empty()) return 1.;
+    }
+
     return(m_preferGlobalTriggerSF &&
            m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
+  }
+
+  float ScaleFactorRetriever::triggerSFPhoton(const top::Event& event,
+                                              const top::topSFSyst SFSyst) const {
+
+    if (!m_config->useGlobalTrigger()) {
+      if (s_warn_counter < 5) {
+        ATH_MSG_WARNING("Photon trigger SFs are currently supported only for the global triggers");
+        ++s_warn_counter;
+      }
+      return 1.;
+    }
+
+    return globalTriggerSF(event, SFSyst);
   }
 
   float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
@@ -171,7 +219,7 @@ namespace top {
       bool trigMatch = false;
 
       for (const auto& trigger : retrieveLoose ? m_electronTriggers_Loose : m_electronTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (elPtr->isAvailable<char>(trig)) {
           if (elPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
@@ -185,7 +233,7 @@ namespace top {
       bool trigMatch = false;
 
       for (const auto& trigger : retrieveLoose ? m_muonTriggers_Loose : m_muonTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (muPtr->isAvailable<char>(trig)) {
           if (muPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
@@ -207,6 +255,7 @@ namespace top {
   std::vector<float> ScaleFactorRetriever::electronSFSystVariationVector(const top::Event& event,
                                                                          const top::topSFComp SFComp, int var) const {
     std::vector<float> sf;
+
     if (abs(var) != 1) {
       ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector must be called with var=+1 (up) or -1 (down)");
       return sf;
@@ -254,7 +303,6 @@ namespace top {
         ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in accessing decoration " << decorationName);
       }
-
       if (sf.size() == 0) sf = std::vector<float>(sf_aux.size(), leptonSF(event, top::topSFSyst::nominal));
       if (sf.size() != sf_aux.size()) ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in size of vector of electron SFs");
@@ -748,7 +796,7 @@ namespace top {
 
     return sf;
   }
-
+  
   float ScaleFactorRetriever::muonEff_Trigger(const xAOD::Muon& x,
                                               const top::topSFSyst SFSyst,
                                               bool useLooseDef) const {
@@ -1101,13 +1149,15 @@ namespace top {
     float sf(1.);
     float reco(1.);
     float isol(1.);
+    float trigger(1.);
 
     for (auto photon : event.m_photons) {
       reco *= photonSF_Reco(*photon, SFSyst);
       isol *= photonSF_Isol(*photon, SFSyst, event.m_isLoose);
     }
+    trigger = triggerSFPhoton(event, SFSyst);
 
-    sf = reco * isol;
+    sf = reco * isol * trigger;
 
     return sf;
   }
@@ -1295,4 +1345,5 @@ namespace top {
     ATH_MSG_INFO("    LeptonEventWeight  : " << std::to_string(leptonSF(event, top::topSFSyst::nominal)));
     ATH_MSG_INFO("    B-TagEventWeight   : " << std::to_string(btagSF(event, top::topSFSyst::nominal)));
   }
+
 }  // namespace top
