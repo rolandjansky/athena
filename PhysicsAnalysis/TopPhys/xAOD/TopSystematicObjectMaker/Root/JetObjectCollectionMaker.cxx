@@ -96,8 +96,9 @@ namespace top {
       if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
 	top::check(m_jetUncertaintiesToolLargeR.retrieve(),
 		   "Failed to retrieve JetUncertaintiesToolLargeR");
-        top::check(m_FFJetSmearingTool.retrieve(),
-                   "Failed to retrieve FFJetSmearingTool");
+        if (!m_config->isSystNominal(m_config->systematics()))
+          top::check(m_FFJetSmearingTool.retrieve(),
+                     "Failed to retrieve FFJetSmearingTool");
       }
     }
 
@@ -211,7 +212,8 @@ namespace top {
     if ((m_config->isMC() || m_doOnly_JER_largeR) && m_config->useLargeRJets()) {
       if (m_config->largeRJESJMSConfig() == "CombMass") { // Only CombMass is supported for large-R JES/JER/JMS/JMR systematics at the moment
         largeRsysts.insert(m_jetUncertaintiesToolLargeR->recommendedSystematics());
-        largeRsysts.insert(m_FFJetSmearingTool->recommendedSystematics());
+        if (!m_config->isSystNominal(m_config->systematics()))
+          largeRsysts.insert(m_FFJetSmearingTool->recommendedSystematics());
       } else {
         ATH_MSG_WARNING(
           "TA Mass & Calo Mass & TCCMass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
