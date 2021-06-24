@@ -11,6 +11,8 @@
 #include "TrigConfL1Data/BunchGroupSet.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
+#include "TrigConfData/L1PrescalesSet.h"
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
@@ -195,6 +197,21 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
 
   const auto& triggers = m_tdt->getListOfTriggers(pattern);
   ATH_MSG_INFO("Read " << triggers.size() << " triggers from AOD.");
+
+  // Check if chain was disabled in athena job
+  const TrigConf::HLTPrescalesSet& hltPrescalesSet = m_configSvc->hltPrescalesSet(Gaudi::Hive::currentContext());
+  for( auto & p : hltPrescalesSet.data().get_child("prescales") ) {
+    if (!m_prescalesJSON.value().count(p.first) || hltPrescalesSet.prescale(p.first).prescale < 0){
+      m_prescalesJSON[p.first] = hltPrescalesSet.prescale(p.first).prescale;
+    }
+  }
+
+  const TrigConf::L1PrescalesSet& l1PrescalesSet = m_configSvc->l1PrescalesSet(Gaudi::Hive::currentContext());
+  for( auto & p : l1PrescalesSet.prescales() ) {
+    if (!m_prescalesJSON.value().count(p.first) || p.second.prescale < 0){
+      m_prescalesJSON[p.first] = p.second.prescale;
+    }
+  }
 
   // Iterate over the triggers and add them
   for (const auto& trigger : triggers) {
