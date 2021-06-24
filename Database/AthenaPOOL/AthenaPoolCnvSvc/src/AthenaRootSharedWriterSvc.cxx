@@ -203,7 +203,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
    int workerCounter = 0;
    std::set<int> rootClientSet;
    std::map<TString, int> workerCount;
-   while (m_rootClientCount > 0 || (workerCounter < (numClients - 1) && (sc.isSuccess() || sc.isRecoverable()))) {
+   while ((m_rootClientCount > 0 || workerCounter < (numClients - 1)) && (sc.isSuccess() || sc.isRecoverable())) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {
