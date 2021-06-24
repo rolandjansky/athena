@@ -1513,6 +1513,24 @@ HLT_e17_lhvloose_nod0_L1EM15VHI:
     2: 4
     3: 4
     4: 4
+HLT_e20_lhloose_L1EM7:
+  eventCount: 5
+  stepCounts:
+    0: 6
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+  stepFeatures:
+    0: 6
+    1: 7
+    2: 5
+    3: 5
+    4: 5
+HLT_e20_lhloose_L1EM7_AFP_A_AND_C:
+  eventCount: 0
+HLT_e20_lhloose_L1EM7_AFP_A_OR_C:
+  eventCount: 0
 HLT_e20_lhmedium_e15_idperf_medium_Zee_L1EM15VH:
   eventCount: 0
   stepCounts:
@@ -6077,6 +6095,22 @@ HLT_mu20_2mu4noL1_L1MU20:
     3: 7
     4: 2
     5: 2
+HLT_mu20_L1MU6:
+  eventCount: 6
+  stepCounts:
+    0: 10
+    1: 6
+    2: 6
+    3: 6
+  stepFeatures:
+    0: 13
+    1: 7
+    2: 7
+    3: 7
+HLT_mu20_L1MU6_AFP_A_AND_C:
+  eventCount: 0
+HLT_mu20_L1MU6_AFP_A_OR_C:
+  eventCount: 0
 HLT_mu20_bJpsi_MuonTrkPEB_L1MU20:
   eventCount: 0
 HLT_mu20_ivarloose_tau20_medium1_tracktwo_03dRAB_L1MU20:
