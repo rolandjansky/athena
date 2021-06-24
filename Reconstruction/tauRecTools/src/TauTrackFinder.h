@@ -22,6 +22,8 @@
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
+#include <vector>
+
 /////////////////////////////////////////////////////////////////////////////
 
 /** 
@@ -67,22 +69,23 @@ private:
     StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau) const;
 
     TauTrackType tauTrackType( const xAOD::TauJet& tauJet,
-    		const xAOD::TrackParticle& trackParticle,
-    		const xAOD::Vertex* primaryVertex) const;
+			       const xAOD::TrackParticle& trackParticle,
+			       const xAOD::Vertex* primaryVertex) const;
 
     void getTauTracksFromPV( const xAOD::TauJet& tauJet,
-    		const xAOD::TrackParticleContainer& trackParticleCont,
-    		const xAOD::Vertex* primaryVertex,
-    		std::vector<const xAOD::TrackParticle*> &tauTracks,
-    		std::vector<const xAOD::TrackParticle*> &wideTracks,
-    		std::vector<const xAOD::TrackParticle*> &otherTracks) const;
+			     const xAOD::TrackParticleContainer& trackParticleCont,
+			     const xAOD::Vertex* primaryVertex,
+			     const bool& useGhostTracks,
+			     std::vector<const xAOD::TrackParticle*> &tauTracks,
+			     std::vector<const xAOD::TrackParticle*> &wideTracks,
+			     std::vector<const xAOD::TrackParticle*> &otherTracks) const;
 
     // new xAOD version
     void removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::TrackParticle*> &tauTracks,
-                                           std::vector<const xAOD::TrackParticle*> &wideTracks,
-                                           std::vector<const xAOD::TrackParticle*> &otherTracks,
-                                           const xAOD::Vertex* tauOrigin,
-                                           double maxDeltaZ0) const;
+				       std::vector<const xAOD::TrackParticle*> &wideTracks,
+				       std::vector<const xAOD::TrackParticle*> &otherTracks,
+				       const xAOD::Vertex* tauOrigin,
+				       double maxDeltaZ0) const;
 
     //-------------------------------------------------------------
     //! Some internally used functions
@@ -106,6 +109,8 @@ private:
     Gaudi::Property<bool> m_removeDuplicateCoreTracks {this, "removeDuplicateCoreTracks", true};
     Gaudi::Property<bool> m_bypassSelector {this, "BypassSelector", false};
     Gaudi::Property<bool> m_bypassExtrapolator {this, "BypassExtrapolator", false};
+    Gaudi::Property<bool> m_useGhostTracks {this, "useGhostTracks", false}; 
+    Gaudi::Property<double> m_ghostTrackDR {this, "ghostTrackDR", 0.25};
 
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
  	SG::ReadHandleKey<xAOD::TrackParticleContainer> m_largeD0TracksInputContainer{this,"Key_LargeD0TrackInputContainer", "", "input LRT particle container key"}; //Expecting InDetLargeD0TrackParticles (offline tracks) if using LRT used
