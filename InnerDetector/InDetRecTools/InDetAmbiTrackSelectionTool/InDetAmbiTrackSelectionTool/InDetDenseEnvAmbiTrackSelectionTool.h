@@ -267,8 +267,8 @@ namespace InDet
         m_type.resize(m_nTSoS,OtherTsos);    
         m_detType.resize(m_nTSoS,-1.);
         m_hitIsShared.resize(m_nTSoS, 0 );
-        m_splitProb1.resize(m_nTSoS,-1.) ;
-        m_splitProb2.resize(m_nTSoS,-1.) ;
+        m_splitProb1.resize(m_nTSoS,-1.f) ;
+        m_splitProb2.resize(m_nTSoS,-1.f) ;
         m_RIO.resize(m_nTSoS,0);
       };
         
