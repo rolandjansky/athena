@@ -149,13 +149,7 @@ def setupMenu():
         # low et threshold chains using Ringer
         ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhtight_gsf_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
-
-        # dnn chain
-        ChainProp(name='HLT_e5_dnnloose_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_dnnmedium_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_dnntight_L1EM3', groups=SingleElectronGroup),
 
         # lrt chains
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
@@ -175,15 +169,11 @@ def setupMenu():
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VHI',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_L1EM15VH',  groups=SingleElectronGroup),
-        ChainProp(name='HLT_e17_lhvloose_gsf_L1EM15VHI',  groups=SingleElectronGroup),
-        ChainProp(name='HLT_e24_lhvloose_gsf_L1EM20VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), #Placeholder for GSF chain
-        ChainProp(name='HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM22VHI', groups=SingleElectronGroup),
@@ -258,7 +248,22 @@ def setupMenu():
 
         # hipTRT trigger, ATR-22603
         ChainProp(name='HLT_g0_hiptrt_L1EM22VHI', groups=SinglePhotonGroup), 
-       
+
+        #------------ GSF triggers
+        ChainProp(name='HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e60_gsf_lhmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), 
+        ChainProp(name='HLT_2e17_gsf_lhvloose_L12EM15VHI', groups=PrimaryLegGroup+MultiElectronGroup),
+
+        #------------ dnn chains
+        ChainProp(name='HLT_e5_dnnloose_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_dnnmedium_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_dnntight_L1EM3', groups=SingleElectronGroup),
+
+        ChainProp(name='HLT_e26_dnnloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_dnnmedium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_dnntight_L1EM22VHI', groups=SingleElectronGroup),
+
+        ChainProp(name='HLT_e60_dnnloose_L1EM22VHI', groups=SingleElectronGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
