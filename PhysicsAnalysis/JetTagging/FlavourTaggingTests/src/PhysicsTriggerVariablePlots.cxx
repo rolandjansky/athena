@@ -88,7 +88,7 @@ namespace FTAGValidation {
     }
 
     //run over b-jet chains
-    for( const auto chain: m_bJetChains ){
+    for( const std::string& chain: m_bJetChains ){
       if( m_trigDec->isPassed(chain) ){
 	ATH_MSG_DEBUG("Chain passed " << chain);
       }
