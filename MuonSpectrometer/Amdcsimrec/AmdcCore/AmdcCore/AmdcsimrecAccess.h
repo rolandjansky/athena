@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AMDCCORE_AMDCSIMRECACCESS_H
@@ -18,27 +18,9 @@
 
 class AmdcsimrecAccess{
 public:
-   AmdcsimrecAccess();
-  ~AmdcsimrecAccess();
-
-public:
-///////////////////////////////////
 
    /**Get Amdcsimrec interface*/
    static Amdcsimrec* GetAmdcsimrec();
-
-   /**Set Amdcsimrec interface*/
-   static void SetAmdcsimrec(Amdcsimrec* pAmdcsimrec);
-
-   /**Reset Amdcsimrec interface*/
-   static void ResetAmdcsimrec();
-
-private:
-///////////////////////////////////
-// Data
-
-   static Amdcsimrec* s_Amdcsimrec ; //!< Static Pointer on a Amdcsimrec interface
-   
 };
 #endif
 
