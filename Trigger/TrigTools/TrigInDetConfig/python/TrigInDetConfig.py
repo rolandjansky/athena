@@ -149,9 +149,7 @@ def InDetTestPixelLayerToolCfg(flags, **kwargs):
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
   from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-  extrapolator_acc = InDetExtrapolatorCfg( flags, name = "InDetTrigExtrapolator" )
-  extrapolator = acc.getPrimary()
-  acc.merge(extrapolator_acc)
+  extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator"))
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool("InDetTrigTestPixelLayerTool",
                                                                PixelSummaryTool = pixelCondSummaryTool,
@@ -177,7 +175,15 @@ def InDetHoleSearchToolCfg(flags, **kwargs):
   name = kwargs.pop("name", "InDetTrigHoleSearchTool")
   tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
                                                     Extrapolator =  acc.getPublicTool( "InDetTrigExtrapolator" ))
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
+  return acc
+
+def InDetPrdAssociationToolCfg(flags):
+  acc = ComponentAccumulator()
+  tool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(
+    name = "InDetTrigPrdAssociationTool",
+    PixelClusterAmbiguitiesMapName = "TrigPixelClusterAmbiguitiesMap")
+  acc.addPublicTool(tool, primary=True)
   return acc
 
 def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
@@ -185,38 +191,32 @@ def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
   """
   acc = ComponentAccumulator()
-  name = kwargs.pop("name", "InDetSummaryHelperTool")
-  acc.merge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
-
-  acc.addPublicTool( CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name = "InDetTrigPrdAssociationTool",
-                                                              PixelClusterAmbiguitiesMapName = "TrigPixelClusterAmbiguitiesMap") )
-
-  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg # this will be moved somewhere else so this import will need adjustment
+  name = kwargs.pop("name", "InDetTrigSummaryHelper")
+  #TODO consider configuring it also here rather than use ofline
+  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg #TODO this will be moved somewhere else so this import will need adjustment
   acc.merge( TRTStrawCondAlgCfg(flags) )
-  trtStrawSummaryTool = acc.popToolsAndMerge( TRT_StrawStatusSummaryToolCfg(flags) )
 
   tool = CompFactory.InDet.InDetTrackSummaryHelperTool(name,
-                                                       HoleSearch    = acc.getPublicTool( "InDetTrigHoleSearchTool" ),
-                                                       AssoTool      = acc.getPublicTool( "InDetTrigPrdAssociationTool" ),
+                                                       HoleSearch    = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) ),
+                                                       AssoTool      = acc.getPrimaryAndMerge( InDetPrdAssociationToolCfg(flags) ),
                                                        TestBLayerTool = None,
                                                        PixelToTPIDTool= None, #InDetTrigPixelToTPIDTool,
                                                        DoSharedHits  = False,
-                                                       TRTStrawSummarySvc = trtStrawSummaryTool,
+                                                       TRTStrawSummarySvc = acc.popToolsAndMerge( TRT_StrawStatusSummaryToolCfg(flags) ),
                                                        usePixel      = flags.Detector.EnablePixel,
                                                        useSCT        = flags.Detector.EnableSCT,
                                                        useTRT        = flags.Detector.EnableTRT,
-                                                         )
+                                                      )
 
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
   return acc
 
 def TrackSummaryToolCfg(flags, **kwargs):
   acc = ComponentAccumulator()
-  name = kwargs.pop("name", "InDetTrackSummaryTool")
+  name = kwargs.pop("name", "InDetTrigTrackSummaryTool")
   summaryHelperTool = kwargs.pop( "summaryHelperTool", None )
   if not summaryHelperTool:
-    acc.merge( InDetTrackSummaryHelperToolCfg( flags ) )
-    summaryHelperTool = acc.getPublicTool( "InDetSummaryHelperTool" )
+    summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags ) )
 
 
   tool = CompFactory.Trk.TrackSummaryTool(name = name,
@@ -228,7 +228,7 @@ def TrackSummaryToolCfg(flags, **kwargs):
                                           TRT_ElectronPidTool    = None,
                                           )
 
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
   return acc
 
 
@@ -664,6 +664,7 @@ def trackConverterCfg(flags, signature, signatureName):
   return acc
 
 def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_view=True ):
+  """ Generates precision fast tracking config, it is a primary config function """
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
 
@@ -707,13 +708,131 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
   acc.merge(trackConverterCfg(flags, signature, signatureName))
   return acc
 
+##################################################
+# precision tracking
+##################################################
+prefix="InDetTrigMT"
+
+def TRTDriftCircleCutCfg(flags):
+  acc = ComponentAccumulator()
+  tool = CompFactory.InDet.InDetTrtDriftCircleCutTool('InDetTrigTRTDriftCircleCut',
+          MinOffsetDCs     = 5,
+          UseNewParameterization = True,
+          UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
+  )
+  acc.addPublicTool(tool, primary=True)
+  return acc
+
+def TrackSelectionToolCfg(flags):
+  acc = ComponentAccumulator()
+
+  #TODO add configurations fro beamgas and cosmic see: trackSelectionTool_getter
+  tool = CompFactory.InDet.InDetAmbiTrackSelectionTool('InDetTrigAmbiTrackSelectionTool',
+                                       DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
+                                       AssociationTool = acc.getPrimaryAndMerge( InDetPrdAssociationToolCfg(flags) ),
+                                       minHits         = flags.InDet.Tracking.minClusters,
+                                       minNotShared    = flags.InDet.Tracking.minSiNotShared,
+                                       maxShared       = flags.InDet.Tracking.maxShared,
+                                       minTRTHits      = 0,  # used for Si only tracking !!!
+                                       Cosmics         = False,  #there is a different instance
+                                       UseParameterization = False,
+                                       # sharedProbCut   = 0.10,
+                                       # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
+                                       )
+  acc.addPublicTool(tool, primary=True)
+   
+  return acc
+
+def ambiguityScoringToolCfg(flags):
+  acc = ComponentAccumulator()
+  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  tool = CompFactory.InDet.InDetAmbiScoringTool(name = "InDetTrigAmbuguityScoringTool",
+                                                SummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
+                                                DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
+                                                useAmbigFcn = True,
+                                                useTRT_AmbigFcn = False,
+                                                maxZImp = flags.InDet.Tracking.maxZImpact,
+                                                maxEta = flags.InDet.Tracking.maxEta,
+                                                usePixel = flags.InDet.Tracking.usePixel,
+                                                useSCT = flags.InDet.Tracking.useSCT,
+                                                doEmCaloSeed =  False #TODO understand and set appropriately, current setting is probably a correct one
+  )
+  # TODO if brem recovery is needed CaloROIInfoName info should be set
+
+  acc.setPrivateTools(tool)
+  return acc
+
+
+def ambiguityProcessorToolCfg(flags):
+  import AthenaCommon.SystemOfUnits as Units
+
+  acc = ComponentAccumulator()
+
+  fitterTool = CompFactory.TrigInDetTrackFitter( "TrigInDetTrackFitter" )
+  acc.addPublicTool( fitterTool )
+
+  # TODO use trigger specific configurations
+  from InDetConfig.TrackingCommonConfig import InDetAmbiScoringToolBaseCfg  
+  scoringTool = acc.getPrimaryAndMerge(InDetAmbiScoringToolBaseCfg(flags))
+  
+  TrackSummaryToolCfg(flags)
+  tool = CompFactory.Trk.SimpleAmbiguityProcessorTool(name = f"{prefix}AmbiguityProcessor{flags.InDet.Tracking.input_name}",
+                                                      SuppressHoleSearch = False if flags.InDet.Tracking.name == 'cosmics' else True,
+                                                      RefitPrds = False if flags.InDet.Tracking.name == 'cosmics' else True,
+                                                      tryBremFit = True if flags.InDet.Tracking.name == 'electron' and flags.InDet.doBremRecovery else False,
+                                                      pTminBrem = 5*Units.GeV,
+                                                      Fitter = fitterTool,
+                                                      ScoringTool        = scoringTool,
+                                                      AssociationTool = acc.getPrimaryAndMerge(InDetPrdAssociationToolCfg(flags)),
+                                                      TrackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                      SelectionTool    = acc.getPrimaryAndMerge(TrackSelectionToolCfg(flags))
+  )
+  acc.addPublicTool(tool, primary=True)
+  return acc
+
+def ambiguitySolverAlgCfg(flags):
+  acc = ComponentAccumulator()
+
+  ambigMap = f"ScoreMap_{flags.InDet.Tracking.input_name}"
+  scoreAlg = CompFactory.Trk.TrkAmbiguityScore(name = f"{prefix}TrkAmbiguityScore_{flags.InDet.Tracking.input_name}",
+                                               TrackInput = [ flags.InDet.Tracking.trkTracks_FTF ],
+                                               TrackOutput = ambigMap,
+                                               AmbiguityScoreProcessor = None 
+  )
+  acc.addEventAlgo(scoreAlg)
+
+  processorAcc = ambiguityProcessorToolCfg(flags)
+  processorTool = processorAcc.getPrimary()
+  acc.merge(processorAcc)
+
+  solverAlg = CompFactory.Trk.TrkAmbiguitySolver(name  = f"{prefix}TrkAmbiguitySolver{flags.InDet.Tracking.input_name}",
+                                                 TrackInput         = ambigMap,
+                                                 TrackOutput        = flags.InDet.Tracking.trkTracks_IDTrig+"_Amb",
+                                                 AmbiguityProcessor = processorTool
+  )
+  acc.addEventAlgo(solverAlg)
+  return acc
+
+
+
+def trigInDetPrecisionTrackingCfg( inflags, roisKey, signatureName, in_view ):
+  """ Generates precision tracking config, it is a primary config function """
+  acc = ComponentAccumulator()
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
+  #TODO add VDV
+  acc.merge(ambiguitySolverAlgCfg(flags))
+  #TODO add conversion to track particle
+#  acc.merge()
+  return acc
+
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-
+    ComponentAccumulator.debugMode = "trackCA trackPublicTool trackEventAlgo trackCondAlgo trackPrivateTool"
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
     # this configuration is not runable, the test checks if there is no mistake in python scripts above
@@ -721,6 +840,9 @@ if __name__ == "__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg( ConfigFlags )
     acc.merge( trigInDetFastTrackingCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" ) )
+
+    acc.merge( trigInDetPrecisionTrackingCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" , in_view=True) )
+
 
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.store( open("test.pkl", "wb") )

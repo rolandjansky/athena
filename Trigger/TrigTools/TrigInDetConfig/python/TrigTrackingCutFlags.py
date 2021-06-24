@@ -20,6 +20,9 @@ def __flagsFromConfigSettings(settings):
 
     flags.addFlag("trkTracks_FTF", f'HLT_IDTrkTrack_{flags.suffix}_FTF')
     flags.addFlag("tracks_FTF", f'HLT_IDTrack_{flags.suffix}_FTF')
+    flags.addFlag("trkTracks_IDTrig", f'HLT_IDTrkTrack_{flags.suffix}_IDTrig')
+    flags.addFlag("tracks_IDTrig", f"HLT_IDTrack_{flags.suffix}_IDTrig")
+    flags.input_name = flags.name
     flags.minPT = flags.pTmin # hack to sync pT threshold used in offline and trigger
     return flags
 
