@@ -5928,6 +5928,7 @@ void test2_move1()
     assert (v1.size() == 0);
 
     DV v3;
+    v3.push_back (make_comp_unique<T>(5));
     v3 = std::move (v2);
     assert (v3.size() == 4);
     assert (v3[0]->x == 1);
@@ -5940,7 +5941,7 @@ void test2_move1()
 
     assert (v2.size() == 0);
 
-    check_dtor_log();
+    check_dtor_log (5);
   }
   clear_dtor_log();
 }
