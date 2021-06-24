@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -173,6 +173,12 @@ public:
     std::map<int, const SCT_ModuleSideDesign *> getChildren() const;
     void addChildDesign(int index, const SCT_ModuleSideDesign * element);
     virtual void getStripRow(SiCellId id, int *strip, int *row) const; //this might be better as reference than pointer? keep for now for consistency
+    /** Test if point is in the active part of the detector with specified tolerances */
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol) const override;
+    /** Test if point is in the active part of the detector with specified tolerances  - allows forcing of most stringent check*/
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol, bool forceStringentCheck) const override;
+
+
 
 private:
     SCT_ModuleSideDesign();

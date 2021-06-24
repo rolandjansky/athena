@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadoutGeometryBase/DetectorDesign.h"
@@ -126,6 +126,12 @@ SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
     state.setNearBoundary();
     return state;
 }
+
+SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
+                                       double phiTol, double etaTol, bool /*forceStringent*/ ) const {
+  return inDetector(localPosition,phiTol,etaTol);
+}
+
 
   const Amg::Transform3D DetectorDesign::SiHitToGeoModel() const {
     return Amg::Transform3D::Identity();
