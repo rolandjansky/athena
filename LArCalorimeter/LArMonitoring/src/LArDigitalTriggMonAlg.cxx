@@ -53,8 +53,7 @@
 LArDigitalTriggMonAlg::LArDigitalTriggMonAlg(const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name, pSvcLocator),
     m_LArOnlineIDHelper(0),
-    m_LArEM_IDHelper(0),
-    m_Samplenbr(-1)
+    m_LArEM_IDHelper(0)
 {	
 
 
