@@ -19,7 +19,7 @@
 using namespace IDPVM;
 
 
-InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir, bool bookFakeAndEff) :
+InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, const std::string & sDir, bool bookFakeAndEff) :
   InDetPlotBase(pParent, sDir),
 
   m_nInnerMostPixelHits_vs_dR{},

@@ -442,8 +442,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
         }
       }
-      ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
-      m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices, beamSpotWeight);
+      if ((matchedTrack!=nullptr) and (thisTruth!=nullptr)){
+        ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
+        m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices, beamSpotWeight);
+      } else {
+        ATH_MSG_ERROR("An error occurred: Either the matchedTrack or thisTruth pointer is nullptr");
+      }
     }
     
     if (m_fillTruthToRecoNtuple) {

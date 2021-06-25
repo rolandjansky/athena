@@ -14,6 +14,8 @@
 
 // local includes
 #include "InDetPlotBase.h"
+class TH1;
+class TH2;
 
 ///Class to hold various counters used in RTT code
 class InDetPerfPlot_nTracks: public InDetPlotBase {
@@ -27,8 +29,8 @@ public:
 
 private:
   TH1* m_counters[N_COUNTERS];
-  TH2* m_ntracks_vs_mu;
-  TH2* m_ntracks_vs_nvertices;
+  TH2* m_ntracks_vs_mu{};
+  TH2* m_ntracks_vs_nvertices{};
   void initializePlots();
 };
 

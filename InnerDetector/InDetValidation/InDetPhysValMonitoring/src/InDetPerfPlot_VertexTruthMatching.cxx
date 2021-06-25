@@ -10,6 +10,8 @@
 #include "InDetPerfPlot_VertexTruthMatching.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
 
 using namespace IDPVM;
 

@@ -31,11 +31,11 @@
 #include <string>
 
 // root includes
-#include "TF1.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TFitResult.h"
-#include "TFitResultPtr.h"
+class TH1;
+class TH2;
+class TProfile;
+class TEfficiency;
+
 
 ///class holding plots for truth matched vertices
 class InDetPerfPlot_VertexTruthMatching: public InDetPlotBase {
@@ -47,11 +47,11 @@ private:
     int m_iDetailLevel;
     float m_cutMinTruthRecoRadialDiff = 0.1;
     ///truth type
-    TH1* m_vx_type_truth;
-    TH1* m_vx_z_diff;
-    TH1* m_vx_z_diff_pull;
+    TH1* m_vx_type_truth{};
+    TH1* m_vx_z_diff{};
+    TH1* m_vx_z_diff_pull{};
     ///hardscatter classification
-    TH1* m_vx_hs_classification;
+    TH1* m_vx_hs_classification{};
     ///vertex reco efficiency
     TProfile* m_vx_nReco_vs_nTruth_inclusive;
     TProfile* m_vx_nReco_vs_nTruth_matched;
