@@ -11,30 +11,27 @@
 // **********************************************************************
 
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include <vector>
-
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TH3F.h"
-#include "TH2F.h"
-#include "TFile.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include <map>
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "StoreGate/ReadHandleKey.h"
+#include <vector>
+#include <map>
 
 class TH1F;
 class TH2F;
+class TH3F;
 class TProfile;
+class TFile;
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -74,7 +71,7 @@ public:
 
 protected:
 
-    bool m_hasBeamCondSvc{};
+  bool m_hasBeamCondSvc{};
   TH1F* m_summary{};
 
   TProfile* m_trk_chi2oDoF{};
@@ -396,36 +393,36 @@ protected:
   static const Trk::Track*        getTrkTrack(const Trk::VxTrackAtVertex*);
   const xAOD::Vertex* findAssociatedVertexTP(const std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const xAOD::TrackParticle *) const;
 
-  const AtlasDetectorID*                m_idHelper;
-  const PixelID*                        m_pixelID;
-  const SCT_ID*                         m_sctID; 
-  const TRT_ID*                         m_trtID; 
+  const AtlasDetectorID*                m_idHelper{};
+  const PixelID*                        m_pixelID{};
+  const SCT_ID*                         m_sctID{}; 
+  const TRT_ID*                         m_trtID{}; 
   
   std::string m_stream;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "SG Key of EventInfo object"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_VxPrimContainerName{this, "VxPrimContainerName", ""};
-  int m_checkrate;
-  int m_events;
-  int m_histosBooked;
+  int m_checkrate{};
+  int m_events{};
+  int m_histosBooked{};
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
   std::string m_triggerChainName;
-  float m_barrelEta;
-  const xAOD::VertexContainer* m_vertices;
+  float m_barrelEta{};
+  const xAOD::VertexContainer* m_vertices{};
   const xAOD::Vertex* m_pvtx{};
-  bool m_doHitQuality;
-  bool m_extendedPlots;
-  float m_d0Range;
-  float m_d0BsRange;
-  int   m_d0BsNbins;
-  float m_pTRange;
-  float m_z0Range;
-  float m_etaRange;
-  int   m_NTracksRange;
-  int   m_rangePixHits;
-  int   m_rangeSCTHits;
-  int   m_rangeTRTHits;
+  bool m_doHitQuality{};
+  bool m_extendedPlots{};
+  float m_d0Range{};
+  float m_d0BsRange{};
+  int   m_d0BsNbins{};
+  float m_pTRange{};
+  float m_z0Range{};
+  float m_etaRange{};
+  int   m_NTracksRange{};
+  int   m_rangePixHits{};
+  int   m_rangeSCTHits{};
+  int   m_rangeTRTHits{};
 
-  bool m_doIP;
+  bool m_doIP{};
 
   
   
@@ -441,10 +438,10 @@ protected:
   std::string m_TRT_Manager;
 
   // Weight variables
-  bool m_applyHistWeight;
+  bool m_applyHistWeight{};
   std::string m_hWeightInFileName;
-  TFile* m_hWeightInFile;
-  TH2F*  m_etapTWeight;
+  TFile* m_hWeightInFile{};
+  TH2F*  m_etapTWeight{};
   std::string m_hWeightHistName;
   
 };

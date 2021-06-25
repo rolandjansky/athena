@@ -10,7 +10,9 @@
 #include <cmath>
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TProfile.h"
+#include "TFile.h"
 #include "TMath.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -37,7 +39,7 @@
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 #include "TrackSelectionTool.h"
-
+#include <cmath>
 
 // *********************************************************************
 // Public Methods
@@ -51,23 +53,24 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_trtID(nullptr),
 	m_events(0),
 	m_histosBooked(0),
-        m_triggerChainName("NoTriggerSelection"),
-        m_barrelEta(0.8),
+  m_triggerChainName("NoTriggerSelection"),
+  m_barrelEta(0.8),
 	m_vertices(nullptr),
 	m_doHitQuality(0),
 	m_d0Range(2.0),
 	m_d0BsRange(0.5),
-        m_d0BsNbins(100),
+  m_d0BsNbins(100),
 	m_z0Range(250.0),
 	m_etaRange(3.0),
 	m_NTracksRange (200),
 	m_rangePixHits (10),
-        m_rangeSCTHits (20),
-        m_rangeTRTHits (60),
+  m_rangeSCTHits (20),
+  m_rangeTRTHits (60),
 	m_hWeightInFile (nullptr),
 	m_etapTWeight (nullptr)
-{
+{ // cppcheck-suppress useInitializationList
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
+  // cppcheck-suppress useInitializationList
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
  
   m_pTRange = 100.0;

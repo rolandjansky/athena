@@ -10,11 +10,9 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TMath.h"
+#include "TH3.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include <cmath>
-#include <sstream>
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -27,8 +25,6 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 
-
-//#include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 
@@ -36,13 +32,12 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 
 
-//#include "AthenaMonitoring/AthenaMonManager.h"
 #include "IDAlignMonPVBiases.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 #include "TrackSelectionTool.h"
-
+#include <cmath>
 
 // *********************************************************************
 // Public Methods

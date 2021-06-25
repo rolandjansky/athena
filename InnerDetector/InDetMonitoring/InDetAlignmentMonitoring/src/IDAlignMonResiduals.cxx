@@ -3381,16 +3381,12 @@ void IDAlignMonResiduals::SetMinWindow(TH1* h1, float windowMin, float windowMax
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
-{//Pix barrel basic residuals: layers 0,1,2 and the index 3 is for the sum.
-  //std::string layerName[4] = {"0","1","2",""};
-  //std::string layerTitle[4]= {"Layer 0","Layer 1","Layer 2",""};
-  //float layerPhiMod[3]     = {21.5, 37.5, 51.5}; //Phi modules for each barrel layer
-  //EtaModuleBegin = -6, EtaModuleEnd = 7
+{
   int totalLayers = m_PIX_Mgr->numerology().numLayers();
   m_NPixLayers = totalLayers;
 
   int totalEtaModules = m_gap_pix*(totalLayers-1);  //to allow separation between layers for profiles
-  int totalPhiModules = m_gap_pix*(totalLayers-1);  //to allow separation between layers for profiles
+  int totalPhiModules = totalEtaModules;  //to allow separation between layers for profiles
 
   for (int iLayer=0; iLayer < totalLayers;++iLayer)
     {
@@ -3401,8 +3397,8 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
       float EtaModules= m_PIX_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_PIX_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2)
       totalEtaModules+=EtaModules;
 
-      float EtaModulesMin = -(EtaModules/2.);
-      float EtaModulesMax =  (EtaModules/2.);
+      float EtaModulesMin = -(EtaModules*0.5f);
+      float EtaModulesMax =  (EtaModules*0.5f);
 
       if (iLayer == 0) {
 	// IBL has one ring less (from -10 to +9)
@@ -4173,7 +4169,7 @@ void IDAlignMonResiduals::MakePIXEndCapsHistograms(MonGroup& al_mon){
 void IDAlignMonResiduals::MakeSCTBarrelHistograms(MonGroup& al_mon){
   int totalLayers        = m_SCT_Mgr->numerology().numLayers();
   int totalEtaModules = m_gap_sct*(totalLayers-1);  //to allow separation between layers for profiles
-  int totalPhiModules = m_gap_sct*(totalLayers-1);  //to allow separation between layers for profiles
+  int totalPhiModules = totalEtaModules;  //to allow separation between layers for profiles
   // vs QoverP2
   Double_t momentum[21] = {15,18,21,25,29,34,40,48,59,77,0,77,59,48,40,34,29,25,21,18,15};
   Double_t customaxis[21];
