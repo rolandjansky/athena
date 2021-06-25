@@ -350,8 +350,8 @@ ThreadPoolSvc                                                0    INFO no thread
 AvalancheSchedulerSvc                                        0    INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                                        0    INFO Found 14 algorithms
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o  ( 'TileBeamElemContainer' , 'StoreGateSvc+TileBeamElemCnt' )     required by Algorithm: 
-       * TileBeamElemCntDumper
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'TileBeamElemContainer' , 'StoreGateSvc+TileBeamElemCnt' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * TileBeamElemCntDumper
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules
 PrecedenceRulesGraph                                         0    INFO CondSvc found. DF precedence rules will be augmented with 'Conditions'
 PrecedenceSvc                                                0    INFO PrecedenceSvc initialized successfully

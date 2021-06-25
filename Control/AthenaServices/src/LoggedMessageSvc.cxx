@@ -604,22 +604,9 @@ void LoggedMessageSvc::reportMessage( const Message& msg )    {
 // Purpose: dispatches a message to the relevant streams.
 // ---------------------------------------------------------------------------
 //
-void LoggedMessageSvc::reportMessage (const char* source,
-                                int type,
-                                const char* message) {
-  Message msg( source, type, message);
-  reportMessage( msg );
-}
-
-//#############################################################################
-// ---------------------------------------------------------------------------
-// Routine: reportMessage
-// Purpose: dispatches a message to the relevant streams.
-// ---------------------------------------------------------------------------
-//
-void LoggedMessageSvc::reportMessage (const std::string& source,
-                                int type,
-                                const std::string& message) {
+void LoggedMessageSvc::reportMessage (std::string source,
+                                      int type,
+                                      std::string message) {
   Message msg( source, type, message);
   reportMessage( msg );
 }
@@ -632,7 +619,7 @@ void LoggedMessageSvc::reportMessage (const std::string& source,
 //
 
 void LoggedMessageSvc::reportMessage (const StatusCode& key,
-                                const std::string& source)
+                                      std::string_view source)
 {
   std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
@@ -644,7 +631,7 @@ void LoggedMessageSvc::reportMessage (const StatusCode& key,
       msg.setSource( source );
       std::ostringstream os1;
       os1 << "Status Code " << key.getCode() << std::ends;
-      Message stat_code1( source, msg.getType(), os1.str() );
+      Message stat_code1( std::string{source}, msg.getType(), os1.str() );
       reportMessage( stat_code1 );
       reportMessage( msg );
       first++;
@@ -655,7 +642,7 @@ void LoggedMessageSvc::reportMessage (const StatusCode& key,
     mesg.setSource( source );
       std::ostringstream os2;
     os2 << "Status Code " << key.getCode() << std::ends;
-    Message stat_code2( source,  mesg.getType(), os2.str() );
+    Message stat_code2( std::string{source},  mesg.getType(), os2.str() );
     reportMessage( stat_code2 );
     reportMessage( mesg );
   }
@@ -757,12 +744,11 @@ void LoggedMessageSvc::eraseStream( std::ostream* stream )    {
 // ---------------------------------------------------------------------------
 //
 
-void LoggedMessageSvc::insertMessage( const StatusCode& key, const Message& msg )
+void LoggedMessageSvc::insertMessage( const StatusCode& key, Message msg )
 {
   std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
-  typedef MessageMap::value_type value_type;
-  m_messageMap.insert( value_type( key, msg ) );
+  m_messageMap.emplace( key, std::move( msg ) );
 }
 
 //#############################################################################
@@ -890,10 +876,13 @@ int LoggedMessageSvc::messageCount( MSG::Level level) const   {
 
 // ---------------------------------------------------------------------------
 void
-LoggedMessageSvc::incrInactiveCount(MSG::Level level, const std::string& source) {
+LoggedMessageSvc::incrInactiveCount(MSG::Level level, std::string_view source) {
 
-  ++(m_inactiveMap[source].msg[level]);
-
+  auto entry = m_inactiveMap.find( source );
+  if ( entry == m_inactiveMap.end() ) {
+    entry = m_inactiveMap.emplace( source, MsgAry{} ).first;
+  }
+  ++entry->second.msg[level];
 }
 
 // ---------------------------------------------------------------------------

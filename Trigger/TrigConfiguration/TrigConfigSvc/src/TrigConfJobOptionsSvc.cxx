@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string.hpp>
@@ -16,7 +16,6 @@
 
 TrigConf::JobOptionsSvc::JobOptionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   base_class(name, pSvcLocator),
-  m_josvc("JobOptionsSvc/TrigConfWrapped_JobOptionsSvc", name),
   m_optsvc("JobOptionsSvc/TrigConfWrapped_JobOptionsSvc", name)
 {}
 
@@ -25,13 +24,8 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
   ATH_MSG_INFO("Initializing TrigConf::JobOptionsSvc");
 
   // Configure the wrapped JobOptionsSvc
-  ATH_CHECK(m_josvc.retrieve());
-  SmartIF<IProperty> joprop = &*m_josvc;
-  ATH_CHECK(joprop->setProperty("TYPE", "NONE"));
-
   ATH_CHECK(m_optsvc.retrieve());
-  SmartIF<IService> josvc = &*m_josvc;
-  m_optsvc->set( josvc->name() + ".TYPE" , "NONE" );
+  m_optsvc->set( m_optsvc.name() + ".TYPE", "NONE" );
 
   if (m_sourceType == "FILE") {
     ATH_MSG_INFO("Reading joboptions from " << m_sourcePath.value());

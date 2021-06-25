@@ -179,10 +179,9 @@ ClassIDSvc::getIDOfTypeInfoName(const std::string& typeInfoName,
 
 /// associate type name with clID
 StatusCode 
-ClassIDSvc::setTypePackageForID(const CLID& id, 
-                                const std::string& typeName,
-                                const Athena::PackageInfo&,
-                                const std::string& typeInfoName)
+ClassIDSvc::setTypeForID(const CLID& id,
+                         const std::string& typeName,
+                         const std::string& typeInfoName)
 {
   lock_t lock (m_mutex);
   if (id < CLIDdetail::MINCLID || id > CLIDdetail::MAXCLID) {
@@ -257,26 +256,6 @@ ClassIDSvc::finalize()
   return Service::finalize();
 }
 
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-
-StatusCode
-ClassIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-    if ( IClassIDSvc::interfaceID().versionMatch(riid) )    {
-        *ppvInterface = (IClassIDSvc*)this;
-    }
-    else  {
-	// Interface is not directly available: try out a base class
-	return Service::queryInterface(riid, ppvInterface);
-    }
-    addRef();
-    return StatusCode::SUCCESS;
-}
-
 
 void ClassIDSvc::handle(const Incident &inc)
 {
@@ -289,7 +268,7 @@ void ClassIDSvc::handle(const Incident &inc)
 
 /// Standard Constructor
 ClassIDSvc::ClassIDSvc(const std::string& name,ISvcLocator* svc)
-  : Service(name,svc),
+  : base_class(name,svc),
     m_clidDBPath(System::getEnv("DATAPATH"))
 {
 }

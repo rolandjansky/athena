@@ -132,32 +132,32 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
   IncidentProcAlg3
       none
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o  ( 'DMTest::C' , 'StoreGateSvc+cinfo' )     required by Algorithm: 
-       * xAODTestReadCInfo
-   o  ( 'DMTest::C' , 'StoreGateSvc+copy_cinfo' )     required by Algorithm: 
-       * xAODTestReadCInfo_copy
-   o  ( 'DMTest::CVec' , 'StoreGateSvc+copy_ctrig' )     required by Algorithm: 
-       * xAODTestRead_copy
-   o  ( 'DMTest::CVec' , 'StoreGateSvc+copy_cvec' )     required by Algorithm: 
-       * xAODTestReadCVec_copy
-   o  ( 'DMTest::CVec' , 'StoreGateSvc+ctrig' )     required by Algorithm: 
-       * xAODTestRead
-   o  ( 'DMTest::CVecWithData' , 'StoreGateSvc+copy_cvecWD' )     required by Algorithm: 
-       * xAODTestRead_copy
-   o  ( 'DMTest::CVecWithData' , 'StoreGateSvc+cvecWD' )     required by Algorithm: 
-       * xAODTestRead
-   o  ( 'DMTest::CView' , 'StoreGateSvc+copy_cview' )     required by Algorithm: 
-       * xAODTestReadCView_copy
-   o  ( 'DMTest::CView' , 'StoreGateSvc+cview' )     required by Algorithm: 
-       * xAODTestReadCView
-   o  ( 'DMTest::HVec' , 'StoreGateSvc+copy_hvec' )     required by Algorithm: 
-       * xAODTestReadHVec_copy
-   o  ( 'DMTest::HVec' , 'StoreGateSvc+copy_hview' )     required by Algorithm: 
-       * xAODTestReadHVec_copy
-   o  ( 'DMTest::HVec' , 'StoreGateSvc+hvec' )     required by Algorithm: 
-       * xAODTestReadHVec
-   o  ( 'DMTest::HVec' , 'StoreGateSvc+hview' )     required by Algorithm: 
-       * xAODTestReadHVec
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::C' , 'StoreGateSvc+cinfo' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadCInfo
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::C' , 'StoreGateSvc+copy_cinfo' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadCInfo_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVec' , 'StoreGateSvc+copy_ctrig' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestRead_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVec' , 'StoreGateSvc+copy_cvec' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadCVec_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVec' , 'StoreGateSvc+ctrig' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestRead
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVecWithData' , 'StoreGateSvc+copy_cvecWD' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestRead_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVecWithData' , 'StoreGateSvc+cvecWD' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestRead
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CView' , 'StoreGateSvc+copy_cview' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadCView_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CView' , 'StoreGateSvc+cview' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadCView
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::HVec' , 'StoreGateSvc+copy_hvec' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadHVec_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::HVec' , 'StoreGateSvc+copy_hview' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadHVec_copy
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::HVec' , 'StoreGateSvc+hvec' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadHVec
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::HVec' , 'StoreGateSvc+hview' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadHVec
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                                0    INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                                        0    INFO Concurrency level information:
