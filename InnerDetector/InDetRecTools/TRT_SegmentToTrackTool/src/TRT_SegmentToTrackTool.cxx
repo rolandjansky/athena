@@ -14,6 +14,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 //Scoring tool
 #include "TrkToolInterfaces/ITrackScoringTool.h"
+#include <cmath>
 
 using Amg::Vector3D;
 using CLHEP::mm;
@@ -254,7 +255,7 @@ namespace InDet {
         if (pseudo) {
           // get theta from pseudo measurements
           pseudotheta =
-            atan2(tS.measurement(it)->associatedSurface().center().perp(),
+            std::atan2(tS.measurement(it)->associatedSurface().center().perp(),
                   tS.measurement(it)->associatedSurface().center().z());
         }
         // keep this pseudo measurement
@@ -265,7 +266,7 @@ namespace InDet {
         if (m_doRefit) {
           // refit means we can simply copy the state, otherwise we skip it
           seg_tsos =
-            new Trk::TrackStateOnSurface(tS.measurement(it)->clone(), nullptr);
+            new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
         }
 
       } else {
@@ -274,7 +275,7 @@ namespace InDet {
         //
         // copy measurement
         seg_tsos =
-          new Trk::TrackStateOnSurface(tS.measurement(it)->clone(), nullptr);
+          new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
 
         //
         // --- following is for the hack below
@@ -289,7 +290,7 @@ namespace InDet {
         lastsurf = &tS.measurement(it)->associatedSurface();
 
         // this is a rubbish way to find out it is endcap
-        if (fabs(tS.measurement(it)
+        if (std::abs(tS.measurement(it)
                    ->associatedSurface()
                    .transform()
                    .rotation()
@@ -303,7 +304,7 @@ namespace InDet {
           double tmpphi =
             tS.measurement(it)->associatedSurface().center().phi();
           if (!points.empty() &&
-              fabs(tmpphi - oldphi) > M_PI) { // correct for boundary at +/- pi
+              std::abs(tmpphi - oldphi) > M_PI) { // correct for boundary at +/- pi
             if (tmpphi < 0)
               tmpphi += 2 * M_PI;
             else
@@ -358,7 +359,7 @@ namespace InDet {
         //
 
         // momentum
-        myqoverp = par[4] * sin(pseudotheta) / sin(par[3]);
+        myqoverp = par[4] * std::sin(pseudotheta) / std::sin(par[3]);
 
         // --- create surface at perigee
         Amg::Vector3D perigeePosition(0., 0., 0.);
@@ -405,27 +406,27 @@ namespace InDet {
           }
         }
 
-        if (fabs(pseudotheta) < 1.e-6) {
+        if (std::abs(pseudotheta) < 1.e-6) {
           ATH_MSG_DEBUG("pseudomeasurements missing on the segment?");
           const float Rinn = 644., Rout = 1004.;
           if (zmax * zmin > 0.) {
-            pseudotheta = atan2(Rout - Rinn, zmax - zmin);
+            pseudotheta = std::atan2(Rout - Rinn, zmax - zmin);
           } else if (std::abs(zmax * zmin) < 1.e-6) {
             if (std::abs(zmax) > 1.e-6) {
-              pseudotheta = atan2(Rout, zmax);
+              pseudotheta = std::atan2(Rout, zmax);
             } else {
               ATH_MSG_DEBUG("no points in endcap?");
             }
           } else {
-            pseudotheta = atan2(2. * Rout, zmax - zmin);
+            pseudotheta = std::atan2(2. * Rout, zmax - zmin);
           }
         }
 
         // get q/p
         d = (points.size() * sxx - sx * sx);
         double dphidz = ((points.size() * sxy - sy * sx) / d);
-        myqoverp = (fabs(pseudotheta) > 1e-6)
-                     ? -dphidz / (0.6 * tan(pseudotheta))
+        myqoverp = (std::abs(pseudotheta) > 1e-6)
+                     ? -dphidz / (0.6 * std::tan(pseudotheta))
                      : 1000.;
 
         // some geometry stuff to estimate further paramters...
@@ -449,15 +450,15 @@ namespace InDet {
         Amg::Vector3D pos2;
 
         // ME: this is hardcoding, not nice and should be fixed
-        if (fabs(lastsurf->center().z()) < 2650 * mm) {
+        if (std::abs(lastsurf->center().z()) < 2650 * mm) {
           pos2 = lastsurf->center() + halfz2 * strawdir2;
           if (nbarrel == 0) {
-            double dr = fabs(tan(pseudotheta) * (lastsurf->center().z() -
+            double dr = std::abs(std::tan(pseudotheta) * (lastsurf->center().z() -
                                                  firstsurf->center().z()));
             pos1 = firstsurf->center() + (halfz - dr) * strawdir1;
           } else {
-            double dz = fabs((pos2.perp() - firstsurf->center().perp()) /
-                             tan(pseudotheta));
+            double dz = std::abs((pos2.perp() - firstsurf->center().perp()) /
+                             std::tan(pseudotheta));
             if (pos2.z() > 0)
               dz = -dz;
             double z1 = pos2.z() + dz;
@@ -465,7 +466,7 @@ namespace InDet {
               firstsurf->center().x(), firstsurf->center().y(), z1);
           }
         } else {
-          double dr = fabs(tan(pseudotheta) *
+          double dr = std::abs(std::tan(pseudotheta) *
                            (lastsurf->center().z() - firstsurf->center().z()));
           pos2 = lastsurf->center() + (dr - halfz2) * strawdir2;
           pos1 = firstsurf->center() - halfz * strawdir1;
@@ -474,7 +475,7 @@ namespace InDet {
         // ME: I don't understand this yet, why is this done only if barrel ==
         // 0, while above this nendcap < 4 ?
         if (nbarrel == 0 &&
-            std::abs(tan(pseudotheta) * (firstsurf->center().z() -
+            std::abs(std::tan(pseudotheta) * (firstsurf->center().z() -
                                          lastsurf->center().z())) < 250 * mm &&
             std::abs(firstsurf->center().z()) > 1000 * mm) {
 
@@ -520,16 +521,16 @@ namespace InDet {
         field1 *= m_fieldUnitConversion; // field in Tesla
 
         double phideflection =
-          -.3 * (pos2 - pos1).perp() * field1.z() * myqoverp / sin(pseudotheta);
+          -.3 * (pos2 - pos1).perp() * field1.z() * myqoverp / std::sin(pseudotheta);
         double precisephi = (nbarrel == 0)
                               ? (pos2 - pos1).phi() - .5 * phideflection
                               : (pos2 - pos1).phi() + .5 * phideflection;
         double radius = (myqoverp != 0. && field1.z() != 0.)
-                          ? -sin(pseudotheta) / (.3 * field1.z() * myqoverp)
+                          ? -std::sin(pseudotheta) / (.3 * field1.z() * myqoverp)
                           : 1.e6;
         double precisetheta =
           (myqoverp != 0.)
-            ? atan2(std::abs(radius * phideflection), pos2.z() - pos1.z())
+            ? std::atan2(std::abs(radius * phideflection), pos2.z() - pos1.z())
             : pseudotheta;
         if (precisetheta < 0)
           precisetheta += M_PI;
@@ -566,12 +567,11 @@ namespace InDet {
 
           // construct theta again
           double z0 = extrappar->parameters()[Trk::z0];
-          // mytheta=extrappar->parameters()[Trk::theta];
           if (nbarrel == 0)
-            mytheta = atan(tan(extrappar->parameters()[Trk::theta]) *
+            mytheta = std::atan(std::tan(extrappar->parameters()[Trk::theta]) *
                            std::abs((z0 - pos1.z()) / pos1.z()));
           else
-            mytheta = atan(tan(extrappar->parameters()[Trk::theta]) *
+            mytheta = std::atan(std::tan(extrappar->parameters()[Trk::theta]) *
                            std::abs((z0 - pos2.z()) / pos2.z()));
 
           if (mytheta < 0)
@@ -604,13 +604,6 @@ namespace InDet {
       // ------------------------------------------------------- now refit the
       // track
       //
-
-      // ME: this is a hack and should be replaced
-
-      // Trk::ParticleSwitcher partSwitch;
-      // Trk::ParticleHypothesis partHypothesis =
-      // partSwitch.particle[m_matEffects]; Trk::Track* fitTrack =
-      // m_fitterTool->fit(*newTrack,true,partHypothesis);
 
       Trk::Track* fitTrack =
         m_fitterTool->fit(*newTrack, true, Trk::nonInteracting);
@@ -661,8 +654,8 @@ namespace InDet {
 	  // Modify first measurement so that it has reasonable errors on z and theta
 	  AmgSymMatrix(5) fcovmat = AmgSymMatrix(5)(*(firstmeaspar->covariance()));
 	  // factors by which we like to scale the cov, this takes the original segment errors into account
-	  double scaleZ     = sqrt(tS.localCovariance()(1,1))/sqrt( (fcovmat)(1,1));
-	  double scaleTheta = sqrt(tS.localCovariance()(3,3))/sqrt( (fcovmat)(3,3));
+	  double scaleZ     = std::sqrt(tS.localCovariance()(1,1))/std::sqrt( (fcovmat)(1,1));
+	  double scaleTheta = std::sqrt(tS.localCovariance()(3,3))/std::sqrt( (fcovmat)(3,3));
 	  // now do it
 	  fcovmat(1,0)=scaleZ*((fcovmat)(1,0));
 	  fcovmat(0,1) = (fcovmat)(1,0);
