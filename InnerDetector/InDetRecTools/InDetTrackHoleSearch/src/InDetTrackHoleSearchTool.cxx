@@ -718,7 +718,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) {
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Hole);
-  const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr,trackPar->clone(),nullptr,nullptr,typePattern);
+  const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr,trackPar->uniqueClone(),nullptr,nullptr,typePattern);
   return tsos;
 }
 
