@@ -53,8 +53,8 @@ def main():
   metadata['n_evts'] = normHist.GetBinContent(2)
   metadata['details'] = args.userDetails
 
-  HLTGlobalGroup = getGlobalGroup(inputFile, 'Main')
-  L1GlobalGroup = getGlobalGroup(inputFile, 'L1')
+  HLTGlobalGroup = getGlobalGroup(inputFile, 'RATE_GLOBAL_HLT')
+  L1GlobalGroup = getGlobalGroup(inputFile, 'RATE_GLOBAL_L1')
 
   L1Triggers = populateTriggers(inputFile, metadata, L1GlobalGroup, 'ChainL1')
   HLTTriggers = populateTriggers(inputFile, metadata, HLTGlobalGroup, 'ChainHLT')
@@ -63,9 +63,6 @@ def main():
   L1Table = getTableName("L1")
   HLTTable = getTableName("HLT")
   GroupTable = getTableName("Group")
-
-  L1Table = getTableName("L1")
-  HLTTable = getTableName("HLT")
 
   log.info("Exporting " + args.outputJSONFile)
   toJson(args.outputJSONFile, metadata, L1Triggers, HLTTriggers)
