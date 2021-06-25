@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 def LArRoIMapCfg( flags ):
     acc = ComponentAccumulator()
@@ -62,8 +63,7 @@ def CaloOffsetCorrectionCfg(flags):
     acc.getEventAlgo("CaloBCIDAvgAlg").MonTool = monTool
     return acc
 
-from functools import lru_cache
-@lru_cache(None)
+@AccumulatorCache
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()

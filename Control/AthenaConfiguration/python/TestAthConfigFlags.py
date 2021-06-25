@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 import unittest
 class TestFlagsSetup(unittest.TestCase):
@@ -156,30 +157,29 @@ class flagsFromArgsTest(unittest.TestCase):
 
 class TestHash(TestFlagsSetupDynamic):
     def runTest(self):
-        print("""... Check hash is handled properly """)
-        self.assertIsNone(self.flags._hash, "Hash is inititiated")
-        val1 = hash(self.flags)
-        self.assertIsNotNone(val1, "Hash is not calculated")
+        self.assertEqual(self.flags.locked() , False)
+        self.assertIsNone(self.flags.athHash())
+        self.flags.lock()
+        self.assertIsNotNone(self.flags.athHash())
+        self.assertEqual(self.flags.locked() , True)
 
-        self.flags.Atest = False       
-        self.assertIsNone(self.flags._hash, "Hash is not reset")
-        val2 = hash(self.flags)
-        self.assertIsNotNone(val2, "Hash is not calculated")
-        self.assertNotEqual(val1, val2, "Different values, same hash")
+        @AccumulatorCache
+        def testAthHash(flags , number , key = 123):
+            return number + key
 
-        self.flags.A.One = False
-        self.assertEqual(self.flags._hash, None, "Hash is not reset")
-        val3 = hash(self.flags)
-        self.assertIsNotNone(val3, "Hash is not calculated")
-        self.assertNotEqual(val2, val3, "Different values, same hash")
+        a = testAthHash(self.flags , 123 , key = 321)
+        b = testAthHash(self.flags , 321 , key = 123)
+        c = testAthHash(self.flags , 123 , key = 321)
+        d = testAthHash(self.flags , 321 , key = 123)
 
+        self.assertEqual(a , c)
+        self.assertEqual(b , d)
 
-        self.flags.Z.Xclone1.a = 20
-        self.assertEqual(self.flags._hash, None, "Hash is not reset")
-        val4 = hash(self.flags)
-        self.assertIsNotNone(val4, "Hash is not calculated")
-        self.assertNotEqual(val2, val4, "Different values, same hash")
-        
+        cacheInfo = testAthHash.getInfo()
+
+        self.assertEqual(cacheInfo["misses"] , 2)
+        self.assertEqual(cacheInfo["hits"] , 2)
+        self.assertEqual(cacheInfo["cache_size"] , 2)
 
 
 if __name__ == "__main__":

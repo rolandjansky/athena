@@ -8,9 +8,9 @@
 @brief Simple new configuration framework functions for getting the TrigDecisionTool. 
 Wrapping underling call in case any additional monitoring configuration is required in the future
 '''
-from PyUtils.Decorators import memoize
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-@memoize
+@AccumulatorCache
 def getTrigDecisionTool(flags):
     from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool as getTDT
     return getTDT(flags)

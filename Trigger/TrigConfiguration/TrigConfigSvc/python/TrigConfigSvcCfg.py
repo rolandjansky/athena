@@ -5,6 +5,7 @@ from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 import json
 
 log = logging.getLogger('TrigConfigSvcCfg')
@@ -181,7 +182,7 @@ def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
 
 
 # configuration of L1ConfigSvc
-@memoize
+@AccumulatorCache
 def getL1ConfigSvc( flags ):
     # generate menu file (this only happens if we read from FILE)
     generatedFile, generatedBgsFile = generateL1Menu( flags )
@@ -225,7 +226,7 @@ def getL1ConfigSvc( flags ):
 
 
 # configuration of HLTConfigSvc
-@memoize
+@AccumulatorCache
 def getHLTConfigSvc( flags ):
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure HLTConfigSvc" )
