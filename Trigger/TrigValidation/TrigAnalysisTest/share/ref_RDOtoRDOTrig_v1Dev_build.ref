@@ -259,7 +259,7 @@ HLT_2mu10_bJpsimumu_L12MU10:
     3: 1
   stepFeatures:
     0: 4
-    1: 4
+    1: 6
     2: 2
     3: 2
     4: 2
@@ -272,7 +272,7 @@ HLT_2mu10_bUpsimumu_L12MU10:
     3: 1
   stepFeatures:
     0: 4
-    1: 4
+    1: 6
     2: 2
     3: 2
     4: 2
@@ -342,67 +342,67 @@ HLT_2mu4_bBmumux_BcmumuPi_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
 HLT_2mu4_bBmumux_BdmumuKst_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
 HLT_2mu4_bBmumux_BpmumuKp_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
 HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
 HLT_2mu4_bBmumux_LbPqKm_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
 HLT_2mu4_bDimu_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
     3: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
     4: 2
@@ -410,12 +410,12 @@ HLT_2mu4_bJpsimumu_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
     3: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
     4: 2
@@ -423,12 +423,12 @@ HLT_2mu4_bUpsimumu_L12MU4:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
+    1: 1
     2: 1
     3: 1
   stepFeatures:
     0: 6
-    1: 6
+    1: 11
     2: 2
     3: 2
     4: 2
@@ -444,6 +444,74 @@ HLT_2mu4_muonqual_L12MU4:
     1: 6
     2: 4
     3: 4
+HLT_2mu4_noL2Comb_bBmumux_BcmumuPi_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+HLT_2mu4_noL2Comb_bBmumux_BdmumuKst_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+HLT_2mu4_noL2Comb_bBmumux_BpmumuKp_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+HLT_2mu4_noL2Comb_bBmumux_BsmumuPhi_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+HLT_2mu4_noL2Comb_bBmumux_LbPqKm_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+HLT_2mu4_noL2Comb_bJpsimumu_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+    3: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+    4: 2
 HLT_2mu50_msonly_L1MU20:
   eventCount: 0
   stepCounts:
@@ -482,21 +550,6 @@ HLT_2mu6_bJpsimumu_L12MU6:
   eventCount: 0
   stepCounts:
     0: 3
-    1: 2
-    2: 1
-    3: 1
-  stepFeatures:
-    0: 6
-    1: 6
-    2: 2
-    3: 2
-    4: 2
-HLT_2mu6_bJpsimumu_L1BPH-2M9-2DR15-2MU6:
-  eventCount: 0
-HLT_2mu6_bJpsimumul2io_L12MU6:
-  eventCount: 0
-  stepCounts:
-    0: 3
     1: 1
     2: 1
     3: 1
@@ -506,22 +559,20 @@ HLT_2mu6_bJpsimumul2io_L12MU6:
     2: 2
     3: 2
     4: 2
+HLT_2mu6_bJpsimumu_L1BPH-2M9-2DR15-2MU6:
+  eventCount: 0
 HLT_2mu6_bPhi_L1LFV-MU6:
   eventCount: 0
   stepCounts:
     0: 1
-    1: 1
   stepFeatures:
     0: 2
-    1: 2
 HLT_2mu6_bUpsimumu_L1BPH-8M15-0DR22-2MU6:
   eventCount: 0
   stepCounts:
     0: 1
-    1: 1
   stepFeatures:
     0: 2
-    1: 2
 HLT_2mu6_l2io_L12MU6:
   eventCount: 2
   stepCounts:
@@ -546,6 +597,19 @@ HLT_2mu6_muonqual_L12MU6:
     1: 4
     2: 4
     3: 4
+HLT_2mu6_noL2Comb_bJpsimumu_L12MU6:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 2
+    2: 1
+    3: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 2
+    3: 2
+    4: 2
 HLT_3j200_L1J100:
   eventCount: 0
 HLT_3j200_ftf_L1J100:
@@ -5677,8 +5741,7 @@ HLT_mu11_mu6_bBmumu_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5687,8 +5750,8 @@ HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6:
@@ -5698,8 +5761,8 @@ HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6:
     1: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
 HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU11_2MU6:
   eventCount: 0
@@ -5708,8 +5771,8 @@ HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU11_2MU6:
     1: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
 HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU11_2MU6:
   eventCount: 0
@@ -5718,8 +5781,8 @@ HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU11_2MU6:
     1: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
 HLT_mu11_mu6_bBmumux_BsmumuPhi_L1MU11_2MU6:
   eventCount: 0
@@ -5728,8 +5791,8 @@ HLT_mu11_mu6_bBmumux_BsmumuPhi_L1MU11_2MU6:
     1: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
 HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6:
   eventCount: 0
@@ -5738,8 +5801,8 @@ HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6:
     1: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
 HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
   eventCount: 0
@@ -5747,8 +5810,7 @@ HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5757,8 +5819,8 @@ HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu11_mu6_bDimu_L1LFV-MU11:
@@ -5767,8 +5829,7 @@ HLT_mu11_mu6_bDimu_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bDimu_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5777,8 +5838,8 @@ HLT_mu11_mu6_bDimu_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu11_mu6_bJpsimumu_L1LFV-MU11:
@@ -5787,8 +5848,7 @@ HLT_mu11_mu6_bJpsimumu_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5797,8 +5857,8 @@ HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu11_mu6_bPhi_L1LFV-MU11:
@@ -5807,8 +5867,7 @@ HLT_mu11_mu6_bPhi_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bPhi_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5817,8 +5876,8 @@ HLT_mu11_mu6_bPhi_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu11_mu6_bTau_L1LFV-MU11:
@@ -5827,8 +5886,7 @@ HLT_mu11_mu6_bTau_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bTau_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5837,8 +5895,8 @@ HLT_mu11_mu6_bTau_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu11_mu6_bUpsimumu_L1LFV-MU11:
@@ -5847,8 +5905,7 @@ HLT_mu11_mu6_bUpsimumu_L1LFV-MU11:
     0: 1
   stepFeatures:
     0: 5
-    1: 3
-    2: 2
+    1: 2
 HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6:
   eventCount: 0
   stepCounts:
@@ -5857,8 +5914,8 @@ HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6:
     2: 1
   stepFeatures:
     0: 13
-    1: 11
-    2: 6
+    1: 15
+    2: 4
     3: 4
     4: 4
 HLT_mu14_L1MU10:
@@ -6983,6 +7040,18 @@ HLT_mu6_mu6noL1_L1MU6:
     3: 13
     4: 11
     5: 6
+HLT_mu6_noL2Comb_mu4_noL2Comb_bJpsimumu_L1MU6_2MU4:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 14
+    1: 12
+    2: 6
+    3: 4
+    4: 4
 HLT_mu6_xe30_mht_L1XE30:
   eventCount: 7
   stepCounts:

@@ -820,7 +820,7 @@ def getInsideOutMuonChainNames():
     except Exception as e:
         log.debug(e)
     try:
-        chains += [chain.name for chain in bphysSlice if "l2io" in chain.name]
+        chains += [chain.name for chain in bphysSlice if "noL2Comb" not in chain.name]
     except Exception as e:
         log.debug(e)
 

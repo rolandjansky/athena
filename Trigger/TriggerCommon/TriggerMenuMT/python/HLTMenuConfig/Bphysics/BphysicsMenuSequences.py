@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def bmumuxAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from DecisionHandling.DecisionHandlingConf import  ViewCreatorCentredOnIParticleROITool
-    
+
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDConfig = getInDetTrigConfig( "bphysics" )
 
@@ -64,7 +64,7 @@ def dimuL2Sequence():
 
     hypo = TrigBphysStreamerHypo(
         name = 'DimuL2StreamerHypoAlg',
-        triggerList = getDefaultChainNames(),
+        triggerList = getNoL2CombChainNames(),
         triggerLevel = 'L2')
 
     return MenuSequence(
@@ -96,12 +96,12 @@ def dimuEFSequence():
         HypoToolGen = TrigBphysStreamerHypoToolFromDict)
 
 
-def getDefaultChainNames():
+def getNoL2CombChainNames():
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     bphysSlice = TriggerFlags.BphysicsSlice.signatures()
     chains = []
     if bphysSlice:
         for chain in bphysSlice:
-            if any(x in chain.name for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']) and 'l2io' not in chain.name:
+            if 'noL2Comb' in chain.name:
                 chains.append(chain.name)
     return chains
