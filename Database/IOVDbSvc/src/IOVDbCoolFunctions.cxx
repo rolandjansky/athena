@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //@file IOVDbCoolFunctions.cxx
 //@author Shaun Roe
@@ -22,7 +22,7 @@
 #include <stdexcept>
 
 namespace{
-  std::unordered_map<std::type_index, std::function<int(const coral::Attribute &)>> 
+  const std::unordered_map<std::type_index, std::function<int(const coral::Attribute &)>>
   sizeFunctions{
     {std::type_index(typeid(bool)), [](const coral::Attribute & /*attr*/)->int { return 1; } },
     {std::type_index(typeid(unsigned char)), [](const coral::Attribute & /*attr*/)->int { return 1; } },
