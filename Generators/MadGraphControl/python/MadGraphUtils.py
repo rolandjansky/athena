@@ -1962,9 +1962,9 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
         mglog.info('Using input param card at '+param_card_input)
 
     #ensure all blocknames and paramnames are upper case
-    for blockName in params:
+    for blockName in list(params.keys()):
        params[blockName.upper()] = params.pop(blockName)
-       for paramName in params[blockName.upper()]:
+       for paramName in list(params[blockName.upper()].keys()):
           params[blockName.upper()][paramName.upper()] = params[blockName.upper()].pop(paramName)
 
     if param_card_backup is not None:
@@ -2094,7 +2094,7 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     Settings is a dictionary of keys (no spaces needed) and values to replace.
     """
     # Operate on lower case settings, and choose the capitalization MG5 has as the default (or all lower case)
-    for s in settings.keys():
+    for s in list(settings.keys()):
         if s.lower() not in settings:
             settings[s.lower()] = settings[s]
             del settings[s]
