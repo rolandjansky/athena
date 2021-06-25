@@ -779,7 +779,14 @@ def setupMenu():
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
         #ATR-21003
-        ChainProp(name='HLT_2mu6_bJpsimumul2io_L12MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_noL2Comb_bJpsimumu_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_noL2Comb_mu4_noL2Comb_bJpsimumu_L1MU6_2MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu6_noL2Comb_bJpsimumu_L12MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_BpmumuKp_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_BcmumuPi_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_BsmumuPhi_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_BdmumuKst_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_LbPqKm_L12MU4', groups=BphysicsGroup),
         #ATR-23576
         ChainProp(name='HLT_2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4', l1SeedThresholds=['MU4'], groups=PrimaryL1MuGroup+BphysicsGroup),
         ChainProp(name='HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU6MU4', l1SeedThresholds=['MU6','MU4'], groups=PrimaryL1MuGroup+BphysicsGroup),

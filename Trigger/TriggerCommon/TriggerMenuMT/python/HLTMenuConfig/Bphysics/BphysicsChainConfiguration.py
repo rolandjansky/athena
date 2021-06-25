@@ -65,7 +65,6 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
         stepDictionary = {
             'dimu'   : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
-            'bl2io'  : [['getmuFast', 'getDimuL2IO'], ['getmuEFSA', 'getmuEFCB', 'getDimuEF']],
             'bmumux' : [['getmuFast', 'getDimuL2'], ['getmuEFSA', 'getDimuEFCB', 'getBmumux']],
         }
         return stepDictionary
@@ -85,17 +84,16 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu6000' : 'dimu',
             'bPhi'      : 'dimu',
             'bTau'      : 'dimu',
-            'bJpsimumul2io' : 'bl2io',
             'bBmumux'   : 'bmumux'
         }
 
         return topo_dict[the_topo]
 
     def getDimuL2(self):
-        return self.getStep(2, 'dimuL2', [dimuL2SequenceCfg], comboHypoCfg=StreamerDimuL2ComboHypoCfg)
-
-    def getDimuL2IO(self):
-        return self.getStep(2, 'dimuL2IO', [mul2IOOvlpRmSequenceCfg], comboHypoCfg=StreamerDimuL2IOComboHypoCfg)
+        if 'noL2Comb' in self.chainPart['extra']:
+            return self.getStep(2, 'dimuL2', [dimuL2SequenceCfg], comboHypoCfg=StreamerDimuL2ComboHypoCfg)
+        else:
+            return self.getStep(2, 'dimuL2IO', [mul2IOOvlpRmSequenceCfg], comboHypoCfg=StreamerDimuL2IOComboHypoCfg)
 
     def getDimuEF(self):
         return self.getStep(5, 'dimuEF', [dimuEFSequenceCfg], comboHypoCfg=DimuEFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
