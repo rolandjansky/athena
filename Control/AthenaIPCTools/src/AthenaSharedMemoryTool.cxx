@@ -27,6 +27,7 @@ struct ShareEventHeader {
    std::size_t evtCursor;
    unsigned int evtCoreStatusFlag;
    char token[maxTokenLength];
+   char streamPort[maxTokenLength];
 };
 
 //___________________________________________________________________________
@@ -118,11 +119,12 @@ StatusCode AthenaSharedMemoryTool::makeServer(int num, const std::string& stream
    shm.truncate(m_maxSize + m_maxDataClients * sizeof(ShareEventHeader));
    m_payload = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, 0, m_maxSize);
    m_status = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, m_maxSize, num * sizeof(ShareEventHeader));
-   ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "" };
+   ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "", "" };
+   std::memcpy(evtH.streamPort, streamPortSuffix.c_str(), maxTokenLength - 1);
+   evtH.streamPort[maxTokenLength - 1] = 0;
    for (int i = 0; i < num; i++) {
       std::memcpy(static_cast<char*>(m_status->get_address()) + i * sizeof(ShareEventHeader), &evtH, sizeof(ShareEventHeader));
    }
-   std::memcpy(static_cast<char*>(m_payload->get_address()), streamPortSuffix.c_str(), 63);
    return(StatusCode::SUCCESS);
 }
 
@@ -172,13 +174,11 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num, std::string& streamPortSu
       while (lockObject("start").isRecoverable()) {
          usleep(100);
       }
-      char text[64];
-      std::memcpy(text, static_cast<char*>(m_payload->get_address()), 63);
-      streamPortSuffix.assign(text);
       ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
       while (evtH->evtProcessStatus != ShareEventHeader::UNLOCKED) {
          usleep(100);
       }
+      streamPortSuffix.assign(evtH->streamPort);
       m_num = num;
    }
    return(StatusCode::SUCCESS);
