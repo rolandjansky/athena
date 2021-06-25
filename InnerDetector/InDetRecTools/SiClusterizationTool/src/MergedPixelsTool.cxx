@@ -114,8 +114,9 @@ namespace InDet {
       bool hasGanged = false;  
       for (; rdosBegin!= rdosEnd; ++rdosBegin) {
         // compute cluster lvl1
+        
         if ( (*lvl1) < lvl1min ) lvl1min=(*lvl1);
-        lvl1++;
+        ++lvl1;
         // process identifier
         const Identifier rId =  *rdosBegin;
         const int row = pixelID.phi_index(rId);
@@ -153,7 +154,7 @@ namespace InDet {
           colMax = col;
           qColMax = realtot;
         }
-        tot++;
+        ++tot;
       }
       
       const int numberOfPixels = group.size();
@@ -197,8 +198,8 @@ namespace InDet {
           deltay = sensorThickness*std::abs(globalPos.z())/globalPos.perp();
           if(deltay > (design->etaPitch()) ) deltay = design->etaPitch();
         } else {
-          deltax = 10*micrometer*sqrt(sensorThickness/(250*micrometer));
-          deltay = 10*micrometer*sqrt(sensorThickness/(250*micrometer));
+          deltax = 10*micrometer*std::sqrt(sensorThickness/(250*micrometer));
+          deltay = 10*micrometer*std::sqrt(sensorThickness/(250*micrometer));
         }
         InDetDD::SiLocalPosition pos1 = design->positionFromColumnRow(colMin,rowMin);
         InDetDD::SiLocalPosition pos2 = design->positionFromColumnRow(colMax,rowMin);

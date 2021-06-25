@@ -35,7 +35,6 @@ StatusCode InDet::TotPixelClusterSplitter::finalize() {
 std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitCluster( const InDet::PixelCluster & OrigCluster) const {
 
   std::vector<InDet::PixelClusterParts> Parts;
-//  ATH_MSG_INFO("splitCluster() called!");
 
   const std::vector<Identifier> & Rdos = OrigCluster.rdoList();
   const unsigned int NumPixels = static_cast<unsigned int>(Rdos.size());
@@ -55,18 +54,6 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   for (unsigned int i = 0; i < NumPixels; i++)
   {
     CellIds[i] = Element->cellIdFromIdentifier(Rdos[i]);
-/*
-    int PixType = pixelType(CellIds[i].phiIndex(), CellIds[i].etaIndex());
-    if (PixType != 0)
-    {
-      if (PixType == 1 && m_doLongPixels);
-      else
-      {
-         delete CellIds;
-         return Parts;
-      }
-    }
-*/
   }
 
   // Determine maximum and minimum phi and eta indices.
@@ -207,6 +194,8 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
   if (!pixelIDp){
     ATH_MSG_ERROR("Could not get PixelID pointer");
+    delete [] CellIds;
+    return Parts;
   } 
   const PixelID& pixelID = *pixelIDp;
 
