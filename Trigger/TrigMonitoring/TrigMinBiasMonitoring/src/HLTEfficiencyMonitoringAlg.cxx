@@ -18,6 +18,9 @@ StatusCode HLTEfficiencyMonitoringAlg::initialize()
   ATH_CHECK(m_refTriggerList.size() == m_triggerList.size());
   std::set<std::string> temp( m_triggerList.begin(), m_triggerList.end());
   m_uniqueTriggerList.insert(m_uniqueTriggerList.end(), temp.begin(), temp.end());
+
+  ATH_CHECK(m_trackSelectionTool.retrieve());
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -32,22 +35,7 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext &contex
 
   const auto &trigDecTool = getTrigDecisionTool();
 
-  auto trkCountsHandle = SG::makeHandle(m_trkCountsKey, context);
-  if (!trkCountsHandle.isValid())
-  {
-    ATH_MSG_DEBUG("Could not retrieve track counts");
-    return StatusCode::SUCCESS;
-  }
-
-  if (trkCountsHandle->size() == 0)
-  { // trigger did not run, no monitoring
-    return StatusCode::SUCCESS;
-  }
-  ATH_CHECK(trkCountsHandle->size() == 1); // if object is present then it should have size == 1
-  ATH_CHECK(m_trackSelectionTool.retrieve());
-
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
-
   int countPassing = 0;
   for (const auto trk : *offlineTrkHandle)
   {
@@ -59,10 +47,12 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext &contex
 
   for (auto &ref: m_refTriggerList)
   {
+    auto trig = m_triggerList[&ref - &m_refTriggerList[0]];   
+    ATH_MSG_DEBUG("checking "<<trig<<" vs "<< ref);
+
     if (trigDecTool->isPassed(ref, TrigDefs::requireDecision))
     {
-      auto trig = m_triggerList[&ref - &m_refTriggerList[0]];   
-      ATH_MSG_DEBUG("::monitorTrigEff "<<trig<<" vs "<< ref);
+      ATH_MSG_DEBUG("ref passed for "<<trig<<" vs "<< ref);
       auto decision = trigDecTool->isPassed(trig, TrigDefs::requireDecision) and (nTrkOffline > 0);
       auto effPassed = Scalar<int>("EffPassed", decision ? 1 : 0);
       const unsigned int passBits = trigDecTool->isPassedBits(trig);
