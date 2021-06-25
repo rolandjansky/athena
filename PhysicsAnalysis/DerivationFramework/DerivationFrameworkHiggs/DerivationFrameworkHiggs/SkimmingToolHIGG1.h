@@ -178,7 +178,6 @@ namespace DerivationFramework {
       mutable std::vector<const xAOD::Photon*> m_e_leadingPhotons;
 
 
-      mutable bool m_e_tot;
       mutable bool m_e_passGRL;
       mutable bool m_e_passLArError;
       mutable bool m_e_passTrigger;
@@ -190,14 +189,12 @@ namespace DerivationFramework {
       mutable bool m_e_passQuality;
       mutable bool m_e_passIsolation;
       mutable bool m_e_passInvariantMass;
-      mutable bool m_e_pass;
 
       mutable int    m_ph_pos_lead, m_ph_pos_subl;
       mutable double m_ph_pt_lead, m_ph_eta_lead, m_ph_phi_lead, m_ph_e_lead;
       mutable double m_ph_pt_subl, m_ph_eta_subl, m_ph_phi_subl, m_ph_e_subl;
 
       mutable int    m_ph_tight_lead, m_ph_tight_subl;
-      mutable int    m_ph_iso_lead, m_ph_iso_subl;
 
       mutable double m_e_invariantMass;
       mutable double m_e_diphotonZ;

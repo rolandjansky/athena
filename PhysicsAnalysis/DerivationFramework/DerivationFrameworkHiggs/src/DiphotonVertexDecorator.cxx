@@ -138,7 +138,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
         yyvx->setVertexType( xAOD::VxType::PileUp );
       }
       //decorate score
-      for (const auto vxR: vxResult) {
+      for (const auto& vxR: vxResult) {
         //find vertex in output from photonVertexSelectionTool
         if ( vx == vxR.first ) {
           yyvx->auxdata<float>("vertexScore") = vxR.second;
