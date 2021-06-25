@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,50 +23,34 @@
 **/
 
 #include "AthenaBaseComps/AthAlgorithm.h" 
-#include "GaudiKernel/IIncidentListener.h" 
 #include "AthenaKernel/IOVSvcDefs.h"
 
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArCalibLineMapping.h"
 #include "LArRecConditions/LArFebRodMapping.h"
-
-#include "LArElecCalib/ILArShape.h" 
-#include "LArElecCalib/ILArNoise.h" 
-#include "LArElecCalib/ILArRamp.h" 
-#include "LArElecCalib/ILArDAC2uA.h" 
-#include "LArElecCalib/ILAruA2MeV.h" 
-#include "LArElecCalib/ILArAutoCorr.h" 
-#include "LArElecCalib/ILArPedestal.h" 
-#include "LArElecCalib/ILArfSampl.h" 
-#include "LArElecCalib/ILArMinBias.h" 
-
 #include "LArConditionsTest/LArRampPTmp.h" 
 
 
 class LArOnlineID; 
 class GenericDbTable; 
 class LArRampMC;
-class LArCablingLegacyService;
 
-class LArConditionsTestAlg : public AthAlgorithm, public IIncidentListener 
+class LArConditionsTestAlg : public AthAlgorithm
 {
 
 public:
 
 
     LArConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~LArConditionsTestAlg();
+    virtual ~LArConditionsTestAlg();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
     StatusCode testCallBack1(IOVSVC_CALLBACK_ARGS ) ; 
     StatusCode testCallBack2(IOVSVC_CALLBACK_ARGS ) ; 
-
-    virtual void handle(const Incident&) ;
 
 private:
 
@@ -83,25 +67,10 @@ private:
     StatusCode testDCS_Objects() ; 
     void printTable( const GenericDbTable* t) ;
 
-    // DataHandle
-    // const DataHandle<ExampleData> m_example; 
-
-    // Handles to interfaces
-    const DataHandle<ILArNoise>    m_noise; 
-    const DataHandle<ILArRamp>     m_ramp; 
-    const DataHandle<ILArDAC2uA>   m_DAC2uA; 
-    const DataHandle<ILAruA2MeV>   m_uA2MeV; 
-    const DataHandle<ILArAutoCorr> m_autoCorr; 
-    const DataHandle<ILArShape>    m_shape; 
-    const DataHandle<ILArPedestal> m_pedestal; 
-    const DataHandle<ILArfSampl>   m_fSampl; 
-    const DataHandle<ILArMinBias>  m_minBias; 
-
     // Cache of compare data
     std::vector<LArRampPTmp>          m_rampCache;
     std::vector<LArRampPTmp>          m_rampCorrections;
 
-    const LArCablingLegacyService * m_cablingSvc;
     const LArOnlineID* m_onlineID; 
     BooleanProperty    m_testFill; 
     BooleanProperty    m_testCondObjs; 
@@ -111,9 +80,7 @@ private:
     BooleanProperty    m_applyCorrections;
     BooleanProperty    m_testReadDB; 
     BooleanProperty    m_TB; 
-    BooleanProperty    m_testMC; 
-    int                m_tbin ; 
-
+    int                m_tbin ;
 };
 #endif // LARIOV_LARCONDITIONSTESTALG_H
 
