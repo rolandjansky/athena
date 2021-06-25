@@ -37,7 +37,8 @@ auto intAccessors = initAccessors<int>(
   "pixCL", "pixCL_1", "pixCL_2", "pixCLmin3", "pixCLBarrel", "pixCLEndcapA", "pixCLEndcapC",
   "nCells",
   "sctSP", "sctSPBarrel", "sctSPEndcapA", "sctSPEndcapC",
-  "hit_iblovfl", "hit_loc", "hit_trkid", "hit_layer", "trk_id", "trk_dedx_n_usedhits", "trk_n_hdedx_hits");
+  "hit_iblovfl", "hit_loc", "hit_trkid", "hit_layer", "trk_id", "trk_dedx_n_usedhits", "trk_n_hdedx_hits", 
+  "zfinder_tool");
 
 auto int16Accessors = initAccessors<int16_t>("view");
 

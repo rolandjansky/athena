@@ -684,7 +684,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigT2MbtsBitsAuxContainer#HLT_MbtsBitsContainerAux.',          'BS ESD AODFULL', 'MinBias'),
 
     ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight.zfinder_tool', 'BS ESD AODFULL', 'MinBias'),
 
     ('xAOD::AFPTrackContainer#HLT_AFPTrackContainer', 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::AFPTrackAuxContainer#HLT_AFPTrackContainerAux.', 'BS ESD AODFULL', 'MinBias'),
