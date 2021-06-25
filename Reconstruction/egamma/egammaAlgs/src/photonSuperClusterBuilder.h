@@ -37,7 +37,7 @@
  *  (default=PhotonSuperClusters): collection of clusters (the supercluster)
  *
  * The loop is on the clusters of the EgammaRec objects from the input container. Fist, the first
- * cluster is considered as a seed.. The cluster seed must pass some selection:
+ * cluster is considered as a seed. The cluster seed must pass some selection:
  * - having a second sampling with |eta| not larger than 10
  * - pT (from the sum of the three accordion layer) not below
  *  \ref egammaSuperClusterBuilder.m_EtThresholdCut "EtThresholdCut"

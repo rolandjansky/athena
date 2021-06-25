@@ -44,7 +44,7 @@
   - Output container xAOD::TrackParticleContainer: OutputTrkPartContainerName
 
   The heavy work is done directly inside the algorithm, without the usage of
-  a particular external tool (see selectTrack private method).
+  any particular external tool (see selectTrack private method).
 
   */
 class egammaSelectedTrackCopy : public AthReentrantAlgorithm

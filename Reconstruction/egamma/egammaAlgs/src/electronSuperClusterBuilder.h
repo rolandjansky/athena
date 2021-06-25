@@ -33,7 +33,7 @@
  *  (default=ElectronSuperRecCollection): collection of EgammaRec objects with the cluster set to
  *  be the supercluster
  * - \ref electronSuperClusterBuilder.m_outputElectronSuperClustersKey "SuperClusterCollectionName"
- * (default=PhotonSuperClusters): collection of clusters (the supercluster)
+ * (default=ElectronSuperClusters): collection of clusters (the supercluster)
  *
  * The loop is on the clusters of the EgammaRec objects from the input container. Fist, the first
  * cluster is considered as a seed. The cluster seed must pass some selection:
