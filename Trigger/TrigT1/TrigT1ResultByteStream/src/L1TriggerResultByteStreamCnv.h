@@ -45,11 +45,11 @@ public:
 
 private:
   /// Helper to obtain the RawEvent pointer
-  ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
+  ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess{"ByteStreamCnvSvc", "L1TriggerResultByteStreamCnv"};
 
   // Tools performing the decoding work - *public* tools hard-coded in C++ because of Converter interface limitations
   /// Encoder tool for L1Muon RoIs
-  ToolHandle<IL1TriggerByteStreamTool> m_muonEncoderTool;
+  ToolHandle<IL1TriggerByteStreamTool> m_muonEncoderTool{"MuonRoIByteStreamTool/L1MuonBSEncoderTool"};
   // Placeholder for other L1 xAOD outputs:
   // - CTP result
   // - L1Topo result
