@@ -100,17 +100,17 @@ void PixelGangedAmbiguitiesFinder::execute(
 
       std::vector<Identifier>::const_iterator rdo=RDOs.begin();
       std::vector<Identifier>::const_iterator rdoend=RDOs.end();      
-      for( ; rdo < rdoend; rdo++){
+      for( ; rdo != rdoend; ++rdo){
         Identifier gangedID;
         bool ganged = isGanged(*rdo,element,gangedID);
         if(ganged){
-	  hasGanged = true;
+          hasGanged = true;
           gangedPixels.push_back(gangedID);
-	}
+	      }
         int thiscol=pixelID->eta_index(*rdo);
         if (thiscol<cmin1) cmin1=thiscol;
-	int thisrow=pixelID->phi_index(*rdo);
-	if (thisrow<rmin1) rmin1=thisrow;
+        int thisrow=pixelID->phi_index(*rdo);
+        if (thisrow<rmin1) rmin1=thisrow;
 
       }
       
@@ -134,10 +134,10 @@ void PixelGangedAmbiguitiesFinder::execute(
 	  const std::vector<Identifier>& rdos2 = (*cluster2)->rdoList();
 	  std::vector<Identifier>::const_iterator rdo2=rdos2.begin();
 	  std::vector<Identifier>::const_iterator rdo2end=rdos2.end();
-	  for( ; rdo2!=rdo2end; rdo2++) {
+	  for( ; rdo2!=rdo2end; ++rdo2) {
             if (!sharedGanged) {
 	    for( std::vector<Identifier>::const_iterator gangedRDOs=gangedPixelsBegin;
-		 gangedRDOs < gangedPixelsEnd; gangedRDOs++ ){
+		 gangedRDOs < gangedPixelsEnd; ++gangedRDOs ){
 	      if(*rdo2 == *gangedRDOs){
 		sharedGanged = true;
 		break;
@@ -187,7 +187,7 @@ void PixelGangedAmbiguitiesFinder::execute(
               if (cmin1==cmin2){
                 rdo=RDOs.begin();
                 std::vector<std::vector<int> > myvec(dcol1);
-                for( ; rdo < rdoend; rdo++){
+                for( ; rdo != rdoend; ++rdo){
                   int row=pixelID->phi_index(*rdo);
                   int col=pixelID->eta_index(*rdo);
                   myvec[col-cmin1].push_back(row);
@@ -195,7 +195,7 @@ void PixelGangedAmbiguitiesFinder::execute(
                 rdo=rdos2.begin();
                 int dcol2=lrint((**cluster2).width().colRow().y() );
                 std::vector<std::vector<int> > myvec2(dcol2);
-                for( ; rdo < rdo2end; rdo++){
+                for( ; rdo != rdo2end; ++rdo){
                   int row=pixelID->phi_index(*rdo);
                   int col=pixelID->eta_index(*rdo);
                   myvec2[col-cmin2].push_back(row);

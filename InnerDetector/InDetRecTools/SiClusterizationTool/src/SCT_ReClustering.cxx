@@ -24,7 +24,6 @@ SCT_ReClustering::SCT_ReClustering()
 std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<std::vector<Identifier> > &idGroups, const SCT_ID& sctID)
 {
 
-  //std::cout << "Running the reclustering method" << std::endl;
 
   /*
     From SCT_ClusteringTool we have a matrix of identifiers - hits on 
@@ -54,7 +53,6 @@ std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<st
     std::vector<Identifier>::iterator fst = (*firstGroup).begin();
     std::vector<Identifier>::iterator lst = (*firstGroup).end();
     std::vector<Identifier>::iterator prt;
-    //std::cout << "Strip summary " << sctID.strip(*fst) << std::endl;
     int prev = sctID.strip(*fst);
 
     //ONE/3 Store an iterator pointing to 1st strip
@@ -63,9 +61,8 @@ std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<st
     
     //now look at rest of strips
     prt=fst;
-    fst++;
+    ++fst;
     for (; fst!=lst; ++fst){
-      //std::cout << "Strip summary cont." << sctID.strip(*fst) << std::endl;
       int current = sctID.strip(*fst);
 
       //**CHECK STRIPS ARE CONSECUTIVE**
@@ -74,7 +71,6 @@ std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<st
       if (current != prev +1) {
 	discontV.push_back(prt);
 	discontV.push_back(fst);
-	//std::cout << "start and stop of bad strips " << (sctID.strip(*prt)) << (sctID.strip(*fst)) << std::endl;
 	prt=fst;
       }
       prev=current;
