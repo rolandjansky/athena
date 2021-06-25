@@ -127,7 +127,7 @@ void jSuperCellTowerMapper::reset(){
     int pos_neg = idHelper->pos_neg(ID); // corresponds to 'barrel_ec' for LArEM
     int eta_index = idHelper->eta(ID);
     const int phi_index = idHelper->phi(ID);
-    float et = (cell)->energy();
+    float et = (cell)->energy()/cosh((cell)->eta());
     int prov = (cell)->provenance();
     
     /*
