@@ -91,7 +91,6 @@ class MdtAmtMap {
   uint8_t m_mezType;
 
   const MdtIdHelper* m_mdtIdHelper;
-  bool m_debug;
 };
 
 #endif   // MUONMDT_CABLING_MDTAMTMAP_H
