@@ -12,13 +12,17 @@
  * - nothrow_move_assignable
  * - is_destructible
  */
-
+#undef NDEBUG
 #include "AthContainers/DataVector.h"
+#include <cstdlib> //rand
+#include "TestTools/leakcheck.h"
+#include <iostream>
 struct apple
 {
   int size = 0;
   int colour = 0;
 };
+constexpr size_t bushel{20};
 
 using apples = DataVector<const apple>;
 
@@ -38,9 +42,40 @@ struct applePie
                 "DataVector fails is_destructible");
 };
 
+void fillWithApples(apples & appleDataVec){
+  for (size_t i{0};i!=bushel;++i){
+    const apple * newApple = new apple{rand() % 20, rand() % 20};
+    appleDataVec.push_back(newApple);
+  }
+}
+
 int
 main()
 {
   [[maybe_unused]] applePie myPie;
+  
+  { //straight assignment, both vectors prefilled
+    Athena_test::Leakcheck check;
+    apples braeburn;
+    apples jonagold;
+    fillWithApples(braeburn);
+    fillWithApples(jonagold);
+    braeburn=jonagold;
+  }
+  { //move-assigned from filled DV to empty DV
+    Athena_test::Leakcheck check2;
+    apples braeburn;
+    apples jonagold;
+    fillWithApples(braeburn);
+    jonagold=std::move(braeburn);
+  }
+  { //move-assigned from filled DV to filled DV
+    Athena_test::Leakcheck check3;
+    apples braeburn;
+    apples jonagold;
+    fillWithApples(braeburn);
+    fillWithApples(jonagold);
+    jonagold=std::move(braeburn);
+  }
   return 0;
 }
