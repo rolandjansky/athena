@@ -459,7 +459,8 @@ namespace top {
 	= setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
 				    jetCalibrationNameLargeR, MC_type, JERisMC,
 				    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config", nullptr, "", calibArea);
-      m_FFJetSmearingTool = setupFFJetSmearingTool(calibChoice,configDir + "/R10_" + largeRJMR_unc_config + ".config"); 
+      if (!m_config->isSystNominal(m_config->systematics()))
+        m_FFJetSmearingTool = setupFFJetSmearingTool(calibChoice,configDir + "/R10_" + largeRJMR_unc_config + ".config");
     }
 
     return StatusCode::SUCCESS;
