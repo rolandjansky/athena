@@ -2,7 +2,12 @@
 
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from IDScanZFinder.IDScanZFinderConf import TrigZFinderAlg
-MinBiasZFinderAlg = TrigZFinderAlg("TrigZFinderAlg", zFinderKey=recordable("HLT_vtx_z"))
+from IDScanZFinder.IDScanZFinderConf import TrigZFinder
+
+MinBiasZFinderAlg = TrigZFinderAlg("TrigZFinderAlg", vertexKey=recordable("HLT_vtx_z"))
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("default")]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike", TripletMode=1, TripletDZ=1, PhiBinSize=0.1, UseOnlyPixels=True, MaxLayer=3)]
+
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 monTool = GenericMonitoringTool('MonTool')

@@ -41,10 +41,10 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  ToolHandle<TrigZFinder> m_zFinderTool{this, "ZFinderTool", "TrigZFinder/TrigZFinder"};
+  ToolHandleArray<TrigZFinder> m_zFinderTools{this, "ZFinderTools", {"TrigZFinder/TrigZFinder"}};
   SG::ReadHandleKey<SpacePointContainer> m_pixelSpKey{this, "PixelSpKey", "PixelTrigSpacePoints", " "};
   SG::ReadHandleKey<PixelID> m_pixelHelperKey{this, "pixelHelperKey", "DetectorStore+PixelID", " "};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_zFinderKey{this, "zFinderKey", "Undefined", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_vertexKey{this, "vertexKey", "Undefined", ""};
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
   
 };
