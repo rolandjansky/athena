@@ -2,6 +2,11 @@
 #
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
+# Output file can be checked (and navigation graphs converted using):
+#  
+# athena TrigNavTools/navGraphDump.py
+# see there for more info
+
 
 if __name__=='__main__':
     import sys

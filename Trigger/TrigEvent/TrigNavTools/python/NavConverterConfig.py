@@ -16,7 +16,6 @@ def createNavConverterAlg():
     cnvAlg.TrigNavReadKey = ""
 
     cnvAlg.TrigNavWriteKey = "HLTNav_R2ToR3"
-    cnvAlg.TrigSummaryWriteKey = "HLTNav_R2ToR3Summary"
     return cnvAlg
 
 
