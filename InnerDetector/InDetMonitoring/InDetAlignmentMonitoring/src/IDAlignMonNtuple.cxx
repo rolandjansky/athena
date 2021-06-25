@@ -9,9 +9,7 @@
 
 #include "IDAlignMonNtuple.h"
 
-#include "TMath.h"
-#include <cmath>
-#include <sstream>
+
 
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -37,7 +35,7 @@
 #include "TrkSurfaces/Surface.h"
 
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-
+#include <cmath>
 static const int s_n_maxTracks = 1500;
 static const int s_n_maxHits      = 3000;
 static const int s_n_maxEventHits = 50000;
@@ -57,7 +55,9 @@ IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string 
    m_ntupleSvc(nullptr),
    m_ntuple(nullptr)
 {
+  // cppcheck-suppress useInitializationList
   m_truthToTrack = ToolHandle<Trk::ITruthToTrack>("Trk::TruthToTrack/InDetTruthToTrack");
+  // cppcheck-suppress useInitializationList
   m_residualPullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
 
   declareProperty("CheckRate",m_checkrate=1000);
@@ -102,14 +102,10 @@ StatusCode IDAlignMonNtuple::bookHistograms()
 {
   StatusCode sc;
 
-  //if ( newLowStatFlag() ) {    }
-  //if ( newLumiBlockFlag() ) {  }
   if ( newRunFlag() ) {  }
 
   std::string directoryStructure = "/NTUPLES/ALIGNMONITOR";
-  //std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/Alignment/tree";
   std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/" + m_tracksName.key() + "/tree";
-  //NTupleFilePtr file( m_ntupleSvc, directoryStructure );
   NTuplePtr nt(m_ntupleSvc, fullNtuplePath );
 
   //booking m_ntuple
@@ -278,8 +274,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
   TrackCollection::const_iterator trackItr  = tracks->begin();
   TrackCollection::const_iterator trackItrE = tracks->end();
-  //Rec::TrackParticleContainer::const_iterator trackItr  = tracks->begin();
-  //Rec::TrackParticleContainer::const_iterator trackItrE = tracks->end();
+
   for (; trackItr != trackItrE && nTracks < s_n_maxTracks; ++trackItr) { //looping over tracks
 
 
@@ -685,10 +680,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 StatusCode IDAlignMonNtuple::procHistograms()
 {
 
-  //if( endOfLowStatFlag() ) {  }
-  //if( endOfLumiBlockFlag() ) {  }
-  //if( endOfRunFlag() ) {}
-
+ 
   return StatusCode::SUCCESS;
 }
 
@@ -768,7 +760,6 @@ StatusCode  IDAlignMonNtuple::getSiResiduals(const Trk::Track* track, const Trk:
   // for SCT modules the residual pull calculator only finds the (rotated) Rphi residual
   // for each of the SCT sides; residualPull->dimension()==1 always.
 
-  //std::pair <double, double> result(residualX, residualY);
   results[0] = residualX;
   results[1] = residualY;
   results[2] = pullX;

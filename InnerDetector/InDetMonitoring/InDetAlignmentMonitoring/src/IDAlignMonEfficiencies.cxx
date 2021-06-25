@@ -190,9 +190,13 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   m_minLB=-0.5;
   m_maxLB=3023.5;
   m_nLB = 3024;
+  // cppcheck-suppress useInitializationList
   m_trackSelection = ToolHandle<InDetAlignMon::TrackSelectionTool>("InDetAlignMon::TrackSelectionTool");
+  // cppcheck-suppress useInitializationList
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
+  // cppcheck-suppress useInitializationList
   m_holeSearchTool = ToolHandle<Trk::ITrackHoleSearchTool>("InDetHoleSearchTool");
+  // cppcheck-suppress useInitializationList
   m_trackSumTool        = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
     
   m_minSiliconEffWindow = 0.8;

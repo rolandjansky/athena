@@ -11,7 +11,7 @@
 // **********************************************************************
 
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include <vector>
+
 
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -20,9 +20,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TH3F.h"
-#include "TH2F.h"
-#include "TFile.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
@@ -30,6 +28,11 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include <map>
+#include <vector>
+
+class TH3F;
+class TH2F;
+
 
 namespace Trk  { 
   class VxCandidate;
@@ -139,22 +142,15 @@ public:
 
 private:
 
-  //const AtlasDetectorID*                m_idHelper;
-  //const PixelID*                        m_pixelID;
-  //const SCT_ID*                         m_sctID; 
-  //const TRT_ID*                         m_trtID; 
-
-  int m_checkrate;
-  int m_events; 
-  int m_histosBooked;
+  int m_checkrate{};
+  int m_events{}; 
+  int m_histosBooked{};
   std::string m_tracksName;
   std::string m_triggerChainName;
   std::string m_VxPrimContainerName;
   PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
      {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
-  //std::string m_TreeFolder;
-  //TTree* m_Tree;
-  //std::string m_TreeName;
+  
 
   unsigned int            m_runNumber{};
   unsigned int            m_evtNumber{};
