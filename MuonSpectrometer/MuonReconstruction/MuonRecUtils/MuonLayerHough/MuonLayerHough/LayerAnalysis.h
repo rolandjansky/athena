@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LAYERANALYSIS_H
@@ -47,13 +47,13 @@ namespace MuonHough {
   private:
 
     void analysis( std::map<int,SectorData>& data );
-    void drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth );
-    void calculateVariables(Plots* Plot);
-    void SetStyle ATLAS_NOT_THREAD_SAFE();
-    int getMaxLayers(Muon::MuonStationIndex::DetectorRegionIndex region, int sector);
-    void finishplot(TH1F* h);
-    float linear_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex);
-    float parab_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex);
+    void drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth ) const;
+    static void calculateVariables(Plots* Plot);
+    static void SetStyle ATLAS_NOT_THREAD_SAFE();
+    static int getMaxLayers(Muon::MuonStationIndex::DetectorRegionIndex region, int sector);
+    void finishplot(TH1F* h) const;
+    static float linear_extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex);
+    float parab_extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex) const;
 
     TTree*    m_tree;
     HitNtuple m_ntuple;

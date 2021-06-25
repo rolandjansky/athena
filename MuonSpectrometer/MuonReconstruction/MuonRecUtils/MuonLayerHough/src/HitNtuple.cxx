@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/HitNtuple.h"
@@ -334,7 +334,7 @@ namespace MuonHough {
     
     for( int i=0;i<nhits;++i ){
 	
-      HitDebugInfo* debug = 0;
+      HitDebugInfo* debug = nullptr;
       if( hasDebug ){
         debug = new HitDebugInfo();
         debug->type = type[i];
@@ -408,7 +408,7 @@ namespace MuonHough {
     return true;
   }
 
-  void EventData::dump( const std::map<int,SectorData>& data ) const {
+  void EventData::dump( const std::map<int,SectorData>& data ) {
     
     
     std::cout << " dumping sectors " << data.size() << std::endl;
