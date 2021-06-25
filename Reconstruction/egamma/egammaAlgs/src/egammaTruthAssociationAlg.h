@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMATRUTHASSOCIATIONALG_H
@@ -11,14 +11,13 @@
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 #include "xAODEgamma/EgammaContainer.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/xAODTruthHelpers.h"
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
@@ -32,8 +31,8 @@
 
 /**
    @class egammaTruthAssociationAlg
-   Decorate egamma object with truth information during reconstruction
-   Creates egammaTruth collection with links to reco objects
+   Decorate egamma objects with truth information
+   Creates egammaTruthParticles collection with links to reco objects
 
    @author B. Lenzi J. Mitrevski C. Anastopoulos
 */
@@ -105,8 +104,8 @@ private:
                                         const T*,
                                         Cache*) const;
 
-  /** @brief Create a copy a truth particle, add it to the new container and
-   * decorate it with a link to the original particle **/
+  /** @brief Create a copy a truth particle, add it to the new getNewTruthParticle
+   * container and decorate it with a link to the original particle **/
   void getNewTruthParticle(
     const EventContext& ctx,
     xAOD::TruthParticleContainer& egammaTruthContainer,

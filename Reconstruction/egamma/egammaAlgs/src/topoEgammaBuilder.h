@@ -43,7 +43,7 @@
   - xAOD::EgammaParameters::convMatchDeltaEta1,
    xAOD::EgammaParameters::convMatchDeltaPhi1
 
-  Several tool are then applied to the particle:
+  Several tools are then applied to the particle:
   - Shower shapes are computed thanks to the tool configured by
   EMShowerTool property, implementing the interface IEMShowerBuilder,
   by default EMShowerBuilder.
