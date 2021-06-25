@@ -89,9 +89,9 @@ StatusCode EnergyDepositionTool::initialize() {
 
       while (!inputFile.eof()) {
         // check if this BetaGamma has already been stored
-        if ((iData.Array_BetaGammaLog10.size() == 0) || (iData.Array_BetaGammaLog10.back() != BetaGammaLog10)) { // a new
+        if ((iData.Array_BetaGammaLog10.empty()) || (iData.Array_BetaGammaLog10.back() != BetaGammaLog10)) { // a new
                                                                                                                  // BetaGamma
-          if (iData.Array_BetaGammaLog10.size() != 0) {
+          if (!iData.Array_BetaGammaLog10.empty()) {
             iData.Array_BetaGammaLog10_UpperBoundIntXLog10.push_back(iData.Array_BetaGammaLog10_IntXLog10.back().back());
           }
 
@@ -262,7 +262,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
     rndmEngine);
 
     // check if returned simulation result makes sense
-    if (rawHitRecord.size() == 0) { // deal with rawHitRecord==0 specifically -- no energy deposition
+    if (rawHitRecord.empty()) { // deal with rawHitRecord==0 specifically -- no energy deposition
       std::pair<double, double> specialHit;
       specialHit.first = 0.;
       specialHit.second = 0.;
@@ -495,7 +495,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::ClusterHits(std::v
 //=======================================
 // TRF PDG
 //=======================================
-int EnergyDepositionTool::trfPDG(int pdgId) const {
+int EnergyDepositionTool::trfPDG(int pdgId) {
   if (std::fabs(pdgId) == 2212) return 1;                                              // proton
 
   if (std::fabs(pdgId) == 211) return 2;                                              // pion
@@ -514,7 +514,7 @@ int EnergyDepositionTool::trfPDG(int pdgId) const {
 //=======================================
 // C L U S T E R   H I T S
 //=======================================
-std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, double item) const {
+std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, double item) {
   std::pair<int, int> output;
 
   int index_low = 0;
@@ -553,7 +553,7 @@ std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, do
 //=======================================
 // B E T A   G A M M A   I N D E X
 //=======================================
-std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const {
+std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) {
   std::pair<int, int> indices_BetaGammaLog10;
   if (BetaGammaLog10 > iData.Array_BetaGammaLog10.back()) { // last one is used because when beta-gamma is very large,
                                                             // energy deposition behavior is very similar
@@ -571,7 +571,7 @@ std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLo
 //==========================================
 //Interpolate collision energy
 double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10,
-                                     BichselData& iData) const {
+                                     BichselData& iData) {
   if ((indices_BetaGammaLog10.first == -1) && (indices_BetaGammaLog10.second == -1)) return -1.;
 
   // BetaGammaLog10_2 then
@@ -600,7 +600,7 @@ double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10,
 //===========================================
 // Overloaded C O L L I S I O N  E N E R G Y
 //===========================================
-double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const {
+double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) {
   std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
   return GetColE(indices_BetaGammaLog10, IntXLog10, iData);
 }
@@ -609,7 +609,7 @@ double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, Bi
 // G E T   U P P E R   B O U N D  BETA GAMMA
 //==========================================
 double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10,
-                                           BichselData& iData) const {
+                                           BichselData& iData) {
   if (indices_BetaGammaLog10.first < 0) {
     return -1;
   }
@@ -633,7 +633,7 @@ double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGamma
 //==========================================
 // overloaded G E T  U P P E R   B O U N D
 //==========================================
-double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) const {
+double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) {
   std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
   return GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
 }
@@ -641,7 +641,7 @@ double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& i
 //==========================================
 // S E T  F A I L U R E
 //==========================================
-void EnergyDepositionTool::SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) const {
+void EnergyDepositionTool::SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) {
   rawHitRecord.clear();
   std::pair<double, double> specialFlag;
   specialFlag.first = -1.;

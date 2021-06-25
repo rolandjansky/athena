@@ -39,7 +39,7 @@ private:
   SensorSimPlanarTool();
   
   //Apply slim edge inefficiencies for IBL sensors
-  void applyIBLSlimEdges(double& energyPerStep, double& eta_drifted) const;
+  static void applyIBLSlimEdges(double& energyPerStep, double& eta_drifted) ;
 
   // Map for radiation damage simulation
   std::vector<PixelHistoConverter> m_ramoPotentialMap;

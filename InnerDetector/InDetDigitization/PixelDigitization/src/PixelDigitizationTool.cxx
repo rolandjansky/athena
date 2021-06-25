@@ -154,7 +154,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
     // Get the det element from the manager
     const InDetDD::SiDetectorElement* sielement = elements->getDetectorElement(wafer_hash);
 
-    if (sielement == 0) {
+    if (sielement == nullptr) {
       ATH_MSG_DEBUG(
         " Barrel=" << (*firstHit)->getBarrelEndcap() << " Layer=" << (*firstHit)->getLayerDisk() << " Eta=" <<
         (*firstHit)->getEtaModule() << " Phi=" << (*firstHit)->getPhiModule());
@@ -276,7 +276,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
 // Convert a SiTotalCharge to a InDetSimData, and store it. (this needs working...)
 //-----------------------------------------------------------------------------------------------
 void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
-  typedef SiTotalCharge::list_t list_t;
+  using list_t = SiTotalCharge::list_t;
 
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be with pileup
@@ -386,12 +386,12 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
     m_HardScatterSplittingSkipper = true;
   }
 
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
                                           bSubEvents, eSubEvents).isSuccess()) &&
-      hitCollList.size() == 0) {
+      hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
