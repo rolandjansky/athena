@@ -127,7 +127,8 @@ public:
   using ITRT_ToT_dEdx::getTest;
   virtual double dEdx(const EventContext& ctx,
                       const Trk::Track* track,
-                      bool useHThits = true) const override final;
+                      bool useHThits = true,
+                      std::optional<float> localOccupancy = std::nullopt) const override final;
 
   /**
    * @brief function to calculate number of used hits
@@ -351,7 +352,8 @@ private:
                                 const Trk::TrackStateOnSurface* itr) const;
   double trackOccupancyCorrection(const EventContext& ctx,
                                   const Trk::Track* track,
-                                  bool useHThits) const;
+                                  bool useHThits,
+                                  std::optional<float> localOccupancy) const;
 
 public:
   // Setters and getters

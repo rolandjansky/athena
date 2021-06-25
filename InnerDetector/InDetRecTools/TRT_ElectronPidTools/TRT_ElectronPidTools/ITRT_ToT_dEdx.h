@@ -9,7 +9,8 @@
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
-#include "TrkParameters/TrackParameters.h"  // typedef
+#include "TrkParameters/TrackParameters.h"
+#include <optional>
 
 namespace Trk { class Track ; } 
 namespace Trk { class TrackStateOnSurface ; } 
@@ -35,12 +36,16 @@ public:
    * @param useHitsHT decide if HT hits should be used in the estimate
    * @return dEdx value
    */
-  virtual double dEdx(const EventContext& ctx,
-                      const Trk::Track* track,
-                      bool useHitsHT = true) const = 0;
-  
-  virtual double dEdx(const Trk::Track* track, bool useHitsHT = true) const ;
-  
+  virtual double dEdx(
+    const EventContext& ctx,
+    const Trk::Track* track,
+    bool useHitsHT = true,
+    std::optional<float> localOccupancy = std::nullopt) const = 0;
+
+  virtual double dEdx(const Trk::Track* track,
+                      bool useHitsHT = true,
+                      std::optional<float> localOccupancy = std::nullopt) const;
+
   /**
    * @brief function to calculate number of used hits
    * @param Event context ctx
@@ -83,9 +88,11 @@ public:
 // implement the non ctx aware methods in terms of the ctx
 // aware ones
 inline double
-ITRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
+ITRT_ToT_dEdx::dEdx(const Trk::Track* track,
+                    bool useHitsHT,
+                    std::optional<float> localOccupancy) const
 {
-  return dEdx(Gaudi::Hive::currentContext(), track, useHitsHT);
+  return dEdx(Gaudi::Hive::currentContext(), track, useHitsHT, localOccupancy);
 }
 
 inline double
