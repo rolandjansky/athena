@@ -7,27 +7,24 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from InDetRecExample.InDetKeys import InDetKeys
 
 
-def RungeKuttaPropagatorCfg(flags, **kwargs):
+def RungeKuttaPropagatorCfg(flags, name="InDetTrigPatternPropagator"):
   acc = ComponentAccumulator()
-  name = kwargs.pop("propagatorName", "InDetTrigPatternPropagator")
-  acc.addPublicTool( CompFactory.Trk.RungeKuttaPropagator( name ) )
+  acc.addPublicTool( CompFactory.Trk.RungeKuttaPropagator( name ), primary=True )
   return acc
 
-def SiDetElementsRoadMaker_xkCfg( flags, **kwargs ):
+def SiDetElementsRoadMaker_xkCfg( flags, name="InDetTrigSiDetElementsRoadMaker" ):
   """
   based  on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py, should be moved elsewhere
   """
   acc = ComponentAccumulator()
-  name = kwargs.pop( "rodMakerName", "InDetTrigSiDetElementsRoadMaker" )
-  acc.merge( RungeKuttaPropagatorCfg( flags, **kwargs ) )
   acc.addCondAlgo( CompFactory.InDet.SiDetElementsRoadCondAlg_xk() )
   tool = CompFactory.InDet.SiDetElementsRoadMaker_xk( name,
-                                                      PropagatorTool = acc.getPublicTool( "InDetTrigPatternPropagator" ),
+                                                      PropagatorTool = acc.getPrimaryAndMerge(RungeKuttaPropagatorCfg( flags )),
                                                       usePixel     = flags.Detector.EnablePixel,
                                                       useSCT       = flags.Detector.EnableSCT,
                                                       RoadWidth    = flags.InDet.Tracking.roadWidth,
                                                         )
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
   return acc
 
 def PixelClusterOnTrackCfg( flags, **kwargs ):
@@ -50,11 +47,11 @@ def PixelClusterOnTrackCfg( flags, **kwargs ):
                                                     ErrorStrategy = 2,
                                                     LorentzAngleTool = pixelLATool,
                                                     NnClusterizationFactory = nnTool )
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
   return acc
 
 
-def SCT_ClusterOnTrackToolCfg( flags, **kwargs ):
+def SCT_ClusterOnTrackToolCfg( flags ):
   acc = ComponentAccumulator()
   from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
   sctLATool =  acc.popToolsAndMerge( SCT_LorentzAngleCfg( flags ) )
@@ -63,30 +60,29 @@ def SCT_ClusterOnTrackToolCfg( flags, **kwargs ):
                                                     ErrorStrategy      = 2,  # do use phi dependent errors
                                                     LorentzAngleTool   = sctLATool # default name
                                                     )
-  acc.addPublicTool ( tool )
+  acc.addPublicTool ( tool, primary=True )
   return acc
 
-def RIO_OnTrackCreatorCfg( flags, **kwargs ):
+def RIO_OnTrackCreatorCfg( flags, name="InDetTrigRotCreator" ):
   acc = ComponentAccumulator()
-  name =  kwargs.pop("rioOnTrackCreatorName", "InDetTrigRotCreator")
-  acc.merge( PixelClusterOnTrackCfg( flags, **kwargs ) )
-  acc.merge( SCT_ClusterOnTrackToolCfg( flags, **kwargs ) )
+  pixelTool = acc.getPrimaryAndMerge( PixelClusterOnTrackCfg( flags ) )
+  sctTool = acc.getPrimaryAndMerge( SCT_ClusterOnTrackToolCfg( flags ) )
   tool = CompFactory.Trk.RIO_OnTrackCreator(name,
-                                            ToolPixelCluster = acc.getPublicTool( "InDetTrigPixelClusterOnTrackTool" ),
-                                            ToolSCT_Cluster  = acc.getPublicTool( "SCT_ClusterOnTrackTool" ),
+                                            ToolPixelCluster = pixelTool,
+                                            ToolSCT_Cluster  = sctTool,
                                             Mode             = 'indet')
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
   return acc
 
-def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
+def SiCombinatorialTrackFinder_xkCfg( flags, name="InDetTrigSiComTrackFinder" ):
   """
   based  on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py, should be moved elsewhere
   """
   acc = ComponentAccumulator()
-  name = kwargs.pop( "combinatorialTrackFinderName", "InDetTrigSiComTrackFinder" )
-  acc.merge( RungeKuttaPropagatorCfg( flags, **kwargs ) )
+  propagatorTool = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags ) )
   acc.addPublicTool( CompFactory.Trk.KalmanUpdator_xk( "InDetTrigPatternUpdator" ) )
-  acc.merge( RIO_OnTrackCreatorCfg( flags, **kwargs ) )
+  patternUpdatorTool = acc.getPublicTool( "InDetTrigPatternUpdator" )
+  rioOnTrackTool = acc.getPrimaryAndMerge( RIO_OnTrackCreatorCfg( flags ) )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
@@ -96,9 +92,9 @@ def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
 
 
   tool = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name,
-                                                         PropagatorTool        = acc.getPublicTool( "InDetTrigPatternPropagator" ),
-                                                         UpdatorTool           = acc.getPublicTool( "InDetTrigPatternUpdator" ),
-                                                         RIOonTrackTool        = acc.getPublicTool( "InDetTrigRotCreator" ),
+                                                         PropagatorTool        = propagatorTool,
+                                                         UpdatorTool           = patternUpdatorTool,
+                                                         RIOonTrackTool        = rioOnTrackTool,
                                                          usePixel              = flags.Detector.EnablePixel,
                                                          useSCT                = flags.Detector.EnableSCT,
                                                          PixelClusterContainer = 'PixelTrigClusters',
@@ -109,14 +105,13 @@ def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
   acc.setPrivateTools( tool )
   return acc
 
-def SiTrackMaker_xkCfg(flags, **kwargs):
+def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py , should be moved elsewhere
   """
-  name = kwargs.pop("name", "SiTrackMaker_xk")
   acc = ComponentAccumulator()
-  acc.merge( SiDetElementsRoadMaker_xkCfg( flags, **kwargs ) )
-  combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ) )
+  roadTool = acc.getPrimaryAndMerge( SiDetElementsRoadMaker_xkCfg( flags ) )
+  combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xkCfg( flags ) )
 
   from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
   acc.merge(addFoldersSplitOnline( flags, "INDET", '/Indet/Onl/TrkErrorScaling', '/Indet/TrkErrorScaling', className="CondAttrListCollection") )
@@ -127,7 +122,7 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
 
 
   tool = CompFactory.InDet.SiTrackMaker_xk( name,
-                                            RoadTool                 = acc.getPublicTool( "InDetTrigSiDetElementsRoadMaker" ),
+                                            RoadTool                 = roadTool,
                                             CombinatorialTrackFinder = combTrackFinderTool,
                                             pTmin                    = flags.InDet.Tracking.minPT,
                                             nClustersMin             = flags.InDet.Tracking.minClusters,
@@ -139,12 +134,12 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
                                             nWeightedClustersMin     = flags.InDet.Tracking.nWeightedClustersMin,
                                             Xi2maxMultiTracks        = flags.InDet.Tracking.Xi2max,
                                             UseAssociationTool       = False )
-  acc.addPublicTool( tool )
+  acc.addPublicTool( tool, primary=True )
   return acc
 
 
 
-def InDetTestPixelLayerToolCfg(flags, **kwargs):
+def InDetTestPixelLayerToolCfg(flags):
   acc = ComponentAccumulator()
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
@@ -160,7 +155,7 @@ def InDetTestPixelLayerToolCfg(flags, **kwargs):
   return acc
 
 
-def InDetHoleSearchToolCfg(flags, **kwargs):
+def InDetHoleSearchToolCfg(flags, name="InDetTrigHoleSearchTool"):
   acc = ComponentAccumulator()
 
 # a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config )
@@ -170,11 +165,10 @@ def InDetHoleSearchToolCfg(flags, **kwargs):
 #  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
 
   from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-  acc.merge( InDetExtrapolatorCfg( flags, name = "InDetTrigExtrapolator" ) )
+  extrapolatorTool = acc.getPrimaryAndMerge( InDetExtrapolatorCfg( flags, name = "InDetTrigExtrapolator" ) )
 
-  name = kwargs.pop("name", "InDetTrigHoleSearchTool")
   tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
-                                                    Extrapolator =  acc.getPublicTool( "InDetTrigExtrapolator" ))
+                                                    Extrapolator =  extrapolatorTool)
   acc.addPublicTool( tool, primary=True )
   return acc
 
@@ -186,19 +180,20 @@ def InDetPrdAssociationToolCfg(flags):
   acc.addPublicTool(tool, primary=True)
   return acc
 
-def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
+def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
   """
   acc = ComponentAccumulator()
-  name = kwargs.pop("name", "InDetTrigSummaryHelper")
-  #TODO consider configuring it also here rather than use ofline
-  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg #TODO this will be moved somewhere else so this import will need adjustment
+  holeSearchTool = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
+  associationTool = acc.getPrimaryAndMerge( InDetPrdAssociationToolCfg(flags) )
+
+  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg # this will be moved somewhere else so this import will need adjustment
   acc.merge( TRTStrawCondAlgCfg(flags) )
 
   tool = CompFactory.InDet.InDetTrackSummaryHelperTool(name,
-                                                       HoleSearch    = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) ),
-                                                       AssoTool      = acc.getPrimaryAndMerge( InDetPrdAssociationToolCfg(flags) ),
+                                                       HoleSearch    = holeSearchTool,
+                                                       AssoTool      = associationTool,
                                                        TestBLayerTool = None,
                                                        PixelToTPIDTool= None, #InDetTrigPixelToTPIDTool,
                                                        DoSharedHits  = False,
@@ -211,13 +206,10 @@ def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
   acc.addPublicTool( tool, primary=True )
   return acc
 
-def TrackSummaryToolCfg(flags, **kwargs):
+def TrackSummaryToolCfg(flags, name="InDetTrackSummaryTool", summaryHelperTool=None):
   acc = ComponentAccumulator()
-  name = kwargs.pop("name", "InDetTrigTrackSummaryTool")
-  summaryHelperTool = kwargs.pop( "summaryHelperTool", None )
   if not summaryHelperTool:
     summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags ) )
-
 
   tool = CompFactory.Trk.TrackSummaryTool(name = name,
                                           InDetSummaryHelperTool = summaryHelperTool,
@@ -625,7 +617,7 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                          MinHits                  = 5,
                                          useGPU                   = False,
                                          DoubletDR_Max            = 270)
-  acc.addEventAlgo( ftf )
+  acc.addEventAlgo( ftf, primary=True )
 
 
   return acc
@@ -645,10 +637,10 @@ def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
 def trackConverterCfg(flags, signature, signatureName):
   acc = ComponentAccumulator()
 
-  acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  summaryTool = acc.getPrimaryAndMerge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
   track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                                          TrackSummaryTool      = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
+                                                          TrackSummaryTool      = summaryTool,
                                                           TrackToVertex         = track_to_vertex,
                                                           KeepParameters        = True,
                                                           ComputeAdditionalInfo = True,
@@ -659,7 +651,7 @@ def trackConverterCfg(flags, signature, signatureName):
                                                           TrackParticlesName  = flags.InDet.Tracking.tracks_FTF,
                                                           ParticleCreatorTool = creatorTool)
 
-  acc.addEventAlgo(trackParticleCnv)
+  acc.addEventAlgo(trackParticleCnv, primary=True)
 
   return acc
 
@@ -772,9 +764,7 @@ def ambiguityProcessorToolCfg(flags):
   fitterTool = CompFactory.TrigInDetTrackFitter( "TrigInDetTrackFitter" )
   acc.addPublicTool( fitterTool )
 
-  # TODO use trigger specific configurations
-  from InDetConfig.TrackingCommonConfig import InDetAmbiScoringToolBaseCfg  
-  scoringTool = acc.getPrimaryAndMerge(InDetAmbiScoringToolBaseCfg(flags))
+  scoringTool = acc.popToolsAndMerge(ambiguityScoringToolCfg(flags))
   
   TrackSummaryToolCfg(flags)
   tool = CompFactory.Trk.SimpleAmbiguityProcessorTool(name = f"{prefix}AmbiguityProcessor{flags.InDet.Tracking.input_name}",
