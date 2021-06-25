@@ -82,7 +82,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
       }
 
 
-  def __init__(self, name, threshold, sel, iso, d0, tool=None):
+  def __init__(self, name, threshold, sel, iso, d0, trkInfo, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionElectronHypoTool')
@@ -91,6 +91,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__sel = sel
     self.__iso = iso
     self.__d0  = d0
+    self.__trkInfo = trkInfo
     
     if not tool:
       from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
@@ -102,7 +103,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     tool.dPHICLUSTERthr = 0.1
     tool.RelPtConeCut   = -999
     tool.PidName        = ""
-    tool.d0Cut          = self.__lrtD0Cut[d0]
+    tool.d0Cut          = -1
     self.__tool         = tool    
 
     self.__log.debug( 'Electron_Chain     :%s', name )
@@ -126,6 +127,9 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   def d0Info(self):
     return self.__d0
 
+  def trkInfo(self):
+    return self.__trkInfo
+
   def tool(self):
     return self.__tool
   
@@ -145,6 +149,10 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.tool().dETACLUSTERthr = 9999.
     self.tool().dPHICLUSTERthr = 9999.
 
+  def lrt(self):
+    if not self.d0Info() in self.__lrtD0Cut:
+      self.__log.fatal(f"Bad LRT selection name: {self.d0Info()}")
+    self.__tool.d0Cut = self.__lrtD0Cut[self.d0Info()]
 
   #
   # Isolation and nominal cut
@@ -179,11 +187,18 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
       self.__log.debug('Configuring Isolation cut %s with value %d',self.isoInfo(),self.__isolationCut[self.isoInfo()])
       self.isoCut()
 
+      if self.d0Info() and self.d0Info() != '' and 'idperf' not in self.trkInfo():
+        self.lrt()
+
     else:
       self.nominal()
 
+      if self.d0Info() and self.d0Info() != '' and 'idperf' not in self.trkInfo():
+        self.lrt()
+
     if hasattr(self.tool(), "MonTool"):
       self.addMonitoring()
+
 
 
   #
@@ -211,8 +226,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.tool().MonTool = monTool
 
 
-def _IncTool( name, threshold, sel, iso, d0 , tool=None):
-    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso, d0 , tool=tool)
+def _IncTool( name, threshold, sel, iso, d0, trkInfo, tool=None):
+    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso, d0, trkInfo, tool=tool)
     config.compile()
     return config.tool()
 
@@ -237,8 +252,12 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
     def __d0(cpart):
         return cpart['lrtInfo']
 
+    def __trk(cpart):
+        return cpart['trkInfo']
+
     name = d['chainName']
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0]), __d0(cparts[0]) , tool=tool )
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0]), __d0(cparts[0]), __trk(cparts[0]) , tool=tool )
+
                    
     
 def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
