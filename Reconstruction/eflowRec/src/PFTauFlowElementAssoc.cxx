@@ -66,6 +66,9 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   // Loop over the neutral flow elements
   ////////////////////////////////////////////
   for (const xAOD::FlowElement* FE : *neutralFETauWriteDecorHandle) {
+    // Check that the flow element cluster exists and is not null
+    if (FE->otherObjects().size() == 0) continue;
+    if (FE->otherObjects().at(0) == nullptr) continue;
     // Get the index of the flow element cluster
     size_t FEClusterIndex = FE->otherObjects().at(0)->index();
 
@@ -108,6 +111,10 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   // Loop over the charged flow elements
   ////////////////////////////////////////////
   for (const xAOD::FlowElement* FE : *chargedFETauWriteDecorHandle) {
+    // Check that the flow element track exists and is not null
+    if (FE->chargedObjects().size() == 0) continue;
+    if (FE->chargedObjects().at(0) == nullptr) continue;
+
     // Get the index of the flow element track
     size_t FETrackIndex = FE->chargedObjects().at(0)->index();
 
