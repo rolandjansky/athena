@@ -143,7 +143,7 @@ StatusCode CommonSmearingTool::initialize()
   if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
-    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_v0.root"));
     ATH_CHECK(m_tTauCombinedTES.initialize());
   }
 
