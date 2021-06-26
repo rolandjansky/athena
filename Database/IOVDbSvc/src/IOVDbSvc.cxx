@@ -21,6 +21,7 @@
 #include "FileCatalog/IFileCatalog.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 #include "DBLock/DBLock.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "IOVDbParser.h"
 #include "IOVDbFolder.h"
@@ -721,7 +722,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   ATH_MSG_DEBUG( "In online mode will recheck ... " );
   ATH_MSG_DEBUG( "First reload PoolCataloge ... " );
   
-  pool::IFileCatalog* catalog=
+  pool::IFileCatalog* catalog ATLAS_THREAD_SAFE =  // we are not within the event loop yet
     const_cast<pool::IFileCatalog*>(m_h_poolSvc->catalog());
   catalog->commit();
   catalog->start(); 
