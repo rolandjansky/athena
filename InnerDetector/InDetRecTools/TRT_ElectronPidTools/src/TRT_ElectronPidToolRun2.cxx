@@ -470,8 +470,13 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
                                      << "  pHTpi_prod: " << pHTpi_prod
                                      << "  probEl: " << PIDvalues[Trk::eProbabilityHT]);
 
-  PIDvalues[Trk::TRTdEdx] = m_TRTdEdxTool->dEdx(ctx,&track); // default dEdx using all hits
-  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = m_TRTdEdxTool->usedHits(ctx,&track);
+  PIDvalues[Trk::TRTdEdx] = m_TRTdEdxTool->dEdx(
+    ctx,
+    &track,
+    PIDvalues[Trk::TRTTrackOccupancy]); // default dEdx using all hits
+
+  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] =
+    m_TRTdEdxTool->usedHits(ctx, &track);
   double dEdx_noHTHits = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
   double dEdx_usedHits_noHTHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
   PIDvalues[Trk::eProbabilityToT] = m_TRTdEdxTool->getTest(
