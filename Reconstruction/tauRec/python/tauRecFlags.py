@@ -87,7 +87,7 @@ class useGhostTracks(JobProperty):
     """ use ghost-matched tracks in TauTrackFinder """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class ghostTrackDR(JobProperty):
     """ dR(tau,track) value beyond which tracks must be ghost-matched in TauTrackFinder """
