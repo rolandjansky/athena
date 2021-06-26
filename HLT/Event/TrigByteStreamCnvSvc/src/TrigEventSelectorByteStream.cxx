@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -11,6 +11,7 @@
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -201,5 +202,6 @@ TrigEventSelectorByteStream::Context::~Context() {}
 
 void* TrigEventSelectorByteStream::Context::identifier() const
 {
-  return (void*)(m_evtSelector);
+  IEvtSelector* id ATLAS_THREAD_SAFE = const_cast<IEvtSelector*>(m_evtSelector);
+  return id;
 }
