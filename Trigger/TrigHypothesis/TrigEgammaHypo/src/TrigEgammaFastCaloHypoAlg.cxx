@@ -64,11 +64,10 @@ StatusCode TrigEgammaFastCaloHypoAlg::execute( const EventContext& context ) con
   auto timer_predict = Monitored::Timer("TIME_NN_exec");
   auto monitoring = Monitored::Group( m_monTool, timer, timer_predict);
 
-
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
-  
+
   // new decisions
   // new output decisions
   SG::WriteHandle<TCU::DecisionContainer> outputHandle = TCU::createAndStore(decisionOutput(), context );
@@ -96,11 +95,13 @@ StatusCode TrigEgammaFastCaloHypoAlg::execute( const EventContext& context ) con
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
     auto emCluster = clusterHandle.cptr()->at(0);
+    ATH_MSG_DEBUG("Event cluster with eta = "<< emCluster->eta());
 
     // get rings
     auto ringsHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context); 
     ATH_CHECK( ringsHandle.isValid());
     ATH_MSG_DEBUG ( "Rings handle size: " << ringsHandle->size() << "..." );
+
     auto ringsCluster = ringsHandle.cptr()->at(0);
 
     // create new decision (node)
@@ -112,8 +113,10 @@ StatusCode TrigEgammaFastCaloHypoAlg::execute( const EventContext& context ) con
     float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
     info.valueDecorator["avgmu"] = avgmu;
 
-    // Decorate the info object with NN ringer decision
-    if(ringsCluster && emCluster){
+    // Decorate the info object with NN ringer decision. if rings size is zero, this object is a dummy and
+    // should not compute any decision. the hypo tool will not found any pid name and will reprove this.
+    if(ringsCluster && emCluster && !ringsCluster->rings().empty() )
+    {
       int idx=0;
       for (auto& pidname : m_pidNames ){
         if (m_useRun3){
