@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file LumiBlockComps/test/LuminosityAlg_test.cxx
@@ -22,6 +22,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
 #include "CoolKernel/IObject.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -224,7 +225,7 @@ std::unique_ptr<FillParamsCondData> make_fillParams()
 std::vector<LuminosityCondAlg*> theAlgs;
 
 // run2
-void test1 (ISvcLocator* svcloc)
+void test1 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 {
   std::cout << "test1\n";
 
@@ -287,7 +288,7 @@ void test1 (ISvcLocator* svcloc)
 
 
 // run1
-void test2 (ISvcLocator* svcloc)
+void test2 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 {
   std::cout << "test2\n";
 
@@ -369,7 +370,7 @@ void test2 (ISvcLocator* svcloc)
 
 
 // MC
-void test3 (ISvcLocator* svcloc)
+void test3 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 {
   std::cout << "test3\n";
 
@@ -407,7 +408,7 @@ void test3 (ISvcLocator* svcloc)
 
 
 // Missing lumi
-void test4 (ISvcLocator* svcloc)
+void test4 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 {
   std::cout << "test4\n";
 
@@ -468,7 +469,7 @@ void test4 (ISvcLocator* svcloc)
 }
 
 
-int main()
+int main ATLAS_NOT_REENTRANT ()
 {
   std::cout << "LumiBlockComps/LuminosityCondAlg_test\n";
 
