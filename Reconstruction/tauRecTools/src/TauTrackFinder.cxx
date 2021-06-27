@@ -45,6 +45,8 @@ StatusCode TauTrackFinder::initialize() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO ("Using ghost matching for tau-track association" << m_ghostTrackDR );
+    // allow empty for trigger 
+    ATH_CHECK( m_jetContainer.initialize(SG::AllowEmpty) );
   }
 
   if (inTrigger()) {
@@ -82,7 +84,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     }
   }
 
-  //Retrieve LRT tracking container
+  //Retrieve LRT container
   const xAOD::TrackParticleContainer* largeD0TracksParticleCont = nullptr; 
   
   if (! m_largeD0TracksInputContainer.empty()) { 
@@ -96,6 +98,17 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     }  
   }
 
+  // retrieve the seed jet container when using ghost-matching
+  const xAOD::JetContainer* jetContainer = nullptr; 
+  if (! m_jetContainer.empty()) {
+    SG::ReadHandle<xAOD::JetContainer> jetContHandle( m_jetContainer );
+    if (!jetContHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << jetContHandle.key());
+      return StatusCode::FAILURE;
+    }
+    jetContainer = jetContHandle.cptr();
+  }
+
   // get the primary vertex
   const xAOD::Vertex* pVertex = nullptr;
   if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
@@ -103,13 +116,13 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
 
-  getTauTracksFromPV(pTau, *trackParticleCont, pVertex, m_useGhostTracks, tauTracks, wideTracks, otherTracks);
+  getTauTracksFromPV(pTau, *trackParticleCont, pVertex, m_useGhostTracks, jetContainer, tauTracks, wideTracks, otherTracks);
 
   bool foundLRTCont = bool (largeD0TracksParticleCont != nullptr);
   // additional LRT with vertex association added to tracks
   if (foundLRTCont){
     // for now, use cone association for LRTs, not ghost association
-    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, false, tauTracks, wideTracks, otherTracks);
+    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, false, nullptr, tauTracks, wideTracks, otherTracks);
   }
 
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
@@ -352,6 +365,7 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
 					 const xAOD::TrackParticleContainer& trackParticleCont,
 					 const xAOD::Vertex* primaryVertex,
 					 const bool& useGhostTracks,
+					 const xAOD::JetContainer* jetContainer,
 					 std::vector<const xAOD::TrackParticle*> &tauTracks,
 					 std::vector<const xAOD::TrackParticle*> &wideTracks,
 					 std::vector<const xAOD::TrackParticle*> &otherTracks) const
@@ -374,8 +388,22 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
       // require that tracks are ghost-matched with the seed jet at large dR(tau,track), to avoid using tracks from another tau
       double dR = pTau.p4().DeltaR(trackParticle->p4());
       if (dR > m_ghostTrackDR) {
-	if(std::find(ghostTracks.begin(), ghostTracks.end(), trackParticle) == ghostTracks.end() ) {
-	  continue;
+	if (std::find(ghostTracks.begin(), ghostTracks.end(), trackParticle) == ghostTracks.end()) {
+	  // check whether the jet closest to the track is the current seed jet
+	  // if so, recover the track even if not ghost-matched, to improve tau-track association efficiency at low pt (esp. for 3p)
+	  double dRmin = 999.;
+	  bool isSeedClosest = false;
+	  for (const xAOD::Jet* jet : *jetContainer) {
+	    xAOD::JetFourMom_t jetP4 = jet->jetP4(xAOD::JetScale::JetConstitScaleMomentum);
+	    TLorentzVector jetLV;
+	    jetLV.SetPtEtaPhiM(jetP4.Pt(), jetP4.Eta(), jetP4.Phi(), jetP4.M());
+	    double dRjet = trackParticle->p4().DeltaR(jetLV);
+	    if(dRjet < dRmin) {
+	      dRmin = dRjet;
+	      isSeedClosest = (jet == pTau.jet());
+	    }
+	  }
+	  if(!isSeedClosest) continue;
 	}
       }
     }

@@ -579,6 +579,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     useGhostTracks = tauFlags.useGhostTracks(),
                                     ghostTrackDR = tauFlags.ghostTrackDR(),
+                                    Key_jetContainer = tauFlags.tauRecSeedJetCollection(),
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
                                     Key_LargeD0TrackInputContainer = _DefaultLargeD0TrackContainer if tauFlags.associateLRT() else "",
                                     TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
