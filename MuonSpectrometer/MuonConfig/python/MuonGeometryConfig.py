@@ -28,6 +28,11 @@ def MuonDetectorToolCfg(flags):
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
+
+    # temporary way to pass MM correction for edge passivation
+    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+    detTool.passivationWidthMM = MMPassivationFlag.correction
+
     enableAlignment = flags.Common.Project != 'AthSimulation' \
         and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
     if enableAlignment:
@@ -164,11 +169,6 @@ def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
     MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
     MuonDetectorManagerCond = MuonDetectorCondAlg()
-    
-    # temporary way to pass MM correction for passivation
-    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
-    MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
-
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
     acc.addCondAlgo(MuonDetectorManagerCond)
