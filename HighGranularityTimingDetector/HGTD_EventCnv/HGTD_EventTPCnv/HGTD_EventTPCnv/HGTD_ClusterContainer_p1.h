@@ -12,8 +12,8 @@
 #ifndef HGTD_CLUSTERCONTAINER_P1_H
 #define HGTD_CLUSTERCONTAINER_P1_H
 
-#include "HGTD_Cluster_p1.h"
-#include "HGTD_PRD_Collection_p1.h"
+#include "HGTD_EventTPCnv/HGTD_Cluster_p1.h"
+#include "HGTD_EventTPCnv/HGTD_PRD_Collection_p1.h"
 #include <string>
 #include <vector>
 

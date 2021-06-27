@@ -15,7 +15,7 @@
 #define HGTD_CLUSTERCONTAINERCNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "HGTD_ClusterContainer_p1.h"
+#include "HGTD_EventTPCnv/HGTD_ClusterContainer_p1.h"
 #include "HGTD_PrepRawData/HGTD_ClusterContainer.h"
 
 class HGTD_ID;
