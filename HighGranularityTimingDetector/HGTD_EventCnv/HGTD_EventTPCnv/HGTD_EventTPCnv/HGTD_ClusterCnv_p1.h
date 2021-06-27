@@ -15,7 +15,7 @@
 #define HGTD_EVENTTPCNV_HGTD_CLUSTER_CNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "HGTD_Cluster_p1.h"
+#include "HGTD_EventTPCnv/HGTD_Cluster_p1.h"
 #include "HGTD_PrepRawData/HGTD_Cluster.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SiWidthCnv_p2.h"
 

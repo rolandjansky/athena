@@ -18,9 +18,10 @@ atlas_add_tpcnv_library( HGTD_EventTPCnv
                          PUBLIC_HEADERS HGTD_EventTPCnv
                          LINK_LIBRARIES DataModel DataModelAthenaPoolLib StoreGateLib
                            AthenaPoolCnvSvcLib AthenaPoolUtilities Identifier GaudiKernel
-                           HGTD_Identifier TrkEventTPCnv AthenaBaseComps AthenaKernel TrkMeasurementBase
+                           HGTD_Identifier TrkEventTPCnv HGTD_PrepRawData
+                         PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel TrkMeasurementBase
                            EventPrimitives HGTD_ReadoutGeometry TrkEventPrimitives CxxUtils
-                           InDetEventTPCnv HGTD_PrepRawData)
+                           InDetEventTPCnv)
 
 atlas_add_dictionary( HGTD_EventTPCnvDict
                       HGTD_EventTPCnv/HGTD_EventTPCnvDict.h HGTD_EventTPCnv/selection.xml
