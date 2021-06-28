@@ -706,8 +706,8 @@ namespace Trk
       }
       const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
       if (measurementBase) {
-        if (!Amg::valid_cov(measurementBase->localCovariance())){
-            continue;
+        if (!Amg::saneCovarianceDiagonal(measurementBase->localCovariance())) {
+          continue;
         }
         // option to skip vertex measurement (i.e. when not at front of list)
         if (skipVertexMeasurement && dynamic_cast<const PerigeeSurface*>(&s.surface())) {

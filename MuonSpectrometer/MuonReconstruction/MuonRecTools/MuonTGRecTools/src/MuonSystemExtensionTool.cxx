@@ -199,9 +199,10 @@ namespace Muon {
             }
 
             //    reject intersections with very big uncertainties (parallel to surface)
-            if (!Amg::valid_cov(*exPars->covariance()) || Amg::error(*exPars->covariance(), Trk::locX) > 10000. ||
+            if (!Amg::saneCovarianceDiagonal(*exPars->covariance()) ||
+                Amg::error(*exPars->covariance(), Trk::locX) > 10000. ||
                 Amg::error(*exPars->covariance(), Trk::locY) > 10000.)
-                continue;
+              continue;
 
             // create shared pointer and add to garbage collection
             std::shared_ptr<const Trk::TrackParameters> sharedPtr{std::move(exPars)};
