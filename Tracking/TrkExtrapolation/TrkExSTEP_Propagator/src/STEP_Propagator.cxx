@@ -859,7 +859,7 @@ Trk::STEP_Propagator::intersect (const EventContext&                 ctx,
   Amg::Vector3D globalPosition( cache.m_P[0],cache.m_P[1],cache.m_P[2]);
   Amg::Vector3D direction( cache.m_P[3],cache.m_P[4],cache.m_P[5]);
   Trk::IntersectionSolution* intersectionSolution = new Trk::IntersectionSolution();
-  intersectionSolution->push_back(new Trk::TrackSurfaceIntersection( globalPosition, direction, path));
+  intersectionSolution->push_back(std::make_unique<Trk::TrackSurfaceIntersection>( globalPosition, direction, path));
   return intersectionSolution;
 }
 
