@@ -76,7 +76,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-
+        self.chainDict = chainDict
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -88,29 +88,18 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # --------------------
         stepDictionary = {
             "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
-            "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
             "hiptrt" : ['getFastCalo', 'getHipTRT'],                                # hipTRT sequence 
-            "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "looseicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "mediumicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "tighticaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "looseicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "mediumicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "tighticalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "looseicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "mediumicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-            "tighticalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "nominal":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
         }
 
         ## This needs to be configured by the Egamma Developer!!
         log.debug('photon chain part = %s', self.chainPart)
-        addInfo = 'etcut'
-
-        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
-        for addInfo in self.chainPart['addInfo']:
-            key+=addInfo
+        
+        key = "nominal"
+        if "etcut" in self.chainPart['IDinfo']:
+            key = "etcut"
+        if self.chainPart['extra']=="hiptrt":
+            key	= "hiptrt"
 
         log.debug('photon key = %s', key)
         if key in stepDictionary:
@@ -170,13 +159,14 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(2,stepName,[ hipTRTMenuSequenceCfg])
 
     def getPrecisionPhoton(self):
-   
-        if "dPhi15" in self.chainName and "m80" not in self.chainName:
-            stepName = "precision_photon_dPhi15"
-            return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
-        elif "m80" in self.chainName and "dPhi15" in self.chainName:
-            stepName = "precision_photon_dPhi15_m80"
-            return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiMassHypoToolFromDict])
+        
+        if "dPhi15" in self.chainDict["topo"]:
+            if "m80" in self.chainDict["topo"]:
+                stepName = "precision_photon_dPhi15_m80"
+                return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiMassHypoToolFromDict])
+            else:
+                stepName = "precision_photon_dPhi15"
+                return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
         else:
             stepName = "precision_photon"
             return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
