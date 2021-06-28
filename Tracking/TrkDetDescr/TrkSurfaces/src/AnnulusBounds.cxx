@@ -160,11 +160,11 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
   if (m_boundValues[AnnulusBounds::bv_minR] > m_boundValues[AnnulusBounds::bv_maxR])
     swap(m_boundValues[AnnulusBounds::bv_minR], m_boundValues[AnnulusBounds::bv_maxR]);
 
-  m_k_L = std::tan((M_PI + phi) / 2. + phiS);
-  m_k_R = std::tan((M_PI - phi) / 2. + phiS);
+  m_k_L = std::tan((M_PI + phi) / 2. - phiS);
+  m_k_R = std::tan((M_PI - phi) / 2. - phiS);
 
-  m_d_L = R * std::sin(phiS) * std::tan((M_PI - phi) / 2. - phiS) + R * (1. - std::cos(phiS));
-  m_d_R = R * std::sin(phiS) * std::tan((M_PI + phi) / 2. - phiS) + R * (1. - std::cos(phiS));
+  m_d_L = R * std::sin(-phiS) * std::tan((M_PI - phi) / 2. + phiS) + R * (1. - std::cos(-phiS));
+  m_d_R = R * std::sin(-phiS) * std::tan((M_PI + phi) / 2. + phiS) + R * (1. - std::cos(-phiS));
 
   // solving quadratic equation to find four corners of the AnnulusBounds
   m_solution_L_min = circleLineIntersection(minR, m_k_L, m_d_L);
