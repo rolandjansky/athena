@@ -106,7 +106,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr : *readCdo) {
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        const std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
         std::string hv_name;
 
         if (atr.size() == 1) {
@@ -183,7 +183,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr_v0 : *readCdo_v0) {
         const unsigned int chanNum = itr_v0.first;
         const coral::AttributeList& atr_v0 = itr_v0.second;
-        std::string setPointsV0_payload = readCdo_v0->chanName(chanNum);
+        const std::string& setPointsV0_payload = readCdo_v0->chanName(chanNum);
         float setPointsV0_name{0.};
 
         if (atr_v0.size() == 1) {
@@ -207,7 +207,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr_v1 : *readCdo_v1) {
         const unsigned int chanNum = itr_v1.first;
         const coral::AttributeList& atr_v1 = itr_v1.second;
-        const std::string setPointsV1_payload = readCdo_v1->chanName(chanNum);
+        const std::string& setPointsV1_payload = readCdo_v1->chanName(chanNum);
         float setPointsV1_name{0.};
 
         if (atr_v1.size() == 1) {
@@ -261,7 +261,7 @@ StatusCode MdtCondDbAlg::loadDataPsLv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr : *readCdo) {
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
         std::string hv_name;
 
         if (!atr.size()) { continue; }
@@ -301,7 +301,7 @@ StatusCode MdtCondDbAlg::loadDataHv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
 
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
         std::string hv_name_ml1, hv_name_ml2;
         float hv_v0_ml1{0.}, hv_v0_ml2{0.}, hv_v1_ml1{0.}, hv_v1_ml2{0.};
 
@@ -398,7 +398,7 @@ StatusCode MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
         unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
         std::string hv_name;
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
 
         if (!atr.size()) { continue; }
         hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
@@ -579,7 +579,7 @@ StatusCode MdtCondDbAlg::loadMcNoisyChannels(writeHandle_t& wh, MdtCondDbData* w
     for (const auto& itr : *readCdo) {
         unsigned int chanNum = itr.first;
         std::string hv_name;
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
 
         const coral::AttributeList& atr = itr.second;
 

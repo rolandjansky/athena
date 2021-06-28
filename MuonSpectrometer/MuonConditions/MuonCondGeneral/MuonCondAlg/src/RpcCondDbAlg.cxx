@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/RpcCondDbAlg.h"
@@ -76,7 +76,7 @@ StatusCode RpcCondDbAlg::execute(const EventContext& ctx) const {
 StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_deadPanels, ctx};
     const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo == 0) {
+    if (readCdo == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -97,7 +97,7 @@ StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData*
     unsigned int chan_index = 0;
     for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
         unsigned int chanNum = readCdo->chanNum(chan_index);
-        std::string sector_name = readCdo->chanName(chanNum);
+        const std::string& sector_name = readCdo->chanName(chanNum);
 
         const coral::AttributeList& atr = itr->second;
 
@@ -110,7 +110,7 @@ StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData*
             ATH_MSG_DEBUG("panel_dead " << panel_dead);
             ATH_MSG_DEBUG("panel_reason " << panel_reason);
 
-            char* ch_tmp;
+            const char* ch_tmp;
             std::string delimiter = ",";
             std::vector<std::string> info_panel;
             MuonCalib::MdtStringUtils::tokenize(panel_dead, info_panel, delimiter);
@@ -118,7 +118,7 @@ StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData*
             Identifier PanelId;
 
             for (unsigned int i = 0; i < info_panel.size(); i++) {
-                ch_tmp = const_cast<char*>(info_panel[i].c_str());
+                ch_tmp = info_panel[i].c_str();
                 PanelId = atoi(ch_tmp);
                 ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << atoi(ch_tmp));
 
@@ -141,7 +141,7 @@ StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData*
 StatusCode RpcCondDbAlg::loadDataOffPanels(EventIDRange& rangeW, RpcCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_offPanels, ctx};
     const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo == 0) {
+    if (readCdo == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -162,7 +162,7 @@ StatusCode RpcCondDbAlg::loadDataOffPanels(EventIDRange& rangeW, RpcCondDbData* 
     unsigned int chan_index = 0;
     for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
         unsigned int chanNum = readCdo->chanNum(chan_index);
-        std::string sector_name = readCdo->chanName(chanNum);
+        const std::string& sector_name = readCdo->chanName(chanNum);
 
         const coral::AttributeList& atr = itr->second;
 
@@ -175,7 +175,7 @@ StatusCode RpcCondDbAlg::loadDataOffPanels(EventIDRange& rangeW, RpcCondDbData* 
             ATH_MSG_DEBUG("panel_off " << panel_off);
             ATH_MSG_DEBUG("panel_reason " << panel_reason);
 
-            char* ch_tmp;
+            const char* ch_tmp;
             std::string delimiter = ",";
             std::vector<std::string> info_panel;
             MuonCalib::MdtStringUtils::tokenize(panel_off, info_panel, delimiter);
@@ -183,7 +183,7 @@ StatusCode RpcCondDbAlg::loadDataOffPanels(EventIDRange& rangeW, RpcCondDbData* 
             Identifier PanelId;
 
             for (unsigned int i = 0; i < info_panel.size(); i++) {
-                ch_tmp = const_cast<char*>(info_panel[i].c_str());
+                ch_tmp = info_panel[i].c_str();
                 PanelId = atoi(ch_tmp);
                 ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << PanelId);
 
@@ -206,7 +206,7 @@ StatusCode RpcCondDbAlg::loadDataOffPanels(EventIDRange& rangeW, RpcCondDbData* 
 StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_deadElements, ctx};
     const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo == 0) {
+    if (readCdo == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -249,52 +249,52 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
         std::vector<float> info_panel_test;
         MuonCalib::MdtStringUtils::tokenize(eff_panel, info_panel, delimiter);
 
-        char* SDBversion = const_cast<char*>(info_panel[0].c_str());
+        const char* SDBversion = (info_panel[0].c_str());
         int DBversion = atoi(SDBversion);
 
-        char* SNStrip = const_cast<char*>(info_panel[2].c_str());
+        const char* SNStrip = (info_panel[2].c_str());
         int npanelstrip = atoi(SNStrip);
 
-        char* SProjectedTracks = const_cast<char*>(info_panel[1].c_str());
+        const char* SProjectedTracks = (info_panel[1].c_str());
         double ProjectedTracks = atof(SProjectedTracks);
         writeCdo->setProjectedTrack(chamberId, ProjectedTracks);
 
-        char* SEfficiency = const_cast<char*>(info_panel[3].c_str());
+        const char* SEfficiency = (info_panel[3].c_str());
         double Efficiency = atof(SEfficiency);
         writeCdo->setEfficiency(chamberId, Efficiency);
 
         if (Efficiency <= m_panelEfficiency) writeCdo->setLowEffPanel(chamberId);
 
-        char* SGapEfficiency = const_cast<char*>(info_panel[5].c_str());
+        const char* SGapEfficiency = (info_panel[5].c_str());
         double GapEfficiency = atof(SGapEfficiency);
         writeCdo->setGapEfficiency(chamberId, GapEfficiency);
 
-        char* SMeanClusterSize = const_cast<char*>(info_panel[17].c_str());
+        const char* SMeanClusterSize = (info_panel[17].c_str());
         double MeanClusterSize = atof(SMeanClusterSize);
         writeCdo->setMeanClusterSize(chamberId, MeanClusterSize);
 
         if (DBversion > 2) {
-            char* SFracClusterSize1_a = const_cast<char*>(info_panel[19].c_str());
-            char* SFracClusterSize1_b = const_cast<char*>(info_panel[20].c_str());
+            const char* SFracClusterSize1_a = (info_panel[19].c_str());
+            const  char* SFracClusterSize1_b = (info_panel[20].c_str());
             double FracClusterSize1 = atof(SFracClusterSize1_a) + atof(SFracClusterSize1_b) * 10000;
             writeCdo->setFracClusterSize1(chamberId, FracClusterSize1);
 
-            char* SFracClusterSize2_a = const_cast<char*>(info_panel[21].c_str());
-            char* SFracClusterSize2_b = const_cast<char*>(info_panel[22].c_str());
+            const char* SFracClusterSize2_a = (info_panel[21].c_str());
+            const char* SFracClusterSize2_b = (info_panel[22].c_str());
             double FracClusterSize2 = atof(SFracClusterSize2_a) + atof(SFracClusterSize2_b) * 10000;
             writeCdo->setFracClusterSize2(chamberId, FracClusterSize2);
 
-            char* SFracClusterSize3_a = const_cast<char*>(info_panel[23].c_str());
-            char* SFracClusterSize3_b = const_cast<char*>(info_panel[24].c_str());
+            const char* SFracClusterSize3_a = (info_panel[23].c_str());
+            const char* SFracClusterSize3_b = (info_panel[24].c_str());
             double FracClusterSize3 = atof(SFracClusterSize3_a) + atof(SFracClusterSize3_b) * 10000;
             writeCdo->setFracClusterSize3(chamberId, FracClusterSize3);
         } else {
             if (info_panel.size() > 20) {
-                char* SFracClusterSize1 = const_cast<char*>(info_panel[19].c_str());
+                const char* SFracClusterSize1 = (info_panel[19].c_str());
                 double FracClusterSize1 = atof(SFracClusterSize1);
                 writeCdo->setFracClusterSize1(chamberId, FracClusterSize1);
 
-                char* SFracClusterSize2 = const_cast<char*>(info_panel[20].c_str());
+                const char* SFracClusterSize2 = (info_panel[20].c_str());
                 double FracClusterSize2 = atof(SFracClusterSize2);
                 writeCdo->setFracClusterSize2(chamberId, FracClusterSize2);
             } else {
@@ -320,11 +320,11 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
         std::vector<float> info_strip_test;
 
         MuonCalib::MdtStringUtils::tokenize(striplist, info_strip, delimiter_strip);
-        char* ch_strip2;
+        const char* ch_strip2;
 
         if (info_strip.size() > 1) {
             for (unsigned int i = 0; i < info_strip.size(); ++i) {
-                ch_strip2 = const_cast<char*>(info_strip[i].c_str());
+                ch_strip2 = (info_strip[i].c_str());
 
                 std::string delimiter_strip2 = "  ";
                 std::vector<std::string> info_strip2;
@@ -332,11 +332,11 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
 
                 MuonCalib::MdtStringUtils::tokenize(ch_strip2, info_strip2, delimiter_strip2);
 
-                char* STime = const_cast<char*>(info_strip2[1].c_str());
+                const char* STime = (info_strip2[1].c_str());
                 double Time = atof(STime);
-                char* SSigmaTime = const_cast<char*>(info_strip2[2].c_str());
+                const char* SSigmaTime = (info_strip2[2].c_str());
                 double SigmaTime = atof(SSigmaTime);
-                char* strip_status = const_cast<char*>(info_strip2[0].c_str());
+                const char* strip_status = (info_strip2[0].c_str());
 
                 strip_status_list = strip_status_list + strip_status;
 
@@ -374,7 +374,7 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
             for (unsigned int i = 0; i < striplist.size(); i++) {
                 std::string part_strip = striplist.substr(i, 1);
                 strip_status_list = strip_status_list + part_strip;
-                char* ch_panel = const_cast<char*>(part_strip.c_str());
+                const char* ch_panel = (part_strip.c_str());
 
                 Identifier strip_id;
                 CondAttrListCollection::ChanNum stripnum;

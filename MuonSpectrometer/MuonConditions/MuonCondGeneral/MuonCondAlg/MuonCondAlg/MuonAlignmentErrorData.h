@@ -1,7 +1,7 @@
 // Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,7 +37,7 @@ class MuonAlignmentErrorData {
 public:
     MuonAlignmentErrorData();
     virtual ~MuonAlignmentErrorData();
-    void setVec(const std::vector<deviationStr> vec);
+    void setVec(const std::vector<deviationStr>& vec);
     void getVec(std::vector<deviationStr>& vec) const;
     void clearVec();
 
