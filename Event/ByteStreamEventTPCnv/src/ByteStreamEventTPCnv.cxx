@@ -9,3 +9,8 @@ DECLARE_TPCNV_FACTORY(ByteStreamMetadataCnv_p1,
                       ByteStreamMetadata,
                       ByteStreamMetadata_p1,
                       Athena::TPCnvVers::Current)
+
+DECLARE_TPCNV_FACTORY(ByteStreamMetadataContainerCnv_p1,
+                      ByteStreamMetadataContainer,
+                      ByteStreamMetadataContainer_p1,
+                      Athena::TPCnvVers::Current)
