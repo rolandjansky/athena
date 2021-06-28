@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGETRUTHJETSTOOL_H
@@ -8,6 +8,7 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -49,8 +50,7 @@ public:
 
 private:
   /// JetContainer Loop
-  virtual double processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID);
-  StatusCode record(const xAOD::JetContainer* pjets, const std::string& jetcontainername) const;
+  virtual double processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID, int eventNumber);
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
   Gaudi::Property<std::string> m_inputJetCollKey{this, "InputTruthJetCollKey", "AntiKt4TruthJets", ""};
   Gaudi::Property<std::string> m_inTimeOutputJetCollKey{this, "InTimeOutputTruthJetCollKey", "InTimeAntiKt4TruthJets", ""};
@@ -59,8 +59,10 @@ private:
   Gaudi::Property<double> m_outOfTimePtCut{this, "OutOfTimePtCut", 15.0*Gaudi::Units::GeV, ""};
   Gaudi::Property<bool> m_activateFilter{this, "ActivateFilter",  false, ""};
   Gaudi::Property<bool> m_includeSignalJets{this, "IncludeSignalJets", false, ""};
-  xAOD::JetContainer *m_inTimeOutputJetContainer{};
-  xAOD::JetContainer *m_outOfTimeOutputJetContainer{};
+  std::unique_ptr< xAOD::JetContainer > m_inTimeOutputJetContainer{};
+  std::unique_ptr< xAOD::JetAuxContainer > m_inTimeOutputJetAuxContainer{};
+  std::unique_ptr< xAOD::JetContainer > m_outOfTimeOutputJetContainer{};
+  std::unique_ptr< xAOD::JetAuxContainer > m_outOfTimeOutputJetAuxContainer{};
   bool m_first_event{true};
   double m_signal_max_pT{-1.0};
   double m_pileup_max_pT{-1.0};
