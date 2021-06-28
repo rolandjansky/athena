@@ -57,21 +57,6 @@ namespace InDet{
     declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
     declareProperty("ClusterContainerCacheKey", m_clusterContainercacheKey, "Optional External Pixel cluster Cache");
-    // error strategy <-- this is now in the MergedPixelTool
-    //
-    // 0 : broad errors (cluster width/sqrt(12) )
-    //     as in old clustering code (release 6 and 7)
-    // 1 : narrow errors (pixel pitch/sqrt(12.) )
-    //     DEFAULT - should be more accurate, 
-    //     and still conservative
-    // 2 : parameterization as a function of eta & cluster size
-    //     same as in atrecon (fortran code)
-    //       declareProperty("ErrorStrategy",m_errorStrategy); <-- this is now in the MergedPixelTool
-    // position strategy
-    //
-    // 0 : arithmetic mean of pixel position
-    // 1 : simple charge interpolation
-    //       declareProperty("PositionStrategy",m_positionStrategy); <-- this is now in the MergedPixelTool
   }
   
   //-----------------------------------------------------------------------------
