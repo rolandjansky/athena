@@ -54,9 +54,11 @@ def ITkPixelSensorSDCfg(ConfigFlags, name="ITkPixelSensorSD", **kwargs):
                                                     region)
     # Ensure we create a Gmx sensor 
     kwargs.setdefault("GmxSensor",True) 
-    kwargs.setdefault("LogicalVolumeNames", ["ITkPixel::InnerSingleMod_Chip",
-                                             "ITkPixel::InnerQuadMod_Chip",
-                                             "ITkPixel::OuterQuadMod_Chip"])
+    kwargs.setdefault("LogicalVolumeNames", ["ITkPixel::InnerBarrelSingleMod_Sensor",
+                                             "ITkPixel::InnerRingSingleMod_Sensor",
+                                             "ITkPixel::InnerQuadMod_Sensor",
+                                             "ITkPixel::OuterQuadMod_Sensor",
+                                             "ITkPixel::InclinedQuadMod_Sensor"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result = ComponentAccumulator()
