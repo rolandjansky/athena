@@ -61,31 +61,34 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     jetcol_name_without_Jets = jetcol.replace('Jets','')
     BTaggingCollection = cfgFlags.BTagging.OutputFiles.Prefix + jetcol_name_without_Jets
 
-    kwargs = {}
-    kwargs['Release'] = '22'
     track_collection = 'InDetTrackParticles'
+    muon_collection = 'Muons'
 
     cfgFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
 
     acc = ComponentAccumulator()
 
-    acc.merge(JetParticleAssociationAlgCfg(
-        cfgFlags,
-        jetcol_name_without_Jets,
-        track_collection,
-        'BTagTrackToJetAssociator',
-        **kwargs
-    ))
+    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, track_collection, "TracksForBTagging"))
+    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, muon_collection, "MuonsForBTagging"))
 
-    SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
-    for k, v in SecVertexingAndAssociators.items():
+    SecVertexers = [ 'JetFitter' , 'SV1' ]
 
-        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, pvCol, k, v))
-
-        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, pvCol, k, v))
+    for sv in SecVertexers:
+        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, pvCol, sv, "TracksForBTagging"))
+        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, "InDetTrackParticles", pvCol, sv))
 
 
-    acc.merge( JetBTaggingAlgCfg(cfgFlags, BTaggingCollection = BTaggingCollection, JetCollection = jetcol_name_without_Jets, PrimaryVertexCollectionName=pvCol, TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
+    acc.merge(JetBTaggingAlgCfg( \
+        cfgFlags
+      , BTaggingCollection = BTaggingCollection
+      , JetCollection = jetcol_name_without_Jets
+      , PrimaryVertexCollectionName=pvCol
+      , TaggerList = taggerlist
+      , SecVertexers = SecVertexers
+      , Tracks = "TracksForBTagging"
+      , Muons = "MuonsForBTagging"
+      )
+    )
 
 
     postTagDL2JetToTrainingMap={

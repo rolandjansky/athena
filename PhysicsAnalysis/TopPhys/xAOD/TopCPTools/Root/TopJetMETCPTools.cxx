@@ -704,6 +704,8 @@ namespace top {
       tool = asg::ToolStore::get<ECUtils::IEventCleaningTool>(name);
     } else {
       tool = new ECUtils::EventCleaningTool(name);
+      top::check(asg::setProperty(tool, "JetContainer", m_config->sgKeyJets()),
+                 "Failed to set jet container name for JetEventCleaningTool");
       top::check(asg::setProperty(tool, "PtCut", std::to_string(m_config->jetPtcut())),
                  "Failed to set jet pt cut in JetEventCleaningTool");
       top::check(asg::setProperty(tool, "EtaCut", std::to_string(m_config->jetEtacut())),

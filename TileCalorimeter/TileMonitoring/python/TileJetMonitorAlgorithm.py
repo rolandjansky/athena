@@ -74,6 +74,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
         eventCleaningTool.JvtDecorator = "passJvt"
         eventCleaningTool.OrDecorator = "passOR"
         eventCleaningTool.CleaningLevel = jetCleaningTool.CutLevel
+        eventCleaningTool.JetContainer = str(jetContainer)
 
         tileJetMonAlg.EventCleaningTool = eventCleaningTool
         tileJetMonAlg.JetTrackingEtaLimit = jetTrackingEtaLimit

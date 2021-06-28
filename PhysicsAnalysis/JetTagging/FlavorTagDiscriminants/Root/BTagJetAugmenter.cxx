@@ -370,7 +370,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
     if (secondaryVtx_track_number >= 0) {
       m = secondaryVtx_4momentum_total.M();
       E = secondaryVtx_4momentum_total.E();
-      EFrac = secondaryVtx_4momentum_total.E() / track_E_total;
+      EFrac = E / track_E_total;
     }
     m_secondaryVtx_m(btag) = m;
     m_secondaryVtx_E(btag) = E;

@@ -168,6 +168,7 @@ if tileESDMon:
             ecTool.JvtDecorator    = "passJvt"
             ecTool.OrDecorator     = "passOR"
             ecTool.CleaningLevel   = cleaning.CutLevel
+            ecTool.JetContainer    = jetContainer
             ToolSvc += ecTool
             TileJetMonTool.useJVTTool             = jvt
             TileJetMonTool.useJetCleaning         = cleaning

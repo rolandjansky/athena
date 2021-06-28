@@ -7,6 +7,7 @@
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
@@ -16,11 +17,12 @@
 #include "xAODBTagging/BTagVertexAuxContainer.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/ReadDecorHandle.h"
+#include "AthContainers/AuxElement.h"
 
 #include "JetTagTools/JetFitterVariablesFactory.h"
 
-#include <iostream>
 #include <string>
+#include <optional>
 
 namespace Analysis {
 
@@ -44,15 +46,38 @@ namespace Analysis {
 
   StatusCode JetBTaggingAlg::initialize() {
 
+    m_IncomingTracks = m_JetCollectionName.key() + "." + m_IncomingTracks.key();
+    m_OutgoingTracks = m_BTaggingCollectionName.key() + "." + m_OutgoingTracks.key();
+
     // This will check that the properties were initialized properly
     // by job configuration.
     ATH_CHECK( m_JetCollectionName.initialize() );
-    ATH_CHECK( m_jetParticleLinkNameList.initialize() );
+    ATH_CHECK( m_IncomingTracks.initialize() );
+    ATH_CHECK( m_OutgoingTracks.initialize() );
     ATH_CHECK( m_BTagSVCollectionName.initialize() );
     ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
     ATH_CHECK( m_bTagJetDecorLinkName.initialize() );
+
+
+    // this is a terrible, awful hack
+    // but right now there aren't any muons for b-tagging in the trigger
+    // so if an empty muon container is passed, DON'T DECLARE A DEPENDENCY
+    // we'll make an empty container on the b-tagging object later...
+    m_DoMuons = m_IncomingMuons.key() != "";
+
+    if (m_DoMuons) {
+      ATH_MSG_DEBUG("#BTAG# muons requested for: " << m_JetCollectionName.key());
+      m_IncomingMuons = m_JetCollectionName.key() + "." + m_IncomingMuons.key();
+      ATH_CHECK( m_IncomingMuons.initialize(true) );
+    } else {
+      ATH_MSG_DEBUG("#BTAG# no muons requested for: " << m_JetCollectionName.key());
+      ATH_CHECK( m_IncomingMuons.initialize(false) );
+    }
+
+    m_OutgoingMuons = m_BTaggingCollectionName.key() + "." + m_OutgoingMuons.key();
+    ATH_CHECK( m_OutgoingMuons.initialize() );
 
     ATH_MSG_DEBUG("#BTAG# Jet container name: " << m_JetCollectionName.key());
     ATH_MSG_DEBUG("#BTAG# BTagging container name: " << m_BTaggingCollectionName.key());
@@ -80,17 +105,11 @@ namespace Analysis {
     /// handle to the magnetic field cache
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
-    if (m_jetParticleLinkNameList.size() == 0) {
-      ATH_MSG_FATAL( "#BTAG# Please provide track to jet association list");
-      return StatusCode::FAILURE;
-    }
-
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode JetBTaggingAlg::execute() {
-
     EventContext ctx = Gaudi::Hive::currentContext();
 
     //retrieve the Jet container
@@ -121,6 +140,25 @@ namespace Analysis {
       ATH_MSG_ERROR( " cannot retrieve Sec Vertex container with key " << m_BTagJFVtxCollectionName.key()  );
       return StatusCode::FAILURE;
     }
+
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::IParticleContainer> > >
+      h_IncomingTracks(m_IncomingTracks, ctx);
+
+    std::optional<SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::IParticleContainer> > > >
+      h_IncomingMuons;
+      
+    if (m_DoMuons) {
+      SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::IParticleContainer> > >
+        tmp(m_IncomingMuons, ctx);
+      h_IncomingMuons = tmp;
+    }
+
+
+    SG::WriteDecorHandle<xAOD::BTaggingContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > >
+      h_OutgoingTracks(m_OutgoingTracks, ctx);
+
+    SG::WriteDecorHandle<xAOD::BTaggingContainer, std::vector<ElementLink< xAOD::MuonContainer> > >
+      h_OutgoingMuons(m_OutgoingMuons, ctx);
 
 
     //Decor Jet with element link to the BTagging
@@ -155,24 +193,38 @@ namespace Analysis {
         h_jetBTaggingLinkName(*jet) = linkBTagger;
       }
       return StatusCode::SUCCESS;
-    }
-    else { //Solenoid ON
-      for ( auto jet : *h_JetCollectionName.ptr()) {
-        xAOD::BTagging * newBTagMT  = new xAOD::BTagging();
+    } else { //Solenoid ON
+      for (auto jet : *h_JetCollectionName.ptr()) {
+        xAOD::BTagging *newBTagMT = new xAOD::BTagging();
         h_BTaggingCollectionName->push_back(newBTagMT);
-        //Track association
-        for(SG::ReadDecorHandleKey<xAOD::JetContainer > elTP : m_jetParticleLinkNameList) {
-          SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName(elTP, ctx);
-          if (!h_jetParticleLinkName.isAvailable()) {
-            ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << elTP.key()  );
-            return StatusCode::FAILURE;
-          }
-          std::string::size_type iofs=h_jetParticleLinkName.decorKey().rfind(".");
-          std::string assocN = h_jetParticleLinkName.decorKey().substr(iofs+1);
-          const std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = h_jetParticleLinkName(*jet);
-          newBTagMT->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(assocN) = associationLinks;
+
+        // Track association
+        const std::vector<ElementLink<xAOD::IParticleContainer> >& trackLinks = h_IncomingTracks(*jet);
+
+        std::vector<ElementLink<xAOD::TrackParticleContainer> > tmpTracks;
+
+        for (ElementLink<xAOD::IParticleContainer> elpart : trackLinks)
+          tmpTracks.push_back(ElementLink<xAOD::TrackParticleContainer>(elpart.key(), elpart.index()));
+
+        h_OutgoingTracks(*newBTagMT) = tmpTracks;
+
+        // Muon association
+        // awful hack part deux
+        // if a non-empty incoming muon key was requested
+        // then we actually copy them over
+        // otherwise just create an empty container
+        std::vector<ElementLink<xAOD::MuonContainer> > tmpMuons;
+        if (m_DoMuons) {
+          const std::vector<ElementLink<xAOD::IParticleContainer> >& muonLinks = (*h_IncomingMuons)(*jet);
+
+          for (ElementLink<xAOD::IParticleContainer> elpart : muonLinks)
+            tmpMuons.push_back(ElementLink<xAOD::MuonContainer>(elpart.key(), elpart.index()));
         }
+
+        h_OutgoingMuons(*newBTagMT) = tmpMuons;
+
       }
+
     }
 
     // Secondary vertex reconstruction.

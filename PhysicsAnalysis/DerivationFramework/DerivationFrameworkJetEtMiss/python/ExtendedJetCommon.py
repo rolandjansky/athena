@@ -749,6 +749,7 @@ def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolLoose = EventCleaningTool('EventCleaningTool_Loose',CleaningLevel='LooseBad')
     ecToolLoose.JetCleanPrefix = prefix
     ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
+    ecToolLoose.JetContainer = "AntiKt4EMTopoJets"
     algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_Loose',
                                          EventCleaningTool=ecToolLoose,
                                          JetCollectionName="AntiKt4EMTopoJets",
@@ -764,6 +765,7 @@ def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolTight = EventCleaningTool('EventCleaningTool_Tight',CleaningLevel='TightBad')
     ecToolTight.JetCleanPrefix = prefix
     ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
+    ecToolTight.JetContainer = "AntiKt4EMTopoJets"
     algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_Tight',
                                          EventCleaningTool=ecToolTight,
                                          JetCollectionName="AntiKt4EMTopoJets",
@@ -781,6 +783,7 @@ def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramew
     ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP')
     ecToolLooseLLP.JetCleanPrefix = prefix
     ecToolLooseLLP.JetCleaningTool = getJetCleaningTool("LooseBadLLP")
+    ecToolLooseLLP.JetContainer = "AntiKt4EMTopoJets"
     algCleanLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_LooseLLP',
                             EventCleaningTool=ecToolLooseLLP,
                             JetCollectionName="AntiKt4EMTopoJets",
@@ -799,6 +802,7 @@ def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFr
     ecToolVeryLooseLLP = EventCleaningTool('EventCleaningTool_VeryLooseLLP',CleaningLevel='VeryLooseBadLLP')
     ecToolVeryLooseLLP.JetCleanPrefix = prefix
     ecToolVeryLooseLLP.JetCleaningTool = getJetCleaningTool("VeryLooseBadLLP")
+    ecToolVeryLooseLLP.JetContainer = "AntiKt4EMTopoJets"
     algCleanVeryLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_VeryLooseLLP',
                             EventCleaningTool=ecToolVeryLooseLLP,
                             JetCollectionName="AntiKt4EMTopoJets",
@@ -817,6 +821,7 @@ def eventCleanSuperLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationF
     ecToolSuperLooseLLP = EventCleaningTool('EventCleaningTool_SuperLooseLLP',CleaningLevel='SuperLooseBadLLP')
     ecToolSuperLooseLLP.JetCleanPrefix = prefix
     ecToolSuperLooseLLP.JetCleaningTool = getJetCleaningTool("SuperLooseBadLLP")
+    ecToolSuperLooseLLP.JetContainer = "AntiKt4EMTopoJets"
     algCleanSuperLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_SuperLooseLLP',
                             EventCleaningTool=ecToolSuperLooseLLP,
                             JetCollectionName="AntiKt4EMTopoJets",
