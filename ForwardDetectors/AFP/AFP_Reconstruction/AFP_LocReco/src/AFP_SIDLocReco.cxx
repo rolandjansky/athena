@@ -68,7 +68,7 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
       ATH_MSG_WARNING("AFP_SIDLocReco, cannot get siHitContainer");
       return StatusCode::SUCCESS;
   }
-  else ATH_MSG_INFO("AFP_SIDLocReco::execute(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
+  else ATH_MSG_DEBUG("AFP_SIDLocReco::execute(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
 	
   // get list of hits SID hits from the container
   std::list<SIDHIT> ListSIDHits = AFPCollectionReading(siHitContainer, eventInfo);

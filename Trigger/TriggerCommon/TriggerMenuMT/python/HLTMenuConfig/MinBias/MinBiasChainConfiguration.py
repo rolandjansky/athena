@@ -28,11 +28,13 @@ def MinBiasMbtsSequenceCfg(flags):
 def AFPrecoSequenceCfg(flags):
     return AFPTrkRecoSequence()
 
-def TrigAFPDijetComboHypoToolCfg(flags):
+def TrigAFPDijetComboHypoToolCfg(chainDict):
     from TrigAFPHypo.TrigAFPHypoConf import TrigAFPDijetComboHypoTool
-    monTool = GenericMonitoringTool("MonTool_AFPComboHypo")
+    name = chainDict['chainName']
+    monTool = GenericMonitoringTool("MonTool_"+name)
     monTool.Histograms = [defineHistogram('DijetMass', type='TH1F', path='EXPERT', title="Dijet mass", xbins=100, xmin=0, xmax=200000)]
-    tool = TrigAFPDijetComboHypoTool("AFPDijetComboHypoToolTest")
+    #tool = TrigAFPDijetComboHypoTool("AFPDijetComboHypoToolTest")
+    tool = TrigAFPDijetComboHypoTool(name)
     monTool.HistPath = 'AFPComboHypo/'+tool.getName()
     tool.MonTool = monTool
     return tool
