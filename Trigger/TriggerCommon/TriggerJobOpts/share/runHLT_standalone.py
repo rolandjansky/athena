@@ -202,6 +202,12 @@ if 'doL1Sim' not in globals():
     opt.doL1Sim = ConfigFlags.Input.isMC
     log.info('Setting default doL1Sim=%s because ConfigFlags.Input.isMC=%s', opt.doL1Sim, ConfigFlags.Input.isMC)
 
+# Set default enableL1CaloPhase1 option to True if running L1Sim on data (ATR-23703)
+if 'enableL1CaloPhase1' not in globals():
+    opt.enableL1CaloPhase1 = opt.doL1Sim and ConfigFlags.Input.Format == 'BS'
+    log.info('Setting default enableL1CaloPhase1=%s because doL1Sim=%s and ConfigFlags.Input.Format=%s',
+             opt.enableL1CaloPhase1, opt.doL1Sim, ConfigFlags.Input.Format)
+
 # Translate opts to flags for LVL1
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
 #ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
