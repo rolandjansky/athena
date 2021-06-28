@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/TgcCondDbAlg.h"
@@ -76,7 +76,7 @@ StatusCode TgcCondDbAlg::execute() {
 StatusCode TgcCondDbAlg::loadDetectorStatus(EventIDRange& rangeW, std::unique_ptr<TgcCondDbData>& writeCdo) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_detectorStatus};
     const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo == 0) {
+    if (readCdo == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }

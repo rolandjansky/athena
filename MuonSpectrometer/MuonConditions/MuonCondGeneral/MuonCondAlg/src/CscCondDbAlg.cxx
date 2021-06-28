@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
+
+
 
 #include "MuonCondAlg/CscCondDbAlg.h"
 
@@ -99,7 +103,7 @@ StatusCode CscCondDbAlg::execute(const EventContext& ctx) const {
 StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv, ctx};
     const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo == 0) {
+    if (readCdo == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -115,7 +119,7 @@ StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* w
     unsigned int chan_index = 0;
     for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
         unsigned int chanNum = readCdo->chanNum(chan_index);
-        std::string csc_chan_name = readCdo->chanName(chanNum);
+        const std::string& csc_chan_name = readCdo->chanName(chanNum);
 
         const coral::AttributeList& atr = itr->second;
 
@@ -129,7 +133,7 @@ StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* w
             std::vector<std::string> tokens;
             MuonCalib::MdtStringUtils::tokenize(csc_chan_name, tokens, delimiter);
 
-            if ((hv_state != 1 or lv_state != 1 or hv_setpoint0 < 1000 or hv_setpoint1 < 1000) && tokens.size() != 0) {
+            if ((hv_state != 1 or lv_state != 1 or hv_setpoint0 < 1000 or hv_setpoint1 < 1000) && !tokens.empty()) {
                 std::string layer = tokens[1];
                 std::string number_layer = tokens[1].substr(1, 2);
                 int wirelayer = atoi(const_cast<char*>(number_layer.c_str()));
@@ -228,7 +232,7 @@ StatusCode CscCondDbAlg::loadDataT0Phase(writeHandle_t& writeHandle, CscCondDbDa
 }
 
 // loadData
-StatusCode CscCondDbAlg::loadData(CscCondDbData* writeCdo, const CondAttrListCollection* readCdo, const std::string parName,
+StatusCode CscCondDbAlg::loadData(CscCondDbData* writeCdo, const CondAttrListCollection* readCdo, const std::string& parName,
                                   bool parAsm) const {
     CondAttrListCollection::const_iterator itr;
 
@@ -285,7 +289,7 @@ StatusCode CscCondDbAlg::loadData(CscCondDbData* writeCdo, const CondAttrListCol
     return StatusCode::SUCCESS;
 }
 
-StatusCode CscCondDbAlg::cache(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
+StatusCode CscCondDbAlg::cache(const std::string& data, CscCondDbData* writeCdo, const std::string& parName) const {
     std::istringstream ss(data);
     std::string valueStr;
     unsigned int chanAddress = 0;
@@ -320,7 +324,7 @@ StatusCode CscCondDbAlg::cache(std::string data, CscCondDbData* writeCdo, const 
     return StatusCode::SUCCESS;
 }
 
-StatusCode CscCondDbAlg::cacheASM(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
+StatusCode CscCondDbAlg::cacheASM(const std::string& data, CscCondDbData* writeCdo, const std::string& parName) const {
     std::istringstream ss(data);
     std::string valueStr;
     std::string chanAddress;
@@ -395,15 +399,20 @@ StatusCode CscCondDbAlg::cacheASM(std::string data, CscCondDbData* writeCdo, con
                 bool isValid = true;
                 chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi,
                                                                 iStrip, true, &isValid);
-                static bool conversionFailPrinted = false;
+               
+                static std::atomic<bool> conversionFailPrinted = false;
                 if (!isValid) {
-                    if (!conversionFailPrinted) {
-                        ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string "
-                                        << chanAddress << ". This is likely due to the fact that the CSCCool database contains "
-                                        << "more entries than the detector layout.");
-                        conversionFailPrinted = true;
-                    }
-                    continue;
+                  if (!conversionFailPrinted.load()) {
+                    ATH_MSG_WARNING(
+                      "Failed to retrieve offline identifier from ASM cool "
+                      "string "
+                      << chanAddress
+                      << ". This is likely due to the fact that the CSCCool "
+                         "database contains "
+                      << "more entries than the detector layout.");
+                    conversionFailPrinted.store(true);
+                  }
+                  continue;
                 }
                 if (m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hashIdentifier)) {
                     ATH_MSG_WARNING("Failed to retrieve channel hash for Identifier " << chanId.get_compact());
@@ -472,8 +481,8 @@ StatusCode CscCondDbAlg::getAsmScope(int asmNum, int& measuresPhi, int& layerSin
 }
 
 // recordParameter
-StatusCode CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, CscCondDbData* writeCdo,
-                                         const std::string parName) const {
+StatusCode CscCondDbAlg::recordParameter(unsigned int chanAddress, const std::string& data, CscCondDbData* writeCdo,
+                                         const std::string& parName) const {
     // retrieve channel hash
     Identifier chamberId;
     Identifier channelId;
@@ -495,8 +504,8 @@ StatusCode CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string d
 }
 
 // recordParameter
-StatusCode CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo,
-                                         const std::string parName) const {
+StatusCode CscCondDbAlg::recordParameter(IdentifierHash chanHash, const std::string& data, CscCondDbData* writeCdo,
+                                         const std::string& parName) const {
     // record parameter
     StatusCode sc = StatusCode::FAILURE;
     if (parName == "f001")
@@ -524,7 +533,7 @@ StatusCode CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string da
 // recordParameterF001
 StatusCode CscCondDbAlg::recordParameterF001(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     float token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelF001(chanHash, token);
     return StatusCode::SUCCESS;
 }
@@ -532,7 +541,7 @@ StatusCode CscCondDbAlg::recordParameterF001(IdentifierHash chanHash, std::strin
 // recordParameterNoise
 StatusCode CscCondDbAlg::recordParameterNoise(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     float token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelNoise(chanHash, token);
     return StatusCode::SUCCESS;
 }
@@ -540,7 +549,7 @@ StatusCode CscCondDbAlg::recordParameterNoise(IdentifierHash chanHash, std::stri
 // recordParameterPed
 StatusCode CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     float token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelPed(chanHash, token);
     return StatusCode::SUCCESS;
 }
@@ -549,7 +558,7 @@ StatusCode CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string
 StatusCode CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     if (m_pslopeFromDB) {
         float token;
-        if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+        if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
         writeCdo->setChannelPSlope(chanHash, token);
     } else {
         // just set plsope to m_pslope for every channel
@@ -561,7 +570,7 @@ StatusCode CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::str
 // recordParameterRMS
 StatusCode CscCondDbAlg::recordParameterRMS(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     float token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelRMS(chanHash, token);
     return StatusCode::SUCCESS;
 }
@@ -569,7 +578,7 @@ StatusCode CscCondDbAlg::recordParameterRMS(IdentifierHash chanHash, std::string
 // recordParameterStatus
 StatusCode CscCondDbAlg::recordParameterStatus(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     unsigned int token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelStatus(chanHash, token);
     return StatusCode::SUCCESS;
 }
@@ -577,7 +586,7 @@ StatusCode CscCondDbAlg::recordParameterStatus(IdentifierHash chanHash, std::str
 // recordParameterT0Base
 StatusCode CscCondDbAlg::recordParameterT0Base(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     float token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelT0Base(chanHash, token);
     return StatusCode::SUCCESS;
 }
@@ -585,7 +594,7 @@ StatusCode CscCondDbAlg::recordParameterT0Base(IdentifierHash chanHash, std::str
 // recordParameterT0Phase
 StatusCode CscCondDbAlg::recordParameterT0Phase(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
     bool token;
-    if (getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    if (getParameter(chanHash, std::move(data), token).isFailure()) return StatusCode::FAILURE;
     writeCdo->setChannelT0Phase(chanHash, token);
     return StatusCode::SUCCESS;
 }

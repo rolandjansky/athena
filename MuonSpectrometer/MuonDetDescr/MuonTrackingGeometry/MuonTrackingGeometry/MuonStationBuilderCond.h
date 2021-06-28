@@ -44,8 +44,6 @@ namespace Muon {
       virtual ~MuonStationBuilderCond() = default;
       StatusCode initialize();
 
-      // FIXME: THIS IS USING const_cast TO ACCESS
-      // buildDetachedTrackingVolumeTypes(...)
       std::pair<EventIDRange,
                 std::unique_ptr<const std::vector<
                   std::unique_ptr<const Trk::DetachedTrackingVolume>>>>

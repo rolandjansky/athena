@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MuonAlignmentErrorData.h"
@@ -12,7 +12,7 @@ deviationStr::deviationStr() : traslation(0.), rotation(0.), stationName(""), mu
 
 deviationStr::~deviationStr() {}
 
-void MuonAlignmentErrorData::setVec(const std::vector<deviationStr> vec) { m_vec = vec; }
+void MuonAlignmentErrorData::setVec(const std::vector<deviationStr>& vec) { m_vec = vec; }
 
 void MuonAlignmentErrorData::getVec(std::vector<deviationStr>& vec) const { vec = m_vec; }
 

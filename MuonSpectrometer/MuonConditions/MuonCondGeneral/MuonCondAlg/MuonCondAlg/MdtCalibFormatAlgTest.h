@@ -50,12 +50,12 @@ public:
     virtual StatusCode finalize() override;
 
 private:
-    StatusCode retrieve(const EventContext &, std::string, std::string, std::chrono::duration<double> &) const;
-    StatusCode processBlob(std::string, std::string, std::string) const;
+    StatusCode retrieve(const EventContext &, const std::string&, const std::string&, std::chrono::duration<double> &) const;
+    StatusCode processBlob(const std::string&, const std::string&, const std::string&) const;
 
-    StatusCode extractString(std::string &input, std::string &output, std::string separator) const;
+    StatusCode extractString(std::string &input, std::string &output, const std::string& separator) const;
 
-    std::string timestamp() const;
+    static std::string timestamp() ;
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_RT_old{this, "ReadKey_RT_old", "/MDT/RTBLOB",
                                                                    "Key to old-style /MDT/RTBLOB folder"};
