@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondTool/CSC_DCSConditionsTool.h"
@@ -12,11 +12,11 @@
 #include "PathResolver/PathResolver.h"
 #include "MuonCondSvc/MdtStringUtils.h"
 
-#include <fstream>
-#include <string>
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
+#include <fstream>
 #include <map>
+#include <string>
 
 //**********************************************************
 //* Author Monica Verducci monica.verducci@cern.ch
@@ -91,7 +91,7 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
     unsigned int chanNum=atrc->chanNum(chan_index);
     
     
-    std::string csc_chan_name=atrc->chanName(chanNum);
+    const std::string& csc_chan_name=atrc->chanName(chanNum);
     itr=atrc-> chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
     if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size()<< " Channel Name = "<< csc_chan_name);
@@ -119,7 +119,7 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
 
     
 
-    if((hv_state!=1 or lv_state!=1 or hv_setpoint0 <1000 or hv_setpoint1 <1000) && tokens.size()!=0){
+    if((hv_state!=1 or lv_state!=1 or hv_setpoint0 <1000 or hv_setpoint1 <1000) && !tokens.empty()){
       
       if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("NOT 0 HV : " << hv_state << " ChamberName : "<<tokens[0] << "wirelayer" << tokens[1]);
       int eta=0; int phi=0;
