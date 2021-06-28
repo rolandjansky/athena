@@ -101,8 +101,6 @@ public:
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
     recoElectronIsoFixedCutTight;
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
-    recoElectronIsoTightTrackOnly_VarRad;
-  std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
     recoElectronIsoFixedCutLoose;
 
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonAll;
@@ -206,12 +204,6 @@ private:
     this,
     "IsoFixedCutTight",
     "CP::IsolationSelectionTool/IsoFixedCutTight",
-    ""
-  };
-  ToolHandle<CP::IIsolationSelectionTool> m_IsoTightTrackOnly_VarRad{
-    this,
-    "IsoTightTrackOnly_VarRad",
-    "CP::IsolationSelectionTool/IsoTightTrackOnly_VarRad",
     ""
   };
   ToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightCaloOnly{
