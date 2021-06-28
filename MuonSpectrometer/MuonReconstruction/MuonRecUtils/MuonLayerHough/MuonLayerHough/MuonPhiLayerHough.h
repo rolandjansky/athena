@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPHILAYERHOUGH_H
@@ -37,7 +37,7 @@ namespace MuonHough {
     MuonPhiLayerHough( int nbins, float rangemin, float rangemax, Muon::MuonStationIndex::DetectorRegionIndex region_ );
     ~MuonPhiLayerHough();
 
-    void reset();
+    void reset() const;
     void setDebug( bool d ) { m_debug = d; }
 
 
@@ -59,8 +59,8 @@ namespace MuonHough {
       return std::make_pair(bphimin,bphimax);
     }
 
-    void fillLayer( const std::vector<PhiHit*>& hits, bool substract = false );
-    void fillLayer2( const std::vector<PhiHit*>& hits, bool substract = false );
+    void fillLayer( const std::vector<PhiHit*>& hits, bool substract = false ) const;
+    void fillLayer2( const std::vector<PhiHit*>& hits, bool substract = false ) const;
 
     float maximum( float r, float phimin, float phimax, int& posbin ) const {
       unsigned int max = 0;
@@ -86,7 +86,7 @@ namespace MuonHough {
     }
 
 
-    std::vector<TH1*> rootHistos(std::string prefix, float* phimin=0,float* phimax=0) const;
+    std::vector<TH1*> rootHistos(const std::string& prefix, const float* phimin=0,const float* phimax=0) const;
 
     float m_binsize; 
     float m_invbinsize; 

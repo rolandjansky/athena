@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGH_HITNTUPLE_H
@@ -35,7 +35,7 @@ namespace MuonHough {
     std::map< int, SectorData > sectors;
 
     void dump() const;
-    void dump( const std::map<int,SectorData>& data ) const;
+    static void dump( const std::map<int,SectorData>& data ) ;
     void reset() {
       reset(sectors);
     }
@@ -54,7 +54,7 @@ namespace MuonHough {
       region.clear();
     }
     void sort();
-    void sort( std::map< int, SectorData >& data );
+    static void sort( std::map< int, SectorData >& data );
   }; 
   
   struct HitNtuple {

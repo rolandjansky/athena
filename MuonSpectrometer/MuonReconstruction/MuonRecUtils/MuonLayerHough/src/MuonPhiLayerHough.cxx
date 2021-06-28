@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/MuonPhiLayerHough.h"
@@ -32,11 +32,11 @@ namespace MuonHough {
     delete[] m_histo;
   }
 
-  void MuonPhiLayerHough::reset() {
+  void MuonPhiLayerHough::reset() const {
     memset( m_histo, 0, sizeof(unsigned int)*m_nbins );  
   }
 
-  void MuonPhiLayerHough::fillLayer2( const std::vector<PhiHit*>& hits, bool subtract ) {
+  void MuonPhiLayerHough::fillLayer2( const std::vector<PhiHit*>& hits, bool subtract ) const {
     if( hits.empty() ) return;
 
     std::vector<int> layerCounts(m_nbins,0);
@@ -98,7 +98,7 @@ namespace MuonHough {
     }
   }
 
-  void MuonPhiLayerHough::fillLayer( const std::vector<PhiHit*>& hits, bool subtract ) {
+  void MuonPhiLayerHough::fillLayer( const std::vector<PhiHit*>& hits, bool subtract ) const {
     if( hits.empty() ) return;
     if( m_debug ) std::cout << " filling layers, hits " << hits.size() << " subtract " << subtract << std::endl;
     int prevlayer = -1;
@@ -173,7 +173,7 @@ namespace MuonHough {
   }
 
 
-  std::vector<TH1*> MuonPhiLayerHough::rootHistos(std::string prefix, float* phimi, float* phima ) const {
+  std::vector<TH1*> MuonPhiLayerHough::rootHistos(const std::string& prefix, const float* phimi, const float* phima ) const {
 
     std::vector<TH1*> hists;
 

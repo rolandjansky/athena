@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
@@ -58,10 +58,10 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
 	      const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const;
 
   /** is pattern1 a complete subset of other pattern2? */
-  bool subset(const Muon::MuonPrdPattern* pattern1, const Muon::MuonPrdPattern* pattern2)const;
+  static bool subset(const Muon::MuonPrdPattern* pattern1, const Muon::MuonPrdPattern* pattern2);
 
   /** is candidate1 a complete subset of other candidate2? */
-  bool subset(std::pair<std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >& candidate1, std::pair<std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >& candidate2)const;
+  static bool subset(std::pair<std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >& candidate1, std::pair<std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >& candidate2);
 
   /** add associated phi hits to phi pattern (factory: builds new Muon::MuonPrdPattern) */
   const Muon::MuonPrdPattern* updatePhiPattern(const Muon::MuonPrdPattern* phipattern, std::vector<const Trk::PrepRawData*> missedphihits)const;
@@ -94,20 +94,20 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   std::pair<double,double> calculateR0Phi(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, double phi_estimate=-M_PI_2)const;
 
   /** calculate rz0 for cosmic pattern */
-  double calculateRz0(const Muon::MuonPrdPattern* pattern, double phi, double theta)const;
+  static double calculateRz0(const Muon::MuonPrdPattern* pattern, double phi, double theta);
 
   /** update patterns based on new track parameters (used only for cosmics) builds 2 new prd patterns */
-  std::pair<const Muon::MuonPrdPattern*,const Muon::MuonPrdPattern*> updatePatternsForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, double* new_pars)const;
+  static std::pair<const Muon::MuonPrdPattern*,const Muon::MuonPrdPattern*> updatePatternsForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, const double* new_pars);
 
   /** calculates global position of prd */
-  const Amg::Vector3D& globalPrdPos( const Trk::PrepRawData* prd ) const;
+  static const Amg::Vector3D& globalPrdPos( const Trk::PrepRawData* prd ) ;
 
   /** adds eta,phi pair to candidate vector, also performs splitting and associated pattern (only for cosmics!)*/
   void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete,
 		    const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const; 
 
   /** clean candidates from subsets or duplicates */
-  void cleanCandidates(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates)const;
+  static void cleanCandidates(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates);
 
   /** print out pattern hits */
   void printPattern(const Muon::MuonPrdPattern* muonpattern)const;

@@ -7,11 +7,13 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include <TString.h> // for Form
 
-#include <memory.h>
-#include <bitset>
 #include <TH1.h>
+#include <bitset>
+#include <cmath>
+#include <memory.h>
+
+#include <cstdlib>
 #include <iostream>
-#include <stdlib.h>
 
 
 namespace {
@@ -254,7 +256,7 @@ namespace MuonHough {
   }
 
 
-  std::vector<TH1*> MuonLayerHough::rootHistos(std::string prefix, float* rmi, float* rma ) const {
+  std::vector<TH1*> MuonLayerHough::rootHistos(const std::string& prefix, const float* rmi, const float* rma ) const {
 
     std::vector<TH1*> hists;
     hists.reserve(m_histos.size());
@@ -467,7 +469,7 @@ namespace MuonHough {
 	maxbin = n;
       }
     }
-    if( range == 900 || true ) std::cout << " layerConfirmation " << max << " bin " << maxbin << " entry " << bincenter << " val " << yval(max) << std::endl;
+    std::cout << " layerConfirmation " << max << " bin " << maxbin << " entry " << bincenter << " val " << yval(max) << std::endl;
     return std::make_pair(0.001*max,yval(maxbin));
   }
 
@@ -494,7 +496,7 @@ namespace MuonHough {
     float zmin = std::min(zmin1,zmin2);
     float zmax = std::max(zmax1,zmax2);
       
-    return std::make_pair<int,int>(floor((zmin-m_descriptor.yMinRange)*m_invbinsize), floor((zmax-m_descriptor.yMinRange)*m_invbinsize));//convert the output to bins
+    return std::make_pair<int,int>(std::floor((zmin-m_descriptor.yMinRange)*m_invbinsize), std::floor((zmax-m_descriptor.yMinRange)*m_invbinsize));//convert the output to bins
   }
 
   float extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex, bool doparabolic){
