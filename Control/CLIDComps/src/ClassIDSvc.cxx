@@ -222,7 +222,8 @@ ClassIDSvc::initialize()
   pIncSvc->addListener(this, ModuleLoadedIncident::TYPE(), /*priority*/ 100);
   pIncSvc->release();
 
-  CHECK( fillDB() );
+  CHECK( maybeRescan() );  // calls fillDB() if not already done
+
   return StatusCode::SUCCESS;
 }
 
@@ -308,8 +309,6 @@ ClassIDSvc::fillDB() {
       }
     }
   }
-  
-  maybeRescan(); // scan registry if we had no CLIDDB to process
   return StatusCode(allOK);
 }
 
@@ -317,7 +316,6 @@ ClassIDSvc::fillDB() {
 bool
 ClassIDSvc::processCLIDDB(const std::string& fileName)
 {
-  maybeRescan();
   std::ifstream ifile(fileName);
   if (!ifile) {
     ATH_MSG_WARNING( "processCLIDDB: unable to open " << fileName );
@@ -447,10 +445,18 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
 }
 
 
-void ClassIDSvc::maybeRescan() const
+bool ClassIDSvc::maybeRescan() const
 {
+  // thread-safe because calls are protected by mutex or during initialize
   ClassIDSvc* nc ATLAS_THREAD_SAFE = const_cast<ClassIDSvc*>(this);
-  nc->getRegistryEntries ("ALL");
+
+  // read CLID database in case initialize() was not called yet (ATR-23634)
+  [[maybe_unused]] static bool fillDB ATLAS_THREAD_SAFE = nc->fillDB().isSuccess();
+
+  // make sure registry is up-to-date
+  bool status = nc->getRegistryEntries ("ALL");
+
+  return status && fillDB;
 }
 
 
