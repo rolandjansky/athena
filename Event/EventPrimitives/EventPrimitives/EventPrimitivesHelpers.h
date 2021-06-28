@@ -22,39 +22,60 @@
  */
 
 namespace Amg {
-/**  Sometimes the extrapolation to the next surface succeeds but has termendoulsy large errors leading to uncertainties larger 
-    than the radius of the Geneva metropole. These ones themself are clearly unphysical, but if extrapolation continues 
-    to the next surface the numerical values blow up giving rise to floating point exception. The covariance_cutoff defines a maximum value
-    for the diagonal elements of the covariance matrix to consider them as sanish
+/**  Sometimes the extrapolation to the next surface succeeds but has
+   termendoulsy large errors leading to uncertainties larger than the radius of
+   the Geneva metropole. These ones themself are clearly unphysical, but if
+   extrapolation continues to the next surface the numerical values blow up
+   giving rise to floating point exception. The covariance_cutoff defines a
+   maximum value for the diagonal elements of the covariance matrix to consider
+   them as sanish
 */
 
-inline bool saneCovarianceElement(double ele) {
-    constexpr double upper_covariance_cutoff = 1.e34;
-    return !(std::isnan(ele) || std::isinf(ele) || std::abs(ele) >= upper_covariance_cutoff );
-} 
+inline bool
+saneCovarianceElement(double ele)
+{
+  // Elements > 3.4028234663852886e+38 make no-sense remember Gaudi units are in
+  // mm
+  // What we say is that the position error must be less
+  // than 3.4028234663852886e+38
+  constexpr double upper_covariance_cutoff = std::numeric_limits<float>::max();
+  return !(std::isnan(ele) || std::isinf(ele) ||
+           std::abs(ele) > upper_covariance_cutoff);
+}
 /** return diagonal error of the matrix
  caller should ensure the matrix is symmetric and the index is in range
  */
-inline double error(const Amg::MatrixX& mat, int index) {
-    return std::sqrt(mat(index, index));
+inline double
+error(const Amg::MatrixX& mat, int index)
+{
+  return std::sqrt(mat(index, index));
 }
 /// Returns true if all diagonal elements of the covariance matrix
-/// are finite, greater than zero and also below the covariance cutoff scale.
-/// This check avoids floating point exceptions raised during the uncertainty calculation on the perigee parameters 
-/// Add a double epislon parameter to avoid numerical precision issues. The one chosen here has been
-/// taken from https://stackoverflow.com/questions/1566198/how-to-portably-get-dbl-epsilon-in-c-and-c
-template <int N> inline bool valid_cov(const AmgSymMatrix(N)& mat) {
-   static const double MIN_COV_EPSILON = 2.2204460492503131e-16;
-   const int dim = mat.cols();
-   for (int i = 0; i < dim ; ++i){
-        if ( mat(i,i) <= MIN_COV_EPSILON || !saneCovarianceElement(mat(i,i)))  return false;
-   }
-   return true;
-}
+/// are finite, greater than zero and also below the covariance cutoff.
+/// This check avoids floating point exceptions raised during the uncertainty
+/// calculation on the perigee parameters
 template<int N>
-inline double error(const AmgSymMatrix(N)& mat, int index ) {
-    assert(index<N);
-    return std::sqrt(mat(index,index));
+inline bool
+saneCovarianceDiagonal(const AmgSymMatrix(N) & mat)
+{
+  // For now use float min 1.1754943508222875e-38
+  // This implies that (sigma(q/p)) ^2 has to be greater than
+  // than 1.1754943508222875e-38
+  constexpr double MIN_COV_EPSILON = std::numeric_limits<float>::min();
+  const int dim = mat.cols();
+  for (int i = 0; i < dim; ++i) {
+    if (mat(i, i) < MIN_COV_EPSILON || !saneCovarianceElement(mat(i, i)))
+      return false;
+  }
+  return true;
+}
+
+template<int N>
+inline double
+error(const AmgSymMatrix(N) & mat, int index)
+{
+  assert(index < N);
+  return std::sqrt(mat(index, index));
 }
 
 // expression template to evaluate the required size of the compressed matrix at compile time

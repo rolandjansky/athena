@@ -2980,157 +2980,199 @@ namespace Rec {
         return tsos;
     }
 
-    std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> CombinedMuonTrackBuilder::createSpectrometerTSOS(
-        const Trk::Track& spectrometerTrack, const EventContext& ctx) const {
-        const Trk::Perigee* measuredPerigee = spectrometerTrack.perigeeParameters();
+    std::unique_ptr<
+      std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>>
+    CombinedMuonTrackBuilder::createSpectrometerTSOS(
+      const Trk::Track& spectrometerTrack,
+      const EventContext& ctx) const
+    {
+      const Trk::Perigee* measuredPerigee =
+        spectrometerTrack.perigeeParameters();
 
-        if (!measuredPerigee || !measuredPerigee->covariance() || !Amg::valid_cov(*measuredPerigee->covariance())) {
-            // missing MeasuredPerigee for spectrometer track
-	    if (!measuredPerigee) m_messageHelper->printWarning(38);
-	    else if(!measuredPerigee->covariance()) m_messageHelper->printWarning(38);
-	    else ATH_MSG_DEBUG("createSpectrometerTSOS::perigee covariance not valid");
-            return nullptr;
+      if (!measuredPerigee || !measuredPerigee->covariance() ||
+          !Amg::saneCovarianceDiagonal(*measuredPerigee->covariance())) {
+        // missing MeasuredPerigee for spectrometer track
+        if (!measuredPerigee)
+          m_messageHelper->printWarning(38);
+        else if (!measuredPerigee->covariance())
+          m_messageHelper->printWarning(38);
+        else
+          ATH_MSG_DEBUG("createSpectrometerTSOS::perigee covariance not valid");
+        return nullptr;
+      }
+
+      double errorPhi =
+        std::sqrt((*measuredPerigee->covariance())(Trk::phi0, Trk::phi0));
+
+      // create the spectrometer TSOS's for the extrapolated fit
+      std::unique_ptr<
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>>
+        spectrometerTSOS = std::make_unique<
+          std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>>();
+
+      spectrometerTSOS->reserve(
+        spectrometerTrack.trackStateOnSurfaces()->size());
+
+      // start with a 'phi sector constraint' pseudomeasurement when necessary
+      unsigned numberPseudo =
+        m_trackQuery->numberPseudoMeasurements(spectrometerTrack);
+      if (errorPhi > m_sigmaPhiSector) {
+        ++numberPseudo;
+      }
+
+      if (numberPseudo > 1 &&
+          !m_trackQuery->isSectorOverlap(spectrometerTrack)) {
+        ATH_MSG_VERBOSE("standaloneFit: add pseudo to constrain phi sector");
+
+        const Trk::TrackStateOnSurface* tsos =
+          createPhiPseudoMeasurement(spectrometerTrack, ctx);
+        if (tsos) {
+          spectrometerTSOS->emplace_back(tsos);
+        }
+      }
+
+      // make a measurement selection to fixup non-standard TSOS's
+      double deltaZ = 0.;
+      bool haveMeasurement = false;
+
+      std::vector<const Trk::Surface*> measurementSurfaces;
+      measurementSurfaces.reserve(
+        spectrometerTrack.trackStateOnSurfaces()->size());
+
+      unsigned numberMaterial = 0;
+      unsigned numberParameters = 0;
+
+      const Trk::Surface* previousSurface = nullptr;
+      std::unique_ptr<const Trk::TrackStateOnSurface> previousTSOS;
+
+      for (const Trk::TrackStateOnSurface* s :
+           *spectrometerTrack.trackStateOnSurfaces()) {
+        // skip any leading material
+        if (!haveMeasurement) {
+          if (s->measurementOnTrack()) {
+            haveMeasurement = true;
+          } else if (s->materialEffectsOnTrack()) {
+            continue;
+          }
         }
 
-        double errorPhi = std::sqrt((*measuredPerigee->covariance())(Trk::phi0, Trk::phi0));
-
-        // create the spectrometer TSOS's for the extrapolated fit
-        std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> spectrometerTSOS =
-            std::make_unique<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>>();
-
-        spectrometerTSOS->reserve(spectrometerTrack.trackStateOnSurfaces()->size());
-
-        // start with a 'phi sector constraint' pseudomeasurement when necessary
-        unsigned numberPseudo = m_trackQuery->numberPseudoMeasurements(spectrometerTrack);
-        if (errorPhi > m_sigmaPhiSector) { ++numberPseudo; }
-
-        if (numberPseudo > 1 && !m_trackQuery->isSectorOverlap(spectrometerTrack)) {
-            ATH_MSG_VERBOSE("standaloneFit: add pseudo to constrain phi sector");
-
-            const Trk::TrackStateOnSurface* tsos = createPhiPseudoMeasurement(spectrometerTrack, ctx);
-            if (tsos) { spectrometerTSOS->emplace_back(tsos); }
+        // input statistics for VERBOSE
+        const Trk::TrackParameters* trackParameters = s->trackParameters();
+        if (msgLvl(MSG::VERBOSE)) {
+          if (s->materialEffectsOnTrack())
+            ++numberMaterial;
+          if (trackParameters)
+            ++numberParameters;
         }
 
-        // make a measurement selection to fixup non-standard TSOS's
-        double deltaZ = 0.;
-        bool haveMeasurement = false;
+        // skip unwanted TSOS and non-understood features in iPatFitter
+        if (!s->measurementOnTrack() && !s->materialEffectsOnTrack()) {
+          // remove holes as they will be reallocated
+          if (s->type(Trk::TrackStateOnSurface::Hole))
+            continue;
 
-        std::vector<const Trk::Surface*> measurementSurfaces;
-        measurementSurfaces.reserve(spectrometerTrack.trackStateOnSurfaces()->size());
+          // same for MS perigee
+          if (s->type(Trk::TrackStateOnSurface::Perigee))
+            continue;
 
-        unsigned numberMaterial = 0;
-        unsigned numberParameters = 0;
+          if (s->trackParameters()) {
+            ATH_MSG_DEBUG("createSpectrometerTSOS:: skip unrecognized TSOS "
+                          << s->dumpType() << " r "
+                          << s->trackParameters()->position().perp() << " z "
+                          << s->trackParameters()->position().z());
+          } else {
+            // skip unrecognized TSOS without TrackParameters
+            m_messageHelper->printWarning(39, s->dumpType());
+          }
+          continue;
+        }
 
-        const Trk::Surface* previousSurface = nullptr;
-        std::unique_ptr<const Trk::TrackStateOnSurface> previousTSOS;
+        // several checks applied to  measurements:
+        bool trapezoid = false;
+        bool rotatedTrap = false;
+        if (s->measurementOnTrack()) {
+          // skip pseudo
+          if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
+                s->measurementOnTrack())) {
+            continue;
+          } else {
+            // careful with trapezoid ordering (put trapezoid before
+            // rotatedTrapezoid)
+            const Trk::Surface* surface =
+              &s->measurementOnTrack()->associatedSurface();
 
-        for (const Trk::TrackStateOnSurface* s : *spectrometerTrack.trackStateOnSurfaces()) {
-            // skip any leading material
-            if (!haveMeasurement) {
-                if (s->measurementOnTrack()) {
-                    haveMeasurement = true;
-                } else if (s->materialEffectsOnTrack()) {
-                    continue;
-                }
+            if (previousSurface) {
+              deltaZ =
+                std::abs(previousSurface->center().z() - surface->center().z());
             }
 
-            // input statistics for VERBOSE
-            const Trk::TrackParameters* trackParameters = s->trackParameters();
-            if (msgLvl(MSG::VERBOSE)) {
-                if (s->materialEffectsOnTrack()) ++numberMaterial;
-                if (trackParameters) ++numberParameters;
+            if (dynamic_cast<const Trk::PlaneSurface*>(surface)) {
+              if (dynamic_cast<const Trk::TrapezoidBounds*>(
+                    &surface->bounds())) {
+                trapezoid = true;
+              } else if (dynamic_cast<const Trk::RotatedTrapezoidBounds*>(
+                           &surface->bounds())) {
+                rotatedTrap = true;
+              }
             }
 
-            // skip unwanted TSOS and non-understood features in iPatFitter
-            if (!s->measurementOnTrack() && !s->materialEffectsOnTrack()) {
-                // remove holes as they will be reallocated
-                if (s->type(Trk::TrackStateOnSurface::Hole)) continue;
-
-                // same for MS perigee
-                if (s->type(Trk::TrackStateOnSurface::Perigee)) continue;
-
-                if (s->trackParameters()) {
-                    ATH_MSG_DEBUG("createSpectrometerTSOS:: skip unrecognized TSOS " << s->dumpType() << " r "
-                                                                                     << s->trackParameters()->position().perp() << " z "
-                                                                                     << s->trackParameters()->position().z());
-                } else {
-                    // skip unrecognized TSOS without TrackParameters
-                    m_messageHelper->printWarning(39, s->dumpType());
-                }
-                continue;
+            // skip duplicate measurements on same surface
+            if (previousSurface &&
+                std::find(measurementSurfaces.begin(),
+                          measurementSurfaces.end(),
+                          surface) != measurementSurfaces.end() &&
+                !m_idHelperSvc->isMM(
+                  surface->associatedDetectorElementIdentifier())) {
+              std::string type = "";
+              if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>(
+                    s->measurementOnTrack())) {
+                type = " of type competingROT";
+              } else if (dynamic_cast<const Trk::PlaneSurface*>(surface)) {
+                type = " on a plane surface";
+              } else {
+                type = " of type drift circle";
+              }
+              // skip duplicate measurement
+              m_messageHelper->printWarning(40, type);
+              continue;
             }
+            measurementSurfaces.push_back(surface);
+            previousSurface = surface;
+          }
+        } else if (previousTSOS) {
+          spectrometerTSOS->emplace_back(std::move(previousTSOS));
+          previousTSOS.reset();
+        }
 
-            // several checks applied to  measurements:
-            bool trapezoid = false;
-            bool rotatedTrap = false;
-            if (s->measurementOnTrack()) {
-                // skip pseudo
-                if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(s->measurementOnTrack())) {
-                    continue;
-                } else {
-                    // careful with trapezoid ordering (put trapezoid before rotatedTrapezoid)
-                    const Trk::Surface* surface = &s->measurementOnTrack()->associatedSurface();
-
-                    if (previousSurface) { deltaZ = std::abs(previousSurface->center().z() - surface->center().z()); }
-
-                    if (dynamic_cast<const Trk::PlaneSurface*>(surface)) {
-                        if (dynamic_cast<const Trk::TrapezoidBounds*>(&surface->bounds())) {
-                            trapezoid = true;
-                        } else if (dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surface->bounds())) {
-                            rotatedTrap = true;
-                        }
-                    }
-
-                    // skip duplicate measurements on same surface
-                    if (previousSurface &&
-                        std::find(measurementSurfaces.begin(), measurementSurfaces.end(), surface) != measurementSurfaces.end() &&
-                        !m_idHelperSvc->isMM(surface->associatedDetectorElementIdentifier())) {
-                        std::string type = "";
-                        if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>(s->measurementOnTrack())) {
-                            type = " of type competingROT";
-                        } else if (dynamic_cast<const Trk::PlaneSurface*>(surface)) {
-                            type = " on a plane surface";
-                        } else {
-                            type = " of type drift circle";
-                        }
-                        // skip duplicate measurement
-                        m_messageHelper->printWarning(40, type);
-                        continue;
-                    }
-                    measurementSurfaces.push_back(surface);
-                    previousSurface = surface;
-                }
-            } else if (previousTSOS) {
-                spectrometerTSOS->emplace_back(std::move(previousTSOS));
-                previousTSOS.reset();
-            }
-
-            // trapezoid precedes rotatedTrapezoid
-            std::unique_ptr<const Trk::TrackStateOnSurface> TSOS(s->clone());
-            if (previousTSOS) {
-                if (trapezoid && deltaZ < 1. * Gaudi::Units::mm) {
-                    spectrometerTSOS->emplace_back(std::move(TSOS));
-                    TSOS = std::move(previousTSOS);
-                } else {
-                    spectrometerTSOS->emplace_back(std::move(previousTSOS));
-                }
-            }
-
-            if (rotatedTrap) {
-                previousTSOS.swap(TSOS);
-                continue;
-            }
-
+        // trapezoid precedes rotatedTrapezoid
+        std::unique_ptr<const Trk::TrackStateOnSurface> TSOS(s->clone());
+        if (previousTSOS) {
+          if (trapezoid && deltaZ < 1. * Gaudi::Units::mm) {
             spectrometerTSOS->emplace_back(std::move(TSOS));
+            TSOS = std::move(previousTSOS);
+          } else {
+            spectrometerTSOS->emplace_back(std::move(previousTSOS));
+          }
         }
 
-        if (previousTSOS) spectrometerTSOS->emplace_back(std::move(previousTSOS));
+        if (rotatedTrap) {
+          previousTSOS.swap(TSOS);
+          continue;
+        }
 
-        ATH_MSG_VERBOSE(" input spectrometer track with " << spectrometerTrack.trackStateOnSurfaces()->size() << " TSOS, of which "
-                                                          << numberMaterial << " have MaterialEffects and " << numberParameters
-                                                          << " have TrackParameters");
+        spectrometerTSOS->emplace_back(std::move(TSOS));
+      }
 
-        return spectrometerTSOS;
+      if (previousTSOS)
+        spectrometerTSOS->emplace_back(std::move(previousTSOS));
+
+      ATH_MSG_VERBOSE(" input spectrometer track with "
+                      << spectrometerTrack.trackStateOnSurfaces()->size()
+                      << " TSOS, of which " << numberMaterial
+                      << " have MaterialEffects and " << numberParameters
+                      << " have TrackParameters");
+
+      return spectrometerTSOS;
     }
 
     const Trk::TrackStateOnSurface* CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters,
@@ -3933,10 +3975,11 @@ namespace Rec {
 
         for (const Trk::TrackParameters* par : *pars) {
             if (!par->covariance()) { continue; }
-            if (!Amg::valid_cov(*par->covariance())) {
-                ATH_MSG_DEBUG(Amg::toString(*par->covariance()));
-                ATH_MSG_DEBUG("covariance matrix has negative diagonal element, killing track");
-                return false;
+            if (!Amg::saneCovarianceDiagonal(*par->covariance())) {
+              ATH_MSG_DEBUG(Amg::toString(*par->covariance()));
+              ATH_MSG_DEBUG("covariance matrix has negative diagonal element, "
+                            "killing track");
+              return false;
             }
         }
 

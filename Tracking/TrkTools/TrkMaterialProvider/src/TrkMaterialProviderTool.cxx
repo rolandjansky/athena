@@ -833,12 +833,14 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   if(parms) {
     if( std::abs(parms->parameters()[Trk::qOverP]) > 0.0 ) {
       double pAtMuonEntry = std::abs(1./parms->parameters()[Trk::qOverP]);
-      if(!parms->covariance() || !Amg::valid_cov(*parms->covariance())) {
-	ATH_MSG_DEBUG("MS track parameters without covariance, using 10% relative error!" );
-	pAtMuonEntryError = pAtMuonEntry*0.1;
-      }else{
-	double qOverpAtMuonEntryError = Amg::error(*parms->covariance(),Trk::qOverP);
-	pAtMuonEntryError = pAtMuonEntry*pAtMuonEntry*qOverpAtMuonEntryError;
+      if (!parms->covariance() ||
+          !Amg::saneCovarianceDiagonal(*parms->covariance())) {
+        ATH_MSG_DEBUG(
+          "MS track parameters without covariance, using 10% relative error!");
+        pAtMuonEntryError = pAtMuonEntry*0.1;
+      } else {
+        double qOverpAtMuonEntryError = Amg::error(*parms->covariance(),Trk::qOverP);
+        pAtMuonEntryError = pAtMuonEntry*pAtMuonEntry*qOverpAtMuonEntryError;
       }
     }
   }

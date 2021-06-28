@@ -1389,12 +1389,14 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   for (int i =0;i <21;++i){
       if (!Amg::saneCovarianceElement(Jacobian[i])){return nullptr;}
   }
-  
-  AmgSymMatrix(5) measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(
-                                                                               Jacobian, *trackParameters->covariance());
-  if (!Amg::valid_cov(measurementCovariance)) return nullptr;  
- 
-  //Calculate multiple scattering and straggling covariance contribution.
+
+  AmgSymMatrix(5) measurementCovariance =
+    Trk::RungeKuttaUtils::newCovarianceMatrix(Jacobian,
+                                              *trackParameters->covariance());
+  if (!Amg::saneCovarianceDiagonal(measurementCovariance))
+    return nullptr;
+
+  // Calculate multiple scattering and straggling covariance contribution.
   if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && std::abs(totalPath)>0.) {
     if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::SurfaceType::Cone)  {
       covarianceContribution( cache,trackParameters.get(), totalPath, std::abs( 1./cache.m_P[6]), &measurementCovariance);
