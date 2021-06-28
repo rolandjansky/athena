@@ -38,7 +38,19 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
         HypoToolGen = pebInfoWriterToolGenerator)
 
     step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
-    step = ChainStep(name=step_name, Sequences=[seq], chainDicts=[chainDict])
+    if len(chain.steps)==0:
+        # noalg PEB chain
+        step = ChainStep(name=step_name,
+                         Sequences=[seq],
+                         chainDicts=[chainDict])
+    else:
+        # standard PEB chain
+        prevStep = chain.steps[-1]
+        step = ChainStep(name=step_name,
+                         Sequences=[seq for leg in prevStep.legIds],
+                         multiplicity=prevStep.multiplicity,
+                         chainDicts=prevStep.stepDicts)
+
     chain.steps.append(step)
 
 
