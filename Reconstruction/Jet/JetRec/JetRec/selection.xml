@@ -11,6 +11,7 @@
 <class name="JetFilterTool"/>
 
 <class name="JetClusterer"/>
+<class name="JetDecorator"/>
 
 <namespace name="JetGrooming"/>
 <class name="JetGrooming::SoftDrop"/>

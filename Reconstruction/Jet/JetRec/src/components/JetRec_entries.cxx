@@ -31,6 +31,8 @@
 #include "JetRec/JetClusterer.h"
 #include "JetRec/JetCopier.h"
 
+#include "JetRec/JetDecorationAlg.h"
+
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
 DECLARE_COMPONENT( JetDumper )
@@ -56,6 +58,7 @@ DECLARE_COMPONENT( PseudoJetMerger )
 
 DECLARE_COMPONENT( JetAlgorithm )
 DECLARE_COMPONENT( JetRecAlg )
+DECLARE_COMPONENT( JetDecorationAlg )
 DECLARE_COMPONENT( JetViewAlg )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
 DECLARE_COMPONENT( MuonSegmentPseudoJetAlgorithm )

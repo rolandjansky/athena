@@ -68,7 +68,7 @@ def bJetStep2Sequence():
 
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=str(InputMakerAlg.InViewJets), inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=str(InputMakerAlg.InViewJets), inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] , inputMuons = None)
     
     Configurable.configurableRun3Behavior=0
 
