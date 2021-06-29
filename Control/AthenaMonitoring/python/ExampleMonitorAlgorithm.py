@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file ExampleMonitorAlgorithm.py
@@ -97,6 +97,9 @@ def ExampleMonitoringConfig(inputFlags):
     # # use a cutmask to only fill certain events
     myGroup.defineHistogram('pT;pT_with_cut', title='p_{T};p_{T};Events', path='AndInTheDarkness',
                              xbins=50, xmin=0, xmax=50, cutmask='pT_passed')
+    # make a plot which will always exist, even though it is never filled
+    myGroup.defineHistogram('dummy;alwaysempty', title='Plot is always empty', path='AndInTheDarkness',
+                             xbins=50, xmin=0, xmax=50, opt='kAlwaysCreate')
     # make a TTree
     myGroup.defineTree('pT,lb,pT_vec,strvec,str;testtree', path='BindThem',
                         treedef='pT/F:lb/i:pT_vec/vector<float>:strvec/vector<string>:str/string')
