@@ -38,37 +38,20 @@ using Muon::MuonSegmentCombination;
 using Muon::MdtDriftCircleOnTrack;
 using Muon::MuonClusterOnTrack;
 
-/*namespace {
-  std::string station_name(int station) {
-    if ( station == 1 ) return "CSS";
-    if ( station == 2 ) return "CSL";
-    return "UNKNOWN_STATION";
-  }
-  std::string measphi_name(bool measphi) {
-    if ( measphi ) return "phi";
-    return "r";
-  }
-}*/
 
 //******************************************************************************
 
 Csc4dSegmentMaker::Csc4dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent), m_dumped(0), m_dump(false)
-{
+    : AthAlgTool(type, aname, parent){
 
     declareInterface<ICscSegmentFinder>(this);
-    declareProperty("dump_count", m_dumpcount = -1);
-    declareProperty("max_chisquare", m_max_chisquare = 25);
-    declareProperty("max_slope_r", m_max_slope_r = 0.2);
-    declareProperty("max_slope_phi", m_max_slope_phi = 0.2);
-    declareProperty("max_seg_per_chamber", m_max_seg_per_chamber = 50);
 }
 
 //******************************************************************************
 
 // Destructor.
 
-Csc4dSegmentMaker::~Csc4dSegmentMaker() {}
+Csc4dSegmentMaker::~Csc4dSegmentMaker() =default;
 
 //******************************************************************************
 
@@ -78,7 +61,6 @@ Csc4dSegmentMaker::initialize()
     ATH_MSG_DEBUG("Initializing");
 
     // Show keys.
-    ATH_MSG_DEBUG("  Dump count: " << m_dumpcount);
     ATH_MSG_DEBUG("  Max chi-square: " << m_max_chisquare);
     ATH_MSG_DEBUG("  Max r slope: " << m_max_slope_r);
     ATH_MSG_DEBUG("  Max phi slope: " << m_max_slope_phi);
@@ -98,13 +80,10 @@ Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols, const E
 {
 
     // Set dump flag.
-    m_dump = m_dumped < m_dumpcount || m_dumpcount < 0;
-    if (m_dump) ++m_dumped;
-
-    std::unique_ptr<MuonSegmentCombinationCollection> pcols(new MuonSegmentCombinationCollection);
+  
+    std::unique_ptr<MuonSegmentCombinationCollection> pcols = std::make_unique<MuonSegmentCombinationCollection>();
     if (segcols.empty()) {
-        pcols.reset();
-        return pcols;
+        return nullptr;
     }
 
     for (MuonSegmentCombinationCollection::const_iterator icom = segcols.begin(); icom != segcols.end(); ++icom) {
@@ -130,20 +109,10 @@ Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols, const E
     return pcols;
 }
 
-//******************************************************************************
-
-StatusCode
-Csc4dSegmentMaker::finalize()
-{
-    ATH_MSG_DEBUG("Goodbye");
-    return StatusCode::SUCCESS;
-}
-
-//******************************************************************************
 
 // dummy ICscSegmentFinder interface
 std::unique_ptr<MuonSegmentCombinationCollection>
 Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>&, const EventContext&) const
 {
-    return 0;
+    return nullptr;
 }

@@ -41,29 +41,23 @@ class Csc4dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
     Csc4dSegmentMaker(const std::string&, const std::string&, const IInterface*);
 
     // Destructor.
-    ~Csc4dSegmentMaker();
+    virtual ~Csc4dSegmentMaker();
 
     // Initialization.
-    StatusCode initialize();
+    StatusCode initialize() override;
 
-    // Finalization.
-    StatusCode finalize();
-
-    std::unique_ptr<MuonSegmentCombinationCollection> find(const MuonSegmentCombinationCollection&, const EventContext& ctx) const;
+    
+    std::unique_ptr<MuonSegmentCombinationCollection> find(const MuonSegmentCombinationCollection&, const EventContext& ctx) const override;
     std::unique_ptr<MuonSegmentCombinationCollection> find(
-        const std::vector<const Muon::CscPrepDataCollection*>& pcols, const EventContext& ctx) const;  // not used here
+        const std::vector<const Muon::CscPrepDataCollection*>& pcols, const EventContext& ctx) const override;  // not used here
 
   private:  // data
     // Properties.
     // Number of events dumped.
-    int                     m_dumpcount;
-    mutable std::atomic_int m_dumped;
-    // Debug flags.
-    mutable std::atomic_bool m_dump;
-    double                   m_max_chisquare;
-    double                   m_max_slope_r;
-    double                   m_max_slope_phi;
-    double                   m_max_seg_per_chamber;
+    Gaudi::Property<double>                   m_max_chisquare{this,"max_chisquare" ,25.};
+     Gaudi::Property<double>                   m_max_slope_r{this, "max_slope_r", 0.2};
+     Gaudi::Property<double>                   m_max_slope_phi{this,"max_slope_phi", 0.2}; 
+     Gaudi::Property<double>                   m_max_seg_per_chamber{this, "max_seg_per_chamber",50};
 
     ToolHandle<ICscSegmentUtilTool> m_segmentTool{
         this,
