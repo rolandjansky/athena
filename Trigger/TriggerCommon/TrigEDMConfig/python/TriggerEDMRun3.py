@@ -157,9 +157,8 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs',                          'BS ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
 
-    # Uncomment eFexEMRoIContainer when its T/P converter is implemented
-    # ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                           'BS ESD AODFULL', 'L1'),
-    # ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',   'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                           'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',   'BS ESD AODFULL', 'L1'),
 
     ('xAOD::EnergySumRoI#jXENOISECUTPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#jXENOISECUTPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
