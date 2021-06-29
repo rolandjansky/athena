@@ -102,6 +102,7 @@ class TrigEgammaMonAlgBuilder:
       self.activate_electron=True
       self.activate_photon=True
 
+ 
 
 
   def configure(self):
@@ -169,8 +170,8 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e5_lhtight_L1EM3',
             'HLT_e5_lhtight_gsf_L1EM3',
             'HLT_e5_lhtight_noringer',
-            'HLT_e9_lhtight_noringer-EM7',
-            'HLT_e14_lhtight_noringer-EM12'
+            'HLT_e9_lhtight_noringer_EM7',
+            'HLT_e14_lhtight_noringer_EM12'
             ]
     monitoring_jpsi = [
             'HLT_e4_etcut_Jpsiee_L1JPSI-1M5',
@@ -390,7 +391,7 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.LHResultNames=self.lhnames
       self.elMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.elMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
-      self.elMonAlg.ForcePidSelection=False
+      self.elMonAlg.ForcePidSelection=True
       self.elMonAlg.ForceProbeIsolation=False
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
@@ -409,6 +410,7 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.PhotonIsEMSelector =[TightPhotonSelector,MediumPhotonSelector,LoosePhotonSelector]
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
+      self.phMonAlg.ForcePidSelection=True
       self.phMonAlg.DoEmulation = False
 
 
@@ -448,6 +450,7 @@ class TrigEgammaMonAlgBuilder:
   def bookExpertHistograms( self, monAlg, triggers ):
 
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
+
 
     for trigger in triggers:
    
