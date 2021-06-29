@@ -27,7 +27,7 @@
         "chains" : "HLT_e26_idperf_loose_L1EM24VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron HLT_e28_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron"
     },
     "EFelectron":{
-        "chains" : "HLT_e26_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron HLT_e26_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_IDTrig HLT_e26_lhtight_gsf_L1EM22VHI_HLT_IDTrack_Electron_GSF"
+        "chains" : "HLT_e26_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron HLT_e26_idperf_loose_L1EM24VHI_HLT_IDTrack_Electron_IDTrig HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI_HLT_IDTrack_Electron_GSF"
     },
     "L2electronLowpt":{
         "chains" : "HLT_e5_idperf_tight_L1EM3_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron HLT_e5_idperf_loose_L1EM3_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron"
