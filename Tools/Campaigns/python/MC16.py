@@ -5,7 +5,7 @@ from LArConfiguration.LArConfigRun2 import LArConfigRun2
 
 def MC16a(flags):
     """MC16a flags for MC to match 2015 and 2016 data"""
-    flags.Beam.NumberOfCollisions = 20.
+    flags.Beam.NumberOfCollisions = 20. if flags.Digitization.PileUp else 0.
 
     LArConfigRun2(flags)
     flags.Digitization.HighGainEMECIW = True
@@ -22,7 +22,7 @@ def MC16a(flags):
 
 def MC16d(flags):
     """MC16d flags for MC to match 2017 data"""
-    flags.Beam.NumberOfCollisions = 20.
+    flags.Beam.NumberOfCollisions = 20. if flags.Digitization.PileUp else 0.
 
     LArConfigRun2(flags)
 
@@ -38,7 +38,7 @@ def MC16d(flags):
 
 def MC16e(flags):
     """MC16e flags for MC to match 2018 data"""
-    flags.Beam.NumberOfCollisions = 20.
+    flags.Beam.NumberOfCollisions = 20. if flags.Digitization.PileUp else 0.
 
     LArConfigRun2(flags)
 
