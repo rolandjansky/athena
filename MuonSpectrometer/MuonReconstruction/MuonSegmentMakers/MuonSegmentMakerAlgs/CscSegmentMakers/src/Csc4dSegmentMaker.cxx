@@ -38,12 +38,10 @@ using Muon::MuonSegmentCombination;
 using Muon::MdtDriftCircleOnTrack;
 using Muon::MuonClusterOnTrack;
 
-
 //******************************************************************************
 
-Csc4dSegmentMaker::Csc4dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent){
-
+Csc4dSegmentMaker::Csc4dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent) :
+    AthAlgTool(type, aname, parent) {
     declareInterface<ICscSegmentFinder>(this);
 }
 
@@ -51,13 +49,11 @@ Csc4dSegmentMaker::Csc4dSegmentMaker(const std::string& type, const std::string&
 
 // Destructor.
 
-Csc4dSegmentMaker::~Csc4dSegmentMaker() =default;
+Csc4dSegmentMaker::~Csc4dSegmentMaker() = default;
 
 //******************************************************************************
 
-StatusCode
-Csc4dSegmentMaker::initialize()
-{
+StatusCode Csc4dSegmentMaker::initialize() {
     ATH_MSG_DEBUG("Initializing");
 
     // Show keys.
@@ -75,16 +71,12 @@ Csc4dSegmentMaker::initialize()
 
 //******************************************************************************
 
-std::unique_ptr<MuonSegmentCombinationCollection>
-Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols, const EventContext& ctx) const
-{
-
+std::unique_ptr<MuonSegmentCombinationCollection> Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols,
+                                                                          const EventContext& ctx) const {
     // Set dump flag.
-  
+
     std::unique_ptr<MuonSegmentCombinationCollection> pcols = std::make_unique<MuonSegmentCombinationCollection>();
-    if (segcols.empty()) {
-        return nullptr;
-    }
+    if (segcols.empty()) { return nullptr; }
 
     for (MuonSegmentCombinationCollection::const_iterator icom = segcols.begin(); icom != segcols.end(); ++icom) {
         const MuonSegmentCombination& insegs = **icom;
@@ -109,10 +101,8 @@ Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols, const E
     return pcols;
 }
 
-
 // dummy ICscSegmentFinder interface
-std::unique_ptr<MuonSegmentCombinationCollection>
-Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>&, const EventContext&) const
-{
+std::unique_ptr<MuonSegmentCombinationCollection> Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>&,
+                                                                          const EventContext&) const {
     return nullptr;
 }

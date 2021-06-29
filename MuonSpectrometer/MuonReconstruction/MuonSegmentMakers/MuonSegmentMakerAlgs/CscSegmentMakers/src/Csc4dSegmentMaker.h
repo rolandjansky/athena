@@ -23,20 +23,19 @@
 class ICscSegmentUtilTool;
 
 namespace Track {
-class TrackRaod;
-class RIO_OnTrack;
+    class TrackRaod;
+    class RIO_OnTrack;
 }  // namespace Track
 
 namespace Muon {
-class MdtDriftCircleOnTrack;
-class MuonClusterOnTrack;
-class MuonEDMPrinterTool;
-class MuonSegment;
+    class MdtDriftCircleOnTrack;
+    class MuonClusterOnTrack;
+    class MuonEDMPrinterTool;
+    class MuonSegment;
 }  // namespace Muon
 
 class Csc4dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
-
-  public:  // methods
+public:  // methods
     // Constructor.
     Csc4dSegmentMaker(const std::string&, const std::string&, const IInterface*);
 
@@ -46,18 +45,17 @@ class Csc4dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
     // Initialization.
     StatusCode initialize() override;
 
-    
     std::unique_ptr<MuonSegmentCombinationCollection> find(const MuonSegmentCombinationCollection&, const EventContext& ctx) const override;
-    std::unique_ptr<MuonSegmentCombinationCollection> find(
-        const std::vector<const Muon::CscPrepDataCollection*>& pcols, const EventContext& ctx) const override;  // not used here
+    std::unique_ptr<MuonSegmentCombinationCollection> find(const std::vector<const Muon::CscPrepDataCollection*>& pcols,
+                                                           const EventContext& ctx) const override;  // not used here
 
-  private:  // data
+private:  // data
     // Properties.
     // Number of events dumped.
-    Gaudi::Property<double>                   m_max_chisquare{this,"max_chisquare" ,25.};
-     Gaudi::Property<double>                   m_max_slope_r{this, "max_slope_r", 0.2};
-     Gaudi::Property<double>                   m_max_slope_phi{this,"max_slope_phi", 0.2}; 
-     Gaudi::Property<double>                   m_max_seg_per_chamber{this, "max_seg_per_chamber",50};
+    Gaudi::Property<double> m_max_chisquare{this, "max_chisquare", 25.};
+    Gaudi::Property<double> m_max_slope_r{this, "max_slope_r", 0.2};
+    Gaudi::Property<double> m_max_slope_phi{this, "max_slope_phi", 0.2};
+    Gaudi::Property<double> m_max_seg_per_chamber{this, "max_seg_per_chamber", 50};
 
     ToolHandle<ICscSegmentUtilTool> m_segmentTool{
         this,
