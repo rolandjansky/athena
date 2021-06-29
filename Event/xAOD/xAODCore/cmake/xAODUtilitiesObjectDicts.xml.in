@@ -5,5 +5,3 @@
 <class name="std::vector<DataLink<@_type@> >" />
 
 <class name="SG::AuxTypeVectorFactory<DataLink<@_type@> >" />
-
-<class name="DataVectorBase<@_type@>" />
