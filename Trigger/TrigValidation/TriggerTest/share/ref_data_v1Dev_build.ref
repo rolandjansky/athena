@@ -1077,11 +1077,11 @@ HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu6_noL2Comb_L1BPH-0M9-EM7-EM5_MU6:
 HLT_e9_lhvloose_mu20_mu8noL1_L1MU20:
   eventCount: 0
 HLT_eb_low_L1RD2_FILLED:
-  eventCount: 10
+  eventCount: 9
   stepCounts:
-    0: 10
+    0: 9
   stepFeatures:
-    0: 10
+    0: 9
 HLT_eb_medium_L1RD2_FILLED:
   eventCount: 7
   stepCounts:
