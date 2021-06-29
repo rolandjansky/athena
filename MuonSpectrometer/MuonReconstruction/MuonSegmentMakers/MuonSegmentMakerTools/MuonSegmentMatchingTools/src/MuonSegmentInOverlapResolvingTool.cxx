@@ -54,7 +54,7 @@ MuonSegmentInOverlapResolvingTool::updateSegmentDirection(const MuonSegment& seg
         seg_dy *= -1.;
         seg_dz *= -1.;
     }
-    if (fabs(seg_dz) < 1e-6) {
+    if (std::abs(seg_dz) < 1e-6) {
         seg_dz = 1e-6;
         ATH_MSG_DEBUG(" Unexpected local direction of segment " << lsegDir);
     }
@@ -102,7 +102,7 @@ MuonSegmentInOverlapResolvingTool::estimateSegmentDirection(const MuonSegment& s
     // orthogonal vector to segment 1in local frame of segment 2
     Amg::Vector3D lDiro21 = gToLocal2.linear() * (gToGlobal1.linear() * segLocDiro);
 
-    stereoangle = acos(lDiro12.x());
+    stereoangle = std::acos(lDiro12.x());
 
     //  We have the following equations for segment 2 in local frame of segment 1
     //      dx1  = free
@@ -114,12 +114,12 @@ MuonSegmentInOverlapResolvingTool::estimateSegmentDirection(const MuonSegment& s
     double dxn = lDir12.x();
     double dyn = lDir12.y();
     double dzn = lDir12.z();
-    if (fabs(a) > 1e-2) {
+    if (std::abs(a) > 1e-2) {
         dxn = lDir12.x() - b * lDiro12.x() / a;
         dyn = lDir12.y() - b * lDiro12.y() / a;
         dzn = lDir12.z() - b * lDiro12.z() / a;
     }
-    double norm = std::sqrt(dxn * dxn + dyn * dyn + dzn * dzn);
+    double norm = std::hypot(dxn, dyn, dzn);
     if (norm < 1e-6) {
         ATH_MSG_DEBUG(" Unexpected normalisation " << norm);
         norm = 1e-6;
@@ -151,7 +151,7 @@ MuonSegmentInOverlapResolvingTool::estimateSegmentDirection(const MuonSegment& s
     double res21   = (lPos2.y() - lPos21.y()) * lDirn2.z() - (lPos2.z() - lPos21.z()) * lDirn2.y();
     double localx1 = 0.;
     double step    = (lDiro21.y() * lDirn2.z() - lDiro21.z() * lDirn2.y());
-    if (fabs(step) > 1e-5) {
+    if (std::abs(step) > 1e-5) {
         localx1 = res21 / step;
     }
     ATH_MSG_DEBUG(" localx1 " << localx1 << " res21 " << res21 << " step " << step);
@@ -163,7 +163,7 @@ MuonSegmentInOverlapResolvingTool::estimateSegmentDirection(const MuonSegment& s
     double res12   = (lPos1.y() - lPos12.y()) * lDirn1.z() - (lPos1.z() - lPos12.z()) * lDirn1.y();
     step           = (lDiro12.y() * lDirn1.z() - lDiro12.z() * lDirn1.y());
     double localx2 = 0.;
-    if (fabs(step) > 1e-5) {
+    if (std::abs(step) > 1e-5) {
         localx2 = res12 / step;
     }
     ATH_MSG_DEBUG(" localx2 " << localx2 << " res12 " << res12 << " step " << step);
@@ -241,12 +241,12 @@ MuonSegmentInOverlapResolvingTool::bestPhiMatchAnalytic(const MuonSegment& seg1,
     double dxn = lDir12.x();
     double dyn = lDir12.y();
     double dzn = lDir12.z();
-    if (fabs(a) > 1e-2) {
+    if (std::abs(a) > 1e-2) {
         dxn = lDir12.x() - b * lDiro12.x() / a;
         dyn = lDir12.y() - b * lDiro12.y() / a;
         dzn = lDir12.z() - b * lDiro12.z() / a;
     }
-    double norm = std::sqrt(dxn * dxn + dyn * dyn + dzn * dzn);
+    double norm = std::hypot(dxn, dyn, dzn);
     if (norm < 1e-6) {
         ATH_MSG_DEBUG(" Unexpected normalisation " << norm);
         norm = 1e-6;
@@ -267,7 +267,7 @@ MuonSegmentInOverlapResolvingTool::bestPhiMatchAnalytic(const MuonSegment& seg1,
     seg2.associatedSurface().globalToLocalDirection(segDir1Min, segLocDir1);
     Trk::LocalDirection segLocDir2;
     seg2.associatedSurface().globalToLocalDirection(segDir2Min, segLocDir2);
-    double dyz = fabs(segLocDir1.angleYZ() - segLocDir2.angleYZ());
+    double dyz = std::abs(segLocDir1.angleYZ() - segLocDir2.angleYZ());
     return SegmentPhiMatchResult(segDir1Min, segDir2Min, dyz);
 }
 
@@ -290,7 +290,7 @@ MuonSegmentInOverlapResolvingTool::bestPhiMatch(const MuonSegment& seg1, const M
         Amg::Vector3D       segDir1 = updateSegmentDirection(seg1, phi);
         Trk::LocalDirection segLocDir12;
         seg2.associatedSurface().globalToLocalDirection(segDir1, segLocDir12);
-        double dyz = fabs(segLocDir12.angleYZ() - segLocDir2.angleYZ());
+        double dyz = std::abs(segLocDir12.angleYZ() - segLocDir2.angleYZ());
         if (dyz < dthetaMin) {
             dthetaMin  = dyz;
             segDir1Min = segDir1;
@@ -368,11 +368,11 @@ MuonSegmentInOverlapResolvingTool::bestPositionAlongTubeMatch(const MuonSegment&
     if (resfirst < rangeCut && reslast < rangeCut && posfirst < rangeCut && poslast < rangeCut) {
         double resDif = reslast - resfirst;
         double posDif = poslast - posfirst;
-        if (fabs(resDif) < 1e-6) {
+        if (std::abs(resDif) < 1e-6) {
             ATH_MSG_DEBUG("  Unexpected residual difference " << resDif);
             resDif = resDif < 0. ? -1e-6 : 1e-6;
         }
-        if (fabs(posDif) < 1e-6) {
+        if (std::abs(posDif) < 1e-6) {
             ATH_MSG_DEBUG("  Unexpected position difference " << posDif);
             posDif = posDif < 0. ? -1e-6 : 1e-6;
         }
@@ -456,7 +456,7 @@ MuonSegmentInOverlapResolvingTool::segmentGeometrySummary(const MuonSegment& seg
     summary.roPosInSegFrame       = (summary.globalToSeg * roPos).x();
     double distTubeCenterFromRO   = (summary.globalToSeg * tubeCenter).x() - summary.roPosInSegFrame;
     summary.hvPosInSegFrame       = summary.roPosInSegFrame + 2 * distTubeCenterFromRO;
-    summary.shortestChannelLength = fabs(2 * distTubeCenterFromRO);
+    summary.shortestChannelLength = std::abs(2 * distTubeCenterFromRO);
 
     return summary;
 }
@@ -491,15 +491,7 @@ MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const Mu
         }
 
         // calculate difference in angle between phi from phi match and the two new segment positions
-        double norm = difPos.perp() * result.phiResult.segmentDirection1.perp();
-        double cosdphi =
-            (result.phiResult.segmentDirection1.x() * difPos.x() + result.phiResult.segmentDirection1.y() * difPos.y())
-            / norm;
-        if (cosdphi > 0.999999)
-            cosdphi = 0.999999;
-        else if (cosdphi < -0.999999)
-            cosdphi = -0.999999;
-        result.angularDifferencePhi = std::acos(cosdphi);
+        result.angularDifferencePhi = difPos.deltaPhi(result.phiResult.segmentDirection1);
     }
     return result;
 }
@@ -523,48 +515,39 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
                           0., segment.associatedSurface());
 
     // loop over hits and calculate residuals for phi hits
-    MeasCit mit     = segment.containedMeasurements().begin();
-    MeasCit mit_end = segment.containedMeasurements().end();
-    for (; mit != mit_end; ++mit) {
+    for (const Trk::MeasurementBase* meas : segment.containedMeasurements()) {
 
-        Identifier id = m_edmHelperSvc->getIdentifier(**mit);
+        Identifier id = m_edmHelperSvc->getIdentifier(*meas);
         if (!id.is_valid() || !m_idHelperSvc->measuresPhi(id)) continue;
 
         // predict onto segment surface
-        const Trk::Surface& measSurf = (**mit).associatedSurface();
+        const Trk::Surface& measSurf = meas->associatedSurface();
 
         // propagate station parameters to segment
-        auto exPars =
-            m_propagator->propagate(segPars, measSurf, Trk::anyDirection, false, m_magFieldProperties);
+        std::unique_ptr<const Trk::TrackParameters> exPars {
+            m_propagator->propagate(segPars, measSurf, Trk::anyDirection, false, m_magFieldProperties)};
         if (!exPars) {
             ATH_MSG_WARNING("  Failed to propagate parameter to segment surface" << std::endl
                                                                                  << " pars "
                                                                                  << m_printer->print(segPars));
-        } else {
-
-            const Trk::ResidualPull* resPull =
-                m_pullCalculator->residualPull(*mit, exPars.get(), Trk::ResidualPull::Unbiased);
-            if (!resPull) {
-                ATH_MSG_DEBUG(" calculation of residual/pull failed !!!!! ");
-                //delete exPars;
-                continue;
-            }
-
-            // sanity check
-            if (resPull->pull().size() != 1) {
-                ATH_MSG_WARNING(" ResidualPull with empty pull vector for channel " << m_idHelperSvc->toString(id));
-                delete resPull;
-                //delete exPars;
-                continue;
-            }
-
-            double pull = resPull->pull().front();
-
-            averagePull += pull;
-            ++nphiMeas;
-            delete resPull;
-            //delete exPars;
+            continue;
+        } 
+        
+        std::unique_ptr<const Trk::ResidualPull> resPull { m_pullCalculator->residualPull(meas, exPars.get(), Trk::ResidualPull::Unbiased)};
+        if (!resPull) {
+            ATH_MSG_DEBUG(" calculation of residual/pull failed !!!!! ");
+            continue;
         }
+
+        // sanity check
+        if (resPull->pull().size() != 1) {
+            ATH_MSG_WARNING(" ResidualPull with empty pull vector for channel " << m_idHelperSvc->toString(id));
+            continue;
+        }
+        const double pull = resPull->pull().front();
+        averagePull += pull;
+        ++nphiMeas;
+        
     }
     if (nphiMeas != 0) averagePull /= nphiMeas;
     return averagePull;

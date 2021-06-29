@@ -113,12 +113,13 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
 
     Gaudi::Property<bool> m_toroidOn{this, "ToroidOn", true, "Status of toroidal B-Field"};
 
-    mutable std::atomic_uint m_straightLineMatches;
-    mutable std::atomic_uint m_straightLineMatchesGood;
-    mutable std::atomic_uint m_overlapMatches;
-    mutable std::atomic_uint m_overlapMatchesGood;
-    mutable std::atomic_uint m_curvedMatches;
-    mutable std::atomic_uint m_curvedMatchesGood;
+    mutable std::atomic_uint m_straightLineMatches{0};
+    mutable std::atomic_uint m_straightLineMatchesGood{0};
+    mutable std::atomic_uint m_overlapMatches{0};
+    mutable std::atomic_uint m_overlapMatchesGood{0};
+    mutable std::atomic_uint m_curvedMatches{0};
+    mutable std::atomic_uint m_curvedMatchesGood{0};
+    mutable std::atomic_uint m_duplicateHitUses{0};
 
     bool m_isCosmics;
     bool m_doOverlapMatch;
