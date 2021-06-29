@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ public:
 	std::string getRandomConfigFile();
 
 	static void overlayATLASlogo();
-	static void overlayEventDetails(unsigned long runNumber, unsigned long eventNumber, std::string humanTimestamp);
+	static void overlayEventDetails(unsigned long runNumber, unsigned long eventNumber, const std::string& humanTimestamp);
 
 private:
 	std::vector<std::string> m_files;
