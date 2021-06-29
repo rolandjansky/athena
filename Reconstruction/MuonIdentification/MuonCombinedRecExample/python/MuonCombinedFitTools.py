@@ -13,7 +13,6 @@
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getPublicToolClone, getService
 from AthenaCommon.BeamFlags import jobproperties
@@ -249,6 +248,8 @@ def MuonAlignmentUncertToolPhi(name ="MuonAlignmentUncertToolPhi", **kwargs):
     return CfgMgr.Muon__MuonAlignmentUncertTool(name,**kwargs)
         
 def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
+    # N.B. This is a duplication of CombinedMuonTrackBuilder but I tried to remove it and got into circular dependency hell
+    # Leave to new configuration to fix. EJWM. 
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
@@ -307,6 +308,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
         kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "") )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
+        kwargs.setdefault("MuonErrorOptimizer", getPublicTool('MuidErrorOptimisationTool'))
+        kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuonChamberHoleRecoveryTool") ) 
 
 
     if beamFlags.beamType() == 'cosmics':
@@ -393,24 +396,21 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     # configure tools for data reprocessing 
     if muonRecFlags.enableErrorTuning():
        # use alignment effects on track for all algorithms
-
-       useAlignErrs = True
-       if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
-            useAlignErrs = False
-
-       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("MuidErrorOptimisationTool",
-                                                                  "MuonErrorOptimisationTool",
-                                                                  PrepareForFit              = False,
-                                                                  RecreateStartingParameters = False,
-                                                                  RefitTool = getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter"))
-                                                                  ))
-
+       kwargs.setdefault("MuonErrorOptimizer", getPublicTool('MuidErrorOptimisationTool'))
 
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
     getPublicTool("MuonCaloParticleCreator")
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
+def MuidErrorOptimisationTool(name='MuidErrorOptimisationTool', **kwargs):
+    useAlignErrs = True
+    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
+        useAlignErrs = False
+    kwargs.setdefault( 'RefitTool', getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter") ) )
+    kwargs.setdefault( 'PrepareForFit', False )
+    kwargs.setdefault( 'RecreateStartingParameters', False )
+    return CfgMgr.Muon__MuonErrorOptimisationTool(name, **kwargs)
 
 def MuonMatchQuality(name='MuonMatchQuality', **kwargs ):
     kwargs.setdefault("TagTool", getPublicTool("CombinedMuonTagTestTool") )
