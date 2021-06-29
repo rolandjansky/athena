@@ -7,6 +7,21 @@ from IDScanZFinder.IDScanZFinderConf import TrigZFinder
 MinBiasZFinderAlg = TrigZFinderAlg("TrigZFinderAlg", vertexKey=recordable("HLT_vtx_z"))
 MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("default")]
 MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike", TripletMode=1, TripletDZ=1, PhiBinSize=0.1, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike1", TripletMode=1, TripletDZ=1, PhiBinSize=0.05, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike2", TripletMode=1, TripletDZ=1, PhiBinSize=0.02, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike3", TripletMode=1, TripletDZ=1, PhiBinSize=0.01, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike4", TripletMode=1, TripletDZ=0.5, PhiBinSize=0.1, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike5", TripletMode=1, TripletDZ=0.5, PhiBinSize=0.05, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike6", TripletMode=1, TripletDZ=0.5, PhiBinSize=0.02, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike7", TripletMode=1, TripletDZ=0.5, PhiBinSize=0.01, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike8", TripletMode=1, TripletDZ=1.5, PhiBinSize=0.1, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike9", TripletMode=1, TripletDZ=1.5, PhiBinSize=0.05, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike10", TripletMode=1, TripletDZ=1.5, PhiBinSize=0.02, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike11", TripletMode=1, TripletDZ=1.5, PhiBinSize=0.01, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike12", TripletMode=1, TripletDZ=2, PhiBinSize=0.1, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike13", TripletMode=1, TripletDZ=2, PhiBinSize=0.05, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike14", TripletMode=1, TripletDZ=2, PhiBinSize=0.02, UseOnlyPixels=True, MaxLayer=3)]
+MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike15", TripletMode=1, TripletDZ=2, PhiBinSize=0.01, UseOnlyPixels=True, MaxLayer=3)]
 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
