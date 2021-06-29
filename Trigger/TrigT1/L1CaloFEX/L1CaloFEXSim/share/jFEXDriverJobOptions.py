@@ -51,6 +51,21 @@ include("RecExCond/AllDet_detDescr.py")
 svcMgr += CfgMgr.THistSvc()
 #svcMgr.THistSvc.Output += ["ISO DATAFILE='tobIso.root' OPT='RECREATE'"]
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile_jfex.root' OPT='RECREATE'"]
+
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+xaodStream = MSMgr.NewPoolRootStream( "StreamXAOD", "xAOD.out.root" )
+xaodStream.AddItem( ["xAOD::jFexSRJetRoIContainer"] )
+xaodStream.AddItem( ["xAOD::jFexSRJetRoIAuxContainer"] )
+xaodStream.AddItem( ["xAOD::jFexLRJetRoIContainer"] )
+xaodStream.AddItem( ["xAOD::jFexLRJetRoIAuxContainer"] )
+xaodStream.AddItem( ["xAOD::jFexTauRoIContainer"] )
+xaodStream.AddItem( ["xAOD::jFexTauRoIAuxContainer"] )
+xaodStream.AddItem( ["xAOD::jFexSumETRoIContainer"] )
+xaodStream.AddItem( ["xAOD::jFexSumETRoIAuxContainer"] )
+xaodStream.AddItem( ["xAOD::jFexMETRoIContainer"] )
+xaodStream.AddItem( ["xAOD::jFexMETRoIAuxContainer"] )
+
+
 #######################################################
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")
