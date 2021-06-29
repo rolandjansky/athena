@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,6 +37,9 @@ public:
 		     SbBool embed = TRUE,
 		     SoQtFullViewer::BuildFlag flag = BUILD_ALL,
 		     SoQtViewer::Type type = BROWSER);
+
+        VP1ExaminerViewer (const VP1ExaminerViewer&) = delete;
+        VP1ExaminerViewer& operator= (const VP1ExaminerViewer&) = delete;
 
 	virtual ~VP1ExaminerViewer();//NB: SoQtExaminerViewer has non-virtual destructor!
 
