@@ -140,7 +140,7 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
 	  else //in the middle
 	    newSamples.assign(max-halfNSample,max-halfNSample+m_NumberOfSamples);
 	}
-	LArDigit* lardigit=new LArDigit(chid,gain,newSamples);
+	LArDigit* lardigit=new LArDigit(chid,gain,std::move(newSamples));
 	outputContainer->push_back(lardigit);
       } else {
 	LArDigit* lardigit=new LArDigit(chid,gain,samples);

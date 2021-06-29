@@ -232,7 +232,7 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	if (samples.size()==0) continue; // Ignore missing cells
 	HWIdentifier cId = m_onlineHelper->channel_Id(fId,fcNb);
 	calogain=(CaloGain::CaloGain)gain;
-	dg = new LArDigit(cId, calogain, samples);
+	dg = new LArDigit(cId, calogain, std::move(samples));
 	samples.clear();
 	coll.push_back(dg);
 	}
