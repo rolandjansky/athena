@@ -21,9 +21,6 @@
   <!-- LUCID CTP input -->
   <class name="LVL1::LucidCTP" id="BAC7215E-DEA2-4B43-B722-E170AC4223D5"/>
 
-  <!-- TRT CTP input -->
-  <class name="LVL1::TrtCTP" id="E55FADE4-21BC-47BF-AE93-EC40CD5BAB89"/>
-
   <!-- Reconstructed RoI classes for the HLT -->
   <class name="LVL1::RecMuonRoI" id="B61E8B53-846D-42F9-A730-5ADA865E3D99" />
   <class name="LVL1::RecEmTauRoI" id="66F831E5-17BB-404B-9E4D-709317EF8B22" />

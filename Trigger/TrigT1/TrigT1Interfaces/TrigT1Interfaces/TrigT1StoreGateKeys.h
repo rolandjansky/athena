@@ -31,8 +31,6 @@ namespace LVL1 {
   static const std::string DEFAULT_BcmCTPLocation = "L1BCMtoCTPLocation";
   //! default StoreGate location for Lucid to CTP input
   static const std::string DEFAULT_LucidCTPLocation = "L1LucidtoCTPLocation";
-  //! default StoreGate location for TRT to CTP input
-  static const std::string DEFAULT_TrtCTPLocation = "L1TRTtoCTPLocation";
   //! default StoreGate location for BPTX to CTP input
     static const std::string DEFAULT_BptxCTPLocation = "L1BPTXtoCTPLocation";
   //! default StoreGate location for NIM to CTP input
