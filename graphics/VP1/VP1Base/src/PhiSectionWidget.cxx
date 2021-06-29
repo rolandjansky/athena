@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1Base/PhiSectionWidget.h"
@@ -833,7 +833,7 @@ void PhiSectionWidget::setAllowedNumberOfSectors(QList<int> allowedNSectors, boo
 
   m_d->allowCustomNSectors = allowCustom;
 
-  qSort(allowedNSectors);
+  std::sort(allowedNSectors.begin(), allowedNSectors.end());
   if (m_d->allowedNSectors==allowedNSectors) {
     return;
   }
