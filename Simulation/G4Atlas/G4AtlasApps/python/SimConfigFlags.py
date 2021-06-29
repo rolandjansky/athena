@@ -40,7 +40,17 @@ def createSimConfigFlags():
     # Do full simulation + digitisation + reconstruction chain
     scf.addFlag("Sim.DoFullChain", False)
 
-    scf.addFlag("Sim.G4Version", "geant4.10.1.patch03.atlas02")
+    def _check_G4_version(prevFlags):
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        version = GetFileMD(prevFlags.Input.Files).get('G4Version', '')
+        if not version:
+            from os import environ
+            version = str(environ.get('G4VERS', ''))
+        if not version:
+            raise ValueError("Unknown G4 version")
+        return version
+
+    scf.addFlag("Sim.G4Version", _check_G4_version)
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
