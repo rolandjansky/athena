@@ -13,3 +13,5 @@
 <class name="SG::AuxTypeVectorFactory<DataLink<@_type@> >" />
 <class name="SG::AuxTypeVectorFactory<ElementLink<@_type@> >" />
 <class name="SG::AuxTypeVectorFactory<std::vector<ElementLink<@_type@> > >" />
+
+<class name="DataVectorBase<@_type@::base_value_type>" />
