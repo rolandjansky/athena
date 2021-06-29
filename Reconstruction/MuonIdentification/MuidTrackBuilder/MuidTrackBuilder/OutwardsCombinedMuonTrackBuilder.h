@@ -81,7 +81,7 @@ namespace Rec {
 
         Trk::Track* addIDMSerrors(Trk::Track* track) const;
 
-        static Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters* parameters, const Trk::RecVertex& vertex) ;
+        static Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters* parameters, const Trk::RecVertex& vertex);
 
         // helpers, managers, tools
         ToolHandle<Muon::IMuonTrackCleaner> m_cleaner{

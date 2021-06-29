@@ -227,8 +227,7 @@ namespace Rec {
                             const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(
                                 energyLoss->deltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE());
 
-                            auto scatNew = Trk::ScatteringAngles(
-                              0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                            auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                             const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -237,11 +236,7 @@ namespace Rec {
                             meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
                             const Trk::MaterialEffectsOnTrack* meotNew =
-                              new Trk::MaterialEffectsOnTrack(X0,
-                                                              std::move(scatNew),
-                                                              energyLossNew,
-                                                              surfNew,
-                                                              meotPattern);
+                                new Trk::MaterialEffectsOnTrack(X0, std::move(scatNew), energyLossNew, surfNew, meotPattern);
 
                             const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
 
@@ -274,10 +269,8 @@ namespace Rec {
         ATH_MSG_DEBUG(" trackStateOnSurfaces found " << trackStateOnSurfaces.size() << " from total " << itsos);
 
         std::unique_ptr<Trk::Track> standaloneTrack =
-          std::make_unique<Trk::Track>(
-            combinedTrack.info(), std::move(trackStateOnSurfaces), nullptr);
-        standaloneTrack->info().setPatternRecognitionInfo(
-          Trk::TrackInfo::MuidStandaloneRefit);
+            std::make_unique<Trk::Track>(combinedTrack.info(), std::move(trackStateOnSurfaces), nullptr);
+        standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
 
         std::unique_ptr<Trk::Track> refittedTrack = fit(*standaloneTrack, ctx, false, Trk::muon);
 
@@ -571,8 +564,7 @@ namespace Rec {
 
                             const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
 
-                            auto scatNew = Trk::ScatteringAngles(
-                              0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                            auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                             const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -581,11 +573,7 @@ namespace Rec {
                             meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
                             const Trk::MaterialEffectsOnTrack* meotNew =
-                              new Trk::MaterialEffectsOnTrack(X0,
-                                                              std::move(scatNew),
-                                                              energyLossNew,
-                                                              surfNew,
-                                                              meotPattern);
+                                new Trk::MaterialEffectsOnTrack(X0, std::move(scatNew), energyLossNew, surfNew, meotPattern);
 
                             const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
 
