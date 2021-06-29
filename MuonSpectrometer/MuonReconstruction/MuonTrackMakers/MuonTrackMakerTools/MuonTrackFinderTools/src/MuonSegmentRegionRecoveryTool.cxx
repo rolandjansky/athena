@@ -4,7 +4,6 @@
 
 #include "MuonSegmentRegionRecoveryTool.h"
 
-#include <map>
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
@@ -42,6 +41,7 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include <ostream>
 
 namespace Muon {
 
@@ -491,7 +491,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
                                              << " dist tube edge " << distEdge << " pullEdge " << pullEdge);
                 ++nholes;
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(tubePars.release());
+                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(tubePars));
                 states.emplace_back(tsos);
             }
             if (!nholes) ATH_MSG_DEBUG("found holes " << nholes);
@@ -805,7 +805,7 @@ namespace Muon {
                                     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                                     typePattern.set(Trk::TrackStateOnSurface::Measurement);
                                     Trk::TrackStateOnSurface* tsos =
-                                        new Trk::TrackStateOnSurface(hit->clone(), hitPars.release(), nullptr, nullptr, typePattern);
+                                        new Trk::TrackStateOnSurface(hit->uniqueClone(), std::move(hitPars), nullptr, nullptr, typePattern);
                                     states.emplace_back(tsos);
                                     const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(hit);
                                     if (mdt) newMdtHashes.insert(mdt->collectionHash());
@@ -968,7 +968,7 @@ namespace Muon {
                                                                                               bool smallerBounds) const {
         ATH_MSG_VERBOSE("reachableDetEl() " << m_idHelperSvc->toStringDetEl(detEl.identify()) << " at " << detEl.center());
         std::unique_ptr<const Trk::TrackParameters> exPars;
-        std::unique_ptr<Trk::TrackParameters> closest{MuonGetClosestParameters::closestParameters(track, detEl.surface(), true)};
+        std::unique_ptr<const Trk::TrackParameters> closest{MuonGetClosestParameters::closestParameters(track, detEl.surface(), true)};
         if (closest) {
             ATH_MSG_VERBOSE("Extrapolating from closest point:\n" << m_printer->print(*closest));
             exPars.reset(m_extrapolator->extrapolateDirectly(ctx, *closest, detEl.surface(), Trk::anyDirection, false, Trk::muon));
