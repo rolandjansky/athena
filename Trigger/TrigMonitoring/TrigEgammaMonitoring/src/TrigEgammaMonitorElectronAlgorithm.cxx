@@ -70,11 +70,10 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
           pairObjsRaw.emplace_back(itr.first.get(), itr.second);
         }
 
+
         fillDistributions( pairObjsRaw, info );
         fillEfficiencies( pairObjsRaw, info );
         fillResolutions( pairObjsRaw, info );
-
-
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list

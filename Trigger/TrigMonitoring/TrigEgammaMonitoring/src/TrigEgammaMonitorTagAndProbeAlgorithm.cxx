@@ -70,15 +70,12 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
 
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventContext& ctx ) const  {
-
-    auto monGroup         = getGroup( m_anatype );
-    auto totalTime        = Monitored::Timer("TIME_TotalTime");
-     
-
+   
     std::vector<std::shared_ptr<const xAOD::Electron>> probes;
 
     // Select TP Pairs
     ATH_MSG_DEBUG("Execute TP selection");
+    
     if( !executeTandP(ctx, probes) ){
         ATH_MSG_WARNING("Tag and Probe event failed.");
         return StatusCode::SUCCESS;
@@ -118,17 +115,10 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         fillEfficiencies( pairObjs, info );
         fillResolutions( pairObjs, info );
 
-
     } // End loop over trigger list
 
-    
     return StatusCode::SUCCESS;
 }
-
-
-
-
-
 
 
 
