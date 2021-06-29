@@ -129,6 +129,12 @@ namespace InDet{
       DataVector<const Trk::TrackStateOnSurface>
       convertToSimpleTrackStateOnSurfaceWithNewDirection();
 
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurfaceForDisTrackTrigger();
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int);
+
       Trk::FitQuality* convertToFitQuality();
 
       void updateHoleSearchResult(); 

@@ -36,6 +36,7 @@
 
 //for UTT
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) :
 
@@ -46,6 +47,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
   m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
+  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+  m_disTrkFitter("Trk::KalmanFitter/InDetTrigTrackFitter"),
   m_accelTool("TrigInDetAccelerationTool"),
   m_accelSvc("TrigInDetAccelerationSvc", name),
   m_doCloneRemoval(true),
@@ -69,7 +72,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigseedML_LUT(""),
   m_doHitDV(false),
   m_doHitDV_Seeding(false),
-  m_dodEdxTrk(false)
+  m_dodEdxTrk(false),
+  m_doDisappearingTrk(false)
 {
 
   /** Doublet finding properties. */
@@ -148,10 +152,10 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("LRT_HardMinPt", m_LRTHardMinPt=0.0);
 
   // UTT
-  declareProperty("doHitDV",         m_doHitDV         = false);
-  declareProperty("doHitDV_Seeding", m_doHitDV_Seeding = false);
-  declareProperty("dodEdxTrk",       m_dodEdxTrk       = false);
-
+  declareProperty("doHitDV",           m_doHitDV           = false);
+  declareProperty("doHitDV_Seeding",   m_doHitDV_Seeding   = false);
+  declareProperty("dodEdxTrk",         m_dodEdxTrk         = false);
+  declareProperty("doDisappearingTrk", m_doDisappearingTrk = false);
 }
 
 //--------------------------------------------------------------------------
@@ -255,6 +259,15 @@ StatusCode TrigFastTrackFinder::initialize() {
     }
   }
 
+  // UTT tools
+  if( m_doDisappearingTrk ) {
+     ATH_CHECK(m_extrapolator.retrieve());
+     ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
+
+     ATH_CHECK(m_disTrkFitter.retrieve());
+     ATH_MSG_DEBUG("Retrieved tool " << m_disTrkFitter);
+  }
+
   // UTT read/write handles
   if( m_doHitDV ) {
     ATH_CHECK(m_recJetRoiCollectionKey.initialize());
@@ -265,8 +278,12 @@ StatusCode TrigFastTrackFinder::initialize() {
      ATH_CHECK(m_dEdxTrkKey.initialize());
      ATH_CHECK(m_dEdxHitKey.initialize());
   }
+  if( m_doDisappearingTrk ) {
+     ATH_MSG_INFO("Initializing disTrkCandKey = " << m_disTrkCandKey);
+     ATH_CHECK(m_disTrkCandKey.initialize());
+  }
 
-
+  //
   ATH_MSG_DEBUG("FTF : " << name()  );
   ATH_MSG_DEBUG("	m_tcs.m_doubletFilterRZ    : " <<  m_tcs.m_doubletFilterRZ     );
   ATH_MSG_DEBUG("	m_tcs.m_doublet_dR_Max     : " <<  m_tcs.m_doublet_dR_Max      );
@@ -400,9 +417,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   auto mnt_timer_TrackFitter           = Monitored::Timer<std::chrono::milliseconds>("TIME_TrackFitter");
   auto mnt_timer_HitDV                 = Monitored::Timer<std::chrono::milliseconds>("TIME_HitDV");
   auto mnt_timer_dEdxTrk               = Monitored::Timer<std::chrono::milliseconds>("TIME_dEdxTrk");
+  auto mnt_timer_disTrkZVertex         = Monitored::Timer<std::chrono::milliseconds>("TIME_disTrkZVertex");
+  auto mnt_timer_disTrk                = Monitored::Timer<std::chrono::milliseconds>("TIME_disappearingTrack");
   auto monTime = Monitored::Group(m_monTool, mnt_roi_nTracks, mnt_roi_nSPs, mnt_timer_Total, mnt_timer_SpacePointConversion,
 				  mnt_timer_PatternReco, mnt_timer_TripletMaking, mnt_timer_CombTracking, mnt_timer_TrackFitter,
-				  mnt_timer_HitDV, mnt_timer_dEdxTrk);
+				  mnt_timer_HitDV, mnt_timer_dEdxTrk, mnt_timer_disTrkZVertex, mnt_timer_disTrk);
 
   auto mnt_roi_lastStageExecuted = Monitored::Scalar<int>("roi_lastStageExecuted", 0);
   auto monDataError              = Monitored::Group(m_monTool, mnt_roi_lastStageExecuted);
@@ -548,7 +567,18 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool PIX = true;
   bool SCT = true;
+
+  if( m_doDisappearingTrk ) trackEventData.combinatorialData().setFlagToReturnFailedTrack(true);
   m_trackMaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
+
+  std::vector<Trk::Track*> disFailTrks;
+  std::vector<Trk::Track*> disCombTrks;
+  std::vector<std::tuple<bool, double, Trk::Track*>> qualityDisFailTrks;
+  std::vector<std::tuple<bool, double, Trk::Track*>> qualityDisCombTrks;
+  int disTrk_n_disCombTrks=0;
+  int disTrk_n_disCombTrks_cleaning=0;
+  int disTrk_n_disFailTrks=0;
+  int disTrk_n_disFailTrks_cleaning=0;
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -573,7 +603,44 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(ctx, trackEventData, spVec);
+    std::list<Trk::Track*> tracks;
+    std::list<Trk::Track*> tracksFail;
+    std::list<Trk::Track*> tracksAll = m_trackMaker->getTracks(ctx, trackEventData, spVec);
+    auto resultCode = trackEventData.combinatorialData().resultCode();
+    if( ! m_doDisappearingTrk || (m_doDisappearingTrk && resultCode==InDet::SiCombinatorialTrackFinderData_xk::ResultCode::Success) ) {
+       tracks = tracksAll;
+    }
+    else {
+       tracksFail = tracksAll;
+    }
+    if( m_doDisappearingTrk ) {
+       ATH_MSG_DEBUG("UTT: size of tracks=" << tracks.size() << ", tracksFail=" << tracksFail.size() << ": resultCode=" << resultCode);
+       for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
+	  if( ! (*t) ) continue;
+	  m_trackSummaryTool->updateTrack(**t);
+	  disTrk_n_disCombTrks++;
+	  if( (*t)->perigeeParameters()!=0 && isCleaningPassDisTrack(seed, (*t), false) ) {
+	     ATH_MSG_DEBUG("UTT: ... combTrk, cleaningPass");
+	     disTrk_n_disCombTrks_cleaning++;
+	     disCombTrks.push_back((*t));
+	     qualityDisCombTrks.emplace_back(std::make_tuple(true, -disTrackQuality((*t)), (*t)));
+	  }
+       }
+       for(std::list<Trk::Track*>::const_iterator t=tracksFail.begin(); t!=tracksFail.end(); ++t) {
+	  if( ! (*t) ) continue;
+	  m_trackSummaryTool->updateTrack(**t);
+	  disTrk_n_disFailTrks++;
+	  if( (*t)->perigeeParameters()!=0 && isCleaningPassDisTrack(seed, (*t), true) ) {
+	     ATH_MSG_DEBUG("UTT: ... failTrk, cleaningPass");
+	     disTrk_n_disFailTrks_cleaning++;
+	     disFailTrks.push_back((*t));
+	     qualityDisFailTrks.emplace_back(std::make_tuple(true, -disTrackQuality((*t)), (*t)));
+	  }
+	  else {
+	     delete(*t); // delete failed trk but not disFailTrk candidate
+	  }
+       }
+    }
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {
@@ -598,6 +665,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     ATH_MSG_VERBOSE("Found "<<tracks.size()<<" tracks using triplet");
   }
 
+  if( m_doDisappearingTrk ) {
+     ATH_MSG_DEBUG("UTT: ===> nr of disFailTrks=" << disTrk_n_disFailTrks << " -> cleaning pass=" << disTrk_n_disFailTrks_cleaning);
+     ATH_MSG_DEBUG("UTT: ===> nr of disCombTrks=" << disTrk_n_disCombTrks << " -> cleaning pass=" << disTrk_n_disCombTrks_cleaning);
+  }
+
   m_trackMaker->endEvent(trackEventData);
 
   //clone removal
@@ -605,15 +677,51 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     filterSharedTracks(qualityTracks);
   }
 
+  // filter shared hits
+  if( m_doDisappearingTrk ) {
+    filterSharedDisTracks(qualityDisFailTrks);
+    filterSharedDisTracks(qualityDisCombTrks);
+  }
+
   TrackCollection initialTracks;
   initialTracks.reserve(qualityTracks.size());
+
+  TrackCollection extraDisCombTracks;
+  // if( m_doDisappearingTrk ) extraDisCombTracks.reserve(qualityTracks.size());
+
+  unsigned int idx=0;
+  std::vector<unsigned int> indexDisCombTrk;
   for(const auto& q : qualityTracks) {
+    bool needed_for_disCombTrk = false;
+    if( m_doDisappearingTrk ) {
+       Trk::Track* trk_q = std::get<2>(q);
+       for(const auto& qdis : qualityDisCombTrks ) {
+	  if( std::get<2>(qdis) == trk_q ) {
+	     needed_for_disCombTrk = std::get<0>(qdis);
+	     break;
+	  }
+       }
+       if( needed_for_disCombTrk) ATH_MSG_DEBUG("UTT: idx=" << idx << " ===> neded for disCombTrk");
+    }
     if (std::get<0>(q)==true) {
       initialTracks.push_back(std::get<2>(q));
+      if( m_doDisappearingTrk && needed_for_disCombTrk ) indexDisCombTrk.push_back(idx);
     }
     else {
-      delete std::get<2>(q);
+      if( ! m_doDisappearingTrk ) {
+	 delete std::get<2>(q);
+      }
+      else {
+	 if( needed_for_disCombTrk ) {
+	    ATH_MSG_DEBUG("UTT: ... adding to extraDisCombTracks");
+	    extraDisCombTracks.push_back(std::get<2>(q));
+	 }
+	 else {
+	    delete std::get<2>(q);
+	 }
+      }
     }
+    idx++;
   }
   qualityTracks.clear();
 
@@ -646,8 +754,31 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
      ATH_MSG_DEBUG("REGTEST / No tracks fitted");
   }
 
+  bool do_recoverDisCombTrk = true;
+  if( m_doDisappearingTrk && (initialTracks.size()!=outputTracks.size()) ) {
+     ATH_MSG_DEBUG("UTT: part of initialTracks fails in fitting. do not try to recover DisCombTracks");
+     do_recoverDisCombTrk = false;
+  }
+
+  TrackCollection fittedExtraDisCombTracks;
+  fittedExtraDisCombTracks.reserve(extraDisCombTracks.size());
+  TrackCollection fittedDisCombTrks(SG::VIEW_ELEMENTS);
+  if( m_doDisappearingTrk ) {
+     ATH_MSG_DEBUG("UTT: nr of extraDisCombTracks=" << extraDisCombTracks.size());
+     if( extraDisCombTracks.size() > 0 ) {
+	ATH_MSG_DEBUG("UTT: fitting extraDisCombTracks ...");
+	m_trigInDetTrackFitter->fit(extraDisCombTracks, fittedExtraDisCombTracks, ctx, m_particleHypothesis);
+	for (auto fittedTrack = fittedExtraDisCombTracks.begin(); fittedTrack!=fittedExtraDisCombTracks.end(); ++fittedTrack) {
+	   (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
+	   m_trackSummaryTool->updateTrack(**fittedTrack);
+	   fittedDisCombTrks.push_back(*fittedTrack);
+	}
+     }
+  }
+
   size_t counter(1);
-  for (auto fittedTrack = outputTracks.begin(); fittedTrack!=outputTracks.end(); ) {
+  idx = 0;
+  for ( auto fittedTrack = outputTracks.begin(); fittedTrack!=outputTracks.end(); ) {
     if ((*fittedTrack)->perigeeParameters()){
       float d0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::d0];
       float z0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::z0];
@@ -697,7 +828,16 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     m_trackSummaryTool->updateTrack(**fittedTrack);
     ATH_MSG_VERBOSE("Updated track: " << counter);
     ATH_MSG_VERBOSE(**fittedTrack);
+
+    if( m_doDisappearingTrk && do_recoverDisCombTrk ) {
+       if( std::find(indexDisCombTrk.begin(),indexDisCombTrk.end(),idx)!=indexDisCombTrk.end() ) {
+	  ATH_MSG_DEBUG("UTT: fittedTrack idx=" << idx << ": recovers also for DisCombTrack");
+	  fittedDisCombTrks.push_back(*fittedTrack);
+       }
+    }
+
     counter++; fittedTrack++;
+    idx++;
   }
 
   mnt_timer_TrackFitter.stop();
@@ -707,6 +847,23 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     ATH_MSG_DEBUG("REGTEST / No tracks reconstructed");
   }
   mnt_roi_lastStageExecuted = 6;
+
+  // z-vertex for UTT
+  std::vector<double> disTrk_v_xVtx;
+  std::vector<double> disTrk_v_yVtx;
+  std::vector<double> disTrk_v_zVtx;
+  if( m_doDisappearingTrk ) {
+     mnt_timer_disTrkZVertex.start();
+     recoVertexForDisTrack(ctx, outputTracks, disTrk_v_xVtx, disTrk_v_yVtx, disTrk_v_zVtx);
+     mnt_timer_disTrkZVertex.stop();
+  }
+
+  // disappearing track reco
+  if( m_doDisappearingTrk ) {
+     mnt_timer_disTrk.start();
+     ATH_CHECK(findDisTracks(ctx,outputTracks,qualityDisFailTrks,qualityDisCombTrks,fittedDisCombTrks,disTrk_v_xVtx,disTrk_v_yVtx,disTrk_v_zVtx));
+     mnt_timer_disTrk.stop();
+  }
 
   // find L1 J seeded Hit-based displaced vertex
   if( m_doHitDV ) {
@@ -2166,4 +2323,911 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    // -- false return
    ATH_MSG_DEBUG("dEdx not calculated, return 0");
    return 0.;
+}
+
+bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, Trk::Track* trk, bool isFail) const
+{
+   const float  PT_CUT                            = 3.0;
+   //
+   const double FAIL_CHI2_OV_NDOF_CUT             = 20.0;
+   //
+   const int    COMB_N_HITS_IBL_OR_BL_CUT         = 1;
+   const int    COMB_N_HITS_PIX_BR_CUT            = 3; 
+   const double COMB_CHI2_OV_NDOF_PIX_BR_CUT      = 3.0;
+   const int    COMB_N_GOOD_HITS_SCT_BR_CUT       = 2;
+   const int    COMB_N_GOOD_DOUBLEHITS_SCT_BR_CUT = 0;
+   
+   // sanity check
+   if( trk==nullptr )                      return false;
+   if( trk->perigeeParameters()==nullptr ) return false;
+   if( trk->fitQuality()==nullptr )        return false;
+
+   // if allpix/barrel
+   if( !seed.s1().isPixel() || !seed.s2().isPixel() || !seed.s3().isPixel() ) return false;
+   float s1_z = seed.s1().z();
+   float s2_z = seed.s2().z();
+   float s3_z = seed.s3().z();
+   const float PIXEL_BARREL_Z = 410.0;
+   if( std::abs(s1_z) > PIXEL_BARREL_Z || std::abs(s2_z) > PIXEL_BARREL_Z || std::abs(s3_z) > PIXEL_BARREL_Z ) return false;
+   ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... barrel cut passed");
+
+   // pt cut
+   double theta  = trk->perigeeParameters()->parameters()[Trk::theta]; 
+   double qOverP = std::abs(trk->perigeeParameters()->parameters()[Trk::qOverP]);
+   if ( qOverP < 1e-12 ) qOverP = 1e-12;
+   double pt = sin(theta)/qOverP;
+   if( pt/1000.0 < PT_CUT ) return false;
+   ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... pT cut passed");
+
+   // fail/comb dependent cuts
+   if( isFail ) {
+      double chi2 = trk->fitQuality()->chiSquared();
+      double ndof = trk->fitQuality()->doubleNumberDoF();
+      if( std::abs(ndof) < 1e-12 ) return false;
+      if( chi2/ndof > FAIL_CHI2_OV_NDOF_CUT ) return false;
+      ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (failTrk) Chi2 cut passed");
+   }
+   else {
+      std::vector<int>   v_nhits;
+      std::vector<float> v_chi2;
+      std::vector<int>   v_ndof;
+      std::vector<int>   v_nhits_good;
+      getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
+
+      int n_hits_iblbl = v_nhits[0] + v_nhits[1];
+      if( n_hits_iblbl < COMB_N_HITS_IBL_OR_BL_CUT ) return false;
+
+      // PIX cuts
+      int  n_hits_pixbr = 0;
+      double chi2_pixbr = 0;
+      int    ndof_pixbr = 0;
+      for(unsigned int ily=0; ily<=3; ily++) {
+	 n_hits_pixbr += v_nhits[ily];
+	 chi2_pixbr   += v_chi2[ily];
+	 ndof_pixbr   += v_ndof[ily];
+      }
+      if( n_hits_pixbr < COMB_N_HITS_PIX_BR_CUT ) return false;
+      if( ndof_pixbr < 1 )  return false;
+      double chi2_ov_ndof_pixbr = chi2_pixbr / ndof_pixbr;
+      if( chi2_ov_ndof_pixbr > COMB_CHI2_OV_NDOF_PIX_BR_CUT ) return false;
+      ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (combTrk) Pix cut passed");
+      
+      // SCT cuts
+      int n_hits_sctbr_good = 0; 
+      int n_doublehits_sctbr_good = 0;
+      for(unsigned int ily=4; ily<=7; ily++) {
+	 n_hits_sctbr_good += v_nhits_good[ily];
+	 if( v_nhits_good[ily] >= 2 ) n_doublehits_sctbr_good++;
+      }
+      if( n_hits_sctbr_good > COMB_N_GOOD_HITS_SCT_BR_CUT ) return false;
+      if( n_doublehits_sctbr_good > COMB_N_GOOD_DOUBLEHITS_SCT_BR_CUT ) return false;
+      ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (combTrk) SCT cut passed");
+   }
+
+   // cut passed
+   return true;
+}
+
+void TrigFastTrackFinder::getTrkBarrelLayerInfo(Trk::Track* t, std::vector<int>& v_nhits, std::vector<float>& v_chi2, std::vector<int>& v_ndof, std::vector<int>& v_good) const
+{
+   const double CHI2_GOOD_CUT = 3.0;
+
+   const int N_LAYERS = 8;
+
+   v_nhits.clear(); v_chi2.clear(); v_ndof.clear(); v_good.clear();
+   v_nhits.resize(N_LAYERS); v_chi2.resize(N_LAYERS); v_ndof.resize(N_LAYERS); v_good.resize(N_LAYERS);
+
+   const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = t->trackStateOnSurfaces();
+   if (recoTrackStates) {
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIter    = recoTrackStates->begin();
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIterEnd = recoTrackStates->end();
+      for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
+	 const Trk::FitQualityOnSurface* fq = (*tsosIter)->fitQualityOnSurface();
+	 double x2 = 0;
+	 int  ndof = 0; 
+	 if(fq!=nullptr) {
+	    x2 = fq->chiSquared();
+	    ndof = fq->numberDoF();
+	 }
+	 bool chi2_good = (x2 <= CHI2_GOOD_CUT);
+	 const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
+	 const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
+	 if (pixclus!=nullptr) {
+	    int bec   = m_pixelId->barrel_ec(pixclus->identify());
+	    int layer = m_pixelId->layer_disk(pixclus->identify());
+	    if ( bec==0 ) {
+	       if( layer < 0 || 3 < layer ) {
+		  ATH_MSG_WARNING("Pixel layer out of range, layer=" << layer);
+		  continue;
+	       }
+	       v_nhits[layer]++;
+	       v_chi2[layer] += x2;
+	       v_ndof[layer] += ndof;
+	       if(chi2_good) v_good[layer]++;
+	    }
+	 }
+	 const InDet::SCT_ClusterOnTrack *sctclus = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(measurement);
+	 if (sctclus!=nullptr) {
+	    int bec   = m_sctId->barrel_ec(sctclus->identify());
+	    int layer = m_sctId->layer_disk(sctclus->identify());
+	    if ( bec==0 ) {
+	       if( layer < 0 || 3 < layer ) {
+		  ATH_MSG_WARNING("SCT layer out of range, layer=" << layer);
+		  continue;
+	       }
+	       layer += 4;
+	       v_nhits[layer]++;
+	       v_chi2[layer] += x2;
+	       v_ndof[layer] += ndof;
+	       if(chi2_good) v_good[layer]++;
+	    }
+	 }
+      }
+   }
+}
+
+double TrigFastTrackFinder::disTrackQuality(const Trk::Track* Tr) const
+{
+   DataVector<const Trk::TrackStateOnSurface>::const_iterator  
+      m  = Tr->trackStateOnSurfaces()->begin(), 
+      me = Tr->trackStateOnSurfaces()->end  ();
+
+   double quality_pixel = 0. ;
+   double quality_sct   = 0. ;
+
+   const double W = 17.;
+
+   for(; m!=me; ++m) {
+      const Trk::FitQualityOnSurface* fq =  (*m)->fitQualityOnSurface();
+      if(!fq) continue;
+
+      double x2 = fq->chiSquared();
+      double q;
+      if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
+      else                     q =      (W-x2    );
+      if(q < 0.) q = 0.;
+
+      const Trk::MeasurementBase *measurement = (*m)->measurementOnTrack();
+      if (measurement) {
+	 const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
+	 if( pixclus !=0 ) quality_pixel += q;
+	 else quality_sct += q;
+      }
+   }
+
+   //
+   double quality = quality_pixel;
+   quality -= quality_sct;
+   if( quality < 0. ) quality = 0.;
+
+   return quality;
+}
+
+void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCollection& tracks, std::vector<double>& v_xvtx, std::vector<double>& v_yvtx, std::vector<double>& v_zvtx) const
+{
+   v_xvtx.clear();
+   v_yvtx.clear();
+   v_zvtx.clear();
+
+   // beamspot and tilt
+   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+   Amg::Vector3D vertex = beamSpotHandle->beamPos();
+   double xVTX = vertex.x();
+   double yVTX = vertex.y();
+   double tiltXZ = beamSpotHandle->beamTilt(0);
+   double tiltYZ = beamSpotHandle->beamTilt(1);
+
+   // zvertex
+   const double CLUSTCUT_DIST_SIGMA = 5.0;
+   const double CLUSTCUT_DIST       = 2.5;
+   const double CLUSTCUT_SEED_PT    = 3.0;
+   
+   const int VTXCUT_N_TRACKS = 3;
+   const int VTXCUT_ALGO     = 1; // 0: highest pT track, 1: sumPt
+
+   std::vector<std::tuple<int,double,double,Trk::Track*>> QT;
+   QT.reserve(tracks.size());
+
+   for (auto t=tracks.begin(); t!=tracks.end(); ++t) {
+      if( ! isGoodForDisTrackVertex(*t) ) continue;
+      // consider for vertex fitting (idx, sort, weight, Trk)
+      double theta = (*t)->perigeeParameters()->parameters()[Trk::theta]; 
+      double qOverP = std::abs((*t)->perigeeParameters()->parameters()[Trk::qOverP]);
+      if ( qOverP < 1e-12 ) qOverP = 1e-12;
+      double pt = sin(theta)/qOverP;
+      pt /= 1000.0;
+      QT.emplace_back(std::make_tuple(-1,pt,pt,(*t)));
+   }
+
+   // sort
+   std::sort(QT.begin(), QT.end(),
+	     [](const std::tuple<int,double,double,Trk::Track*>& lhs, const std::tuple<int,double,double,Trk::Track*>& rhs) {
+		return std::get<1>(lhs) > std::get<1>(rhs); } );
+
+   // clustering
+   std::vector<int>    cluster_ntrk;
+   std::vector<double> cluster_ptsum;
+   std::vector<double> cluster_z;
+   std::vector<double> cluster_wsum;
+   std::vector<double> cluster_zerr;
+   std::vector<double> cluster_w2sum;
+
+   for(unsigned int i=0; i<QT.size(); ++i) {
+      Trk::Track* t = std::get<3>(QT[i]);
+      double z = t->perigeeParameters()->parameters()[Trk::z0];
+      double zerr = sqrt((*(t->perigeeParameters()->covariance()))(Trk::z0,Trk::z0));
+      double w  = std::get<2>(QT[i]);
+      double pt = std::get<1>(QT[i]);
+      if(i==0) {
+	 cluster_ntrk.push_back(1);             cluster_ptsum.push_back(pt);
+	 cluster_z.push_back(w*z);              cluster_wsum.push_back(w);
+	 cluster_zerr.push_back(w*zerr*w*zerr); cluster_w2sum.push_back(w*w);
+	 continue;
+      }
+      //
+      const int IDX_INITIAL = 100;
+      double dist_min = 100.0;
+      int idx_min     = IDX_INITIAL;
+      for(unsigned j=0; j<cluster_z.size(); ++j) {
+	 double dist = std::abs(z - cluster_z[j]/cluster_wsum[j]);
+	 if( dist < dist_min ) {
+	    dist_min = dist;
+	    idx_min  = j; 
+	 }
+      }
+      int match_idx = IDX_INITIAL;
+      if( idx_min != IDX_INITIAL ) {
+	 double c_zerr_min = sqrt(cluster_zerr[idx_min]/cluster_w2sum[idx_min]);
+	 double err = sqrt(zerr*zerr+c_zerr_min*c_zerr_min);
+	 if( std::abs(err) < 1e-12 ) err = 1e-12;
+	 double dist = dist_min / err;
+	 if( dist < CLUSTCUT_DIST_SIGMA && dist_min < CLUSTCUT_DIST ) { match_idx = idx_min; }
+      }
+      //
+      if( match_idx == IDX_INITIAL ) {
+	 if( pt > CLUSTCUT_SEED_PT && dist_min > CLUSTCUT_DIST ) {
+	    cluster_ntrk.push_back(1);             cluster_ptsum.push_back(pt);
+	    cluster_z.push_back(w*z);              cluster_wsum.push_back(w);
+	    cluster_zerr.push_back(w*zerr*w*zerr); cluster_w2sum.push_back(w*w);
+	 }
+	 continue;
+      }
+      int    new_n     = cluster_ntrk[match_idx]  + 1;
+      double new_ptsum = cluster_ptsum[match_idx] + pt;
+      double new_z     = cluster_z[match_idx]     + w*z;
+      double new_wsum  = cluster_wsum[match_idx]  + w;
+      double new_zerr  = cluster_zerr[match_idx]  + w*zerr*w*zerr;
+      double new_w2sum = cluster_w2sum[match_idx] + w*w;
+      cluster_ntrk[match_idx]  = new_n;
+      cluster_ptsum[match_idx] = new_ptsum;
+      cluster_z[match_idx]     = new_z;
+      cluster_wsum[match_idx]  = new_wsum;
+      cluster_zerr[match_idx]  = new_zerr;
+      cluster_w2sum[match_idx] = new_w2sum;
+   }
+   QT.clear();
+
+   // determine zvtx (pt sort)
+   std::vector<std::tuple<double,double,double,int>> zVtx;
+   zVtx.reserve(tracks.size());
+   for(unsigned int i=0; i<cluster_z.size(); i++) {
+      if( cluster_ntrk[i] < VTXCUT_N_TRACKS ) continue;
+      double z = cluster_z[i] / cluster_wsum[i];
+      double zerr = sqrt(cluster_zerr[i] / cluster_w2sum[i]);
+      zVtx.push_back(std::make_tuple(cluster_ptsum[i],z,zerr,cluster_ntrk[i]));
+   }
+   // ptsum sort
+   if( VTXCUT_ALGO == 1 ) {
+      std::sort(zVtx.begin(), zVtx.end(),
+		[](const std::tuple<double,double,double,int>& lhs, const std::tuple<double,double,double,int>& rhs) {
+		   return std::get<0>(lhs) > std::get<0>(rhs); } );
+   }
+   ATH_MSG_DEBUG("UTT: disTrkZVtertex> =====  looping zVtx size: " << zVtx.size());
+   for(unsigned int i=0; i<zVtx.size(); i++) {
+      double z    = std::get<1>(zVtx[i]);
+      double zerr = std::get<2>(zVtx[i]);
+      double pt   = std::get<0>(zVtx[i]);
+      int    n    = std::get<3>(zVtx[i]);
+      v_zvtx.push_back(z);
+      v_xvtx.push_back(xVTX - tiltXZ*z); //correction for tilt
+      v_yvtx.push_back(yVTX - tiltYZ*z); //correction for tilt
+      ATH_MSG_DEBUG("UTT: disTrkZVtertex> Vertex cand i=" << i << ":  z = " << z << " +- " << zerr << ", sum n / pt = " << n << " / " << pt);
+   }
+
+   // monitoring
+   auto mnt_disTrk_nVtx  = Monitored::Scalar<int>  ("disTrk_nVtx",  0);
+   auto mnt_disTrk_xVtx  = Monitored::Scalar<float>("disTrk_xVtx",  0);
+   auto mnt_disTrk_yVtx  = Monitored::Scalar<float>("disTrk_yVtx",  0);
+   auto mnt_disTrk_zVtx  = Monitored::Scalar<float>("disTrk_zVtx",  0);
+   auto monDisTrk = Monitored::Group(m_monTool, mnt_disTrk_nVtx, mnt_disTrk_xVtx, mnt_disTrk_yVtx, mnt_disTrk_zVtx);
+   mnt_disTrk_nVtx = v_zvtx.size();
+   if(v_zvtx.size()>0) {
+      mnt_disTrk_xVtx = v_xvtx[0];
+      mnt_disTrk_yVtx = v_yvtx[0];
+      mnt_disTrk_zVtx = v_zvtx[0];
+   }
+}
+
+bool TrigFastTrackFinder::isGoodForDisTrackVertex(Trk::Track* t) const
+{
+   const double TRKCUT_CHI2_OV_NDOF        = 3.0;
+   const double TRKCUT_PT                  = 1.0;
+   const double TRKCUT_D0                  = 2.0;
+   const int    TRKCUT_N_HITS_INNER        = 1;
+   const int    TRKCUT_N_HITS_PIX          = 3; 
+   const int    TRKCUT_N_HITS              = 7;
+
+   // sanity check
+   if ( ! t->perigeeParameters() ) return false;
+   if ( ! t->fitQuality() )        return false;
+   if ( t->trackSummary()==0 ) {
+      m_trackSummaryTool->updateTrack(*t);
+      if ( t->trackSummary()==0 )  return false;
+   }
+
+   // chi2
+   double chi2  = t->fitQuality()->chiSquared();
+   double ndof  = t->fitQuality()->doubleNumberDoF();
+   if( std::abs(ndof) < 1e-2 ) return false;
+   double chi2_ov_ndof = chi2/ndof;
+   if( chi2_ov_ndof > TRKCUT_CHI2_OV_NDOF )  return false;
+
+   // pt
+   double theta = t->perigeeParameters()->parameters()[Trk::theta]; 
+   double qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
+   if ( qOverP < 1e-12 ) qOverP = 1e-12;
+   double pt    = sin(theta)/qOverP;
+   pt /= 1000.0;
+   if( pt < TRKCUT_PT ) return false;
+
+   // d0
+   double d0 = t->perigeeParameters()->parameters()[Trk::d0];
+   if( std::abs(d0) > TRKCUT_D0 ) return false;
+
+   // nr hits
+   int n_hits_innermost = t->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
+   int n_hits_next_to_innermost = t->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
+   int n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
+   int n_hits_pix = t->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
+   int n_hits_sct = t->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
+   if( n_hits_inner  < TRKCUT_N_HITS_INNER )     return false;
+   if( n_hits_pix    < TRKCUT_N_HITS_PIX )       return false;
+   if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS ) return false;
+
+   // ok
+   return true;
+}
+
+void TrigFastTrackFinder::filterSharedDisTracks(std::vector<std::tuple<bool, double,Trk::Track*>>& QT) const
+{
+   const int N_FREE_PIX_HITS_CUT = 2;
+
+   std::set<const Trk::PrepRawData*> clusters;
+
+   const Trk::PrepRawData* prd[100];
+
+   std::sort(QT.begin(), QT.end(),
+	     [](const std::tuple<bool, double, Trk::Track*>& lhs, const std::tuple<bool, double, Trk::Track*>& rhs) {
+		return std::get<1>(lhs) < std::get<1>(rhs); } );
+
+   for (auto& q : QT) {
+      DataVector<const Trk::MeasurementBase>::const_iterator 
+	 m  = std::get<2>(q)->measurementsOnTrack()->begin(), 
+         me = std::get<2>(q)->measurementsOnTrack()->end  ();
+
+      int nf = 0, nc = 0; 
+      for(; m!=me; ++m ) {
+	 const Trk::PrepRawData* pr = ((const Trk::RIO_OnTrack*)(*m))->prepRawData();
+	 if(pr) {
+	    const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>((*m));
+	    if (pixclus) {
+	       ++nc;
+	       if(clusters.find(pr)==clusters.end()) {prd[nf++]=pr; if(nf==100) break;}
+	    }
+	 }
+      }
+      if((nf >= N_FREE_PIX_HITS_CUT) || (nf == nc) ) {
+	 for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
+      }
+      else  {
+	 std::get<0>(q) = false;
+      }
+   }
+}
+
+StatusCode TrigFastTrackFinder::findDisTracks(const EventContext& ctx,
+					      TrackCollection& tracks,
+					      std::vector<std::tuple<bool, double, Trk::Track*>>& qualityDisFailTrks,
+					      std::vector<std::tuple<bool, double, Trk::Track*>>& qualityDisCombTrks,
+					      TrackCollection& fittedDisCombTrks,
+					      const std::vector<double>& v_xvtx,
+					      const std::vector<double>& v_yvtx,
+					      const std::vector<double>& v_zvtx) const
+{
+   // output EDM
+   auto disTrkCandContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
+   auto disTrkCandContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
+   disTrkCandContainer->setStore(disTrkCandContainerAux.get());
+   SG::WriteHandle<xAOD::TrigCompositeContainer> disTrkCandHandle(m_disTrkCandKey, ctx);
+
+   // monitoring
+   auto mnt_disFailTrk_n      = Monitored::Scalar<int>("disFailTrk_n",      0);
+   auto mnt_disFailTrk_nclone = Monitored::Scalar<int>("disFailTrk_nclone", 0);
+   auto mnt_disFailTrk_ncand  = Monitored::Scalar<int>("disFailTrk_ncand",  0);
+   auto mnt_disCombTrk_n      = Monitored::Scalar<int>("disCombTrk_n",      0);
+   auto mnt_disCombTrk_nclone = Monitored::Scalar<int>("disCombTrk_nclone", 0);
+   auto mnt_disCombTrk_ncand  = Monitored::Scalar<int>("disCombTrk_ncand",  0);
+   auto monDisTrk             = Monitored::Group(m_monTool, mnt_disFailTrk_n, mnt_disFailTrk_nclone, mnt_disFailTrk_ncand, mnt_disCombTrk_n, mnt_disCombTrk_nclone, mnt_disCombTrk_ncand);
+
+   // select tracks to be used for isolation calculation
+   std::vector<Trk::Track*> tracksForIso;
+   for (auto t=tracks.begin(); t!=tracks.end(); ++t) {
+      if( isGoodForDisTrackVertex(*t) ) tracksForIso.push_back(*t);
+   }
+
+   //
+   const std::string prefix = "disTrkCand";
+
+   // disFailTrk
+   TrackCollection initialDisFailTrks;
+   initialDisFailTrks.reserve(qualityDisFailTrks.size());
+   std::vector<int> resultCodes;
+   for(const auto& q : qualityDisFailTrks) {
+      if (std::get<0>(q)==true) {
+	 initialDisFailTrks.emplace_back(std::get<2>(q));
+      }
+      else {
+	 delete std::get<2>(q);
+      }
+   }
+   ATH_MSG_DEBUG("UTT: ===> nr of disFailTrk=" << qualityDisFailTrks.size() << " -> clone removal=" << initialDisFailTrks.size());
+
+   TrackCollection fittedDisFailTrks;
+   m_trigInDetTrackFitter->fit(initialDisFailTrks, fittedDisFailTrks, ctx, m_particleHypothesis);
+   int n_disFailTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisFailTrks, tracksForIso, disTrkCandContainer.get(), v_xvtx, v_yvtx, v_zvtx, true);
+   ATH_MSG_DEBUG("UTT: disFailTrk: nr of cands = " << n_disFailTrkCands);
+
+   mnt_disFailTrk_n      = qualityDisFailTrks.size(); 
+   mnt_disFailTrk_nclone = initialDisFailTrks.size();
+   mnt_disFailTrk_ncand  = n_disFailTrkCands;
+
+   // disCombTrk
+   ATH_MSG_DEBUG("UTT: ===> nr of disCombTrk=" << qualityDisCombTrks.size() << " -> clone removal=" << fittedDisCombTrks.size());
+   int n_disCombTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisCombTrks, tracksForIso, disTrkCandContainer.get(), v_xvtx, v_yvtx, v_zvtx, false);
+   ATH_MSG_DEBUG("UTT: disCombTrk: nr of cands = " << n_disCombTrkCands);
+
+   mnt_disCombTrk_n      = qualityDisCombTrks.size(); 
+   mnt_disCombTrk_nclone = fittedDisCombTrks.size();
+   mnt_disCombTrk_ncand  = n_disCombTrkCands;
+
+   // record 
+   ATH_CHECK(disTrkCandHandle.record(std::move(disTrkCandContainer), std::move(disTrkCandContainerAux)));
+
+   return StatusCode::SUCCESS;
+}
+
+bool TrigFastTrackFinder::isPreselPassDisTrack(Trk::Track* trk, double d0_wrtVtx, double z0_wrtVtx) const
+{
+   const double PRESEL_D0_WRTVTX =  5.0;
+   const double PRESEL_Z0_WRTVTX = 50.0;
+   const int    PRESEL_N_GOOD_BR_LAYERS_PIX    = 3;
+   const double PRESEL_CHI2_OV_NDOF_PIX_BR_CUT = 5.0;
+   
+   // sanity check
+   if( trk == nullptr ) return false;
+   if( trk->perigeeParameters() == nullptr ) return false;
+
+   // barrel hits
+   std::vector<int>   v_nhits;
+   std::vector<float> v_chi2;
+   std::vector<int>   v_ndof;
+   std::vector<int>   v_nhits_good;
+   getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
+
+   // PIX cuts
+   double chi2_pixbr = 0.0;
+   int    ndof_pixbr = 0;
+   int    n_good_brlayers_pix = 0;
+   for(unsigned int ily=0; ily<=3; ily++) {
+      if( v_nhits_good[ily] >= 1 ) n_good_brlayers_pix++;
+      chi2_pixbr += v_chi2[ily];
+      ndof_pixbr += v_ndof[ily];
+   }
+   if( n_good_brlayers_pix < PRESEL_N_GOOD_BR_LAYERS_PIX ) return false;
+
+   if( ndof_pixbr < 1 )  return false;
+   double chi2_ov_ndof_pixbr = chi2_pixbr / ndof_pixbr;
+   if( chi2_ov_ndof_pixbr > PRESEL_CHI2_OV_NDOF_PIX_BR_CUT ) return false;
+
+   // d0
+   if( std::abs(d0_wrtVtx) > PRESEL_D0_WRTVTX ) return false;
+      
+   // z0
+   if( std::abs(z0_wrtVtx) > PRESEL_Z0_WRTVTX ) return false;
+
+   // cut passed
+   return true;
+}
+
+const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
+								 const std::vector<double>& v_xvtx,
+								 const std::vector<double>& v_yvtx,
+								 const std::vector<double>& v_zvtx) const
+{
+   float vtx_x  = 0;
+   float vtx_y  = 0;
+   float vtx_z  = 9999;
+   float trk_z0 = t->perigeeParameters()->parameters()[Trk::z0]; 
+   float z0_min = 9999;
+   for(unsigned int i_vtx=0; i_vtx<v_zvtx.size(); i_vtx++) {
+      float z = v_zvtx[i_vtx];
+      if( std::abs(trk_z0-z) < z0_min ) { 
+	 z0_min = std::abs(trk_z0-z);
+	 vtx_z  = z;
+	 vtx_x  = v_xvtx[i_vtx];
+	 vtx_y  = v_yvtx[i_vtx];
+      }
+   }
+   
+   Amg::Vector3D gp(vtx_x, vtx_y, vtx_z);
+   Trk::PerigeeSurface persf(gp);
+   const Trk::Perigee* vertexPerigee   = 0;
+   const Trk::Perigee* trackparPerigee = t->perigeeParameters();
+   vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly((*trackparPerigee),persf));
+
+   return vertexPerigee;
+}
+
+TrigFastTrackFinder::DisTrkCategory TrigFastTrackFinder::getDisTrkCategory(Trk::Track* trk) const
+{
+   std::vector<int>   v_nhits;
+   std::vector<float> v_chi2;
+   std::vector<int>   v_ndof;
+   std::vector<int>   v_nhits_good;
+   getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
+
+   int n_good_brlayers_pix = 0;
+   int n_hits_sct = 0;
+   for(unsigned int ily=0; ily<8; ily++) {
+      if( ily<=3 && v_nhits_good[ily] >= 1 ) n_good_brlayers_pix++;
+      if( 4<=ily ) {
+	 n_hits_sct += v_nhits[ily];
+      }
+   }
+   if( trk->trackSummary()!=0 ) { n_hits_sct = trk->trackSummary()->get(Trk::SummaryType::numberOfSCTHits); }
+
+   // category
+   DisTrkCategory cat = DisTrkCategory::Other;
+   if( n_good_brlayers_pix == 4 ) {
+      if( n_hits_sct==0 ) { cat=DisTrkCategory::Pix4l_Sct0; }
+      else                { cat=DisTrkCategory::Pix4l_Sct1p; }
+   }
+   else if( n_good_brlayers_pix == 3 ) {
+      if( n_hits_sct==0 ) { cat=DisTrkCategory::Pix3l_Sct0; }
+      else                { cat=DisTrkCategory::Pix3l_Sct1p; }
+   }
+   return cat;
+}
+
+void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::string& prefix, Trk::Track* trk, const Trk::Perigee* vertexPerigee) const
+{
+   std::vector<Trk::Track*> vtmp;
+   fillDisTrkCand(comp,prefix,trk,vertexPerigee,false,vtmp);
+}
+
+void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::string& prefix, Trk::Track* trk, const Trk::Perigee* vertexPerigee,
+					 bool fillIso, std::vector<Trk::Track*>& tracksForIso) const
+{
+   // category
+   int category = (trk != nullptr) ? (int)getDisTrkCategory(trk) : -1;
+   comp->setDetail<int>(prefix+"_category",category);
+
+   // track
+   float theta=0; float eta=0; float pt=0; float d0=0; float z0=0; float phi=0; float chi2=0; float ndof=0;
+   int n_hits_innermost=-1; int n_hits_next_to_innermost=-1; int n_hits_inner=-1; int n_hits_pix=-1; int n_hits_sct=-1;
+   if( trk != nullptr ) {
+      theta = trk->perigeeParameters()->parameters()[Trk::theta]; 
+      eta   = -std::log(std::tan(0.5*theta));
+      float qOverP = std::abs(trk->perigeeParameters()->parameters()[Trk::qOverP]);
+      if ( qOverP < 1e-12 ) qOverP = 1e-12;
+      pt    = sin(theta)/qOverP;
+      d0    = trk->perigeeParameters()->parameters()[Trk::d0]; 
+      z0    = trk->perigeeParameters()->parameters()[Trk::z0]; 
+      phi   = trk->perigeeParameters()->parameters()[Trk::phi]; 
+      chi2  = trk->fitQuality()->chiSquared();
+      ndof  = trk->fitQuality()->doubleNumberDoF();
+      if( trk->trackSummary()!=0 ) {
+	 n_hits_pix = trk->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
+	 n_hits_sct = trk->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
+	 n_hits_innermost = trk->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
+	 n_hits_next_to_innermost = trk->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
+	 n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
+      }
+   }
+   comp->setDetail<float>(prefix+"_pt",   pt);
+   comp->setDetail<float>(prefix+"_eta",  eta);
+   comp->setDetail<float>(prefix+"_phi",  phi);
+   comp->setDetail<float>(prefix+"_d0",   d0);
+   comp->setDetail<float>(prefix+"_z0",   z0);
+   comp->setDetail<float>(prefix+"_chi2", chi2);
+   comp->setDetail<float>(prefix+"_ndof", ndof);
+   comp->setDetail<int>  (prefix+"_n_hits_innermost", n_hits_innermost);
+   comp->setDetail<int>  (prefix+"_n_hits_inner",     n_hits_inner);
+   comp->setDetail<int>  (prefix+"_n_hits_pix",       n_hits_pix);
+   comp->setDetail<int>  (prefix+"_n_hits_sct",       n_hits_sct);
+   
+   // extrapolate
+   float theta_wrtVtx=0; float eta_wrtVtx=0; float pt_wrtVtx=0; float d0_wrtVtx=0; float z0_wrtVtx=0; float phi_wrtVtx=0;
+   if( vertexPerigee != nullptr ) {
+      theta_wrtVtx = vertexPerigee->parameters()[Trk::theta]; 
+      eta_wrtVtx   = -log(tan(0.5*theta_wrtVtx));
+      float qOverP_wrtVtx = std::abs(vertexPerigee->parameters()[Trk::qOverP]);
+      if ( qOverP_wrtVtx < 1e-12 ) qOverP_wrtVtx = 1e-12;
+      pt_wrtVtx    = sin(theta_wrtVtx)/qOverP_wrtVtx;
+      d0_wrtVtx    = vertexPerigee->parameters()[Trk::d0]; 
+      z0_wrtVtx    = vertexPerigee->parameters()[Trk::z0]; 
+      phi_wrtVtx   = vertexPerigee->parameters()[Trk::phi]; 
+   }
+   comp->setDetail<float>(prefix+"_pt_wrtVtx",  pt_wrtVtx);
+   comp->setDetail<float>(prefix+"_eta_wrtVtx", eta_wrtVtx);
+   comp->setDetail<float>(prefix+"_phi_wrtVtx", phi_wrtVtx);
+   comp->setDetail<float>(prefix+"_d0_wrtVtx",  d0_wrtVtx);
+   comp->setDetail<float>(prefix+"_z0_wrtVtx",  z0_wrtVtx);
+   
+   // barrel hits
+   std::vector<int>   v_nhits;
+   std::vector<float> v_chi2;
+   std::vector<int>   v_ndof;
+   std::vector<int>   v_nhits_good;
+   int n_ibl  =-1; int n_pix1  =-1; int n_pix2  =-1; int n_pix3  =-1; int n_sct1  =-1; int n_sct2  =-1; int n_sct3  =-1; int n_sct4  =-1;
+   int n_ibl_g=-1; int n_pix1_g=-1; int n_pix2_g=-1; int n_pix3_g=-1; int n_sct1_g=-1; int n_sct2_g=-1; int n_sct3_g=-1; int n_sct4_g=-1;
+   if( trk != nullptr ) {
+      getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
+      n_ibl =v_nhits[0]; n_pix1=v_nhits[1]; n_pix2=v_nhits[2]; n_pix3=v_nhits[3]; 
+      n_sct1=v_nhits[4]; n_sct2=v_nhits[5]; n_sct3=v_nhits[6]; n_sct4=v_nhits[7];
+      n_ibl_g =v_nhits_good[0]; n_pix1_g=v_nhits_good[1]; n_pix2_g=v_nhits_good[2]; n_pix3_g=v_nhits_good[3]; 
+      n_sct1_g=v_nhits_good[4]; n_sct2_g=v_nhits_good[5]; n_sct3_g=v_nhits_good[6]; n_sct4_g=v_nhits_good[7];
+   }
+   comp->setDetail<int>  (prefix+"_n_brhits_ibl",       n_ibl);
+   comp->setDetail<int>  (prefix+"_n_brhits_pix1",      n_pix1);
+   comp->setDetail<int>  (prefix+"_n_brhits_pix2",      n_pix2);
+   comp->setDetail<int>  (prefix+"_n_brhits_pix3",      n_pix3);
+   comp->setDetail<int>  (prefix+"_n_brhits_sct1",      n_sct1);
+   comp->setDetail<int>  (prefix+"_n_brhits_sct2",      n_sct2);
+   comp->setDetail<int>  (prefix+"_n_brhits_sct3",      n_sct3);
+   comp->setDetail<int>  (prefix+"_n_brhits_sct4",      n_sct4);
+   comp->setDetail<float>(prefix+"_chi2sum_br_ibl",     v_chi2[0]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_pix1",    v_chi2[1]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_pix2",    v_chi2[2]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_pix3",    v_chi2[3]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct1",    v_chi2[4]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct2",    v_chi2[5]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct3",    v_chi2[6]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct4",    v_chi2[7]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_ibl",     v_ndof[0]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_pix1",    v_ndof[1]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_pix2",    v_ndof[2]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_pix3",    v_ndof[3]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct1",    v_ndof[4]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct2",    v_ndof[5]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct3",    v_ndof[6]);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct4",    v_ndof[7]);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_ibl",  n_ibl_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_pix1", n_pix1_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_pix2", n_pix2_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_pix3", n_pix3_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_sct1", n_sct1_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_sct2", n_sct2_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_sct3", n_sct3_g);
+   comp->setDetail<int>  (prefix+"_n_brhits_good_sct4", n_sct4_g);
+
+   // isolation
+   if( fillIso ) {
+      const float ISOL_CALC_Z0_DIFF_CUT          = 2.5;
+      const float ISOL_CALC_DR_CUT_TO_AVOID_ZERO = 0.015;
+      float iso1_dr01=0; float iso1_dr02=0; float iso1_dr04=0;
+      float iso2_dr01=0; float iso2_dr02=0; float iso2_dr04=0;
+      float iso3_dr01=0; float iso3_dr02=0; float iso3_dr04=0;
+      for(auto t=tracksForIso.begin(); t!=tracksForIso.end(); t++) {
+	 float z0_t   = (*t)->perigeeParameters()->parameters()[Trk::z0]; 
+	 if( std::abs(z0_t - z0) <= ISOL_CALC_Z0_DIFF_CUT ) {
+	    float theta_t = (*t)->perigeeParameters()->parameters()[Trk::theta]; 
+	    float qOverP_t= std::abs((*t)->perigeeParameters()->parameters()[Trk::qOverP]);
+	    if ( qOverP_t < 1e-12 ) qOverP_t = 1e-12;
+	    float pt_t    = sin(theta_t)/qOverP_t;
+	    float phi_t   = (*t)->perigeeParameters()->parameters()[Trk::phi]; 
+	    float eta_t   = -log(tan(theta_t/2.0));
+	    float deta    = eta_t - eta;
+	    float dphi    = std::abs(phi_t - phi);
+	    if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
+	    float dr   = pow( (deta*deta + dphi*dphi), 0.5 );
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 1000.0 ) iso1_dr01 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 1000.0 ) iso1_dr02 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 1000.0 ) iso1_dr04 += pt_t;
+	    //
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 2000.0 ) iso2_dr01 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 2000.0 ) iso2_dr02 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 2000.0 ) iso2_dr04 += pt_t;
+	    //
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 3000.0 ) iso3_dr01 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 3000.0 ) iso3_dr02 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 3000.0 ) iso3_dr04 += pt_t;
+	 }
+      }
+      comp->setDetail<float>(prefix+"_iso1_dr01", iso1_dr01);
+      comp->setDetail<float>(prefix+"_iso1_dr02", iso1_dr02);
+      comp->setDetail<float>(prefix+"_iso1_dr04", iso1_dr04);
+      comp->setDetail<float>(prefix+"_iso2_dr01", iso2_dr01);
+      comp->setDetail<float>(prefix+"_iso2_dr02", iso2_dr02);
+      comp->setDetail<float>(prefix+"_iso2_dr04", iso2_dr04);
+      comp->setDetail<float>(prefix+"_iso3_dr01", iso3_dr01);
+      comp->setDetail<float>(prefix+"_iso3_dr02", iso3_dr02);
+      comp->setDetail<float>(prefix+"_iso3_dr04", iso3_dr04);
+   }
+}
+
+int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
+					       TrackCollection* tracks, std::vector<Trk::Track*>& tracksForIso,
+					       xAOD::TrigCompositeContainer* trigCompositeContainer,
+					       const std::vector<double>& v_xvtx,
+					       const std::vector<double>& v_yvtx,
+					       const std::vector<double>& v_zvtx,
+					       bool isFail) const
+{
+   std::string prefix;
+
+   int n_stored_tracks = 0;
+   int idx = -1;
+
+   for (auto trk = tracks->begin(); trk!=tracks->end(); ++trk) {
+
+      idx++;
+
+      Trk::Track* ptrk = *trk;
+
+      if( ptrk == nullptr ) continue;
+      if( ptrk->perigeeParameters()==nullptr ) continue;
+
+      // extrapolate to vertex
+      const Trk::Perigee* vertexPerigee = extrapolateDisTrackToBS(ptrk,v_xvtx,v_yvtx,v_zvtx);
+      double d0 = ptrk->perigeeParameters()->parameters()[Trk::d0]; 
+      double z0 = ptrk->perigeeParameters()->parameters()[Trk::z0]; 
+      double d0_wrtVtx = 0;
+      double z0_wrtVtx = 0;
+      if( vertexPerigee != nullptr ) {
+	 d0_wrtVtx = vertexPerigee->parameters()[Trk::d0]; 
+	 z0_wrtVtx = vertexPerigee->parameters()[Trk::z0]; 
+	 ATH_MSG_DEBUG("UTT: d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
+	 ATH_MSG_DEBUG("UTT: z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
+      }
+
+      // pre-selection
+      if( ! isPreselPassDisTrack(ptrk,d0_wrtVtx,z0_wrtVtx) ) continue;
+
+      // store it!
+      n_stored_tracks++;
+
+      xAOD::TrigComposite *comp = new xAOD::TrigComposite();
+      comp->makePrivateStore();
+      trigCompositeContainer->push_back(comp);
+
+      m_trackSummaryTool->updateTrack(*ptrk);
+
+      //
+      int is_fail = isFail ? 1 : 0;
+      comp->setDetail<int>(base_prefix+"_is_fail",is_fail);
+
+      // store trk info
+      prefix = base_prefix;
+      fillDisTrkCand(comp,prefix,ptrk,vertexPerigee,true,tracksForIso);
+
+      // refit
+      std::unique_ptr<Trk::Track> refit_trk = disTrk_refit(ptrk);
+      if( refit_trk != nullptr ) m_trackSummaryTool->updateTrack(*refit_trk);
+
+      // extrapolate refitted track to vertex
+      const Trk::Perigee* refitVertexPerigee = nullptr;
+      if( refit_trk != nullptr ) {
+	 refitVertexPerigee = extrapolateDisTrackToBS(refit_trk.get(),v_xvtx,v_yvtx,v_zvtx);
+	 if( refitVertexPerigee == nullptr ) {
+	    ATH_MSG_DEBUG("UTT: extrapote to BS fails for refit track");
+	 }
+	 else {
+	    float d0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::d0];
+	    float z0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::z0];
+	    float d0_wrtVtx    = refitVertexPerigee->parameters()[Trk::d0]; 
+	    float z0_wrtVtx    = refitVertexPerigee->parameters()[Trk::z0]; 
+	    ATH_MSG_DEBUG("UTT: refit trk d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
+	    ATH_MSG_DEBUG("UTT: refit trk z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
+	 }
+      }
+      
+      // store refit trk info
+      prefix = base_prefix + "_refit";
+      if( refit_trk != nullptr ) { 
+	 fillDisTrkCand(comp,prefix,refit_trk.get(),refitVertexPerigee);
+      }
+      else {
+	 fillDisTrkCand(comp,prefix,nullptr,refitVertexPerigee);
+      }
+   }
+
+   //
+   ATH_MSG_DEBUG("UTT: ========> filling trigcomposite for " << prefix << " end");
+   ATH_MSG_DEBUG("UTT: nr of " << prefix << " tracks / stored = " << tracks->size() << " / " << n_stored_tracks);
+
+   //
+   return n_stored_tracks;
+}
+
+std::unique_ptr<Trk::Track> TrigFastTrackFinder::disTrk_refit(Trk::Track* t) const
+{
+   std::unique_ptr<Trk::Track> newtrack = nullptr;
+
+   if( t == nullptr ) return newtrack;
+   if( t->trackSummary() == nullptr ) m_trackSummaryTool->updateTrack(*t);
+
+   ATH_MSG_DEBUG("UTT: refitting - input track:");
+   print_disTrk(t);
+
+   const Trk::Perigee* origPerigee = t->perigeeParameters();
+   if( origPerigee == nullptr ) return newtrack;
+   ATH_MSG_DEBUG("UTT: ... origPerigee is there");
+   
+   // remove SCT hits
+   std::vector<const Trk::MeasurementBase*> vec;
+   int n_measurements       = 0;
+   int n_measurements_refit = 0;
+   const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = t->trackStateOnSurfaces();
+   if (recoTrackStates) {
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIter    = recoTrackStates->begin();
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIterEnd = recoTrackStates->end();
+      for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
+	 const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
+	 if (measurement) {
+	    n_measurements++;
+	    const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
+	    const InDet::SCT_ClusterOnTrack  *sctclus = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(measurement);
+	    bool to_add = true;
+	    if ( !pixclus && sctclus ) to_add = false;
+	    if( to_add ) {
+	       vec.push_back(measurement);
+	       n_measurements_refit++;
+	    }
+	 }
+      }
+   }
+   ATH_MSG_DEBUG("UTT: ... Nr of measurments / refit = " << n_measurements << " / " << n_measurements_refit);
+
+   // perform refit
+   newtrack.reset( m_disTrkFitter->fit(vec, *origPerigee, false, m_particleHypothesis) ); // false to run outlier switch
+   ATH_MSG_DEBUG("UTT: ... ---> refit track:");
+   if( newtrack!=0 && newtrack.get() ) {
+      print_disTrk(dynamic_cast<const Trk::Track*>(newtrack.get()));
+   }
+   else {
+      ATH_MSG_DEBUG("UTT: ... refit failed");
+   }
+
+   //
+   return newtrack;
+}
+
+void TrigFastTrackFinder::print_disTrk(const Trk::Track* t) const
+{
+   float chi2=0; float ndof=0; float d0=0; float z0=0; float phi=0; float theta=0; float pt=0;
+   if( t!=nullptr ) {
+      chi2  = t->fitQuality()->chiSquared();
+      ndof  = t->fitQuality()->doubleNumberDoF();
+      d0    = t->perigeeParameters()->parameters()[Trk::d0]; 
+      z0    = t->perigeeParameters()->parameters()[Trk::z0]; 
+      phi   = t->perigeeParameters()->parameters()[Trk::phi]; 
+      theta = t->perigeeParameters()->parameters()[Trk::theta]; 
+      float qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
+      if ( qOverP < 1e-12 ) qOverP = 1e-12;
+      float pt = sin(theta)/qOverP;
+      pt /= 1000.0;
+   }
+   ATH_MSG_DEBUG("UTT: ... pt / theta / phi / d0 / z0 = " << pt << " / " << theta << " / " << phi << " / " << d0 << " / " << z0);
+   ATH_MSG_DEBUG("UTT: ... chi2 / ndof = " << chi2 << " / " << ndof);
 }

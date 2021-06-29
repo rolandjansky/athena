@@ -161,7 +161,17 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 
   if (tsos) dtsos.push_back(tsos);
   
-  for (++i; i!=m_lastElement; ++i) {
+  int lastClusterElement = 0;
+  for (int j=m_lastElement; j>=i; j--) {
+     int m = m_elementsMap[j];
+     if (m_elements[m].cluster()) { 
+	lastClusterElement = j;
+	break;
+     }
+  }
+  if( lastClusterElement==0 || lastClusterElement==i ) return dtsos;
+
+  for (++i; i<std::min(lastClusterElement,m_lastElement); ++i) {
     
     int m = m_elementsMap[i];
     if (m_elements[m].cluster()) {
@@ -170,7 +180,7 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
     }
   }
 
-  i =m_lastElement;
+  i = std::min(lastClusterElement,m_lastElement);
   tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,2);
   if (tsos) dtsos.push_back(tsos);
 
@@ -204,6 +214,67 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceWithNewDirection()
 
   i = m_firstElement;
   tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(true,false,1);
+  if (tsos) dtsos.push_back(tsos);
+
+  return dtsos;
+}
+
+///////////////////////////////////////////////////////////////////
+// Trajectory conversion to simple TrackStateOnSurface   
+// Only for Disappearing Track Trigger that uses also failed tracks
+///////////////////////////////////////////////////////////////////
+
+DataVector<const Trk::TrackStateOnSurface>
+InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int cosmic)
+{
+  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
+    return convertToSimpleTrackStateOnSurfaceForDisTrackTrigger();
+  }
+  return convertToSimpleTrackStateOnSurfaceWithNewDirection();
+}
+
+///////////////////////////////////////////////////////////////////
+// Trajectory conversion to simple TrackStateOnSurface  with old direction
+// Only for Disappearing Track Trigger that uses also failed tracks
+///////////////////////////////////////////////////////////////////
+
+DataVector<const Trk::TrackStateOnSurface> 
+InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger()
+{
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
+
+  int i = m_firstElement;
+  
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackPerigeeStateOnSurface();
+
+  if (tsos) dtsos.push_back(tsos);
+  
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,false,0);
+
+  if (tsos) dtsos.push_back(tsos);
+  
+  int lastClusterElement = 0;
+  for (int j=m_lastElement; j>=i; j--) {
+     int m = m_elementsMap[j];
+     if (m_elements[m].cluster()) { 
+	lastClusterElement = j;
+	break;
+     }
+  }
+  if( lastClusterElement==0 || lastClusterElement==i ) return dtsos;
+
+  for (++i; i<std::min(lastClusterElement,m_lastElement); ++i) {
+    
+    int m = m_elementsMap[i];
+    if (m_elements[m].cluster()) {
+      tsos = m_elements[m].trackSimpleStateOnSurface(false,false,0);
+      if (tsos) dtsos.push_back(tsos);
+    }
+  }
+
+  i = std::min(lastClusterElement,m_lastElement);
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,2);
   if (tsos) dtsos.push_back(tsos);
 
   return dtsos;
