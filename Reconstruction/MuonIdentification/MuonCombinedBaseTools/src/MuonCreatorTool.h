@@ -86,7 +86,7 @@ namespace MuonCombined {
 
         void addMuGirlLowBeta(xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData) const;
 
-        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag) const;
+        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const;
         void addCaloTag(xAOD::Muon& muon, const CaloTag* tag) const;
 
         /** add muon candidate info to a muon, if an updateExtrapolatedTrack is
