@@ -50,6 +50,7 @@ json defaultJson() {
   j["kVecUO"] = false;
   j["kCumulative"] = false;
   j["kLive"] = false;
+  j["kAlwaysCreate"] = false;
   j["merge"] = "";
   j["treeDef"] = "";
   return j;
