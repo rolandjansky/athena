@@ -62,6 +62,8 @@
 
 // for UTT
 #include "TrigT1Interfaces/RecJetRoI.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 
 //for GPU acceleration
 
@@ -110,7 +112,16 @@ class TrigFastTrackFinder : public AthReentrantAlgorithm {
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
 
-protected:
+  enum DisTrkCategory
+  {
+     Other       = 0,
+     Pix4l_Sct0  = 1,
+     Pix4l_Sct1p = 2,
+     Pix3l_Sct0  = 3,
+     Pix3l_Sct1p = 4
+  };
+
+protected: 
 
   void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&) const;
   void extractClusterIds(const Trk::SpacePoint*, std::vector<Identifier>&) const;
@@ -126,7 +137,10 @@ protected:
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandle< GenericMonitoringTool > m_monTool  { this, "MonTool", "", "Monitoring tool" };
+   // ToolHandle< Trk::IExtrapolator > m_extrapolator;
+  ToolHandle< Trk::IExtrapolator > m_extrapolator { this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator" };
+  ToolHandle< Trk::ITrackFitter >  m_disTrkFitter { this, "DisTrkFitter", "Trk::KalmanFitter/InDetTrigTrackFitter"};
 
   //for GPU acceleration
   ToolHandle<ITrigInDetAccelerationTool> m_accelTool;
@@ -146,6 +160,7 @@ protected:
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey {this, "HitDVSP",  "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey {this, "dEdxTrk",  "", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey {this, "dEdxHit",  "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_disTrkCandKey{this, "DisTrkCand", "", ""};
 
   // Control flags
 
@@ -233,6 +248,29 @@ protected:
   StatusCode finddEdxTrk(const EventContext&, const TrackCollection&) const;
   float dEdx(const Trk::Track*, int&, int&, std::vector<float>&, std::vector<float>&,
 	     std::vector<float>&, std::vector<float>&, std::vector<int>&, std::vector<int>&, std::vector<int>&) const;
+
+  // disappearing track
+  bool m_doDisappearingTrk;
+  int recoAndFillDisTrkCand(const std::string&, TrackCollection*, std::vector<Trk::Track*>&, xAOD::TrigCompositeContainer*, 
+			    const std::vector<double>&, const std::vector<double>&, const std::vector<double>&, bool) const;
+  void print_disTrk(const Trk::Track* t) const;
+  std::unique_ptr<Trk::Track> disTrk_refit(Trk::Track* t) const;
+  void getTrkBarrelLayerInfo(Trk::Track*, std::vector<int>&, std::vector<float>&, std::vector<int>&, std::vector<int>&) const;
+  bool isCleaningPassDisTrack(const TrigInDetTriplet&, Trk::Track*, bool) const;
+  double disTrackQuality(const Trk::Track*) const;
+  void recoVertexForDisTrack(const EventContext&, TrackCollection&, std::vector<double>&, std::vector<double>&, std::vector<double>&) const;
+  bool isPreselPassDisTrack(Trk::Track*, double, double) const;
+  bool isGoodForDisTrackVertex(Trk::Track*) const;
+  const Trk::Perigee* extrapolateDisTrackToBS(Trk::Track*, const std::vector<double>&, const std::vector<double>&, const std::vector<double>&) const;
+  void filterSharedDisTracks(std::vector<std::tuple<bool, double,Trk::Track*>>&) const;
+  void fillDisTrkCand(xAOD::TrigComposite*, const std::string&, Trk::Track*, const Trk::Perigee*) const;
+  void fillDisTrkCand(xAOD::TrigComposite*, const std::string&, Trk::Track*, const Trk::Perigee*, bool, std::vector<Trk::Track*>&) const;
+  TrigFastTrackFinder::DisTrkCategory getDisTrkCategory(Trk::Track* trk) const;
+  StatusCode findDisTracks(const EventContext&, TrackCollection&,
+			   std::vector<std::tuple<bool, double, Trk::Track*>>&,
+			   std::vector<std::tuple<bool, double, Trk::Track*>>&,
+			   TrackCollection&,
+			   const std::vector<double>&, const std::vector<double>&, const std::vector<double>&) const;
 };
 
 

@@ -109,6 +109,28 @@ dEdxHitVars = '.'.join(dEdxHitToKeep)
 HPtdEdxTrkToKeep = ['trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
 HPtdEdxTrkVars = '.'.join(HPtdEdxTrkToKeep)
 
+DisTrkToKeepNoIso = ['pt','eta','phi','d0','z0','chi2','ndof','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
+                     'pt_wrtVtx','eta_wrtVtx','phi_wrtVtx','d0_wrtVtx','z0_wrtVtx',
+                     'n_brhits_ibl','n_brhits_pix1','n_brhits_pix2','n_brhits_pix3','n_brhits_sct1','n_brhits_sct2','n_brhits_sct3','n_brhits_sct4',
+                     'chi2sum_br_ibl','chi2sum_br_pix1','chi2sum_br_pix2','chi2sum_br_pix3','chi2sum_br_sct1','chi2sum_br_sct2','chi2sum_br_sct3','chi2sum_br_sct4',
+                     'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2','ndofsum_br_sct3','ndofsum_br_sct4',
+                     'n_brhits_good_ibl','n_brhits_good_pix1','n_brhits_good_pix2','n_brhits_good_pix3',
+                     'n_brhits_good_sct1','n_brhits_good_sct2','n_brhits_good_sct3','n_brhits_good_sct4']
+DisTrkToKeepIso = ['iso1_dr01','iso1_dr02','iso1_dr04','iso2_dr01','iso2_dr02','iso2_dr04','iso3_dr01','iso3_dr02','iso3_dr04']
+DisTrkVars = []
+for var in DisTrkToKeepNoIso:
+    DisTrkVars.append('disTrkCand_'+var)
+    DisTrkVars.append('disTrkCand_refit_'+var)
+for var in DisTrkToKeepIso:
+    DisTrkVars.append('disTrkCand_'+var)
+DisTrkCandVars = '.'.join(DisTrkVars)
+
+DisTrkBDTSelToKeepBase = ['category','pt','eta','phi','refit_pt','is_fail','d0_wrtVtx','z0_wrtVtx','chi2','ndof','n_hits_pix','n_hits_sct','n_hits_innermost','iso3_dr01','iso3_dr02','refit_d0_wrtVtx','refit_z0_wrtVtx','refit_chi2','refit_ndof','chi2ndof_pix','bdtscore']
+DisTrkBDTSelToKeep = []
+for var in DisTrkBDTSelToKeepBase:
+    DisTrkBDTSelToKeep.append('disTrk_'+var)
+DisTrkBDTSelVars = '.'.join(DisTrkBDTSelToKeep)
+
 L1TopoErrorFlagVars = '.'.join(['hasGenericRoiError', 'hasGenericDaqError', 'hasCrcTobError', 'hasCrcFibreError',
                                 'hasCrcDaqError', 'hasRoibDaqDifference', 'hasRoibCtpDifference', 'hasDaqCtpDifference'])
 
@@ -721,6 +743,12 @@ TriggerHLTListRun3 = [
     #('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,       'BS ESD AODFULL', 'ID'),
     #('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                       'BS ESD AODFULL AODSLIM', 'ID'),
     #('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
+
+    # disappearing track
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.',                    'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.',                  'BS ESD AODFULL AODSLIM', 'ID'),
 
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),

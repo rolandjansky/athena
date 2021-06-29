@@ -58,6 +58,7 @@ class _ConfigSettingsBase() :
       self._adaptiveVertex_jet  = False
       self._dodEdxTrk           = False 
       self._doHitDV             = False 
+      self._doDisappearingTrk   = False
 
       if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
          self.override()
@@ -292,6 +293,10 @@ class _ConfigSettingsBase() :
    @property
    def doHitDV(self):
        return self._doHitDV
+
+   @property
+   def doDisappearingTrk(self):
+       return self._doDisappearingTrk
 
    def printout(self):
       from AthenaCommon.Logging import logging

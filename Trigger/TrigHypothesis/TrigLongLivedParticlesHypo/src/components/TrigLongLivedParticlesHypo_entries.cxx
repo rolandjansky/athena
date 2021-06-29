@@ -6,7 +6,11 @@
 #include "../TrigdEdxTrackTriggerHypoTool.h"
 #include "../TrigHitDVHypoAlg.h"
 #include "../TrigHitDVHypoTool.h"
+#include "../TrigDisappearingTrackTriggerHypoAlg.h"
+#include "../TrigDisappearingTrackTriggerHypoTool.h"
 
+DECLARE_COMPONENT( TrigDisappearingTrackTriggerHypoAlg )
+DECLARE_COMPONENT( TrigDisappearingTrackTriggerHypoTool )
 DECLARE_COMPONENT( TrigHitDVHypoAlg )
 DECLARE_COMPONENT( TrigHitDVHypoTool )
 DECLARE_COMPONENT( TrigdEdxTrackTriggerHypoAlg )

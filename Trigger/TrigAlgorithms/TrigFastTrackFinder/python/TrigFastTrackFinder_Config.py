@@ -171,6 +171,25 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
     def addUTTHistograms(self):
         self.defineHistogram('trk_dedx',           path='EXPERT',type='TH1F',title="Track dEdx (pT > 3 GeV)", xbins = 140, xmin=-0.5, xmax=6.5)
         self.defineHistogram('trk_dedx_nusedhits', path='EXPERT',type='TH1F',title="Nr of used hits for dEdx",xbins =  11, xmin=-0.5, xmax=10.5)
+        #
+        self.defineHistogram('disTrk_nVtx',        path='EXPERT',type='TH1F',title="Nr of Vertex for disTrk",xbins =  11, xmin=-0.5, xmax=10.5)
+        self.defineHistogram('disTrk_xVtx',        path='EXPERT',type='TH1F',title="X position of primary vertex for disTrk", xbins =  50, xmin=-5, xmax=5)
+        self.defineHistogram('disTrk_yVtx',        path='EXPERT',type='TH1F',title="Y position of primary vertex for disTrk", xbins =  50, xmin=-5, xmax=5)
+        self.defineHistogram('disTrk_zVtx',        path='EXPERT',type='TH1F',title="Z position of primary vertex for disTrk", xbins = 150, xmin=-150, xmax=150)
+        #
+        self.defineHistogram('disFailTrk_n',       path='EXPERT',type='TH1F',title="Nr of disFailTrk", xbins = 50, xmin=0, xmax=3000)
+        self.defineHistogram('disFailTrk_nclone',  path='EXPERT',type='TH1F',title="Nr of disFailTrk (after clone removal)", xbins = 50, xmin=0, xmax=3000)
+        self.defineHistogram('disFailTrk_ncand',   path='EXPERT',type='TH1F',title="Nr of disFailTrk (after pre-selection)", xbins = 50, xmin=0, xmax=3000)
+        self.defineHistogram('disCombTrk_n',       path='EXPERT',type='TH1F',title="Nr of disCombTrk", xbins = 20, xmin=0, xmax=100)
+        self.defineHistogram('disCombTrk_nclone',  path='EXPERT',type='TH1F',title="Nr of disCombTrk (after clone removal)", xbins = 20, xmin=0, xmax=100)
+        self.defineHistogram('disCombTrk_ncand',   path='EXPERT',type='TH1F',title="Nr of disCombTrk (after pre-selection)", xbins = 20, xmin=0, xmax=100)
+        #
+        self.defineHistogram('TIME_disTrkZVertex',     path='EXPERT',type='TH1F',title="UTT z-vertexing time (ms)",         xbins = 100, xmin=0.0, xmax= 50.0)
+        self.defineHistogram('TIME_disappearingTrack', path='EXPERT',type='TH1F',title="Disappearing track reco time (ms)", xbins = 150, xmin=0.0, xmax=300.0)
+
+
+
+
 
 remap  = {
     "Muon"     : "muon",
@@ -304,6 +323,11 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             self.RecJetRoI = "HLT_RecJETRoIs"
             self.HitDVTrk  = "HLT_HitDVTrk"
             self.HitDVSP   = "HLT_HitDVSP"
+
+        self.doDisappearingTrk = config.doDisappearingTrk
+        if config.doDisappearingTrk:
+            self.DisTrkCand = "HLT_DisTrkCand"
+
 
         ## SCT and Pixel detector elements road builder
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
