@@ -40,9 +40,9 @@ private:
 
   Gaudi::Property<bool> m_or{this, "Or", false, "Flag extending above choice to do Or between the two sides of MBTS"};
 
-  Gaudi::Property<bool> m_veto{this, "Veto", false, "Flag to select lowe than threshold multiplicities"};
+  Gaudi::Property<bool> m_veto{this, "Veto", false, "Flag to select lower than threshold multiplicities"};
 
-  Gaudi::Property<int> m_mbtsmode{this, "MBTSMode", 0, "Flag to count multiplicities only on inner or outer MBTS modules (see T2MBTSUtils) "};
+  Gaudi::Property<int> m_mbtsmode{this, "MBTSMode", 0, "Flag to count multiplicities only on inner or outer MBTS modules (1, inner, 2 outer, 0 all) "};
 
   Gaudi::Property<float> m_threshold{this, "Threshold", 40.0 / 222.0, "Energy threshold in pC"};
 

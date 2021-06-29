@@ -1077,11 +1077,11 @@ HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu6_noL2Comb_L1BPH-0M9-EM7-EM5_MU6:
 HLT_e9_lhvloose_mu20_mu8noL1_L1MU20:
   eventCount: 0
 HLT_eb_low_L1RD2_FILLED:
-  eventCount: 10
+  eventCount: 9
   stepCounts:
-    0: 10
+    0: 9
   stepFeatures:
-    0: 10
+    0: 9
 HLT_eb_medium_L1RD2_FILLED:
   eventCount: 7
   stepCounts:
@@ -2540,6 +2540,8 @@ HLT_mb_afprec_L1CEP-CJ50:
   eventCount: 0
 HLT_mb_afprec_L1CEP-CJ60:
   eventCount: 0
+HLT_mb_afprec_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_alfaperf_L1RD0_EMPTY:
   eventCount: 0
 HLT_mb_alfaperf_L1RD0_FILLED:
@@ -2639,6 +2641,8 @@ HLT_mb_sptrk_pt8_L1AFP_A_OR_C:
 HLT_mb_sptrk_pt8_L1MBTS_2:
   eventCount: 0
 HLT_mb_sptrk_pt8_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sptrk_vetombts2in_L1RD0_FILLED:
   eventCount: 0
 HLT_mu0_muoncalib_L1MU20:
   eventCount: 0
