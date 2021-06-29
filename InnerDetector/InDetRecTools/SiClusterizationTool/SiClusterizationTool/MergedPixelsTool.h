@@ -106,10 +106,10 @@ namespace InDet {
                               double splitProb2=0.) const;
 
     ///Retrieve the necessary services in initialize                
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
         
     ///Statistics output                
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
 
   private:
