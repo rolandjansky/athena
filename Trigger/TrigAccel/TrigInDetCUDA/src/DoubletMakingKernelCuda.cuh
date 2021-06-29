@@ -49,6 +49,7 @@ __global__ static void doubletMakingKernel(TrigAccel::SEED_FINDER_SETTINGS* dSet
   const float maxTheta = 2*atan(exp(-maxEta));
   const float maxCtg = cos(maxTheta)/sin(maxTheta);
   const bool DoPSS = dSettings->m_tripletDoPSS;
+  const bool NoPPS = !dSettings->m_tripletDoPPS;
   const float minOuterZ = dSettings->m_zedMinus - maxOuterRadius*maxCtg - zTolerance; 
   const float maxOuterZ = dSettings->m_zedPlus + maxOuterRadius*maxCtg + zTolerance; 
 
@@ -145,7 +146,10 @@ __global__ static void doubletMakingKernel(TrigAccel::SEED_FINDER_SETTINGS* dSet
 	  if(fabs(dr)>maxDoubletLength || fabs(dr)<minDoubletLength) continue;
 
 	  if(!DoPSS && dr<0 && !isPixel && isPixel2) continue; 
-
+          if(isPixel && !isPixel2) {// i.e. xPS (or SPx)
+           if(NoPPS) continue;//no mixed PPS seeds allowed	    
+	  }
+          
 	  float dz = zsp - zm;
 	  float t = dz/dr;
 
