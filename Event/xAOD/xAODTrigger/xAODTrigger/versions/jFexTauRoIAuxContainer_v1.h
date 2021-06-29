@@ -22,16 +22,18 @@ namespace xAOD{
     jFexTauRoIAuxContainer_v1();
 
   private:
-    std::vector<uint32_t> word0;
-    std::vector<uint8_t> jFexNumber;
-    std::vector<uint8_t> fpgaNumber;
+    std::vector<uint32_t> tobWord;
+    std::vector<uint8_t>  jFexNumber;
+    std::vector<uint8_t>  fpgaNumber;
     std::vector<uint16_t> tobEt;
     std::vector<uint16_t> tobIso;
-    std::vector<uint8_t> iEta;
-    std::vector<uint8_t> iPhi;  
-    std::vector<uint8_t> satFlag;
-    std::vector<int8_t> globalEta;
-    std::vector<uint8_t> globalPhi;
+    std::vector<uint8_t>  tobLocalEta;
+    std::vector<uint8_t>  tobLocalPhi;  
+    std::vector<uint8_t>  tobSat;
+    std::vector<int>      globalEta;
+    std::vector<uint>     globalPhi;
+    std::vector<float>    eta;
+    std::vector<float>    phi;
 }; // class jFexTauRoIAuxContainer_v1
 
 }//end of namespace xAOD 

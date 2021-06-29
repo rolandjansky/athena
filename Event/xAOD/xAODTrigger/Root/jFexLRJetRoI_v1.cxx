@@ -22,18 +22,19 @@ namespace xAOD {
    jFexLRJetRoI_v1::jFexLRJetRoI_v1()
      : SG::AuxElement() {
    }
-   void jFexLRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t word0) {
+   void jFexLRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord) {
  
-     setWord0( word0 );
+     setTobWord( tobWord );
      setjFexNumber( jFexNumber );
      setfpgaNumber(fpgaNumber);
      setTobEt(unpackEtTOB());
-     setEta( unpackEtaIndex() );
-     setPhi( unpackPhiIndex() ); 
-     setSatFlag(unpackSaturationIndex());
-     setGlobalEta(getGlobalEta());
-     setGlobalPhi(getGlobalPhi());
-    
+     setTobLocalEta( unpackEtaIndex() );
+     setTobLocalPhi( unpackPhiIndex() );
+     setTobSat(unpackSaturationIndex());
+     setGlobalEta(unpackGlobalEta());
+     setGlobalPhi(unpackGlobalPhi());
+     setEta( (unpackGlobalEta()+0.5)/10 ); 
+     setPhi( (unpackGlobalPhi()+0.5)/10 ); 
    //include in future when xTOB in jFEX has been implemented.
 
    // If the object is a TOB then the isTOB should be true.
@@ -48,18 +49,21 @@ namespace xAOD {
    /// Raw data words
    //----------------
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint32_t, word0, setWord0 )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, jFexNumber, setjFexNumber )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, fpgaNumber, setfpgaNumber)   
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint32_t, tobWord     , setTobWord    )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t , jFexNumber  , setjFexNumber )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t , fpgaNumber  , setfpgaNumber )   
    /// Extracted from data words
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint16_t, tobEt, setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iEta, setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, iPhi, setPhi )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t, satFlag, setSatFlag)
-
-   //global coordinates, stored for future use but not sent to L1Topo
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(jFexLRJetRoI_v1, int8_t, globalEta, setGlobalEta)
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(jFexLRJetRoI_v1, uint8_t, globalPhi, setGlobalPhi)
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint16_t, tobEt       , setTobEt       )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t , tobLocalEta , setTobLocalEta )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t , tobLocalPhi , setTobLocalPhi )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint8_t , tobSat      , setTobSat      )
+ 
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, int , globalEta, setGlobalEta )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, uint, globalPhi, setGlobalPhi )
+   
+  ///global coordinates, stored for furture use but not sent to L1Topo    
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, float, eta, setEta)
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, float, phi, setPhi)
 
    //-----------------
    /// Methods to decode data from the TOB/RoI and return to the user
@@ -78,50 +82,54 @@ namespace xAOD {
    //Raw ET on TOB scale (200 MeV/count)
     unsigned int jFexLRJetRoI_v1::unpackEtTOB() const{
      //Data content = TOB
-     return (word0() >> s_etBit) & s_etMask;
+     return (tobWord() >> s_etBit) & s_etMask;
 
     } 
 
    //Return an eta index
    unsigned int jFexLRJetRoI::unpackEtaIndex() const {
-     return (word0() >> s_etaBit) & s_etaMask;
+     return (tobWord() >> s_etaBit) & s_etaMask;
    }
    //Return a phi index
    unsigned int jFexLRJetRoI::unpackPhiIndex() const {
-     return (word0() >> s_phiBit) & s_phiMask;
+     return (tobWord() >> s_phiBit) & s_phiMask;
    }
 
    //Return sat flag
    unsigned int jFexLRJetRoI::unpackSaturationIndex() const{
-     return (word0() >> s_satBit) & s_satMask;
+     return (tobWord() >> s_satBit) & s_satMask;
    }
 
    /// Methods that require combining results or applying scales
 
    /// ET on TOB scale
    unsigned int jFexLRJetRoI_v1::et() const {
-    //Return the TOB Et in a 200 MeV scale
-     return tobEt();
+    //Return the TOB Et in a 1 MeV scale
+     return tobEt()*s_tobEtScale;
    }
 
-   /// Returns the local coordinated within the FPGA core area
-   unsigned int jFexLRJetRoI_v1::eta() const{
-      return iEta();
-   }
-
-  unsigned int jFexLRJetRoI_v1::phi() const {
-     return iPhi();
-   }
-  //Global coords
-  int8_t jFexLRJetRoI_v1::getGlobalEta() const{
-     int8_t globalEta = iEta() + (8*(jFexNumber() -3) -1); 
-     return globalEta; 
+  //global coords
+  
+  /// As the Trigger towers are 1x1 in Eta - Phi coords (x10), we add 0.5 to centre them
+  int jFexLRJetRoI_v1::unpackGlobalEta() const{
+      
+    int globalEta = 0;
+    if(jFexNumber()==0){
+        globalEta = -25+tobLocalEta(); //-24.5 is the minimum eta for the most granular part of module 0 - needs to be modified for the EMEC/HEC and FCAL
+    }
+    else if(jFexNumber()==5){
+        globalEta = 16+tobLocalEta(); //16.5 is the minimum eta for the most granular part of module 5 - needs to be modified for the EMEC/HEC and FCAL
+    }
+    else{
+        globalEta = tobLocalEta()+(8*(jFexNumber() - 3)) ;  // for module 1 to 4 
+    }
+    return globalEta;
   }
 
-
-  uint8_t jFexLRJetRoI_v1::getGlobalPhi() const{
-     uint8_t globalPhi = iPhi() + (fpgaNumber() * 16);
-     return globalPhi;
+  uint jFexLRJetRoI_v1::unpackGlobalPhi() const{
+     uint globalPhi = tobLocalPhi() + (fpgaNumber() * 16); 
+     return globalPhi; 
+  
   }
 
 
