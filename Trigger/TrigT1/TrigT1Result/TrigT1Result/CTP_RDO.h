@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TO DO: encapsulate logic from raw data words! And fill the data
@@ -24,12 +24,8 @@ class CTP_RDO {
   
  public:
 
-   /**
-    * Default constructor needed for pool converters
-    * requires that @c setCTPVersionNumber is called before anything else
-    */
-  CTP_RDO();
-
+  /// Default constructor needed for pool converters
+  CTP_RDO() = default;
 
   /// Constructor takes the number of BCs of the readout window as argument
   CTP_RDO(unsigned int ctpVersionNumber, const uint32_t nBCs = 1, uint32_t nExtraWords=0);
@@ -98,10 +94,10 @@ class CTP_RDO {
   // data members 
     
   unsigned int m_ctpVersionNumber {0};        //!< number of the CTP version to be used
-  CTPdataformatVersion m_ctpDataFormat;  //!< CTP data format for a specified version
-  std::vector<uint32_t> m_dataWords;      //!< raw data words
+  CTPdataformatVersion m_ctpDataFormat {0} ;  //!< CTP data format for a specified version
+  std::vector<uint32_t> m_dataWords;          //!< raw data words
   uint8_t  m_l1AcceptPosition {0};            //!< bunch position, from which the level1 accept was calculated
-  uint32_t m_turnCounter {0};                //!< turn counter
+  uint32_t m_turnCounter {0};                 //!< turn counter
   uint32_t m_numberOfBunches {0};             //!< number of bunches in raw data (transient)
   uint32_t m_activeBunch {0};                 //!< active bunch, for book keepting (transient)
   uint32_t m_numberOfAdditionalWords {0};     //!< number of configurable extra words in the fragment
