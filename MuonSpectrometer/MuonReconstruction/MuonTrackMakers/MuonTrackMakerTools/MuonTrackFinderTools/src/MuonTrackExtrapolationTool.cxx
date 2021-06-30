@@ -33,6 +33,7 @@ namespace Muon {
         if (!m_atlasExtrapolator.empty()) ATH_CHECK(m_atlasExtrapolator.retrieve());
         if (!m_muonExtrapolator.empty()) ATH_CHECK(m_muonExtrapolator.retrieve());
         if (!m_muonExtrapolator2.empty()) ATH_CHECK(m_muonExtrapolator2.retrieve());
+        
         if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
         } else {
@@ -45,10 +46,10 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const Trk::TrackParameters &pars,
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx ,const Trk::TrackParameters &pars,
                                                                                          Trk::ParticleHypothesis particleHypo) const {
         if (m_muonExtrapolator.empty()) return nullptr;
-        const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName);
+        const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName, ctx);
 
         if (!msEntrance) {
             ATH_MSG_WARNING("  MS entrance not found");
@@ -105,8 +106,8 @@ namespace Muon {
         return entryPars;
     }
 
-    const Trk::TrackParameters *MuonTrackExtrapolationTool::findClosestParametersToMuonEntry(const Trk::Track &track) const {
-        const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName);
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::findClosestParametersToMuonEntry(const EventContext& ctx, const Trk::Track &track) const {
+        const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName, ctx);
 
         if (!msEntrance) {
             ATH_MSG_WARNING("Failed to obtain muon entry volume");
@@ -137,7 +138,7 @@ namespace Muon {
                 // drop states without measurement
                 if (!surf->measurementOnTrack()) continue;
 
-                double distance = pars->position().perp();  // estimateDistanceToEntryRecord(*pars);
+                double distance = pars->position().perp();  // estimateDistanceToEntryRecord(ctx, *pars);
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestPars = pars;
@@ -186,8 +187,8 @@ namespace Muon {
         return closestPars;
     }
 
-    double MuonTrackExtrapolationTool::estimateDistanceToEntryRecord(const Trk::TrackParameters &pars) const {
-        const Trk::TrackingVolume *msEntrance = getVolume("Calo::Container");
+    double MuonTrackExtrapolationTool::estimateDistanceToEntryRecord(const EventContext& ctx, const Trk::TrackParameters &pars) const {
+        const Trk::TrackingVolume *msEntrance = getVolume("Calo::Container", ctx);
 
         if (!msEntrance) return 0;
 
@@ -270,7 +271,7 @@ namespace Muon {
         const Trk::Perigee *pp = track.perigeeParameters();
         if (!pp) return nullptr;
 
-        const Trk::TrackParameters *firstPars = findClosestParametersToMuonEntry(track);
+        const Trk::TrackParameters *firstPars = findClosestParametersToMuonEntry(ctx, track);
         if (!firstPars) {
             ATH_MSG_WARNING("failed to find closest parameters to muon entry ");
             return nullptr;
@@ -279,7 +280,7 @@ namespace Muon {
         // extrapolate to muon entry record
         Trk::ParticleHypothesis particleHypo = track.info().particleHypothesis();
         if (isSL) particleHypo = Trk::nonInteracting;
-        const Trk::TrackParameters *exPars = extrapolateToMuonEntryRecord(*firstPars, particleHypo);
+        const Trk::TrackParameters *exPars = extrapolateToMuonEntryRecord(ctx, *firstPars, particleHypo);
 
         bool atIP = false;
         if (!exPars) {
@@ -303,7 +304,7 @@ namespace Muon {
         // sanity check for cosmics, if we are at the IP we should not
         if (m_cosmics && atIP) {
             double tolerance = -50.;
-            const Trk::TrackingVolume *msEntrance = getVolume("Calo::Container");
+            const Trk::TrackingVolume *msEntrance = getVolume("Calo::Container",ctx);
 
             if (msEntrance && msEntrance->inside(exPars->position(), tolerance)) {
                 ATH_MSG_DEBUG("extrapolate parameters at perigee inside muon entry volume " << m_printer->print(*exPars));
@@ -339,7 +340,7 @@ namespace Muon {
                 ATH_MSG_DEBUG(" Expect second crossing ");
 
                 // create second perigee
-                const Trk::TrackParameters *secondExPars = extrapolateToMuonEntryRecord(*secondEntryCrossing, particleHypo);
+                const Trk::TrackParameters *secondExPars = extrapolateToMuonEntryRecord(ctx, *secondEntryCrossing, particleHypo);
                 if (secondExPars) {
                     // check distence to first perigee
                     double distance = (secondExPars->position() - perigee->position()).dot(perDir);
