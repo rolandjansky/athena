@@ -228,7 +228,6 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const EventContext& ctx ) const {
 
   using namespace Monitored;
-  StatusCode sc_trigDec = StatusCode::FAILURE; 
   StatusCode sc_hltResult = StatusCode::FAILURE; 
 
   // Declare the quantities which should be monitored
