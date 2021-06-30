@@ -239,20 +239,6 @@ if not MuonD3PDFlags.doNewChainOnly:
     MuidD3PDObject  = MuonD3PDObject.copy()
 # >>>>>----------------end------------------<<<<< 
 
-
-# Trigger Decision
-if D3PDMakerFlags.DoTrigger():
-    from TriggerD3PDMaker.TrigDecisionD3PDObject           import TrigDecisionD3PDObject
-    from TriggerD3PDMaker.TrigConfMetadata                 import addTrigConfMetadata
-    from TriggerD3PDMaker.BGCodeD3PDObject                 import BGCodeD3PDObject
-    from TriggerD3PDMaker.BunchStructureMetadata           import addBunchStructureMetadata
-    addBunchStructureMetadata(MuonD3PDStream)
-    # Trigger Decision + metadata    
-    MuonD3PDStream += TrigDecisionD3PDObject(10)
-    addTrigConfMetadata(MuonD3PDStream)    
-    # Bunch group info
-    MuonD3PDStream += BGCodeD3PDObject(2)
-    
 # Muon Trigger Info
 from TrigMuonD3PDMaker.TrigMuonEFInfoD3PDObject        import TrigMuonEFInfoD3PDObject
 MuonD3PDStream += TrigMuonEFInfoD3PDObject(0,
