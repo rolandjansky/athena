@@ -100,7 +100,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
         
   // will use onnxtool
   StatusCode CalculateResultsONNX( const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw,  Analysis::TruthTagResults& results, int rand_seed=-1);
-  StatusCode CalculateResultsONNX( const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results,int rand_seed = -1);
+  StatusCode CalculateResultsONNX( const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results, int rand_seed = -1);
 
   StatusCode setEffMapIndex(const std::string& flavour, unsigned int index);
   void setUseSystematics(bool useSystematics);
@@ -232,8 +232,8 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   bool m_doDirectTag;
   /// if this string is empty, the onnx tool won't be used
   std::string m_pathToONNX;
-            
-            
+  /// tagging strategy is required to do TT with GNN, when we don't want to truth tag all the jets (eg. 'leading2SignalJets')          
+  std::string m_taggingStrategy;            
 
   //*********************************//
   // Prop. of BTaggingSelectionTool  //
@@ -254,6 +254,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   int m_nbtag;
 
   unsigned int m_OperatingPoint_index;
+  unsigned int m_OP_index_for_GNN;
 
   std::map<std::string, asg::AnaToolHandle<IBTaggingEfficiencyTool> > m_effTool_allOP;
 
