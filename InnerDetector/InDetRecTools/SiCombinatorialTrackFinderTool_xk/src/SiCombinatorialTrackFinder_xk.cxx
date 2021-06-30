@@ -538,6 +538,13 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 
   data.trajectory().sortStep();
 
+  if(m_doFastTracking) {
+    if(!data.trajectory().filterWithPreciseClustersError()) {
+      data.statistic()[CantFindTrk] = true;
+      return data.tracks();
+    }
+  }
+
   // Trk::Track production
   //
   Trk::TrackInfo oldinfo = data.trackinfo();
@@ -659,23 +666,26 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
     if (!data.trajectory().forwardExtension (false,itmax)) return CantFindTrk;
     if (!data.trajectory().backwardSmoother (false)      ) return CantFindTrk;
     if (!data.trajectory().backwardExtension(itmax)      ) return CantFindTrk;
+    if (data.isITkGeometry() && (data.trajectory().nclusters() < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) ) return CantFindTrk;
     /// refine if needed
-    if (data.trajectory().difference() > 0) {
-      if (!data.trajectory().forwardFilter()          ) {
-	 if( toReturnFailedTrack ) {
+    if(!data.useFastTracking()){
+      if (data.trajectory().difference() > 0) {
+        if (!data.trajectory().forwardFilter()          ) {
+	  if( toReturnFailedTrack ) {
 	    data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::PixSeedDiffKFFwd);
-	 }
-	 else {
+	  }
+	  else {
 	    return CantFindTrk;
-	 }
-      }
-      if (!data.trajectory().backwardSmoother (false) ) {
-	 if( toReturnFailedTrack ) {
+	  }
+        }
+        if (!data.trajectory().backwardSmoother (false) ) {
+	  if( toReturnFailedTrack ) {
 	    data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::PixSeedDiffKFBwd);
-	 }
-	 else {
+	  }
+	  else {
 	    return CantFindTrk;
-	 }
+	  }
+        }
       }
     }
     int na = data.trajectory().nclustersNoAdd();
@@ -995,6 +1005,9 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const Eve
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
                 &m_fieldprop,
                 &*m_boundaryCheckTool);
+
+  data.isITkGeometry() = m_ITkGeometry;
+  data.useFastTracking() = m_doFastTracking;
 
 }
 

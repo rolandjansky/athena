@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +103,7 @@ namespace InDet{
       bool backwardExtension(int);
       bool forwardExtension (bool,int);
       bool forwardFilter    ();
+      bool filterWithPreciseClustersError();
       bool backwardSmoother (bool);
       bool isLastPixel      ();
       Trk::TrackParameters* firstTrackParameters();
@@ -176,6 +177,7 @@ namespace InDet{
                                                             /// Each one corresponds to one detector element on
                                                             /// the search road 
       const InDet::SiTools_xk*          m_tools           ; //
+      const Trk::Surface*               m_surfacedead     ;
       PatternHoleSearchOutcome    m_patternHoleOutcome; 
 
       ///////////////////////////////////////////////////////////////////
