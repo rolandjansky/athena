@@ -47,9 +47,9 @@ class IBTaggingTruthTaggingTool : virtual public CP::ISystematicsTool {
    ...
   }
   */
-  virtual StatusCode CalculateResultsONNX( const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw,  Analysis::TruthTagResults& results,int rand_seed=-1)=0 ;
+  virtual StatusCode CalculateResultsONNX( const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw,  Analysis::TruthTagResults& results, int rand_seed=-1)=0 ;
     
-  virtual StatusCode CalculateResultsONNX( const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results,int rand_seed=-1)=0;
+  virtual StatusCode CalculateResultsONNX( const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results, int rand_seed=-1)=0;
 
 };
 #endif // CPIBTAGGINGTRUTHTAGGINGTOOL_H

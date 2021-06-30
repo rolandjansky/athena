@@ -80,7 +80,8 @@ BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
   declareProperty("doDirectTagging",                  m_doDirectTag = false ,    "If set to true it also computes and stores the direct tagging choice and the related SFs for each jet");
       
   // if it is empty, the onnx tool won't be initialised
-  declareProperty( "pathToONNX",                      m_pathToONNX = "",          "path to the onnx file that will be used for inference");
+  declareProperty( "pathToONNX",                     m_pathToONNX = "",          "path to the onnx file that will be used for inference");
+  declareProperty( "TaggingStrategy",                m_taggingStrategy = "AllJets",     "tagging strategy in the Analysis (eg. 'leading2SignalJets' in boosted VHbb). Required to do TT with GNN");
 }
 
 StatusCode BTaggingTruthTaggingTool::setEffMapIndex(const std::string& flavour, unsigned int index){
@@ -189,13 +190,23 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
     m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_cutBenchmark) - m_availableOP.begin();
   }
   else{
-    if(m_useQuntile){
-      m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
-      if(m_OperatingPoint_index >= m_availableOP.size()) {
-        ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
-        return StatusCode::FAILURE;
+    if (m_pathToONNX != ""){
+      if (m_useQuntile){
+        ATH_MSG_ERROR("BTaggingTruthTaggingTool::TruthTagging with GNN doesn't support m_useQuntile=true yet");
+        return StatusCode::FAILURE;      
+      } else {
+        // 60% = 4, 70% = 3, 77% = 2, 85% = 1, 100% = 0
+        m_OP_index_for_GNN = find(m_availableOP.begin(), m_availableOP.end(), m_cutBenchmark) - m_availableOP.begin() + 1; // GNN predicts 5 bins        
       }
-    }
+    } else {
+      if(m_useQuntile){
+        m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
+        if(m_OperatingPoint_index >= m_availableOP.size()) {
+          ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
+          return StatusCode::FAILURE;
+        }
+      } // m_useQuantile
+    } // !ONNX
   }
   
   m_eff_syst.clear();
@@ -293,6 +304,12 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
       } //Continuous
     } //loop
   } //quantile
+
+  // "AllJets" is the default strategy
+  if ((m_taggingStrategy != "AllJets") && (m_taggingStrategy != "Leading2SignalJets")){
+    ATH_MSG_ERROR("BTaggingTruthTaggingTool::tagging strategy " << m_taggingStrategy << " is not implemented in the TruthTagging Tool");
+    return StatusCode::FAILURE;    
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -594,7 +611,7 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(const xAOD::JetContainer& 
 }
 
 // setting inputs that the onnx tool will use
-StatusCode BTaggingTruthTaggingTool::CalculateResultsONNX(const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw, Analysis::TruthTagResults& results,int rand_seed){
+StatusCode BTaggingTruthTaggingTool::CalculateResultsONNX(const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw, Analysis::TruthTagResults& results, int rand_seed){
 
   ANA_CHECK_SET_TYPE (StatusCode);
 
@@ -602,11 +619,11 @@ StatusCode BTaggingTruthTaggingTool::CalculateResultsONNX(const std::vector<std:
     
   ANA_CHECK(setJets(trfinf, node_feat, tagw));
 
-  return CalculateResults(trfinf,results,rand_seed);
+  return CalculateResults(trfinf, results, rand_seed);
 }
 
 // setting inputs that the onnx tool will use
-StatusCode BTaggingTruthTaggingTool::CalculateResultsONNX(const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results,int rand_seed){
+StatusCode BTaggingTruthTaggingTool::CalculateResultsONNX(const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results, int rand_seed){
 
   ANA_CHECK_SET_TYPE (StatusCode);
 
@@ -614,11 +631,11 @@ StatusCode BTaggingTruthTaggingTool::CalculateResultsONNX(const xAOD::JetContain
 
   ANA_CHECK(setJets(trfinf, jets, node_feat));
 
-  return CalculateResults(trfinf,results,rand_seed);
+  return CalculateResults(trfinf, results, rand_seed);
 }
 
 StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
-  if ( m_pathToONNX == "" ){
+  if (trfinf.node_feat.size() == 0){
     return getAllEffMCCDI(trfinf);
   } else {
 
@@ -648,19 +665,51 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMCGNN(TRFinfo &trfinf){
       
       // need to transpose
       std::vector<float> tmp_effMC_oneOP; // shape:{num_jet}
-      for (int jet_index=0; jet_index<static_cast<int>(tmp_effMC_allOP.size()); jet_index++){
-        tmp_effMC_oneOP.push_back(tmp_effMC_allOP[jet_index][OP_index]);
+      if (m_taggingStrategy == "Leading2SignalJets"){
+        for (int jet_index=0; jet_index<2; jet_index++){
+          tmp_effMC_oneOP.push_back(tmp_effMC_allOP[jet_index][OP_index]);
+        }
+      } else if (m_taggingStrategy == "AllJets") {
+        for (int jet_index=0; jet_index<static_cast<int>(tmp_effMC_allOP.size()); jet_index++){
+          tmp_effMC_oneOP.push_back(tmp_effMC_allOP[jet_index][OP_index]);
+        }
+      } else {
+        ATH_MSG_ERROR("BTaggingTruthTaggingTool::tagging strategy " << m_taggingStrategy << " is not implemented in the TruthTagging Tool");
+        return StatusCode::FAILURE;    
       }
       trfinf.effMC_allOP[op_appo] = tmp_effMC_oneOP;
       OP_index++;
     }
-  } else {
-    CorrectionCode code = m_effTool->getMCEfficiencyONNX(trfinf.node_feat, trfinf.effMC);
-    if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
-      ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiencyONNX returned CorrectionCode::Error");
-      return StatusCode::FAILURE;
-    }
-  }
+  } // m_continuous
+  else {
+    if (m_useQuntile){
+      ATH_MSG_ERROR("BTaggingTruthTaggingTool::getMCEfficiencyONNX doesn't support m_useQuntile=true yet");
+      return StatusCode::FAILURE;      
+    } // m_useQuantile
+    else {
+      std::vector<std::vector<float>> tmp_effMC_allOP; // shape:{num_jets, num_wp}
+      CorrectionCode code = m_effTool->getMCEfficiencyONNX(trfinf.node_feat, tmp_effMC_allOP);
+      if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+        ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiencyONNX returned CorrectionCode::Error");
+        return StatusCode::FAILURE;
+      }
+
+      if (m_taggingStrategy == "Leading2SignalJets"){
+        for (int jet_index=0; jet_index<2; jet_index++){
+          float tmp_effMC = std::accumulate(tmp_effMC_allOP[jet_index].begin()+m_OP_index_for_GNN, tmp_effMC_allOP[jet_index].end(), 0.0);
+          trfinf.effMC.push_back(tmp_effMC);
+        }
+      } else if (m_taggingStrategy == "AllJets") {
+        for (int jet_index=0; jet_index<static_cast<int>(tmp_effMC_allOP.size()); jet_index++){
+          float tmp_effMC = std::accumulate(tmp_effMC_allOP[jet_index].begin()+m_OP_index_for_GNN, tmp_effMC_allOP[jet_index].end(), 0.0);
+          trfinf.effMC.push_back(tmp_effMC);
+        }
+      } else {
+        ATH_MSG_ERROR("BTaggingTruthTaggingTool::tagging strategy " << m_taggingStrategy << " is not implemented in the TruthTagging Tool");
+        return StatusCode::FAILURE;    
+      }
+    } // !m_useQuantile
+  } // !m_continuous
         
   return StatusCode::SUCCESS;
 }
@@ -809,36 +858,36 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
     for(int iop = static_cast<int>(m_availableOP.size())-1; iop >= 0; iop--) {
       std::string op_appo = m_availableOP.at(iop);
       if(!m_useQuntile &&  iop < static_cast<int>(m_OperatingPoint_index)) continue;
-      for(size_t i=0; i<trfinf.jets.size(); i++){
-      SF=1.;
-      //set a dumb value of the truth tag weight to get the different efficiency maps for each bin. to be improved..
-      if(iop+1 < static_cast<int>(m_availableOP.size())){
-        trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(iop)+m_binEdges.at(iop+1))/2.; //to-do: make it fancy? random distribution for the tagger score
-      }
-      else{
-        trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(iop)+1.)/2.;
-      }
-    
-      CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
-      if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
-        ATH_MSG_ERROR("BTaggingEfficiencyTool::getScaleFactor returned CorrectionCode::Error");
-        return StatusCode::FAILURE;
-      }
+      for(size_t i=0; i<trfinf.effMC_allOP[op_appo].size(); i++){
+        SF=1.;
+        //set a dumb value of the truth tag weight to get the different efficiency maps for each bin. to be improved..
+        if(iop+1 < static_cast<int>(m_availableOP.size())){
+          trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(iop)+m_binEdges.at(iop+1))/2.; //to-do: make it fancy? random distribution for the tagger score
+        }
+        else{
+          trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(iop)+1.)/2.;
+        }
+      
+        CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
+        if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+          ATH_MSG_ERROR("BTaggingEfficiencyTool::getScaleFactor returned CorrectionCode::Error");
+          return StatusCode::FAILURE;
+        }
 
-      trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC_allOP[op_appo].at(i)*SF;
+        trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC_allOP[op_appo].at(i)*SF;
 
-      //now sum all the corrected MC Eff together
-      if(iop+1 < static_cast<int>(m_availableOP.size())){
-          trfinf.eff_allOP[op_appo].at(i)+=trfinf.eff_allOP[m_availableOP.at(iop+1)].at(i); //they are already corrected for SF
-      }
-      if( op_appo == m_cutBenchmark)
-        trfinf.eff.at(i) = trfinf.eff_allOP[m_cutBenchmark].at(i);
+        //now sum all the corrected MC Eff together
+        if(iop+1 < static_cast<int>(m_availableOP.size())){
+            trfinf.eff_allOP[op_appo].at(i)+=trfinf.eff_allOP[m_availableOP.at(iop+1)].at(i); //they are already corrected for SF
+        }
+        if( op_appo == m_cutBenchmark)
+          trfinf.eff.at(i) = trfinf.eff_allOP[m_cutBenchmark].at(i);
       } //jets
     } //OP
   } //continuous
   
   else{
-    for(unsigned int i=0; i<trfinf.jets.size(); i++){
+    for(unsigned int i=0; i<trfinf.effMC.size(); i++){
       SF=1.;
       CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
       if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
