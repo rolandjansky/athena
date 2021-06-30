@@ -827,11 +827,8 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 InDetDD::SiReadoutCellId roCell =
                     (*i_chargedDiode).second.getReadoutCell();
                 int strip = roCell.strip();
-                const InDetDD::SiDetectorDesign &detDesign =
-                    collection->design();
-                const InDetDD::SCT_ModuleSideDesign &sctDesign =
-                    dynamic_cast<const
-                                 InDetDD::SCT_ModuleSideDesign &> (detDesign);
+                const InDetDD::SCT_ModuleSideDesign& sctDesign{
+                    static_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
                 int row2D = sctDesign.row(strip);
                 Identifier id_readout;
                 if (row2D < 0) { // SCT sensors
@@ -1030,11 +1027,8 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
           
           int strip = roCell.strip();
           
-          const InDetDD::SiDetectorDesign &detDesign =
-            collection->design();
-
-          const InDetDD::SCT_ModuleSideDesign &sctDesign =
-            dynamic_cast<const InDetDD::SCT_ModuleSideDesign &> (detDesign);
+          const InDetDD::SCT_ModuleSideDesign& sctDesign{
+              dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
 
           int row2D = sctDesign.row(strip);
           Identifier id_readout;

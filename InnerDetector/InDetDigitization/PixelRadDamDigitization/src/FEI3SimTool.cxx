@@ -8,6 +8,7 @@
 
 #include "SiDigitization/SiHelper.h"
 #include "ReadoutGeometryBase/SiReadoutCellId.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -56,7 +57,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   // Merge ganged pixel
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
     InDetDD::SiCellId cellID     = chargedDiodes.element()->cellIdFromIdentifier(chargedDiodes.getId((*i_chargedDiode).first));
-    InDetDD::SiCellId gangedCell = chargedDiodes.element()->gangedCell(cellID);
+    InDetDD::SiCellId gangedCell = static_cast<const InDetDD::SiDetectorElement *>(chargedDiodes.element())->gangedCell(cellID);
     Identifier gangedID          = chargedDiodes.element()->identifierFromCellId(gangedCell);
     if (gangedCell.isValid()) {
       SiChargedDiode *gangedChargeDiode = chargedDiodes.find(gangedID);
