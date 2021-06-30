@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from LArConfiguration.LArConfigRun2 import LArConfigRun2
+from LArConfiguration.LArConfigRun2 import LArConfigRun2PileUp, LArConfigRun2NoPileUp
 
 
 def MC16a(flags):
     """MC16a flags for MC to match 2015 and 2016 data"""
-    flags.Beam.NumberOfCollisions = 20. if flags.Digitization.PileUp else 0.
+    flags.Beam.NumberOfCollisions = 20.
 
-    LArConfigRun2(flags)
+    LArConfigRun2PileUp(flags)
     flags.Digitization.HighGainEMECIW = True
 
     flags.Tile.BestPhaseFromCOOL = False
@@ -22,9 +22,9 @@ def MC16a(flags):
 
 def MC16d(flags):
     """MC16d flags for MC to match 2017 data"""
-    flags.Beam.NumberOfCollisions = 20. if flags.Digitization.PileUp else 0.
+    flags.Beam.NumberOfCollisions = 20.
 
-    LArConfigRun2(flags)
+    LArConfigRun2PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
@@ -38,9 +38,9 @@ def MC16d(flags):
 
 def MC16e(flags):
     """MC16e flags for MC to match 2018 data"""
-    flags.Beam.NumberOfCollisions = 20. if flags.Digitization.PileUp else 0.
+    flags.Beam.NumberOfCollisions = 20.
 
-    LArConfigRun2(flags)
+    LArConfigRun2PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
@@ -50,3 +50,13 @@ def MC16e(flags):
     flags.Digitization.PU.NumberOfHighPtMinBias = 0.2595392
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run310000_MC16e'
+
+
+def MC16NoPileUp(flags):
+    """MC16 flags for MC without pile-up"""
+    flags.Beam.NumberOfCollisions = 0.
+
+    LArConfigRun2NoPileUp(flags)
+
+    flags.Tile.BestPhaseFromCOOL = False
+    flags.Tile.correctTime = False

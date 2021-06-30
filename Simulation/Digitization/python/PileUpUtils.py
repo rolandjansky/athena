@@ -233,6 +233,8 @@ def scaleNumberOfCollisions(flags):
 def setupPileUpProfile(flags):
     bunchStructure = flags.Digitization.PU.BunchStructureConfig
     pileUpProfile = flags.Digitization.PU.ProfileConfig
+    if not bunchStructure or not pileUpProfile:
+        raise ValueError('Bunch structure and pile-up profile need to be set')
 
     # Setup beam intensity pattern
     parts = bunchStructure.split('.')
