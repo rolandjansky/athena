@@ -5875,6 +5875,8 @@ HLT_mb_afprec_L1CEP-CJ50:
   eventCount: 0
 HLT_mb_afprec_L1CEP-CJ60:
   eventCount: 0
+HLT_mb_afprec_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_alfaperf_L1RD0_EMPTY:
   eventCount: 0
 HLT_mb_alfaperf_L1RD0_FILLED:
@@ -5975,6 +5977,8 @@ HLT_mb_sptrk_pt8_L1MBTS_2:
   eventCount: 0
 HLT_mb_sptrk_pt8_L1RD0_FILLED:
   eventCount: 0  
+HLT_mb_sptrk_vetombts2in_L1RD0_FILLED:
+  eventCount: 0
 HLT_mu0_muoncalib_L1MU20:
   eventCount: 0
 HLT_mu0_muoncalib_L1MU4_EMPTY:
