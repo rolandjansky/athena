@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -265,7 +265,8 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
 
     if( !localposROT )
     {
-        localposROT = Amg::Vector2D{};
+        localposROT.emplace();
+        localposROT->setZero();
         VP1Msg::message("Warning: Local hit position was NULL");
     }
 
