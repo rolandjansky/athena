@@ -117,7 +117,10 @@ def setupMenu():
         ChainProp(name='HLT_mu26_ivarperf_L1MU20', groups=SingleMuonGroup),
 
         #-- nscan ATR-19376
-        ChainProp(name='HLT_mu20_mu6noL1_nscan_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'],   groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU20_J40', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU20_XE30', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU20-MU6', l1SeedThresholds=['MU20','MU6'],   groups=MultiMuonGroup),
+
 
         #ATR-20505
         ChainProp(name='HLT_2mu50_msonly_L1MU20', groups=PrimaryLegGroup+SingleMuonGroup),   

@@ -48,7 +48,7 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   Gaudi::Property< bool > m_nscan {
     this, "NarrowScan", false, "Apply narrow scan" };
   Gaudi::Property< float > m_conesize {
-    this, "ConeSize", 5, "Narrow scan cone size" };
+    this, "ConeSize", 0.5, "Narrow scan cone size" };
   Gaudi::Property< bool > m_muonqualityCut {
     this, "MuonQualityCut", false, "Ignore selection" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
