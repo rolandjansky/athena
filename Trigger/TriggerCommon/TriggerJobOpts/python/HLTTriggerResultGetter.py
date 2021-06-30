@@ -62,7 +62,7 @@ class ByteStreamUnpackGetter(Configured):
         from AthenaCommon.CFElements import seqAND
         decoder = HLTResultMTByteStreamDecoderAlg()
         deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
-        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_Summary')]
+        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_Summary_OnlineSlimmed')]
         decodingSeq = seqAND("HLTDecodingSeq")
         decodingSeq += decoder  # BS -> HLTResultMT
         decodingSeq += deserialiser  # HLTResultMT -> xAOD

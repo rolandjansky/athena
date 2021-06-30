@@ -152,6 +152,9 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_TAURoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
 
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_OnlineSlimmed', 'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_OnlineSlimmedAux.', 'BS ESD AODFULL AODSLIM', 'Steer'),
+
     ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.thash.slot.roi.start.stop', 'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeContainer#HLT_TrigCostROSContainer',   'CostMonDS ESD', 'Steer'),
@@ -755,7 +758,7 @@ TriggerHLTListRun3 = [
 ]
 
 # HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
-HLTNavEDMTargets = 'BS ESD AODFULL AODSLIM'
+HLTNavEDMTargets = ''
 
 #-------------------------------------------------------------------------------
 # EDM details list to store the transient-persistent version
