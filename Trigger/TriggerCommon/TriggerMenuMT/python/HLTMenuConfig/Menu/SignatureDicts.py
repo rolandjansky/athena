@@ -553,7 +553,7 @@ ElectronChainParts_Default = {
 # Photon chains
 #==========================================================
 # ---- Photon Dictionary of all allowed Values ----
-AllowedTopos_g = ['dPhi15', 'm80']
+AllowedTopos_g = ['dPhi25', 'm80']
 PhotonChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Photon'],
