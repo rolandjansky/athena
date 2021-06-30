@@ -272,6 +272,11 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for (size_t i = 0; i < handles.out.size(); ++i) {
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
+    // Special case. The slimmed navigation container is exceptionally created _after_ the HLTEDMCreator as it reads remapped navigation data.
+    if (writeHandleKey.key() == "HLTNav_Summary_OnlineSlimmed") {
+      continue;
+    }
+
     if ( handles.views.empty() ) { // no merging will be needed
       // Note: This is correct. We are testing if we can read, and if we cannot then we write.
       // What we write will either be a dummy (empty) container, or be populated from N in-View collections.

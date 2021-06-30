@@ -20,20 +20,25 @@ def getRun3NavigationContainerFromInput(ConfigFlags):
     # List of all possible keys of the Run 3 navigation summary collection
     # in order of verbosity. Want to take the most verbose which is available.
     possible_keys = []
-    possible_keys += 'HLTNav_Summary'
-    possible_keys += 'HLTNav_Summary_BSSlimmed'
-    possible_keys += 'HLTNav_Summary_ESDSlimmed'
-    possible_keys += 'HLTNav_Summary_AODSlimmed'
-    possible_keys += 'HLTNav_Summary_DAODSlimmed'
+    possible_keys.append("HLTNav_Summary")
+    possible_keys.append("HLTNav_Summary_BSSlimmed")
+    possible_keys.append("HLTNav_Summary_ESDSlimmed")
+    possible_keys.append("HLTNav_Summary_AODSlimmed")
+    possible_keys.append("HLTNav_Summary_DAODSlimmed")
 
     # What to return if we cannot look in the file
-    default_key = 'HLTNav_Summary'
+    default_key = "HLTNav_Summary_OnlineSlimmed"
+    to_return = default_key
 
     for key in possible_keys:
         if key in ConfigFlags.Input.Collections:
-            return key
+            to_return = key
+            break
 
-    return default_key
+    from AthenaCommon.Logging import logging
+    msg = logging.getLogger('getRun3NavigationContainerFromInput')
+    msg.info("Returning {} as the Run 3 trigger navigation colletion to read in this job.".format(to_return))
+    return to_return
 
 def getTrigDecisionTool(ConfigFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator

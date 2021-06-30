@@ -165,7 +165,7 @@ namespace Trig {
       "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
 
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary",
-      "HLTNav_Summary", "HLT summary container Key"};
+      "HLTNav_Summary_OnlineSlimmed", "HLT summary container Key"};
 
     SG::ReadHandleKey<xAOD::TrigDecision> m_decisionKey {this, "TrigDecisionKey", "xTrigDecision",
       "Storegate key of Trigger Decision"};

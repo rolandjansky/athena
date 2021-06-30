@@ -209,6 +209,10 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # C) Finally, we create the EDM output
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
+    from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
+    onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+    hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
+
     hltEndSeq += hltFinalizeSeq
 
     # Test the configuration
