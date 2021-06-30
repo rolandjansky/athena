@@ -27,7 +27,6 @@ Digi_tf.py \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC16d.py' \
 --skipEvents 0
