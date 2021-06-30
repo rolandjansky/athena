@@ -16,8 +16,10 @@ from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
 from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from MuonConfig.MDT_DigitizationConfig import MDT_DigitizationDigitToRDOCfg
+from MuonConfig.MM_DigitizationConfig import MM_DigitizationDigitToRDOCfg
 from MuonConfig.RPC_DigitizationConfig import RPC_DigitizationDigitToRDOCfg
 from MuonConfig.TGC_DigitizationConfig import TGC_DigitizationDigitToRDOCfg
+from MuonConfig.sTGC_DigitizationConfig import sTGC_DigitizationDigitToRDOCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
@@ -123,6 +125,10 @@ def DigitizationMainCfg(flags):
         acc.merge(RPC_DigitizationDigitToRDOCfg(flags))
     if flags.Detector.EnableCSC:
         acc.merge(CSC_DigitizationDigitToRDOCfg(flags))
+    if flags.Detector.EnableMM:
+        acc.merge(MM_DigitizationDigitToRDOCfg(flags))
+    if flags.Detector.EnablesTGC:
+        acc.merge(sTGC_DigitizationDigitToRDOCfg(flags))
 
     # Timing
     acc.merge(MergeRecoTimingObjCfg(flags))
