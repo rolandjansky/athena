@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           Tester.cxx  -  description
@@ -236,8 +236,8 @@ typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
 /** loads the EmTauROIs from the TES.*/
 void LVL1::Tester::loadEmTauROIs(){
 
-  const t_EmTauROICollection* ROIs;
-  StatusCode sc1 = evtStore()->retrieve(ROIs, m_EmTauROILocation);
+  const t_EmTauROICollection* ROIs = nullptr;
+  evtStore()->retrieve(ROIs, m_EmTauROILocation).ignore();
 
   if( ! ROIs ) {
     ATH_MSG_DEBUG( "No ROIs found in TES at "
@@ -916,8 +916,7 @@ std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
 /** dump the cells belonging to an RoI. */
 void LVL1::Tester::dumpROICells(){
   const t_EmTauROICollection* ROIs = nullptr;
-  StatusCode sc1 = evtStore()->retrieve(ROIs,
-					 m_EmTauROILocation);
+  evtStore()->retrieve(ROIs, m_EmTauROILocation).ignore();
 
   if( ! ROIs ) {
     ATH_MSG_DEBUG("No ROIs found in TES at "
