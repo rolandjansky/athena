@@ -788,15 +788,17 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_looseRNN_tracktwoLLP_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_mediumRNN_tracktwoLLP_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_tightRNN_tracktwoLLP_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau180_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),    # 
         ChainProp(name="HLT_tau200_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_looseRNN_tracktwoLLP_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau200_tightRNN_tracktwoLLP_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),   # 
+        ChainProp(name="HLT_tau200_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),
+
+
+        # displaced tau+X (ATR-21754)
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+TauJetGroup),        ChainProp(name="HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+TauJetGroup), 
+        ChainProp(name="HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+TauJetGroup),
 
     ]
 
@@ -871,8 +873,10 @@ def setupMenu():
         # TODO: need to add dRtt to chain below. How do we avoid overlap between taus and jets?
         ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
         ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
-        # displaced tau+X (ATR-21754)
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=TauJetGroup),
+        # mu-tag & tau-probe triggers for LLP (ATR-23150)
+        ChainProp(name='HLT_mu26_ivarmedium_tau100_mediumRNN_tracktwoLLP_03dRAB_L1MU20', l1SeedThresholds=['MU20','TAU60'], stream=[PhysicsStream], groups=TauJetGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_tau100_mediumRNN_tracktwoLLP_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU60'], stream=[PhysicsStream], groups=TauJetGroup),
+
         
         # photon + multijets (ATR-22594)
         ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaJetGroup),
