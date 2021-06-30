@@ -357,7 +357,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname=None,doLCCal
     CaloTopoCluster.ClustersOutputName=clustersname
     
     if doLCCalib:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)        
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoClusters",SetCrossLinks=True)        
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
         #if not clustersname:
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
@@ -417,6 +417,9 @@ if __name__=="__main__":
         StreamName = 'StreamAOD'
     )
     cfg.addEventAlgo(theNegativeEnergyCaloClustersThinner,"AthAlgSeq")
+
+    
+    cfg.addEventAlgo(CompFactory.ClusterDumper("TopoDumper",ContainerName=theKey,FileName="NewTopoClusters.txt"))
 
 #    cfg.getService("StoreGateSvc").Dump=True
 

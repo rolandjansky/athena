@@ -9,7 +9,7 @@ def getOfflinePFAlgorithm(inputFlags):
     PFAlgorithm = PFAlgorithm("PFAlgorithm")   
     
     from eflowRec.PFCfg import getPFClusterSelectorTool
-    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","","PFClusterSelectorTool")
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","CaloCalTopoClusters","PFClusterSelectorTool")
 
     from eflowRec.PFCfg import getPFCellLevelSubtractionTool
     PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
@@ -100,12 +100,12 @@ def PFCfg(inputFlags,**kwargs):
 
     #Configure topocluster algorithmsm, and associated conditions    
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(inputFlags,clustersname="CaloTopoClusters",
+    result.merge(CaloTopoClusterCfg(inputFlags,
                                     doLCCalib=True))
 
 
-    from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
-    result.merge(caloTopoCoolFolderCfg(inputFlags))
+    #from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
+    #result.merge(caloTopoCoolFolderCfg(inputFlags))
 
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"totalNoise"))
