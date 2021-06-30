@@ -631,8 +631,8 @@ def triggerRunCfg( flags, menu=None ):
     acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )
     acc.addEventAlgo( monitoringAlg, sequenceName="HLTEndSeq" )
 
-    from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
-    acc.merge( TrigCostMonitorMTCfg( flags ) )
+    from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
+    acc.merge( TrigCostMonitorCfg( flags ) )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)

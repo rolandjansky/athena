@@ -15,7 +15,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "L1Decoder/ICTPUnpackingTool.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "TrigConfxAOD/IKeyWriterTool.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -73,8 +73,8 @@ private:
     this, "CostMonitoringChain", "HLT_noalg_CostMonDS_L1All",
     "Name of the chain which should enable HLT cost montoring."};
 
-  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle {
-    this, "TrigCostMTSvc", "TrigCostMTSvc",
+  ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle {
+    this, "TrigCostSvc", "TrigCostSvc",
     "The trigger cost service" };
 
   ToolHandle<ICTPUnpackingTool> m_ctpUnpacker{

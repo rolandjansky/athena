@@ -12,7 +12,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/IHLTOutputTool.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 /**
  * @class TriggerSummaryAlg

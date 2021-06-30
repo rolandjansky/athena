@@ -174,7 +174,7 @@ if __name__=='__main__':
   parser = ArgumentParser()
   parser.add_argument('--outputHist', type=str, default='TrigCostRoot_Results.root', help='Histogram output ROOT file')
   parser.add_argument('--monitorChainAlgorithm', action='store_true', help='Turn on Chain Algorithm monitoring')
-  parser.add_argument('--monitorThreads', action='store_true', help='Turn on Thread Occupancy monitoring. Should only be used with TrigCostMTSvc.EnableMultiSlot=true')
+  parser.add_argument('--monitorThreads', action='store_true', help='Turn on Thread Occupancy monitoring. Should only be used with TrigCostSvc.EnableMultiSlot=true')
   parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
   parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
   parser.add_argument('--joFile', type=str, help='Optional HLTJobOptions file to add more hashes')

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGCOSTMONITORMT_TRIGCOSTALGORITHMIDENTIFIER_H
-#define TRIGCOSTMONITORMT_TRIGCOSTALGORITHMIDENTIFIER_H 1
+#ifndef TRIGCOSTMONITOR_TRIGCOSTALGORITHMIDENTIFIER_H
+#define TRIGCOSTMONITOR_TRIGCOSTALGORITHMIDENTIFIER_H 1
 
 #include "GaudiKernel/EventContext.h"
 
@@ -83,4 +83,4 @@ inline bool AlgorithmIdentifierHashCompare::equal(const AlgorithmIdentifier& x, 
   return (x.m_caller == y.m_caller && x.m_store == y.m_store && x.m_realSlot == y.m_realSlot);
 }
 
-#endif // TRIGCOSTMONITORMT_TRIGCOSTALGORITHMIDENTIFIER_H
+#endif // TRIGCOSTMONITOR_TRIGCOSTALGORITHMIDENTIFIER_H

@@ -6,13 +6,13 @@
 
 #include "TrigConfHLTUtils/HLTUtils.h"
 
-#include "TrigCostMTSvc.h"
+#include "TrigCostSvc.h"
 
 #include <mutex>  // For std::unique_lock
 
 /////////////////////////////////////////////////////////////////////////////
 
-TrigCostMTSvc::TrigCostMTSvc(const std::string& name, ISvcLocator* pSvcLocator) :
+TrigCostSvc::TrigCostSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 base_class(name, pSvcLocator), // base_class = AthService
 m_eventSlots(),
 m_eventMonitored(),
@@ -24,21 +24,21 @@ m_threadToAlgMap(),
 m_threadToCounterMap(),
 m_threadCounter(0)
 {
-  ATH_MSG_DEBUG("TrigCostMTSvc regular constructor");
+  ATH_MSG_DEBUG("TrigCostSvc regular constructor");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-TrigCostMTSvc::~TrigCostMTSvc() {
+TrigCostSvc::~TrigCostSvc() {
   // delete[] m_eventMonitored;
-  ATH_MSG_DEBUG("TrigCostMTSvc destructor()");
+  ATH_MSG_DEBUG("TrigCostSvc destructor()");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
-StatusCode TrigCostMTSvc::initialize() {
-  ATH_MSG_DEBUG("TrigCostMTSvc initialize()");
+StatusCode TrigCostSvc::initialize() {
+  ATH_MSG_DEBUG("TrigCostSvc initialize()");
   m_eventSlots = Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents();
   // TODO Remove this when the configuration is correctly propagated in config-then-run jobs
   if (!m_eventSlots) {
@@ -46,7 +46,7 @@ StatusCode TrigCostMTSvc::initialize() {
       "Setting local m_eventSlots to a 'large' number until this is fixed to allow the job to proceed.");
     m_eventSlots = 100;
   }
-  ATH_MSG_INFO("Initializing TrigCostMTSvc with " << m_eventSlots << " event slots");
+  ATH_MSG_INFO("Initializing TrigCostSvc with " << m_eventSlots << " event slots");
 
   // We cannot have a vector here as atomics are not movable nor copyable. Unique heap arrays are supported by C++
   m_eventMonitored = std::make_unique< std::atomic<bool>[] >( m_eventSlots );
@@ -63,8 +63,8 @@ StatusCode TrigCostMTSvc::initialize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::finalize() {
-  ATH_MSG_DEBUG("TrigCostMTSvc finalize()");
+StatusCode TrigCostSvc::finalize() {
+  ATH_MSG_DEBUG("TrigCostSvc finalize()");
   if (m_saveHashes) {
     TrigConf::HLTUtils::hashes2file();
     ATH_MSG_INFO("Calling hashes2file, saving dump of job's HLT hashing dictionary to disk.");
@@ -74,7 +74,7 @@ StatusCode TrigCostMTSvc::finalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool enableMonitoring) {
+StatusCode TrigCostSvc::startEvent(const EventContext& context, const bool enableMonitoring) {
   const bool monitoredEvent = (enableMonitoring || m_monitorAllEvents);
   ATH_CHECK(checkSlot(context));
 
@@ -94,7 +94,7 @@ StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool ena
     m_eventMonitored[ context.slot() ] = monitoredEvent;
   }
 
-  // As we missed the AuditType::Before of the L1Decoder (which is calling this TrigCostMTSvc::startEvent), let's add it now.
+  // As we missed the AuditType::Before of the L1Decoder (which is calling this TrigCostSvc::startEvent), let's add it now.
   // This will be our canonical initial timestamps for measuring this event. Similar will be done for DecisionSummaryMakerAlg at the end
   ATH_CHECK(processAlg(context, m_l1DecoderName, AuditType::Before));
 
@@ -103,7 +103,7 @@ StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool ena
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::string& caller, const AuditType type) {
+StatusCode TrigCostSvc::processAlg(const EventContext& context, const std::string& caller, const AuditType type) {
   ATH_CHECK(checkSlot(context));
 
   TrigTimeStamp now;
@@ -138,7 +138,7 @@ StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::str
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmIdentifier& ai, const TrigTimeStamp& now, const AuditType type) {
+StatusCode TrigCostSvc::monitor(const EventContext& context, const AlgorithmIdentifier& ai, const TrigTimeStamp& now, const AuditType type) {
 
   if (type == AuditType::Before) {
 
@@ -174,7 +174,7 @@ StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmId
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
+StatusCode TrigCostSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
   ATH_MSG_DEBUG( "Received ROB payload " << payload );
 
   // Associate payload with an algorithm
@@ -195,7 +195,7 @@ StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& costOutputHandle, SG::WriteHandle<xAOD::TrigCompositeContainer>& rosOutputHandle) { 
+StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& costOutputHandle, SG::WriteHandle<xAOD::TrigCompositeContainer>& rosOutputHandle) { 
   ATH_CHECK(checkSlot(context));
   if (m_eventMonitored[ context.slot() ] == false) {
     // This event was not monitored - nothing to do.
@@ -203,7 +203,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     return StatusCode::SUCCESS;
   }
 
-  // As we will miss the AuditType::After of the DecisionSummaryMakerAlg (which is calling this TrigCostMTSvc::endEvent), let's add it now.
+  // As we will miss the AuditType::After of the DecisionSummaryMakerAlg (which is calling this TrigCostSvc::endEvent), let's add it now.
   // This will be our canonical final timestamps for measuring this event. Similar was done for L1Decoder at the start
   ATH_CHECK(processAlg(context, m_decisionSummaryMakerAlgName, AuditType::After));
 
@@ -211,7 +211,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
   m_eventMonitored[ context.slot() ] = false;
 
   // Now that this atomic is set to FALSE, additional algs in this instance which trigger this service will 
-  // not be able to call TrigCostMTSvc::monitor
+  // not be able to call TrigCostSvc::monitor
 
   // ... but processAlg might already be running in other threads... 
   // Wait to obtain an exclusive lock.
@@ -413,7 +413,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::generateTimeoutReport(const EventContext& context, std::string& report) {
+StatusCode TrigCostSvc::generateTimeoutReport(const EventContext& context, std::string& report) {
 
   ATH_CHECK(checkSlot(context));
   if (!m_eventMonitored[context.slot()]) {
@@ -474,7 +474,7 @@ StatusCode TrigCostMTSvc::generateTimeoutReport(const EventContext& context, std
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::checkSlot(const EventContext& context) const {
+StatusCode TrigCostSvc::checkSlot(const EventContext& context) const {
   if (context.slot() >= m_eventSlots) {
     ATH_MSG_FATAL("Job is using event slot #" << context.slot() << ", but we only reserved space for: " << m_eventSlots);
     return StatusCode::FAILURE;
@@ -484,7 +484,7 @@ StatusCode TrigCostMTSvc::checkSlot(const EventContext& context) const {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-int32_t TrigCostMTSvc::getROIID(const EventContext& context) {
+int32_t TrigCostSvc::getROIID(const EventContext& context) {
   if (Atlas::hasExtendedEventContext(context)) {
     const TrigRoiDescriptor* roi = Atlas::getExtendedEventContext(context).roiDescriptor();
     if (roi) return static_cast<int32_t>(roi->roiId());
@@ -494,7 +494,7 @@ int32_t TrigCostMTSvc::getROIID(const EventContext& context) {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool TrigCostMTSvc::isMonitoredEvent(const EventContext& context, const bool includeMultiSlot) const {
+bool TrigCostSvc::isMonitoredEvent(const EventContext& context, const bool includeMultiSlot) const {
   if (m_eventMonitored[ context.slot() ]) {
     return true;
   }
@@ -506,12 +506,12 @@ bool TrigCostMTSvc::isMonitoredEvent(const EventContext& context, const bool inc
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-size_t TrigCostMTSvc::ThreadHashCompare::hash(const std::thread::id& thread) {
+size_t TrigCostSvc::ThreadHashCompare::hash(const std::thread::id& thread) {
   return static_cast<size_t>( std::hash< std::thread::id >()(thread) );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool TrigCostMTSvc::ThreadHashCompare::equal(const std::thread::id& x, const std::thread::id& y) {
+bool TrigCostSvc::ThreadHashCompare::equal(const std::thread::id& x, const std::thread::id& y) {
   return (x == y);
 }

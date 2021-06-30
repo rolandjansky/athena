@@ -11,7 +11,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect.h"
 
-#include "TrigCostMonitorMT/AlgorithmIdentifier.h"
+#include "TrigCostMonitor/AlgorithmIdentifier.h"
 
 /// @brief Unit test for AlgorithmIdentifier class
 ///

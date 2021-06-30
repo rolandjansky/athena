@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
-#define TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
+#ifndef TRIGCOSTMONITOR_TRIGCOSTSVC_H
+#define TRIGCOSTMONITOR_TRIGCOSTSVC_H
 
 #include <atomic>
 #include <shared_mutex>
@@ -19,21 +19,21 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "AlgorithmPayload.h"
 #include "TrigCostDataStore.h"
 
 /**
- * @class TrigCostMTSvc
+ * @class TrigCostSvc
  * @brief AthenaMT service to collect trigger cost data from all threads and summarise it at the end of the event
  *
  * The main hooks into this service are: 
  *  L1Decoder - To clear the internal storage and flag the event for monitoring.
- *  TrigCostMTAuditor - To inform the service when algorithms start and stop executing
+ *  TrigCostAuditor - To inform the service when algorithms start and stop executing
  *  HLTROBDataProviderSvc - To inform the service about requests for data ROBs 
  *  HLTSummaryAlg - To inform the service when the HLT has finished, and to receive the persistent payload 
  */
-class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
+class TrigCostSvc : public extends <AthService, ITrigCostSvc> {
   public:
 
   /**
@@ -41,12 +41,12 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
    * @param[in] name The service's name
    * @param[in] svcloc A pointer to a service location service
    */
-  TrigCostMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
+  TrigCostSvc(const std::string& name, ISvcLocator* pSvcLocator);
 
   /**
    * @brief Destructor. Currently nothing to delete.
    */
-  virtual ~TrigCostMTSvc();
+  virtual ~TrigCostSvc();
 
   /**
    * @brief Initialise, create enough storage to store m_eventSlots.
@@ -59,7 +59,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   virtual StatusCode finalize() override;
 
   /**
-   * @brief Implementation of ITrigCostMTSvc::startEvent.
+   * @brief Implementation of ITrigCostSvc::startEvent.
    * @param[in] context The event context
    * @param[in] enableMonitoring Sets if the event should be monitored or not. Not monitoring will save CPU
    * @return Success unless monitoring is enabled and the service's data stores can not be cleared for some reason
@@ -67,7 +67,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   virtual StatusCode startEvent(const EventContext& context, const bool enableMonitoring = true) override; 
 
   /**
-   * @brief Implementation of ITrigCostMTSvc::processAlg.
+   * @brief Implementation of ITrigCostSvc::processAlg.
    * @param[in] context The event context
    * @param[in] caller Name of the algorithm to audit CPU usage for
    * @param[in] type If we are Before or After the algorithm's execution
@@ -75,7 +75,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   virtual StatusCode processAlg(const EventContext& context, const std::string& caller, const AuditType type) override; 
 
   /**
-   * @brief Implementation of ITrigCostMTSvc::endEvent.
+   * @brief Implementation of ITrigCostSvc::endEvent.
    * @param[in] context The event context
    * @param[out] costOutputHandle Write handle to fill with execution summary if the event was monitored
    * @param[out] rosOutputHandle Write handle to fill with ROS requests summary if the event was monitored
@@ -89,7 +89,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   virtual bool isMonitoredEvent(const EventContext& context, const bool includeMultiSlot = true) const override;
 
   /**
-   * @brief Implementation of ITrigCostMTSvc::monitorROS.
+   * @brief Implementation of ITrigCostSvc::monitorROS.
    * @param[in] context The event context
    * @param[in] payload ROB data to be associated with ROS
    */
@@ -162,4 +162,4 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
 };
 
-#endif // TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
+#endif // TRIGCOSTMONITOR_TRIGCOSTSVC_H

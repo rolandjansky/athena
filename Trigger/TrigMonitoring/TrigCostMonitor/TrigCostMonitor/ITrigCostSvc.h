@@ -4,8 +4,8 @@
  /*
  */
 
-#ifndef TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H
-#define TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H 1
+#ifndef TRIGCOSTMONITOR_ITRIGCOSTSVC_H
+#define TRIGCOSTMONITOR_ITRIGCOSTSVC_H 1
 
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/EventContext.h"
@@ -18,17 +18,17 @@
 
 
 /**
- * @class ITrigCostMTSvc
- * @brief Pure virtual interface to be implimented by Trig Cost MT service(s)
+ * @class ITrigCostSvc
+ * @brief Pure virtual interface to be implimented by Trig Cost service(s)
  */
-class ITrigCostMTSvc :  public virtual IService {
+class ITrigCostSvc :  public virtual IService {
 public:
   /**
    * @brief Retrieve interface ID
    */
-  DeclareInterfaceID( ITrigCostMTSvc, 1, 0);
+  DeclareInterfaceID( ITrigCostSvc, 1, 0);
 
-  virtual ~ITrigCostMTSvc() {}
+  virtual ~ITrigCostSvc() {}
 
   /**
    * @brief Disambiguation enum for the start or the end of an algorithm's execution
@@ -66,4 +66,4 @@ public:
   virtual StatusCode generateTimeoutReport(const EventContext& context, std::string& report) = 0;
 };
 
-#endif // TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H
+#endif // TRIGCOSTMONITOR_ITRIGCOSTSVC_H

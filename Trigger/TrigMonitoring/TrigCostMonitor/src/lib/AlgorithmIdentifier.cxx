@@ -6,7 +6,7 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
-#include "TrigCostMonitorMT/AlgorithmIdentifier.h"
+#include "TrigCostMonitor/AlgorithmIdentifier.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
