@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +184,14 @@ namespace InDet {
 
   double& SiCombinatorialTrackFinderData_xk::xi2maxlink() {
     return m_xi2maxlink;
+  }
+
+  bool& SiCombinatorialTrackFinderData_xk::isITkGeometry() {
+    return m_ITkGeometry;
+  }
+
+  bool& SiCombinatorialTrackFinderData_xk::useFastTracking() {
+    return m_doFastTracking;
   }
 
   void SiCombinatorialTrackFinderData_xk::setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {

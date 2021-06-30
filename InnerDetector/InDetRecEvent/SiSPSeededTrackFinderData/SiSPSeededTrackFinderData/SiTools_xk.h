@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -62,11 +62,14 @@ namespace InDet{
       const int&                          maxholes   () const {return m_nholesmax  ;}
       const int&                          maxdholes  () const {return m_dholesmax  ;}
       const int&                          clustersmin() const {return m_nclusmin   ;}
+      const int&                          maxclusters() const {return m_maxclusters;}
       bool                   usePRDtoTrackAssociation() const {return m_useassoTool;}
       const bool&                         multiTrack () const {return m_multitrack ;}
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
       const bool&                         heavyion   () const {return m_heavyion   ;}
+      const bool&                         useFastTracking() const {return m_doFastTracking;}
+      const bool&                         isITkGeometry() const {return m_ITkGeometry;}
 
       void setTools
 	(const Trk::IPatternParametersPropagator* ,
@@ -120,11 +123,14 @@ namespace InDet{
       int                             m_nholesmax  ;  // Max number holes
       int                             m_dholesmax  ;  // Max holes gap
       int                             m_nclusmin   ;  // Min number clusters
+      int                             m_maxclusters;  // Max closest clusters in detector elements
       bool                            m_useassoTool = false;  // Use assosiation tool
       bool                            m_multitrack ;  // Do multi tracks
       bool                            m_bremnoise  ;  // Do brem noise
       bool                            m_electron   ;  // Do electron mode
       bool                            m_heavyion   ;  // Is it heavy ion event
+      bool                            m_doFastTracking; // Do Fast Tracking setup
+      bool                            m_ITkGeometry; // Is ITk geometry
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -158,6 +164,9 @@ namespace InDet{
       m_bremnoise   = false;
       m_electron    = false;
       m_heavyion    = false;
+      m_doFastTracking = false;
+      m_ITkGeometry = false;
+      m_maxclusters = 3;
     }
 
   inline void SiTools_xk::setTools

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +161,8 @@ namespace InDet {
     double& xi2max();
     double& xi2maxNoAdd();
     double& xi2maxlink();
+    bool& isITkGeometry();
+    bool& useFastTracking();
 
     /// Methods used to associate the hole search outcome to tracks without having to modify the EDM.
 
@@ -238,6 +240,11 @@ namespace InDet {
     double m_xi2maxNoAdd{0.};
     /// max Xi2 for clusters
     double m_xi2maxlink{0.};
+    // Is ITk geometry
+    bool m_ITkGeometry{false};
+    // Do Fast Tracking setup
+    bool m_doFastTracking{false};
+
     /// A helper map to associate hole search outcomes to tracks
     std::map<Trk::Track*, InDet::PatternHoleSearchOutcome> m_holeSearchOutcomes; 
 
