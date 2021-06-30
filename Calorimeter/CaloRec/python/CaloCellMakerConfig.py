@@ -18,8 +18,9 @@ def CaloCellMakerCfg(configFlags):
     larCellBuilder     = result.popToolsAndMerge(LArCellBuilderCfg(configFlags))
     larCellCorrectors  = result.popToolsAndMerge(LArCellCorrectorCfg(configFlags))
     theTileCellBuilder = result.popToolsAndMerge(TileCellBuilderCfg(configFlags))
+    theCellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
 
-    cellMakerTools=[larCellBuilder,]+larCellCorrectors+[theTileCellBuilder,]
+    cellMakerTools=[larCellBuilder,]+larCellCorrectors+[theTileCellBuilder,theCellFinalizer]
 
     #Add corrections tools that are not LAr or Tile specific:
     if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Cell.doPedestalCorr:
