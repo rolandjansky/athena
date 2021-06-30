@@ -15,7 +15,6 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/ChannelSelection.h"
 #include "CoolKernel/IObjectIterator.h"
@@ -33,8 +32,6 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 #include "MuonDigitContainer/TgcDigit.h"
-
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class CTP_RDO;
 class CTP_RIO;
@@ -167,7 +164,6 @@ namespace TrigT1CTMonitoring {
     unsigned int m_runNumber{0};
     unsigned int m_eventNumber{0};
 
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{ this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger Config Service" };
     ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
     ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};
 
@@ -180,8 +176,6 @@ namespace TrigT1CTMonitoring {
     SG::ReadHandleKey<RpcSectorLogicContainer> m_RPCContainerKey{ this, "RPCContainerKey", "RPC_SECTORLOGIC" };
     SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TGCContainerKey{ this, "TGCContainerKey", "TrigT1CoinDataCollection" };
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{ this,"EventInfoKey", "EventInfo" };
-
-    Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
 
     Gaudi::Property<std::string> m_baseDirName{ this, "DirectoryName", "CT/", "Directory in output root file where the histograms will be stored." };
     Gaudi::Property<bool> m_inclusiveTriggerThresholds{ this, "InclusiveTriggerThresholds", true, "Flag to activate the inclusive counting of PT thresholds in trigger patterns" };
