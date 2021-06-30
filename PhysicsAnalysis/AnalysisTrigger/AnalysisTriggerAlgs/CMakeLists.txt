@@ -7,7 +7,7 @@ atlas_subdir( AnalysisTriggerAlgs )
 atlas_add_component( AnalysisTriggerAlgs
    src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib
-   EventInfo xAODTrigL1Calo xAODTrigger GaudiKernel AnalysisTriggerEvent
+   xAODTrigL1Calo xAODTrigger GaudiKernel
    TrigConfData TrigConfL1Data TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Interfaces
    TrigT1Result TrigConfInterfaces TrigT1CaloUtilsLib )
 

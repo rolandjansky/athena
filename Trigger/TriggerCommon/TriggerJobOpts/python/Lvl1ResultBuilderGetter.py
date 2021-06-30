@@ -32,9 +32,8 @@ class Lvl1ResultBuilderGetter(Configured):
                     # Decode ROIB::RoIBResult from ByteStream
                     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
                     L1ByteStreamDecodersRecExSetup()
-                from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
-                    RoIBResultToAOD
-                topSequence += RoIBResultToAOD("RoIBResultToxAOD")
+                from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToxAOD
+                topSequence += RoIBResultToxAOD()
                 pass
             pass
 
