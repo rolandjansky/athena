@@ -80,8 +80,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
-        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElectronLRT_IDTrig:HLT_Roi_FastElectron_LRT"
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
       ]
     else:
       chainnames = [
