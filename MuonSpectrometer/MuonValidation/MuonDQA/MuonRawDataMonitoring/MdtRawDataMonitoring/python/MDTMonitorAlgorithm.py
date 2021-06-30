@@ -503,13 +503,13 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
         
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
@@ -585,13 +585,13 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
@@ -668,13 +668,13 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberEAGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberEAGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
@@ -751,13 +751,13 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=0., xmax=binmax)
 
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberECGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberECGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
