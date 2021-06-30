@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
 #include "InDetIdentifier/PixelID.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 using namespace InDetDD;
 
@@ -73,7 +74,7 @@ void PixelGangedMerger::process(SiChargedDiodeCollection &collection) const
       i_chargedDiode!=collection.end();
       ++i_chargedDiode) {
 
-    if (isGanged(collection.getId((*i_chargedDiode).first),collection.element(),gangedID)) {
+    if (isGanged(collection.getId((*i_chargedDiode).first),static_cast<const InDetDD::SiDetectorElement *>(collection.element()),gangedID)) {
       SiTotalCharge thisTotalCharge = (*i_chargedDiode).second.totalCharge();
       SiChargedDiode *gangedChargeDiode = collection.find(gangedID);
       int phiGanged = m_pixelID->phi_index(gangedID);

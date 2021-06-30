@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 // member classes
 #include "SiDigitization/SiHelper.h"
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
+#include "ReadoutGeometryBase/DetectorDesign.h"
 #include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "ReadoutGeometryBase/SiCellId.h"
 #include "GaudiKernel/MsgStream.h"
@@ -31,7 +31,7 @@ SiChargedDiodeCollection::SiChargedDiodeCollection( ) :
 {
 }
 
-SiChargedDiodeCollection::SiChargedDiodeCollection(const InDetDD::SiDetectorElement* sielement ) :
+SiChargedDiodeCollection::SiChargedDiodeCollection(const InDetDD::SolidStateDetectorElementBase* sielement ) :
   m_chargedDiodes(),
   m_sielement(sielement)
 {

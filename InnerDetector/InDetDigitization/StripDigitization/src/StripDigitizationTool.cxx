@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -949,11 +949,8 @@ SCT_RDO_Collection *StripDigitizationTool::createRDO(
                 InDetDD::SiReadoutCellId roCell =
                     (*i_chargedDiode).second.getReadoutCell();
                 int strip = roCell.strip();
-                const InDetDD::SiDetectorDesign &detDesign =
-                    collection->design();
-                const InDetDD::SCT_ModuleSideDesign &sctDesign =
-                    dynamic_cast<const
-                                 InDetDD::SCT_ModuleSideDesign &> (detDesign);
+                const InDetDD::SCT_ModuleSideDesign& sctDesign{
+                    static_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
                 int row2D = sctDesign.row(strip);
                 Identifier id_readout;
                 if (row2D < 0) { // SCT sensors
@@ -1152,11 +1149,8 @@ void StripDigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
           
           int strip = roCell.strip();
           
-          const InDetDD::SiDetectorDesign &detDesign =
-            collection->design();
-
-          const InDetDD::SCT_ModuleSideDesign &sctDesign =
-            dynamic_cast<const InDetDD::SCT_ModuleSideDesign &> (detDesign);
+          const InDetDD::SCT_ModuleSideDesign& sctDesign{
+              dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
 
           int row2D = sctDesign.row(strip);
           Identifier id_readout;
