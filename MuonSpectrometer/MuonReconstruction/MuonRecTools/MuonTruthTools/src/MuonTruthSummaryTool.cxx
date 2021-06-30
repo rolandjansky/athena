@@ -21,8 +21,8 @@ namespace Muon {
         m_incidentSvc("IncidentSvc", n),
         m_wasInit(false),
         m_truthHitsTotal(0),
-        m_tree(0),
-        m_thistSvc(0),
+        m_tree(nullptr),
+        m_thistSvc(nullptr),
         m_writeTree(false),
         m_level(0) {
         declareInterface<IMuonTruthSummaryTool>(this);
