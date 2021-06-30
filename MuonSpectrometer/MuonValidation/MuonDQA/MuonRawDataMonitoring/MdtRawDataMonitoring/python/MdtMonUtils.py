@@ -209,3 +209,59 @@ def getTubeLength( name ):
         tubeLength = tubeLenght_dict[name04+name56]
 
     return tubeLength 
+
+
+def MDT2DHWName(name):
+   statphi_s = name[5:7]
+   eta_s = name[3:4]
+   #ME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BME4[AC]13 in histogram position
+   if(name[0:3]=="BME"):
+      eta_s = "4"
+      statphi_s = "13"
+
+   statphi_c = statphi_s+" 1"
+   statphi_c2 = statphi_s+" 2"
+   if(name[0:3]=="BIR" or name[0:3]=="BIM") :
+      statphi_c = statphi_c +" "+name[2:3]
+      statphi_c2 = statphi_c2 +" "+name[2:3]
+
+   #BML[45][AC]13-->BML[56][AC]13
+   if(name[0:3] == "BML" and int(name[3:4])>=4 and name[5:7] == "13"):
+      eta_s = str(int(name[3:4])+1)
+
+   #BMF1,2,3 corresponds to eta stations 1,3,5
+   if( name[0:3] == "BMF"):
+      eta_s=str(int(name[3:4])*2-1)
+
+   stateta_c = name[0:2]
+   stateta_c += name[4:5]
+   stateta_c += eta_s
+   
+   return (stateta_c, statphi_c, statphi_c2)
+
+
+def MDTTubeEff(name,hi_num,hi_den):
+   nBinsNum = hi_num.GetNbinsX()
+   BinsML1 = nBinsNum/2
+   if(name[0:4]=="BIS8" or name[0:2]=="BE"):
+      BinsML1=nBinsNum
+   if(nBinsNum!=hi_den.GetNbinsX()):
+      return
+   countsML1=0
+   countsML2=0
+   entriesML1=0
+   entriesML2=0
+   for ibin in range(nBinsNum):
+      entries    = hi_den.GetBinContent(ibin)
+      counts     = hi_num.GetBinContent(ibin)
+      if(ibin<BinsML1 or BinsML1==nBinsNum) :
+         countsML1+=counts
+         entriesML1+=entries
+      else:
+         countsML2+=counts
+         entriesML2+=entries
+
+   return (countsML1, countsML2, entriesML1, entriesML2)
+
+
+
