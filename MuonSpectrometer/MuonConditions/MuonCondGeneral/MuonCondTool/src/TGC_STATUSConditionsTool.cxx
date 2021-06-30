@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondTool/TGC_STATUSConditionsTool.h"
@@ -12,10 +12,10 @@
 #include "PathResolver/PathResolver.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
+#include <cstdio>
 #include <fstream>
-#include <string>
-#include <stdio.h>
 #include <map>
+#include <string>
 
 TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
@@ -27,9 +27,8 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type, con
 }
 
 StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/,
-                                                   SG::TransientAddress* tad,
+                                                   SG::TransientAddress* /*tad*/,
                                                    const EventContext& /*ctx*/) {
-  std::string key  = tad->name();
   return StatusCode::FAILURE;
 }
 

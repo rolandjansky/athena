@@ -15,10 +15,10 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "PathResolver/PathResolver.h"
+#include <cstdio>
 #include <fstream>
-#include <string>
-#include <stdio.h>
 #include <map>
+#include <string>
 
 #include "MuonCondTool/MDT_MapConversion.h"
 
@@ -43,8 +43,8 @@ MDT_MapConversion::MDT_MapConversion (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_mdtIdHelper(0),
-    m_chronoSvc(0)
+    m_mdtIdHelper(nullptr),
+    m_chronoSvc(nullptr)
 {
   
   declareInterface< IMDT_MapConversion >(this);
@@ -146,7 +146,7 @@ const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineI
   
   //const Identifier m_Online_empty;
   
-  if (m_Chamber_Map.size()!=0){
+  if (!m_Chamber_Map.empty()){
     const auto& mapit = m_Chamber_Map.find(OnlineId);
     if (ATH_UNLIKELY(mapit == m_Chamber_Map.end())) {
       if (!quiet) {
