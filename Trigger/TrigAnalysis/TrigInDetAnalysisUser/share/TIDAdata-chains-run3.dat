@@ -31,7 +31,7 @@ testChains = {
 
     // "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron",
     // "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_IDTrig",
-    "HLT_e26_lhtight_gsf_L1EM22VHI:HLT_IDTrack_Electron_GSF",
+    "HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI:HLT_IDTrack_Electron_GSF",
 
     "HLT_e26_idperf_loose_L1EM24VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron",
     "HLT_e26_idperf_loose_L1EM24VHI:HLT_IDTrack_Electron_IDTrig",
