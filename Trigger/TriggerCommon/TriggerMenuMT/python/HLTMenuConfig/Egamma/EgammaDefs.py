@@ -29,7 +29,7 @@ class TrigEgammaKeys(object):
 class TrigEgammaKeys_LRT(object):
       """Static class to collect all string manipulation in Electron_LRT sequences """
       outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
-      TrigElectronTracksCollectionName_LRT = recordable('HLT_IDTrack_ElectronLRT_IDTrig')
+      TrigElectronTracksCollectionName_LRT = recordable('HLT_IDTrack_ElecLRT_IDTrig')
 
 class TrigEgammaKeys_GSF(object):
       """Static class to collect all string manipulation in Electron sequences """
