@@ -7,7 +7,6 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import seqAND
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon import CfgMgr
 
 def Lvl1SimulationSequence_Common( ConfigFlags ):
@@ -137,8 +136,6 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
     if ConfigFlags.Trigger.L1.doCTP:
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
         ctp             = CTPSimulationInReco("CTPSimulation")
-        ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
-        ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
         ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
 
         if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Input.isMC:  # this is to allow the simulation of cosmics triggers in MC
@@ -188,7 +185,6 @@ def Lvl1SimulationSequence( ConfigFlags ):
     Configure L1 simulation for Athena MT jobs
     """
 
-    log = logging.getLogger('TriggerJobOpts.L1Simulation')
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
@@ -199,7 +195,6 @@ def Lvl1SimulationSequence( ConfigFlags ):
     TriggerFlags.outputLVL1configFile = None
     svcMgr += conf2toConfigurable(getL1ConfigSvc(ConfigFlags))
 
-    log.info("UseNewConfig = %s", ConfigFlags.Trigger.readLVL1FromJSON)
     l1SimSeq = Lvl1SimulationSequence_Common( ConfigFlags )
 
     return l1SimSeq

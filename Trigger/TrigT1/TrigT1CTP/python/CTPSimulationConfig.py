@@ -6,14 +6,9 @@ def CTPSimulationCfg(flags):
     from AthenaCommon.Logging import logging
     log = logging.getLogger("CTPMCSimulationCfg")
     acc = ComponentAccumulator()
-    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
-    acc.merge(L1ConfigSvcCfg(flags))
-    configSvc = acc.getService("LVL1ConfigSvc")
-    acc.addEventAlgo(CompFactory.LVL1CTP.CTPSimulation("CTPSimulation", 
+    acc.addEventAlgo(CompFactory.LVL1CTP.CTPSimulation("CTPSimulation",
                                                         #DoL1Topo    = not flags.Trigger.enableL1Phase1, #TODO confirm that this setting exists actually
-                                                        DoL1CaloLegacy = flags.Trigger.enableL1CaloLegacy, 
-                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON,
-                                                        TrigConfigSvc = configSvc,
+                                                        DoL1CaloLegacy = flags.Trigger.enableL1CaloLegacy,
                                                         #TODO enable when input are also simulatedDetectors (and remove message)
                                                         jFexJetInput = "",
                                                         jFexLJetInput = "",
