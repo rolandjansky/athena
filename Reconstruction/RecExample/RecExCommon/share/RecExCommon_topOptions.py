@@ -541,9 +541,11 @@ if not globalflags.InputFormat.is_bytestream() and not recAlgs.doTrigger:
         from PyUtils.MetaReaderPeeker import convert_itemList
         cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
         # Check for Run-1, Run-2 or Run-3 Trigger content in the input file
+        from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if not cfgKeyStore.isInInputFile("HLT::HLTResult", "HLTResult_EF") \
                 and not cfgKeyStore.isInInputFile("xAOD::TrigNavigation", "TrigNavigation") \
-                and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", "HLTNav_Summary"):
+                and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", getRun3NavigationContainerFromInput(ConfigFlags) ):
             logRecExCommon_topOptions.info('Disabled rec.doTrigger because recAlgs.doTrigger=False and there is no Trigger content in the input file')
             rec.doTrigger = False
     except Exception:

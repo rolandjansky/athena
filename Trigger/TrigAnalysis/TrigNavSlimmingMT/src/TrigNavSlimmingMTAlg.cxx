@@ -18,8 +18,10 @@ TrigNavSlimmingMTAlg::TrigNavSlimmingMTAlg(const std::string& name, ISvcLocator*
 StatusCode TrigNavSlimmingMTAlg::initialize() {
   ATH_CHECK( m_primaryInputCollection.initialize() );
   ATH_CHECK( m_outputCollection.initialize() );
-  ATH_CHECK( m_trigDec.retrieve() );
-  m_trigDec->ExperimentalAndExpertMethods()->enable();
+  if (not m_trigDec.empty()) {
+    ATH_CHECK( m_trigDec.retrieve() );
+    m_trigDec->ExperimentalAndExpertMethods()->enable();
+  }
   return StatusCode::SUCCESS;
 }
 
