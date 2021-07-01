@@ -143,8 +143,8 @@ class ActsFatrasSimTool : public BaseSimulatorTool {
   std::unique_ptr<const Acts::Logger> m_logger{nullptr};
 
   // Acts propagators
-  Navigator m_navigator{std::move(m_trackingGeometry)};
-  std::shared_ptr<Acts::ConstantBField> m_bField = std::make_shared<Acts::ConstantBField>(0, 0, 1_T);
+  Navigator m_navigator{ Acts::Navigator::Config{m_trackingGeometry}};
+  std::shared_ptr<Acts::ConstantBField> m_bField = std::make_shared<Acts::ConstantBField>(Acts::Vector3(0, 0, 1_T));
   ChargedStepper m_chargedStepper{m_bField};
   ChargedPropagator m_chargedPropagator{std::move(m_chargedStepper),
                                         m_navigator};

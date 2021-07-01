@@ -59,7 +59,7 @@ ActsIterativePriVtxFinderTool::initialize()
 
   ATH_CHECK( m_extrapolationTool.retrieve() );
 
-  Acts::Navigator navigator(trackingGeometry);
+  Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );
 
   m_bField = std::make_shared<ATLASMagneticFieldWrapper>();
   auto stepper = Acts::EigenStepper<>(m_bField);

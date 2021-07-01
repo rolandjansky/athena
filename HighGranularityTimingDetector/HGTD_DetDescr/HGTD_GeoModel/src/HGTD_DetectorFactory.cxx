@@ -68,7 +68,7 @@ HGTD_DetectorFactory::HGTD_DetectorFactory( HGTD_GeoModelAthenaComps* athComps )
     // read HGTD geo tag from global geo tag
     DecodeVersionKey versionKey( m_athComps->geoDbTagSvc(), "HGTD");
     std::string hgtdTag = m_athComps->rdbAccessSvc()->getChildTag("HGTD", versionKey.tag(), versionKey.node());
-    ATH_MSG_INFO( "HGTD tag from geometry db: " << hgtdTag <<  ", package Version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "HGTD tag from geometry db: " << hgtdTag <<  ", package Name: " << ATLAS_PACKAGE_NAME );
 
     // set m_geomVersion based on HGTD tag in global geo tag
     if ( !hgtdTag.empty() ) {

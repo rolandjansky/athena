@@ -35,22 +35,7 @@ public:
     return Acts::MagneticFieldProvider::Cache::make<Cache>(mctx);
   }
 
-  // Implemented to overide the MagneticFieldProvider pure virtual function 
-  // but not defined with the ATLAS Magnetic Field
-  // return an exception instead 
-  Acts::Vector3 getField(const Acts::Vector3& /*position*/) const override {
-    throw std::domain_error("ATLAS field cannot be access without cache");
-  }
-
-  // Implemented to overide the MagneticFieldProvider pure virtual function 
-  // but not defined with the ATLAS Magnetic Field
-  // return an exception instead 
-  Acts::Vector3 getFieldGradient(const Acts::Vector3& /*position*/,
-                           Acts::ActsMatrix<3, 3>& /*derivative*/) const override {
-    throw std::domain_error("ATLAS field cannot be access without cache");
-  }
-
-  Acts::Vector3
+  Acts::Result<Acts::Vector3>
   getField(const Acts::Vector3& position, Acts::MagneticFieldProvider::Cache& gcache) const override {
     Cache& cache = gcache.get<Cache>();
     double posXYZ[3];
@@ -66,10 +51,10 @@ public:
 
     bfield *= m_bFieldUnit; // kT -> T;
 
-    return bfield;
+    return Acts::Result<Acts::Vector3>::success(bfield);
   }
 
-  Acts::Vector3
+  Acts::Result<Acts::Vector3>
   getFieldGradient(const Acts::Vector3& position,
                    Acts::ActsMatrix<3, 3>& gradient,
                    Acts::MagneticFieldProvider::Cache& gcache) const override
@@ -94,7 +79,7 @@ public:
     bfield *= m_bFieldUnit; // kT -> T;
     gradient *= m_bFieldUnit;
 
-    return bfield;
+    return Acts::Result<Acts::Vector3>::success(bfield);
   }
 
 private:

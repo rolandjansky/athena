@@ -38,7 +38,8 @@ ActsSurfaceMappingTool::initialize()
 
   m_trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
-  Acts::Navigator navigator(m_trackingGeometry);
+  Acts::Navigator navigator( Acts::Navigator::Config{ m_trackingGeometry } );
+  
   // Make stepper and propagator
   SlStepper stepper;
   StraightLinePropagator propagator = StraightLinePropagator(std::move(stepper), std::move(navigator));
