@@ -3908,18 +3908,6 @@ HLT_unconvtrk200_hitdv_tight_L1XE50:
   stepFeatures:
     0: 1
     1: 1
-HLT_unconvtrk20_distrk_medium_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_unconvtrk20_distrk_tight_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
 HLT_unconvtrk260_hitdv_medium_L1J100:
   eventCount: 0
 HLT_unconvtrk260_hitdv_tight_L1J100:
@@ -4123,20 +4111,4 @@ HLT_xe80_tcpufit_unconvtrk200_hitdv_medium_L1XE50:
     1: 1
   stepFeatures:
     0: 2
-    1: 1
-HLT_xe80_tcpufit_unconvtrk20_distrk_medium_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_xe80_tcpufit_unconvtrk20_distrk_tight_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
     1: 1
