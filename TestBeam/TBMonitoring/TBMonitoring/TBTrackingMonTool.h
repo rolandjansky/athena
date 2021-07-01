@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBTRACKINGMONTOOL_H
@@ -47,7 +47,6 @@ class TBTrackingMonTool: public MonitorToolBase
   //Declared properties
   bool m_monitor_track;
   bool m_testTool;
-  bool m_isBooked;
 
   // Track histograms 
   IHistogram1D* m_histo_track_chi2;

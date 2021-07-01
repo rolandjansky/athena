@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -31,7 +31,6 @@ TBScintillatorMonTool::TBScintillatorMonTool(const std::string & type,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
     m_fake_detector(false),
-    m_isBooked(false),
     m_scintnum(0)
 /*---------------------------------------------------------*/
 {
@@ -76,9 +75,6 @@ TBScintillatorMonTool::~TBScintillatorMonTool()
 StatusCode TBScintillatorMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  //set to true whitin bookHist() 
-  m_isBooked = false;
-
   return StatusCode::SUCCESS;
 }
 
@@ -168,7 +164,7 @@ StatusCode TBScintillatorMonTool::mybookHists()
       TBScintillatorCont::const_iterator last_bc   = scintCont->end();
       while(it_bc!=last_bc) {
 	if((*it_bc)->getDetectorName()==m_scint_names[j]) break;
-	it_bc++;
+	++it_bc;
       }
       if(it_bc!=last_bc){
 	m_scint_map.push_back(j);
@@ -210,15 +206,6 @@ StatusCode TBScintillatorMonTool::mybookHists()
   return StatusCode::SUCCESS;
 }
 
-// /*---------------------------------------------------------*/
-// bool TBScintillatorMonTool::histsNotBooked()
-// /*---------------------------------------------------------*/
-// {
-
-//   if(m_isBooked) return false;
-//   else return true;
-// }
-
 /*---------------------------------------------------------*/
 StatusCode TBScintillatorMonTool::fillHists()
 /*---------------------------------------------------------*/
@@ -256,7 +243,7 @@ StatusCode TBScintillatorMonTool::fillHists()
 	it_scint=scintCont->begin();
 	while(it_scint!=last_scint){
 	  msg() << MSG::DEBUG << (*it_scint)->getDetectorName() << " ";
-	  if ((*it_scint)->getDetectorName() != m_scint_names[m_scint_map[nameind]]) it_scint++;
+	  if ((*it_scint)->getDetectorName() != m_scint_names[m_scint_map[nameind]]) ++it_scint;
 	  else break;
 	}
 	msg() << MSG::DEBUG << endmsg;
@@ -278,7 +265,7 @@ StatusCode TBScintillatorMonTool::fillHists()
 
       if(!scint->isSignalOverflow()) m_histo_scint[nameind]->fill(scint->getSignal(),1.0);
       if(!scint->isTimeOverflow()) m_histo_scint_time[nameind]->fill(scint->getTimeSignal(),1.0);
-      it_scint++;
+      ++it_scint;
 
     }
   }

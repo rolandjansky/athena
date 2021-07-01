@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -26,7 +26,6 @@ TBTriggerPatternUnitMonTool::TBTriggerPatternUnitMonTool(const std::string & typ
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_histo_triggpat1(nullptr),
     m_histo_triggpat2(nullptr)
 /*---------------------------------------------------------*/
@@ -70,9 +69,6 @@ StatusCode TBTriggerPatternUnitMonTool:: initialize()
     m_triggflag.push_back(0x00004000);
     m_triggflag.push_back(0x00008000);
   }
-
-  //set to true whitin bookHist() 
-  m_isBooked = false;
 
   return StatusCode::SUCCESS;
 }
