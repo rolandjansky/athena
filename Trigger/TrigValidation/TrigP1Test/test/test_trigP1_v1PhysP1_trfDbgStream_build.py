@@ -42,8 +42,8 @@ test.check_steps.append(logmerge)
 # Overwrite default MessageCount settings
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-   'INFO': 300,
-   'WARNING': 3, # LBAvInstLumi is zero or negative in updatePerBunchLumi() - the file is from TR so lumi = 0
+   'INFO': 320,
+   'WARNING': 40, # ATR-22815
    'other': 10
 }
 
