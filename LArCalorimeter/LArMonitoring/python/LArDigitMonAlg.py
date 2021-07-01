@@ -180,7 +180,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max,
                                   ybins=lArDQGlobals.Energy_Bins, ymin=lArDQGlobals.Energy_Min, ymax=lArDQGlobals.Energy_Max)
 
-       array.defineHistogram('MaxPos,streamBin;MaxSample_PerStream;',
+       array.defineHistogram('MaxPos,streamBin;MaxSample_PerStream',
                              title="Position of the Max Sample;Average Max Sample",
                              type='TH2F',
                              path=hist_path,
@@ -217,7 +217,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG #,WARNING
+   from AthenaCommon.Constants import DEBUG#,WARNING
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
