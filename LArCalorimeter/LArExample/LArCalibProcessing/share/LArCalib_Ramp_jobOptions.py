@@ -588,7 +588,7 @@ if ( StripsXtalkCorr ) :
    theLArStripsCrossTalkCorrector.KeyList = GainList
    theLArStripsCrossTalkCorrector.ADCsaturation = ADCsaturation
    theLArStripsCrossTalkCorrector.NoXtalkCorr=["deadReadout","deadPhys","deadCalib","almostDead"]
-   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr["short","peculiarCalibrationLine","deadReadout"]
+   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=["short","peculiarCalibrationLine","deadReadout"]
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent
    topSequence +=theLArStripsCrossTalkCorrector
 
