@@ -15,6 +15,9 @@
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+// Access to mu
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "TrkParameters/TrackParameters.h"
 #include <vector>
 #include <string>
 
@@ -54,6 +57,12 @@ private:
   /** Decide whether standalone TRT tracks pass the minimum hit requirement. */
   bool isGoodTRT(const Trk::Track&) const;
   
+  // Get Eta bin for eta-dependent TRT-track cuts
+  unsigned int getEtaBin(const Trk::Perigee& perigee) const;
+
+  // Get eta- and mu-dependent nTRT cut for TRT track
+  double getMuDependentNtrtMinCut(unsigned int eta_bin) const;
+
   /**ID TRT helper*/
   const TRT_ID* m_trtId;
   
@@ -79,6 +88,13 @@ private:
 
   // Read handle for conditions object to get the field cache
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
+  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool{
+    this,
+    "LuminosityTool",
+    "LumiBlockMuTool/LumiBlockMuTool",
+    "Luminosity Tool"
+  };
   
   /** cuts for selecting good tracks*/
   int    m_minTRTonTrk;      //!< minimum number of TRT hits
@@ -87,6 +103,10 @@ private:
   bool   m_parameterization; //!< use parameterization to cut instead of custom cut  
   bool   m_oldLogic;         //!< use old transition hit logic
   double m_minTRTprecision;  //!< minimum fraction of TRT precision hits
+
+  std::vector<double> m_TRTTrksEtaBins; //!< Eta bins (10 expected) for TRT-only track cuts
+  std::vector<double> m_TRTTrksMinTRTHitsThresholds; //!< Eta-binned nTRT cut for TRT-only cuts
+  std::vector<double> m_TRTTrksMinTRTHitsMuDependencies; //!< Eta-bined Mu-dependent component for nTRT cut
 
 };
 
