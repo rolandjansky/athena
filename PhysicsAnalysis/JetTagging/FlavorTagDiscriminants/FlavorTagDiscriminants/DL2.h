@@ -209,7 +209,7 @@ namespace FlavorTagDiscriminants {
         const std::vector<DL2InputConfig>&,
         const std::vector<DL2TrackSequenceConfig>& = {},
         FlipTagConfig = FlipTagConfig::STANDARD,
-        std::map<std::string, std::string> out_remap = {},
+        std::map<std::string, std::string> remap = {},
         OutputType = OutputType::DOUBLE);
     void decorate(const xAOD::BTagging& btag) const;
 
@@ -218,7 +218,10 @@ namespace FlavorTagDiscriminants {
 
   private:
     struct TrackSequenceBuilder {
-      TrackSequenceBuilder(SortOrder, TrackSelection, FlipTagConfig);
+      TrackSequenceBuilder(SortOrder,
+                           TrackSelection,
+                           FlipTagConfig,
+                           const std::string& trackLinkName);
       std::string name;
       internal::TracksFromJet tracksFromJet;
       internal::TrackSequenceFilter flipFilter;
