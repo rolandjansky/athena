@@ -1,26 +1,36 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCABLINGTOOLS_LVL1OBJECT_H
 #define MUONCABLINGTOOLS_LVL1OBJECT_H
 
-#define DISP            \
-    {__osstream display; \
-     display
+#define DISP                \
+    {                       \
+        __osstream display; \
+        display
 
-#define DISP_DEBUG \
-    display_debug(display);}
+#define DISP_DEBUG          \
+    display_debug(display); \
+    }
 
-#define DISP_ERROR \
-     display_error(display);}
+#define DISP_VERBOSE          \
+    display_verbose(display); \
+    }
 
-#define DISP_WARNING \
-     display_warning(display);}
+#define DISP_ERROR          \
+    display_error(display); \
+    }
 
-#define DISP_INFO \
-    display_info(display);}
+#define DISP_WARNING          \
+    display_warning(display); \
+    }
 
+#define DISP_INFO          \
+    display_info(display); \
+    }
+
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -38,26 +48,29 @@ enum ObjectType { Logic, Data, Hardware, Monitoring };
 class BaseObject {
 private:
     ObjectType m_tag;
-    std::string m_name;
-
-protected:
-    std::shared_ptr<MsgStream> m_message;
+    std::string m_name{};
+    IMessageSvc* m_msgSvc{nullptr};
+    std::unique_ptr<MsgStream> m_message{};
+    void dump_message(__osstream& sstr, MSG::Level) const;
 
 public:
-    BaseObject(ObjectType, const std::string&);
-    BaseObject(const BaseObject&);
-    ~BaseObject();
-
+    BaseObject(ObjectType, const std::string&, IMessageSvc* msgSvc = nullptr);
     BaseObject& operator=(const BaseObject&);
+    BaseObject(const BaseObject&);
 
-    ObjectType tag(void) const { return m_tag; }
-    std::string name(void) const { return m_name; }
+    virtual ~BaseObject() = default;
 
-    void Print(std::ostream&, bool) const {}
+    ObjectType tag() const;
+    std::string name() const;
+
+    bool msgLevel(MSG::Level lvl) const;
+
+    virtual void Print(std::ostream&, bool) const {}
     void display_warning(__osstream&) const;
     void display_info(__osstream&) const;
     void display_error(__osstream&) const;
     void display_debug(__osstream&) const;
+    void display_verbose(__osstream&) const;
 };
 
 #endif

@@ -50,7 +50,7 @@ namespace RPC_CondCabling {
         std::string m_layout;
         bool m_cosmic;
 
-        void no_elements(std::string, int);
+        void no_elements(const std::string&, int);
         void get_station(CMAinput, int);
 
         EtaCMAmap::const_iterator find_etaCMA(int Eta, int Phi) const;
@@ -64,27 +64,26 @@ namespace RPC_CondCabling {
         const static std::map<std::string, std::string>* s_trigroads;
 
     public:
-        SectorLogicSetup();
-        SectorLogicSetup(int, std::string, std::string, bool conf);
-        SectorLogicSetup(const SectorLogicSetup&);
-        ~SectorLogicSetup();
+        SectorLogicSetup(int, const std::string&, const std::string&, bool, IMessageSvc*);
+        SectorLogicSetup(const SectorLogicSetup&) = default;
+        virtual ~SectorLogicSetup() = default;
 
-        SectorLogicSetup& operator=(const SectorLogicSetup&);
+        SectorLogicSetup& operator=(const SectorLogicSetup&) = default;
 
-        std::string positive_sector(void) const { return m_positive_sector; }
-        std::string negative_sector(void) const { return m_negative_sector; }
-        std::string online_database(void) const { return m_online_database; }
-        std::string layout(void) const { return m_layout; }
-        int sector_type(void) const { return m_sector_type; }
-        bool cosmic(void) const { return m_cosmic; }
-        const SECTORlist& sectors(void) const { return m_sectors; }
-        const StationMap& giveStations(void) const { return m_stations; }
+        std::string positive_sector() const { return m_positive_sector; }
+        std::string negative_sector() const { return m_negative_sector; }
+        std::string online_database() const { return m_online_database; }
+        std::string layout() const { return m_layout; }
+        int sector_type() const { return m_sector_type; }
+        bool cosmic() const { return m_cosmic; }
+        const SECTORlist& sectors() const { return m_sectors; }
+        const StationMap& giveStations() const { return m_stations; }
 
-        const RPCmap& giveRPC(void) const { return m_RPCs; }
-        const WORmap& giveWOR(void) const { return m_WORs; }
-        const EtaCMAmap& giveEtaCMA(void) const { return m_etaCMAs; }
-        const EvenPhiCMAmap& giveEvenPhiCMA(void) const { return m_evenphiCMAs; }
-        const OddPhiCMAmap& giveOddPhiCMA(void) const { return m_oddphiCMAs; }
+        const RPCmap& giveRPC() const { return m_RPCs; }
+        const WORmap& giveWOR() const { return m_WORs; }
+        const EtaCMAmap& giveEtaCMA() const { return m_etaCMAs; }
+        const EvenPhiCMAmap& giveEvenPhiCMA() const { return m_evenphiCMAs; }
+        const OddPhiCMAmap& giveOddPhiCMA() const { return m_oddphiCMAs; }
 
         const RPCchamber* find_chamber(int, int) const;
 
@@ -96,8 +95,8 @@ namespace RPC_CondCabling {
         OddPhiCMA* previousCMA(const OddPhiCMA&);
         std::list<const EtaCMA*> find_eta_CMAs_in_PAD(int);
 
-        bool setup(void);
-        bool check(void);
+        bool setup();
+        bool check();
 
         bool global_strip_add(ViewType, HalfType, int, int, int, int&) const;
         bool local_strip_add(ViewType, int, int, int&, int&) const;
@@ -138,7 +137,7 @@ namespace RPC_CondCabling {
         bool operator+=(CMApivotdata&);
         bool operator+=(CMAcablingdata&);
 
-        HalfType side(void) const;
+        HalfType side() const;
 
         SectorLogicSetup& operator<<(int);
 

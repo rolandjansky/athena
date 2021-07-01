@@ -8,69 +8,25 @@
 
 #include "MuonCablingTools/RPCdecoder.h"
 
-RDOindex::RDOindex(unsigned int PAD, unsigned int code) :
-    m_ROBid(0),
-    m_RODid(0),
-    m_side(0),
-    m_SLid(0),
-    m_RXid(0),
-    m_PADid(static_cast<unsigned short int>(PAD)),
-    m_lvl1_code(code),
-    m_stationName(0),
-    m_stationEta(0),
-    m_stationPhi(0),
-    m_doubletR(0),
-    m_doubletZ(0),
-    m_doubletPhi(0),
-    m_hash(0),
-    m_status(false) {
+RDOindex::RDOindex(unsigned int PAD, unsigned int code) : m_PADid{static_cast<unsigned short int>(PAD)}, m_lvl1_code{code} {
     set_indexes();
 }
 
 RDOindex::RDOindex(unsigned int PAD, unsigned int code, std::string Name, int sEta, int sPhi, int dR, int dZ, int dP) :
-    m_ROBid(0),
-    m_RODid(0),
-    m_side(0),
-    m_SLid(0),
-    m_RXid(0),
     m_PADid(static_cast<unsigned short int>(PAD)),
-    m_lvl1_code(code),
-    m_stationName(0),
-    m_stationEta(sEta),
-    m_stationPhi(sPhi),
-    m_doubletR(dR),
-    m_doubletZ(dZ),
-    m_doubletPhi(dP),
-    m_hash(0),
-    m_status(false) {
+    m_lvl1_code{code},
+    m_stationEta{sEta},
+    m_stationPhi{sPhi},
+    m_doubletR{dR},
+    m_doubletZ{dZ},
+    m_doubletPhi{dP} {
 #ifndef LVL1_STANDALONE
     if (s_rpcIdHelper) m_stationName = s_rpcIdHelper->stationNameIndex(Name);
 #endif
     set_indexes();
 }
 
-RDOindex::RDOindex(const RDOindex& index) {
-    m_ROBid = index.ROBid();
-    m_RODid = index.RODid();
-    m_side = index.side();
-    m_SLid = index.SLid();
-    m_RXid = index.RXid();
-    m_PADid = index.PADid();
-    m_lvl1_code = index.lvl1_code();
-
-    m_stationName = index.stationName();
-    m_stationEta = index.stationEta();
-    m_stationPhi = index.stationPhi();
-    m_doubletR = index.doubletR();
-    m_doubletZ = index.doubletZ();
-    m_doubletPhi = index.doubletPhi();
-
-    m_hash = index.hash();
-
-    m_status = index.status();
-}
-
-void RDOindex::set_indexes(void) {
+void RDOindex::set_indexes() {
     RPCdecoder decode(m_lvl1_code);
     if (decode) {
         unsigned int sector = decode.logic_sector();
@@ -82,36 +38,8 @@ void RDOindex::set_indexes(void) {
         m_status = true;
     }
 }
-
-RDOindex::~RDOindex() {}
-
-RDOindex::operator bool() { return m_status; }
-
-bool RDOindex::operator!() { return !m_status; }
-
-RDOindex& RDOindex::operator=(const RDOindex& index) {
-    if (this != &index) {
-        m_ROBid = index.ROBid();
-        m_RODid = index.RODid();
-        m_side = index.side();
-        m_SLid = index.SLid();
-        m_RXid = index.RXid();
-        m_PADid = index.PADid();
-        m_lvl1_code = index.lvl1_code();
-
-        m_stationName = index.stationName();
-        m_stationEta = index.stationEta();
-        m_stationPhi = index.stationPhi();
-        m_doubletR = index.doubletR();
-        m_doubletZ = index.doubletZ();
-        m_doubletPhi = index.doubletPhi();
-
-        m_hash = index.hash();
-
-        m_status = index.status();
-    }
-    return *this;
-}
+RDOindex::operator bool() const { return m_status; }
+bool RDOindex::operator!() const { return !m_status; }
 
 void RDOindex::set_hash(unsigned int h) { m_hash = h; }
 

@@ -25,29 +25,26 @@ namespace RPC_CondCabling {
         WORlink m_lowPt_WORs;
         WORlink m_highPt_WORs;
 
-        bool m_inversion;
+        bool m_inversion{false};
 
         bool cable_CMA_channels(void);
         bool connect(SectorLogicSetup&);
         bool doInversion(SectorLogicSetup&);
         void get_confirm_strip_boundaries(int, int);
         int get_max_strip_readout(int);
-        bool m_debug;
-        bool m_verbose;
-        IMessageSvc* m_msgSvc;
 
     public:
-        EvenPhiCMA(int, int, int, CMAcoverage, int, int, int, int, int, int, int, int, int, int, int);
+        EvenPhiCMA(parseParams parse, IMessageSvc* svc);
         EvenPhiCMA(const EvenPhiCMA&);
-        ~EvenPhiCMA();
+        virtual ~EvenPhiCMA();
 
         EvenPhiCMA& operator=(const EvenPhiCMA&);
 
-        const WORlink& pivot_WORs(void) const { return m_pivot_WORs; }
-        const WORlink& lowPt_WORs(void) const { return m_lowPt_WORs; }
-        const WORlink& highPt_WORs(void) const { return m_highPt_WORs; }
+        const WORlink& pivot_WORs() const;
+        const WORlink& lowPt_WORs() const;
+        const WORlink& highPt_WORs() const;
 
-        bool inversion(void) const { return m_inversion; }
+        bool inversion() const;
 
         bool setup(SectorLogicSetup&);
     };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/SectorLogicSetup.h"
@@ -8,95 +8,16 @@
 
 using namespace RPC_CondCabling;
 const std::map<std::string, std::string>* RPC_CondCabling::SectorLogicSetup::s_trigroads = nullptr;
-SectorLogicSetup::SectorLogicSetup() :
-    BaseObject(Logic, "Sector Logic Map"),
-    m_positive_sector(""),
-    m_negative_sector(""),
-    m_sector_type(0),
-    m_online_database(""),
-    m_layout(""),
-    m_cosmic(false) {}
 
-SectorLogicSetup::SectorLogicSetup(int type, std::string database, std::string layout, bool conf) :
-    BaseObject(Logic, "Sector Logic Map"), m_positive_sector(""), m_negative_sector(""), m_sector_type(type) {
+SectorLogicSetup::SectorLogicSetup(int type, const std::string& database, const std::string& layout, bool conf, IMessageSvc* msgSvc) :
+    BaseObject(Logic, "Sector Logic Map", msgSvc), m_positive_sector(""), m_negative_sector(""), m_sector_type(type) {
     m_online_database = database;
     m_layout = layout;
     m_cosmic = conf;
 }
 
-SectorLogicSetup::SectorLogicSetup(const SectorLogicSetup& sec) : BaseObject(Logic, "Sector Logic Map") {
-    m_positive_sector = sec.positive_sector();
-    m_negative_sector = sec.negative_sector();
-    m_sector_type = sec.sector_type();
-
-    m_stations.clear();
-    m_stations = sec.giveStations();
-
-    m_sectors.clear();
-    m_sectors = sec.sectors();
-
-    m_RPCs.clear();
-    m_RPCs = sec.giveRPC();
-    m_WORs.clear();
-    m_WORs = sec.giveWOR();
-
-    m_etaCMAs.clear();
-    m_etaCMAs = sec.giveEtaCMA();
-    m_evenphiCMAs.clear();
-    m_evenphiCMAs = sec.giveEvenPhiCMA();
-    m_oddphiCMAs.clear();
-    m_oddphiCMAs = sec.giveOddPhiCMA();
-
-    m_online_database = sec.online_database();
-    m_layout = sec.layout();
-    m_cosmic = sec.cosmic();
-}
-
-SectorLogicSetup& SectorLogicSetup::operator=(const SectorLogicSetup& sec) {
-    if (this != &sec) {
-        m_positive_sector = sec.positive_sector();
-        m_negative_sector = sec.negative_sector();
-        m_sector_type = sec.sector_type();
-
-        m_stations.clear();
-        m_stations = sec.giveStations();
-
-        m_sectors.clear();
-        m_sectors = sec.sectors();
-
-        m_RPCs.clear();
-        m_RPCs = sec.giveRPC();
-        m_WORs.clear();
-        m_WORs = sec.giveWOR();
-
-        m_etaCMAs.clear();
-        m_etaCMAs = sec.giveEtaCMA();
-        m_evenphiCMAs.clear();
-        m_evenphiCMAs = sec.giveEvenPhiCMA();
-        m_oddphiCMAs.clear();
-        m_oddphiCMAs = sec.giveOddPhiCMA();
-
-        m_online_database = sec.online_database();
-        m_layout = sec.layout();
-        m_cosmic = sec.cosmic();
-    }
-
-    return *this;
-}
-
-SectorLogicSetup::~SectorLogicSetup() {
-    m_stations.clear();
-    m_sectors.clear();
-    m_RPCs.clear();
-    m_WORs.clear();
-    m_etaCMAs.clear();
-    m_evenphiCMAs.clear();
-    m_oddphiCMAs.clear();
-}
-
-void SectorLogicSetup::no_elements(std::string tech, int stat) {
+void SectorLogicSetup::no_elements(const std::string& tech, int stat) {
     __osstream disp;
-
     disp << "No " << tech << " elements for Sector Type " << m_sector_type;
     if (stat)
         disp << ", station " << stat << "!" << std::endl;
@@ -793,7 +714,7 @@ std::ostream& operator<<(std::ostream& stream, const SectorLogicSetup& setup) {
 }
 
 bool SectorLogicSetup::operator+=(RPCchamberdata& data) {
-    while (RPCchamber* cham = data.give_rpc()) {
+    while (std::unique_ptr<RPCchamber> cham = data.give_rpc()) {
         int key = data.station() * 100;
         std::pair<RPCmap::iterator, bool> ins = m_RPCs.insert(RPCmap::value_type(key + cham->number(), *cham));
 
@@ -819,10 +740,8 @@ bool SectorLogicSetup::operator+=(RPCchamberdata& data) {
             DISP << "Error in inserting chamber:" << std::endl << *cham << std::endl << "in ";
             PrintElement(display, data.station(), "RPC", 0, false);
             DISP_ERROR;
-            delete cham;
             return ins.second;
         }
-        delete cham;
     }
     return true;
 }
