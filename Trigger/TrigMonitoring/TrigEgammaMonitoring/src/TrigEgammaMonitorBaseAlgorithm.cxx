@@ -30,7 +30,7 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
   ATH_CHECK(m_photonIsEMTool.retrieve());
   ATH_CHECK(m_electronIsEMTool.retrieve());
   ATH_CHECK(m_electronLHTool.retrieve());
-
+  ATH_CHECK(m_electronDNNTool.retrieve());
 
   m_trigdec->ExperimentalAndExpertMethods()->enable();
 
@@ -73,6 +73,15 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
     }
     else if (pidname == "lhvloose"){
         return (bool) this->m_electronLHTool[3]->accept(ctx,eg);
+    }
+    else if (pidname == "dnntight"){
+        return (bool) this->m_electronDNNTool[0]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnmedium"){
+        return (bool) this->m_electronDNNTool[1]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnloose"){
+        return (bool) this->m_electronDNNTool[2]->accept(ctx,eg);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
@@ -810,7 +819,10 @@ const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMa
                                                                                       {"lhvloose" , "lhvloose" },
                                                                                       {"lhloose"  , "lhloose" },
                                                                                       {"lhmedium" , "lhmedium"},
-                                                                                      {"lhtight"  , "lhtight" } };
+                                                                                      {"lhtight"  , "lhtight" },
+                                                                                      {"dnnloose"  , "dnnloose" },
+                                                                                      {"dnnmedium" , "dnnmedium"},
+                                                                                      {"dnntight"  , "dnntight" } };
 
 
 
