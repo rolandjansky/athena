@@ -92,6 +92,8 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool{this,"ElectronLikelihoodTool",{}};
+     /*! Offline DNN Selectors */
+    ToolHandleArray<IAsgElectronLikelihoodTool> m_electronDNNTool{ this, "ElectronDNNSelectorTool", {},"DNN tools" };
     /*! Offline isEM Photon Selectors */ 
     ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMTool{this,"PhotonIsEMSelector",{}};
     
@@ -106,6 +108,8 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     Gaudi::Property<std::vector<std::string>> m_isemname{this, "isEMResultNames", {} };
     /*! lh names */
     Gaudi::Property<std::vector<std::string>>  m_lhname{this, "LHResultNames", {} };
+    /*! dnn names */
+    Gaudi::Property<std::vector<std::string>> m_dnnname {this, "DNNResultNames", {}, };
     /*! Include more detailed histograms */
     Gaudi::Property<bool> m_detailedHists{this, "DetailedHistograms", false};
   
