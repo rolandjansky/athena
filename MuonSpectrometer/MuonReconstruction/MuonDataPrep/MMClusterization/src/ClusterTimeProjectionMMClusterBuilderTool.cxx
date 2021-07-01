@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "ClusterTimeProjectionMMClusterBuilderTool.h"
 
@@ -10,7 +10,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 namespace {
-    static constexpr double halfGapWidth = 2.52;
+    constexpr double halfGapWidth = 2.52;
 }
 
 
@@ -209,7 +209,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     stripDriftDists.reserve(idxCluster.size());
     stripDriftDistErrors.reserve(idxCluster.size());
 
-    for (auto &idx : idxCluster) {
+    for (const auto &idx : idxCluster) {
         Identifier id = MMPrdsOfLayer.at(idx).identify();
         rdoList.push_back(id);
         if(m_writeStripProperties) {

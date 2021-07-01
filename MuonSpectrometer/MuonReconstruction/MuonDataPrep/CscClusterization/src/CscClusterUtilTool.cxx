@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscClusterUtilTool.h"
@@ -137,7 +137,7 @@ std::vector<const CscStripPrepData*> CscClusterUtilTool::getStrips(const CscPrep
     ATH_MSG_DEBUG("Retrieved " << m_cscStripLocation.key() << " successfully. ");
 
     IdentifierHash elhash = MClus->collectionHash();
-    auto it = pdigcont->indexFindPtr(elhash);
+    const auto *it = pdigcont->indexFindPtr(elhash);
 
     ATH_MSG_VERBOSE("Hash " << elhash << " converted to iterator of container successfully");
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscBipolarStripFitter.cxx
@@ -22,7 +22,7 @@
 using Muon::CscStripPrepData;
 
 typedef ICscStripFitter::Result Result;
-typedef ICscStripFitter::ChargeList ChargeList;
+using ChargeList = ICscStripFitter::ChargeList;
 
 //**********************************************************************
 
@@ -126,7 +126,7 @@ Result CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identif
     return res;
 }
 
-double CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsample) const {
+double CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsample) {
     // find maximum sample imax:
     double peakingTime = -99.;  // interpolated peaking time in samples
     double amplitude = -99.;    // interpolated amplitude
@@ -172,7 +172,7 @@ double CscBipolarStripFitter::FindPow(double z) const {
     return zpower;
 }
 
-void CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, int *correspdim) const {
+void CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, const int *correspdim) {
     // invert 2x2 or 3x3 symmetric matrix
     if (dim == 1) {
         int ii = correspdim[0];
@@ -220,7 +220,7 @@ void CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, int 
     }
 }
 
-void CscBipolarStripFitter::InvertSymmetric4x4(double W[][4]) const {
+void CscBipolarStripFitter::InvertSymmetric4x4(double W[][4]) {
     double Determinant =
         W[0][3] * W[0][3] * W[1][2] * W[1][2] - 2. * W[0][2] * W[0][3] * W[1][2] * W[1][3] + W[0][2] * W[0][2] * W[1][3] * W[1][3] -
         W[0][3] * W[0][3] * W[1][1] * W[2][2] + 2. * W[0][1] * W[0][3] * W[1][3] * W[2][2] - W[0][0] * W[1][3] * W[1][3] * W[2][2] +
@@ -264,7 +264,7 @@ void CscBipolarStripFitter::InvertSymmetric4x4(double W[][4]) const {
     W[2][2] = W22 / Determinant;
     W[3][3] = W33 / Determinant;
 }
-void CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, int *meas) const {
+void CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, const int *meas) const {
     // calculate the derivatives and the 0th order approximation
     // around the ADC samplings
     double norm = p0[0][0];
@@ -291,7 +291,7 @@ void CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[
     // end of derivative/zeroth order calculations
 }
 
-int CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues, int imeas, int *meas, int ipar, int *par, double *chi2,
+int CscBipolarStripFitter::TheFitter(double *x, const double ex, const double *initValues, int imeas, int *meas, int ipar, int *par, double *chi2,
                                      double *result) const {
     // maximum iterations
     const int maxIter = 7;
