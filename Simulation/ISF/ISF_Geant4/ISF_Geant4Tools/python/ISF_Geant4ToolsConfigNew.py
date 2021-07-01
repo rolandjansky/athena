@@ -20,7 +20,7 @@ from ISF_Services.ISF_ServicesConfigNew import (
 )
 
 
-def G4RunManagerHelperCfg(flags, name="ISF_G4RunManagerHelper", **kwargs):
+def G4RunManagerHelperCfg(flags, name="G4RunManagerHelper", **kwargs):
     acc = ComponentAccumulator()
     acc.setPrivateTools(CompFactory.iGeant4.G4RunManagerHelper(name, **kwargs))
     return acc
@@ -66,7 +66,8 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
         acc.setPrivateTools(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
     else:
         tool = acc.popToolsAndMerge(G4RunManagerHelperCfg(flags))
-        kwargs.setdefault("G4RunManagerHelper", tool)
+        acc.addPublicTool(tool)
+        kwargs.setdefault("G4RunManagerHelper", acc.getPublicTool(tool.name))
         acc.setPrivateTools(CompFactory.iGeant4.G4LegacyTransportTool(name, **kwargs))
     return acc
 

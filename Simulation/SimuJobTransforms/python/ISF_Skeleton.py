@@ -12,7 +12,6 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr"
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
-    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
     ConfigFlags.Sim.ReleaseGeoModel = False
     ConfigFlags.Sim.ISFRun = True
     ConfigFlags.GeoModel.Align.Dynamic = False
