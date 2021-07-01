@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloMonToolBase.h" 
@@ -95,7 +95,6 @@ StatusCode CaloMonToolBase::bookBaseHists(MonGroup* group) {
 StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
 
   // ATH_MSG_INFO("CaloCellVecMon::checkFilters() starts");
-  StatusCode sc = StatusCode::SUCCESS;
 
   m_h_EvtRejSumm->Fill(1); //Counter of all events seen
 

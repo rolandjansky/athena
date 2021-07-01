@@ -244,8 +244,6 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
 
 StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
-  StatusCode sc = StatusCode::SUCCESS;
-
   //-------------
   // get some event properties    
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
