@@ -976,7 +976,7 @@ fillHists()
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
      ATH_MSG_DEBUG("Passed trigger, presumably");
       m_d->benchPreFillHistograms();
-      StatusCode sc3 = fillHistograms();
+      fillHistograms().ignore();
       m_haveClearedLastEventBlock = true;
       m_d->benchPostFillHistograms();
       ++m_nEvents;
@@ -1495,7 +1495,7 @@ regHist( TH1* h, const MonGroup& group )
     std::string hName = h->GetName();
     MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
     std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, hName, false );
-    StatusCode smd = registerMetadata(streamName, hName, group);
+    registerMetadata(streamName, hName, group).ignore();
     return m_THistSvc->regHist( streamName, h );
   }
   
@@ -1574,7 +1574,7 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 
     std::string streamName = streamNameFunction()->getStreamName( this, group, hName );
     LWHistAthMonWrapper::setStreamName(h,streamName);
-    StatusCode smd = registerMetadata(streamName, hName, group);
+    registerMetadata(streamName, hName, group).ignore();
 
     //Delay registration with THistSvc (unless root backend):
     //m_lwhistMap.insert(std::pair<LWHist*,std::string>(h,streamName));
@@ -1672,7 +1672,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
 
         MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
         std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-        StatusCode smd = registerMetadata(streamName, name, group);
+        registerMetadata(streamName, name, group).ignore();
         return m_THistSvc->regGraph( streamName, g );
     } else {
     // UNMANAGED
@@ -1725,7 +1725,7 @@ regGraph( TGraph* g, const MonGroup& group )
 
        std::string name = g->GetName();
        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-       StatusCode smd = registerMetadata(streamName, name, group);
+       registerMetadata(streamName, name, group).ignore();
        return m_THistSvc->regGraph( streamName, g );
        //return m_THistSvc->regGraph( streamName );
    } 
@@ -1780,7 +1780,7 @@ regTree( TTree* t, const MonGroup& group )
        std::string name = t->GetName();
        std::string genericName = NoOutputStream().getStreamName( this, group_unmanaged, name );
        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-       StatusCode smd = registerMetadata(streamName, name, group);
+       registerMetadata(streamName, name, group).ignore();
        return m_THistSvc->regTree( streamName, t );
    }
 
