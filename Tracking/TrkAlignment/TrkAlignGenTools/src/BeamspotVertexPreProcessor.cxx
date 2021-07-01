@@ -338,7 +338,6 @@ void BeamspotVertexPreProcessor::prepareAllTracksVector(){
 
   for(; strs_iter != strs_end; ++strs_iter){
 
-    StatusCode sc = evtStore()->retrieve( thisContainer, *strs_iter);
     if (evtStore()->contains<xAOD::VertexContainer>(*strs_iter)) {
       if (evtStore()->retrieve(thisContainer,*strs_iter).isFailure() ) {
         ATH_MSG_DEBUG ("Could not retrieve xAOD vertex container with key "+(*strs_iter));
