@@ -339,7 +339,7 @@ MuonSegmentMatchingTool::suppressNoise(const MuonSegment& seg1, const MuonSegmen
 
     bool isEndcap_b = m_idHelperSvc->isEndcap(result.chid_b);
     bool isCSC_b    = m_idHelperSvc->isCsc(result.chid_b);
-    bool isBEE_b    = station_b == MuonStationIndex::BE;
+    bool isBEE_b    = station_a == MuonStationIndex::BE;
 
 
     if (m_dumpAngles) {
