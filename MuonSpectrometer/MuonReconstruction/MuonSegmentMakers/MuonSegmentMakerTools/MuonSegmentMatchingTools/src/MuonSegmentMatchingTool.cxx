@@ -143,7 +143,7 @@ MuonSegmentMatchingTool::match(const MuonSegment& seg1, const MuonSegment& seg2)
                 const int phi2 = m_idHelperSvc->sector(chid2);
                 // require that the two segments are close in eta AND are in adjecent sectors
                 if (  std::abs(eta1-eta2) <=1 
-                    && ( std::abs(phi1 - phi2) <= 1 || (phi1 == 1 && phi2 == 16)
+                    && ( std::abs(phi1 - phi2) == 1 || (phi1 == 1 && phi2 == 16)
                         || (phi1 == 16 && phi2 == 1)))
                 {
                     return overlapMatch(seg1, seg2);
@@ -273,8 +273,6 @@ MuonSegmentMatchingTool::overlapMatch(const MuonSegment& seg1, const MuonSegment
                                                              << result.segmentResult2.positionResidual);
         return false;
     }
-    /// Okay another trial here to avoid segments sharing the same hits
-
 
     ++m_overlapMatchesGood;
     return true;
@@ -339,6 +337,7 @@ MuonSegmentMatchingTool::suppressNoise(const MuonSegment& seg1, const MuonSegmen
 
     bool isEndcap_b = m_idHelperSvc->isEndcap(result.chid_b);
     bool isCSC_b    = m_idHelperSvc->isCsc(result.chid_b);
+    /// To be checked after the next pipeline
     bool isBEE_b    = station_a == MuonStationIndex::BE;
 
 
