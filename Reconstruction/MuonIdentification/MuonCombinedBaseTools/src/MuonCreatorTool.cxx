@@ -398,7 +398,7 @@ namespace MuonCombined {
         addCombinedFit(*muon, nullptr, outputData);
         addStatisticalCombination(*muon, *(candidate.first), nullptr, outputData);
         addMuGirl(*muon, nullptr, outputData);
-        addSegmentTag(*muon, nullptr);
+        addSegmentTag(*muon, nullptr, outputData);
 
         bool first = true;
         for (const auto* tag : tags) {
@@ -468,7 +468,7 @@ namespace MuonCombined {
                     const SegmentTag* segTag = dynamic_cast<const SegmentTag*>(tag);
                     const MuGirlTag* muGirlTag = dynamic_cast<const MuGirlTag*>(tag);
 
-                    addSegmentTag(*muon, segTag);
+                    addSegmentTag(*muon, segTag, outputData);
                     addMuGirl(*muon, muGirlTag, outputData);
 
                     if (!(segTag || muGirlTag)) { ATH_MSG_WARNING("Unknown segment-tagged tag "); }
@@ -765,7 +765,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Done Adding MuGirl Muon  " << tag->author() << " type " << tag->type());
     }
 
-    void MuonCreatorTool::addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag) const {
+    void MuonCreatorTool::addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const {
         if (!tag) {
             // init variables if necessary.
             muon.setParameter(static_cast<float>(-1.0), xAOD::Muon::segmentDeltaEta);
@@ -780,9 +780,14 @@ namespace MuonCombined {
         bool foundseg = false;
         for (const auto& info : tag->segmentsInfo()) {
             if (info.link.isValid()) {
-                if (muon.author() == xAOD::Muon::MuTagIMO)
-                    segments.push_back(info.link);  // non-segment-tagged muons get their
-                                                    // list of segments in a different way
+	        //this is a bit tricky, as we have here a link to an xAOD segment in the old container
+	        //but the new container should have the segments in the same order, plus the MuGirl ones tacked on the end
+	        //so we should be able to just make a new link here
+	        //note that this only applies to segment-tagged muons, others get their associated segments elsewhere
+	        if (muon.author() == xAOD::Muon::MuTagIMO){
+		    ElementLink<xAOD::MuonSegmentContainer> seglink(*outputData.xaodSegmentContainer,info.link.index());
+                    segments.push_back(seglink);
+		}
                 if (!foundseg) {                    // add parameters for the first segment
                     muon.setParameter(static_cast<float>(info.dtheta), xAOD::Muon::segmentDeltaEta);
                     muon.setParameter(static_cast<float>(info.dphi), xAOD::Muon::segmentDeltaPhi);
