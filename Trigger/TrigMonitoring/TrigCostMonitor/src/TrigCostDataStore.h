@@ -2,13 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGCOSTMONITORMT_TRIGCOSTDATASTORE_H
-#define TRIGCOSTMONITORMT_TRIGCOSTDATASTORE_H 1
+#ifndef TRIGCOSTMONITOR_TRIGCOSTDATASTORE_H
+#define TRIGCOSTMONITOR_TRIGCOSTDATASTORE_H 1
 
 #include <tbb/concurrent_hash_map.h>
 #include <tbb/concurrent_vector.h>
 
-#include "TrigCostMonitorMT/AlgorithmIdentifier.h"
+#include "TrigCostMonitor/AlgorithmIdentifier.h"
 
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 
@@ -105,5 +105,5 @@ class TrigCostDataStore {
 
 #include "TrigCostDataStore.icc"
 
-#endif // TRIGCOSTMONITORMT_TRIGCOSTDATASTORE_H
+#endif // TRIGCOSTMONITOR_TRIGCOSTDATASTORE_H
 

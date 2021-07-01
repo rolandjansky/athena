@@ -3,7 +3,7 @@
 */
 
 
-#include "TrigCostMonitorMT/EnhancedBiasWeightCompAlg.h"
+#include "TrigCostMonitor/EnhancedBiasWeightCompAlg.h"
 
 #include <sstream>
 

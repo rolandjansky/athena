@@ -3,25 +3,25 @@
 #
 
 
-def TrigCostMonitorMTCfg(flags):
+def TrigCostMonitorCfg(flags):
     """
-    Component Accumulator based configuration of Trigger Cost MT Service and associated Auditor
+    Component Accumulator based configuration of Trigger Cost Service and associated Auditor
     """
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.Logging import logging
-    log = logging.getLogger('TrigCostMonitorMTPostSetup')
+    log = logging.getLogger('TrigCostMonitorPostSetup')
 
     acc = ComponentAccumulator()
 
     if flags.Trigger.CostMonitoring.doCostMonitoring:
-      trigCostService = CompFactory.TrigCostMTSvc()
+      trigCostService = CompFactory.TrigCostSvc()
       trigCostService.MonitorAllEvents = flags.Trigger.CostMonitoring.monitorAllEvents
       trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
       acc.addService(trigCostService)
 
       auditorService = CompFactory.AuditorSvc()
-      tca=CompFactory.TrigCostMTAuditor()
+      tca=CompFactory.TrigCostAuditor()
       auditorService.Auditors=[tca.getFullJobOptName(),]
       acc.addService(auditorService)
       acc.setAppProperty("AuditAlgorithms", True)
@@ -31,9 +31,9 @@ def TrigCostMonitorMTCfg(flags):
 
     return acc
 
-def TrigCostMonitorMTPostSetup():
+def TrigCostMonitorPostSetup():
   from AthenaCommon.Logging import logging
-  log = logging.getLogger('TrigCostMonitorMTPostSetup')
+  log = logging.getLogger('TrigCostMonitorPostSetup')
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   if 'doCostMonitoring' in svcMgr.ROBDataProviderSvc.properties():
@@ -47,5 +47,5 @@ def TrigCostMonitorMTPostSetup():
   if hasattr (svcMgr,'HltEventLoopMgr') and hasattr(svcMgr.HltEventLoopMgr,'TrigErrorMonTool'):
       if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
           from AthenaConfiguration.ComponentFactory import CompFactory
-          svcMgr.HltEventLoopMgr.TrigErrorMonTool.TrigCostMTSvc = CompFactory.TrigCostMTSvc()
+          svcMgr.HltEventLoopMgr.TrigErrorMonTool.TrigCostSvc = CompFactory.TrigCostSvc()
 

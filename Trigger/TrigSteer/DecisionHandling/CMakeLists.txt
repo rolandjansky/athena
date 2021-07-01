@@ -11,7 +11,7 @@ atlas_add_library( DecisionHandlingLib
                    src/InputMakerBase.cxx
 		           src/ITestHypoTool.cxx
                    PUBLIC_HEADERS DecisionHandling
-                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorLib TrigSteeringEvent TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES AthContainers AthViews xAODTrigger )
 
 # Component(s) in the package:
