@@ -9,7 +9,6 @@
 runtext = ''
 
 NumLayersDisk = 3
-NumLayersDBM  = 3
 NumStavesIBL  = 14
 NumStavesL0   = 22
 NumStavesL1   = 38
@@ -20,40 +19,38 @@ NumModulesIBL2D = 12
 NumModulesIBL3D = 8
 NumModulesBarrel= 13
 NumModulesDisk  = 48
-NumModulesDBM   = 4
 NumPP0sEC       = 24
 
 btxt     = ";eta index of module"
 sbtxt    = ";shifted eta index of module"
 ditxt    = ";disk number"
-dbmtxt   = ";layer number"
-layers   = ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
-xbinsl   = [    3,    3,  13,  13,  13,   32,     3,     3]
-xminsl   = [ -0.5, -0.5,-6.5,-6.5,-6.5,-16.5,  -0.5,  -0.5]
-ybinsl   = [   48,   48,  22,  38,  52,   14,     4,     4]
-etatxt   = [ditxt,ditxt,btxt,btxt,btxt,sbtxt,dbmtxt,dbmtxt]
+layers   = ["ECA","ECC","B0","B1","B2","IBL"]
+xbinsl   = [    3,    3,  13,  13,  13,   32]
+xminsl   = [ -0.5, -0.5,-6.5,-6.5,-6.5,-16.5]
+ybinsl   = [   48,   48,  22,  38,  52,   14]
+etatxt   = [ditxt,ditxt,btxt,btxt,btxt,sbtxt]
 phitext  = ";phi index of module"
-xbinsfel = [   24,   24, 104, 104, 104,   32,     3,     3]
-xminsfel = [ -0.5, -0.5, -52, -52, -52,-16.5,  -0.5,  -0.5]
-ybinsfel = [   96,   96,  44,  76, 104,   14,     4,     4]
+xbinsfel = [   24,   24, 104, 104, 104,   32]
+xminsfel = [ -0.5, -0.5, -52, -52, -52,-16.5]
+ybinsfel = [   96,   96,  44,  76, 104,   14]
 
-totcuts  = [   15,   15,  15,  15,  15,    4,     4,     4] 
-xbinsem  = [    3,    3,  13,  13,  13,   20,     3,     3]
-xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10,   0.5,   0.5]
-xbinstotz= [    3,    3,  13,  13,  13,   20,     3,     3]
-xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5,  -0.5,  -0.5]
-ztotbinsy= [   20,   20,  20,  20,  20,   20,    20,    20]
-ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5,  -0.5,  -0.5]
-errbbinsy= [   17,   17,  17,  17,  17,   27,    27,    27]
-errbminsy= [    0,    0,   0,   0,   0,    0,     0,     0]
-errbbsizy= [    1,    1,   1,   1,   1,    1,     1,     1]
-errtbinsy= [    7,    7,   7,   7,   7,    7,     7,     7]
+totcuts  = [   15,   15,  15,  15,  15,    4]
+xbinsem  = [    3,    3,  13,  13,  13,   20]
+xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10]
+xbinstotz= [    3,    3,  13,  13,  13,   20]
+xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5]
+ztotbinsy= [   20,   20,  20,  20,  20,   20]
+ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5]
+errbbinsy= [   17,   17,  17,  17,  17,   27]
+errbminsy= [    0,    0,   0,   0,   0,    0]
+errbbsizy= [    1,    1,   1,   1,   1,    1]
+errtbinsy= [    7,    7,   7,   7,   7,    7]
 
 pp0layers= ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
 
 fei3layers= ["ECA","ECC","B0","B1","B2"]
-fei4layers= ["IBL","DBMA","DBMC"]
+fei4layers= ["IBL"]
 
 lumitext  = ";lumi block"
 lumibinsx = 3000
@@ -71,9 +68,8 @@ ModulesIBL = [
     "C8", " ", "C7", " ", "C6", " ", "C5", " ", "C4", " ", "C3", " ", "C2", " ",
     "C1", " ", "A1", " ", "A2", " ", "A3", " ", "A4", " ", "A5", " ", "A6", " ",
     "A7", " ", "A8", " "]
-LayersDBM = ["Layer 0", "Layer 1", "Layer 2"] #xDBM
 
-LabelX = [LayersDisk, LayersDisk, ModulesBarrel, ModulesBarrel, ModulesBarrel, ModulesIBL, LayersDBM, LayersDBM]
+LabelX = [LayersDisk, LayersDisk, ModulesBarrel, ModulesBarrel, ModulesBarrel, ModulesIBL]
 
 #same for FE
 LayersDiskFE = [" ", " ", " ", "Disk 1", " ", " ", " ", " ",
@@ -93,7 +89,7 @@ ModulesBarrelFE = [
     " ", " ", " ", "M4A", " ", " ", " ", " ",
     " ", " ", " ", "M5A", " ", " ", " ", " ",
     " ", " ", " ", "M6A", " ", " ", " ", " "]
-LabelFEX = [LayersDiskFE, LayersDiskFE, ModulesBarrelFE, ModulesBarrelFE, ModulesBarrelFE, ModulesIBL, LayersDBM, LayersDBM]
+LabelFEX = [LayersDiskFE, LayersDiskFE, ModulesBarrelFE, ModulesBarrelFE, ModulesBarrelFE, ModulesIBL]
 
 ModulesECA = [
     "B01_S2_M1", "B01_S2_M6", "B01_S2_M2", "B01_S2_M5", "B01_S2_M3",
@@ -117,8 +113,6 @@ ModulesECC = [
     "B04_S1_M1", "B04_S2_M4", "B04_S2_M3", "B04_S2_M5", "B04_S2_M2",
     "B04_S2_M6", "B04_S2_M1", "B01_S1_M4", "B01_S1_M3", "B01_S1_M5",
     "B01_S1_M2", "B01_S1_M6", "B01_S1_M1"]
-
-ModulesDBM = ["M3", "M4", "M1", "M2"] #yDBM
 
 
 #yBarrel
@@ -151,7 +145,7 @@ StavesIBL = [
     "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11",
     "S12", "S13","S14"]
 
-LabelY = [ModulesECA, ModulesECC, StavesL0, StavesL1, StavesL2, StavesIBL, ModulesDBM, ModulesDBM]
+LabelY = [ModulesECA, ModulesECC, StavesL0, StavesL1, StavesL2, StavesIBL]
 
 #same for per-FE
 ModulesFEECA = []
@@ -169,7 +163,7 @@ for i in StavesL1:
 StavesFEL2 = []
 for i in StavesL2:
     StavesFEL2.extend([i, ' '])
-LabelFEY = [ModulesFEECA, ModulesFEECC, StavesFEL0, StavesFEL1, StavesFEL2, StavesIBL, ModulesDBM, ModulesDBM]
+LabelFEY = [ModulesFEECA, ModulesFEECC, StavesFEL0, StavesFEL1, StavesFEL2, StavesIBL]
 
 #PP0
 PP0sEC = [
