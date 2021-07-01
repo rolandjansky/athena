@@ -470,7 +470,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 	//}
       }
       else {//inner layer
-
+        if(minB == rm) return false;
 	float zMax = (zm*minB-rm*refCoordJ)/(minB-rm);
 	if( m_zMinus > zMax) return false;
 	if (rm>maxB) {// otherwise, intersect of line from maxB through middle sp will be on the wrong side of the layer
@@ -515,7 +515,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 	//}
       }
       else {//inner layer
-
+        if(minB == rm) return false;
 	float zMin = (zm*minB-rm*refCoordJ)/(minB-rm);
 	if( m_zPlus < zMin) return false;
 	if (rm>maxB) {// otherwise, intersect of line from maxB through middle sp will be on the wrong side of the layer
