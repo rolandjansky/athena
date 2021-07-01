@@ -26,7 +26,7 @@ Digi_tf.py \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:conddb.addOverride("/Indet/Beampos","IndetBeampos-13TeV-MC16-002")' \
+--postExec 'HITtoRDO:conddb.addOverride("/Indet/Beampos","IndetBeampos-13TeV-MC16-002")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.OldBeamSpotZSize=42;' \
 --preInclude 'all:Campaigns/MC16e.py' 'HITtoRDO:Campaigns/PileUpMC16e.py' \

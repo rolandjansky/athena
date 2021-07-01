@@ -27,7 +27,6 @@ Digi_tf.py \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preExec 'all:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.experimentalDigi += ["LegacyOverlay"];' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC16d.py' \
