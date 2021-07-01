@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_TRIGT1STOREGATEKEYS_H
 #define TRIGT1INTERFACES_TRIGT1STOREGATEKEYS_H
@@ -31,8 +31,6 @@ namespace LVL1 {
   static const std::string DEFAULT_BcmCTPLocation = "L1BCMtoCTPLocation";
   //! default StoreGate location for Lucid to CTP input
   static const std::string DEFAULT_LucidCTPLocation = "L1LucidtoCTPLocation";
-  //! default StoreGate location for ZDC to CTP input
-  static const std::string DEFAULT_ZdcCTPLocation = "L1ZDCtoCTPLocation";
   //! default StoreGate location for TRT to CTP input
   static const std::string DEFAULT_TrtCTPLocation = "L1TRTtoCTPLocation";
   //! default StoreGate location for BPTX to CTP input

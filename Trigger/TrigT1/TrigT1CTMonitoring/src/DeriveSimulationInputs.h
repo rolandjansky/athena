@@ -37,7 +37,6 @@ namespace LVL1 {
   class BcmCTP;
   class TrtCTP;
   class LucidCTP;
-  class ZdcCTP;
   class BptxCTP;
   class NimCTP;
   class FrontPanelCTP;
