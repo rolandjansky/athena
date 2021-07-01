@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef QratCscClusterFitter_H
@@ -25,7 +25,7 @@ namespace Muon {
 
 class QratCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
 public:
-    QratCscClusterFitter(std::string, std::string, const IInterface*);
+    QratCscClusterFitter(const std::string&, const std::string&, const IInterface*);
 
     ~QratCscClusterFitter() = default;
 

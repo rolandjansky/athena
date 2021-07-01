@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ CscFit::CscFit(double sigma) { m_sigma = sigma; }
 /// Finally fit the whold distribution with 2 Gaussians
 /// If the fit does not converge or is "bad" then take the weighted average
 
-void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise) {
+void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise) const {
 #ifndef NDEBUG
     MsgStream log(Athena::getMessageSvc(), "CscFit");
 #endif
@@ -331,7 +331,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
 }
 
 /// a method to find a the index of the strip with the highest charge
-int CscFit::icmax(double* qstr, const int& i1, const int& i2) {
+int CscFit::icmax(const double* qstr, const int& i1, const int& i2) {
     int i, ic;
     double a;
 
@@ -346,7 +346,7 @@ int CscFit::icmax(double* qstr, const int& i1, const int& i2) {
 }
 
 /// one Gaussing fitting method
-Double_t f1gauss(Double_t* x, Double_t* par) {
+Double_t f1gauss(const Double_t* x, const Double_t* par) {
     Double_t arg = 0;
     arg = (x[0] - par[1]) / par[2];
     Double_t fitval = par[3] + par[0] * std::exp(-0.5 * arg * arg);
@@ -354,7 +354,7 @@ Double_t f1gauss(Double_t* x, Double_t* par) {
 }
 
 /// two-Gaussian fitting method
-Double_t f2gauss(Double_t* x, Double_t* par) {
+Double_t f2gauss(const Double_t* x, const Double_t* par) {
     Double_t arg1 = 0;
     Double_t arg2 = 0;
     if (par[2] != 0) arg1 = (x[0] - par[1]) / par[2];
