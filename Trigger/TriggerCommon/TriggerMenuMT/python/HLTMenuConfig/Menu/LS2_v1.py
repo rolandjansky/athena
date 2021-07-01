@@ -170,14 +170,14 @@ def setupMenu():
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
 
         # Test chains for ATR-23500
-        ChainProp(name='HLT_e26_lhloosenopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhloosenopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhloosenopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhvloosenopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e28_lhloosenopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhmediumnopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e28_lhmediumnopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhvloose_nopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e28_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhmedium_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e28_lhmedium_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
 
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),

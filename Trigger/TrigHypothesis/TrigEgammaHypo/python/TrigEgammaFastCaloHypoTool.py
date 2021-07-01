@@ -98,25 +98,24 @@ class TrigEgammaFastCaloHypoToolConfig:
                            'lhmedium' , 
                            'lhloose'  , 
                            'lhvloose' ,
-                           #'dnntight',
-                           #'dnnmedium',
-                           #'dnnloose',
-                           #'dnnvloose',
+                           'dnntight' ,
+                           'dnnmedium',
+                           'dnnloose' ,
+                           'dnnvloose',
                            ]
 
 
-  def __init__(self, name, cand, threshold, sel, trackinfo, noringerinfo, tool=None):
+  def __init__(self, name, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastCaloHypoTool')
-     
     self.__useRun3 = False
     self.__name = name
-    self.__cand = cand
-    self.__threshold  = float(threshold)
-    self.__sel        = sel
-    self.__trackinfo  = trackinfo
-    self.__noringerinfo = noringerinfo
+    self.__cand = cpart['trigType']
+    self.__threshold  = float(cpart['threshold'])
+    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__trackinfo  = cpart['trkInfo'] if cpart['trkInfo'] else ''
+    self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
 
     if not tool:
       from AthenaConfiguration.ComponentFactory import CompFactory
@@ -141,12 +140,12 @@ class TrigEgammaFastCaloHypoToolConfig:
 
     self.__tool = tool
 
-    self.__log.debug( 'Chain     :%s', name )
-    self.__log.debug( 'Signature :%s', cand )
-    self.__log.debug( 'Threshold :%s', threshold )
-    self.__log.debug( 'Pidname   :%s', sel )
-    self.__log.debug( 'trackinfo  :%s', trackinfo )
-    self.__log.debug( 'noringerinfo :%s', noringerinfo )
+    self.__log.debug( 'Chain     :%s'   , self.__name )
+    self.__log.debug( 'Signature :%s'   , self.__cand )
+    self.__log.debug( 'Threshold :%s'   , self.__threshold )
+    self.__log.debug( 'Pidname   :%s'   , self.__sel )
+    self.__log.debug( 'trackinfo  :%s'  , self.__trackinfo )
+    self.__log.debug( 'noringerinfo :%s', self.__noringerinfo )
 
   def chain(self):
     return self.__name
@@ -306,8 +305,8 @@ class TrigEgammaFastCaloHypoToolConfig:
 
 
 
-def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo, tool=None):
-  config = TrigEgammaFastCaloHypoToolConfig(name, cand, threshold, sel, trackinfo, noringerinfo, tool=tool )
+def _IncTool(name, cpart, tool=None):
+  config = TrigEgammaFastCaloHypoToolConfig(name, cpart, tool=tool )
   config.compile()
   return config.tool()
 
@@ -315,25 +314,8 @@ def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo, tool=None):
 def TrigEgammaFastCaloHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-
-    def __th(cpart):
-        return cpart['threshold']
-
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'] + cpart['extra']
-
-    def __cand(cpart):
-        return cpart['trigType']
-
-    def __trackinfo(cpart):
-        return cpart['trkInfo'] if cpart['trkInfo'] else ''
-
-    def __noringer(cpart):    
-        return cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
-
     name = d['chainName']
-
-    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]), __trackinfo(cparts[0]), __noringer(cparts[0]), tool=tool)
+    return _IncTool( name, cparts[0], tool=tool)
 
 
 def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
