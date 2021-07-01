@@ -205,6 +205,10 @@ def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
 
     kwargs.setdefault("ParticleOrderingTool", acc.popToolsAndMerge(EnergyParticleOrderingToolCfg(flags)))
 
+    eltool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
+    acc.addPublicTool(eltool)
+    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(eltool.name)) # public ToolHandle
+
     # not migrated simFlags.SimulationFlavour = "ATLFASTII"
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
@@ -331,6 +335,8 @@ def ISF_KernelCfg(flags):
         acc.merge(Kernel_PassBackG4MTCfg(flags))
     elif flags.Sim.ISF.Simulator in ('G4FastCaloMT'):
         acc.merge(Kernel_G4FastCaloMT(flags))
+    elif flags.Sim.ISF.Simulator in ('ATLFASTIIMT'):
+        acc.merge(Kernel_ATLFASTIIMTCfg(flags))
     elif flags.Sim.ISF.Simulator in ('ATLFASTIIFMT'):
         acc.merge(Kernel_ATLFASTIIFMTCfg(flags))
     elif flags.Sim.ISF.Simulator in ('ATLFASTIIF_G4MS'):
