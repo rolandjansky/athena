@@ -199,6 +199,29 @@ HLT_2j330_a10t_lcw_jes_35smcINF_L1SC111-CJ15:
   eventCount: 0
 HLT_2j330_a10t_lcw_nojcalib_35smcINF_L1J100:
   eventCount: 0
+HLT_2j35_0eta240_020jvt_pf_ftf_2j35_0eta240_020jvt_pf_ftf_L14J15p0ETA25:
+  eventCount: 3
+  stepCounts:
+    0: 7
+    1: 3
+  stepFeatures:
+    0: 7
+    1: 45
+HLT_2j35_0eta240_020jvt_pf_ftf_bdl1r60_2j35_0eta240_020jvt_pf_ftf_L14J15p0ETA25:
+  eventCount: 0
+  stepCounts:
+    0: 7
+    1: 3
+  stepFeatures:
+    0: 7
+    1: 45
+    2: 3
+HLT_2j35_0eta240_2j35_0eta240_L14J15p0ETA25:
+  eventCount: 6
+  stepCounts:
+    0: 6
+  stepFeatures:
+    0: 90
 HLT_2j35_0eta290_020jvt_pf_ftf_bdl1r60_3j35_pf_ftf_0eta320_L15J15p0ETA25:
   eventCount: 0
   stepCounts:
