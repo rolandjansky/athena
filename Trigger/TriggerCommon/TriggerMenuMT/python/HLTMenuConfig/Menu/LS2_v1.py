@@ -47,7 +47,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  SupportPhIGroup,
                                                                  LowMuGroup,
                                                                  EOFBPhysL1MuGroup,
-                                                                 EOFTLALeg
+                                                                 EOFTLALegGroup
                                                                  )
 
 def setupMenu():
@@ -72,10 +72,8 @@ def setupMenu():
         ChainProp(name="HLT_noalg_L1MU6",  groups=SingleMuonGroup+LowMuGroup),
 
         ChainProp(name='HLT_mu6_LRT_idperf_L1MU6',           groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_LRT_idperf_L1MU20',           groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_d0medium_L1MU20',     groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_LRT_d0tight_L1MU20',     groups=SingleMuonGroup),
-
+        
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 
         # commented because it is conflict with dimuon noL1 serial chain
@@ -172,11 +170,9 @@ def setupMenu():
         # Test chains for ATR-23500
         ChainProp(name='HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_nopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhvloose_nopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e28_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhmedium_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e28_lhmedium_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
 
         # Primary
@@ -429,7 +425,7 @@ def setupMenu():
 
         # TLA test chains, ATR-20395
         ChainProp(name='HLT_j20_JetDS_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=PrimaryLegGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_JetDS_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=EOFTLALeg+SingleJetGroup),
+        ChainProp(name='HLT_j20_JetDS_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=EOFTLALegGroup+SingleJetGroup),
         # TLA test HT chains, ATR-21594
         ChainProp(name='HLT_j20_JetDS_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['JetDS'], groups=PrimaryLegGroup+SingleJetGroup),
         # Piggybacking on HH4b, exact thresholds for preselections to be determined later - this is for rate and cost
@@ -912,6 +908,11 @@ def setupMenu():
 
         # high-mu AFP
         #ChainProp(name='HLT_mb_afprec_2j20_afpdijet_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],groups=MinBiasGroup+LowMuGroup+SupportLegGroup),
+
+        # temporary bjet+met chains
+        ChainProp(name="HLT_j100_pf_ftf_bdl1r60_xe85_tcpufit_L1XE55", l1SeedThresholds=['FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryLegGroup+BjetMETGroup),
+        ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_xe85_tcpufit_L12J15_XE55", l1SeedThresholds=['FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryLegGroup+BjetMETGroup),
+        ChainProp(name="HLT_3j35_pf_ftf_bdl1r60_xe70_tcpufit_L13J15p0ETA25_XE40", l1SeedThresholds=['FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryLegGroup+BjetMETGroup),
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [

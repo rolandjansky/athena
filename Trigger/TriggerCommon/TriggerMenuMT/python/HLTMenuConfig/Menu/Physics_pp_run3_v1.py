@@ -61,7 +61,7 @@ TagAndProbePhIGroup = ['Support:PhaseITagAndProbe']
 # to identify all chains needed from low mu menu (to be removed once that menu is created and chains moved)
 LowMuGroup = ['Primary:LowMu']
 EOFBPhysL1MuGroup = ['EOF:BPhysL1Muon']
-EOFTLALeg = ['EOF:TLALegacy']
+EOFTLALegGroup = ['EOF:TLALegacy']
 
 def setupMenu():
 
@@ -116,8 +116,9 @@ def setupMenu():
 
         # -- LRT mu
         ChainProp(name='HLT_mu24_LRT_d0loose_L1MU20',  groups=PrimaryL1MuGroup+SingleMuonGroup),
-
-
+        ChainProp(name='HLT_mu24_LRT_d0tight_L1MU20',  groups=PrimaryL1MuGroup+SingleMuonGroup), #back-up
+        ChainProp(name='HLT_mu24_LRT_idperf_L1MU20',   groups=SupportGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_L1MU20',       groups=SupportGroup+SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -248,6 +249,10 @@ def setupMenu():
         # primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
         ChainProp(name='HLT_e24_lhmedium_g25_medium_02dRAB_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup),
         ChainProp(name='HLT_e24_lhmedium_2g12_loose_02dRAB_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=PrimaryLegGroup+MultiElectronGroup), # unsure about l1SeedThresholds
+
+        # Electron LRT chains
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhmedium_nopix_lrttight_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup), #back-up
 
     ]
 

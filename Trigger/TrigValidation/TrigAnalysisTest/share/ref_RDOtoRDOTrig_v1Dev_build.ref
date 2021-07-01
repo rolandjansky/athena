@@ -241,6 +241,14 @@ HLT_2j45_0eta290_020jvt_pf_ftf_bdl1r60_3j45_pf_ftf_0eta320_L15J15p0ETA25:
     0: 5
     1: 30
     2: 2
+HLT_2j45_pf_ftf_bdl1r60_xe85_tcpufit_L12J15_XE55:
+  eventCount: 0
+  stepCounts:
+    0: 6
+  stepFeatures:
+    0: 14
+    1: 14
+    2: 4
 HLT_2j45_pf_ftf_bdl1r70_j0_pf_ftf_HT300_j0_pf_ftf_DJMASS700j35_L1HT150-J20s5pETA31_MJJ-400-CF:
   eventCount: 0
   stepCounts:
@@ -649,6 +657,14 @@ HLT_3j35_0eta290_020jvt_pf_ftf_bdl1r70_j35_pf_ftf_0eta320_L14J15p0ETA25:
     0: 7
     1: 56
     2: 4
+HLT_3j35_pf_ftf_bdl1r60_xe70_tcpufit_L13J15p0ETA25_XE40:
+  eventCount: 0
+  stepCounts:
+    0: 8
+  stepFeatures:
+    0: 17
+    1: 26
+    2: 6
 HLT_3j65_0eta290_020jvt_pf_ftf_bdl1r60_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
   stepCounts:
@@ -4429,6 +4445,15 @@ HLT_j100_pf_ftf_0eta320_j20_0eta290_pf_ftf_boffperf_L1HT190-J15s5pETA21:
     0: 4
     1: 81
     2: 37
+HLT_j100_pf_ftf_bdl1r60_xe85_tcpufit_L1XE55:
+  eventCount: 2
+  stepCounts:
+    0: 7
+    1: 2
+  stepFeatures:
+    0: 16
+    1: 8
+    2: 2
 HLT_j110_320eta490_L1J30p31ETA49:
   eventCount: 0
 HLT_j110_a10sd_cssk_pf_jes_ftf_L1J30:
@@ -6556,6 +6581,14 @@ HLT_mu20_ivarmedium_mu8noL1_L1MU20:
     4: 4
     5: 2
     6: 2
+HLT_mu20_msonly_L1MU20:
+  eventCount: 6
+  stepCounts:
+    0: 8
+    1: 6
+  stepFeatures:
+    0: 10
+    1: 7
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU20-MU6:
   eventCount: 1
   stepCounts:

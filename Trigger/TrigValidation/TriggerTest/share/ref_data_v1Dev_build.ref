@@ -106,6 +106,8 @@ HLT_2j45_0eta290_020jvt_pf_ftf_bdl1r60_2j45_pf_ftf_L14J15p0ETA25:
   eventCount: 0
 HLT_2j45_0eta290_020jvt_pf_ftf_bdl1r60_3j45_pf_ftf_0eta320_L15J15p0ETA25:
   eventCount: 0
+HLT_2j45_pf_ftf_bdl1r60_xe85_tcpufit_L12J15_XE55:
+  eventCount: 0
 HLT_2j45_pf_ftf_bdl1r70_j0_pf_ftf_HT300_j0_pf_ftf_DJMASS700j35_L1HT150-J20s5pETA31_MJJ-400-CF:
   eventCount: 0
 HLT_2j55_0eta290_020jvt_pf_ftf_bdl1r60_2j55_pf_ftf_0eta320_L14J15p0ETA25:
@@ -259,6 +261,8 @@ HLT_3j200_pf_ftf_L1J100:
 HLT_3j20_pf_ftf_020jvt_j20_0eta290_pf_ftf_boffperf_L1HT190-J15s5pETA21:
   eventCount: 0
 HLT_3j35_0eta290_020jvt_pf_ftf_bdl1r70_j35_pf_ftf_0eta320_L14J15p0ETA25:
+  eventCount: 0
+HLT_3j35_pf_ftf_bdl1r60_xe70_tcpufit_L13J15p0ETA25_XE40:
   eventCount: 0
 HLT_3j65_0eta290_020jvt_pf_ftf_bdl1r60_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
@@ -1602,6 +1606,13 @@ HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50:
     2: 1
 HLT_j100_pf_ftf_0eta320_j20_0eta290_pf_ftf_boffperf_L1HT190-J15s5pETA21:
   eventCount: 0
+HLT_j100_pf_ftf_bdl1r60_xe85_tcpufit_L1XE55:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+    1: 1
 HLT_j110_320eta490_L1J30p31ETA49:
   eventCount: 0
 HLT_j110_a10sd_cssk_pf_jes_ftf_L1J30:
@@ -2676,6 +2687,12 @@ HLT_mu20_ivarmedium_mu8noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu20_msonly_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU20-MU6:
   eventCount: 0
   stepCounts:
