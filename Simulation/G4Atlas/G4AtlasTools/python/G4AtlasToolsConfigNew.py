@@ -89,9 +89,8 @@ def ITkSensitiveDetectorListCfg(ConfigFlags):
     tools = []
 
     if ConfigFlags.Detector.EnableITkPixel:
-        # TODO: disabled pending geometry updates
-        # from PixelG4_SD.PixelG4_SDToolConfig import ITkPixelSensorSDCfg
-        # tools += [ result.popToolsAndMerge(ITkPixelSensorSDCfg(ConfigFlags)) ]
+        from PixelG4_SD.PixelG4_SDToolConfig import ITkPixelSensorSDCfg
+        tools += [ result.popToolsAndMerge(ITkPixelSensorSDCfg(ConfigFlags)) ]
         pass
     if ConfigFlags.Detector.EnableITkStrip:
         from SCT_G4_SD.SCT_G4_SDToolConfig import ITkStripSensorSDCfg
