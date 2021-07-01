@@ -29,10 +29,6 @@ if not globals().get('tupleFileOutput'):
 
 athenaCommonFlags.EvtMax = -1
 
-# Example of changing D3PD maker flags.
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-#D3PDMakerFlags.DoTrigger = False
-
 
 ###################################################################3
 # Configure RecExCommon.
