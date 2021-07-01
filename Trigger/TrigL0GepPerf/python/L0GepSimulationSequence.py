@@ -35,7 +35,7 @@ def setupL0GepSimulationSequence():
 
     # choose algorithms to run
     # topoclustering and default clusters
-    topoclAlgs = ['CaloCal','Calo420','Calo422']
+    topoclAlgs = ['CaloCal','Calo420','Calo422','CaloWFS']
     # pileup suppression
     puSupprAlgs = ['', 'Vor', 'SK', 'VorSK']
     # jet reconstruction

@@ -33,6 +33,14 @@ namespace Gep{
     float time;
     TLorentzVector vec;
     std::vector<unsigned int> cell_id;
+
+    void setEtEtaPhi(double et, double eta, double phi) {
+      vec.SetPtEtaPhiM(et, eta, phi, 0.0);
+    }
+
+    float et() {
+      return vec.Et();
+    }
     
   private:
     

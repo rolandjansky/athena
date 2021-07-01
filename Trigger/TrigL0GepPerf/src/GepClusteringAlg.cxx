@@ -8,6 +8,7 @@
 #include "TrigL0GepPerf/ITopoClusterMaker.h"
 
 // *** Include custom topoclustering classes inherited from base class ***
+#include "TrigL0GepPerf/WFSTopoClustering.h"
 
 //
 #include "xAODEventInfo/EventInfo.h"
@@ -25,7 +26,7 @@ GepClusteringAlg::GepClusteringAlg( const std::string& name, ISvcLocator* pSvcLo
   m_topoclAlg ("TopoclAlg")
 {
 
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
+  declareProperty("CaloNoiseTool", m_noiseTool, "Tool Handle for noise tool");
   declareProperty("TopoclAlg", m_topoclAlg="Unknown", "Custom topoclustering algorithm label. New custom clusters will be named m_topoclAlg+\"TopoClusters\".");
 
 }
@@ -56,7 +57,6 @@ StatusCode GepClusteringAlg::initialize() {
   // pass caloIndentifier to CaloCellsHandler
   m_cch.passCaloCellIDTool(m_ccIdHelper);
 
-
   return StatusCode::SUCCESS;
 }
 
@@ -64,16 +64,6 @@ StatusCode GepClusteringAlg::initialize() {
 
 StatusCode GepClusteringAlg::execute() {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
-
-
-  if(m_noiseTool.retrieve().isFailure()){
-    ATH_MSG_ERROR("Unable to find noise tool");
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Noise tool retrieved");
-  }
-
 
 
   const xAOD::EventInfo* ei = 0;
@@ -101,7 +91,10 @@ StatusCode GepClusteringAlg::execute() {
   std::unique_ptr<Gep::ITopoClusterMaker> topoMaker{};
 
   // *** Instantiate custom topoclustering classes ***
-
+  if( m_topoclAlg == "CaloWFS" ){
+     auto wfsClusters = std::make_unique<Gep::WFSTopoClusterMaker>();
+     topoMaker = std::move(wfsClusters);
+  }
 
   if( !topoMaker ){ 
     ATH_MSG_ERROR( "No topoclustering class assigned to topoMaker." );
