@@ -561,4 +561,13 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
-    TriggerFlags.UnconventionalTrackingSlice.signatures = [ ]
+    TriggerFlags.UnconventionalTrackingSlice.signatures = [
+        #Isolated High pt Track Trigger
+        #Primary
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=SingleMETGroup+PrimaryLegGroup),
+        #Backup for Primary Triggers
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=SingleMETGroup+PrimaryLegGroup),
+        #Support
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=SingleMETGroup+SupportLegGroup),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],  groups=SingleMETGroup+SupportLegGroup),
+ ]
