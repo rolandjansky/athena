@@ -591,8 +591,9 @@ namespace Muon {
         // sanity checks
         const double diff_phi = xAOD::P4Helpers::deltaPhi(roaddir2.phi(), gdir.phi());
         const double diff_prec = xAOD::P4Helpers::deltaPhi(linephi, segLocDir.angleYZ());
-        /// Use linearity of the sin at leading order
-        if (std::abs(diff_phi) > 1.e-3 || std::abs(diff_prec) > 1.e-3) {
+        /// Use linearity of the sin at leading order to check that the angular differences are either 0 or PI
+        if (std::min(std::abs(diff_phi), std::abs(diff_phi - M_PI)) > 1.e-3 || 
+            std::min(std::abs(diff_prec), std::abs(diff_prec - M_PI)) > 1.e-3) {
             ATH_MSG_WARNING(" ALARM updated angles wrong: diff phi " << diff_phi << "  prec " << diff_prec << " phi rdir " << roaddir2.phi()
                                                                      << " gdir " << gdir.phi() << " lphi " << linephi << " seg "
                                                                      << segLocDir.angleYZ());
