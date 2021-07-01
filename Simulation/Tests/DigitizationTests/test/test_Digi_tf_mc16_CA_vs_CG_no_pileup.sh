@@ -22,7 +22,6 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'all:Campaigns/MC16NoPileUp.py' \
 --skipEvents 0 \
@@ -37,7 +36,7 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiConfigCG.txt")' \
+--postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'all:Campaigns/MC16NoPileUp.py' \
 --skipEvents 0
@@ -61,7 +60,7 @@ then
     --maxEvents ${Events} \
     --outputRDOFile ${DigiOutFileNameCA} \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
-    --preInclude 'HITtoRDO:Campaigns.MC16a' \
+    --preInclude 'HITtoRDO:Campaigns.MC16NoPileUp' \
     --skipEvents 0
 
     rc2=$?

@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.Enums import ProductionStep
-from LArConfiguration.LArConfigRun3 import LArConfigRun3
+from LArConfiguration.LArConfigRun3 import LArConfigRun3PileUp, LArConfigRun3NoPileUp
 
 
 def MC21a(flags):
     """MC21a flags for MC to match initial Run 3 data"""
-    flags.Beam.NumberOfCollisions = 60. if flags.Digitization.PileUp else 0.
+    flags.Beam.NumberOfCollisions = 60.
 
-    LArConfigRun3(flags)
+    LArConfigRun3PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
@@ -23,3 +23,13 @@ def MC21a(flags):
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
         flags.Digitization.PU.HighPtMinBiasInputColOffset = -1
+
+
+def MC21NoPileUp(flags):
+    """MC21a flags for MC to match initial Run 3 data"""
+    flags.Beam.NumberOfCollisions = 0.
+
+    LArConfigRun3NoPileUp(flags)
+
+    flags.Tile.BestPhaseFromCOOL = False
+    flags.Tile.correctTime = False
