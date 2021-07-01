@@ -1774,8 +1774,6 @@ HLT_j25_pf_ftf_L1RD0_FILLED:
     1: 26
 HLT_j260_320eta490_L1J20:
   eventCount: 0
-HLT_j260_320eta490_L1J75_31ETA49:
-  eventCount: 0
 HLT_j260_320eta490_L1J75p31ETA49:
   eventCount: 0
 HLT_j260_a10sd_cssk_pf_jes_ftf_L1J75:
@@ -3302,11 +3300,11 @@ HLT_noalg_cosmiccalo_L1J12_EMPTY:
   eventCount: 0
 HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY:
   eventCount: 0
-HLT_noalg_cosmiccalo_L1J30_31ETA49_EMPTY:
-  eventCount: 0
 HLT_noalg_cosmiccalo_L1J30_EMPTY:
   eventCount: 0
 HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY:
+  eventCount: 0
+HLT_noalg_cosmiccalo_L1J30p31ETA49_EMPTY:
   eventCount: 0
 HLT_noalg_cosmiccalo_L1RD0_FIRSTEMPTY:
   eventCount: 0
