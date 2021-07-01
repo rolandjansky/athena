@@ -1,9 +1,8 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 #include "TrigT1MBTS.h"
 #include "TrigT1Interfaces/MbtsCTP.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfData/L1Menu.h"
 
@@ -19,9 +18,6 @@ StatusCode
 LVL1::TrigT1MBTS::initialize()
 {
    ATH_MSG_INFO("Initialising TrigT1MBTS, name = " << name());
-   ATH_MSG_INFO("UseNewConfig set to " <<  (m_useNewConfig ? "True" : "False"));
-
-   ATH_CHECK(AthAlgorithm::initialize());
 
    m_thresholds_a.clear();
    m_thresholds_c.clear();
@@ -40,171 +36,70 @@ LVL1::TrigT1MBTS::initialize()
    m_cablestarts_a.resize(16,0);// default is bit 0
    m_cablestarts_c.resize(16,0);// default is bit 0
 
-   // Connect to the LVL1ConfigSvc to retrieve threshold settings.
-   ATH_CHECK(m_configSvc.retrieve());
-
    // Retrieve TileTBID helper from det store
    // (The MBTS was added to the Test Beam (TB) list.)
    ATH_CHECK(detStore()->retrieve(m_tileTBID));
 
    const TrigConf::L1Menu * l1menu = nullptr;
-   if(m_useNewConfig) {
-      // Run 3 menu 
-      ATH_CHECK( detStore()->retrieve(l1menu) );
-   }
+   ATH_CHECK( detStore()->retrieve(l1menu) );
 
-   if(m_useNewConfig) {
-      // Run 3 menu 
-      // MBTS
-      for (std::shared_ptr<TrigConf::L1Threshold> thr : l1menu->thresholds("MBTS")) {
-         if(thr->name() != "MBTS_A" && thr->name() != "MBTS_C") {
-            continue;
-         }
-         std::string connName = l1menu->connectorNameFromThreshold(thr->name());
-         unsigned int startbit = l1menu->connector(connName).triggerLine(thr->name()).startbit();
-         m_ThrVecSize12 = true; // TODO: check for (thresholds[0]->thresholdValueVector().size() == 12);
-         std::vector<float> hwThrValues; // TODO need to add configuration access in TrigConfData/Threshold.h
-         if(thr->name() == "MBTS_A") {
-            m_cablestart_a = startbit;
-            if(m_ThrVecSize12) {
-               m_thresholds_short_a = hwThrValues;
-            } else {
-               m_thresholds_a = hwThrValues;
-            }
+   // MBTS
+   for (std::shared_ptr<TrigConf::L1Threshold> thr : l1menu->thresholds("MBTS")) {
+      if(thr->name() != "MBTS_A" && thr->name() != "MBTS_C") {
+         continue;
+      }
+      std::string connName = l1menu->connectorNameFromThreshold(thr->name());
+      unsigned int startbit = l1menu->connector(connName).triggerLine(thr->name()).startbit();
+      m_ThrVecSize12 = true; // TODO: check for (thresholds[0]->thresholdValueVector().size() == 12);
+      std::vector<float> hwThrValues; // TODO need to add configuration access in TrigConfData/Threshold.h
+      if(thr->name() == "MBTS_A") {
+         m_cablestart_a = startbit;
+         if(m_ThrVecSize12) {
+            m_thresholds_short_a = hwThrValues;
          } else {
-            m_cablestart_c = startbit;
-            if(m_ThrVecSize12) {
-               m_thresholds_short_c = hwThrValues;
-            } else {
-               m_thresholds_c = hwThrValues;
-            }
+            m_thresholds_a = hwThrValues;
          }
-      }
-      
-      // MBTSSI
-      for (std::shared_ptr<TrigConf::L1Threshold> thr : l1menu->thresholds("MBTSSI")) {
-         //m_singleCounterInputs = true;
-         std::string thrname = thr->name();
-         // figure out module number from threshold name
-         size_t module = std::stoi(thrname.substr(6));
-         float  hwValue = 0; // TODO implement access
-         std::string connName = l1menu->connectorNameFromThreshold(thr->name());
-         unsigned int startbit = l1menu->connector(connName).triggerLine(thr->name()).startbit();
-         ATH_MSG_INFO("Read " << thrname << " with voltage " << hwValue << "mV at bit " << startbit << " on " << connName);
-         // Get the discriminator threshold settings (single inputs) for the C side.
-         bool isCSide = thrname.find("MBTS_C")==0;
-         if(isCSide) {
-            if(module >= m_thresholds_c.size()) {
-               ATH_MSG_WARNING("Module number " << module << " on side C out of range");
-            } else {
-               m_thresholds_c[module] = hwValue;
-               m_cablestarts_c[module] = startbit;
-            }
-         } else if(thrname.find("MBTS_A")==0 && thrname.size()>6) {
-            // Get the discriminator threshold settings (single inputs) for the A side.
-            // figure out module number from threshold name
-            if(module >= m_thresholds_a.size()) {
-               ATH_MSG_WARNING("Module number " << module << " on side A out of range");
-            } else {
-               m_thresholds_a[module] = hwValue;
-               m_cablestarts_a[module] = startbit;
-            }
-         }
-      }
-
-   } else {
-      // Get level 1 MBTS threshold settings from the level 1
-      // configuration service for the discriminators on the
-      // multiplicity inputs.  All discriminators are assumed to have
-      // the same setting.  The thresholds are in mV and are not a
-      // ptcut.  The ptcut() methods just returns the value in the xml
-      // file.
-      const std::vector<TrigConf::TriggerThreshold*> & thresholds = m_configSvc->thresholdConfig()->getMbtsThresholdVector();
-      m_ThrVecSize12 = (thresholds[0]->thresholdValueVector().size() == 12);
-      ATH_MSG_INFO("Size of thresholdValueVector: " << thresholds[0]->thresholdValueVector().size());
-      for(const TrigConf::TriggerThreshold* thr : thresholds) {
-
-         // Get the discriminator threshold settings (multiplicity input) for the C side.
-         if( thr->name() == "MBTS_C" ) {
-            const std::vector<TrigConf::TriggerThresholdValue*>& thrValues = thr->thresholdValueVector();
-
-            for(size_t ii = 0; ii<thrValues.size(); ++ii) {
-               float hwThresholdValue = thrValues[ii]->ptcut();
-
-               if(m_ThrVecSize12) {
-                  m_thresholds_short_c[ii] = hwThresholdValue;
-               } else {
-                  m_thresholds_c[ii] = hwThresholdValue;
-               }
-               ATH_MSG_INFO( "Multiplicity input side C, counter " << ii << ", read threshold in mV of " << hwThresholdValue);
-            }
-            m_cablestart_c = thr->cableStart();
-            ATH_MSG_DEBUG("CableStart: " << m_cablestart_c << ", CableEnd: " << thr->cableEnd());
-
-         } else if( thr->name() == "MBTS_A" ) {
-
-            // Get the discriminator threshold settings (multiplicity input) for the A side.
-            const std::vector<TrigConf::TriggerThresholdValue*>& thrValues = thr->thresholdValueVector();
-
-            for(size_t ii = 0; ii<thrValues.size();++ii) {
-               float hwThresholdValue = thrValues[ii]->ptcut();
-               if(m_ThrVecSize12) {
-                  m_thresholds_short_a[ii] = hwThresholdValue;
-               } else {
-                  m_thresholds_a[ii] = hwThresholdValue;
-               }
-               ATH_MSG_INFO("Multiplicity input side A, counter " << ii << ", read threshold in mV of " << hwThresholdValue);
-            }
-            m_cablestart_a = thr->cableStart();
-            ATH_MSG_DEBUG("CableStart: " << m_cablestart_a << ", CableEnd: " << thr->cableEnd());
-         }
-      }
-
-      // Get level 1 MBTS threshold settings from the level 1
-      // configuration service for the discriminators on the single
-      // inputs.  There are 32 physical discriminator inputs these can
-      // only be set to one value each.  These are the same 32
-      // discriminators used for the multiplicity inputs.  Each one the
-      // thresholds are in mV and are not a ptcut.  The ptcut() methods
-      // just returns the value in the xml file.
-      ATH_MSG_DEBUG( "Size of MbtssiThresholdValueVector: " << m_configSvc->thresholdConfig()->getMbtssiThresholdVector().size());
-      for(const TrigConf::TriggerThreshold* thr : m_configSvc->thresholdConfig()->getMbtssiThresholdVector()) {
-         //m_singleCounterInputs = true;
-         std::string thrname = thr->name();
-
-         // Get the discriminator threshold settings (single inputs) for the C side.
-         if(thrname.find("MBTS_C")==0 && thrname.size()>6) {
-            // figure out module number from threshold name
-            ATH_MSG_INFO("Single input threshold name " << thrname);
-            thrname.replace(thrname.find("MBTS_C"),6,"");
-            size_t module = std::stoi(thrname);
-            ATH_MSG_INFO(" converts to Module number " << module);
-            if(module >= m_thresholds_c.size()) {
-               ATH_MSG_WARNING("Module number " << module << " on side C out of range");
-            } else {
-               m_thresholds_c[module] = thr->triggerThresholdValue(0, 0)->ptcut();
-               m_cablestarts_c[module] = thr->cableStart();
-               ATH_MSG_INFO(", read threshold in mV of " << m_thresholds_c[module]);
-               ATH_MSG_DEBUG("CableStart: " << m_cablestarts_c[module] << ", CableEnd: " << thr->cableEnd());
-            }
-         } else if(thrname.find("MBTS_A")==0 && thrname.size()>6) {
-            // Get the discriminator threshold settings (single inputs) for the A side.
-            // figure out module number from threshold name
-            ATH_MSG_INFO("Single input threshold name " << thrname);
-            thrname.replace(thrname.find("MBTS_A"),6,"");
-            size_t module = std::stoi(thrname);
-               ATH_MSG_DEBUG(", moduel number " << module);
-            if(module >= m_thresholds_a.size()) {
-               ATH_MSG_WARNING("Module number " << module << " on side A out of range");
-            } else {
-               m_thresholds_a[module] = thr->triggerThresholdValue(0, 0)->ptcut();
-               m_cablestarts_a[module] = thr->cableStart();
-               ATH_MSG_INFO(", read threshold in mV of " << m_thresholds_a[module]);
-               ATH_MSG_DEBUG("CableStart: " << m_cablestarts_a[module] << ", CableEnd: " << thr->cableEnd());
-            }
+      } else {
+         m_cablestart_c = startbit;
+         if(m_ThrVecSize12) {
+            m_thresholds_short_c = hwThrValues;
+         } else {
+            m_thresholds_c = hwThrValues;
          }
       }
    }
+      
+   // MBTSSI
+   for (std::shared_ptr<TrigConf::L1Threshold> thr : l1menu->thresholds("MBTSSI")) {
+      //m_singleCounterInputs = true;
+      std::string thrname = thr->name();
+      // figure out module number from threshold name
+      size_t module = std::stoi(thrname.substr(6));
+      float  hwValue = 0; // TODO implement access
+      std::string connName = l1menu->connectorNameFromThreshold(thr->name());
+      unsigned int startbit = l1menu->connector(connName).triggerLine(thr->name()).startbit();
+      ATH_MSG_INFO("Read " << thrname << " with voltage " << hwValue << "mV at bit " << startbit << " on " << connName);
+      // Get the discriminator threshold settings (single inputs) for the C side.
+      bool isCSide = thrname.find("MBTS_C")==0;
+      if(isCSide) {
+         if(module >= m_thresholds_c.size()) {
+            ATH_MSG_WARNING("Module number " << module << " on side C out of range");
+         } else {
+            m_thresholds_c[module] = hwValue;
+            m_cablestarts_c[module] = startbit;
+         }
+      } else if(thrname.find("MBTS_A")==0 && thrname.size()>6) {
+         // Get the discriminator threshold settings (single inputs) for the A side.
+         // figure out module number from threshold name
+         if(module >= m_thresholds_a.size()) {
+            ATH_MSG_WARNING("Module number " << module << " on side A out of range");
+         } else {
+            m_thresholds_a[module] = hwValue;
+            m_cablestarts_a[module] = startbit;
+         }
+      }
+   }
+
 
    // MBTS_A, MBTS_C or MBTS_A, MBTS_C, MBTS_0, MBTS_1,...,MBTS_15 are used.
    // Therefore thess messages are just INFO rather than warning. 
