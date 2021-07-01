@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_GenericMonitoringTool_h
@@ -21,7 +21,6 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "AthenaMonitoringKernel/HistogramFiller.h"
 
 /* Here, by forward declaring these two classes, which appear as parameters and values
    in GenericMonitoringTool functions only as pointers (not as the objects themselves),
@@ -51,13 +50,15 @@ namespace Monitored {
 namespace Monitored {
   class Group;
 }
-class GenericMonitoringTool : public AthAlgTool {
+class GenericMonitoringTool : public extends<AthAlgTool, IIncidentListener> {
 public:
-  GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
+  using extends::extends;
+
   virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
   virtual StatusCode stop() override;
+  void handle( const Incident& ) override;
 
   /// feed the fillers
   void invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;  
@@ -82,8 +83,10 @@ private:
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
   Gaudi::Property<bool> m_failOnEmpty { this, "FailOnEmpty", true, "Fail in initialize() if no histograms defined" };
   BooleanProperty m_useCache { this, "UseCache", true, "Cache filler lookups" };
+  BooleanProperty m_registerHandler { this, "RegisterHandler", true, "Use incident handler to make 'always book' plots (else only check once)" };
 
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_fillers; //!< plain list of fillers
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_alwaysCreateFillers; //!< fillers that need touching, usually empty
   mutable std::map<std::vector<std::string>,std::unique_ptr<std::vector<std::shared_ptr<Monitored::HistogramFiller>>>,std::less<>> m_fillerCacheMap ATLAS_THREAD_SAFE; //!< lookup map to speed up filler searches
   mutable std::mutex m_cacheMutex;
 

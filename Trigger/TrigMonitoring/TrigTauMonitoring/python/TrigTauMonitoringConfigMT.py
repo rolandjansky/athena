@@ -223,6 +223,9 @@ class TrigTauMonAlgBuilder:
     'HLT_tau160_medium1_track_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     'HLT_tau160_medium1_tracktwoEF_L1TAU100',
+    # tau180
+    'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
+    'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
     # tau200
     'HLT_tau200_ptonly_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
@@ -230,10 +233,16 @@ class TrigTauMonAlgBuilder:
     'HLT_tau200_medium1_track_L1TAU100',
     'HLT_tau200_medium1_tracktwo_L1TAU100',
     'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
+    'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
     # ditau
     'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
     'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
-    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'
+    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40'
     ]
 
     self.tauList = monitoring_tau

@@ -34,6 +34,18 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   
   // cuts for tracks
   
+   // There is room for 10 bins, for future development.
+   // The default below represents one eta bin between 0 and 999
+   // and no cuts applied.
+   m_TRTTrksEtaBins.clear();
+   m_TRTTrksMinTRTHitsThresholds.clear();
+   m_TRTTrksMinTRTHitsMuDependencies.clear();
+   for (unsigned int i=0;i<10;++i) {
+     m_TRTTrksEtaBins.push_back(999);
+     m_TRTTrksMinTRTHitsThresholds.push_back(0);
+     m_TRTTrksMinTRTHitsMuDependencies.push_back(0);
+   }
+
   // declare properties
   declareProperty("SummaryTool" ,            m_trkSummaryTool );
   declareProperty("DriftCircleCutTool",      m_selectortool   );
@@ -45,6 +57,9 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   declareProperty("UseParameterization",     m_parameterization = true);
   declareProperty("OldTransitionLogic" ,     m_oldLogic         = false);
   declareProperty("minTRTPrecisionFraction", m_minTRTprecision  = 0.5);
+  declareProperty("TRTTrksEtaBins"        , m_TRTTrksEtaBins); /* expects 10 eta bins (set unused bins to e.g. 999) */
+  declareProperty("TRTTrksMinTRTHitsThresholds"    , m_TRTTrksMinTRTHitsThresholds); /* expects 10 values */
+  declareProperty("TRTTrksMinTRTHitsMuDependencies", m_TRTTrksMinTRTHitsMuDependencies); /* expects 10 values */
   m_summaryTypeScore[Trk::numberOfTRTHits]	        =   1;  // 10 straws ~ 1 SCT
   m_summaryTypeScore[Trk::numberOfTRTHighThresholdHits] =   0;  // addition for being TR
     
@@ -92,6 +107,13 @@ StatusCode InDet::InDetTrtTrackScoringTool::initialize()
   // Read handle for AtlasFieldCacheCondObj
   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
+  if (m_lumiBlockMuTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -129,6 +151,18 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
     ATH_MSG_VERBOSE ("Track has " << ((double)numTRTTube)/numTRT << " TRT tube hit fraction,  reject it");
     return Trk::TrackScore(0);  
   } 
+
+  const Trk::Perigee* perigee=dynamic_cast<const Trk::Perigee*>(track.perigeeParameters());
+  int numTRT_plusOutliers = numTRT + trackSummary.get(Trk::numberOfTRTOutliers);
+  unsigned int eta_bin = getEtaBin(*perigee);
+  double minTRT = getMuDependentNtrtMinCut(eta_bin);
+
+  // nTRT cut from egamma optimization
+  if (numTRT_plusOutliers < minTRT)
+  {
+    ATH_MSG_VERBOSE("Track has " << numTRT_plusOutliers << " TRT hits plus outliers, reject it");
+    return Trk::TrackScore(0);
+  }
 
   // Cut on the minimum number of hits
   bool isGood = isGoodTRT(track);
@@ -454,4 +488,35 @@ bool InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track) const
 
 }
 
+unsigned int InDet::InDetTrtTrackScoringTool::getEtaBin(const Trk::Perigee& perigee) const
+{
+  // Find the correct bin for applying eta-dependent cuts
+
+  double tanThetaOver2 = std::tan( perigee.parameters()[Trk::theta] / 2.);
+  double abs_eta = (tanThetaOver2 == 0) ? 999.0 : std::fabs( std::log(tanThetaOver2) );
+
+  for (unsigned int i=0;i<m_TRTTrksEtaBins.size();++i) {
+    if (abs_eta < m_TRTTrksEtaBins[i]) {
+      return i;
+    }
+  }
+  return m_TRTTrksEtaBins.size()-1;
+}
+
+
+double InDet::InDetTrtTrackScoringTool::getMuDependentNtrtMinCut(unsigned int eta_bin) const
+{
+
+  double minTRT = m_TRTTrksMinTRTHitsThresholds[eta_bin];
+
+  if (m_TRTTrksMinTRTHitsMuDependencies[eta_bin] > 0) {
+
+    float avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+
+    // minTRT = a + avg_mu * b
+    minTRT += avg_mu * m_TRTTrksMinTRTHitsMuDependencies[eta_bin];
+  }
+
+  return minTRT;
+}
 

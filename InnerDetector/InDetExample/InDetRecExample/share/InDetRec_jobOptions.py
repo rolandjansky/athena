@@ -569,9 +569,17 @@ else:
 
       include ("InDetRecExample/ConfiguredTRTStandalone.py")
       import copy
+
+      # --- load cuts for TRT Standalone tracks
+      if ('InDetNewTrackingCutsTRTStandalone' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRTStandalone not set before - import them now")
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsTRTStandalone = ConfiguredNewTrackingCuts("TRTStandalone")
+        InDetNewTrackingCutsTRTStandalone.printInfo()
+
       InDetRecTRTStandalone = ConfiguredTRTStandalone ("",
                                                        copy.copy(InputCombinedInDetTracks),
-                                                       InDetNewTrackingCuts,
+                                                       InDetNewTrackingCutsTRTStandalone,
                                                        InDetKeys.TRT_Segments(),
                                                   #     InDetKeys.TRT_Segments_EC(),
                                                        TrackCollectionKeys,

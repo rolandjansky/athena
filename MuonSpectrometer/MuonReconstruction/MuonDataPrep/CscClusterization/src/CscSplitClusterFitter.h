@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscSplitClusterFitter_H
@@ -23,7 +23,7 @@ namespace Muon {
 
 class CscSplitClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
 public:
-    CscSplitClusterFitter(std::string, std::string, const IInterface*);
+    CscSplitClusterFitter(const std::string&, const std::string&, const IInterface*);
 
     ~CscSplitClusterFitter() = default;
 

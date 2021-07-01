@@ -804,6 +804,7 @@ def make_peeker(meta_dict):
 
         if '/Simulation/Parameters' in file_content:
             keys_to_keep = [
+                'G4Version',
                 'TruthStrategy',
                 'SimBarcodeOffset',
                 'TRTRangeCut',

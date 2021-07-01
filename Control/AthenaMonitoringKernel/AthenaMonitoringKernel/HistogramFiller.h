@@ -112,7 +112,12 @@ namespace Monitored {
      */
     virtual unsigned fill( const VariablesPack& ) const = 0;
 
-
+    /**
+     * @brief Ensure histogram exists
+     */
+    void touch() const {
+      histogram<void>();
+    }
 
 
     const std::vector<std::string>& histogramVariablesNames() const {

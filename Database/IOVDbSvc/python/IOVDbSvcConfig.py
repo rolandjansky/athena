@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
@@ -228,6 +228,7 @@ def addOverride(configFlags,folder,tag):
   result=IOVDbSvcCfg(configFlags)
   iovDbSvc=result.getPrimary()
   iovDbSvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
+  return result
 
 
 def _extractFolder(folderstr):

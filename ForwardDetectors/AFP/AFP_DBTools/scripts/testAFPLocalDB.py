@@ -32,10 +32,10 @@ def testAFPLocalDBCfg(flags):
 
     # set from where to read the local information
     schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
-    locFolder = "/FWD/AFP/LocalAlignment"
-    locTag = "<tag>AFPAlignLoc-00</tag>"
-    globFolder = "/FWD/AFP/GlobalAlignment"
-    globTag = "<tag>AFPAlignGlob-00</tag>"
+    locFolder = "/FWD/Onl/AFP/Align/Local"
+    locTag = "<tag>AFPAlignLoc-01</tag>"
+    globFolder = "/FWD/Onl/AFP/Align/Global"
+    globTag = "<tag>AFPAlignGlob-01</tag>"
     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
     acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='CONDBR2' ))
 

@@ -88,7 +88,7 @@ InDet::TRT_TrackExtensionTool_DAF::~TRT_TrackExtensionTool_DAF() {}
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TRT_TrackExtensionTool_DAF::initialize() {
-    StatusCode sc = AlgTool::initialize();
+    ATH_CHECK( AlgTool::initialize() );
 
     // Build MagneticFieldProperties
     if     (m_fieldmode == "NoField"    ) m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  );

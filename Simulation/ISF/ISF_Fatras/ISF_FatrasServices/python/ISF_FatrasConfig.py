@@ -10,6 +10,7 @@ from ISF_Tools.ISF_ToolsConfigNew import ParticleHelperCfg
 from ISF_Services.ISF_ServicesConfigNew import (
     AFIIParticleBrokerSvcCfg, TruthServiceCfg
 )
+from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import G4RunManagerHelperCfg
 from RngComps.RandomServices import dSFMT
 from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
@@ -304,6 +305,10 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
     result.addPublicTool(phys_val_cfg)
     kwargs.setdefault("PhysicsValidationTool", result.getPublicTool(phys_val_cfg.name))
 
+    tool = result.popToolsAndMerge(G4RunManagerHelperCfg(flags))
+    result.addPublicTool(tool)
+    kwargs.setdefault("G4RunManagerHelper", result.getPublicTool(tool.name))
+
     iFatras__G4ParticleDecayHelper = CompFactory.iFatras.G4ParticleDecayHelper
     result.setPrivateTools(iFatras__G4ParticleDecayHelper(name=name, **kwargs))
     return result
@@ -595,6 +600,10 @@ def fatrasG4HadIntProcessorCfg(flags, name="ISF_FatrasG4HadIntProcessor", **kwar
 
     kwargs.setdefault("ValidationMode", flags.Sim.ISF.ValidationMode)
     kwargs.setdefault("MomentumCut", flags.Sim.Fatras.MomCutOffSec)
+
+    tool = result.popToolsAndMerge(G4RunManagerHelperCfg(flags))
+    result.addPublicTool(tool)
+    kwargs.setdefault("G4RunManagerHelper", result.getPublicTool(tool.name))
 
     iFatras__G4HadIntProcessor = CompFactory.iFatras.G4HadIntProcessor
     result.setPrivateTools(iFatras__G4HadIntProcessor(name=name, **kwargs))

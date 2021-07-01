@@ -346,6 +346,13 @@ namespace InDetDD {
     } 
 
     inline PixelModuleDesign::ReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
+      if (m_detectorType == InDetDD::DetectorType::PixelBarrel
+          || m_detectorType == InDetDD::DetectorType::PixelEndcap
+          || m_detectorType == InDetDD::DetectorType::PixelInclined)
+      {
+        return RD53;
+      }
+
       const int maxRow = m_readoutScheme.rowsPerCircuit();
       const int maxCol = m_readoutScheme.columnsPerCircuit();
       if (maxRow*maxCol>26000) { return FEI4; }

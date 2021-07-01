@@ -535,6 +535,8 @@ void CoreDumpSvc::handle(const Incident& incident)
   currRec.EvId = oss.str();
 
   if (incident.type()==IncidentType::BeginEvent) {
+    // Set up an alternate stack for this thread, if not already done.
+    setAltStack();
     ++m_eventCounter;
   } else if (incident.type() == "StoreCleared") {
     // Try to force reallocation.
@@ -568,15 +570,8 @@ StatusCode CoreDumpSvc::installSignalHandler()
 #endif
     oss << sig << "(" << strsignal(sig) << ") ";
 
-    // Set an alternate stack to use for doing stack traces, so that we
-    // can continue even if our primary stack is corrupt / exhausted.
-    // Reserve 2MB on top of the minimum required for a signal handler.
-    m_stack.resize (std::max (SIGSTKSZ, MINSIGSTKSZ) + 2*1024*1024);
-    stack_t ss;
-    ss.ss_sp = m_stack.data();
-    ss.ss_flags = 0;
-    ss.ss_size = m_stack.size();
-    sigaltstack (&ss, nullptr);
+    // Set up an alternate stack for this thread.
+    setAltStack();
     
     // Install new signal handler and backup old one
     struct sigaction sigact;
@@ -615,3 +610,25 @@ StatusCode CoreDumpSvc::uninstallSignalHandler()
   }
   return sc;
 }
+
+
+// Set an alternate stack to use for doing stack traces, so that we
+// can continue even if our primary stack is corrupt / exhausted.
+// Reserve 2MB on top of the minimum required for a signal handler.
+// This sets the alternate stack for the current thread, if it hasn't
+// already been done.
+void CoreDumpSvc::setAltStack()
+{
+  std::vector<uint8_t>& stack = s_stack;
+  if (stack.empty()) {
+    stack.resize (std::max (SIGSTKSZ, MINSIGSTKSZ) + 2*1024*1024);
+    stack_t ss;
+    ss.ss_sp = stack.data();
+    ss.ss_flags = 0;
+    ss.ss_size = stack.size();
+    sigaltstack (&ss, nullptr);
+  }
+}
+
+
+thread_local std::vector<uint8_t> CoreDumpSvc::s_stack;

@@ -19,33 +19,55 @@ namespace RPC_CondCabling {
     class SectorLogicSetup;
 
     class RPCchamber : public CablingObject {
+    public:
+        /// Helper struct containing the minimum number of
+        /// parameters on top of the CablingObject in order
+        /// to create an RPC chamber object.
+        struct chamberDefineParams {
+            chamberDefineParams() = default;                                       // default constructor
+            chamberDefineParams(chamberDefineParams&&) = default;                  // move constructor
+            chamberDefineParams(const chamberDefineParams&) = default;             // copy constructor
+            chamberDefineParams& operator=(const chamberDefineParams&) = default;  // assignment operator
+
+            std::string chamberName{""};  // RPC chamber name
+
+            int stationEta{-INT_MAX};  /// StaionEta as defined into the offline ID
+            int doubletR{-INT_MAX};    /// DoubletR as defined into the offline ID
+            int doubletZ{-INT_MAX};    /// DoubletZ as defined into the offline ID
+
+            int phiReadOutPanels{0};  /// Phi readout multiplicity
+
+            int stripsInEtaCon{0};  /// Number of eta strips into connectors
+            int stripsInPhiCon{0};  /// Number of phi strips into connectors
+
+            int etaStrips{0};  /// Number of eta strips
+            int phiStrips{0};  /// Number of phi strips
+
+            int etaConnectors{0};  /// Number of eta connectors
+            int phiConnectors{0};  /// Number of phi connectors
+
+            int ijk_EtaReadOut{0};  /// readout schema of the gas gaps in eta:
+                                    ///     01 = gap 0 in layer 0, gap 1 in layer 1
+                                    ///     10 = gap 0 in layer 1, gap 1 in layer 0
+            int ijk_PhiReadOut{0};  /// readout schema of the gas gaps in phi:
+                                    ///     01 = gap 0 in layer 0, gap 1 in layer 1
+                                    ///     10 = gap 0 in layer 1, gap 1 in layer 0
+        };
+        struct chamberParameters : public chamberDefineParams, public cablingParameters {
+            chamberParameters() = default;                                     // default constructor
+            chamberParameters(chamberParameters&&) = default;                  // move constructor
+            chamberParameters(const chamberParameters&) = default;             // copy constructor
+            chamberParameters& operator=(const chamberParameters&) = default;  // assignment operator
+        };
+
     private:
         typedef std::vector<int> ReadoutCh;
         typedef std::list<const EtaCMA*> CMAlist;
         typedef std::list<const WiredOR*> WORlist;
 
-        int m_strips_in_Eta_Conn;  // Number of eta strips into connectors
-        int m_strips_in_Phi_Conn;  // Number of phi strips into connectors
-
-        std::string m_chamber_name;  // RPC chamber name
-        int m_stationEta;            // StaionEta as defined into the offline ID
-        int m_doubletR;              // DoubletR as defined into the offline ID
-        int m_doubletZ;              // DoubletZ as defined into the offline ID
-        int m_phiReadoutPannels;     // Phi readout multiplicity
-
-        int m_eta_strips;        // Number of eta strips
-        int m_eta_connectors;    // Number of eta connectors
-        int m_eta_strip_global;  // Start number of eta strips in global coordinate
-        int m_eta_conn_global;   // Start number of eta connector in global coo.
-        int m_ijk_etaReadout;    // readout schema of the gas gaps in eta:
-                                 //     01 = gap 0 in layer 0, gap 1 in layer 1
-                                 //     10 = gap 0 in layer 1, gap 1 in layer 0
-
-        int m_phi_strips;      // Number of phi strips
-        int m_phi_connectors;  // Number of phi connectors
-        int m_ijk_phiReadout;  // readout schema of the gas gaps in phi:
-                               //     01 = gap 0 in layer 0, gap 1 in layer 1
-                               //     10 = gap 0 in layer 1, gap 1 in layer 0
+        chamberDefineParams m_params{};
+        int m_eta_strip_global{0};  // Start number of eta strips in global coordinate
+        int m_eta_conn_global{0};   // Start number of eta connector in global coo.
 
         ReadoutCh m_eta_read_mul;
 
@@ -53,44 +75,41 @@ namespace RPC_CondCabling {
         WORlist m_readoutWORs;
 
         int residual(ViewType, int) const;
-        void error(std::string);
+        void error(const std::string&) const;
 
     public:
-        RPCchamber(int, int, int, std::string, int, int, int, int, int, int, int, int,  // unsigned int,unsigned int,
-                   int, int, int, int);                                                 // unsigned int,unsigned int);
-        RPCchamber(const RPCchamber&);
-        ~RPCchamber();
+        RPCchamber(RPCchamber::chamberParameters params, IMessageSvc* msgSvc);
+        RPCchamber(const RPCchamber&) = default;
+        virtual ~RPCchamber();
 
-        RPCchamber& operator=(const RPCchamber&);
+        RPCchamber& operator=(const RPCchamber&) = default;
 
         void set_eta_st_global(int);
         void set_eta_co_global(int);
 
-        int eta_strips(void) const { return m_eta_strips; }
-        int eta_connectors(void) const { return m_eta_connectors; }
-        int eta_strip_global(void) const { return m_eta_strip_global; }
-        int eta_conn_global(void) const { return m_eta_conn_global; }
-        int phi_strips(void) const { return m_phi_strips; }
+        int eta_strips() const;
+        int eta_connectors() const;
+        int eta_strip_global() const;
+        int eta_conn_global() const;
+        int phi_strips() const;
 
-        int phi_connectors(void) const { return m_phi_connectors; }
+        int phi_connectors() const;
+        int ijk_etaReadout() const;
+        int ijk_phiReadout() const;
 
-        int ijk_etaReadout(void) const { return m_ijk_etaReadout; }
-        int ijk_phiReadout(void) const { return m_ijk_phiReadout; }
+        std::string chamber_name() const;
+        std::string stationName() const;
+        int stationEta() const;
+        int doubletR() const;
+        int doubletZ() const;
+        int phiReadoutPannels() const;
 
-        std::string chamber_name(void) const { return m_chamber_name; }
-        std::string stationName(void) const { return m_chamber_name.substr(0, 3); }
-        int stationEta(void) const { return m_stationEta; }
-        int doubletR(void) const { return m_doubletR; }
-        int doubletZ(void) const { return m_doubletZ; }
-        int phiReadoutPannels(void) const { return m_phiReadoutPannels; }
+        int strips_in_Eta_Conn() const;
+        int strips_in_Phi_Conn() const;
+        const ReadoutCh& eta_read_mul() const;
 
-        int strips_in_Eta_Conn(void) const { return m_strips_in_Eta_Conn; }
-        int strips_in_Phi_Conn(void) const { return m_strips_in_Phi_Conn; }
-
-        const ReadoutCh& eta_read_mul(void) const { return m_eta_read_mul; }
-
-        const CMAlist& readoutCMAs(void) const { return m_readoutCMAs; }
-        const WORlist& readoutWORs(void) const { return m_readoutWORs; }
+        const CMAlist& readoutCMAs() const;
+        const WORlist& readoutWORs() const;
 
         std::string extendedName(int) const;
         bool inversion(int) const;
@@ -106,7 +125,7 @@ namespace RPC_CondCabling {
 
         void Print(std::ostream&, bool) const;
 
-        bool check(void);
+        bool check();
         bool setup(SectorLogicSetup&);
 
         void add_cma(const EtaCMA*);

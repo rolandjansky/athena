@@ -47,10 +47,10 @@ class TrigEgammaFastElectronHypoToolConfig:
                            'lhloose'  , 
                            'lhvloose' ,
                            'mergedtight',
-                           #'dnntight',
-                           #'dnnmedium',
-                           #'dnnloose',
-                           #'dnnvloose',
+                           'dnntight' ,  
+                           'dnnmedium',
+                           'dnnloose' ,
+                           'dnnvloose',
                            ]
 
   __trigElectronLrtd0Cut = { 'lrtloose' :2.0,
@@ -58,15 +58,15 @@ class TrigEgammaFastElectronHypoToolConfig:
                              'lrttight' :5.0
                            }
 
-  def __init__(self, name, threshold, sel, trkinfo, lrtinfo, tool=None):
+  def __init__(self, name, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastElectronHypoTool')
     self.__name       = name
-    self.__threshold  = float(threshold) 
-    self.__sel        = sel
-    self.__trkInfo    = trkinfo
-    self.__lrtInfo    = lrtinfo
+    self.__threshold  = float(cpart['threshold']) 
+    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__trkInfo    = cpart['trkInfo']
+    self.__lrtInfo    = cpart['lrtInfo']
 
     if not tool:
       from AthenaConfiguration.ComponentFactory import CompFactory
@@ -81,11 +81,11 @@ class TrigEgammaFastElectronHypoToolConfig:
     tool.CaloTrackdEoverPLow  = 0.0
     tool.CaloTrackdEoverPHigh = 999.0
     tool.TRTRatio             = -999.
-    tool.PidName              = sel
+    tool.PidName              = ""
     
-    self.__log.debug( 'Chain     :%s', name )
-    self.__log.debug( 'Threshold :%s', threshold )
-    self.__log.debug( 'Pidname   :%s', sel )
+    self.__log.debug( 'Chain     :%s', self.__name )
+    self.__log.debug( 'Threshold :%s', self.__threshold )
+    self.__log.debug( 'Pidname   :%s', self.__sel )
 
 
   def chain(self):
@@ -110,10 +110,15 @@ class TrigEgammaFastElectronHypoToolConfig:
   def nocut(self):
     self.tool().AcceptAll = True
 
+  #
+  # Apply NN ringer selection
+  #
+  def ringer(self):
+    self.tool().DoRinger = True
+    self.tool().PidName = self.pidname()
 
 
   def nominal(self):
-
     if self.etthr() < 15:
       self.tool().TrackPt = 1.0 * GeV 
     elif self.etthr() >= 15 and self.etthr() < 20:
@@ -126,16 +131,10 @@ class TrigEgammaFastElectronHypoToolConfig:
       self.tool().CaloTrackdPHI =  999.
 
 
-  def lrt(self):
+  def addLRTCut(self):
     self.tool().DoLRT = True
     self.tool().d0Cut=self.__trigElectronLrtd0Cut[self.lrtInfo()]
 
-  #
-  # Apply NN ringer selection
-  #
-  def ringer(self):
-    self.tool().DoRinger = True
-    self.tool().PidName = self.pidname()
 
   #
   # Compile the chain
@@ -144,11 +143,13 @@ class TrigEgammaFastElectronHypoToolConfig:
     
     if 'idperf' in self.trkInfo():
       self.nocut()
-    elif self.lrtInfo() in self.__trigElectronLrtd0Cut.keys():
-      self.nominal()
-      self.lrt()
     else:
       self.nominal()
+
+    # secondary extra cut
+    if self.lrtInfo() in self.__trigElectronLrtd0Cut.keys():
+      self.addLRTCut()
+
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
@@ -179,8 +180,8 @@ class TrigEgammaFastElectronHypoToolConfig:
 
 
 
-def _IncTool(name, threshold, sel, trk, lrt, tool=None):
-  config = TrigEgammaFastElectronHypoToolConfig(name, threshold, sel, trk, lrt, tool=tool)
+def _IncTool(name, cpart, tool=None):
+  config = TrigEgammaFastElectronHypoToolConfig(name, cpart, tool=tool)
   config.compile()
   return config.tool()
 
@@ -189,22 +190,8 @@ def _IncTool(name, threshold, sel, trk, lrt, tool=None):
 def TrigEgammaFastElectronHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if (i['signature']=='Electron')]
-
-    def __th(cpart):
-        return cpart['threshold']
-
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-
-    def __lrt(cpart):
-        return cpart['lrtInfo']
-
-    def __trk(cpart):
-        return cpart['trkInfo']
-
     name = d['chainName']
-
-    return _IncTool( name, __th(cparts[0]), __sel(cparts[0]), __trk(cparts[0]) , __lrt(cparts[0]) , tool=tool)
+    return _IncTool( name, cparts[0] , tool=tool)
 
 
 

@@ -95,7 +95,7 @@ namespace Rec {
                                                                              const EventContext& ctx) const override;
 
     private:
-        static std::unique_ptr<Trk::TrackParameters> flippedParameters(const Trk::TrackParameters& params) ;
+        static std::unique_ptr<Trk::TrackParameters> flippedParameters(const Trk::TrackParameters& params);
 
         // tools and services
         ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "", "Track fitter tool"};

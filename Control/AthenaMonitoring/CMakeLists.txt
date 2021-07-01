@@ -62,10 +62,14 @@ atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/Run3DQTestingDriver.py share/hist_file_dump.py share/hist_diff.sh )
-atlas_install_runtime( share/test_unit_ExampleMonitorAlgorithm.ref )
+atlas_install_runtime( share/test_unit_ExampleMonitorAlgorithm*.ref )
 
-# Example monitor algorithm test
+# Example monitor algorithm tests
 atlas_add_test( ExampleMonitorAlgorithm_test
     SCRIPT test/test_unit_ExampleMonitorAlgorithm.sh
+    PROPERTIES TIMEOUT 300
+)
+atlas_add_test( ExampleMonitorAlgorithm_online_test
+    SCRIPT test/test_unit_ExampleMonitorAlgorithm_online.sh
     PROPERTIES TIMEOUT 300
 )

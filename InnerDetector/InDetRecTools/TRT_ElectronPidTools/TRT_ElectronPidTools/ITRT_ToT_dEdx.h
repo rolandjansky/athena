@@ -39,11 +39,11 @@ public:
   virtual double dEdx(
     const EventContext& ctx,
     const Trk::Track* track,
-    bool useHitsHT = true,
+    bool useHitsHT,
     std::optional<float> localOccupancy = std::nullopt) const = 0;
 
   virtual double dEdx(const Trk::Track* track,
-                      bool useHitsHT = true,
+                      bool useHitsHT,
                       std::optional<float> localOccupancy = std::nullopt) const;
 
   /**

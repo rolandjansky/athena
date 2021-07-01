@@ -13,6 +13,8 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg,
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
+from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+
 GeoDetectorTool=CompFactory.GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
@@ -709,8 +711,10 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
     result.merge(geoConfAcc)
     kwargs.setdefault("GeometryConfigurationTools", listOfGeoConfTools)
 
-    # Getting this tool by name works, but not if you use getSensitiveDetectorMasterTool()
-    kwargs.setdefault('SenDetMasterTool', "SensitiveDetectorMasterTool" )
+    if "SenDetMasterTool" not in kwargs:
+        tool = result.popToolsAndMerge(SensitiveDetectorMasterToolCfg(ConfigFlags))
+        result.addPublicTool(tool)
+        kwargs.setdefault("SenDetMasterTool", result.getPublicTool(tool.name))
 
     #if hasattr(simFlags,"Eta"): #FIXME ugly hack
     if False:

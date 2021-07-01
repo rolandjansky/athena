@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,6 @@ TBADCRawMonTool::TBADCRawMonTool(const std::string & type,
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_histo_adc(nullptr),
     m_adcNum(0)
 /*---------------------------------------------------------*/
@@ -50,9 +49,6 @@ StatusCode TBADCRawMonTool:: initialize()
   if(m_monitor_adc == false){
     ATH_MSG_INFO ( name() << " Not monitoring adc " );
   }
-
-  //set to true whitin bookHist() 
-  m_isBooked = false;
 
   return StatusCode::SUCCESS;
 }
@@ -131,7 +127,7 @@ StatusCode TBADCRawMonTool::fillHists()
       // loop over list of scint to monitor :
       for(int nameind=0; nameind < m_adcNum; nameind++){      
 
-	for(it_adc = adcRawCont->begin();it_adc!=last_adc;it_adc++){	
+	for(it_adc = adcRawCont->begin();it_adc!=last_adc;++it_adc){	
 	// Check if adcRawCont is in sync with m_adcNames - defined in book hist
 	  if((*it_adc)->getDetectorName() == m_adcNames[nameind]) break;
 	}
@@ -143,7 +139,7 @@ StatusCode TBADCRawMonTool::fillHists()
 	// now it_scint contains the right scint
 	const TBADCRaw * adc = (*it_adc);
 	if(!adc->isOverflow())	m_histo_adc[nameind]->fill(adc->getADC(),1.0);
-	it_adc++;
+	++it_adc;
       }
     }
   }  // End of tailcatcher fill

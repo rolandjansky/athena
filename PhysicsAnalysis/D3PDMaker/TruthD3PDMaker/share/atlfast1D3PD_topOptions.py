@@ -46,7 +46,6 @@ D3PDMakerFlags.JetSGKey       = Atlfast1D3PDMakerFlags.ContainerPrefix()+'Atlfas
 D3PDMakerFlags.MissingETSGKey = 'AtlfastMissingEt'
 D3PDMakerFlags.TauSGKey       = 'AtlfastTauJetContainer'
 D3PDMakerFlags.TrackSGKey     = 'AtlfastTrackParticles'
-D3PDMakerFlags.DoTrigger = False
 
 # Fix by hand mismatch in collection name for jets
 if Atlfast1D3PDMakerFlags.UseAtlfast1Correction: D3PDMakerFlags.JetSGKey = 'CorrectedAtlfastJetCollection' 

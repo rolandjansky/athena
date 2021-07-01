@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1INTERFACES_TRIGT1INTERFACESDICT_H
@@ -12,7 +12,6 @@
 #include "TrigT1Interfaces/MbtsCTP.h"
 #include "TrigT1Interfaces/BcmCTP.h"
 #include "TrigT1Interfaces/LucidCTP.h"
-#include "TrigT1Interfaces/ZdcCTP.h"
 #include "TrigT1Interfaces/TrtCTP.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"

@@ -29,10 +29,11 @@ public:
    *  @out mcParts a valid pointer to a @c TruthParticleContainer which will
    *       be filled with adaptors to @c HepMC::GenParticles.
    */
+  virtual
   StatusCode convert( const McEventCollection* mcEvts,
                       const unsigned int genEvtIndex,
                       TruthParticleContainer* mcParts,
-                      const ITruthParticleVisitor* visitor ) const;
+                      const ITruthParticleVisitor* visitor ) const override;
 
   /// @}
 

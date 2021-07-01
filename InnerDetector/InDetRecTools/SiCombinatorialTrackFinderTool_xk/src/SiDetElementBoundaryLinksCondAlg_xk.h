@@ -43,6 +43,7 @@ namespace InDet {
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_readKey{this, "ReadKey", "SCT_DetectorElementCollection", "Key of input SiDetectorElementCollection"};
     /** Output condition object for SiCombinatorialTrackFinder_xk */
     SG::WriteCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_writeKey{this, "WriteKey", "SCT_DetElementBoundaryLinks_xk", "Key of output SiDetElementBoundaryLinks_xk"};
+    BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
 
     ServiceHandle<ICondSvc> m_condSvc;
   };

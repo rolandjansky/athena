@@ -10,15 +10,18 @@ namespace xAOD{
   jFexTauRoIAuxContainer_v1::jFexTauRoIAuxContainer_v1()
       : AuxContainerBase() {
   
-      AUX_VARIABLE(word0);
+      AUX_VARIABLE(tobWord);
       AUX_VARIABLE(jFexNumber);
       AUX_VARIABLE(fpgaNumber); 
       AUX_VARIABLE(tobEt);
-      AUX_VARIABLE(iEta);
-      AUX_VARIABLE(iPhi);     
-      AUX_VARIABLE(satFlag);
+      AUX_VARIABLE(tobIso);
+      AUX_VARIABLE(tobLocalEta);
+      AUX_VARIABLE(tobLocalPhi);     
+      AUX_VARIABLE(tobSat);
       AUX_VARIABLE(globalEta);
       AUX_VARIABLE(globalPhi);
+      AUX_VARIABLE(eta);
+      AUX_VARIABLE(phi);
   }
 
 }//end of namespace xAOD

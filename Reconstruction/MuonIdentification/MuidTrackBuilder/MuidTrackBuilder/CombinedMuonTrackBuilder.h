@@ -134,10 +134,10 @@ namespace Rec {
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
 
-        const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
+        std::unique_ptr<Trk::TrackStateOnSurface> createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
 
-        std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> createSpectrometerTSOS(
-            const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> createSpectrometerTSOS(const Trk::Track& spectrometerTrack,
+                                                                                            const EventContext& ctx) const;
 
         const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters, const EventContext& ctx) const;
 
@@ -156,8 +156,8 @@ namespace Rec {
         void replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
         void removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
-        static Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
-                                                     const Trk::RecVertex* mbeamAxis) ;
+        static std::unique_ptr<Trk::PseudoMeasurementOnTrack> vertexOnTrack(const Trk::TrackParameters& parameters,
+                                                                            const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis);
 
         void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
         int countAEOTs(const Trk::Track* track, const std::string& txt) const;

@@ -480,8 +480,8 @@ class TriggerConfigGetter(Configured):
 
             enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
             enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
-            enhancedBiasWeightCompAlg.FinalDecisionKey = "HLTNav_Summary"
-
+            from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+            enhancedBiasWeightCompAlg.FinalDecisionKey = getRun3NavigationContainerFromInput(ConfigFlags)
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
 

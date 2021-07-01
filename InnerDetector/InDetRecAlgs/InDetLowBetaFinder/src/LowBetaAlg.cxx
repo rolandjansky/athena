@@ -639,7 +639,7 @@ namespace InDet
 	if (tegap>0.&& hont>1.0) tegap = tegap/(hont-1.0); // average TE gap for a track
 	
 
-	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track));
+	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track),true);
 	else 	dEdx =  -999.0;
       }
       else{

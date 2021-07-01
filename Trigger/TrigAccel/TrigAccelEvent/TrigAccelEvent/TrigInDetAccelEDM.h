@@ -70,7 +70,7 @@ namespace TrigAccel {
     float m_tripletD0Max; 
     float m_tripletD0_PPS_Max; 
     float m_tripletPtMin; 
-    int  m_tripletDoPSS, m_doubletFilterRZ; 
+    int  m_tripletDoPSS, m_tripletDoPPS, m_doubletFilterRZ; 
     int m_nMaxPhiSlice; 
     unsigned int m_maxTripletBufferLength; 
     int m_isFullScan;

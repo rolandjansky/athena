@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthMonitoringBase.h"
@@ -57,7 +57,7 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Id
   // for old pixel see https://twiki.cern.ch/twiki/pub/Atlas/PixelCOOLoffline/pixel_modules_sketch.png
   // 
   // phi (Y) coordinate
-  if ( layer == PixLayers::kIBL || layer == PixLayers::kDBMC || layer == PixLayers::kDBMA )
+  if ( layer == PixLayers::kIBL )
     m_pm[layer].push_back( pid->phi_module(id) );
   else {
     if ( (layer == PixLayers::kECA || layer == PixLayers::kECC) && ( pid->phi_module(id) % 2 == 0 ) ) {
@@ -70,13 +70,11 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Id
   // eta (X) coordinate
   int ld = pid->layer_disk(id);
   int em(0);
-  // endcaps/DBM
-  if ( layer == PixLayers::kDBMC || layer == PixLayers::kDBMA ) em = ld;
-  else {
-    em = ld * 8;
-    if (iFE<8) em+= ( 7 - iFE%8 ); 
-    else em+= iFE%8; 
-  } 
+  // endcaps
+  em = ld * 8;
+  if (iFE<8) em+= ( 7 - iFE%8 ); 
+  else em+= iFE%8; 
+
   // barrel
   //
   if (pid->barrel_ec(id) == 0) { 
@@ -117,7 +115,7 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& ac
 }
   
 ///
-/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
+/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL"]
 ///
 void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values, int nlayers) const {
   ATH_MSG_VERBOSE( "in fill1DProfLumiLayers()" );
@@ -138,7 +136,7 @@ void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname
 //////////////////////////////////////////////
 
 ///
-/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
+/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL"]
 ///
 void PixelAthMonitoringBase::fill2DProfLumiLayers( const std::string& prof2Dname, int lumiblock, float(*values)[PixLayers::COUNT], const int* nCategories) const {
   ATH_MSG_VERBOSE( "in fill2DProfLumiLayers()" );
@@ -278,9 +276,6 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
     if (ld == 1)  layer = PixLayers::kB0;
     if (ld == 2)  layer = PixLayers::kB1;
     if (ld == 3)  layer = PixLayers::kB2;
-  } else {
-    if (ec == 4)  layer = PixLayers::kDBMA;
-    if (ec == -4) layer = PixLayers::kDBMC;
   }
   return layer;
 }
@@ -294,8 +289,6 @@ int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
   if (pixlayer == PixLayers::kIBL) {
     nFE = 1; // IBL 3D
     if (etaMod>-7 && etaMod<6) nFE = 2; // IBL Planar
-  } else if (pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
-    nFE = 1;
   }
   return nFE;
 }

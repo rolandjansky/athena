@@ -29,7 +29,7 @@ namespace InDet{
       
     public:
       
-      SiDetElementBoundaryLink_xk(const InDetDD::SiDetectorElement*&);
+      SiDetElementBoundaryLink_xk(const InDetDD::SiDetectorElement*&, bool isITk = false);
       SiDetElementBoundaryLink_xk(const SiDetElementBoundaryLink_xk&);
       ~SiDetElementBoundaryLink_xk();
       SiDetElementBoundaryLink_xk& operator  = (const SiDetElementBoundaryLink_xk&);
@@ -49,6 +49,7 @@ namespace InDet{
 
       const InDetDD::SiDetectorElement*   m_detelement ;
       double                              m_bound[4][3]{};
+      bool                                m_ITkGeometry;
       double                              m_dR         ;
 
       ///////////////////////////////////////////////////////////////////
@@ -64,6 +65,7 @@ namespace InDet{
   inline SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk(const SiDetElementBoundaryLink_xk& L)
     {
       m_detelement =  L.m_detelement;
+      m_ITkGeometry = L.m_ITkGeometry;
       for(int i=0; i!=4; ++i) {
 	for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
       }
@@ -75,6 +77,7 @@ namespace InDet{
     {
       if(&L!=this) {
 	m_detelement =  L.m_detelement;
+	m_ITkGeometry = L.m_ITkGeometry;
 	for(int i=0; i!=4; ++i) {
 	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
 	}

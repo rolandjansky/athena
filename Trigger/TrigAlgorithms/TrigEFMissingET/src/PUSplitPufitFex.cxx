@@ -103,6 +103,15 @@ namespace HLT
             tower.mask(true);
             ++count;
           }
+      if (msgLvl(MSG::DEBUG))
+      {
+        ATH_MSG_DEBUG("NeutralForward: " << gridset[NoDisplacement].get<PUClassification::NeutralForward>().sum());
+        ATH_MSG_DEBUG("ChargedHS: " << gridset[NoDisplacement].get<PUClassification::ChargedHS>().sum());
+        ATH_MSG_DEBUG("ChargedPU: " << gridset[NoDisplacement].get<PUClassification::ChargedPU>().sum());
+        ATH_MSG_DEBUG("Mean, variance, threshold = " << mean << ", " << variance << ", " << threshold);
+        ATH_MSG_DEBUG(count << "/" << gridset[NoDisplacement].get<1>().nTowers() << " towers above threshold");
+      }
+
 
       // Select the right grid
       GridDisplacement displacement = PufitUtils::selectGrid(
@@ -154,16 +163,6 @@ namespace HLT
         for (const SignedKinematics &kin : masked)
           ATH_MSG_VERBOSE("  (" << kin.sinPhi() << ", " << kin.cosPhi() << ")");
       }
-      ATH_MSG_DEBUG("Calculate corrections");
-
-      std::vector<SignedKinematics> corrections = PufitUtils::pufit(
-          pileupSum.sum,
-          pileupSum.covariance,
-          means,
-          variances,
-          masked,
-          m_constraintImportance);
-
       // Fill components
       grid.get<PUClassification::NeutralForward>().sum(PufitGrid::SumStrategy::All).fillMETComponent(0, met);
       grid.get<PUClassification::ChargedHS>().sum(PufitGrid::SumStrategy::All).fillMETComponent(1, met);
@@ -176,13 +175,28 @@ namespace HLT
       sum += grid.get<PUClassification::NeutralForward>().sum(PufitGrid::SumStrategy::Masked);
       // Add the cHS components of all towers
       sum += grid.get<PUClassification::ChargedHS>().sum(PufitGrid::SumStrategy::All);
-      ATH_MSG_DEBUG("Before corrections: " << sum);
-      // Add the corrections
-      for (const SignedKinematics &kin : corrections)
+
+      if (variance != 0)
       {
-        ATH_MSG_DEBUG("Correction: (px, py, pz, et) = (" << kin.px() << ", " << kin.py() << ", " << kin.pz() << ", " << kin.et() << ")");
-        sum += kin;
+        ATH_MSG_DEBUG("Calculate corrections");
+        std::vector<SignedKinematics> corrections = PufitUtils::pufit(
+            pileupSum.sum,
+            pileupSum.covariance,
+            means,
+            variances,
+            masked,
+            m_constraintImportance);
+
+        ATH_MSG_DEBUG("Before corrections: " << sum);
+        // Add the corrections
+        for (const SignedKinematics &kin : corrections)
+        {
+          ATH_MSG_DEBUG("Correction: (px, py, pz, et) = (" << kin.px() << ", " << kin.py() << ", " << kin.pz() << ", " << kin.et() << ")");
+          sum += kin;
+        }
       }
+      else
+        ATH_MSG_DEBUG("Tower variance is 0 => there were no towers in the trimmed mean calculation with energy > 0. Skip the corrections");
       ATH_MSG_DEBUG("Final MET: " << sum);
       sum.fillMET(met);
 

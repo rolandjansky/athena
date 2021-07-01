@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -149,7 +149,7 @@ namespace NSWL1 {
 
       std::vector<digitWrapper> entries;
 
-      load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info);
+      ATH_CHECK( load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info) );
       this->fillNtuple(load);
 
       //Originally boom, this is the saved "particle_info" (originally primer)

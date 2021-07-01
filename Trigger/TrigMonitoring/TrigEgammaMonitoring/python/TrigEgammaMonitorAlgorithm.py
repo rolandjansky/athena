@@ -56,9 +56,10 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/AOD.20745922._000041.pool.root.1'
+    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1606_r12262_tid23444302_00/AOD.23444302._000098.pool.root.1'
+
     ConfigFlags.Input.Files = [path]
-    ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
     
     ConfigFlags.lock()

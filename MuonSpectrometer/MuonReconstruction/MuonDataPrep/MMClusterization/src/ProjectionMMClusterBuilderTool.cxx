@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ProjectionMMClusterBuilderTool.h"
@@ -263,20 +263,9 @@ StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vec
     prdN->setAuthor(Muon::MMPrepData::Author::ProjectionClusterBuilder);
 
     clustersVect.push_back(std::move(prdN));
-    ATH_MSG_VERBOSE("pushedBack  prdN");
-    ATH_MSG_VERBOSE(
-      "pushedBack PRDs: stationEta: "
-      << m_idHelperSvc->mmIdHelper().stationEta(prdN->identify())
-      << " stationPhi "
-      << m_idHelperSvc->mmIdHelper().stationPhi(prdN->identify())
-      << " stationName "
-      << m_idHelperSvc->mmIdHelper().stationName(prdN->identify()) << " gasGap "
-      << m_idHelperSvc->mmIdHelper().gasGap(prdN->identify()) << " multiplet "
-      << m_idHelperSvc->mmIdHelper().multilayer(prdN->identify()) << " channel "
-      << m_idHelperSvc->mmIdHelper().channel(prdN->identify()));
     return StatusCode::SUCCESS;
   }
 
-double Muon::ProjectionMMClusterBuilderTool::getSigma(double correction)const {
+double Muon::ProjectionMMClusterBuilderTool::getSigma(double correction) {
   return stripErrorIntercept+stripErrorSlope*std::fabs(correction);
 }

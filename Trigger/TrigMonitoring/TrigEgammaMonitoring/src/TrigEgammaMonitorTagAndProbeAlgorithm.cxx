@@ -70,15 +70,12 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
 
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventContext& ctx ) const  {
-
-    auto monGroup         = getGroup( m_anatype );
-    auto totalTime        = Monitored::Timer("TIME_TotalTime");
-     
-
+   
     std::vector<std::shared_ptr<const xAOD::Electron>> probes;
 
     // Select TP Pairs
     ATH_MSG_DEBUG("Execute TP selection");
+    
     if( !executeTandP(ctx, probes) ){
         ATH_MSG_WARNING("Tag and Probe event failed.");
         return StatusCode::SUCCESS;
@@ -118,17 +115,10 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         fillEfficiencies( pairObjs, info );
         fillResolutions( pairObjs, info );
 
-
     } // End loop over trigger list
 
-    
     return StatusCode::SUCCESS;
 }
-
-
-
-
-
 
 
 
@@ -517,6 +507,11 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::dressPid(const xAOD::Electron *eg) c
     for(int ipid=0;ipid<4;ipid++){
         bool accept = (bool) this->m_electronLHTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_lhname[ipid];
+        eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
+    }
+    for(int ipid=0;ipid<3;ipid++){
+        bool accept = (bool) this->m_electronDNNTool[ipid]->accept(ctx,eg);
+        const std::string pidname="is"+m_dnnname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
     eg->auxdecor<bool>("Isolated")=isIsolated(eg, m_offProbeIsolation);

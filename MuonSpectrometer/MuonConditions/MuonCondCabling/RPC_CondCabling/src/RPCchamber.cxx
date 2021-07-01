@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/RPCchamber.h"
@@ -11,99 +11,50 @@
 #include "RPC_CondCabling/WiredOR.h"
 
 using namespace RPC_CondCabling;
-
-RPCchamber::RPCchamber(int num, int stat, int type, std::string cham_name, int stationEta, int doubletR, int doubletZ,
-                       int phiReadoutPannels, int eta_sc, int eta_st, int eta_co, int ijk_etaReadout, int phi_sc, int phi_st, int phi_co,
-                       int ijk_phiReadout) :
-    CablingObject(num, stat, type, "RPC") {
-    m_strips_in_Eta_Conn = eta_sc;
-    m_strips_in_Phi_Conn = phi_sc;
-    m_eta_strips = eta_st;
-    m_eta_connectors = eta_co;
-    m_ijk_etaReadout = ijk_etaReadout;
-    m_phi_strips = phi_st;
-    m_phi_connectors = phi_co;
-    m_ijk_phiReadout = ijk_phiReadout;
-    m_chamber_name = cham_name;
-    m_eta_strip_global = 0;
-    m_eta_conn_global = 0;
-
-    m_stationEta = stationEta;
-    m_doubletR = doubletR;
-    m_doubletZ = doubletZ;
-    m_phiReadoutPannels = phiReadoutPannels;
-
-    for (int i = 0; i < m_eta_strips; ++i) m_eta_read_mul.push_back(0);
+/// Helper struct to reduce the number of arguments in the constructor
+RPCchamber::RPCchamber(RPCchamber::chamberParameters params, IMessageSvc* msgSvc) : CablingObject{params, "RPC", msgSvc}, m_params{params} {
+    for (int i = 0; i < m_params.etaStrips; ++i) m_eta_read_mul.push_back(0);
 }
 
-RPCchamber::RPCchamber(const RPCchamber& cham) : CablingObject(cham.number(), cham.station(), cham.sector_type(), cham.name()) {
-    m_strips_in_Eta_Conn = cham.strips_in_Eta_Conn();
-    m_strips_in_Phi_Conn = cham.strips_in_Phi_Conn();
-    m_eta_strips = cham.eta_strips();
-    m_eta_connectors = cham.eta_connectors();
-    m_ijk_etaReadout = cham.ijk_etaReadout();
-    m_phi_strips = cham.phi_strips();
-    m_phi_connectors = cham.phi_connectors();
-    m_ijk_phiReadout = cham.ijk_phiReadout();
-    m_chamber_name = cham.chamber_name();
-    m_stationEta = cham.stationEta();
-    m_doubletR = cham.doubletR();
-    m_doubletZ = cham.doubletZ();
-    m_phiReadoutPannels = cham.phiReadoutPannels();
-    m_eta_strip_global = cham.eta_strip_global();
-    m_eta_conn_global = cham.eta_conn_global();
+RPCchamber::~RPCchamber() = default;
 
-    m_eta_read_mul = cham.eta_read_mul();
+int RPCchamber::eta_strips() const { return m_params.etaStrips; }
+int RPCchamber::eta_connectors() const { return m_params.etaConnectors; }
+int RPCchamber::eta_strip_global() const { return m_eta_strip_global; }
+int RPCchamber::eta_conn_global() const { return m_eta_conn_global; }
+int RPCchamber::phi_strips() const { return m_params.phiStrips; }
 
-    m_readoutWORs = cham.readoutWORs();
-    m_readoutCMAs = cham.readoutCMAs();
-}
+int RPCchamber::phi_connectors() const { return m_params.phiConnectors; }
 
-RPCchamber& RPCchamber::operator=(const RPCchamber& cham) {
-    if (this != &cham) {
-        m_strips_in_Eta_Conn = cham.strips_in_Eta_Conn();
-        m_strips_in_Phi_Conn = cham.strips_in_Phi_Conn();
-        m_eta_strips = cham.eta_strips();
-        m_eta_connectors = cham.eta_connectors();
-        m_ijk_etaReadout = cham.ijk_etaReadout();
-        m_phi_strips = cham.phi_strips();
-        m_phi_connectors = cham.phi_connectors();
-        m_ijk_phiReadout = cham.ijk_phiReadout();
-        m_chamber_name = cham.chamber_name();
-        m_stationEta = cham.stationEta();
-        m_doubletR = cham.doubletR();
-        m_doubletZ = cham.doubletZ();
-        m_phiReadoutPannels = cham.phiReadoutPannels();
-        m_eta_strip_global = cham.eta_strip_global();
-        m_eta_conn_global = cham.eta_conn_global();
+int RPCchamber::ijk_etaReadout() const { return m_params.ijk_EtaReadOut; }
+int RPCchamber::ijk_phiReadout() const { return m_params.ijk_PhiReadOut; }
 
-        m_readoutWORs.clear();
-        m_readoutCMAs.clear();
-        m_eta_read_mul.clear();
+std::string RPCchamber::chamber_name() const { return m_params.chamberName; }
+std::string RPCchamber::stationName() const { return m_params.chamberName.substr(0, 3); }
+int RPCchamber::stationEta() const { return m_params.stationEta; }
+int RPCchamber::doubletR() const { return m_params.doubletR; }
+int RPCchamber::doubletZ() const { return m_params.doubletZ; }
+int RPCchamber::phiReadoutPannels() const { return m_params.phiReadOutPanels; }
 
-        m_eta_read_mul = cham.eta_read_mul();
-        m_readoutWORs = cham.readoutWORs();
-        m_readoutCMAs = cham.readoutCMAs();
-    }
-    return *this;
-}
+int RPCchamber::strips_in_Eta_Conn() const { return m_params.stripsInEtaCon; }
+int RPCchamber::strips_in_Phi_Conn() const { return m_params.stripsInPhiCon; }
 
-RPCchamber::~RPCchamber() {
-    m_readoutWORs.clear();
-    m_readoutCMAs.clear();
-}
+const RPCchamber::ReadoutCh& RPCchamber::eta_read_mul() const { return m_eta_read_mul; }
+
+const RPCchamber::CMAlist& RPCchamber::readoutCMAs() const { return m_readoutCMAs; }
+const RPCchamber::WORlist& RPCchamber::readoutWORs() const { return m_readoutWORs; }
 
 bool RPCchamber::setup(SectorLogicSetup& setup) {
-    RPCchamber* rpc = setup.find_chamber(this->station(), 1);
+    RPCchamber* rpc = setup.find_chamber(station(), 1);
     int ijk_eta = rpc->ijk_etaReadout();
     int ijk_phi = rpc->ijk_phiReadout();
 
-    if (ijk_eta != m_ijk_etaReadout) {
+    if (ijk_eta != m_params.ijk_EtaReadOut) {
         error("==> mismatch of ijk_etaReadout with respect to others RPC");
         return false;
     }
 
-    if (ijk_phi != m_ijk_phiReadout) {
+    if (ijk_phi != m_params.ijk_PhiReadOut) {
         error("==> mismatch of ijk_phiReadout with respect to others RPC");
         return false;
     }
@@ -118,9 +69,9 @@ bool RPCchamber::check() {
     }
 
     RPCchamber::CMAlist::const_iterator cma = m_readoutCMAs.begin();
-    const CMAinput IO = (*cma)->whichCMAinput(this->station());
+    const CMAinput IO = (*cma)->whichCMAinput(station());
 
-    int channels = m_eta_strips;
+    int channels = m_params.etaStrips;
     for (int i = 0; i < channels; ++i) {
         if (!m_eta_read_mul[i]) {
             error("==> No readout coverage for the full set of ETA strip!");
@@ -143,20 +94,19 @@ bool RPCchamber::check() {
     return true;
 }
 
-void RPCchamber::error(std::string mess) {
+void RPCchamber::error(const std::string& mess) const {
     error_header();
-
     DISP << mess << std::endl << *this;
     DISP_ERROR;
 }
 
 bool RPCchamber::local_strip(ViewType side, int strip_number, int& local_address) const {
     if (side == Eta) {
-        if (strip_number >= m_eta_strips) return false;
-        if (this->number()) {
+        if (strip_number >= m_params.etaStrips) return false;
+        if (number()) {
             local_address = strip_number + 1;
         } else {
-            int middle = m_eta_strips / 2;
+            int middle = m_params.etaStrips / 2;
             int address = strip_number - middle;
             local_address = (strip_number < middle) ? address : address + 1;
         }
@@ -164,7 +114,7 @@ bool RPCchamber::local_strip(ViewType side, int strip_number, int& local_address
     }
 
     if (side == Phi) {
-        if (strip_number >= m_phi_strips) return false;
+        if (strip_number >= m_params.phiStrips) return false;
         local_address = strip_number + 1;
     }
 
@@ -173,10 +123,10 @@ bool RPCchamber::local_strip(ViewType side, int strip_number, int& local_address
 
 bool RPCchamber::global_strip(ViewType side, HalfType h_barrel, int strip_number, int& global_address) const {
     int local_address;
-    if (this->local_strip(side, strip_number, local_address)) {
+    if (local_strip(side, strip_number, local_address)) {
         if (side == Eta) {
             global_address = local_address + m_eta_strip_global;
-            if (this->number()) {
+            if (number()) {
                 if (h_barrel == Negative) global_address = -global_address;
             } else {
                 if (h_barrel == Negative && global_address > 0) return false;
@@ -193,14 +143,14 @@ bool RPCchamber::global_strip(ViewType side, HalfType h_barrel, int strip_number
 
 bool RPCchamber::local_connector(ViewType side, int strip_number, int& local_address, int& low_eta_strips, int& hi_eta_strips) const {
     int strip_address;
-    if (this->local_strip(side, strip_number, strip_address)) {
+    if (local_strip(side, strip_number, strip_address)) {
         int address = abs(strip_address) - 1;
         int strip_sign = (abs(strip_address)) / strip_address;
         if (side == Eta) {
-            local_address = (address / m_strips_in_Eta_Conn + 1) * strip_sign;
-            low_eta_strips = address % m_strips_in_Eta_Conn;
-            int left = m_strips_in_Eta_Conn - low_eta_strips - 1;
-            int residual_strips = this->residual(side, strip_number);
+            local_address = (address / m_params.stripsInEtaCon + 1) * strip_sign;
+            low_eta_strips = address % m_params.stripsInEtaCon;
+            int left = m_params.stripsInEtaCon - low_eta_strips - 1;
+            int residual_strips = residual(side, strip_number);
             hi_eta_strips = (left <= residual_strips) ? left : residual_strips;
             return true;
         }
@@ -212,17 +162,17 @@ bool RPCchamber::local_connector(ViewType side, int strip_number, int& local_add
 
 int RPCchamber::residual(ViewType side, int strip_number) const {
     if (side == Eta) {
-        if (this->number()) {
-            return (m_eta_strips - 1 - strip_number);
+        if (number()) {
+            return (m_params.etaStrips - 1 - strip_number);
         } else {
-            int total_strips = m_eta_strips / 2;
+            int total_strips = m_params.etaStrips / 2;
             if (strip_number < total_strips)
                 return strip_number;
             else
-                return m_eta_strips - strip_number - 1;
+                return m_params.etaStrips - strip_number - 1;
         }
     }
-    if (side == Phi) { return (m_phi_strips - 1 - strip_number); }
+    if (side == Phi) { return (m_params.phiStrips - 1 - strip_number); }
     return 0;
 }
 
@@ -232,7 +182,7 @@ bool RPCchamber::global_connector(ViewType side, HalfType h_barrel, int strip_nu
     if (local_connector(side, strip_number, l_address, left_strips, right_strips)) {
         if (side == Eta) {
             global_address = l_address + m_eta_conn_global;
-            if (this->number()) {
+            if (number()) {
                 if (h_barrel == Negative) global_address = -global_address;
             } else {
                 if (h_barrel == Negative && global_address > 0) return false;
@@ -248,12 +198,12 @@ bool RPCchamber::global_connector(ViewType side, HalfType h_barrel, int strip_nu
 
 bool RPCchamber::Gstrip_2_Lnumber(ViewType side, int global_address, int& strip_number) const {
     if (side == Eta) {
-        if (this->number()) {
+        if (number()) {
             strip_number = abs(global_address) - m_eta_strip_global - 1;
-            if (strip_number <= m_eta_strips - 1) return true;
+            if (strip_number <= m_params.etaStrips - 1) return true;
         } else {
-            strip_number = (global_address > 0) ? global_address + m_eta_strips / 2 - 1 : global_address + m_eta_strips / 2;
-            if (strip_number <= m_eta_strips - 1 && strip_number >= 0) return true;
+            strip_number = (global_address > 0) ? global_address + m_params.etaStrips / 2 - 1 : global_address + m_params.etaStrips / 2;
+            if (strip_number <= m_params.etaStrips - 1 && strip_number >= 0) return true;
         }
     }
     if (side == Phi) { return false; }
@@ -263,16 +213,17 @@ bool RPCchamber::Gstrip_2_Lnumber(ViewType side, int global_address, int& strip_
 
 bool RPCchamber::Gconn_2_Lnumber(ViewType side, int global_address, int& local_address, int& strip_number) const {
     if (side == Eta) {
-        if (this->number()) {
+        if (number()) {
             local_address = abs(global_address) - m_eta_conn_global - 1;
-            if (local_address <= m_eta_connectors - 1) {
-                strip_number = local_address * m_strips_in_Eta_Conn;
+            if (local_address <= m_params.etaConnectors - 1) {
+                strip_number = local_address * m_params.stripsInEtaCon;
                 return true;
             }
         } else {
-            local_address = (global_address > 0) ? global_address + m_eta_connectors / 2 - 1 : global_address + m_eta_connectors / 2;
-            if (local_address <= m_eta_connectors - 1 && local_address >= 0) {
-                strip_number = local_address * m_strips_in_Eta_Conn;
+            local_address =
+                (global_address > 0) ? global_address + m_params.etaConnectors / 2 - 1 : global_address + m_params.etaConnectors / 2;
+            if (local_address <= m_params.etaConnectors - 1 && local_address >= 0) {
+                strip_number = local_address * m_params.stripsInEtaCon;
                 return true;
             }
         }

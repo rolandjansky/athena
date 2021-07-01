@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleCscClusterFitter.h"
@@ -18,12 +18,12 @@ using Muon::CscStripPrepData;
 using MuonGM::CscReadoutElement;
 
 typedef ICscClusterFitter::Result Result;
-typedef std::vector<Result> Results;
+using Results = std::vector<Result>;
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_R, CSL_R, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
-SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+SimpleCscClusterFitter::SimpleCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent) {
     declareInterface<ICscClusterFitter>(this);
     declareProperty("position_option", m_option = "MEAN", "Cluster fitting option: MEAN, PEAK, CENTROID");

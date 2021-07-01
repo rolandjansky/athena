@@ -80,9 +80,14 @@ namespace xAOD {
 
   void TrigComposite_v1::copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName) {
     this->linkColNamesNC().push_back( newName );
-    this->linkColKeysNC().push_back(    other.linkColKeys().at(    index ) );
-    this->linkColIndicesNC().push_back( other.linkColIndices().at( index ) );
-    this->linkColClidsNC().push_back(   other.linkColClids().at(   index ) );
+    this->linkColClidsNC().push_back( other.linkColClids().at(index) );
+    if (other.isRemapped()) {
+      this->linkColKeysNC().push_back( other.linkColKeysRemap().at(index) );
+      this->linkColIndicesNC().push_back( other.linkColIndicesRemap().at(index) );
+    } else {
+      this->linkColKeysNC().push_back( other.linkColKeys().at(index) );
+      this->linkColIndicesNC().push_back( other.linkColIndices().at(index) );
+    }
   }
 
   bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {

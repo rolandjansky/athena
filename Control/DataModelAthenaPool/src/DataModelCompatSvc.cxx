@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataModelCompatSvc.cxx,v 1.9 2008-08-18 18:04:06 ssnyder Exp $
 /**
  * @file  src/DataModelCompatSvc.cxx
  * @author scott snyder
@@ -54,10 +52,11 @@ StatusCode DataModelCompatSvc::initialize()
   // We're going to want to scan all types, looking for @c DataVector
   // instantiations.  We can't do that, though, until the data file
   // has been open and we've set up the proxies.  So defer the real
-  // work until there's a BeginEvent incident.
+  // work until there's a BeginProcessing/BeginEvent incident.
   IIncidentSvc* incsvc = 0;
   REPORT_MESSAGE(MSG::DEBUG) << "running";
   CHECK( service("IncidentSvc", incsvc) );
+  incsvc->addListener (this, "BeginProcessing");
   incsvc->addListener (this, "BeginEvent");
 
   // This, however, we need to do before opening any files.
@@ -77,11 +76,15 @@ StatusCode DataModelCompatSvc::initialize()
  */
 void DataModelCompatSvc::handle (const Incident& inc)
 {
-  if (inc.type() == "BeginEvent" && !m_initialized) {
-    // Do our initialization.
-    REPORT_MESSAGE(MSG::DEBUG) << "handling incident " << inc.type();
-    DataModelAthenaPool::DataVectorConvert::initialize (this);
-    m_initialized = true;
+  if (inc.type() == "BeginProcessing" || inc.type() == "BeginEvent")
+  {
+    std::scoped_lock lock (m_mutex);
+    if (!m_initialized) {
+      // Do our initialization.
+      REPORT_MESSAGE(MSG::DEBUG) << "handling incident " << inc.type();
+      DataModelAthenaPool::DataVectorConvert::initialize (this);
+      m_initialized = true;
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -15,11 +15,11 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "PathResolver/PathResolver.h"
-#include <fstream>
-#include <string>
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
+#include <fstream>
 #include <map>
+#include <string>
 //#include "MuonCondInterface/IMDT_DCSConditionsTool.h" 
 #include "MuonCondTool/MDT_DCSConditionsTool.h"
 #include "MuonCondTool/MDT_MapConversion.h"
@@ -42,9 +42,9 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
-            m_IOVSvc(0),
-            m_mdtIdHelper(0),
-            m_chronoSvc(0),
+            m_IOVSvc(nullptr),
+            m_mdtIdHelper(nullptr),
+            m_chronoSvc(nullptr),
 	    m_condMapTool("MDT_MapConversion"), 
 	    m_log( msgSvc(), name ),
 	    m_debug(false),
@@ -105,7 +105,7 @@ StatusCode MDT_DCSConditionsTool::initialize()
   
     
   // Get interface to IOVSvc
-  m_IOVSvc = 0;
+  m_IOVSvc = nullptr;
   bool CREATEIF(true);
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
@@ -175,7 +175,7 @@ StatusCode MDT_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	  return sc;
 	}
     }
-    else if (*itr==m_jtagFolder && m_simulation_Setup==false) {
+    else if (*itr==m_jtagFolder && !m_simulation_Setup) {
       StatusCode sc = loadJTAG(I,keys);
       if (sc.isFailure())
         {
@@ -184,13 +184,13 @@ StatusCode MDT_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
     }
     // array of folders for the hv : hv, setpointsV0, setpointsV1 
 
-    else if(*itr==m_hvFolder && m_simulation_Setup==false) isHVfolder=true;
-    else if(*itr==m_setPointsV0Folder && m_simulation_Setup==false) isV0folder=true;
-    else if(*itr==m_setPointsV1Folder && m_simulation_Setup==false) isV1folder= true;
+    else if(*itr==m_hvFolder && !m_simulation_Setup) isHVfolder=true;
+    else if(*itr==m_setPointsV0Folder && !m_simulation_Setup) isV0folder=true;
+    else if(*itr==m_setPointsV1Folder && !m_simulation_Setup) isV1folder= true;
 
   }
 
-  if(isHVfolder && isV0folder && isV1folder && m_simulation_Setup==false){
+  if(isHVfolder && isV0folder && isV1folder && !m_simulation_Setup){
      StatusCode sc = loadHV(I,keys);
      if (sc.isFailure())
         {
@@ -350,7 +350,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
     unsigned int chanNum=atrc->chanNum(chan_index);
     std::string hv_name;
-    std::string hv_payload=atrc->chanName(chanNum);
+    const std::string& hv_payload=atrc->chanName(chanNum);
     
     itr=atrc->chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
@@ -425,7 +425,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     unsigned int chanNum=atrc_v0->chanNum(chan_index_v0);
     
     float setPointsV0_name;
-    std::string setPointsV0_payload=atrc_v0->chanName(chanNum);
+    const std::string& setPointsV0_payload=atrc_v0->chanName(chanNum);
        
     itr_v0=atrc_v0->chanAttrListPair(chanNum);
     const coral::AttributeList& atr_v0=itr_v0->second;
@@ -477,7 +477,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     //m_log<<MSG::DEBUG<<"index "<<chan_index_v1<< "  chanNum :" <<atrc_v1->chanNum(chan_index_v1)<< endmsg;
     unsigned int chanNum=atrc_v1->chanNum(chan_index_v1);
     float setPointsV1_name;
-    std::string setPointsV1_payload=atrc_v1->chanName(chanNum);
+    const std::string& setPointsV1_payload=atrc_v1->chanName(chanNum);
     
     itr_v1=atrc_v1-> chanAttrListPair(chanNum);
     const coral::AttributeList& atr_v1=itr_v1->second;
@@ -569,7 +569,7 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     //m_log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endmsg;
     unsigned int chanNum=atrc->chanNum(chan_index);
     std::string hv_name;
-    std::string hv_payload=atrc->chanName(chanNum);
+    const std::string& hv_payload=atrc->chanName(chanNum);
     
     itr=atrc-> chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
@@ -682,7 +682,7 @@ StatusCode MDT_DCSConditionsTool::loadJTAG(IOVSVC_CALLBACK_ARGS_P(I,keys))
     //m_log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endmsg;
     unsigned int chanNum=atrc->chanNum(chan_index);
     std::string hv_name;
-    std::string hv_payload=atrc->chanName(chanNum);
+    const std::string& hv_payload=atrc->chanName(chanNum);
     
     itr=atrc-> chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;

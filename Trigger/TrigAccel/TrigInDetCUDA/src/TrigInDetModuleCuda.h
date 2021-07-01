@@ -57,7 +57,10 @@ class TrigInDetModuleCuda : public TrigAccel::WorkFactory {
     // data context allocation / de-allocation
     
     SeedMakingDeviceContext* createSeedMakingContext(int) const;
-    void deleteSeedMakingContext(SeedMakingDeviceContext*) const;
+
+
+    SeedMakingManagedDeviceContext* createManagedSeedMakingContext(int) const;
+
 
     bool m_dumpTimeLine;
     

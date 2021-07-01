@@ -49,3 +49,8 @@ atlas_add_test( KFromNItr_test
 atlas_add_test( IPartCombItr_test
   SOURCES test/IPartCombItr_test.cxx
   LINK_LIBRARIES TestTools TrigCompositeUtilsLib xAODBase xAODTrigger)
+
+atlas_add_test( ChainNameParser_test
+  SOURCES test/ChainNameParser_test.cxx
+  LINK_LIBRARIES TestTools TrigCompositeUtilsLib xAODBase xAODTrigger
+  POST_EXEC_SCRIPT nopost.sh)

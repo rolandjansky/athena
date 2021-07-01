@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //======================================================
@@ -379,7 +379,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         ATH_MSG_INFO("PRD to track map input " << m_inputAssoMapName.key()  );
      }
      for (const std::unique_ptr<Trk::Track> &track : output_track_collection) {
-        StatusCode sc = m_assoTool->addPRDs(*prd_to_track_map, *track);
+       ATH_CHECK( m_assoTool->addPRDs(*prd_to_track_map, *track) );
      }
   }
   // @TODO sort output track collection ? 

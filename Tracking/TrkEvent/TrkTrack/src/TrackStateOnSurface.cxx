@@ -155,7 +155,7 @@ TrackStateOnSurface::~TrackStateOnSurface()
   const char* p = reinterpret_cast<const char*>(m_alignmentEffectsOnTrack.get());
   if (p && reinterpret_cast<uintptr_t>(p) < 0x1000) {
     std::cerr << "ERROR: ~TrackStateOnSurface bad AEOT pointer\n";
-    CxxUtils::safeHexdump (std::cerr, p-32, sizeof(TrackStateOnSurface)+32);
+    CxxUtils::safeHexdump (std::cerr, ((const char*)this)-32, sizeof(TrackStateOnSurface)+32);
   }
 }
 

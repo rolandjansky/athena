@@ -29,7 +29,6 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20d.py' \
 --skipEvents 0 \
@@ -48,7 +47,7 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
+--postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC20d.py' \
 --skipEvents 0

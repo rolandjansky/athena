@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -61,8 +61,6 @@ class TBBPCMonTool: public MonitorToolBase
   bool m_monitor_bpcraw;
 
   bool m_fake_detector;
-
-  bool m_isBooked;
 
   // BPC Histograms
   IHistogram1D** m_histo_bpcposX;

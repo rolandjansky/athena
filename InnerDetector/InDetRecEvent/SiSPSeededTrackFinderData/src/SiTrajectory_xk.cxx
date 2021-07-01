@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectory_xk.h"
@@ -161,7 +161,17 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 
   if (tsos) dtsos.push_back(tsos);
   
-  for (++i; i!=m_lastElement; ++i) {
+  int lastClusterElement = 0;
+  for (int j=m_lastElement; j>=i; j--) {
+     int m = m_elementsMap[j];
+     if (m_elements[m].cluster()) { 
+	lastClusterElement = j;
+	break;
+     }
+  }
+  if( lastClusterElement==0 || lastClusterElement==i ) return dtsos;
+
+  for (++i; i<std::min(lastClusterElement,m_lastElement); ++i) {
     
     int m = m_elementsMap[i];
     if (m_elements[m].cluster()) {
@@ -170,7 +180,7 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
     }
   }
 
-  i =m_lastElement;
+  i = std::min(lastClusterElement,m_lastElement);
   tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,2);
   if (tsos) dtsos.push_back(tsos);
 
@@ -204,6 +214,67 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceWithNewDirection()
 
   i = m_firstElement;
   tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(true,false,1);
+  if (tsos) dtsos.push_back(tsos);
+
+  return dtsos;
+}
+
+///////////////////////////////////////////////////////////////////
+// Trajectory conversion to simple TrackStateOnSurface   
+// Only for Disappearing Track Trigger that uses also failed tracks
+///////////////////////////////////////////////////////////////////
+
+DataVector<const Trk::TrackStateOnSurface>
+InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int cosmic)
+{
+  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
+    return convertToSimpleTrackStateOnSurfaceForDisTrackTrigger();
+  }
+  return convertToSimpleTrackStateOnSurfaceWithNewDirection();
+}
+
+///////////////////////////////////////////////////////////////////
+// Trajectory conversion to simple TrackStateOnSurface  with old direction
+// Only for Disappearing Track Trigger that uses also failed tracks
+///////////////////////////////////////////////////////////////////
+
+DataVector<const Trk::TrackStateOnSurface> 
+InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger()
+{
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
+
+  int i = m_firstElement;
+  
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackPerigeeStateOnSurface();
+
+  if (tsos) dtsos.push_back(tsos);
+  
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,false,0);
+
+  if (tsos) dtsos.push_back(tsos);
+  
+  int lastClusterElement = 0;
+  for (int j=m_lastElement; j>=i; j--) {
+     int m = m_elementsMap[j];
+     if (m_elements[m].cluster()) { 
+	lastClusterElement = j;
+	break;
+     }
+  }
+  if( lastClusterElement==0 || lastClusterElement==i ) return dtsos;
+
+  for (++i; i<std::min(lastClusterElement,m_lastElement); ++i) {
+    
+    int m = m_elementsMap[i];
+    if (m_elements[m].cluster()) {
+      tsos = m_elements[m].trackSimpleStateOnSurface(false,false,0);
+      if (tsos) dtsos.push_back(tsos);
+    }
+  }
+
+  i = std::min(lastClusterElement,m_lastElement);
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,2);
   if (tsos) dtsos.push_back(tsos);
 
   return dtsos;
@@ -391,7 +462,7 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
           tz = m_elements[m].parametersPF().cotTheta();
         }
       }
-      else if (m_elements[m].status()==2) {
+      else if ((m_tools->useFastTracking() and m_elements[m].status()>2) or m_elements[m].status()==2) {
 
         if (m_elements[m].cluster()) {
 
@@ -504,6 +575,15 @@ bool InDet::SiTrajectory_xk::initialize
   int    ndfwrong   =    0;
   double Xi2cut     = 2.*m_tools->xi2max();
 
+  // radius of the dead cylinder
+  double Rdead      = 123.;
+  // boolean to decide if initialisation is needed or not
+  // initDeadMaterial is False (which means dead material needs be initialised)
+  // for ITk fast tracking configuration
+  bool initDeadMaterial = not(m_tools->isITkGeometry() and m_tools->useFastTracking());
+
+  if(!m_surfacedead) m_surfacedead = new Trk::CylinderSurface(Rdead,5000.);
+
   std::list<const InDet::SiCluster*>::iterator iter_cluster;
   if (lSiCluster.size() < 2) return false;
 
@@ -526,6 +606,24 @@ bool InDet::SiTrajectory_xk::initialize
     /// First case: Current element is a pixel module
     if (detectorElement->isPixel()) {
       if (PIX) {  /// check if we are configured to use pixels! 
+
+	// Set dead material
+	//
+	// if already initialised, not doing it again
+        if(not initDeadMaterial) {
+          const Trk::PlaneSurface* pla = static_cast<const Trk::PlaneSurface*>(&detectorElement->surface());
+          double R = pla->center().perp();
+          if(R > Rdead) {
+            initDeadMaterial = true;
+            if(!m_elements[m_nElements].setDead(m_surfacedead)) return false;
+            m_elementsMap[m_nElements] = m_nElements;
+            if(m_nclusters && lSiCluster.size()) {
+              if(!m_elements[m_nElements].ForwardPropagationWithoutSearch(m_elements[up])) return false;
+              up = m_nElements;
+            }
+            if(++m_nElements==300) break;
+          }
+        }
 
         InDet::PixelClusterCollection::const_iterator iter_PixelClusterColl, iter_PixelClusterCollEnd;
         /// check for the pixel clusters on the given detector element, using the ID hash 
@@ -669,16 +767,19 @@ bool InDet::SiTrajectory_xk::initialize
       } 
       /// if it does not look good
       else {
-        /// add the ndf to "ndfwrong"
-        ndfwrong+=m_elements[m_nElements-1].ndf();
-        /// if we have collected more than 3 badly fitting DoF (2 pix or 1 Pix + 1 SCT or 3 SCT), bail out 
-        if (ndfwrong > 3) return false;
-        /// reduce ndf for cut by the bad degrees of freedom
-        m_ndfcut-=m_elements[m_nElements-1].ndf();
-        /// reduce cluster count, don't include this track
-        --m_nclusters;
-        /// and erase the cluster again
-        m_elements[m_nElements-1].eraseClusterForwardPropagation();
+        if (m_tools->isITkGeometry()) return false;
+        else{
+          /// add the ndf to "ndfwrong"
+          ndfwrong+=m_elements[m_nElements-1].ndf();
+          /// if we have collected more than 3 badly fitting DoF (2 pix or 1 Pix + 1 SCT or 3 SCT), bail out
+          if (ndfwrong > 3) return false;
+          /// reduce ndf for cut by the bad degrees of freedom
+          m_ndfcut-=m_elements[m_nElements-1].ndf();
+          /// reduce cluster count, don't include this track
+          --m_nclusters;
+          /// and erase the cluster again
+          m_elements[m_nElements-1].eraseClusterForwardPropagation();
+        }
       }
     }
     /// Case if we already have clusters from the seed on track, 
@@ -689,7 +790,7 @@ bool InDet::SiTrajectory_xk::initialize
       /// if the propagation fails
       if (!m_elements[m_nElements-1].ForwardPropagationWithoutSearch(m_elements[up])) {
         /// if we have a cluster here, something went wrong in the upstream logic 
-        if (m_elements[m_nElements-1].cluster()) return false;
+        if(not m_tools->isITkGeometry() and m_elements[m_nElements-1].cluster()) return false;
         /// otherwise, remove this guy from consideration. 
         /// It will be overwritten by the next one we see
         --m_nElements;
@@ -714,12 +815,12 @@ bool InDet::SiTrajectory_xk::initialize
   }
   /// if some seed hits are badly fitting and we have less than 6 remaining good DoF, 
   /// we give up 
-  if (ndfwrong && m_ndfcut < 6) return false;
+  if (not m_tools->isITkGeometry() && ndfwrong && m_ndfcut < 6) return false;
 
   /// update degrees of freedom to the current count of good ones
   m_ndf = m_ndfcut;
   /// truncate the ndfcut variable to 6 
-  if (m_ndfcut > 6) m_ndfcut = 6;
+  if (m_tools->isITkGeometry() || m_ndfcut > 6) m_ndfcut = 6;
 
   /// Kill empty trajectory elements at the end of our trajectory
   int n = m_nElements-1;
@@ -1045,6 +1146,8 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   int                     MPbest[300]         ;
   int                     TE    [100]         ;
   const InDet::SiCluster* CL    [100]         ;
+  double                  XI2B  [100]         ;
+  Trk::PatternTrackParameters PUB[100]        ;
   Trk::PatternTrackParameters  PA             ;
  
   int    maxholes       = m_tools->maxholes ();
@@ -1122,7 +1225,13 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
    
           if (Ei.inside() <= 0 ) {
             MPbest[++lbest] = i;
-            if (Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf();}
+            if (Ei.cluster()) {
+	      CL[nbest]=Ei.cluster();
+	      XI2B[nbest] = Ei.xi2B();
+	      PUB[nbest]  = Ei.parametersUB();
+	      TE[nbest++]=lbest;
+	      ndfbest+=Ei.ndf();
+	    }
           }
         }
       }
@@ -1136,7 +1245,14 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
 
           if (Ei.inside() <= 0 && ++lbest >=0 ) {
             MPbest[lbest] = lbest;
-            if (Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf(); if (l<0) l=lbest;}
+            if (Ei.cluster()) {
+	      CL[nbest]=Ei.cluster();
+	      XI2B[nbest] = Ei.xi2B();
+	      PUB[nbest]  = Ei.parametersUB();
+	      TE[nbest++]=lbest;
+	      ndfbest+=Ei.ndf();
+	      if (l<0) l=lbest;
+            }
             m_elementsMap[lbest] = m_elementsMap[i];
           }
    
@@ -1205,9 +1321,15 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
     for (; m>=0; --m) if (TE[m]==n) break;
 
     if (m>=0) {
-      En.setCluster(CL[m]); if (--nbest==0) break;
+      if (m_tools->useFastTracking()) {
+	En.setClusterB(CL[m],XI2B[m]);
+	En.setParametersB(PUB[m]);
+      }
+      else En.setCluster(CL[m]);
+      if (--nbest==0) break;
     }
     else     {
+      if (m_tools->useFastTracking()) En.setClusterB(  nullptr  ,10000.);
       En.setCluster(  nullptr  );
     }
   } 
@@ -1397,12 +1519,14 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 
       /// if we found a matching cluster at this element: 
       if     (currentElement.cluster()     ) {
-        /// get the dPhi w.r.t the first hit 
-        double df = fabs(currentElement.parametersUF().parameters()[2]-f0); 
-        /// wrap into 0...pi space
-        if (df > pi) df = pi2-df;
-        /// and bail out if the track is curving too extremely in phi 
-        if (df > dfmax) break;
+        if (not m_tools->isITkGeometry()) {
+          /// get the dPhi w.r.t the first hit
+          double df = fabs(currentElement.parametersUF().parameters()[2]-f0);
+          /// wrap into 0...pi space
+          if (df > pi) df = pi2-df;
+          /// and bail out if the track is curving too extremely in phi
+          if (df > dfmax) break;
+        }
         /// update indices for last hit 
         lastElementWithExpHit=index_currentElement; 
         lastElementWithSeenHit=index_currentElement; 
@@ -1415,13 +1539,15 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
         /// check if we exceeded the maximum number of holes or double holes. If yes, abort! 
         if (currentElement.nholesF() > maxholes || currentElement.dholesF() > maxdholes) break; 
         haveHole=true;
-        /// and do the dPhi check again, but using the predicted parameters (as no hit) 
-        double df = fabs(currentElement.parametersPF().parameters()[2]-f0); 
-        if (df > pi) df = pi2-df;
-        if (df > dfmax ) break;
+        if (not m_tools->isITkGeometry()) {
+          /// and do the dPhi check again, but using the predicted parameters (as no hit)
+          double df = fabs(currentElement.parametersPF().parameters()[2]-f0);
+          if (df > pi) df = pi2-df;
+          if (df > dfmax ) break;
+        }
       }
       /// we did not find a hit, but also do not cross the active surface (no hit expected)
-      else                       {
+      else if (not m_tools->isITkGeometry()) {
         /// apply only the dPhi check 
         double df = fabs(currentElement.parametersPF().parameters()[2]-f0); 
         if (df > pi) df = pi2-df;
@@ -1694,6 +1820,59 @@ bool InDet::SiTrajectory_xk::forwardFilter()
     InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
     if (!Ef.ForwardPropagationWithoutSearch(El)) return false;
   }
+  return true;
+}
+
+
+///////////////////////////////////////////////////////////////////
+// Filter with precise clusters error
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectory_xk::filterWithPreciseClustersError()
+{
+  int L       = m_firstElement;
+  int I       = 0             ;
+
+  if(!m_elements[m_elementsMap[L]].cluster()) return false;
+  m_elementsMap[I] =  m_elementsMap[L];
+
+  for(++L; L<=m_lastElement; ++L) {
+
+    int K = m_elementsMap[L];
+    if(m_elements[K].cluster() || m_elements[K].clusterNoAdd() || m_elements[K].inside() < 0 ) m_elementsMap[++I] = K;
+  }
+  m_firstElement = 0  ;
+  m_lastElement  = I  ;
+  m_nElements    = I+1;
+
+  // Forward filter
+  //
+  L = 0;
+
+  // firstTrajectorElement with correction = true
+  if(!m_elements[m_elementsMap[L]].firstTrajectorElement(true)) return false;
+
+  for(++L; L<=m_lastElement; ++L) {
+
+    InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[L-1]];
+    InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
+
+    if(!Ef.ForwardPropagationWithoutSearchPreciseWithCorrection(El)) return false;
+  }
+
+  // Backward smoother
+  //
+  if(!m_elements[m_elementsMap[m_lastElement]].lastTrajectorElementPrecise()) return false;
+
+  int m = m_lastElement-1;
+  for(; m>=0; --m) {
+
+    InDet::SiTrajectoryElement_xk& En = m_elements[m_elementsMap[m+1]];
+    InDet::SiTrajectoryElement_xk& Em = m_elements[m_elementsMap[m  ]];
+
+    if(!Em.BackwardPropagationPrecise(En)) return false;
+  }
+
   return true;
 }
 

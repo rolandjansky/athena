@@ -534,10 +534,10 @@ if hasattr(svcMgr.THistSvc, "Output"):
 # Conditions overrides
 #-------------------------------------------------------------
 if len(opt.condOverride)>0:
-    for folder,tag in opt.condOverride.iteritems():
+    for folder,tag in iter(opt.condOverride.items()):
         log.warning('Overriding folder %s with tag %s', folder, tag)
         from IOVDbSvc.IOVDbSvcConfig import addOverride
-        addOverride(ConfigFlags,folder,tag)
+        CAtoGlobalWrapper(addOverride, ConfigFlags,folder=folder,tag=tag)
 
 if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
@@ -613,10 +613,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
-CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
-# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
-TrigCostMonitorMTPostSetup()
+from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg, TrigCostMonitorPostSetup
+CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorPostSetup be component-accumulator-ised?
+TrigCostMonitorPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

@@ -86,6 +86,10 @@ namespace InDet{
 	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
       bool addCluster
 	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      bool addClusterPrecise
+	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
+      bool addClusterPreciseWithCorrection
+	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
 
       bool combineStates
 	(Trk::PatternTrackParameters&,
@@ -97,8 +101,9 @@ namespace InDet{
       /// @name Methods noise calculation
       ///////////////////////////////////////////////////////////////////
       //@{
+      // if rad_length==-1, then the private member m_radlength is used.
       void noiseProduction
-	(int,const Trk::PatternTrackParameters&);
+	(int,const Trk::PatternTrackParameters&,double rad_length = -1.);
       void noiseInitiate();
 
       bool addNextClusterB();
@@ -106,6 +111,7 @@ namespace InDet{
       bool addNextClusterB(SiTrajectoryElement_xk&,const InDet::SiCluster*);
       bool addNextClusterF(SiTrajectoryElement_xk&,const InDet::SiCluster*);
       void setCluster(const InDet::SiCluster*);
+      void setClusterB(const InDet::SiCluster*,double);
 
       void setParametersB(Trk::PatternTrackParameters&); 
       void setParametersF(Trk::PatternTrackParameters&); 
@@ -152,6 +158,8 @@ namespace InDet{
 	       const InDet::SiCluster* si,
 	       const EventContext& ctx);
 
+      bool setDead(const Trk::Surface*);
+      void setDeadRadLength(Trk::PatternTrackParameters&);
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
       void bremNoiseModel();
@@ -163,7 +171,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       bool firstTrajectorElement(const Trk::TrackParameters&);
-      bool firstTrajectorElement();
+      bool firstTrajectorElement(bool correction = false);
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -171,6 +179,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       bool ForwardPropagationWithoutSearch(SiTrajectoryElement_xk&);
+      bool ForwardPropagationWithoutSearchPreciseWithCorrection(SiTrajectoryElement_xk&);
       bool ForwardPropagationWithSearch(SiTrajectoryElement_xk&);
       /**
        * T = InDet::SiClusterCollection::const_iterator or
@@ -205,6 +214,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       bool lastTrajectorElement();
+      bool lastTrajectorElementPrecise();
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -212,6 +222,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       bool BackwardPropagationSmoother(SiTrajectoryElement_xk&,bool);
+      bool BackwardPropagationPrecise (SiTrajectoryElement_xk&);
       bool BackwardPropagationFilter  (SiTrajectoryElement_xk&);
       //@}
 
@@ -273,6 +284,9 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       bool initiateState(Trk::PatternTrackParameters& inputPars,Trk::PatternTrackParameters& outputPars);
+      bool initiateStatePrecise(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      bool initiateStateWithCorrection(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      void precisePosCov(Trk::PatternTrackParameters&);
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -350,7 +364,7 @@ namespace InDet{
       ///    CM ->globalPars[6]  dCM/   globalPars[13]   globalPars[20]   globalPars[27]   globalPars[34]   globalPars[41] 
       ///    + dA/dS (42-44) and step (45) 
       // /////////////////////////////////////////////////////////////////////////////////
-      static void transformPlaneToGlobal(bool,
+      bool transformPlaneToGlobal(bool,
                                   Trk::PatternTrackParameters& localParameters,
                                   double* globalPars);
 
@@ -498,6 +512,9 @@ namespace InDet{
 
       Trk::TrackStateOnSurface*                   m_tsos[3]{}     ;
       Amg::MatrixX                                m_covariance  ;
+      Amg::Vector2D                               m_position    ;
+
+      static constexpr double s_oneOverTwelve{0.08333}           ;
 
       IteratorType m_itType{Invalid};
 

@@ -32,7 +32,8 @@
    SG::AuxTypeVectorFactory< ElementLink< TYPE > > dummy_##TYPE##_8;           \
    SG::AuxTypeVectorFactory< std::vector< ElementLink< TYPE > > >              \
      dummy_##TYPE##_9;                                                         \
-   XAOD_BASEINFO_TYPE(TYPE) dummy_##TYPE##_10
+   XAOD_BASEINFO_TYPE(TYPE) dummy_##TYPE##_10;                                 \
+   DataVectorBase< TYPE::base_value_type > dummy_##TYPE##_11
 
 /// Macro instantiating all the container "interface" and smart pointer types
 /// that we need a dictionary for.
@@ -48,7 +49,8 @@
    SG::AuxTypeVectorFactory< ElementLink< NS::TYPE > > dummy_##NS##_##TYPE##_8;\
    SG::AuxTypeVectorFactory< std::vector< ElementLink< NS::TYPE > > >          \
       dummy_##NS##_##TYPE##_9;                                                 \
-   XAOD_BASEINFO_TYPE(NS::TYPE) dummy_##NS##_##TYPE##_10
+   XAOD_BASEINFO_TYPE(NS::TYPE) dummy_##NS##_##TYPE##_10;                      \
+   DataVectorBase< NS::TYPE::base_value_type > dummy_##NS##_##TYPE##_11
 
 /// Macro instantiating all the single object smart pointer types that we need
 /// a dictionary for.

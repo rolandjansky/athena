@@ -21,7 +21,7 @@ void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatios(const s
     //If both thisCluster.first->e() and clusterEnergyMap[thisCluster.first] are zero we never enter this step.          
 
     if (std::abs(thisCluster.first->e() - clusterEnergyMap[thisCluster.first]) > 0.0001) {
-       if ( clusterEnergyMap[thisCluster.first] >= 0) {
+       if ( clusterEnergyMap[thisCluster.first] > 0) {
         ATH_MSG_DEBUG("Subtracted energy ratio is " << thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
         clusterSubtractedEnergyRatios.push_back(thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
        }

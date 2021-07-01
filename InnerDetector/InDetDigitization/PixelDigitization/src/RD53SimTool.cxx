@@ -58,9 +58,9 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   //int nSmallHitsRD53 = 0; unused
   std::vector<int> row, col;
-  const int maxRow = p_design->rowsPerCircuit();
-  const int maxCol = p_design->columnsPerCircuit();
-  std::vector<std::vector<int> > RD53Map(maxRow + 16, std::vector<int>(maxCol + 16));
+  // const int maxRow = p_design->rowsPerCircuit();
+  // const int maxCol = p_design->columnsPerCircuit();
+  // std::vector<std::vector<int> > RD53Map(maxRow + 16, std::vector<int>(maxCol + 16));
 
   // Add cross-talk
   CrossTalk(moduleData->getCrossTalk(barrel_ec, layerIndex), chargedDiodes);
@@ -151,18 +151,18 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     InDetDD::SiReadoutCellId cellId = (*i_chargedDiode).second.getReadoutCell();
     const Identifier id_readout = chargedDiodes.element()->identifierFromCellId(cellId);
 
-    int iirow = cellId.phiIndex();
-    int iicol = cellId.etaIndex();
-    if (iicol >= maxCol) {
-      iicol = iicol - maxCol;
-    } // RD53 copy mechanism works per FE.
+    // int iirow = cellId.phiIndex();
+    // int iicol = cellId.etaIndex();
+    // if (iicol >= maxCol) {
+    //   iicol = iicol - maxCol;
+    // } // RD53 copy mechanism works per FE.
 
     // Front-End simulation
     if (bunch >= 0 && bunch < moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
       Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch, 0, bunch);
       //see commented code below for clarification why this is always executed
       rdoCollection.push_back(p_rdo);
-      RD53Map[iirow][iicol] = 2; //Flag for "big hits"
+      // RD53Map[iirow][iicol] = 2; //Flag for "big hits"
       //
       //
       /**

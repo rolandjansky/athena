@@ -236,6 +236,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
                   CountingConnector * conn = new CountingConnector(algo.name(), algo.inputs().at(0), algo.klass()+"/"+algo.name(), algo.outputs().at(0));
 	               conn->m_count.setNBits( tl.nbits() );
+	               conn->m_count.setFirstBit( tl.startbit() );
 
                   if(tl.name() != "UNDEF")
 		               conn->m_triggers.push_back(tl);

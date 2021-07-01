@@ -7,7 +7,7 @@
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 
 
 /**
@@ -41,7 +41,7 @@ private:
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1SummaryKey { this, "L1DecoderSummaryKey", "L1DecoderSummary",
     "Chains status after L1 and prescaling" };
 
-  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc",
+  ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle { this, "TrigCostSvc", "TrigCostSvc",
     "The trigger cost service" };
 
   Gaudi::Property< std::map< std::string, std::vector<std::string> > > m_lastStepForChain{ this, "FinalStepDecisions", {},

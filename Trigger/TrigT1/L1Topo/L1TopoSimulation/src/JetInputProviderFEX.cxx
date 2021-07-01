@@ -175,15 +175,15 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
 		   << " eta: "
-		   << jFexRoI->getGlobalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << jFexRoI->getGlobalPhi() // returns a floating point global phi
+		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
        
     unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
-    double phi = jFexRoI->getGlobalPhi()/10.;
-    double eta = jFexRoI->getGlobalEta()/10.;
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
    
     // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
     int ieta = round(eta*40.0);
@@ -208,15 +208,15 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
 		   << " eta: "
-		   << jFexRoI->getGlobalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << jFexRoI->getGlobalPhi() // returns a floating point global phi
+		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
     
     unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
-    double phi = jFexRoI->getGlobalPhi()/10.;
-    double eta = jFexRoI->getGlobalEta()/10.;
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
     
     // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
     int ieta = round(eta*40.0);
@@ -241,15 +241,15 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
 		   << " eta: "
-		   << jFexRoI->getGlobalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << jFexRoI->getGlobalPhi() // returns a floating point global phi
+		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
 
     unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
-    double phi = jFexRoI->getGlobalPhi()/10.;
-    double eta = jFexRoI->getGlobalEta()/10.;
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
     
     // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
     int ieta = round(eta*40.0);

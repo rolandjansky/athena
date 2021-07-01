@@ -44,6 +44,19 @@ def TrackCountHypoToolGen(chainDict):
         # will set here cuts
     return hypo
 
+def MbtsHypoToolGen(chainDict):
+    from TrigMinBias.TrigMinBiasConf import MbtsHypoTool
+    hypo = MbtsHypoTool(chainDict["chainName"]) # to now no additional settings
+    if chainDict["chainParts"][0]["extra"] in ["vetombts2in", "vetospmbts2in"]:
+        hypo.MbtsCounters=2
+        hypo.MBTSMode=1
+        hypo.Veto=True
+    else:  #default, one counter on each side
+        hypo.MbtsCounters=1
+    return hypo
+
+    
+
 def TrigZVertexHypoToolGen(chainDict):
     from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoTool
     hypo = TrigZVertexHypoTool(chainDict["chainName"])
@@ -171,7 +184,7 @@ def MinBiasTrkSequence():
                             HypoToolGen = TrackCountHypoToolGen)
 
 def MinBiasMbtsSequence():
-    from TrigMinBias.TrigMinBiasConf import MbtsHypoAlg, MbtsHypoTool
+    from TrigMinBias.TrigMinBiasConf import MbtsHypoAlg
     from TrigMinBias.MbtsConfig import MbtsFexCfg
     fex = MbtsFexCfg(MbtsBitsKey=recordable("HLT_MbtsBitsContainer"))
     MbtsRecoSeq = parOR("MbtsRecoSeq", [fex])
@@ -187,10 +200,8 @@ def MinBiasMbtsSequence():
 
     hypo = MbtsHypoAlg("MbtsHypoAlg", MbtsBitsKey=fex.MbtsBitsKey)
 
-    def hypoToolGen(chainDict):
-        return MbtsHypoTool(chainDict["chainName"]) # to now no additional settings
 
     return MenuSequence(Sequence    = MbtsSequence,
                         Maker       = MbtsInputMakerAlg,
                         Hypo        = hypo,
-                        HypoToolGen = hypoToolGen)
+                        HypoToolGen = MbtsHypoToolGen)

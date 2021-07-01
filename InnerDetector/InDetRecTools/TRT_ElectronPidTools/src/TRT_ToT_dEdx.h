@@ -127,7 +127,7 @@ public:
   using ITRT_ToT_dEdx::getTest;
   virtual double dEdx(const EventContext& ctx,
                       const Trk::Track* track,
-                      bool useHThits = true,
+                      bool useHThits,
                       std::optional<float> localOccupancy = std::nullopt) const override final;
 
   /**

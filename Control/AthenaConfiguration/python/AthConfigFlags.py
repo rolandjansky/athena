@@ -257,7 +257,7 @@ class AthConfigFlags(object):
     def lock(self):
         if(not self._locked):
             self._locked = True
-            self._hash = hash((self._calculateHash() , id(self)))
+            self._hash = self._calculateHash()
         return
 
     def locked(self):

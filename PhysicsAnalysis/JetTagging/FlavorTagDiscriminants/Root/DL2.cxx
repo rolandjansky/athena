@@ -10,15 +10,8 @@
 #include "xAODBTagging/BTaggingUtilities.h"
 
 namespace {
-    // This is a workaround because a lot of our builds still don't
-    // support C++17. It's meant to look just as ugly as it is.
-  template <typename T>
-  void set_merge_gcc6p2(std::set<T>& target, const std::set<T>& src) {
-    target.insert(src.begin(), src.end());
-  }
-
   const std::string jetLinkName = "jetLink";
-  const std::string trackLinkName = "BTagTrackToJetAssociator";
+  const std::string defaultTrackLinkName = "BTagTrackToJetAssociator";
 
 }
 
@@ -32,7 +25,7 @@ namespace FlavorTagDiscriminants {
            const std::vector<DL2InputConfig>& inputs,
            const std::vector<DL2TrackSequenceConfig>& track_sequences,
            FlipTagConfig flipConfig,
-           std::map<std::string, std::string> out_remap,
+           std::map<std::string, std::string> remap,
            OutputType output_type):
     m_jetLink(jetLinkName),
     m_input_node_name(""),
@@ -62,33 +55,28 @@ namespace FlavorTagDiscriminants {
       m_varsFromBTag.push_back(filler);
     }
 
+    // remap track link name
+    auto tlh = remap.extract(defaultTrackLinkName);
+    std::string trackLinkName = tlh ? tlh.mapped() : defaultTrackLinkName;
+
     // set up sequence inputs
     for (const DL2TrackSequenceConfig& track_cfg: track_sequences) {
       TrackSequenceBuilder track_getter(track_cfg.order,
                                         track_cfg.selection,
-                                        flipConfig);
+                                        flipConfig,
+                                        trackLinkName);
       // add the tracking data dependencies
       auto track_data_deps = get::trackFilter(track_cfg.selection).second;
-
-      // FIXME: change this back to use std::map::merge when we
-      // support C++17 everywhere
-      set_merge_gcc6p2(track_data_deps, get::flipFilter(flipConfig).second);
+      track_data_deps.merge(get::flipFilter(flipConfig).second);
 
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
-        // FIXME: change this back to
-        //
-        // auto [seqGetter, deps] = get::seqFromTracks(input_cfg);
-        //
-        // when we support C++17
-        auto seqGetter_deps = get::seqFromTracks(input_cfg);
-        track_getter.sequencesFromTracks.push_back(seqGetter_deps.first);
-        // FIXME: change this back to use std::map::merge when we
-        // support C++17 everywhere
-        set_merge_gcc6p2(track_data_deps,seqGetter_deps.second);
+        auto [seqGetter, deps] = get::seqFromTracks(input_cfg);
+        track_getter.sequencesFromTracks.push_back(seqGetter);
+        track_data_deps.merge(deps);
       }
       m_trackSequenceBuilders.push_back(track_getter);
-      m_dataDependencyNames.trackInputs = track_data_deps;
+      m_dataDependencyNames.trackInputs.merge(track_data_deps);
       m_dataDependencyNames.bTagInputs.insert(jetLinkName);
       m_dataDependencyNames.bTagInputs.insert(trackLinkName);
     }
@@ -102,11 +90,8 @@ namespace FlavorTagDiscriminants {
         std::string name = node_name + "_" + element;
 
         // let user rename the output
-        auto replacement_itr = out_remap.find(name);
-        if (replacement_itr != out_remap.end()) {
-          name = replacement_itr->second;
-          out_remap.erase(replacement_itr);
-        }
+        auto replacement_handle = remap.extract(name);
+        if (replacement_handle) name = replacement_handle.mapped();
         m_dataDependencyNames.bTagOutputs.insert(name);
 
         // for the spring 2019 retraining campaign we're stuck with
@@ -128,11 +113,11 @@ namespace FlavorTagDiscriminants {
     }
 
     // we want to make sure every remapping was used
-    if (out_remap.size() > 0) {
+    if (remap.size() > 0) {
       std::string outputs;
-      for (const auto& item: out_remap) {
+      for (const auto& item: remap) {
         outputs.append(item.first);
-        if (item != *out_remap.rbegin()) outputs.append(", ");
+        if (item != *remap.rbegin()) outputs.append(", ");
       }
       throw std::logic_error("found unused output remapping(s): " + outputs);
     }
@@ -185,10 +170,12 @@ namespace FlavorTagDiscriminants {
     return m_dataDependencyNames;
   }
 
-  DL2::TrackSequenceBuilder::TrackSequenceBuilder(SortOrder order,
-                                                  TrackSelection selection,
-                                                  FlipTagConfig flipcfg):
-    tracksFromJet(order, selection, trackLinkName),
+  DL2::TrackSequenceBuilder::TrackSequenceBuilder(
+    SortOrder order,
+    TrackSelection selection,
+    FlipTagConfig flipcfg,
+    const std::string& trackLink):
+    tracksFromJet(order, selection, trackLink),
     flipFilter(internal::get::flipFilter(flipcfg).first)
   {
   }

@@ -1479,7 +1479,7 @@ void AnalysisConfig_Ntuple::loop() {
 			}
 			else {
 
-			    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
+			    m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
 
 			    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 			    

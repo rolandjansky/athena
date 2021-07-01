@@ -21,9 +21,6 @@
   <!-- LUCID CTP input -->
   <class name="LVL1::LucidCTP" id="BAC7215E-DEA2-4B43-B722-E170AC4223D5"/>
 
-  <!-- ZDC CTP input -->
-  <class name="LVL1::ZdcCTP" id="831C4E39-6C95-41B4-86CA-FF6F99C70CB6"/>
-
   <!-- TRT CTP input -->
   <class name="LVL1::TrtCTP" id="E55FADE4-21BC-47BF-AE93-EC40CD5BAB89"/>
 

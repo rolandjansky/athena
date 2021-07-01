@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,6 @@ TBTDCRawMonTool::TBTDCRawMonTool(const std::string & type,
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_histo_tdc(nullptr),
     m_tdcNum(0)
 /*---------------------------------------------------------*/
@@ -50,9 +49,6 @@ StatusCode TBTDCRawMonTool:: initialize()
   if(m_monitor_tdc == false){
     ATH_MSG_INFO ( name() << " Not monitoring tdc " );
   }
-
-  //set to true whitin bookHist() 
-  m_isBooked = false;
 
   return StatusCode::SUCCESS;
 }
@@ -130,7 +126,7 @@ StatusCode TBTDCRawMonTool::fillHists()
       // loop over list of scint to monitor :
       for(int nameind=0; nameind < m_tdcNum; nameind++){      
 	ATH_MSG_DEBUG ( " Looking for " << m_tdcNames[nameind] );
-	for(it_tdc = tdcRawCont->begin();it_tdc!=last_tdc;it_tdc++){	
+	for(it_tdc = tdcRawCont->begin();it_tdc!=last_tdc;++it_tdc){	
 	// Check if tdcRawCont is in sync with m_tdcNames - defined in book hist
 	  if((*it_tdc)->getDetectorName() == m_tdcNames[nameind]) break;
 	}
@@ -143,7 +139,7 @@ StatusCode TBTDCRawMonTool::fillHists()
 	const TBTDCRaw * tdc = (*it_tdc);
 	
 	if(!tdc->isOverflow()) m_histo_tdc[nameind]->fill(tdc->getTDC(),1.0);
-	it_tdc++;
+	++it_tdc;
       }
     }
   }

@@ -29,8 +29,8 @@ Digi_tf.py \
 --numberOfLowPtMinBias 99.2404608 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:ServiceMgr.VTuneProfilerService.ResumeEvent=2;' 'all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]' \
---postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--postExec 'all:ServiceMgr.VTuneProfilerService.ResumeEvent=2;' \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --pileupFinalBunch 6 \
 --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);' \
 'all:userRunLumiOverride={\"run\":310000, \"startmu\":50.0, \"endmu\":60.0, \"stepmu\":1.0, \"startlb\":1, \"timestamp\":1550000000};' \

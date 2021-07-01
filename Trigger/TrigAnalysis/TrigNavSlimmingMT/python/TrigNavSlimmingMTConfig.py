@@ -5,6 +5,17 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 
+def getTrigNavSlimmingMTOnlineConfig():
+  onlineSlim = CompFactory.TrigNavSlimmingMTAlg('TrigNavSlimmingMTAlg_Online')
+  onlineSlim.TrigDecisionTool = ""
+  onlineSlim.OutputCollection = "HLTNav_Summary_OnlineSlimmed"
+  onlineSlim.PrimaryInputCollection = "HLTNav_Summary"
+  onlineSlim.KeepFailedBranched = True
+  onlineSlim.KeepOnlyFinalFeatures = False
+  onlineSlim.EdgesToDrop = [""]
+  onlineSlim.NodesToDrop = [""]
+  return onlineSlim
+
 def getTrigNavSlimmingMTConfig(ConfigFlags):
 
   log = logging.getLogger("getTrigNavSlimmingMTConfig.py")

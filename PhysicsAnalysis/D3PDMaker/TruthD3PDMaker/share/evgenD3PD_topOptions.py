@@ -33,7 +33,6 @@ athenaCommonFlags.EvtMax = -1
 # Redefine SG keys for evgen running
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 D3PDMakerFlags.TruthSGKey = 'GEN_EVENT,GEN_AOD,TruthEvent'
-D3PDMakerFlags.DoTrigger  = False
 
 from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys
 ConfigureFromListOfKeys (['ProjectName',

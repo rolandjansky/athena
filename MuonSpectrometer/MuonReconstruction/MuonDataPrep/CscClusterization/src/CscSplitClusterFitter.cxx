@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscSplitClusterFitter.h"
@@ -18,15 +18,15 @@ using Muon::CscStripPrepData;
 using MuonGM::CscReadoutElement;
 
 typedef ICscClusterFitter::DataNames DataNames;
-typedef ICscClusterFitter::Result Result;
-typedef std::vector<Result> Results;
+using Result = ICscClusterFitter::Result;
+using Results = std::vector<Result>;
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
 //******************************************************************************
 
-CscSplitClusterFitter::CscSplitClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+CscSplitClusterFitter::CscSplitClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent) {
     declareInterface<ICscClusterFitter>(this);
     declareProperty("min_dist", m_min_dist = 2);         // Minimum distance between peaks and valley

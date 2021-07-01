@@ -56,8 +56,10 @@ class MinBiasChainConfig(ChainConfigurationBase):
     def assembleChain(self):
         log.debug("Assembling chain for %s", self.chainName)
         steps = []
-        if "mbts" == self.chainPart['recoAlg'][0]:
+        if "mbts" == self.chainPart['recoAlg'][0] or "mbts" in self.chainName:
             steps.append(self.getMinBiasMbtsStep())
+        else:
+            steps.append(self.getMinBiasEmptyMbtsStep())
 
         if self.chainPart['recoAlg'][0] in ['sp', 'sptrk', 'hmt']:
             steps.append(self.getMinBiasSpStep())
@@ -81,7 +83,10 @@ class MinBiasChainConfig(ChainConfigurationBase):
 
     def getMinBiasMbtsStep(self):
         return self.getStep(1, 'Mbts',[MinBiasMbtsSequenceCfg])
-    
+
+    def getMinBiasEmptyMbtsStep(self):
+        return self.getStep(1,'EmptyMbts',[lambda flags: EmptyMenuSequence("EmptyMbts")])
+
     def getMinBiasSpStep(self):
         return self.getStep(2,'SPCount',[MinBiasSPSequenceCfg])
 

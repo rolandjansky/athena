@@ -167,6 +167,8 @@ namespace InDet {
       //@{
       BooleanProperty m_usePIX{this, "usePixel", true};
       BooleanProperty m_useSCT{this, "useSCT", true};
+      BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
+      BooleanProperty m_doFastTracking{this, "doFastTracking", false};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
       BooleanProperty m_writeHolesFromPattern{this, "writeHolesFromPattern", false,"Flag to activate writing hole info from the pattern recognition"}; 

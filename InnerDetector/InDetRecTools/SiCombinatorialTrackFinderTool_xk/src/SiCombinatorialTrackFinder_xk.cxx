@@ -375,7 +375,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
   /// if we didn't find anything, bail out
   if(FT!=Success) {
     data.statistic()[FT] = true;
-    return data.tracks();
+    if( ! data.flagToReturnFailedTrack() ) return data.tracks();
   }
 
   /// sort in step order
@@ -425,7 +425,7 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
   EStat_t FT = findTrack(data, Tp, Sp, Gp, DE, PT,ctx);
   if(FT!=Success) {
     data.statistic()[FT] = true;
-    return data.tracks();
+    if( ! data.flagToReturnFailedTrack() || std::abs(data.resultCode()) < SiCombinatorialTrackFinderData_xk::ResultCodeThreshold::RecoverableForDisTrk ) return data.tracks();
   }
   if (!data.trajectory().isNewTrack(PT))
   {
@@ -537,6 +537,13 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   if (nb <= na) return data.tracks();
 
   data.trajectory().sortStep();
+
+  if(m_doFastTracking) {
+    if(!data.trajectory().filterWithPreciseClustersError()) {
+      data.statistic()[CantFindTrk] = true;
+      return data.tracks();
+    }
+  }
 
   // Trk::Track production
   //
@@ -650,19 +657,47 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
   if (data.simpleTrack()) itmax = 10;
   if (data.heavyIon()) itmax = 50;
 
+  // 
+  bool toReturnFailedTrack = data.flagToReturnFailedTrack();
+  if( toReturnFailedTrack ) data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::Unrecoverable);
+
   /// Track finding
   if (pixseed) {      /// Strategy for pixel seeds
     if (!data.trajectory().forwardExtension (false,itmax)) return CantFindTrk;
     if (!data.trajectory().backwardSmoother (false)      ) return CantFindTrk;
     if (!data.trajectory().backwardExtension(itmax)      ) return CantFindTrk;
+    if (data.isITkGeometry() && (data.trajectory().nclusters() < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) ) return CantFindTrk;
     /// refine if needed
-    if (data.trajectory().difference() > 0) {
-      if (!data.trajectory().forwardFilter()          ) return CantFindTrk;
-      if (!data.trajectory().backwardSmoother (false) ) return CantFindTrk;
+    if(!data.useFastTracking()){
+      if (data.trajectory().difference() > 0) {
+        if (!data.trajectory().forwardFilter()          ) {
+	  if( toReturnFailedTrack ) {
+	    data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::PixSeedDiffKFFwd);
+	  }
+	  else {
+	    return CantFindTrk;
+	  }
+        }
+        if (!data.trajectory().backwardSmoother (false) ) {
+	  if( toReturnFailedTrack ) {
+	    data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::PixSeedDiffKFBwd);
+	  }
+	  else {
+	    return CantFindTrk;
+	  }
+        }
+      }
     }
     int na = data.trajectory().nclustersNoAdd();
     /// check if we found enough clusters
-    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return CantFindTrk;
+    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) {
+       if( toReturnFailedTrack ) {
+	  data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::PixSeedNCluster);
+       }
+       else {
+	  return CantFindTrk;
+       }
+    }
   }
   /// case of a strip seed or mixed PPS
   else {      // Strategy for mixed seeds
@@ -678,27 +713,84 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
 
     /// apply hit cut again following smoothing step
     na     = data.trajectory().nclustersNoAdd();
-    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return CantFindTrk;
+    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) {
+       if( toReturnFailedTrack ) {
+	  data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::MixSeedNCluster);
+       }
+       else {
+	  return CantFindTrk;
+       }
+    }
 
     /// refine if needed
     if (data.trajectory().difference() > 0) {
-      if (!data.trajectory().forwardFilter()         ) return CantFindTrk;
-      if (!data.trajectory().backwardSmoother (false)) return CantFindTrk;
+      if (!data.trajectory().forwardFilter()         ) {
+	 if( toReturnFailedTrack ) {
+	    data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::MixSeedDiffKFFwd);
+	 }
+	 else {
+	    return CantFindTrk;
+	 }
+      }
+      if (!data.trajectory().backwardSmoother (false)) {
+	 if( toReturnFailedTrack ) {
+	    data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::MixSeedDiffKFBwd);
+	 }
+	 else {
+	    return CantFindTrk;
+	 }
+      }
     }
   }
   /// quality cut
-  if (data.trajectory().qualityOptimization()     <           (m_qualityCut*data.nclusmin())    ) return CantFindTrk;
+  if (data.trajectory().qualityOptimization()     <           (m_qualityCut*data.nclusmin())    ) {
+     if( toReturnFailedTrack ) {
+	data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::Quality);
+     }
+     else {
+	return CantFindTrk;
+     }
+  }
 
-  if (data.trajectory().pTfirst  () < data.pTmin()     && data.trajectory().nclusters() < data.nclusmin() ) return CantFindTrk;
+  if (data.trajectory().pTfirst  () < data.pTmin()     && data.trajectory().nclusters() < data.nclusmin() ) {
+     if( toReturnFailedTrack ) {
+	data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::Pt);
+     }
+     else {
+	return CantFindTrk;
+     }
+  }
 
-  if (data.trajectory().nclusters() < data.nclusminb() || data.trajectory().ndf      () < data.nwclusmin()) return CantFindTrk;
+  if (data.trajectory().nclusters() < data.nclusminb() || data.trajectory().ndf      () < data.nwclusmin()) {
+     if( toReturnFailedTrack ) {
+	data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::NCluster);
+     }
+     else {
+	return CantFindTrk;
+     }
+  }
 
   /// refine the hole cut
   if (m_writeHolesFromPattern){
     data.trajectory().updateHoleSearchResult();
-    if (!data.trajectory().getHoleSearchResult().passPatternHoleCut) return CantFindTrk;
+    if (!data.trajectory().getHoleSearchResult().passPatternHoleCut) {
+       if( toReturnFailedTrack ) {
+	  data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::HoleCut);
+       }
+       else {
+	  return CantFindTrk;
+       }
+    }
   }
 
+  if( toReturnFailedTrack ) {
+     if(  data.resultCode() != SiCombinatorialTrackFinderData_xk::ResultCode::Unrecoverable ) {
+	return CantFindTrk;
+     }
+     else {
+	data.setResultCode(SiCombinatorialTrackFinderData_xk::ResultCode::Success);
+     }
+  }
 
   return Success;
 }
@@ -717,9 +809,16 @@ Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(SiCombinatorial
 
   Trk::TrackInfo info = data.trackinfo();
   info.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinderSimple);
-  return new Trk::Track(info,
-                        data.trajectory().convertToSimpleTrackStateOnSurface(data.cosmicTrack()),
-                        data.trajectory().convertToFitQuality());
+  if( !data.flagToReturnFailedTrack() ) {
+     return new Trk::Track(info,
+			   data.trajectory().convertToSimpleTrackStateOnSurface(data.cosmicTrack()),
+			   data.trajectory().convertToFitQuality());
+  }
+  else {
+     return new Trk::Track(info,
+			   data.trajectory().convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(data.cosmicTrack()),
+			   data.trajectory().convertToFitQuality());
+  }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -906,6 +1005,9 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const Eve
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
                 &m_fieldprop,
                 &*m_boundaryCheckTool);
+
+  data.isITkGeometry() = m_ITkGeometry;
+  data.useFastTracking() = m_doFastTracking;
 
 }
 

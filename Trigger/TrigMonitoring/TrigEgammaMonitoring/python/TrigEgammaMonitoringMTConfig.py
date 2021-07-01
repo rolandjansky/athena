@@ -57,6 +57,8 @@ class TrigEgammaMonAlgBuilder:
 
   isemnames = ["tight", "medium", "loose"]
   lhnames   = ["lhtight", "lhmedium", "lhloose","lhvloose"]
+  dnnnames   = ["dnntight", "dnnmedium", "dnnloose"]
+
  
 
   def __init__(self, helper, runflag, **kwargs):
@@ -102,6 +104,7 @@ class TrigEgammaMonAlgBuilder:
       self.activate_electron=True
       self.activate_photon=True
 
+ 
 
 
   def configure(self):
@@ -169,8 +172,8 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e5_lhtight_L1EM3',
             'HLT_e5_lhtight_gsf_L1EM3',
             'HLT_e5_lhtight_noringer',
-            'HLT_e9_lhtight_noringer-EM7',
-            'HLT_e14_lhtight_noringer-EM12'
+            'HLT_e9_lhtight_noringer_EM7',
+            'HLT_e14_lhtight_noringer_EM12'
             ]
     monitoring_jpsi = [
             'HLT_e4_etcut_Jpsiee_L1JPSI-1M5',
@@ -229,7 +232,7 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e26_lhtight_ivartight_L1EM22VHI',
             'HLT_e60_lhmedium_L1EM22VHI',
             'HLT_e140_lhloose_L1EM22VHI',
-            'HLT_e300_etcut_L1EM22VHI'
+            'HLT_e300_etcut_L1EM22VHI',
             ]
 
     #monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose', 'HLT_e26_lhtight_nod0_ivarloose']
@@ -268,6 +271,11 @@ class TrigEgammaMonAlgBuilder:
     TightLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTTightLHSelector")
     VeryLooseLHSelector               = CfgMgr.AsgElectronLikelihoodTool("T0HLTVeryLooseLHSelector")
  
+    # DNN selectors 
+    LooseDNNElectronSelector          = CfgMgr.AsgElectronSelectorTool("T0HLTLooseElectronDNNSelector")
+    MediumDNNElectronSelector         = CfgMgr.AsgElectronSelectorTool("T0HLTMediumElectronDNNSelector")
+    TightDNNElectronSelector          = CfgMgr.AsgElectronSelectorTool("T0HLTTightElectronDNNSelector")
+
     LoosePhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTLoosePhotonSelector" )
     MediumPhotonSelector              = CfgMgr.AsgPhotonIsEMSelector( "T0HLTMediumPhotonSelector" )
     TightPhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTTightPhotonSelector" )
@@ -287,6 +295,10 @@ class TrigEgammaMonAlgBuilder:
     acc.addPublicTool(MediumLHSelector)
     acc.addPublicTool(TightLHSelector)
     acc.addPublicTool(VeryLooseLHSelector)
+    acc.addPublicTool(LooseDNNElectronSelector)
+    acc.addPublicTool(MediumDNNElectronSelector)
+    acc.addPublicTool(TightDNNElectronSelector)
+
   
     if self.runFlag == '2018':
       # cut based
@@ -298,7 +310,11 @@ class TrigEgammaMonAlgBuilder:
       MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
       TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
       VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
-    
+      # DNN
+      LooseDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"
+      MediumDNNElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"
+      TightDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"
+
       # cutbased for photons
       TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
       MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
@@ -314,7 +330,11 @@ class TrigEgammaMonAlgBuilder:
       MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"
       TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"
       VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"
-    
+      # DNN
+      LooseDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"
+      MediumDNNElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"
+      TightDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"
+
       # cut based for photons 
       TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
       MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
@@ -338,8 +358,10 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.ElectronKey = 'Electrons'
       self.zeeMonAlg.isEMResultNames=self.isemnames
       self.zeeMonAlg.LHResultNames=self.lhnames
+      self.zeeMonAlg.DNNResultNames=self.dnnnames
       self.zeeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
+      self.zeeMonAlg.ElectronDNNSelectorTool =[LooseDNNElectronSelector,MediumDNNElectronSelector,TightDNNElectronSelector]
       self.zeeMonAlg.ZeeLowerMass=80
       self.zeeMonAlg.ZeeUpperMass=100
       self.zeeMonAlg.OfflineTagMinEt=25
@@ -364,8 +386,10 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.ElectronKey = 'Electrons'
       self.jpsieeMonAlg.isEMResultNames=self.isemnames
       self.jpsieeMonAlg.LHResultNames=self.lhnames
+      self.jpsieeMonAlg.DNNResultNames=self.dnnnames
       self.jpsieeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
+      self.jpsieeMonAlg.ElectronDNNSelectorTool =[LooseDNNElectronSelector,MediumDNNElectronSelector,TightDNNElectronSelector]
       self.jpsieeMonAlg.ZeeLowerMass=2
       self.jpsieeMonAlg.ZeeUpperMass=5
       self.jpsieeMonAlg.OfflineTagMinEt=5
@@ -388,9 +412,10 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ElectronKey = 'Electrons'
       self.elMonAlg.isEMResultNames=self.isemnames
       self.elMonAlg.LHResultNames=self.lhnames
+      self.elMonAlg.DNNResultNames=self.dnnnames
       self.elMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.elMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
-      self.elMonAlg.ForcePidSelection=False
+      self.elMonAlg.ForcePidSelection=True
       self.elMonAlg.ForceProbeIsolation=False
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
@@ -409,6 +434,7 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.PhotonIsEMSelector =[TightPhotonSelector,MediumPhotonSelector,LoosePhotonSelector]
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
+      self.phMonAlg.ForcePidSelection=True
       self.phMonAlg.DoEmulation = False
 
 
@@ -448,6 +474,7 @@ class TrigEgammaMonAlgBuilder:
   def bookExpertHistograms( self, monAlg, triggers ):
 
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
+
 
     for trigger in triggers:
    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParabolaCscClusterFitter.h"
@@ -22,8 +22,8 @@ using Muon::CscStripPrepData;
 using MuonGM::CscReadoutElement;
 
 typedef ICscClusterFitter::DataNames DataNames;
-typedef ICscClusterFitter::Result Result;
-typedef std::vector<Result> Results;
+using Result = ICscClusterFitter::Result;
+using Results = std::vector<Result>;
 
 namespace {
     std::string splane(CscPlane plane) {
@@ -62,7 +62,7 @@ and was found experimentally during various beam tests and cosmics tests.
 @param raw The uncorrected value
 @return The corrected value, often in range from -0.5 to 0.5.
 */
-double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane& plane, double& raw) const {
+double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane& plane, double& raw) {
     double a, b, c;  // correction values
     switch (plane) {
         case CSS_ETA: {       // small Chamber, X strips
@@ -99,7 +99,7 @@ double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane& plane, double& raw
 
 //*************************************************************************
 
-ParabolaCscClusterFitter::ParabolaCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+ParabolaCscClusterFitter::ParabolaCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent) {
     declareInterface<ICscClusterFitter>(this);
     m_max_width.push_back(5);                                                // CSS eta
@@ -135,12 +135,7 @@ StatusCode ParabolaCscClusterFitter::initialize() {
 
 /** data names for ntuple output  in csc_cluster tree */
 const DataNames& ParabolaCscClusterFitter::dataNames() const {
-    static DataNames dnames;
-
-    dnames.push_back("qA");
-    dnames.push_back("qB");
-    dnames.push_back("qC");
-
+    static const DataNames dnames ={"qA","qB","qC"};
     return dnames;
 }
 

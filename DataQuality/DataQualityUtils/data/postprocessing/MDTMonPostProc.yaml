@@ -7,8 +7,8 @@ Description: HitPerEvtPerChamber
 
 ---
 Input : [
-      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
-      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES'
       ]
 Output : ['Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/mdtBA_TUBE_eff']
 Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
@@ -17,8 +17,8 @@ Description: Eff
 
 ---
 Input : [
-      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
-      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES'
       ]
 Output : ['Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/mdtBC_TUBE_eff']
 Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
@@ -27,8 +27,8 @@ Description: Eff
 
 ---
 Input : [
-      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
-      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES'
        ]
 Output : ['Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/mdtEA_TUBE_eff']
 Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
@@ -37,13 +37,75 @@ Description: Eff
 
 ---
 Input : [
-      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFCOUNTS',
-      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)MDT_Station_EFFENTRIES'
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES'
       ]
 Output : ['Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/mdtEC_TUBE_eff']
 Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo
 Parameters: { ec : 3}
 Description: Eff
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAOuterPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAMiddlePerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAInnerPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAExtraPerMultiLayer_ADCCut'
+      ] 
+Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAExtraPerMultiLayer_ADCCut']
+Parameters: { ec : 0}
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo_perML
+Description: Eff_perML
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCOuterPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCMiddlePerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCInnerPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCExtraPerMultiLayer_ADCCut'
+      ] 
+Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCInnerPerMultiLayer_ADCCut',  'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCExtraPerMultiLayer_ADCCut']
+Parameters: { ec : 1}
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo_perML
+Description: Eff_perML
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAOuterPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAMiddlePerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAInnerPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAExtraPerMultiLayer_ADCCut'
+      ]
+Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAOuterPerMultiLayer_ADCCut',
+           'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAMiddlePerMultiLayer_ADCCut',
+           'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAInnerPerMultiLayer_ADCCut',
+           'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAExtraPerMultiLayer_ADCCut']
+Parameters: { ec : 2}
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo_perML
+Description: Eff_perML
+
+---
+Input : [
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECOuterPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECMiddlePerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECInnerPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECExtraPerMultiLayer_ADCCut'
+      ]
+Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECOuterPerMultiLayer_ADCCut',
+           'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECMiddlePerMultiLayer_ADCCut',
+           'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECInnerPerMultiLayer_ADCCut',
+           'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECExtraPerMultiLayer_ADCCut']
+Parameters: { ec : 3}
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo_perML
+Description: Eff_perML
 
 ---
 Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']

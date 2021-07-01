@@ -179,6 +179,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._UseTrigSeedML   = 4
       self._dodEdxTrk       = False
       self._doHitDV         = True
+      self._doDisappearingTrk = True
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
@@ -251,7 +252,7 @@ class _ConfigSettings_electronLRT( _ConfigSettingsBase ):
    def __init__( self ):
       _ConfigSettingsBase.__init__(self)
       self._name       = "electronLRT"
-      self._suffix     = "ElectronLRT"
+      self._suffix     = "ElecLRT"
       self._roi        = "HLT_Roi_Electron"
       self._etaHalfWidth        = 0.1
       self._phiHalfWidth        = 0.4

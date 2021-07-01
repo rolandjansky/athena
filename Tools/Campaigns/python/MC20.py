@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.Enums import ProductionStep
-from LArConfiguration.LArConfigRun2 import LArConfigRun2
+from LArConfiguration.LArConfigRun2 import LArConfigRun2PileUp, LArConfigRun2NoPileUp
 
 
 def MC20a(flags):
@@ -9,7 +9,7 @@ def MC20a(flags):
     flags.Beam.NumberOfCollisions = 20.
     flags.Digitization.InputBeamSigmaZ = 42
 
-    LArConfigRun2(flags)
+    LArConfigRun2PileUp(flags)
     flags.Digitization.HighGainEMECIW = True
 
     flags.Tile.BestPhaseFromCOOL = False
@@ -31,7 +31,7 @@ def MC20d(flags):
     flags.Beam.NumberOfCollisions = 20.
     flags.Digitization.InputBeamSigmaZ = 42
 
-    LArConfigRun2(flags)
+    LArConfigRun2PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
@@ -52,7 +52,7 @@ def MC20e(flags):
     flags.Beam.NumberOfCollisions = 20.
     flags.Digitization.InputBeamSigmaZ = 42
 
-    LArConfigRun2(flags)
+    LArConfigRun2PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
@@ -66,3 +66,14 @@ def MC20e(flags):
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
         flags.Digitization.PU.HighPtMinBiasInputColOffset = -1
+
+
+def MC20NoPileUp(flags):
+    """MC20e flags for MC without pile-up"""
+    flags.Beam.NumberOfCollisions = 0
+    flags.Digitization.InputBeamSigmaZ = 42
+
+    LArConfigRun2NoPileUp(flags)
+
+    flags.Tile.BestPhaseFromCOOL = False
+    flags.Tile.correctTime = False
