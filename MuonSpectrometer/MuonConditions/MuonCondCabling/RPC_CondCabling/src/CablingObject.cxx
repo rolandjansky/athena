@@ -6,26 +6,12 @@
 
 #include <iomanip>
 
-CablingObject::CablingObject(int num, int stat, int type, std::string name) :
-    BaseObject(Logic, name), m_number(num), m_station(stat), m_sector_type(type) {}
+CablingObject::CablingObject(const CablingObject::cablingParameters& params, const std::string& obj_name, IMessageSvc* msgSvc) :
+    BaseObject(Logic, obj_name, msgSvc), m_number{params.number}, m_station{params.station}, m_sector_type{params.sectorType} {}
 
-CablingObject::CablingObject(int num, int stat, int type, const char* name) :
-    BaseObject(Logic, name), m_number(num), m_station(stat), m_sector_type(type) {}
-
-CablingObject::CablingObject(const CablingObject& obj) : BaseObject(Logic, obj.name()) {
-    m_number = obj.number();
-    m_station = obj.station();
-    m_sector_type = obj.sector_type();
-}
-
-CablingObject& CablingObject::operator=(const CablingObject& obj) {
-    if (this != &obj) {
-        m_number = obj.number();
-        m_station = obj.station();
-        m_sector_type = obj.sector_type();
-    }
-    return *this;
-}
+int CablingObject::number() const { return m_number; }
+int CablingObject::station() const { return m_station; }
+int CablingObject::sector_type() const { return m_sector_type; }
 
 std::ostream& operator<<(std::ostream& stream, const CablingObject& obj) {
     stream << obj.name() << " number " << std::setw(3) << obj.number() << "  associated to sector type " << std::setw(3)
@@ -33,7 +19,7 @@ std::ostream& operator<<(std::ostream& stream, const CablingObject& obj) {
     return stream;
 }
 
-void CablingObject::error_header(void) const {
+void CablingObject::error_header() const {
     __osstream disp;
     disp << "Error in Sector Type " << m_sector_type;
     if (m_station > 0)
@@ -44,10 +30,9 @@ void CablingObject::error_header(void) const {
     display_error(disp);
 }
 
-void CablingObject::no_connection_error(std::string name, int num) {
-    this->error_header();
-
-    DISP << this->name() << " n. " << m_number << " is supposed to receive input from " << name << " n. " << num << " which doesn't exist!"
+void CablingObject::no_connection_error(const std::string& conn_name, int num) {
+    error_header();
+    DISP << name() << " n. " << number() << " is supposed to receive input from " << conn_name << " n. " << num << " which doesn't exist!"
          << std::endl;
     DISP_ERROR;
 }

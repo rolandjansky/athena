@@ -21,39 +21,23 @@ namespace RPC_CondCabling {
     private:
         typedef std::list<EtaCMA> ETAlist;
 
-        bool m_fail;
+        bool m_fail{true};
 
-        int m_number;
-        int m_station;
-        int m_type;
-
-        int m_eta_index;
-        int m_phi_index;
-
-        int m_lowPt_start_co;
-        int m_lowPt_stop_co;
-        int m_lowPt_number_co;
-
-        int m_highPt_start_co;
-        int m_highPt_stop_co;
-        int m_highPt_number_co;
-
-        ViewType m_view;
-        CMAcoverage m_coverage;
-        std::string m_covtag;
+        ViewType m_view{ViewType::Eta};
+        CMAcoverage m_coverage{CMAcoverage::AllSectors};
+        std::string m_covtag{};
 
         ETAlist m_etaCMA;
 
         void reset_data(void);
-        bool get_data(DBline&);
-        bool confirm_data(ViewType);
+        bool get_data(DBline&, CMAparameters::parseParams& params);
+        bool confirm_data(ViewType, const CMAparameters::parseParams& parser);
 
     public:
-        CMAcablingdata();
-        CMAcablingdata(DBline&, int);
-        ~CMAcablingdata();
+        CMAcablingdata(DBline&, int, IMessageSvc*);
+        virtual ~CMAcablingdata() = default;
 
-        std::unique_ptr<EtaCMA> give_eta_cma(void);
+        std::unique_ptr<EtaCMA> give_eta_cma();
 
         void Print(std::ostream&, bool) const;
     };
