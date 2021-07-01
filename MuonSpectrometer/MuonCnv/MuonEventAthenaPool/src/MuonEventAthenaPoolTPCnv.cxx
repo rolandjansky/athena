@@ -38,9 +38,14 @@
 #include "TgcRdoCnv_p2.h"
 #include "TgcRdoCnv_p3.h"
 
+#include "TgcL1RawDataCnv_p1.h"
+#include "TgcL1RdoCnv_p1.h"
+
 #include "TgcRdoContainerCnv_p1.h"
 #include "TgcRdoContainerCnv_p2.h"
 #include "TgcRdoContainerCnv_p3.h"
+
+#include "TgcL1RdoContainerCnv_p1.h"
 
 DECLARE_TPCNV_FACTORY(CscRawDataCnv_p1,
                       CscRawData,
@@ -187,6 +192,10 @@ DECLARE_TPCNV_FACTORY(TgcRdoCnv_p3,
                       TgcRdo_p3,
                       Athena::TPCnvVers::Current)
 
+DECLARE_TPCNV_FACTORY(TgcL1RdoCnv_p1,
+                      TgcL1Rdo,
+                      TgcL1Rdo_p1,
+                      Athena::TPCnvVers::Current)
 
 DECLARE_TPCNV_FACTORY(TgcRdoContainerCnv_p1,
                       TgcRdoContainer,
@@ -201,4 +210,9 @@ DECLARE_TPCNV_FACTORY(TgcRdoContainerCnv_p2,
 DECLARE_TPCNV_FACTORY(TgcRdoContainerCnv_p3,
                       TgcRdoContainer,
                       TgcRdoContainer_p3,
+                      Athena::TPCnvVers::Current)
+
+DECLARE_TPCNV_FACTORY(TgcL1RdoContainerCnv_p1,
+                      TgcL1RdoContainer,
+                      TgcL1RdoContainer_p1,
                       Athena::TPCnvVers::Current)

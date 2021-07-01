@@ -23,7 +23,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
    MuonEventAthenaPool/*.h src/*Cnv.h src/*Cnv.cxx
    FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h
          MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h
-         MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h
+         MuonRDO/TgcRdoContainer.h MuonRDO/TgcL1RdoContainer.h MuonRDO/CscRawDataContainer.h
          MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h
          MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h
          MuonDigitContainer/RpcDigitContainer.h
