@@ -4301,7 +4301,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           }
         }
         // Check my seeds
-        if (!doDump and isHypoAlgNode) {
+        if (!doDump and isHypoAlgNode and not m_excludeFailedHypoNodes) {
           for (const ElementLink<DecisionContainer> s : seedELs) {
             const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
             for (DecisionID id : seedDecisions) {
@@ -4419,7 +4419,10 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << key << "_" << index << "\" ";
           ss << "[colorscheme="<<extScheme<<",color="<<linkColour<<",fontcolor="<<linkColour<<",arrowhead=empty,label=\"" << link << "\"]" << std::endl; 
 
-          if (converted.count(key + index) == 0) {
+          // Check if we are linking to self (e.g. a dummy-feature), don't output a new box for this
+          const bool linkToSelf = (selfKey == key and selfIndex == index);
+
+          if (converted.count(key + index) == 0 and not linkToSelf) {
             ss << "    \"" << key << "_" << index << "\" [colorscheme="<<extScheme<<",style=filled,fillcolor="<<linkBackground<<",label=<<B>Container</B>=" << tnameEscape << "<BR/><B>Key</B>=";
             if (keyStr != nullptr) ss << *keyStr;
             else ss << "[<I>KEY "<< key <<" NOT IN STORE</I>] "; 
