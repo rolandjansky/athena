@@ -574,7 +574,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 //     InDet::PixelClusterCollection::const_iterator or
 //     InDet::SCT_ClusterCollection::const_iterator
 template <typename T>
-void InDet::SiTrajectoryElement_xk::set
+bool InDet::SiTrajectoryElement_xk::set
 (int st,
  const InDet::SiDetElementBoundaryLink_xk*& dl,
  const T& sb, 
@@ -605,7 +605,7 @@ void InDet::SiTrajectoryElement_xk::set
   m_ntsos              = 0                       ;
   m_detelement         = dl->detElement()        ;
   m_detlink            = dl                      ;
-  m_surface            = &m_detelement->surface();
+  m_surface            = &m_detelement->surface(); if(!m_surface && m_tools->isITkGeometry()) return false;
   m_sibegin            = sb                      ;
   m_siend              = se                      ; 
   m_cluster            = si                      ;
@@ -654,7 +654,7 @@ void InDet::SiTrajectoryElement_xk::set
   m_localDir[0] = 1.; 
   m_localDir[1] = 0.; 
   m_localDir[2] = 0.;
-  return;
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////
