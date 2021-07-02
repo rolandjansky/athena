@@ -1313,13 +1313,12 @@ namespace MuonCombined {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
                 typePattern.set(Trk::TrackStateOnSurface::Measurement);
                 // TSoS takes ownership
-                auto* exPars = m_propagator
+                auto exPars = m_propagator
                                    ->propagateParameters(*pars, meas.associatedSurface(), Trk::anyDirection, false,
-                                                         Trk::MagneticFieldProperties(Trk::NoField))
-                                   .release();
+                                                         Trk::MagneticFieldProperties(Trk::NoField));
                 if (!exPars) { ATH_MSG_VERBOSE("Could not propagate Track to segment surface"); }
                 const Trk::TrackStateOnSurface* trackState =
-                    new Trk::TrackStateOnSurface(meas.clone(), exPars, nullptr, nullptr, typePattern);
+                    new Trk::TrackStateOnSurface(meas.uniqueClone(), std::move(exPars), nullptr, nullptr, typePattern);
                 trackStateOnSurfaces.push_back(trackState);
             }  // end segment loop
             delete pars;
@@ -1595,7 +1594,6 @@ namespace MuonCombined {
             const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
             if (meot) {
                 const Trk::EnergyLoss* el = meot->energyLoss();
-                // tsos->type(Trk::TrackStateOnSurface::CaloDeposit)
                 if (false) {
                     numEnergyLossPerTrack++;
                     energyloss += el->deltaE();  // FIXME - should we be summing these?

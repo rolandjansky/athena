@@ -14,7 +14,7 @@
 #ifndef MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
 #define MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
 
-#include <memory>
+
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -29,6 +29,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/TrackInfo.h"
+#include <memory>
 
 namespace Trk {
     class RecVertex;
@@ -81,7 +82,8 @@ namespace Rec {
 
         Trk::Track* addIDMSerrors(Trk::Track* track) const;
 
-        static Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters* parameters, const Trk::RecVertex& vertex);
+        static std::unique_ptr<Trk::PseudoMeasurementOnTrack> 
+        vertexOnTrack(const Trk::TrackParameters* parameters, const Trk::RecVertex& vertex) ;
 
         // helpers, managers, tools
         ToolHandle<Muon::IMuonTrackCleaner> m_cleaner{

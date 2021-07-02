@@ -1707,14 +1707,18 @@ namespace Rec {
 
                 ATH_MSG_DEBUG(" itsosMiddle " << itsosMiddle << " tsosnr size " << scatter_tsos.size());
 
-                const Trk::MaterialEffectsOnTrack* meotNew =
-                    new Trk::MaterialEffectsOnTrack(X0tot, std::move(scatNew), energyLossNew, surfNew, meotPattern);
+                auto meotNew =
+                          std::make_unique<Trk::MaterialEffectsOnTrack>(X0tot,
+                                                          std::move(scatNew),
+                                                          energyLossNew,
+                                                          surfNew,
+                                                          meotPattern);
 
-                const Trk::TrackParameters* parsNew = mid_scatter->trackParameters()->clone();
+                auto parsNew = mid_scatter->trackParameters()->uniqueClone();
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
                 typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
 
-                const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(nullptr, parsNew, nullptr, meotNew, typePatternScat);
+                const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(nullptr, std::move(parsNew), nullptr, std::move(meotNew), typePatternScat);
 
                 trackStateOnSurfaces.push_back(newTSOS);
                 ATH_MSG_DEBUG(" add new TSOS for ID ");
@@ -2302,14 +2306,20 @@ namespace Rec {
                 meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
                 meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
-                const Trk::MaterialEffectsOnTrack* meotNew =
-                    new Trk::MaterialEffectsOnTrack(X0, std::move(scatNew), energyLossNew, surfNew, meotPattern);
-                const Trk::TrackParameters* parsNew = trk_srf->trackParameters()->clone();
+                auto meotNew =
+                  std::make_unique<Trk::MaterialEffectsOnTrack>(X0,
+                                                  std::move(scatNew),
+                                                  energyLossNew,
+                                                  surfNew,
+                                                  meotPattern);
+                auto parsNew =
+                  trk_srf->trackParameters()->uniqueClone();
+
 
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
                 typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
 
-                const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(nullptr, parsNew, nullptr, meotNew, typePatternScat);
+                const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(nullptr, std::move(parsNew), nullptr, std::move(meotNew), typePatternScat);
                 trackStateOnSurfaces.push_back(newTSOS);
 
                 ATH_MSG_DEBUG(" old Calo scatterer had sigmaDeltaPhi mrad      " << scat->sigmaDeltaPhi() * 1000 << " sigmaDeltaTheta mrad "
