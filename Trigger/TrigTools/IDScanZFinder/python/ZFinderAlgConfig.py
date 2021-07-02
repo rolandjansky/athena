@@ -26,7 +26,6 @@ MinBiasZFinderAlg.ZFinderTools += [TrigZFinder("BeamSpotLike15", TripletMode=1, 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 monTool = GenericMonitoringTool('MonTool')
-monTool.OutputLevel=1
 
 monTool.defineHistogram( 'ZVertex', path='EXPERT', type='TH1F', title='Vertex Z distribution;z [mm];Entries',
                          xbins=400, xmin=-200, xmax=200 )
