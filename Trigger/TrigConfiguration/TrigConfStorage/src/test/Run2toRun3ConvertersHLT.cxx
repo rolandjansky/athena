@@ -13,7 +13,7 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
-
+#include "TrigCompositeUtils/ChainNameParser.h"
 #include "TrigConfIO/JsonFileWriterHLT.h"
 
 template<typename COLL>
@@ -29,25 +29,7 @@ boost::property_tree::ptree asArray( const COLL& data) {
 }
 
 std::vector<int> legMult(const TrigConf::HLTChain* cptr) {
-   std::vector<int> maxMult;
-   for ( const auto sig: cptr->signatures() ) {
-      std::vector<std::string> names;
-      std::vector<int> mult;
-      for ( const auto te: sig->outputTEs() ) {
-         auto found = std::find(names.begin(), names.end(), te->name());
-         if ( found == names.end() ) {
-            names.push_back(te->name());
-            mult.push_back(1);
-         } else {
-            int index = std::find(names.begin(), names.end(), te->name()) - names.begin();
-            mult[index]++;
-         }
-      }
-      if ( maxMult.size() < mult.size() ) {
-         maxMult = mult;
-      }
-   }
-   return maxMult;
+   return ChainNameParser::multiplicities(cptr->chain_name());
 }
 
 std::vector<std::string> l1thresholds(const TrigConf::HLTFrame* frame, const TrigConf::HLTChain* cptr) {
