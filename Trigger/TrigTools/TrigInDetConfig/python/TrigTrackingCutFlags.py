@@ -5,7 +5,7 @@ from InDetConfig.TrackingCutsFlags import createTrackingFlags
 
 # for the time when the two config systems coexist we reuse -flags 
 from TrigInDetConfig.ConfigSettings import (
-    _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT, _ConfigSettings_fullScan, _ConfigSettings_muonIso, _ConfigSettings_tau, _ConfigSettings_tauCore
+    _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT, _ConfigSettings_fullScan, _ConfigSettings_muonIso, _ConfigSettings_tau, _ConfigSettings_tauCore, _ConfigSettings_tauIso
 )
 
 
@@ -44,6 +44,12 @@ def __tauFlags():
 def __tauCoreFlags():
     return __flagsFromConfigSettings(_ConfigSettings_tauCore())
 
+def __tauIsoFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_tauIso())
+
+def __tauIsoBDTFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_tauIso())
+
 def __jetFlags():
     return __flagsFromConfigSettings(_ConfigSettings_fullScan())
 
@@ -56,6 +62,8 @@ def createTrigTrackingFlags():
     flags.addFlagsCategory('Trigger.InDetTracking.MuonLRT', _muonLRTFlags, prefix=True)
     flags.addFlagsCategory('Trigger.InDetTracking.Tau', __tauFlags, prefix=True)
     flags.addFlagsCategory('Trigger.InDetTracking.TauCore', __tauCoreFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.TauIso', __tauIsoFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.TauIsoBDT', __tauIsoBDTFlags, prefix=True)
     flags.addFlagsCategory('Trigger.InDetTracking.jet', __jetFlags, prefix=True)
     return flags
 
