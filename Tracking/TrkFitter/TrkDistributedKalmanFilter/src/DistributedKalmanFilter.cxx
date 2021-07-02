@@ -12,7 +12,6 @@
 // D.Emeliyanov@rl.ac.uk
 ///////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrkTrack/Track.h"
@@ -50,8 +49,78 @@
 #include "TrkTrack/TrackInfo.h"
 
 #include <vector>
-#include <ext/algorithm>
+#include <algorithm>
+#include <cmath>
 
+namespace{
+  std::unique_ptr<Trk::Perigee> 
+  createMeasuredPerigee(Trk::TrkTrackState* pTS) {
+    AmgSymMatrix(5) pM;
+    for(int i=0;i<5;i++){
+      for (int j = 0; j < 5; j++){
+        (pM)(i, j) = pTS->getTrackCovariance(i, j);
+      }
+    }
+    const Trk::PerigeeSurface perSurf{};
+    return std::make_unique<Trk::Perigee>(pTS->getTrackState(0),
+                           pTS->getTrackState(1),
+                           pTS->getTrackState(2),
+                           pTS->getTrackState(3),
+                           pTS->getTrackState(4),
+                           perSurf,
+                           std::move(pM));
+  }
+  
+  void 
+  matrixInversion5x5(double a[5][5]) {
+  /**** 5x5 matrix inversion by Gaussian elimination ****/
+  int i,j,k,l;
+  double factor;
+  double temp[5];
+  double b[5][5];
+  // Set b to I
+
+  memset(&b[0][0],0,sizeof(b));
+  b[0][0]=1.0;b[1][1]=1.0;b[2][2]=1.0;b[3][3]=1.0;b[4][4]=1.0;
+  
+  for(i=0;i<5;i++)
+  {
+    for(j=i+1;j<5;j++)
+      if (std::abs(a[i][i])<std::abs(a[j][i])){
+        for(l=0;l<5;l++) temp[l]=a[i][l];
+        for(l=0;l<5;l++) a[i][l]=a[j][l];
+        for(l=0;l<5;l++) a[j][l]=temp[l];
+        for(l=0;l<5;l++) temp[l]=b[i][l];
+        for(l=0;l<5;l++) b[i][l]=b[j][l];
+        for(l=0;l<5;l++) b[j][l]=temp[l];
+      }
+    factor=a[i][i];
+    for(j=4;j>-1;j--) {
+      b[i][j]/=factor;
+      a[i][j]/=factor;
+    }
+    for(j=i+1;j<5;j++) {
+      factor=-a[j][i];
+      for(k=0;k<5;k++){
+        a[j][k]+=a[i][k]*factor;
+        b[j][k]+=b[i][k]*factor;
+      }
+    }
+  } 
+  for(i=4;i>0;i--){
+    for(j=i-1;j>-1;j--) {
+      factor=-a[j][i];
+      for(k=0;k<5;k++){
+        a[j][k]+=a[i][k]*factor;b[j][k]+=b[i][k]*factor;
+      }
+    }
+  }
+  for(i=0;i<5;i++) for(j=0;j<5;j++) a[i][j]=b[i][j];
+}
+  
+  
+  
+}
 
 
 // constructor
@@ -659,57 +728,6 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 }
 
 
-void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) 
-{
-  /**** 5x5 matrix inversion by Gaussian elimination ****/
-  int i,j,k,l;
-  double factor;
-  double temp[5];
-  double b[5][5];
-  // Set b to I
-
-  memset(&b[0][0],0,sizeof(b));
-  b[0][0]=1.0;b[1][1]=1.0;b[2][2]=1.0;b[3][3]=1.0;b[4][4]=1.0;
-  
-  for(i=0;i<5;i++)
-  {
-    for(j=i+1;j<5;j++)
-      if (fabs(a[i][i])<fabs(a[j][i]))
-      {
-        for(l=0;l<5;l++) temp[l]=a[i][l];
-        for(l=0;l<5;l++) a[i][l]=a[j][l];
-        for(l=0;l<5;l++) a[j][l]=temp[l];
-        for(l=0;l<5;l++) temp[l]=b[i][l];
-        for(l=0;l<5;l++) b[i][l]=b[j][l];
-        for(l=0;l<5;l++) b[j][l]=temp[l];
-      }
-    factor=a[i][i];
-    for(j=4;j>-1;j--) 
-    {
-      b[i][j]/=factor;a[i][j]/=factor;
-    }
-    for(j=i+1;j<5;j++) 
-    {
-      factor=-a[j][i];
-      for(k=0;k<5;k++)
-      {
-        a[j][k]+=a[i][k]*factor;b[j][k]+=b[i][k]*factor;
-      }
-    }
-  } 
-  for(i=4;i>0;i--)
-  {
-    for(j=i-1;j>-1;j--)
-    {
-      factor=-a[j][i];
-      for(k=0;k<5;k++)
-      {
-        a[j][k]+=a[i][k]*factor;b[j][k]+=b[i][k]*factor;
-      }
-    }
-  }
-  for(i=0;i<5;i++) for(j=0;j<5;j++) a[i][j]=b[i][j];
-}
 
 bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitState, MagField::AtlasFieldCache &fieldCache) const
 {
@@ -793,95 +811,58 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
 {
   TrackStateOnSurface* pTSS=nullptr;
   char type=pN->getNodeType();
-  const Trk::TrackParameters* pTP=nullptr;
-
-
-
+  std::unique_ptr<const Trk::TrackParameters> pTP{};
   if(type==0) return pTSS;
- 
   TrkTrackState* pTS=pN->getTrackState();
   const Trk::PrepRawData* pPRD=pN->getPrepRawData();
 
-  if((type==1)||(type==2))
-    {
+  if((type==1)||(type==2)){
       const Trk::Surface& rS = pPRD->detectorElement()->surface();
       const Trk::PlaneSurface* pPS = dynamic_cast<const Trk::PlaneSurface*>(&rS);
       if(pPS==nullptr) return pTSS;
-      
       AmgSymMatrix(5) pM;;
-
       for(int i=0;i<5;i++) {
         for(int j=0;j<5;j++){
 	      pM(i,j)=pTS->getTrackCovariance(i,j);
         }
       }
-      pTP=new Trk::AtaPlane(pTS->getTrackState(0),
+      pTP.reset(new Trk::AtaPlane(pTS->getTrackState(0),
 			    pTS->getTrackState(1),
 			    pTS->getTrackState(2),
 			    pTS->getTrackState(3),
 			    pTS->getTrackState(4),*pPS,
-			    std::move(pM));
-    }
-  else if(type==3)
-    {
+			    std::move(pM)));
+    } else if(type==3){
       const Trk::Surface& rS = pPRD->detectorElement()->surface(pPRD->identify()); 
       const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
       if(pLS==nullptr) return pTSS;
-
       AmgSymMatrix(5) pM;
-
       for(int i=0;i<5;i++) {
         for(int j=0;j<5;j++){
           (pM)(i,j)=pTS->getTrackCovariance(i,j);
         }
       }
-
       if((pTS->getTrackState(2)<-M_PI) ||(pTS->getTrackState(2)>M_PI))
-	printf("Phi is beyond the range\n");
-      
-      pTP=new Trk::AtaStraightLine(pTS->getTrackState(0),
+	      printf("Phi is beyond the range\n");
+      pTP.reset(new Trk::AtaStraightLine(pTS->getTrackState(0),
 				   pTS->getTrackState(1),
 				   pTS->getTrackState(2),
 				   pTS->getTrackState(3),
 				   pTS->getTrackState(4),
 				   *pLS,
-				   std::move(pM));
+				   std::move(pM)));
     }
   if(pTP==nullptr) return nullptr;
-  const Trk::RIO_OnTrack* pRIO=m_ROTcreator->correct(*pPRD,*pTP);
-  if(pRIO==nullptr) 
-    {
-      if(pTP!=nullptr) delete pTP;
-      return nullptr;
-    }
-  Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->getChi2(),pN->getNdof());
-  pTSS = new Trk::TrackStateOnSurface(pRIO,pTP,pFQ);
+  auto pRIO=std::unique_ptr<const Trk::RIO_OnTrack>(m_ROTcreator->correct(*pPRD,*pTP));
+  if(pRIO==nullptr) {
+    return nullptr;
+  }
+  auto pFQ=std::make_unique<const Trk::FitQualityOnSurface>(pN->getChi2(),pN->getNdof());
+  pTSS = new Trk::TrackStateOnSurface(std::move(pRIO),std::move(pTP),std::move(pFQ));
   return pTSS;
 }
 
-Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState* pTS) 
-{
 
-
-  Trk::Perigee* pMP=nullptr;
-
-  AmgSymMatrix(5) pM;
-
-  for(int i=0;i<5;i++){
-    for (int j = 0; j < 5; j++){
-      (pM)(i, j) = pTS->getTrackCovariance(i, j);
-    }
-  }
-  const Trk::PerigeeSurface perSurf;
-  pMP = new Trk::Perigee(pTS->getTrackState(0),
-                         pTS->getTrackState(1),
-                         pTS->getTrackState(2),
-                         pTS->getTrackState(3),
-                         pTS->getTrackState(4),
-                         perSurf,
-                         std::move(pM));
-  return pMP;
-}
 
 // fit a set of PrepRawData objects
 std::unique_ptr<Trk::Track>
@@ -1167,14 +1148,14 @@ Trk::DistributedKalmanFilter::fit(
       // 5. Create and store back all the stuff
       if (!badTrack) {
         pTS = (*m_pvpTrackStates->begin());
-        const Trk::Perigee* pMP = createMeasuredPerigee(pTS);
+        auto pMP{createMeasuredPerigee(pTS)};
         ATH_MSG_DEBUG("Fitted perigee: d0=" << pMP->parameters()[Trk::d0]
                         << " z0=" << pMP->parameters()[Trk::z0]
                         << " phi=" << pMP->parameters()[Trk::phi0]
                         << " theta=" << pMP->parameters()[Trk::theta]
                         << " qOverP=" << pMP->parameters()[Trk::qOverP]
                         << " pT="
-                        << sin(pMP->parameters()[Trk::theta]) /
+                        << std::sin(pMP->parameters()[Trk::theta]) /
                              pMP->parameters()[Trk::qOverP]);
 
         auto pvTS = DataVector<const TrackStateOnSurface>();
@@ -1184,7 +1165,7 @@ Trk::DistributedKalmanFilter::fit(
           typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Perigee);
         const TrackStateOnSurface* pTSOS =
-          new TrackStateOnSurface(nullptr, pMP, nullptr, nullptr, typePattern);
+          new TrackStateOnSurface(nullptr, std::move(pMP), nullptr, nullptr, typePattern);
 
         pvTS.push_back(pTSOS);
         std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()),
