@@ -145,9 +145,6 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
 
     Amg::Vector3D perDir = ipPerigee->momentum().unit();
 
-    // if we didn't start from a parameter in the muon system add perigee to the front
-    // trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,Trk::TrackStateOnSurface::Perigee) );
-
     for (const Trk::TrackStateOnSurface* tsit : *oldTSOT) {
         // remove old perigee if we didn't start from a parameter in the muon system
         if (tsit->type(Trk::TrackStateOnSurface::Perigee)) continue;
@@ -161,7 +158,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
+                trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
             }
         }
 
@@ -172,7 +169,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
     if (ipPerigee) {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Perigee);
-        trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->clone(), nullptr, nullptr, typePattern));
+        trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
     }
     ATH_MSG_DEBUG(" creating new track ");
 
