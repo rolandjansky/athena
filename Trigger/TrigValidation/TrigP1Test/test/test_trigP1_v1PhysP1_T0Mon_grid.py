@@ -30,6 +30,7 @@ hlt.concurrent_events = 4
 hlt.input = 'data'
 hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';doL1Sim=True;rewriteLVL1=True;"'
 hlt.args += ' -o output'
+hlt.args += ' --dump-config-reload'
 
 # Extract the physics_Main stream out of the BS file with many streams
 filter_bs = ExecStep.ExecStep('FilterBS')

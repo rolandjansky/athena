@@ -13,6 +13,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_cos_IDCosmic'
 ex.max_events = 100
 ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=True;"'
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'build'
