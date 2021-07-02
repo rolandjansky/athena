@@ -43,8 +43,6 @@ namespace InDet {
     
     rowcolID(int ncl, int row, int col, int tot, int lvl1, Identifier id):
       NCL(ncl), ROW(row), COL(col), TOT(tot), LVL1(lvl1), ID(id) {};
-      
-    ~rowcolID() {};      
     
     int        NCL;
     int        ROW;

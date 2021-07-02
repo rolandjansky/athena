@@ -38,7 +38,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
 #include <map>
 
 
@@ -116,7 +115,7 @@ private:
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::list<SiHitCollection*> m_siHitCollList;
+  std::vector<SiHitCollection*> m_siHitCollList;
 
   double                                m_pixTanLorentzAngleScalor; //!< scale the lorentz angle effect
   bool                                  m_pixEmulateSurfaceCharge;  //!< emulate the surface charge

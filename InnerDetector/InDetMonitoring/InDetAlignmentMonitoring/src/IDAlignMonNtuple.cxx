@@ -441,7 +441,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	const Trk::TrackParameters* trackParameter = tsos->trackParameters();
 
 	//alternative method used by Oleg in his HitQualitySelection tool to get cluster width
-	const std::vector<Identifier> idVec = (hit->prepRawData())->rdoList() ;
+	const std::vector<Identifier> &idVec = (hit->prepRawData())->rdoList() ;
 	olegWidth = idVec.size() ;
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Oleg Si clusterSize = " << olegWidth << endmsg ;
 
