@@ -18,3 +18,5 @@ atlas_add_dictionary( TrigMonitoringEventDict
                       TrigMonitoringEvent/TrigMonitoringEventDict.h
                       TrigMonitoringEvent/selection.xml
                       LINK_LIBRARIES TrigMonitoringEvent )
+
+atlas_generate_cliddb( TrigMonitoringEvent )
