@@ -1138,7 +1138,7 @@ MuonSegmentMatchingTool::simpleEndcapExtrapolate(double x_segment, double y_segm
     r_expected     = r_expected + 0.3 * (r_expected - r_SL);
     theta_expected = std::atan(tantheta + 2 * (z_extrapolated - z_start) * rhoInv);
 
-    if (tan_seg < 0 && theta_expected < 0) theta_expected += 2 * M_PI;
+    if (tan_seg < 0 && theta_expected < 0) theta_expected += 2 * M_PI_2;
     if (tan_seg > 0 && theta_expected < 0) theta_expected = -theta_expected;
 }
 
