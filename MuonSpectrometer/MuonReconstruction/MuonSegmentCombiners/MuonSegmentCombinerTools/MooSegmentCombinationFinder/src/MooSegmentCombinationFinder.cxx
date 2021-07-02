@@ -15,18 +15,14 @@
 
 //================ Constructor =================================================
 
-Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string& t, const std::string& n,
-                                                               const IInterface* p)
-    : AthAlgTool(t, n, p)
-{
+Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t, n, p) {
     declareInterface<IMooSegmentCombinationFinder>(this);
 }
 
 //================ Initialisation =================================================
 
-StatusCode
-Muon::MooSegmentCombinationFinder::initialize()
-{
+StatusCode Muon::MooSegmentCombinationFinder::initialize() {
     ATH_CHECK(m_edmPrinter.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
@@ -50,7 +46,6 @@ Muon::MooSegmentCombinationFinder::initialize()
     ATH_CHECK(m_segmentSelector.retrieve());
 
     if (m_doSegmentCombinations) {
-
         ATH_CHECK(m_curvedSegmentCombiner.retrieve());
 
         if (m_doSegmentCombinationCleaning)
@@ -67,10 +62,7 @@ Muon::MooSegmentCombinationFinder::initialize()
 
 //================ Finalisation =================================================
 
-StatusCode
-Muon::MooSegmentCombinationFinder::finalize()
-{
-
+StatusCode Muon::MooSegmentCombinationFinder::finalize() {
     // print statistics
     double nevents = m_nevents != 0 ? static_cast<double>(m_nevents) : 1.;
 
@@ -84,29 +76,27 @@ Muon::MooSegmentCombinationFinder::finalize()
                  << m_npatternCombinations / nevents << std::endl
                  << " MDT segment combinations:      " << std::setw(12) << m_nmdtSegmentCombinations << " per event "
                  << m_nmdtSegmentCombinations / nevents << std::endl
-                 << " Combined segment combinations: " << std::setw(12) << m_ncombinedSegmentCombinations
-                 << " per event " << m_ncombinedSegmentCombinations / nevents << std::endl
-                 << " Cleaned segment combinations:  " << std::setw(12) << m_ncleanedSegmentCombinations
-                 << " per event " << m_ncleanedSegmentCombinations / nevents << std::endl
-                 << " Segments:                      " << std::setw(12) << m_nsegments << " per event "
-                 << m_nsegments / nevents << std::endl
+                 << " Combined segment combinations: " << std::setw(12) << m_ncombinedSegmentCombinations << " per event "
+                 << m_ncombinedSegmentCombinations / nevents << std::endl
+                 << " Cleaned segment combinations:  " << std::setw(12) << m_ncleanedSegmentCombinations << " per event "
+                 << m_ncleanedSegmentCombinations / nevents << std::endl
+                 << " Segments:                      " << std::setw(12) << m_nsegments << " per event " << m_nsegments / nevents
+                 << std::endl
                  << "   straight:                    " << std::setw(12) << m_nsegmentsStraight << " per event "
                  << m_nsegmentsStraight / nevents << std::endl
-                 << "   curved:                      " << std::setw(12) << m_nsegmentsCurved << " per event "
-                 << m_nsegmentsCurved / nevents << std::endl
+                 << "   curved:                      " << std::setw(12) << m_nsegmentsCurved << " per event " << m_nsegmentsCurved / nevents
+                 << std::endl
                  << " Discarded bad segments:        " << std::setw(12) << m_nremovedBadSegments << " per event "
                  << m_nremovedBadSegments / nevents);
 
     return StatusCode::SUCCESS;
 }
 
-void
-Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepDataCollection*>& mdtCols,
-                                                const std::vector<const CscPrepDataCollection*>& cscCols,
-                                                const std::vector<const TgcPrepDataCollection*>& tgcCols,
-                                                const std::vector<const RpcPrepDataCollection*>& rpcCols,
-                                                Muon::IMooSegmentCombinationFinder::Output&      output, const EventContext& ctx) const
-{
+void Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepDataCollection*>& mdtCols,
+                                                     const std::vector<const CscPrepDataCollection*>& cscCols,
+                                                     const std::vector<const TgcPrepDataCollection*>& tgcCols,
+                                                     const std::vector<const RpcPrepDataCollection*>& rpcCols,
+                                                     Muon::IMooSegmentCombinationFinder::Output& output, const EventContext& ctx) const {
     // Super tool has various different stages.
     // 1. 2d Csc segment making, which produces MuonSegmentCombinations that are passed to the 4D segment maker, and the
     // MuonCurvedSegmentCombiner
@@ -127,59 +117,49 @@ Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepD
     std::unique_ptr<MuonSegmentCombinationCollection> csc4dSegmentCombinations(new MuonSegmentCombinationCollection);
     if (m_doCscSegments) {
         // reconstruct segments in the CSC eta and phi plane
-      csc2dSegmentCombinations = m_csc2dSegmentFinder->find(cscCols, ctx);
+        csc2dSegmentCombinations = m_csc2dSegmentFinder->find(cscCols, ctx);
         printSummary("CSC 2D segment finding", csc2dSegmentCombinations.get());
 
         // combine CSC segments in eta and phi plane if any were found
         if (csc2dSegmentCombinations) {
-	  csc4dSegmentCombinations = m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
+            csc4dSegmentCombinations = m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
             printSummary("CSC 4D segment finding", csc4dSegmentCombinations.get());
         }
 
-        if (csc4dSegmentCombinations) {
-            extractSegmentCollection(csc4dSegmentCombinations.get(), *(output.segmentCollection));
-        }
+        if (csc4dSegmentCombinations) { extractSegmentCollection(csc4dSegmentCombinations.get(), *(output.segmentCollection)); }
     }
 
     std::unique_ptr<MuonSegmentCombinationCollection> mdtSegmentCombinations(new MuonSegmentCombinationCollection);
     if (m_doMdtSegments) {
         // search for global patterns
-        auto [combis, houghData] =
-	  m_houghPatternFinder->find(mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get(), ctx);
-        output.patternCombinations   = combis.release();
+        auto [combis, houghData] = m_houghPatternFinder->find(mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get(), ctx);
+        output.patternCombinations = combis.release();
         output.houghDataPerSectorVec = std::move(houghData);
         printSummary("Pattern finding", output.patternCombinations);
 
         // search for MDT segments
         if (output.patternCombinations) {
-            mdtSegmentCombinations =
-                m_patternSegmentMaker->find(output.patternCombinations, &segmentPatternMap, rpcCols, tgcCols);
+            mdtSegmentCombinations = m_patternSegmentMaker->find(output.patternCombinations, &segmentPatternMap, rpcCols, tgcCols);
             if (msgLvl(MSG::DEBUG)) printSummary("MDT segment finding", mdtSegmentCombinations.get());
         }
 
-        if (mdtSegmentCombinations) {
-            extractSegmentCollection(mdtSegmentCombinations.get(), *(output.segmentCollection));
-        }
+        if (mdtSegmentCombinations) { extractSegmentCollection(mdtSegmentCombinations.get(), *(output.segmentCollection)); }
         printSummary("MDT segment finding", output.segmentCollection);
     }
-
 
     std::unique_ptr<MuonSegmentCombinationCollection> curvedSegmentCombinations;
     std::unique_ptr<MuonSegmentCombinationCollection> cleanedSegmentCombinations;
     if (m_doSegmentCombinations) {
-
         // create dummy collections if CSCs are missing
         if (!csc2dSegmentCombinations)
-            csc2dSegmentCombinations =
-                std::unique_ptr<MuonSegmentCombinationCollection>(new MuonSegmentCombinationCollection);
+            csc2dSegmentCombinations = std::unique_ptr<MuonSegmentCombinationCollection>(new MuonSegmentCombinationCollection);
         if (!csc4dSegmentCombinations)
-            csc4dSegmentCombinations =
-                std::unique_ptr<MuonSegmentCombinationCollection>(new MuonSegmentCombinationCollection);
+            csc4dSegmentCombinations = std::unique_ptr<MuonSegmentCombinationCollection>(new MuonSegmentCombinationCollection);
 
         // combine MDT and CSC segments
         if (mdtSegmentCombinations) {
-            curvedSegmentCombinations = m_curvedSegmentCombiner->combineSegments(
-                *mdtSegmentCombinations, *csc4dSegmentCombinations, *csc2dSegmentCombinations, &segmentPatternMap);
+            curvedSegmentCombinations = m_curvedSegmentCombiner->combineSegments(*mdtSegmentCombinations, *csc4dSegmentCombinations,
+                                                                                 *csc2dSegmentCombinations, &segmentPatternMap);
             if (msgLvl(MSG::DEBUG)) printSummary("Segment combining", curvedSegmentCombinations.get());
         }
     }
@@ -204,7 +184,7 @@ Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepD
     if (curvedSegmentCombinations) m_ncombinedSegmentCombinations += curvedSegmentCombinations->size();
     if (output.segmentCollection->size()) {
         m_nsegments += output.segmentCollection->size();
-        Trk::SegmentCollection::const_iterator sit     = output.segmentCollection->begin();
+        Trk::SegmentCollection::const_iterator sit = output.segmentCollection->begin();
         Trk::SegmentCollection::const_iterator sit_end = output.segmentCollection->end();
         for (; sit != sit_end; ++sit) {
             if ((*sit)->localParameters().contains(Trk::qOverP))
@@ -229,27 +209,17 @@ Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepD
     segmentPatternMap.clear();
 }
 
-void
-Muon::MooSegmentCombinationFinder::postProcess(MuonSegmentCombinationCollection*         col,
-                                               MuonSegmentCombPatternCombAssociationMap& segmentPatternMap) const
-{
-    MuonSegmentCombinationCollection::const_iterator cit     = col->begin();
+void Muon::MooSegmentCombinationFinder::postProcess(MuonSegmentCombinationCollection* col,
+                                                    MuonSegmentCombPatternCombAssociationMap& segmentPatternMap) const {
+    MuonSegmentCombinationCollection::const_iterator cit = col->begin();
     MuonSegmentCombinationCollection::const_iterator cit_end = col->end();
-    for (; cit != cit_end; ++cit) {
-        segmentPatternMap.erase(*cit);
-    }
+    for (; cit != cit_end; ++cit) { segmentPatternMap.erase(*cit); }
     return;
 }
 
-void
-Muon::MooSegmentCombinationFinder::printStage(std::string stageTag) const
-{
-    ATH_MSG_INFO("Reco stage: " << stageTag);
-}
+void Muon::MooSegmentCombinationFinder::printStage(std::string stageTag) const { ATH_MSG_INFO("Reco stage: " << stageTag); }
 
-void
-Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const MuonSegmentCombinationCollection* col) const
-{
+void Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const MuonSegmentCombinationCollection* col) const {
     if (m_doSummary || msgLvl(MSG::DEBUG)) {
         printStage(stageTag);
         if (!col) {
@@ -260,16 +230,14 @@ Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const Muon
     }
 }
 
-void
-Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const Trk::SegmentCollection* col) const
-{
+void Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const Trk::SegmentCollection* col) const {
     if (m_doSummary || msgLvl(MSG::DEBUG)) {
         printStage(stageTag);
         if (!col) {
             ATH_MSG_INFO("No segments found ");
         } else {
             ATH_MSG_INFO("Found " << col->size() << " segments found ");
-            Trk::SegmentCollection::const_iterator sit     = col->begin();
+            Trk::SegmentCollection::const_iterator sit = col->begin();
             Trk::SegmentCollection::const_iterator sit_end = col->end();
             for (; sit != sit_end; ++sit) {
                 const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*sit);
@@ -283,48 +251,42 @@ Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const Trk:
     }
 }
 
-void
-Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const MuonPatternCombinationCollection* col) const
-{
+void Muon::MooSegmentCombinationFinder::printSummary(std::string stageTag, const MuonPatternCombinationCollection* col) const {
     if (m_doSummary || msgLvl(MSG::DEBUG)) {
         printStage(stageTag);
         if (!col) {
             ATH_MSG_INFO("No pattern combinations found ");
         } else {
-            ATH_MSG_INFO("Found " << col->size() << " pattern combinations found " << std::endl
-                                  << m_edmPrinter->print(*col));
+            ATH_MSG_INFO("Found " << col->size() << " pattern combinations found " << std::endl << m_edmPrinter->print(*col));
         }
     }
 }
 
-void
-Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCombinationCollection* combiCol,
-                                                            Trk::SegmentCollection&                 segmentCol) const
-{
-
+void Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCombinationCollection* combiCol,
+                                                                 Trk::SegmentCollection& segmentCol) const {
     // store single segments per chamber layer
     typedef std::vector<std::unique_ptr<Muon::MuonSegment> > SegVec;
     // typedef SegVec::iterator SegVecIt;
     typedef std::map<Muon::MuonStationIndex::ChIndex, std::unique_ptr<SegVec> > RSMap;
-    typedef RSMap::iterator                                                     RSMapIt;
-    RSMap                                                                       segMap;
+    typedef RSMap::iterator RSMapIt;
+    RSMap segMap;
 
     unsigned int nremovedBadSegments(0);
     unsigned int naccepted(0);
 
-    MuonSegmentCombinationCollection::const_iterator cit     = combiCol->begin();
+    MuonSegmentCombinationCollection::const_iterator cit = combiCol->begin();
     MuonSegmentCombinationCollection::const_iterator cit_end = combiCol->end();
     for (; cit != cit_end; ++cit) {
         if (!*cit) {
             ATH_MSG_DEBUG(" empty MuonSegmentCombination!!! ");
             continue;
         }
-        const Muon::MuonSegmentCombination& combi     = **cit;
-        unsigned int                        nstations = combi.numberOfStations();
+        const Muon::MuonSegmentCombination& combi = **cit;
+        unsigned int nstations = combi.numberOfStations();
 
         // segment quality level
         bool ignoreHoles = false;
-        int  quality     = 1;
+        int quality = 1;
 
         // chamber status for csc
         bool useEta = combi.useStripsInSegment(1);
@@ -332,7 +294,6 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
 
         // loop over chambers in combi and extract segments
         for (unsigned int i = 0; i < nstations; ++i) {
-
             // loop over segments in station
             Muon::MuonSegmentCombination::SegmentVec* segments = combi.stationSegments(i);
 
@@ -340,7 +301,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
             if (!segments || segments->empty()) continue;
 
             // get chamber identifier, chamber index and station index
-            Identifier                      chid    = m_edmHelperSvc->chamberId(*segments->front());
+            Identifier chid = m_edmHelperSvc->chamberId(*segments->front());
             Muon::MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chid);
 
             // add segments to region segment map, remove ambigueties (missing at the moment)
@@ -348,10 +309,9 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
             if (rsit == segMap.end()) {
                 std::unique_ptr<SegVec> segs(new SegVec);
                 // loop over new segments, copy them into collection
-                Muon::MuonSegmentCombination::SegmentVec::iterator sit     = segments->begin();
+                Muon::MuonSegmentCombination::SegmentVec::iterator sit = segments->begin();
                 Muon::MuonSegmentCombination::SegmentVec::iterator sit_end = segments->end();
                 for (; sit != sit_end; ++sit) {
-
                     Muon::MuonSegment* seg = (*sit).get();
                     // remove bad segments
                     if (!m_segmentSelector->select(*seg, ignoreHoles, quality, useEta, usePhi)) {
@@ -367,10 +327,9 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
                 segMap.insert(std::make_pair(chIndex, std::move(segs)));
             } else {
                 // loop over new segments, copy them into collection
-                Muon::MuonSegmentCombination::SegmentVec::iterator sit     = segments->begin();
+                Muon::MuonSegmentCombination::SegmentVec::iterator sit = segments->begin();
                 Muon::MuonSegmentCombination::SegmentVec::iterator sit_end = segments->end();
                 for (; sit != sit_end; ++sit) {
-
                     Muon::MuonSegment* seg = (*sit).get();
                     // remove bad segments
                     if (!m_segmentSelector->select(*seg, ignoreHoles, quality, useEta, usePhi)) {
@@ -388,13 +347,10 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
     }
 
     // optionally output
-    RSMapIt rsit     = segMap.begin();
+    RSMapIt rsit = segMap.begin();
     RSMapIt rsit_end = segMap.end();
     for (; rsit != rsit_end; ++rsit) {
-
-        if (msgLvl(MSG::DEBUG))
-            ATH_MSG_DEBUG("Working on new chamber layer with  " << rsit->second->size() << " segments");
-
+        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Working on new chamber layer with  " << rsit->second->size() << " segments");
 
         // sort segments according to the number of hits
         std::stable_sort(rsit->second->begin(), rsit->second->end(), SortSegmentsByNumberOfHits());
@@ -403,7 +359,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
         // const pointers
         naccepted += rsit->second->size();
         segmentCol.reserve(segmentCol.size() + rsit->second->size());
-        SegVec::iterator sit     = rsit->second->begin();
+        SegVec::iterator sit = rsit->second->begin();
         SegVec::iterator sit_end = rsit->second->end();
         for (; sit != sit_end; ++sit) {
             segmentCol.push_back((*sit).release());  // releasing here, but the segmentCol immediately takes ownership
@@ -414,13 +370,10 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection(const MuonSegmentCom
     m_nremovedBadSegments += nremovedBadSegments;
 }
 
-
-std::pair<int, int>
-Muon::MooSegmentCombinationFinder::hitsInMultilayer(const Muon::MuonSegment& segment) const
-{
-    int                                                      nMl1(0);
-    int                                                      nMl2(0);
-    const std::vector<const Trk::MeasurementBase*>&          measurements = segment.containedMeasurements();
+std::pair<int, int> Muon::MooSegmentCombinationFinder::hitsInMultilayer(const Muon::MuonSegment& segment) const {
+    int nMl1(0);
+    int nMl2(0);
+    const std::vector<const Trk::MeasurementBase*>& measurements = segment.containedMeasurements();
     std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin(), itEnd = measurements.end();
     for (; it != itEnd; ++it) {
         const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(*it);
@@ -433,29 +386,20 @@ Muon::MooSegmentCombinationFinder::hitsInMultilayer(const Muon::MuonSegment& seg
     return std::make_pair(nMl1, nMl2);
 }
 
-bool
-Muon::MooSegmentCombinationFinder::goodSegment(const Muon::MuonSegment& segment) const
-{
-
+bool Muon::MooSegmentCombinationFinder::goodSegment(const Muon::MuonSegment& segment) const {
     std::pair<int, int> hitsInMl = hitsInMultilayer(segment);
 
     if (hitsInMl.first > 1 && hitsInMl.second > 1) return true;
 
     const Muon::MuonSegmentQuality* quality = dynamic_cast<const Muon::MuonSegmentQuality*>(segment.fitQuality());
-    int                             missedHits(0);
-    if (quality) {
-        missedHits = quality->numberOfHoles();
-    }
+    int missedHits(0);
+    if (quality) { missedHits = quality->numberOfHoles(); }
     if (missedHits <= 3) return true;
 
     return false;
 }
 
-
-bool
-Muon::MooSegmentCombinationFinder::firstIsBest(const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const
-{
-
+bool Muon::MooSegmentCombinationFinder::firstIsBest(const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const {
     std::pair<int, int> hitsInMl_1 = hitsInMultilayer(seg1);
     std::pair<int, int> hitsInMl_2 = hitsInMultilayer(seg2);
 
