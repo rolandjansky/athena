@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterization/RpcHitClustering.h"
@@ -77,7 +77,7 @@ namespace Muon {
     int doubZ = m_rpcIdHelper->doubletZ(subid);
     int doubPhi = m_rpcIdHelper->doubletPhi(subid);
     std::vector<const RpcPrepData*>::const_iterator cit = cit_begin;
-    const Muon::RpcPrepData* prd_first = 0;
+    const Muon::RpcPrepData* prd_first = nullptr;
     for( ; cit!=cit_end;++cit ) {
       const Muon::RpcPrepData* prd = *cit;
       const Identifier& id = prd->identify();
@@ -99,7 +99,7 @@ namespace Muon {
     channelsPhi.resize(prd_first->detectorElement()->NphiStrips());
 
     // loop over hits 
-    std::vector<Doublet>* channelsPtr = 0; 
+    std::vector<Doublet>* channelsPtr = nullptr; 
     cit = cit_begin;
     for( ; cit!=cit_end;++cit ) {
       
@@ -142,17 +142,17 @@ namespace Muon {
 	std::vector<Id> neighbours;
 	if( combinedGasGaps ){
 	  if( gasgap == 1 )                     {
-	    neighbours.push_back( Id(2,channel) );
-	    if( channel != 0 )                         neighbours.push_back( Id(2,channel-1) );
-	    if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(2,channel+1) );
+	    neighbours.emplace_back(2,channel );
+	    if( channel != 0 )                         neighbours.emplace_back(2,channel-1 );
+	    if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(2,channel+1 );
 	  }else if( gasgap == 2 ){
-	    neighbours.push_back( Id(1,channel) );
-	    if( channel != 0 )                         neighbours.push_back( Id(1,channel-1) );
-	    if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(1,channel+1) );
+	    neighbours.emplace_back(1,channel );
+	    if( channel != 0 )                         neighbours.emplace_back(1,channel-1 );
+	    if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(1,channel+1 );
 	  }
 	}
-	if( channel != 0 )                         neighbours.push_back( Id(gasgap,channel-1) );
-	if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(gasgap,channel+1) );
+	if( channel != 0 )                         neighbours.emplace_back(gasgap,channel-1 );
+	if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(gasgap,channel+1 );
 
 	if( debug ) {
 	  std::cout << "   adding new channel " << channel << "  " << gasgap;
@@ -161,7 +161,7 @@ namespace Muon {
 	}
 	std::vector<Id>::iterator nit = neighbours.begin();
 	std::vector<Id>::iterator nit_end = neighbours.end();
-	RpcClusterObj* currentCluster = 0;
+	RpcClusterObj* currentCluster = nullptr;
 	int currentClusterId = -1;
 	for( ;nit!=nit_end;++nit ){
 
@@ -174,7 +174,7 @@ namespace Muon {
 	  RpcClusterObj& cluster = clusters[clusterNumber];
 	  
 	  // if the hit is unassigned add it to the cluster
-	  if( currentCluster == 0 ){
+	  if( currentCluster == nullptr ){
 	    cluster.add(prd,gasgap);
 	    currentCluster = &cluster;
 	    if( gasgap==1 ) doublet.first  = clusterNumber;
@@ -201,7 +201,7 @@ namespace Muon {
 	  }
 	}
 	// now check whether the hit was already assigned to a cluster, if not create a new cluster
-	if( currentCluster == 0 ){
+	if( currentCluster == nullptr ){
 	  if( debug ) std::cout << "       no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
 	  RpcClusterObj cl;
 	  cl.add(prd,gasgap);
@@ -217,7 +217,7 @@ namespace Muon {
       std::cout << " finished clustering: eta clusters  " <<  clustersEtaTmp.size() << " phi clusters " << clustersPhiTmp.size() << std::endl;
       for( auto& cl : clustersEtaTmp ){
         std::cout << "   cluster " << cl.ngasgap1 << " " << cl.ngasgap2 << " hits " << cl.hitList.size() << std::endl;
-        for( auto hit : cl.hitList ){
+        for( const auto *hit : cl.hitList ){
           std::cout << "       " << m_rpcIdHelper->print_to_string(hit->identify()) << std::endl;
         }
       }

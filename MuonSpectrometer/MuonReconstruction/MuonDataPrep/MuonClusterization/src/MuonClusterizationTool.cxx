@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterizationTool.h"
@@ -51,7 +51,7 @@ namespace Muon {
   }
 
   TgcPrepDataCollection* MuonClusterizationTool::cluster( const TgcPrepDataCollection& col ) const {
-    if( col.empty() ) return 0;
+    if( col.empty() ) return nullptr;
     TgcPrepDataCollection* collection = new TgcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
     ATH_MSG_INFO("Performing clustering in " << m_idHelperSvc->toString(col.identify()) );
@@ -65,7 +65,7 @@ namespace Muon {
     return collection;
   }
 
-  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, TgcPrepDataCollection* collection ) const {
+  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, TgcPrepDataCollection* collection ) {
     std::vector<ClusterObj>::const_iterator cit = clusters.begin();
     std::vector<ClusterObj>::const_iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ){
@@ -111,7 +111,7 @@ namespace Muon {
   }
 
   RpcPrepDataCollection* MuonClusterizationTool::cluster( const RpcPrepDataCollection& col ) const {
-    if( col.empty() ) return 0;
+    if( col.empty() ) return nullptr;
     RpcPrepDataCollection* collection = new RpcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
     ATH_MSG_INFO("Performing clustering in " << m_idHelperSvc->toString(col.identify()) );
@@ -125,7 +125,7 @@ namespace Muon {
     return collection;
   }
 
-  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, RpcPrepDataCollection* collection ) const {
+  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, RpcPrepDataCollection* collection ) {
     std::vector<ClusterObj>::const_iterator cit = clusters.begin();
     std::vector<ClusterObj>::const_iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ){
