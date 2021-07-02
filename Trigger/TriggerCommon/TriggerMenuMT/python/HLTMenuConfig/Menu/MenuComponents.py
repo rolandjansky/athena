@@ -1,16 +1,26 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from GaudiKernel.DataHandle import DataHandle
-from AthenaCommon.Logging import logging
-log = logging.getLogger( __name__ )
-import collections.abc
-from collections import MutableSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
-from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
-from AthenaConfiguration.ComponentFactory import CompFactory
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 from AthenaCommon.Configurable import Configurable
+from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
+from GaudiKernel.DataHandle import DataHandle
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from TrigCompositeUtils.TrigCompositeUtils import legName
+
+from inspect import signature
+from collections import MutableSequence
+import collections.abc
+import re
+
+log = logging.getLogger( __name__ )
 
 RoRSeqFilter=CompFactory.RoRSeqFilter
 PassFilter = CompFactory.PassFilter
@@ -471,7 +481,6 @@ class MenuSequence(object):
 
         self._name = CFNaming.menuSequenceName(compName(_Hypo))
         self._hypoToolConf = HypoToolConf( HypoToolGen )
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         Hypo.RuntimeValidation = ConfigFlags.Trigger.doRuntimeNaviVal
         self._hypo = HypoAlgNode( Alg = _Hypo )
         hypo_output = CFNaming.hypoAlgOutName(compName(_Hypo))
@@ -656,7 +665,6 @@ class Chain(object):
         if len(self.steps)==0:
             return
         else:
-            import re
             for stepID,step in enumerate(self.steps):
                 step_name = step.name
                 if re.search('^Step[0-9]_',step_name):
@@ -668,7 +676,6 @@ class Chain(object):
     def insertEmptySteps(self, empty_step_name, n_new_steps, start_position):
         #start position indexed from 0. if start position is 3 and length is 2, it works like:
         # [old1,old2,old3,old4,old5,old6] ==> [old1,old2,old3,empty1,empty2,old4,old5,old6]
-        import re
 
         if len(self.steps) == 0 :
             log.error("I can't insert empty steps because the chain doesn't have any steps yet!")
@@ -884,8 +891,6 @@ class ChainStep(object):
         self.makeCombo()
 
     def relabelLegIdsForJets(self):
-        from TrigCompositeUtils.TrigCompositeUtils import legName
-        import re
 
         has_jets = False
         leg_counter = []
@@ -958,13 +963,10 @@ class ChainStep(object):
         self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name)+probesuffix, multiplicity=hashableMult, legIds = hashableLegs, comboHypoCfg=self.comboHypoCfg)
 
     def createComboHypoTools(self, chainName):      
-        from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
         chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
         self.combo.createComboHypoTools(chainDict, self.comboToolConfs)
             
     def getChainLegs(self):
-        from TrigCompositeUtils.TrigCompositeUtils import legName
-        import re
 
         """ This is extrapolating the chain legs from the step dictionaries"""       
         legs = [part['chainName'] for part in self.stepDicts]
@@ -1009,7 +1011,6 @@ def createComboAlg(dummyFlags, name, multiplicity, legIds, comboHypoCfg):
 # this is fragment for New JO
 
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
     def __init__(self, name, inputMaker=None):
@@ -1137,7 +1138,6 @@ class RecoFragmentsPool(object):
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
         TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
-        from inspect import signature
         def bind_callargs(func, *args, **kwargs):
             """ Take a function and a set of args and kwargs and return a dictionary mapping argument name to value, accounting for defaults
             """
@@ -1146,7 +1146,6 @@ class RecoFragmentsPool(object):
             bound.apply_defaults()
             return dict(bound.arguments)
 
-        from AthenaConfiguration.AthConfigFlags import AthConfigFlags
         if not(isinstance(flags,AthConfigFlags) or flags is None):
             raise TypeError("RecoFragmentsPool: First argument for creator function passed to retrieve() must be of type ConfigFlags or None")
 
