@@ -542,7 +542,37 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
   ias.restore();
   return out;
 }   
-  
+
+///////////////////////////////////////////////////////////////////
+// pT seed estimation
+///////////////////////////////////////////////////////////////////
+
+double InDet::SiTrajectory_xk::pTseed
+ (const Trk::TrackParameters                            & Tp,
+  std::list<const InDet::SiCluster*>                    & Cl,
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DE,
+  const EventContext                                    & ctx)
+{
+  double Xi2cut     =  30.;
+
+  InDet::SiClusterCollection::const_iterator  sib,sie;
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r=DE.begin(),re=DE.end();
+  std::list<const InDet::SiCluster*>                    ::iterator s=Cl.begin();
+
+  int n = 0;
+  if(!m_elements[n].set(1,(*r),sib,sie,(*s),ctx) ) return 0.;
+  if(!m_elements[n].firstTrajectorElement(Tp)) return 0.;
+
+  for(++r; r!=re; ++r) {
+    ++n; ++s;
+    if(!m_elements[n].set(1,(*r),sib,sie,(*s),ctx)                    ) return 0.;
+    if(!m_elements[n].ForwardPropagationWithoutSearch(m_elements[n-1])) return 0.;
+    if( m_elements[n].xi2F()      >      Xi2cut                       ) return 0.;
+  }
+  return m_elements[n].parametersUF().pT();
+}
+
+
 ///////////////////////////////////////////////////////////////////
 // Initiate trajectory
 ///////////////////////////////////////////////////////////////////
@@ -664,14 +694,16 @@ bool InDet::SiTrajectory_xk::initialize
           }
           /// done, now we know if one of the existing clusters is on this element
           /// set status = 1 (there are hits on this module), give it the boundary link and the space points on this element. Finally, also give it the cluster, if we found one. 
-          m_elements[m_nElements].set(1,(*iter_boundaryLink),iter_PixelClusterColl,iter_PixelClusterCollEnd,theCluster,ctx);
+          bool valid_set = m_elements[m_nElements].set(1,(*iter_boundaryLink),iter_PixelClusterColl,iter_PixelClusterCollEnd,theCluster,ctx);
+          if(m_tools->isITkGeometry() && !valid_set) return false;
           /// and increment the counter of active (nonzero hits) elements
           ++m_nActiveElements;
         } 
         /// this branch is the case of a pixel module with no hits on it, if we have previously had an active element 
         else if (m_nActiveElements) {
           /// here we set a status of 0. 
-          m_elements[m_nElements].set(0,(*iter_boundaryLink),iter_PixelClusterColl,iter_PixelClusterCollEnd,theCluster,ctx);
+          bool valid_set = m_elements[m_nElements].set(0,(*iter_boundaryLink),iter_PixelClusterColl,iter_PixelClusterCollEnd,theCluster,ctx);
+          if(m_tools->isITkGeometry() && !valid_set) return false;
         } 
         /// this branch is taken if we have not yet found an active element and there are no hits on this module. No need to already start the trajectory! 
         else {
@@ -723,14 +755,16 @@ bool InDet::SiTrajectory_xk::initialize
           }
         }
         /// Now, set up the trajectory element (det status 1) as in the pixel case  
-        m_elements[m_nElements].set(1,(*iter_boundaryLink),iter_stripClusterColl,iter_StripClusterCollEnd,theCluster,ctx);
+        bool valid_set = m_elements[m_nElements].set(1,(*iter_boundaryLink),iter_stripClusterColl,iter_StripClusterCollEnd,theCluster,ctx);
+        if(m_tools->isITkGeometry() && !valid_set) return false;
         /// and increment the active element count 
         ++m_nActiveElements;
       } 
       /// branch if no clusters on module and previously seen active element 
       else if (m_nActiveElements) {
         /// set an corresponding element to detstatus = 0  
-        m_elements[m_nElements].set(0,(*iter_boundaryLink),iter_stripClusterColl,iter_StripClusterCollEnd,theCluster,ctx);
+        bool valid_set = m_elements[m_nElements].set(0,(*iter_boundaryLink),iter_stripClusterColl,iter_StripClusterCollEnd,theCluster,ctx);
+        if(m_tools->isITkGeometry() && !valid_set) return false;
       }
       /// branch for no clusters and no active elements seen so far  
       else {

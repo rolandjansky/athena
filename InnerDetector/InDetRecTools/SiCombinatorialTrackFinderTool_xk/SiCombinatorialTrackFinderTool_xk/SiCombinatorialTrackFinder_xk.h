@@ -110,6 +110,11 @@ namespace InDet {
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
 	 bool, const EventContext& ctx) const override;
    
+      virtual double pTseed(SiCombinatorialTrackFinderData_xk& data,
+			    const Trk::TrackParameters&,
+			    const std::vector<const Trk::SpacePoint*>&,
+			    const EventContext&) const override;
+
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const override;
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,
                             Trk::TrackInfo, const TrackQualityCuts&) const override;
@@ -215,6 +220,11 @@ namespace InDet {
       static bool spacePointsToClusters
 	(const std::vector<const Trk::SpacePoint*>&,
 	 std::list<const InDet::SiCluster*> &) ; 
+
+      static bool spacePointsToClusters
+	(const std::vector<const Trk::SpacePoint*>&,
+	 std::list<const InDet::SiCluster*> &,
+	 std::list<const InDetDD::SiDetectorElement*>&) ;
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,

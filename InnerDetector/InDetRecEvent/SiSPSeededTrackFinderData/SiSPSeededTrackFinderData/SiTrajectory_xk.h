@@ -84,6 +84,12 @@ namespace InDet{
          bool                                                &,
          const EventContext&);
 
+      double pTseed
+	(const Trk::TrackParameters                          &,
+	 std::list<const InDet::SiCluster*>                  &,
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
+	 const EventContext&);
+
       bool trackParametersToClusters
         (const PixelClusterContainer*                             ,
          const SCT_ClusterContainer*                              ,
