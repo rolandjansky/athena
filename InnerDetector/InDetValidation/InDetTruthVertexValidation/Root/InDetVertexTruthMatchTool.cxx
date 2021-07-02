@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
@@ -22,6 +22,13 @@ StatusCode InDetVertexTruthMatchTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode InDetVertexTruthMatchTool::finalize()
+{
+  if (m_nBadLinks>0) {
+     ATH_MSG_INFO("Vertex fraction with invalid track particle links: " << std::setw(8) << static_cast<double>(m_nVtxWithBadLinks) / m_nVtx << "; invalid track particle link fraction " << static_cast<double>(m_nBadLinks) / m_nLinks << ".");
+  }
+  return StatusCode::SUCCESS;
+}
 
 namespace {
 //Helper methods for this file only
@@ -118,7 +125,7 @@ bool compareMatchPair(const VertexTruthMatchInfo a, const VertexTruthMatchInfo b
 
 
 const xAOD::TrackParticleContainer*
-InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContainer& vxContainer )
+InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContainer& vxContainer ) const
 {
   for (auto vtx : vxContainer)
   {
@@ -133,13 +140,13 @@ InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContain
   return 0;
 }
 
-StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vxContainer ) {
+StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vxContainer ) const {
 
   ATH_MSG_DEBUG("Start vertex matching");
   if (vxContainer.empty() ||   // reject empty vertex containers
        (vxContainer.size() == 1 && vxContainer.at(0)->vertexType() == xAOD::VxType::NoVtx)){  // as well as containers containing only a dummy vertex
     ATH_MSG_DEBUG("No vertices to match.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
   // Identify MC vertices to match to -- this is the collection for hard scatter
   const xAOD::TruthEventBaseContainer * truthEvents = nullptr;
@@ -209,6 +216,9 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
   //weights of contribution from each TruthEvent
   //=============================================================================
   size_t vxEntry = 0;
+  unsigned int n_bad_links = 0;
+  unsigned int n_links = 0;
+  unsigned int n_vx_with_bad_links = 0;
 
   for ( auto vxit : vxContainer.stdcont() ) {
     vxEntry++;
@@ -259,8 +269,13 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     float totalFake = 0.;
     int nHSTrk = 0;
 
+    unsigned vx_n_bad_links = 0;
     //loop element link to track particle
     for ( size_t t = 0; t < ntracks; ++t ) {
+      if (!trkParts[t].isValid()) {
+         ++vx_n_bad_links;
+         continue;
+      }
       const xAOD::TrackParticle & trk = **trkParts[t];
 
       totalWeight += trkWeights[t];
@@ -299,6 +314,11 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
         totalFake += trkWeights[t];
       }
     }//end loop over tracks in vertex
+    n_links     += ntracks;
+    n_bad_links += vx_n_bad_links;
+    if (vx_n_bad_links>0) {
+       ++n_vx_with_bad_links;
+    }
 
     //finalize the match info vector
     if ( totalWeight < 1e-12 ) { // in case we don't have any passing tracks we want to make sure labeled fake
@@ -321,6 +341,10 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     rawMatchInfoDecor( *vxit ) = rawMatchinfo;
     nHSTrkDecor( *vxit ) = nHSTrk;
   }
+  m_nVtx             += vxContainer.stdcont().size();
+  m_nVtxWithBadLinks += n_vx_with_bad_links;
+  m_nBadLinks        += n_bad_links;
+  m_nLinks           += n_links;
 
   //After first loop, all vertices have been decorated with their vector of match info (link to TruthEvent paired with weight)
   //now we want to use that information from the whole collection to assign types
