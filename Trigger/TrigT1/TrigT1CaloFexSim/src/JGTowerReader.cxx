@@ -862,6 +862,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer *gTs)
   delete h_fpga_b;
   delete h_fpga_c;
 
+  lut_file->Close();
+
   return StatusCode::SUCCESS;
 }
 
