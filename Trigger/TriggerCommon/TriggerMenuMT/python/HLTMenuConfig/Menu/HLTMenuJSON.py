@@ -3,6 +3,7 @@
 import re
 import json
 from collections import OrderedDict as odict
+from functools import lru_cache
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTMenuFileName
 from AthenaCommon.CFElements import getSequenceChildren, isSequence
 from AthenaCommon.Logging import logging
@@ -42,17 +43,26 @@ def __getStepsDataFromAlgSequence(HLTAllSteps):
         __log.warn( "No HLTAllSteps sequencer, will not export per-Step data for chains.")
     return stepsData
 
+@lru_cache(maxsize=2048)
+def __getFilterChains(filterAlg):
+    return filterAlg.Chains if hasattr(filterAlg, "Chains") else []
+
+def __isChainInFilter(chainName, filterAlg):
+    for fChain in __getFilterChains(filterAlg):
+        if chainName in fChain:
+            return True
+    return False
+
 def __getChainSequencers(stepsData, chainName):
     """ Finds the Filter which is responsible for this Chain in each Step.
         Return a list of the per-Step name() of the Sequencer which is unlocked by the Chain's Filter in the Step.
     """
     sequencers = []
-    from DecisionHandling.TrigCompositeUtils import chainNameFromLegName
     for counter, step in enumerate(stepsData, 1):
         mySequencer = None
         for sequencer in step:
             sequencerFilter = getSequenceChildren( sequencer )[0] # Always the first child in the step
-            if hasattr(sequencerFilter, "Chains") and any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
+            if __isChainInFilter(chainName, sequencerFilter):
                 if mySequencer is not None:
                     __log.error( "Multiple Filters found (corresponding Sequencers %s, %s) for %s in Step %i!",
                         mySequencer.getName(), sequencer.getName(), chainName, counter)

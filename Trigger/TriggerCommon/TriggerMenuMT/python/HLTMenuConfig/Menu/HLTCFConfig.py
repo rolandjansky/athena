@@ -26,30 +26,34 @@
 
 """
 
-from builtins import zip
-from builtins import str
-from builtins import map
-from builtins import range
-from collections import OrderedDict
-# Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND
-from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
+from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+
+from AthenaCommon.CFElements import parOR, seqAND, getSequenceChildren, isSequence, compName, findSubSequence,findAlgorithm
+from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
 from AthenaCommon.Configurable import Configurable
-from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
+from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
 from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects, \
+     triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
+from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+
+from builtins import map, range, str, zip
+from collections import OrderedDict, defaultdict
 import re
 
-
-from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
-    from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg    
     summary = TriggerSummaryAlg( CFNaming.stepSummaryName(name) )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = list(OrderedDict.fromkeys(flatDecisions))
@@ -127,12 +131,10 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely
 
     # get topSequnece
-    from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
 
     # find main HLT top sequence (already set up in runHLT_standalone)
-    from AthenaCommon.CFElements import findSubSequence,findAlgorithm
     l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
     # add the HLT steps Node
@@ -165,11 +167,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     log.info("[makeHLTTree] created the final summary tree")
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
-    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
-        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
     # Collections required to configure the algs below
     hypos = collectHypos(steps)
@@ -209,14 +206,12 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # C) Finally, we create the EDM output
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
-    from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
     onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
     hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
 
     hltEndSeq += hltFinalizeSeq
 
     # Test the configuration
-    from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( hltTop )
 
     def debugDecisions(hypos, summary, mon, summaryAlg):
@@ -236,7 +231,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
 
 def matrixDisplayOld( allCFSeq ):
-    from collections import defaultdict
     longestName = 5
     mx = defaultdict(lambda: dict())
     for stepNumber,step in enumerate(allCFSeq, 1):
@@ -281,7 +275,6 @@ def matrixDisplay( allCFSeq ):
         return []
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
-    from collections import defaultdict
     mx = defaultdict(list)
 
     for stepNumber,cfseq_list in enumerate(allCFSeq, 1):
@@ -294,7 +287,6 @@ def matrixDisplay( allCFSeq ):
                     mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
 
     # sort dictionary by fist key=step
-    from collections import  OrderedDict
     sorted_mx = OrderedDict(sorted( list(mx.items()), key= lambda k: k[0]))
 
     log.debug( "" )
@@ -315,7 +307,6 @@ def sequenceScanner( HLTNode ):
     #   +-- AthSequencer/Step1_filter
     #   +-- AthSequencer/Step1_reco
 
-    from collections import defaultdict
     _seqMapInStep = defaultdict(set)
     _status = True
     def _mapSequencesInSteps(seq, stepIndex, childInView):
@@ -337,7 +328,6 @@ def sequenceScanner( HLTNode ):
                 stepIndex = _mapSequencesInSteps(c, stepIndex, childInView=inView)
                 _seqMapInStep[compName(c)].add((stepIndex,inView))
             else:
-                from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
                 if isinstance(c,EventViewCreatorAlgorithm):
                     inViewSequence = c.ViewNodeName
         return stepIndex
@@ -375,8 +365,8 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
     if not newJO:
         createControlFlow(HLTNode, CFseq_list)
     else:
-        from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import createControlFlowNewJO
-        createControlFlowNewJO(HLTNode, CFseq_list)
+        raise RuntimeError('createControlFlowNewJO not implemented')
+        # createControlFlowNewJO(HLTNode, CFseq_list)
 
     
     # decode and attach HypoTools:
@@ -386,7 +376,6 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
     # create dot graphs
     log.debug("finalDecisions: %s", finalDecisions)
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     if ConfigFlags.Trigger.generateMenuDiagnostics:
         all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
@@ -405,11 +394,13 @@ def createDataFlow(chains, allDicts):
     NSTEPS = len(chainWithMaxSteps.steps)
 
     log.info("[createDataFlow] creating DF for %d chains and total %d steps", len(chains), NSTEPS)
-    
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
+
     # initialize arrays for monitor
     finalDecisions = [ [] for n in range(NSTEPS) ]
     CFseqList = [ [] for n in range(NSTEPS) ]
+
+    # chain name -> signatures look-up table
+    chainSignaturesMap = dict([(d['chainName'], d['signatures']) for d in allDicts])
 
     # loop over chains
     for chain in chains:
@@ -432,7 +423,7 @@ def createDataFlow(chains, allDicts):
 
             #  adapt multiplicity  between two steps:
             hasHiddenLeg = False
-            chainSignatures = list(filter(lambda x : (x['chainName']==chain.name), allDicts))[0]['signatures']
+            chainSignatures = chainSignaturesMap[chain.name]
             if chainSignatures.count('Jet') > 1 and len(set(chainSignatures)) > 1:
                 hasHiddenLeg = True
 
@@ -548,7 +539,6 @@ def createControlFlow(HLTNode, CFseqList):
 
         HLTNode += summary
 
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.generateMenuDiagnostics:
             log.debug("Now Draw...")
             stepCF_DataFlow_to_dot(stepRecoNode.name(), CFseqList[nstep])
@@ -585,7 +575,6 @@ def buildFilter(filter_name,  filter_input, empty):
      if the previous hypo has more than one output, try to get all of them
      one filter per previous sequence: 1 input/previous seq, 1 output/next seq
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode, PassFilterNode
     if empty:
         sfilter = PassFilterNode(name=filter_name)
         for i in filter_input:
