@@ -165,7 +165,7 @@ if ( True ) :
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
-    "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu24_LRT_idperf_L1MU20:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
