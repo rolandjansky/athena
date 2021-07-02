@@ -12,7 +12,6 @@
 #include "TrigT1Interfaces/MbtsCTP.h"
 #include "TrigT1Interfaces/BcmCTP.h"
 #include "TrigT1Interfaces/LucidCTP.h"
-#include "TrigT1Interfaces/TrtCTP.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
