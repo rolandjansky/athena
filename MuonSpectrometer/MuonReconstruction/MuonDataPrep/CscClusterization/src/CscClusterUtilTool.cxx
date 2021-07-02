@@ -126,7 +126,7 @@ std::vector<const CscStripPrepData*> CscClusterUtilTool::getStrips(const CscPrep
         return strips;
     }
 
-    std::vector<Identifier> prd_digit_ids = MClus->rdoList();
+    const std::vector<Identifier> &prd_digit_ids = MClus->rdoList();
 
     SG::ReadHandle<Muon::CscStripPrepDataContainer> pdigcont(m_cscStripLocation);
 

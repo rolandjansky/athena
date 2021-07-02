@@ -532,12 +532,7 @@ StatusCode TRTFastDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   // Clean up temporary containers
   delete m_thpctrt;
-  std::list< TRTUncompressedHitCollection * >::iterator trtHitColl( m_trtHitCollList.begin() );
-  std::list< TRTUncompressedHitCollection * >::iterator trtHitCollEnd( m_trtHitCollList.end() );
-  while( trtHitColl != trtHitCollEnd ) {
-    delete ( *trtHitColl );
-    ++trtHitColl;
-  }
+  for(TRTUncompressedHitCollection* ptr : m_trtHitCollList) delete ptr;
   m_trtHitCollList.clear();
 
   CHECK( this->createAndStoreRIOs() );
@@ -583,7 +578,7 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
       if(highTRMergeProb*(numberOfHitsInOneStraw-1) > CLHEP::RandFlat::shoot( m_randomEngine )) newword += 1 << (26-9); 
       const unsigned int newword2 = newword;
       const Amg::Vector2D locpos = trtDriftCircle->localPosition();
-      std::vector<Identifier> rdolist = trtDriftCircle->rdoList();
+      const std::vector<Identifier> &rdolist = trtDriftCircle->rdoList();
       const InDetDD::TRT_BaseElement* detEl = trtDriftCircle->detectorElement();
       InDet::TRT_DriftCircle* trtDriftCircle2 = new InDet::TRT_DriftCircle(
         trtid,

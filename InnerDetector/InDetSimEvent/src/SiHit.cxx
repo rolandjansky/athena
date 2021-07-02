@@ -22,9 +22,6 @@ SiHit::SiHit( ) :
 
 }
 
-SiHit::~SiHit() {}
-
-
 // Constructor
 SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
              const HepGeom::Point3D<double> &localEndPosition,
