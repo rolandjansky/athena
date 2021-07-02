@@ -874,7 +874,7 @@ namespace Muon {
 
         // distinguishing left-right just to treat the asymmetry of the active region in MM chambers
         double halfLengthL = 1e9;  // initialize to large value
-        double halfLengthR = 1e9; 
+        double halfLengthR = 1e9;
 
         // the MDT and CSC hits are ROTs
         const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
@@ -904,7 +904,7 @@ namespace Muon {
             detEl = mdtDetEl;
             int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
             int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-            halfLengthL = halfLengthR = 0.5*mdtDetEl->getActiveTubeLength(layer, tube);
+            halfLengthL = halfLengthR = 0.5 * mdtDetEl->getActiveTubeLength(layer, tube);
         } else if (m_idHelperSvc->isCsc(id)) {
             const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
             if (!cscDetEl) {
@@ -912,7 +912,7 @@ namespace Muon {
                 return nullptr;
             }
             detEl = cscDetEl;
-            halfLengthL = halfLengthR = 0.5*cscDetEl->stripLength(id);
+            halfLengthL = halfLengthR = 0.5 * cscDetEl->stripLength(id);
         } else if (m_idHelperSvc->isRpc(id)) {
             const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
             if (!rpcDetEl) {
@@ -920,7 +920,7 @@ namespace Muon {
                 return nullptr;
             }
             detEl = rpcDetEl;
-            halfLengthL = halfLengthR = 0.5*rpcDetEl->StripLength(false);  // eta-strip
+            halfLengthL = halfLengthR = 0.5 * rpcDetEl->StripLength(false);  // eta-strip
         } else if (m_idHelperSvc->isTgc(id)) {
             const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
             if (!tgcDetEl) {
@@ -928,7 +928,8 @@ namespace Muon {
                 return nullptr;
             }
             detEl = tgcDetEl;
-            halfLengthL = halfLengthR = 0.5*tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
+            halfLengthL = halfLengthR =
+                0.5 * tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
         } else if (m_idHelperSvc->issTgc(id)) {
             const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
             if (!stgcDetEl || !stgcDetEl->getDesign(id)) {
@@ -937,7 +938,7 @@ namespace Muon {
             }
             detEl = stgcDetEl;
             const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
-            halfLengthL = halfLengthR = 0.5*design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id));
+            halfLengthL = halfLengthR = 0.5 * design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id));
         } else if (m_idHelperSvc->isMM(id)) {
             const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
             if (!mmDetEl || !mmDetEl->getDesign(id)) {
@@ -991,7 +992,7 @@ namespace Muon {
 
         double ly = (*lpos)[Trk::locY];
         double halfLength = ly < 0 ? halfLengthL : halfLengthR;
-        bool   shiftedPos = false;
+        bool shiftedPos = false;
 
         if (std::abs(ly) > halfLength) {
             double lyold = ly;
@@ -1038,7 +1039,7 @@ namespace Muon {
                                               << " phi overlap " << phi_overlap << " err " << errPos);
             } else {
                 ly = (*loverlapPos)[Trk::locY];
-                halfLength = ly < 0 ? halfLengthL : halfLengthR; // safer to redo since ly changed
+                halfLength = ly < 0 ? halfLengthL : halfLengthR;  // safer to redo since ly changed
                 if (std::abs(ly) > halfLength) { ly = ly < 0 ? -halfLength : halfLength; }
                 ATH_MSG_VERBOSE(" fake from overlap: lpos " << ly << " ch half length " << halfLength << " overlapPos " << *overlapPos);
             }
@@ -1225,8 +1226,8 @@ namespace Muon {
 
             // distinguishing left-right just to treat the asymmetry of the active region in MM chambers
             double halfLengthL = 0.;
-            double halfLengthR = 0.; 
-                  
+            double halfLengthR = 0.;
+
             if (m_idHelperSvc->isMdt(id)) {
                 const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(rot->detectorElement());
                 if (mdtDetEl) {
@@ -1236,9 +1237,7 @@ namespace Muon {
                 }
             } else if (m_idHelperSvc->isCsc(id)) {
                 const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
-                if (cscDetEl) { 
-                    halfLengthL = halfLengthR = 0.5 * cscDetEl->stripLength(id); 
-                }
+                if (cscDetEl) { halfLengthL = halfLengthR = 0.5 * cscDetEl->stripLength(id); }
             } else if (m_idHelperSvc->isRpc(id)) {
                 const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
                 if (rpcDetEl) {
@@ -1259,11 +1258,11 @@ namespace Muon {
             } else if (m_idHelperSvc->isMM(id)) {
                 const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
                 if (mmDetEl) {
-                  halfLengthL = mmDetEl->stripActiveLengthLeft(id);
-                  halfLengthR = mmDetEl->stripActiveLengthRight(id);
+                    halfLengthL = mmDetEl->stripActiveLengthLeft(id);
+                    halfLengthR = mmDetEl->stripActiveLengthRight(id);
                 }
             }
-            
+
             Amg::Vector2D lpLeft(x, -halfLengthL);
             const Amg::Vector3D gposLeft = surf.localToGlobal(lpLeft);
             double phiLeft = gposLeft.phi();
@@ -2336,8 +2335,7 @@ namespace Muon {
         for (const Trk::TrackStateOnSurface* tsos : tsos) trackStateOnSurfaces.push_back(tsos->clone());
 
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
-        std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(
-          trackInfo, std::move(trackStateOnSurfaces), nullptr);
+        std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(trackInfo, std::move(trackStateOnSurfaces), nullptr);
 
         unsigned int nphi = hasPhiConstrain(track.get());
 
