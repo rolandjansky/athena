@@ -300,13 +300,7 @@ StatusCode SCT_FastDigitizationTool::mergeEvent(const EventContext& ctx)
   //-----------------------------------------------------------------------
   // Clean up temporary containers
   delete m_thpcsi;
-  std::list<SiHitCollection*>::iterator siHitColl(m_siHitCollList.begin());
-  std::list<SiHitCollection*>::iterator siHitCollEnd(m_siHitCollList.end());
-  while(siHitColl!=siHitCollEnd)
-    {
-      delete (*siHitColl);
-      ++siHitColl;
-    }
+  for(SiHitCollection* ptr : m_siHitCollList) delete ptr;
   m_siHitCollList.clear();
   //-----------------------------------------------------------------------
 
@@ -827,7 +821,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                 if(isNeighbour)
                   {
                     //Merge the clusters
-                    std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+                    const std::vector<Identifier> &existingClusterRDOList = existingCluster->rdoList();
                     potentialClusterRDOList.insert(potentialClusterRDOList.end(), existingClusterRDOList.begin(), existingClusterRDOList.end() );
                     Amg::Vector2D existingClusterPosition(existingCluster->localPosition());
                     potentialClusterPosition = (potentialClusterPosition + existingClusterPosition)/2;
@@ -1051,7 +1045,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
   //---------------------------------------------------------------------------------
   bool isNeighbour = false;
   unsigned int countR(0);
-  std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+  const std::vector<Identifier> &existingClusterRDOList = existingCluster->rdoList();
   std::vector<Identifier>::const_iterator potentialClusterRDOIter = potentialClusterRDOList.begin();
   for ( ; potentialClusterRDOIter != potentialClusterRDOList.end(); ++potentialClusterRDOIter)
     {

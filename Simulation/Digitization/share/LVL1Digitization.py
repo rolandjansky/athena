@@ -149,14 +149,6 @@ if DetFlags.digitize.LVL1_on():
         topSequence += LVL1__TrigT1BCM()
 
     #-------------------------------------------------------
-    # TrigT1TRT Alg
-    #-------------------------------------------------------
-    from AthenaCommon.BeamFlags import jobproperties
-    if DetFlags.simulateLVL1.TRT_on():
-        from TrigT1TRT.TrigT1TRTConf import LVL1__TrigT1TRT
-        topSequence += LVL1__TrigT1TRT()
-
-    #-------------------------------------------------------
     # TrigT1LUCID Alg
     #-------------------------------------------------------
     if DetFlags.simulateLVL1.Lucid_on():

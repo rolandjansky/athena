@@ -1,15 +1,19 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import get_alignment_group_ordering as getAlignmentGroupOrdering
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( __name__ )
-
-
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import get_alignment_group_ordering as getAlignmentGroupOrdering
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
+from TrigCompositeUtils.TrigCompositeUtils import legName
+
 from collections import OrderedDict
 from copy import deepcopy
+from itertools import zip_longest
 import re
+
+log = logging.getLogger( __name__ )
+
 
 def mergeChainDefs(listOfChainDefs, chainDict):
 
@@ -88,11 +92,7 @@ def mergeParallel(chainDefList, offset):
             raise Exception("[mergeParallel] Complicated situation currently unimplemented. exiting.")
         else: 
             log.info("[mergeParallel] Alignment groups are empty for this combined chain - if this is not _newJO, this is not ok!")
-    import itertools
-    if 'zip_longest' in dir(itertools):
-        from itertools import zip_longest
-    else:
-        from itertools import izip_longest as zip_longest
+
     # Use zip_longest so that we get None in case one chain has more steps than the other
     orderedSteps = list(zip_longest(*allSteps))
 
@@ -364,7 +364,6 @@ def checkStepContent(parallel_steps):
     return False   
 
 def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], currentChainSteps = []):
-    from TrigCompositeUtils.TrigCompositeUtils import legName
     stepName = 'merged' #we will renumber all steps after chains are aligned #Step' + str(stepNumber)
     stepSeq = []
     stepMult = []

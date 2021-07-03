@@ -146,10 +146,6 @@ private:
                         double*,
                         MagField::AtlasFieldCache& fieldCache) const;
 
-  static void matrixInversion5x5(double a[5][5]) ;
-
-  static Perigee* createMeasuredPerigee(TrkTrackState*) ;
-
 
   double integrate(double Rk[5],
                    TrkPlanarSurface* pSB,
@@ -160,9 +156,6 @@ private:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-
-  //    RunOutlierRemoval             m_option_runOutlier;
-  //    ParticleHypothesis               m_option_matEffects;
 
   const AtlasDetectorID* m_idHelper;
 

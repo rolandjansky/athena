@@ -1,25 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
-from AthenaCommon.Logging import logging, AthError
-
-
-def checkTRT_DigitizationConfiguration():
-    logDigiConfigChecker = logging.getLogger( 'DigiConfigChecker' )
-
-    from AthenaCommon.DetFlags import DetFlags
-    if DetFlags.simulateLVL1.TRT_on():
-        from AthenaCommon.BeamFlags import jobproperties
-        from Digitization.DigitizationFlags import digitizationFlags
-        if (jobproperties.Beam.beamType != "cosmics") and ('RUNTRTLVL1' not in digitizationFlags.experimentalDigi()):
-            DetFlags.simulateLVL1.TRT_setOff()
-            logDigiConfigChecker.info("Switching DetFlags.simulateLVL1.TRT_setOff()")
-            logDigiConfigChecker.info("Experts may enable LVL1 TrigT1TRT simulation by setting RUNTRTLVL1=True in a preExec or in their main job options.")
-
-    if DetFlags.simulateLVL1.TRT_on() and DetFlags.pileup.any_on():
-        logDigiConfigChecker.warning("LVL1::TrigT1TRT is not pile-up-friendly using it in this case may significantly degrade performance.")
-    return
-
+from AthenaCommon.Logging import AthError
 
 def checkDetFlagConfiguration():
     from AthenaCommon.Logging import logging

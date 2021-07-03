@@ -540,10 +540,7 @@ ActsKalmanFitter::makeTrackFitterFunction(
         // construct all components for the fitter
         auto field = std::make_shared<ATLASMagneticFieldWrapper>();;
         Stepper stepper(field);
-        Navigator navigator(trackingGeometry);
-        navigator.resolvePassive = false;
-        navigator.resolveMaterial = true;
-        navigator.resolveSensitive = true;
+        Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );     
         Propagator propagator(std::move(stepper), std::move(navigator));
         Fitter trackFitter(std::move(propagator));
 

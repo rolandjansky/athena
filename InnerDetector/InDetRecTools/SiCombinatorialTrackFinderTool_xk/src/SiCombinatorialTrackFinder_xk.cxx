@@ -566,6 +566,25 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 }
 
 ///////////////////////////////////////////////////////////////////
+// Initial pT of 3 space points seed estimation
+///////////////////////////////////////////////////////////////////
+
+double InDet::SiCombinatorialTrackFinder_xk::pTseed
+(SiCombinatorialTrackFinderData_xk& data,
+ const Trk::TrackParameters& Tp,
+ const std::vector<const Trk::SpacePoint*>& Sp,
+ const EventContext& ctx) const
+{
+  std::list<const InDet::SiCluster*>           Cl;
+  std::list<const InDetDD::SiDetectorElement*> DE;
+  if(!spacePointsToClusters(Sp,Cl,DE)) return 0.;
+
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*> DEL;
+  detectorElementLinks(DE,DEL,ctx);
+  return data.trajectory().pTseed(Tp,Cl,DEL,ctx);
+}
+
+///////////////////////////////////////////////////////////////////
 // Main method for track finding using space points
 ///////////////////////////////////////////////////////////////////
 
@@ -854,6 +873,19 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 (const std::vector<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc) 
 {
+
+  std::list<const InDetDD::SiDetectorElement*> DE;
+  return spacePointsToClusters(Sp,Sc,DE);
+
+}
+
+///////////////////////////////////////////////////////////////////
+// Convert space points to clusters and detector elements
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
+(const std::vector<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc, std::list<const InDetDD::SiDetectorElement*>& DE)
+{
   /// loop over all SP
   for (const Trk::SpacePoint* s: Sp) {
     /// get the first cluster on an SP
@@ -878,6 +910,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
   for (; cluster!=endClusters; ++cluster) {
 
     const InDetDD::SiDetectorElement* de = (*cluster)->detectorElement();
+    DE.push_back(de);
 
     nextCluster = cluster;
     ++nextCluster;

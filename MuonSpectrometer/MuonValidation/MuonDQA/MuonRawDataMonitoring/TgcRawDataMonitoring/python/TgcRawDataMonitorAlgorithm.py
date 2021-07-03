@@ -536,15 +536,20 @@ if __name__=='__main__':
     log.setLevel(INFO)
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    import glob
 
-    inputs = glob.glob('/data02/data/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3334_r9857/*')
-
-    ConfigFlags.Input.Files = inputs
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
-
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
+
+    import glob
+    import sys
+    if len(sys.argv) == 3:
+        inputs = sys.argv[1].split(',')
+        ConfigFlags.Input.Files = inputs
+        ConfigFlags.Output.HISTFileName = sys.argv[2]
+    else:
+        inputs = glob.glob('/data04/data/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3334_r9857/ESD.*.pool.root.1')
+        ConfigFlags.Input.Files = inputs
+        ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
 
     ConfigFlags.lock()
     ConfigFlags.dump()
@@ -568,6 +573,6 @@ if __name__=='__main__':
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
     cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
-    cfg.printConfig(withDetails=True, summariseProps = True)
+    cfg.printConfig(withDetails=False, summariseProps = False)
 
     cfg.run()

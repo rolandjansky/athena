@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -109,7 +109,7 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
     
     const Muon::RpcPrepDataCollection * theCollection= *rpcCollection;
 
-    if(theCollection->size()>0){
+    if(!theCollection->empty()){
       
       
       // create temp collection for clusters 	 
@@ -317,7 +317,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 							      pointLocPos,
 							      theIDs,
 							      //   DV,
-							      std::move(errClusterPos),
+							      errClusterPos,
 							      //width,
 							      // new Trk::GlobalPosition(globalPosition),
 							      descriptor,
@@ -346,7 +346,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
       
       // if we are at the end, close the custer anyway and fill it with what we have found
       
-      if(count==m_digits[panelId].size()-1&&theIDs.size()>0){
+      if(count==m_digits[panelId].size()-1&&!theIDs.empty()){
 
 
 
@@ -388,7 +388,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 							      pointLocPos,
 							      theIDs,
 							      // DV,
-							      std::move(errClusterPos),
+							      errClusterPos,
 							      // width,
 							      // new Trk::GlobalPosition(globalPosition),
 							      descriptor,

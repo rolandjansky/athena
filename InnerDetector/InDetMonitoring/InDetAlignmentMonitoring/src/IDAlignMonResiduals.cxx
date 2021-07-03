@@ -2563,7 +2563,7 @@ bool IDAlignMonResiduals::isEdge(const Trk::RIO_OnTrack* hit)
 
   const Trk::PrepRawData* hit_PRD = hit->prepRawData();
   if (!hit_PRD) return false;
-  const std::vector<Identifier> hit_ID_list = hit_PRD->rdoList() ;
+  const std::vector<Identifier> &hit_ID_list = hit_PRD->rdoList() ;
 
 
   for( unsigned int i=0; i!=hit_ID_list.size() ; ++i ) {

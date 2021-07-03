@@ -678,8 +678,8 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
 
   const std::vector<Identifier>& rdos  = pixelCluster->rdoList();  
 
-  const std::vector<float> chList     = pixelCluster->chargeList();
-  const std::vector<int>  totList     = pixelCluster->totList();
+  const std::vector<float> &chList     = pixelCluster->chargeList();
+  const std::vector<int>  &totList     = pixelCluster->totList();
 
   // std::vector<int>  rowList;
   // std::vector<int>  colList;

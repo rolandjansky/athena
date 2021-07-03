@@ -16,7 +16,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-class SiHit  {
+class SiHit final {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -67,7 +67,7 @@ public:
   SiHit();
 
   // Destructor:
-  virtual ~SiHit(); //temporary make it virtual for Pool!
+  ~SiHit() = default;
   
   //move assignment defaulted
   SiHit & operator = (SiHit &&) = default;

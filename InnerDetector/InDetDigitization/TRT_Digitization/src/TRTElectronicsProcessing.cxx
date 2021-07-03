@@ -205,9 +205,9 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   }
 
   // Build the vectors of shaping amplitudes
-  m_lowThresholdSignalShape[0] = vpXeLT; m_highThresholdSignalShape[0] = vpXeHT;
-  m_lowThresholdSignalShape[1] = vpKrLT; m_highThresholdSignalShape[1] = vpKrHT;
-  m_lowThresholdSignalShape[2] = vpArLT; m_highThresholdSignalShape[2] = vpArHT;
+  m_lowThresholdSignalShape[0] = std::move(vpXeLT); m_highThresholdSignalShape[0] = std::move(vpXeHT);
+  m_lowThresholdSignalShape[1] = std::move(vpKrLT); m_highThresholdSignalShape[1] = std::move(vpKrHT);
+  m_lowThresholdSignalShape[2] = std::move(vpArLT); m_highThresholdSignalShape[2] = std::move(vpArHT);
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endmsg;
 }
