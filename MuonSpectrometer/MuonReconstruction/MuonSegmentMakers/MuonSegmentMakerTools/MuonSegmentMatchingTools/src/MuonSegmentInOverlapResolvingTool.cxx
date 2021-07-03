@@ -316,10 +316,7 @@ MuonSegmentInOverlapResolvingTool::bestPositionAlongTubeMatch(const MuonSegment&
 
     double posStep = tubeStep / (nbins - 1);
 
-    double resfirst = 1e9;
-    double reslast  = 1e9;
-    double posfirst = 1e9;
-    double poslast  = 1e9;
+    double resfirst{1e9}, reslast{1e9}, posfirst{1e9}, poslast{1e9};
     double locy     = seg1.localParameters().contains(Trk::locY) ? seg1.localParameters()[Trk::locY] : 0.;
 
     for (int j = 0; j < nbins; ++j) {
@@ -358,11 +355,7 @@ MuonSegmentInOverlapResolvingTool::bestPositionAlongTubeMatch(const MuonSegment&
         }
     }
 
-    double        distPosMin2    = 1e9;
-    double        distPosInTube2 = 1e9;
-    double        distPosMin     = 1e9;
-    double        distPosInTube  = 1e9;
-    double        resyMin        = 1e9;
+    double distPosMin2{1e9}, distPosInTube2{1e9}, distPosMin{1e9}, distPosInTube{1e9}, resyMin{1e9};
     Amg::Vector3D segPos(0., 0., 0.);
     double        rangeCut = 1e5;
     if (resfirst < rangeCut && reslast < rangeCut && posfirst < rangeCut && poslast < rangeCut) {
@@ -424,16 +417,14 @@ MuonSegmentInOverlapResolvingTool::segmentGeometrySummary(const MuonSegment& seg
     SegmentGeometrySummary summary;
     // loop over hits
     Identifier                       tubeId1;
-    const MuonGM::MdtReadoutElement* detEl           = 0;
+    const MuonGM::MdtReadoutElement* detEl           = nullptr;
     double                           shortestTubeLen = 1e9;
     Amg::Vector3D                    roPos;
     Amg::Vector3D                    tubeCenter;
-    MeasCit                          sit     = seg.containedMeasurements().begin();
-    MeasCit                          sit_end = seg.containedMeasurements().end();
     bool                             hasMdt  = false;
-    for (; sit != sit_end; ++sit) {
+    for (const Trk::MeasurementBase* meas :seg.containedMeasurements()) {
 
-        const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*sit);
+        const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
         if (mdt) {
             hasMdt                    = true;
             const Identifier& id      = mdt->identify();

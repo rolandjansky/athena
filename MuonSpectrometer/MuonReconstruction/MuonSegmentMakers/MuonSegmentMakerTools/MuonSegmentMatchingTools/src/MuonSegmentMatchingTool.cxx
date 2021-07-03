@@ -337,8 +337,7 @@ MuonSegmentMatchingTool::suppressNoise(const MuonSegment& seg1, const MuonSegmen
 
     bool isEndcap_b = m_idHelperSvc->isEndcap(result.chid_b);
     bool isCSC_b    = m_idHelperSvc->isCsc(result.chid_b);
-    /// To be checked after the next pipeline
-    bool isBEE_b    = station_a == MuonStationIndex::BE;
+    bool isBEE_b    = station_b == MuonStationIndex::BE;
 
 
     if (m_dumpAngles) {
@@ -752,19 +751,6 @@ MuonSegmentMatchingTool::suppressNoisePhi(const MuonSegment& seg1, const MuonSeg
                     }
                 }
             }
-            // 	if(result.phidirerr_a < 10001.000 && result.phidirerr_b < 10001.000){
-            // 	  if( !isEndcap_a && !isEndcap_b){
-            // 	    if( result.deltaPhidir > 0.2 ){
-            // 	      return false;
-            // 	    }
-            // 	    else {
-            // 	      return true;
-            // 	    }
-            // 	  }
-            // 	  if( isEndcap_a && isEndcap_b){
-            // 	    return true;
-            // 	  }
-            // 	}
         }
 
         if (result.phiSector_a != result.phiSector_b) {
@@ -784,20 +770,7 @@ MuonSegmentMatchingTool::suppressNoisePhi(const MuonSegment& seg1, const MuonSeg
                     }
                 }
             }
-            // 	if(result.phidirerr_a < 10001.000 && result.phidirerr_b < 10001.000){
-            // 	  if( !isEndcap_a && !isEndcap_b){
-            // 	    if( result.deltaPhidir > 0.2 ){
-            // 	      return false;
-            // 	    }
-            // 	    else {
-            // 	      return true;
-            // 	    }
-            // 	  }
-            // 	  if( isEndcap_a && isEndcap_b){
-            // 	    return true;
-            // 	  }
-            // 	}
-        }
+         }
 
         // cuts on distance to tube edge
         // only if in a different phi sector
@@ -900,19 +873,6 @@ MuonSegmentMatchingTool::suppressNoisePhi(const MuonSegment& seg1, const MuonSeg
                 }
             }
         }
-        //       if(result.phidirerr_a < 10001.000 && result.phidirerr_b < 10001.000){
-        // 	if( !isEndcap_a && !isEndcap_b){
-        // 	  if( result.deltaPhidir > 0.1 ){
-        // 	    return false;
-        // 	  }
-        // 	  else {
-        // 	    return true;
-        // 	  }
-        // 	}
-        // 	if( isEndcap_a && isEndcap_b){
-        // 	  return true;
-        // 	}
-        //       }
     }
 
     if (result.phiSector_a != result.phiSector_b) {
@@ -932,19 +892,6 @@ MuonSegmentMatchingTool::suppressNoisePhi(const MuonSegment& seg1, const MuonSeg
                 }
             }
         }
-        //       if(result.phidirerr_a < 10001.000 && result.phidirerr_b < 10001.000){
-        // 	if( !isEndcap_a && !isEndcap_b){
-        // 	  if( result.deltaPhidir > 0.1 ){
-        // 	    return false;
-        // 	  }
-        // 	  else {
-        // 	    return true;
-        // 	  }
-        // 	}
-        // 	if( isEndcap_a && isEndcap_b){
-        // 	  return true;
-        // 	}
-        //       }
         // cuts on distance to tube edge
         // only if in a different phi sector
         if (result.phiSector_a != result.phiSector_b) {
@@ -1048,16 +995,15 @@ MuonSegmentMatchingTool::endcapExtrapolationMatch(const MuonSegment& seg1, const
     const Amg::Vector3D& dir2 = segInner->globalDirection();
 
     // extrapolate the first segment to the inner layer
-    double r_expected     = 0;
-    double theta_expected = 0;
-    double rhoInv         = 0;
+    double r_expected{0.}, theta_expected{0.}, rhoInv{0.};
     simpleEndcapExtrapolate(pos1.x(), pos1.y(), pos1.z(), dir1.theta(), pos2.z(), r_expected, theta_expected, rhoInv);
 
     if (rhoInv < 0) rhoInv *= -1.;
     double dr     = pos2.perp() - r_expected;
     double dtheta = dir2.theta() - theta_expected;
 
-    double drCut = m_drExtrapRMS + 5e6 * rhoInv;
+      
+    double drCut = m_drExtrapRMS + 5.e6 * rhoInv;
     if (useTightCuts)
         drCut *= 2;
     else
@@ -1138,7 +1084,7 @@ MuonSegmentMatchingTool::simpleEndcapExtrapolate(double x_segment, double y_segm
     r_expected     = r_expected + 0.3 * (r_expected - r_SL);
     theta_expected = std::atan(tantheta + 2 * (z_extrapolated - z_start) * rhoInv);
 
-    if (tan_seg < 0 && theta_expected < 0) theta_expected += 2 * M_PI_2;
+    if (tan_seg < 0 && theta_expected < 0) theta_expected += M_PI;
     if (tan_seg > 0 && theta_expected < 0) theta_expected = -theta_expected;
 }
 
