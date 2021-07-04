@@ -84,8 +84,8 @@ class MdtAmtMap {
   int m_eta;
   int m_phi;
   int m_multiLayer;
-  int m_layer[CHANMAX];
-  int m_tube[CHANMAX];
+  int m_layer[CHANMAX]{};
+  int m_tube[CHANMAX]{};
 
   /** mezzanine type */
   uint8_t m_mezType;
