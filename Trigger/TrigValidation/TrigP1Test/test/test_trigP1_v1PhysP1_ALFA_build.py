@@ -17,6 +17,7 @@ precommand = ''.join([
   "selectChains=['HLT_mb_alfaperf_L1RD0_FILLED','HLT_mb_alfaperf_L1RD0_EMPTY'];",
 ])
 ex.args = '-c "{:s}"'.format(precommand)
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'build'
