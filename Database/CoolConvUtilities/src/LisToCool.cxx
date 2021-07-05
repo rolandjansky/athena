@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LisToCool.cxx
@@ -33,9 +33,9 @@
 
 class LisToCool {
  public:
-  LisToCool(const std::string lisdb, const std::string lisfolder,
-	    const std::string cooldb, const std::string coolfolder,
-	    const int mode, const int offset, const std::string tagprefix,
+  LisToCool(const std::string& lisdb, const std::string& lisfolder,
+	    const std::string& cooldb, const std::string& coolfolder,
+	    const int mode, const int offset, const std::string& tagprefix,
             const int ichannel);
   int execute();
 
@@ -43,15 +43,15 @@ class LisToCool {
   bool getLisDB(const std::string lisdbstr, ICondDBMgr*& dbPtr,
                 ICondDBDataAccess*& dbAcc, ICondDBFolderMgr*& dbFold,
                 ICondDBTagMgr*& dbTag);
-  bool getCoolDB(const std::string coolstr, cool::IDatabasePtr& dbPtr);
-  bool extractFolderInfo(const std::string folder);
-  cool::IFolderPtr getFolder(const std::string folder,
-    const cool::IRecordSpecification& atrspec, const std::string desc,
+  static bool getCoolDB(const std::string& coolstr, cool::IDatabasePtr& dbPtr);
+  bool extractFolderInfo(const std::string& folder) const;
+  static cool::IFolderPtr getFolder(const std::string& folder,
+    const cool::IRecordSpecification& atrspec, const std::string& desc,
     cool::FolderVersioning::Mode mode);
   void transSimpleTime(SimpleTime& ltime, cool::ValidityKey& ctime);
   void transTimes(SimpleTime lsince, SimpleTime ltill, 
 		  cool::ValidityKey& csince, cool::ValidityKey& ctill);
-  std::string strValidity(const cool::ValidityKey& key);
+  std::string strValidity(const cool::ValidityKey& key) const;
   void copyCondTable(bool compress);
   void copyBlobWithTags();
 
@@ -65,21 +65,21 @@ class LisToCool {
   std::string m_tagprefix;
   int m_channel;
 
-  ICondDBMgr* m_lisdb;
-  ICondDBDataAccess* m_lisacc;
-  ICondDBFolderMgr* m_lisfold;
-  ICondDBTagMgr* m_listag;
+  ICondDBMgr* m_lisdb{};
+  ICondDBDataAccess* m_lisacc{};
+  ICondDBFolderMgr* m_lisfold{};
+  ICondDBTagMgr* m_listag{};
   cool::IDatabasePtr m_cooldb;
 
   std::string m_lisdesc;
   std::string m_cooldesc;
-  bool m_runevent;
+  bool m_runevent{};
 
 };
 
-LisToCool::LisToCool(const std::string lisdb, const std::string lisfolder,
-	    const std::string cooldb, const std::string coolfolder,
-	    const int mode, const int offset, const std::string tagprefix,
+LisToCool::LisToCool(const std::string& lisdb, const std::string& lisfolder,
+	    const std::string& cooldb, const std::string& coolfolder,
+	    const int mode, const int offset, const std::string& tagprefix,
 		     const int ichannel) :
   m_lisdbstr(lisdb), m_lisfolder(lisfolder), m_cooldbstr(cooldb), 
   m_coolfolder(coolfolder),m_mode(mode),m_timeoffset(offset), 
@@ -122,9 +122,9 @@ int LisToCool::execute() {
   return 0;
 }
 
-bool LisToCool::getLisDB(const std::string lisdbstr, ICondDBMgr*& dbPtr,
-                     ICondDBDataAccess*& dbAcc, ICondDBFolderMgr*& dbFold,
-                     ICondDBTagMgr*& dbTag) {
+static bool LisToCool::getLisDB(const std::string& lisdbstr, ICondDBMgr*&  /*dbPtr*/,
+                     ICondDBDataAccess*&  /*dbAcc*/, ICondDBFolderMgr*&  /*dbFold*/,
+                     ICondDBTagMgr*&  /*dbTag*/) {
   dbPtr=CondDBMySQLMgrFactory::createCondDBMgr();
   try {
     dbPtr->init(lisdbstr);
@@ -143,7 +143,7 @@ bool LisToCool::getLisDB(const std::string lisdbstr, ICondDBMgr*& dbPtr,
   }
 }
 
-bool LisToCool::getCoolDB(const std::string coolstr,
+bool LisToCool::getCoolDB(const std::string& coolstr,
     cool::IDatabasePtr& dbPtr) {
   std::cout << "Attempt to open COOL database with connection string: "
 	    << coolstr << std::endl;
@@ -168,7 +168,7 @@ bool LisToCool::getCoolDB(const std::string coolstr,
   return false;
 }
 
-bool LisToCool::extractFolderInfo(const std::string folder) {
+bool LisToCool::extractFolderInfo(const std::string& folder) const {
   // extract folder description string from Lisbon DB folder
   // and interpret to set run/event or timestamp flag
   // return true if OK, false if folder not existing
@@ -202,8 +202,8 @@ bool LisToCool::extractFolderInfo(const std::string folder) {
   return true;
 }
 
-cool::IFolderPtr LisToCool::getFolder(const std::string folder,
-   const cool::IRecordSpecification& atrspec, const std::string desc,
+cool::IFolderPtr LisToCool::getFolder(const std::string& folder,
+   const cool::IRecordSpecification& atrspec, const std::string& desc,
    cool::FolderVersioning::Mode mode) {
   if (m_cooldb->existsFolder(folder)) {
     std::cout << "Folder " << folder << " already exists in database" 
@@ -221,7 +221,7 @@ cool::IFolderPtr LisToCool::getFolder(const std::string folder,
   }
 }
 
-void LisToCool::transSimpleTime(SimpleTime& ltime, cool::ValidityKey& ctime) {
+void LisToCool::transSimpleTime(SimpleTime&  /*ltime*/, cool::ValidityKey& ctime) const {
   if (ltime.isMinusInf()) {
     ctime=cool::ValidityKeyMin;
   } else if (ltime.isPlusInf()) {
@@ -238,8 +238,8 @@ void LisToCool::transSimpleTime(SimpleTime& ltime, cool::ValidityKey& ctime) {
   }
 }
 
-void LisToCool::transTimes(SimpleTime lsince, SimpleTime ltill, 
-		cool::ValidityKey& csince, cool::ValidityKey& ctill) {
+void LisToCool::transTimes(SimpleTime  /*lsince*/, SimpleTime  /*ltill*/, 
+		cool::ValidityKey& csince, cool::ValidityKey& ctill) const {
   if (m_runevent) {
     // copy straight over, same interpretation of 32bit run/32 bit event
     csince=lsince;
@@ -250,7 +250,7 @@ void LisToCool::transTimes(SimpleTime lsince, SimpleTime ltill,
   }
 }
 
-std::string LisToCool::strValidity(const cool::ValidityKey& key) {
+std::string LisToCool::strValidity(const cool::ValidityKey& key) const {
   // return representation of validity key as a string
   std::ostringstream strs;
   if (m_runevent) {
@@ -292,7 +292,7 @@ void LisToCool::copyCondTable(bool compress) {
     std::string::size_type p1,p2;
     p1=0;
     while (p1!=std::string::npos && p1<m_tagprefix.size()) {
-      p2=m_tagprefix.find(",",p1+1);
+      p2=m_tagprefix.find(',',p1+1);
       newcolname.push_back(m_tagprefix.substr(p1,p2-p1));
       if (p2!=std::string::npos) {
 	p1=p2+1;
