@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1Gui/VP1Authenticator.h"
@@ -359,8 +359,7 @@ void VP1Authenticator::finished()
       }
     }
 
-    QByteArray newBody;
-    newBody=newBody.insert(0,newRequestBody);
+    QByteArray newBody = newRequestBody.toUtf8();
 
     QString logMessage = "New Request Length: " + QString::number(newBody.size()) + "\n";
     logMessage += ("New Request Body:\n" + newRequestBody.replace(inpPhr->text(),"xxx") + "\n");
@@ -484,8 +483,7 @@ void VP1Authenticator::finished()
       }
     }
 
-    QByteArray newBody;
-    newBody=newBody.insert(0,newRequestBody);
+    QByteArray newBody = newRequestBody.toUtf8();
 
     QString logMessage = "New Request Length: " + QString::number(newBody.size()) + "\n";
     logMessage += ("New Request Body:\n" + newRequestBody + "\n");

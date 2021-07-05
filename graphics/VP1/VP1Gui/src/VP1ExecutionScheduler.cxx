@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -1150,7 +1150,13 @@ void VP1ExecutionScheduler::actualUncreateAndDelete(IVP1ChannelWidget*cw)
 //___________________________________________________________________
 void VP1ExecutionScheduler::Imp::warnIfWidgetsAlive()
 {
-	QSet<QWidget*> w_ignore, wl = QApplication::allWidgets().toSet();
+        QSet<QWidget*> w_ignore;
+#if QTCORE_VERSION >= 0x050E00
+        QList<QWidget*> widgets = QApplication::allWidgets();
+        QSet<QWidget*> wl (widgets.begin(), widgets.end());
+#else
+        QSet<QWidget*> wl = QApplication::allWidgets().toSet();
+#endif
 	w_ignore<<qApp->desktop();
 	foreach (QObject*o,qApp->children()) {
 		if (o->isWidgetType())
