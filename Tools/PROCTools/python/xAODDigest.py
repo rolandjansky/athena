@@ -32,15 +32,6 @@ def xAODDigest(evt, counter=False, extravars=False):
             "xAOD::TrackParticleContainer", "InDetTrackParticles")
         nIdTracks = len(idTracks)
 
-        jets = safeRetrieve(evt, "xAOD::JetContainer", "AntiKt4EMTopoJets")
-        nJets = len(jets)
-        if jets:
-          jet1pt = jets[0].pt()
-          jet1eta = jets[0].eta()
-          jet1phi = jets[0].phi()
-        else:
-          jet1pt = jet1eta = jet1phi = 0
-
         muons = safeRetrieve(evt, "xAOD::MuonContainer", "Muons")
         nMuons = len(muons)
         if muons:
@@ -93,13 +84,12 @@ def xAODDigest(evt, counter=False, extravars=False):
         nFakePhotons = nPhot - nTruePhotons
 
         if extravars:
-            result.append((runnbr, evtnbr, nclus, nIdTracks, 
-                           nJets, jet1pt, jet1eta, jet1phi, 
+            result.append((runnbr, evtnbr, nclus, nIdTracks,
                            nMuons, muon1pt, muon1eta, muon1phi,
                            nElec, elec1pt, elec1eta, elec1phi, nTrueElectrons, nFakeElectrons,
                            nPhot, phot1pt, phot1eta, phot1phi ,nTruePhotons, nFakePhotons))
         else:
-            result.append((runnbr, evtnbr, nclus, nIdTracks, nJets, nMuons,
+            result.append((runnbr, evtnbr, nclus, nIdTracks, nMuons,
                            nElec, nTrueElectrons, nFakeElectrons,
                            nPhot, nTruePhotons, nFakePhotons))
 
@@ -165,8 +155,7 @@ def main():
         outstr = sys.stdout
 
     if args.extravars:
-        header = ("run", "event", "nTopo", "nIdTracks", 
-                  "nJets", "jet1pt", "jet1eta", "jet1phi", 
+        header = ("run", "event", "nTopo", "nIdTracks",
                   "nMuons", "muon1pt", "muon1eta", "muon1phi",
                   "nElec", "elec1pt", "elec1eta", "elec1phi", "nTrueElec", "nFakeElec",
                   "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot")
@@ -175,7 +164,7 @@ def main():
         row_format_data = "{:d} {:d} " + "{:20.4f}" * (len(header)-2)
         row_format_data += os.linesep
     else:
-        header = ("run", "event", "nTopo", "nIdTracks", "nJets", "nMuons",
+        header = ("run", "event", "nTopo", "nIdTracks", "nMuons",
                   "nElec", "nTrueElec", "nFakeElec",
                   "nPhot", "nTruePhot", "nFakePhot")
         row_format_header = "{:>12}" * len(header)

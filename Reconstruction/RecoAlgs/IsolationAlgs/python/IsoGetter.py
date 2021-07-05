@@ -23,7 +23,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 doPFlow = False
-PFlowObjectsInConeTool = None
+FlowElementsInConeTool = None
 from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.BeamFlags import jobproperties
 useVertices = True
@@ -35,9 +35,9 @@ if recAlgs.doEFlow() :
   doPFlow = True
 
   # tool to collect pflow objects in cone
-  from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
-  PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
-                                       name = "PFlowObjectsInConeTool")
+  from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__FlowElementsInConeTool
+  FlowElementsInConeTool = ToolFactory(xAOD__FlowElementsInConeTool,
+                                       name = "FlowElementsInConeTool")
 
   from JetRec.JetRecStandard import jtm
   from JetRec.JetRecConf import PseudoJetAlgorithm
@@ -140,7 +140,7 @@ from CaloIdentifier import SUBCALO
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 MuCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "MuCaloIsolationTool",
                                   postInit                        = [configureEDCorrection],
-                                  PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
+                                  FlowElementsInConeTool          = FlowElementsInConeTool,
                                   ParticleCaloExtensionTool       = CaloExtensionTool,
                                   ParticleCaloCellAssociationTool = None,
                                   EMCaloNums                      = [SUBCALO.LAREM],

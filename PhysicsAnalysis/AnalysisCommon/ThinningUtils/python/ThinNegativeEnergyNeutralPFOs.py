@@ -18,10 +18,10 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
                 StreamName = 'StreamAOD'
             )
             from RecExConfig.ObjKeyStore import cfgKeyStore
-            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissNeutralFlowElements',):
-                theNegativeEnergyNeutralPFOsThinner.NeutralPFOsFEKey = "JetETMissNeutralFlowElements"
-            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissLCNeutralFlowElements',):
-                theNegativeEnergyNeutralPFOsThinner.LCNeutralPFOsFEKey = "JetETMissLCNeutralFlowElements"
+            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissNeutralParticleFlowObjects',):
+                theNegativeEnergyNeutralPFOsThinner.NeutralPFOsKey = "JetETMissNeutralParticleFlowObjects"
+            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissLCNeutralParticleFlowObjects',):
+                theNegativeEnergyNeutralPFOsThinner.LCNeutralPFOsKey = "JetETMissLCNeutralParticleFlowObjects"
             print (theNegativeEnergyNeutralPFOsThinner)
 
             CHSnPFOsThinAlg = None
@@ -29,7 +29,7 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
 
             from JetRec.JetRecFlags import jetFlags
             if ((jetFlags.Enabled() and jetFlags.useTracks) or
-                cfgKeyStore.isInInput ('xAOD::PFOContainer',
+                cfgKeyStore.isInInput ('xAOD::FlowElementContainer',
                                        'CHSNeutralParticleFlowObjects')):
                 CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
                     "ThinNegativeEnergyCHSNeutralPFOsAlg",
