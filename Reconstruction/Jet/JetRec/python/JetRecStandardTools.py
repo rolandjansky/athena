@@ -573,6 +573,7 @@ jtm += JetWidthTool("width")
 jtm += JetCaloEnergies("jetens")
 
 # Jet vertex fraction with selection.
+# This is never used without jtm.trksummoms when configured from here, so suppress input dependence.
 jtm += JetVertexFractionTool(
   "jvf",
   VertexContainer = jtm.vertexContainer,
@@ -583,11 +584,12 @@ jtm += JetVertexFractionTool(
   JVFName = "JVF",
   K_JVFCorrScale = 0.01,
   #Z0Cut = 3.0,
-  PUTrkPtCut = 30000.0
+  PUTrkPtCut = 30000.0,
+  SuppressInputDependence = True
 )
 
 # Jet vertex tagger.
-# This is never used without jtm.jvf when configured from here, so suppress input dependence.
+# This is never used without jtm.jvf and jtm.trksummoms when configured from here, so suppress input dependence.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,
