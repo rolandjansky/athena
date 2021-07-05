@@ -715,6 +715,7 @@ void VP1ExecutionScheduler::eraseSystem(IVP1System*s) {
 	VP1Msg::messageDebug("VP1ExecutionScheduler::eraseSystem()");
 
 	assert(s->state()==IVP1System::REFRESHED);
+        // cppcheck-suppress assertWithSideEffect
 	assert(!s->isRefreshing());
 
 	QString base =  QString(s->name())+" from channel "+s->channel()->unique_name();
@@ -736,6 +737,7 @@ void VP1ExecutionScheduler::systemNeedErase() {
 	if (m_d->currentsystemrefreshing!=s) {
 		eraseSystem(s);
 	} else {
+                // cppcheck-suppress assertWithSideEffect
 		assert(s->isRefreshing());
 		m_d->eraseJustAfterRefresh=true;
 	}

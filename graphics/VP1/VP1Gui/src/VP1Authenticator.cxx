@@ -25,6 +25,9 @@ public:
   Imp(VP1Authenticator*,QString);
   ~Imp();
 
+  Imp (const Imp&) = delete;
+  Imp& operator= (const Imp&) = delete;
+
   // Gets value of the HTML tag attribute. Returns an empty string if attribute not found
   QString getTagAttributeVal(const QString& tag, const QString& attribute);
 

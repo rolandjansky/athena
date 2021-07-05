@@ -31,6 +31,8 @@ class VP1DockWidget::Imp {
 public:
   class FilterItem;
   Imp(VP1DockWidget*_dw,IVP1ChannelWidget * cw,VP1TabManager * tabmanager);
+  Imp (const Imp&) = delete;
+  Imp& operator= (const Imp&) = delete;
   FilterItem* filteritem;
   VP1DockWidget * dw;
   QFrame * frame;
