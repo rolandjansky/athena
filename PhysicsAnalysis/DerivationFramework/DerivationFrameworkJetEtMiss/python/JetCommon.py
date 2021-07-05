@@ -66,7 +66,6 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "LCTopoOrigin" : jtm.lcoriginget,
                     "EMTopoOrigin" : jtm.emoriginget,
                     "EMPFlow": jtm.empflowget,
-                    "EMPFlowFE": jtm.empflowget_fe,
                     "PFlowCustomVtx": jtm.pflowcustomvtxget
                     }[inputtype]
 
@@ -148,12 +147,11 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
             return [jtm.tools[tmpName]]
 
         # no container exist. simply build a new one.
-        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow" or inputtype == "EMPFlowFE":
+        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow":
             defaultmods = {"EMTopo":"emtopo_ungroomed",
                            "LCTopo":"lctopo_ungroomed",
                            "EMPFlow":"pflow_ungroomed",
                            "EMCPFlow":"pflow_ungroomed",
-                           "EMPFlowFE":"pflow_ungroomed",
                            "Truth":"truth_ungroomed",
                            "TruthWZ":"truth_ungroomed",
                            "PV0Track":"track_ungroomed"}
@@ -203,8 +201,6 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
         elif inputtype == "LCTopo":
             constit = JetConstit( xAODType.CaloCluster, ["LC","Origin"])
         elif inputtype == "EMPFlow":
-            constit = JetConstit( xAODType.ParticleFlow )
-        elif inputtype == "EMPFlowFE":
             constit = JetConstit( xAODType.FlowElement )
 
         constit.modifiers += constmods
@@ -464,7 +460,6 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
-                       "EMPFlowFE":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
@@ -483,7 +478,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             finderArgs['overwrite']=True
     
         # map the input to the jtm code for PseudoJetGetter
-        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
+        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
                           PV0Track='pv0track')
         # create the finder for the temporary collection.
@@ -533,7 +528,7 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
     from JetRec.JetRecStandard import jtm
 
     # map the input to the jtm code for PseudoJetGetter
-    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
+    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                       Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
                       PV0Track='pv0track')
 

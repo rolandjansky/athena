@@ -230,7 +230,7 @@ namespace Tau{
 	rConvII = track->rConvII();
       }
 
-      double dRJetSeedAxis = track->dRJetSeedAxis(tau);
+      double dRJetSeedAxis = track->p4().DeltaR(tau.p4(xAOD::TauJetParameters::JetSeed));
       double qOverP = trackParticle->qOverP();
       double trackPt = trackParticle->pt();
 

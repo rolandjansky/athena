@@ -169,7 +169,7 @@ TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsol
                                 postInit                        = [],
                                 CaloFillRectangularClusterTool  = cfrc,
                                 ClustersInConeTool              = TrigCaloClustersInConeTool,
-                                PFlowObjectsInConeTool          = None,
+                                FlowElementsInConeTool          = None,
                                 ParticleCaloExtensionTool       = None,
                                 IsoLeakCorrectionTool           = None,
                                 ParticleCaloCellAssociationTool = None,

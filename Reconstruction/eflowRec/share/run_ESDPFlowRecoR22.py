@@ -30,7 +30,6 @@ rec.doMuon.set_Value_and_Lock(False)
 #Disable linking of PFO/FE to and from other objects - this won't work because e.g electrons already have links to PFO/FE and
 #we cannot overwrite those.
 from eflowRec.eflowRecFlags import jobproperties
-jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(False)
 jobproperties.eflowRecFlags.usePFFlowElementAssoc.set_Value_and_Lock(False)
 
 #Disable thinning, which would mess up links for e.g taus

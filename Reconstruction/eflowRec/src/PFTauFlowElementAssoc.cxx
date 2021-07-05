@@ -40,9 +40,9 @@ StatusCode PFTauFlowElementAssoc::initialize() {
   This algorithm:
   1) Accesses the relevant FlowElement and TauJet containers
   2) Loops over the neutral FEs and matches them to the corresponding TauJet clusters, creating the ElementLinks
-     and adding them to the JetETMissNeutralFlowElements container as a decoration
+     and adding them to the JetETMissNeutralParticleFlowObjects container as a decoration
   3) Loops over the charged FEs and matches them to the corresponding TauJet tracks, creating the ElementLinks
-     and adding them to the JetETMissChargedFlowElements container as a decoration
+     and adding them to the JetETMissChargedParticleFlowObjects container as a decoration
   4) Adds the decoration to the TauJet container containing a vector of ElementLinks to corresponding FEs
 **/
 

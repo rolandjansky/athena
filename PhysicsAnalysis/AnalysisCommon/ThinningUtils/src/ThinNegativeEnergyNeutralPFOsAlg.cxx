@@ -66,8 +66,7 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::initialize()
       return StatusCode::FAILURE;
     }
     ATH_CHECK( m_neutralPFOsKey.initialize (m_streamName, m_doThinning && !m_neutralPFOsKey.key().empty()) );
-    ATH_CHECK( m_neutralPFOsFEKey.initialize (m_streamName, m_doThinning && !m_neutralPFOsFEKey.key().empty()) );
-    ATH_CHECK( m_LCNeutralPFOsFEKey.initialize (m_streamName, m_doThinning && !m_LCNeutralPFOsFEKey.key().empty()) );
+    ATH_CHECK( m_LCNeutralPFOsKey.initialize (m_streamName, m_doThinning && !m_LCNeutralPFOsKey.key().empty()) );
     
     // Initialize the counters to zero
     m_nEventsProcessed = 0;
@@ -97,53 +96,29 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::execute()
     ++m_nEventsProcessed;
     
     // Is truth thinning required?
-    if (!m_doThinning) {
+    if (!m_doThinning || m_neutralPFOsKey.key().empty()) {
         return StatusCode::SUCCESS;
     }
 
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    
-    if(!m_neutralPFOsKey.key().empty()){
 
-        // Retrieve the container
-        SG::ThinningHandle<xAOD::PFOContainer> neutralPFOs (m_neutralPFOsKey, ctx);
+    SG::ThinningHandle<xAOD::FlowElementContainer> neutralFEs (m_neutralPFOsKey, ctx);
+    std::vector<bool> mask;
+    int nNeutralFEs = neutralFEs->size();
+    m_nNeutralPFOsProcessed += nNeutralFEs;
+    mask.assign(nNeutralFEs, false);
 
-        // Set up masks
-        std::vector<bool> mask;
-        int nNeutralPFOs = neutralPFOs->size();
-        m_nNeutralPFOsProcessed += nNeutralPFOs;
-        mask.assign(nNeutralPFOs,false);
-
-        // Loop over NeutralPFOs and update mask
-        for (int i=0; i<nNeutralPFOs; ++i) {
-            const xAOD::PFO* neutralPFO = (*neutralPFOs)[i];
-            // Retain postive energy neutral PFOs
-            if (neutralPFO->ptEM()>0.0) {mask[i] = true;}
-            else {++m_nNeutralPFOsThinned;}
-        }
-
-        // Apply masks to thinning service
-        neutralPFOs.keep (mask);
+    for(int i=0; i<nNeutralFEs; i++){
+        const xAOD::FlowElement* neutralFE = (*neutralFEs)[i];
+        if(neutralFE->pt() > 0.0) mask[i] = true;
+        else m_nNeutralPFOsThinned++;
     }
+    neutralFEs.keep(mask);
 
-    if(!m_neutralPFOsFEKey.key().empty()){
-        SG::ThinningHandle<xAOD::FlowElementContainer> neutralFEs (m_neutralPFOsFEKey, ctx);
-        std::vector<bool> mask;
-        int nNeutralFEs = neutralFEs->size();
-        mask.assign(nNeutralFEs, false);
-
-        for(int i=0; i<nNeutralFEs; i++){
-            const xAOD::FlowElement* neutralFE = (*neutralFEs)[i];
-            // TODO: Is this OK for LC-scale PFOs?
-            //       Can't access EM-scale momentum without some link to EM-scale FlowElements.
-            if(neutralFE->pt() > 0.0) mask[i] = true;
-        }
-        neutralFEs.keep(mask);
-
-        if(!m_LCNeutralPFOsFEKey.key().empty()){
-          SG::ThinningHandle<xAOD::FlowElementContainer> LCNeutralFEs (m_LCNeutralPFOsFEKey, ctx);
-          LCNeutralFEs.keep(mask);
-        }
+    if(!m_LCNeutralPFOsKey.key().empty()){
+        SG::ThinningHandle<xAOD::FlowElementContainer> LCNeutralFEs (m_LCNeutralPFOsKey, ctx);
+        // LC PFOs are thinned based on the energy of the (EM-scale) originals
+        LCNeutralFEs.keep(mask);
     }
     return StatusCode::SUCCESS;
 }

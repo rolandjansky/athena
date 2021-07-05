@@ -342,33 +342,19 @@ ctm.add( CorrectPFOTool("CorrectPFOTool",
                         InputIsEM = True,
                         CalibratePFO = False,
                         UseChargedWeights = True,
-                        InputType = xAODType.ParticleFlow
+                        InputType = xAODType.FlowElement
                         ),
          alias = 'correctPFO' )
 
-ctm.add( CorrectPFOTool("CorrectPFOTool_FE",
-                        WeightPFOTool = jtm.pflowweighter,
-                        InputIsEM = True,
-                        CalibratePFO = False,
-                        UseChargedWeights = True,
-                        InputType = xAODType.FlowElement
-                        ),
-         alias = 'correctPFO_FE' )
-
 # this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
-ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.ParticleFlow),
+ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.FlowElement),
          alias = 'chsPFO' )
-
-ctm.add( ChargedHadronSubtractionTool("CHSTool_FE", InputType = xAODType.FlowElement),
-         alias = 'chsPFO_FE' )
 
 # Options to disable dependence on primary vertex container
 # for PFO corrections (e.g. when running cosmics)
 if not (jetFlags.useTracks and jetFlags.useVertices):
   ctm.modifiersMap['correctPFO'].CorrectNeutral=False
-  ctm.modifiersMap['correctPFO_FE'].CorrectNeutral=False
   ctm.modifiersMap['chsPFO'].IgnoreVertex=True
-  ctm.modifiersMap['chsPFO_FE'].IgnoreVertex=True
 
 # Run the above tools to modify PFO
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
@@ -376,26 +362,12 @@ jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
                                       OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
                                       modList = ['correctPFO', 'chsPFO'] )
 
-jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS_FE",
-                                      InputContainer = "JetETMiss",
-                                      OutputContainer = "CHS",  #"FlowElements" will be appended later
-                                      modList = ['correctPFO_FE', 'chsPFO_FE'],
-                                      InputType = xAODType.FlowElement )
-
 # EM-scale pflow.
 jtm += PseudoJetAlgorithm(
   "empflowget",
   Label = "EMPFlow",
   InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
-  SkipNegativeEnergy = True,
-)
-
-jtm += PseudoJetAlgorithm(
-  "empflowget_fe",
-  Label = "EMPFlowFE",
-  InputContainer = "CHSFlowElements",
-  OutputContainer = "PseudoJetEMPFlowFE",
   SkipNegativeEnergy = True,
 )
 

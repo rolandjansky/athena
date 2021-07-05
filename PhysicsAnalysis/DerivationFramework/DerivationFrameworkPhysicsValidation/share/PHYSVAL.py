@@ -18,8 +18,8 @@ InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
-from DerivationFrameworkJetEtMiss import METCommon
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
+from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
@@ -118,12 +118,19 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSVALTriggerMatchingTool
 #====================================================================
 
 OutputJets["PHYSVAL"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets","AntiKt10PV0TrackJets","AntiKtVR30Rmax4Rmin02PV0TrackJets","AntiKt10LCTopoJets"]
+jetList = ["AntiKt4EMTopoJets",
+           "AntiKt4LCTopoJets",
+           "AntiKt4EMPFlowJets",
+           "AntiKt2PV0TrackJets",
+           "AntiKt4PV0TrackJets",
+           "AntiKt10PV0TrackJets",
+           "AntiKtVR30Rmax4Rmin02PV0TrackJets",
+           "AntiKt10LCTopoJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
-replaceAODReducedJets(reducedJetList,SeqPHYSVAL,"PHYSVAL")
+addDAODJets(jetList,SeqPHYSVAL,"PHYSVAL")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSVAL,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets,linkVRGhosts=True)
 
@@ -136,6 +143,11 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL,algname="QGTaggerToo
 
 # fJVT
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+
+# Event cleaning flags
+addEventCleanFlags()
+
+scheduleStandardMETContent(sequence=SeqPHYSVAL, algname="METAssociationAlg")
 
 #====================================================================
 # EGAMMA
@@ -226,7 +238,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "MET_Truth","MET_TruthRegions",
                                        "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson",
                                        "CaloCalTopoClusters", "EMOriginTopoClusters","LCOriginTopoClusters",
-                                       "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects", "JetETMissNeutralFlowElements", "JetETMissChargedFlowElements"
+                                       "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects"
                                      ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"

@@ -195,10 +195,10 @@ _stdSeqList = [
     # EM-scale particle flow objects with charged hadron subtraction
     # For now we don't specify a scale, as only one works well, but
     # this could be incorporated into the naming scheme and config
-    JetInputConstitSeq("EMPFlow", xAODType.ParticleFlow,["CorrectPFO", "CHS"] , 'JetETMissParticleFlowObjects', 'CHSParticleFlowObjects'),
+    JetInputConstitSeq("EMPFlow", xAODType.FlowElement,["CorrectPFO", "CHS"] , 'JetETMissParticleFlowObjects', 'CHSParticleFlowObjects'),
 
     # Particle Flow Objects with Constituent Subtraction + SoftKiller
-    JetInputConstitSeq("EMPFlowCSSK", xAODType.ParticleFlow,["CorrectPFO",  "CS","SK", "CHS"] ,
+    JetInputConstitSeq("EMPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
                   'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
 
 

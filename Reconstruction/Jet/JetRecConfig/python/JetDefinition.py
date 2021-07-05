@@ -422,7 +422,6 @@ class JetInputType(IntEnum):
     HI=auto()
     HIClusters=auto()
     Other = 100
-    EMPFlowFE = 200 # Temporary, until xAOD::PFO is phased out and replaced with xAOD::FlowElement
     Uncategorized= 1000
 
     def fromxAODType(xt):

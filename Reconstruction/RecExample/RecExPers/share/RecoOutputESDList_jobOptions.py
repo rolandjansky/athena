@@ -144,7 +144,7 @@ except Exception:
 # Jet classes. 
 try:
    from JetRec.JetRecUtils import retrieveAODList
-   jetAODList = retrieveAODList()
+   jetAODList = retrieveAODList(True)
    fullESDList += CfgItemList( "jets", items = jetAODList )
 except Exception:
    treatException("Could not load jet item list")
