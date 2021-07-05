@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITPCnvSvc.h 
@@ -69,6 +69,13 @@ class ITPCnvSvc
   ITPCnvBase* 
   p2t_cnv(const std::string& persClassName,
           Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) = 0;
+
+  /** @brief return the T/P converter for a transient class (NULL if failure)
+   *         Ownership is returned to the caller.
+   */ 
+  virtual
+  std::unique_ptr<ITPCnvBase>
+  t2p_cnv_unique(const std::string& transClassName) const = 0;
 
   /** @brief Return the T/P converter for a transient class.
    *         Returns null on failure (with no warning printed).
