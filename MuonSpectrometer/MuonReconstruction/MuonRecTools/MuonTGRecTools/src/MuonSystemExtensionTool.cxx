@@ -187,7 +187,7 @@ namespace Muon {
                                                         << MuonStationIndex::layerName(it.layerIndex) << " phi  " << surface.center().phi()
                                                         << " r " << surface.center().perp() << " z " << surface.center().z());
             }
-            if (currentPars->momentum().perp() < 500.) {
+            if (false && currentPars->momentum().perp() < 500.) {
                 ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
                 break;
             }
