@@ -6,8 +6,8 @@ protectedInclude('SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Co
 protectedInclude('RunDependentSimData/configLumi_run310000_mc20e.py')
 
 from Digitization.DigitizationFlags import digitizationFlags
-digitizationFlags.numberOfLowPtMinBias = 99.33
-digitizationFlags.numberOfHighPtMinBias = 0.17
+digitizationFlags.numberOfLowPtMinBias = 90.323
+digitizationFlags.numberOfHighPtMinBias = 0.177
 digitizationFlags.initialBunchCrossing = -32
 digitizationFlags.finalBunchCrossing = 6
 
