@@ -674,6 +674,7 @@ int main(int argc, char** argv) {
 
 	replace ( chain, ":", "_" );
 	replace ( chain, ";", "_" );
+	replace ( chain, "/", "_" );  // needed for Tag&Probe chains
 	chains.push_back(chain);
 
 	std::cout << "file: " << file << "\tchain: " << chain << std::endl;
