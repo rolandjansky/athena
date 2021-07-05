@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGMAP_H
@@ -47,7 +47,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   ~MuonMDT_CablingMap();
 
   /** cleanup function */
-  bool cleanup();
+  static bool cleanup();
   
   /** Set functions */
   bool setSubdetectorMap(uint8_t subdetectorId,MdtSubdetectorMap* mdtSubdetectorMap, MsgStream &log);
@@ -119,7 +119,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash, MsgStream &log) const;
 
   /** Pointer to the MdtIdHelper */
-  const MdtIdHelper* m_mdtIdHelper;
+  const MdtIdHelper* m_mdtIdHelper{};
 
   /** assignment and copy constructor operator (hidden) */
   MuonMDT_CablingMap & operator=(const  MuonMDT_CablingMap &right) =delete;
