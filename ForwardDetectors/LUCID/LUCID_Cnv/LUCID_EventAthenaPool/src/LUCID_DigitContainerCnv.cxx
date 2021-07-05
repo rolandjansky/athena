@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_DigitContainerCnv.h"
@@ -24,7 +24,7 @@ LUCID_DigitContainer* LUCID_DigitContainerCnv::createTransient() {
   
   LUCID_DigitContainerCnv_p2 converter_p2;
   
-  LUCID_DigitContainer* trans_cont(0);
+  LUCID_DigitContainer* trans_cont(nullptr);
   
   static const pool::Guid p2_guid ("08BBB3C5-BCAE-4540-8F3A-76D873045585");
   static const pool::Guid p1_guid ("681CDB46-D6D0-4C59-98C9-398B43873B50");

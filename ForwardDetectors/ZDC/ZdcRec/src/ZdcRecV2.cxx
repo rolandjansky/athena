@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -35,7 +35,7 @@ ZdcRecV2::ZdcRecV2(const std::string& name, ISvcLocator* pSvcLocator) :
 	m_ttContainerName("ZdcTriggerTowers"),
 	m_zdcModuleContainerName("ZdcModules"),
 	m_zdcModuleAuxContainerName("ZdcModulesAux."),
-	m_ttContainer(0),
+	m_ttContainer(nullptr),
 	m_eventCount(0),
 	m_complainContain(1),
 	m_complainRetrieve(1),

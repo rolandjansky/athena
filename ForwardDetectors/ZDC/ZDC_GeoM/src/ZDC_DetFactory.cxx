@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDC_DetFactory.h"
@@ -39,7 +39,7 @@
 using namespace GeoGenfun;
 using namespace GeoXF;
 
-ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore) : m_detectorManager(NULL) , m_detectorStore(detStore) {}
+ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore) : m_detectorManager(nullptr) , m_detectorStore(detStore) {}
 
 ZDC_DetFactory::~ZDC_DetFactory() {}
 

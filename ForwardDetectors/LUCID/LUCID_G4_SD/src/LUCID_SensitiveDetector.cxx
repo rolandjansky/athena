@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -69,7 +69,7 @@ bool LUCID_SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   m_HitColl->Emplace(m_hit->GetTubNumber(aStep),
                      aTrack->GetTrackID(),
                      aTrack->GetDefinition()->GetPDGEncoding(),
-                     m_hit->GetVolNumber    (aTrack->GetLogicalVolumeAtVertex()->GetName()),
+                     LUCID_HitHelper::GetVolNumber    (aTrack->GetLogicalVolumeAtVertex()->GetName()),
                      m_hit->GetPreStepPoint (aStep).x(),
                      m_hit->GetPreStepPoint (aStep).y(),
                      m_hit->GetPreStepPoint (aStep).z(),

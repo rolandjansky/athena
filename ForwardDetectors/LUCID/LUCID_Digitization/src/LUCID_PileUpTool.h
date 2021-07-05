@@ -67,11 +67,11 @@ private:
   std::string m_digitsContainerName;
   std::string m_key_digitCnt;
 
-  LUCID_DigitizationToolBox *m_digitToolBox;
+  LUCID_DigitizationToolBox *m_digitToolBox{};
 
-  ITHistSvc  *m_digitHistSvc;
+  ITHistSvc  *m_digitHistSvc{};
 
-  LUCID_SimHitCollection* m_mergedhitList;
+  LUCID_SimHitCollection* m_mergedhitList{};
 
   int    m_numTubes;
   double m_qdcChannelsPerPE;

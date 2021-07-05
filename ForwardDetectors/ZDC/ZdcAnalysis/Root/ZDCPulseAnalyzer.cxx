@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZDCPulseAnalyzer.h"
 
-#include <numeric>
 #include <algorithm>
+#include <numeric>
+#include <utility>
+
 
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
@@ -19,9 +21,9 @@ extern int gErrorIgnoreLevel;
 
 bool ZDCPulseAnalyzer::s_quietFits = true;
 std::string ZDCPulseAnalyzer::s_fitOptions = "";
-TH1* ZDCPulseAnalyzer::s_undelayedFitHist = 0;
-TH1* ZDCPulseAnalyzer::s_delayedFitHist = 0;
-TF1* ZDCPulseAnalyzer::s_combinedFitFunc = 0;
+TH1* ZDCPulseAnalyzer::s_undelayedFitHist = nullptr;
+TH1* ZDCPulseAnalyzer::s_delayedFitHist = nullptr;
+TF1* ZDCPulseAnalyzer::s_combinedFitFunc = nullptr;
 
 void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, double* par, int flag)
 {
@@ -75,20 +77,20 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
 }
 
 
-ZDCPulseAnalyzer::ZDCPulseAnalyzer(std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, 
+ZDCPulseAnalyzer::ZDCPulseAnalyzer(const std::string& tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, 
 				   float gainHG, std::string fitFunction, int peak2ndDerivMinSample, 
 				   float peak2ndDerivMinThreshHG, float peak2ndDerivMinThreshLG) :
   m_tag(tag), m_Nsample(Nsample),
   m_preSampleIdx(preSampleIdx), 
   m_deltaTSample(deltaTSample),
-  m_pedestal(pedestal), m_gainHG(gainHG), m_forceLG(false), m_fitFunction(fitFunction),
+  m_pedestal(pedestal), m_gainHG(gainHG), m_forceLG(false), m_fitFunction(std::move(fitFunction)),
   m_peak2ndDerivMinSample(peak2ndDerivMinSample), 
   m_peak2ndDerivMinTolerance(1),
   m_peak2ndDerivMinThreshLG(peak2ndDerivMinThreshLG),
   m_peak2ndDerivMinThreshHG(peak2ndDerivMinThreshHG),
   m_haveTimingCorrections(false), m_haveNonlinCorr(false), m_initializedFits(false),
-  m_defaultFitWrapper(0), m_prePulseFitWrapper(0),
-  m_useDelayed(false), m_delayedHist(0), m_prePulseCombinedFitter(0), m_defaultCombinedFitter(0),
+  m_defaultFitWrapper(nullptr), m_prePulseFitWrapper(nullptr),
+  m_useDelayed(false), m_delayedHist(nullptr), m_prePulseCombinedFitter(nullptr), m_defaultCombinedFitter(nullptr),
   m_ADCSamplesHGSub(Nsample, 0), m_ADCSamplesLGSub(Nsample, 0), 
   m_ADCSSampSigHG(Nsample, 1), m_ADCSSampSigLG(Nsample, 1), // By default the ADC uncertainties are set to one
   m_samplesSub(Nsample, 0)
@@ -101,7 +103,7 @@ ZDCPulseAnalyzer::ZDCPulseAnalyzer(std::string tag, int Nsample, float deltaTSam
   std::string histName = "ZDCFitHist" + tag;
 
   m_fitHist = new TH1F(histName.c_str(), "", m_Nsample, m_tmin, m_tmax);
-  m_fitHist->SetDirectory(0);
+  m_fitHist->SetDirectory(nullptr);
 
   SetDefaults();
   Reset();
@@ -599,12 +601,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   //  The ket test for presence of a pulse: is the minimum 2nd derivative in the right place and is it 
   //    large enough (sufficiently negative) 
   //
-  if (std::abs(m_minDeriv2ndIndex - (int) m_peak2ndDerivMinSample) <= (int)m_peak2ndDerivMinTolerance  && m_minDeriv2nd <= peak2ndDerivMinThresh) {
-    m_havePulse = true;
-  }
-  else {
-    m_havePulse = false;
-  }
+  m_havePulse = std::abs(m_minDeriv2ndIndex - (int) m_peak2ndDerivMinSample) <= (int)m_peak2ndDerivMinTolerance  && m_minDeriv2nd <= peak2ndDerivMinThresh;
 
   // Now decide whether we have a preceeding pulse or not
   //   
@@ -781,7 +778,7 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
   // Set up the virtual fitter
   //
-  TFitter* theFitter = 0;
+  TFitter* theFitter = nullptr;
 
   if (PrePulse()) {
     if (!m_prePulseCombinedFitter) m_prePulseCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1());
@@ -841,7 +838,7 @@ void ZDCPulseAnalyzer::DoFitCombined()
     theFitter->GetMinuit()->fISW[4] = -1;
 
     int  ierr= 0; 
-    theFitter->GetMinuit()->mnexcm("SET NOWarnings",0,0,ierr);
+    theFitter->GetMinuit()->mnexcm("SET NOWarnings",nullptr,0,ierr);
   }
   else theFitter->GetMinuit()->fISW[4] = 0;
 

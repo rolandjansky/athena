@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDC_DetTool.h"
@@ -24,10 +24,10 @@ ZDC_DetTool::~ZDC_DetTool()
 {
   // This will need to be modified once we register the Toy DetectorNode in the Transient Detector Store
   
-  if (0 != m_detector) {
+  if (nullptr != m_detector) {
 
     delete m_detector;
-    m_detector = 0;
+    m_detector = nullptr;
   }
 }
 
@@ -46,7 +46,7 @@ StatusCode ZDC_DetTool::create()
   
   ZDC_DetFactory theZDCFactory(detStore().operator->());
   
-  if (0 == m_detector) { // Create the ZDCDetectorNode instance
+  if (nullptr == m_detector) { // Create the ZDCDetectorNode instance
     
     try { 
       // This strange way of casting is to avoid an utterly brain damaged compiler warning.

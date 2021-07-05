@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDC_SD_ZDC_STRIP_SD_H
@@ -47,8 +47,8 @@ class ZDC_StripSD : public G4VSensitiveDetector
 
  private:
   SG::WriteHandle<ZDC_SimStripHit_Collection> m_HitColl;
-  float    m_Edep_Cherenkov_Strip[2][4];
-  int   m_NPhoton_Cherenkov_Strip[2][4];
+  float    m_Edep_Cherenkov_Strip[2][4]{};
+  int   m_NPhoton_Cherenkov_Strip[2][4]{};
 };
 
 #endif //ZDC_SD_ZDC_STRIP_SD_H
