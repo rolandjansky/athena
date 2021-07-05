@@ -56,7 +56,6 @@ namespace InDetDD {
      */
     //@{
     const AtlasDetectorID* getIdHelper() const;
-    const HepGeom::Transform3D& solenoidFrame() const;
     const ISiLorentzAngleTool* lorentzAngleTool() const;
     //@}
 
@@ -64,7 +63,6 @@ namespace InDetDD {
      * @name Setter methods
      */
     //@{
-    void setSolenoidFrame(const HepGeom::Transform3D& transform) const; 
     void setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool);
     //@}
 
@@ -99,30 +97,12 @@ namespace InDetDD {
      */
     const ISiLorentzAngleTool* m_lorentzAngleTool;
 
-    /**
-     * Solenoidal frame. Guarded by m_mutex
-     */
-    mutable HepGeom::Transform3D m_solenoidFrame ATLAS_THREAD_SAFE;
-
-    /**
-     * To guard m_solenoidFrame in solenoidFrame()
-     */
-    mutable std::mutex m_mutex;
   };
     
     
   inline const AtlasDetectorID* SiCommonItems::getIdHelper() const
   {
     return m_idHelper;
-  }
-    
-    
-  inline const HepGeom::Transform3D & SiCommonItems::solenoidFrame() const
-  {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    return m_solenoidFrame;
-    // This reference might be changed by setSolenoidFrame.
-    // However, it occurrs very rarely.
   }
     
 
