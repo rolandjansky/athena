@@ -232,9 +232,9 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     for (unsigned int i=0; i<tokens.size(); i++) {
       if(tokens[i]!="0"){
         
-	int ml = atoi(const_cast<char*>((tokens[i].substr(0,1)).c_str()));
-	int layer= atoi(const_cast<char*>((tokens[i].substr(1,2)).c_str()));
-	int tube= atoi(const_cast<char*>((tokens[i].substr(2)).c_str()));
+	int ml = atoi((tokens[i].substr(0,1)).c_str());
+	int layer= atoi((tokens[i].substr(1,2)).c_str());
+	int tube= atoi((tokens[i].substr(2)).c_str());
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,tube); 
 	m_cachedDeadTubesId.push_back(ChannelId);
@@ -245,7 +245,7 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     for (unsigned int i=0; i<tokens_mlayer.size(); i++) {
       if(tokens_mlayer[i]!="0"){
         
-	int ml = atoi(const_cast<char*>((tokens_mlayer[i].substr(0)).c_str()));
+	int ml = atoi((tokens_mlayer[i].substr(0)).c_str());
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,1,1); 
 	m_cachedDeadMultiLayersId.push_back(ChannelId);
@@ -256,8 +256,8 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     for (unsigned int i=0; i<tokens_layer.size(); i++) {
       if(tokens_layer[i]!="0"){
         
-	int ml = atoi(const_cast<char*>((tokens_layer[i].substr(0,1)).c_str()));
-	int layer = atoi(const_cast<char*>((tokens_layer[i].substr(1)).c_str()));
+	int ml = atoi((tokens_layer[i].substr(0,1)).c_str());
+	int layer = atoi((tokens_layer[i].substr(1)).c_str());
 		
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,1); 
 	m_cachedDeadLayersId.push_back(ChannelId);
@@ -330,9 +330,9 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (unsigned int i=0; i<tokens.size(); i++) {
       if(tokens[i]!="0"){
         
-	int ml = atoi(const_cast<char*>((tokens[i].substr(0,1)).c_str()));
-	int layer= atoi(const_cast<char*>((tokens[i].substr(1,2)).c_str()));
-	int tube= atoi(const_cast<char*>((tokens[i].substr(2)).c_str()));
+	int ml = atoi((tokens[i].substr(0,1)).c_str());
+	int layer= atoi((tokens[i].substr(1,2)).c_str());
+	int tube= atoi((tokens[i].substr(2)).c_str());
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,tube); 
 	m_cachedNoisyTubesId.push_back(ChannelId);
@@ -343,7 +343,7 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (unsigned int i=0; i<tokens_mlayer.size(); i++) {
       if(tokens_mlayer[i]!="0"){
         
-	int ml = atoi(const_cast<char*>((tokens_mlayer[i].substr(0)).c_str()));
+	int ml = atoi((tokens_mlayer[i].substr(0)).c_str());
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,1,1); 
 	m_cachedNoisyMultiLayersId.push_back(ChannelId);
@@ -354,8 +354,8 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (unsigned int i=0; i<tokens_layer.size(); i++) {
       if(tokens_layer[i]!="0"){
         
-	int ml = atoi(const_cast<char*>((tokens_layer[i].substr(0,1)).c_str()));
-	int layer = atoi(const_cast<char*>((tokens_layer[i].substr(1)).c_str()));
+	int ml = atoi((tokens_layer[i].substr(0,1)).c_str());
+	int layer = atoi((tokens_layer[i].substr(1)).c_str());
 		
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,1); 
 	m_cachedNoisyLayersId.push_back(ChannelId);

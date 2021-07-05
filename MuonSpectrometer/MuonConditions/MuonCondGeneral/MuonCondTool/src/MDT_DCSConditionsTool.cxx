@@ -386,7 +386,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	
 	if( m_verbose ) m_log << MSG::VERBOSE << "NOT ON and NOT STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endmsg;	
 	m_cachedDeadMultiLayers.push_back(tokens2[2]);
-	int multilayer =atoi(const_cast<char*>(tokens2[3].c_str()));
+	int multilayer =atoi(tokens2[3].c_str());
 	std::string chamber_name = tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
@@ -396,7 +396,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	
 	if( m_verbose ) m_log << MSG::VERBOSE << "STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endmsg;	
 	
-	int multilayer =atoi(const_cast<char*>(tokens2[3].c_str()));
+	int multilayer =atoi(tokens2[3].c_str());
 	std::string chamber_name = tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
@@ -451,7 +451,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
       }
       
-      int multilayer =atoi(const_cast<char*>(tokens2[3].c_str()));
+      int multilayer =atoi(tokens2[3].c_str());
       std::string chamber_name = tokens2[2];
       
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
@@ -498,7 +498,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	
       }
      
-      int multilayer =atoi(const_cast<char*>(tokens2[3].c_str()));
+      int multilayer =atoi(tokens2[3].c_str());
       std::string chamber_name = tokens2[2];
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
