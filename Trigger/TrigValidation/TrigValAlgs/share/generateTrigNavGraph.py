@@ -8,6 +8,7 @@ if __name__=='__main__':
   from argparse import ArgumentParser
   parser = ArgumentParser()
   parser.add_argument('--chain', default='HLT_mu50_L1MU20', type=str, help='Chain Group for which to plot the navigation graphs')
+  parser.add_argument('--excludeFailedHypoNodes', action='store_true', help='By default Hypo nodes are included which fail for a given chain, but there can be many, e.g. for jet. This excludes these nodes.')
   parser.add_argument('--collection', type=str, help='Optional, restrict to nodes in a given collection, e.g. if the file contains multiple slim levels ')
   parser.add_argument('--doTDTDump', action='store_true', help='Optional extra dump of TrigDecisionTool information for supplied chain')
   parser.add_argument('--doNavDump', action='store_true', help='Optional extra dump of trigger navigation data to terminal (caution: large)')
@@ -64,6 +65,7 @@ if __name__=='__main__':
   checker.DumpNavigationForChain          = args.chain
   checker.dumpTrigCompositeContainers     = [args.collection] if args.collection is not None else []
   checker.doDumpTrigCompsiteNavigation    = True
+  checker.excludeFailedHypoNodes          = args.excludeFailedHypoNodes
   # Other potentially useful commands
   checker.doDumpAllTrigComposite          = args.doNavDump
   if args.doNavDump:
