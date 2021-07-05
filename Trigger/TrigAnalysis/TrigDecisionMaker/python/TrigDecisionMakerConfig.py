@@ -164,10 +164,11 @@ class WritexAODTrigDecision ( object ) :
         log.info('TrigDecisionTool setup to use old decision')
 
         # Setup the TrigDecision and Navigation converters:
+
         TopAlg += xAODMaker__TrigDecisionCnvAlg(
             xAODKey = "xTrigDecision",
             CnvTool = xAODMaker__TrigDecisionCnvTool(
-                TrigConfigSvc = svcMgr.HLTConfigSvcRun3)  # setup in TriggerConfigGetter
+                TrigConfigSvc = svcMgr.xAODConfigSvc)  # setup in TriggerConfigGetter
             )
         TopAlg += xAODMaker__TrigNavigationCnvAlg('TrigNavigationCnvAlg')
 
