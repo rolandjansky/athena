@@ -36,6 +36,8 @@
 #include "TrkiPatFitterUtils/MeasurementProcessor.h"
 #include <cmath>
 #include <iomanip>
+#include <memory>
+
 #include <utility> //std::as_const
 
 namespace Trk {
@@ -224,7 +226,7 @@ FitProcedure::constructTrack(
         alignmentEffects.reset();
       }
 
-      measurementBase = std::move(m->measurementBase()->uniqueClone());
+      measurementBase = m->measurementBase()->uniqueClone();
       typePattern.set(TrackStateOnSurface::Measurement);
       if (m->isOutlier())
         typePattern.set(TrackStateOnSurface::Outlier);
@@ -235,7 +237,7 @@ FitProcedure::constructTrack(
       // update momentum to account for energy loss
 
       if (m->isEnergyDeposit()) {
-        materialEffects = std::move(m->materialEffects()->uniqueClone());
+        materialEffects = m->materialEffects()->uniqueClone();
         typePattern.set(TrackStateOnSurface::CaloDeposit);
       } else if (m->isScatterer()) {
         // set materialPattern as the scattering parameters are fitted
@@ -250,39 +252,39 @@ FitProcedure::constructTrack(
           typeMaterial.set(Trk::MaterialEffectsBase::EnergyLossEffects);
           if (m->numberDoF()) // fitted scatterer
           {
-            materialEffects.reset(new MaterialEffectsOnTrack(
+            materialEffects = std::make_unique<MaterialEffectsOnTrack>(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m, scatter),
               energyLoss,
               m->materialEffects()->associatedSurface(),
-              typeMaterial));
+              typeMaterial);
             ++scatter;
           } else // unfitted (leading material)
           {
-            materialEffects.reset(new MaterialEffectsOnTrack(
+            materialEffects = std::make_unique<MaterialEffectsOnTrack>(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m),
               energyLoss,
               m->materialEffects()->associatedSurface(),
-              typeMaterial));
+              typeMaterial);
           }
         } else // no meot for special calo scattering centres
         {
           if (m->numberDoF()) // fitted scatterer
           {
-            materialEffects.reset(new MaterialEffectsOnTrack(
+            materialEffects = std::make_unique<MaterialEffectsOnTrack>(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m, scatter),
               m->materialEffects()->associatedSurface(),
-              typeMaterial));
+              typeMaterial);
             ++scatter;
           } else // unfitted (leading material)
           {
-            materialEffects.reset(new MaterialEffectsOnTrack(
+            materialEffects = std::make_unique<MaterialEffectsOnTrack>(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m),
               m->materialEffects()->associatedSurface(),
-              typeMaterial));
+              typeMaterial);
           }
         }
 
@@ -291,7 +293,7 @@ FitProcedure::constructTrack(
         *cache.log << MSG::WARNING
                    << " deprecated TrackStateOnSurface::InertMaterial"
                    << endmsg;
-        materialEffects = std::move(m->materialEffects()->uniqueClone());
+        materialEffects = m->materialEffects()->uniqueClone();
         typePattern.set(TrackStateOnSurface::InertMaterial);
       }
     }
@@ -311,13 +313,13 @@ FitProcedure::constructTrack(
                  << AEOT.deltaAngle() << " output Trans "
                  << parameters.alignmentOffset(align) << " deltaAngle "
                  << parameters.alignmentAngle(align) << endmsg;
-      alignmentEffects.reset(
-        new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
+      alignmentEffects = std::make_unique<Trk::AlignmentEffectsOnTrack>(
+        parameters.alignmentOffset(align),
                                          AEOT.sigmaDeltaTranslation(),
                                          parameters.alignmentAngle(align),
                                          AEOT.sigmaDeltaAngle(),
                                          AEOT.vectorOfAffectedTSOS(),
-                                         m->surface()));
+                                         m->surface());
       typePattern.set(TrackStateOnSurface::Alignment);
     }
 
