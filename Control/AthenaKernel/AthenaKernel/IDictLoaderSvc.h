@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // IDictLoaderSvc.h 
@@ -71,23 +71,26 @@ class IDictLoaderSvc
 
   /** @brief retrieve a @c RootType by name (auto)loading the dictionary
    *         by any necessary means.
+   *         If @c recursive is true, then recursively load contained types.
    */
   virtual
-  const RootType load_type (const std::string& type_name) = 0;
+  const RootType load_type (const std::string& type_name, bool recursive = false) = 0;
 
   /** @brief retrieve a @c RootType by @c std::type_info (auto)loading the
    *         dictionary by any necessary means.
    *         This method is preferred over the above one as it is guaranteed to
    *         succeed *IF* the dictionary for that type has been generated.
+   *         If @c recursive is true, then recursively load contained types.
    */
   virtual
-  const RootType load_type (const std::type_info& typeinfo) = 0;
+  const RootType load_type (const std::type_info& typeinfo, bool recursive = false) = 0;
 
   /** @brief retrieve a @c RootType by name (auto)loading the dictionary
    *         by any necessary means.
+   *         If @c recursive is true, then recursively load contained types.
    */
   virtual
-  const RootType load_type (CLID clid) = 0;
+  const RootType load_type (CLID clid, bool recursive = false) = 0;
 
 }; 
 

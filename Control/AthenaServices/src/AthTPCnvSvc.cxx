@@ -146,6 +146,16 @@ AthTPCnvSvc::p2t_cnv(const std::string& persClassName,
 
 
 /** @brief Return the T/P converter for a transient class.
+ *         Ownership is returned to the caller.
+ */ 
+std::unique_ptr<ITPCnvBase>
+AthTPCnvSvc::t2p_cnv_unique(const std::string& transClassName) const
+{
+  return ITPCnvBase::Factory::create ("_TRANS_" + transClassName);
+}
+
+
+/** @brief Return the T/P converter for a transient class.
  *         Returns null on failure (with no warning printed).
  *         Ownership is returned to the caller.
  */ 
