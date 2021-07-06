@@ -37,8 +37,6 @@ Interface definition for eFEXSysSim
 
     virtual int calcTowerID(int eta, int phi, int mod) = 0 ;
     
-    virtual StatusCode fillEDM(uint8_t eFEXNumber, uint32_t tobWord) = 0;
-
   private:
 
   };

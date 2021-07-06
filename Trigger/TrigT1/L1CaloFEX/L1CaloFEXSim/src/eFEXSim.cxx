@@ -75,7 +75,8 @@ namespace LVL1 {
  }
 
 StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
-  m_tobWords.clear();
+  m_emTobWords.clear();
+  m_tauTobWords.clear();
 
   std::copy(&tmp_eTowersIDs_subset[0][0], &tmp_eTowersIDs_subset[0][0]+(10*18),&m_eTowersIDs[0][0]);
 
@@ -93,7 +94,8 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   ATH_CHECK(m_eFEXFPGATool->init(0, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute());
-  m_tobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   
@@ -107,7 +109,8 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   ATH_CHECK(m_eFEXFPGATool->init(1, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute());
-  m_tobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -122,7 +125,8 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   ATH_CHECK(m_eFEXFPGATool->init(2, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute());
-  m_tobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -136,7 +140,8 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   ATH_CHECK(m_eFEXFPGATool->init(3, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute());
-  m_tobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
+  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 3----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -153,7 +158,7 @@ std::vector<uint32_t> eFEXSim::getEmTOBs()
   bool first = true;
 
   // concatonate tobs from the fpgas
-  for(auto &j : m_tobWords){
+  for(auto &j : m_emTobWords){
     if (first) tobsSort = j;
     else tobsSort.insert(tobsSort.end(),j.begin(),j.end());
     first = false;
@@ -164,13 +169,32 @@ std::vector<uint32_t> eFEXSim::getEmTOBs()
   // sort the tobs from the fpgas by their et (last 12 bits of 32 bit word)
   std::sort (tobsSort.begin(), tobsSort.end(), etSort);
 
-  /*
-  for(auto &j : tobsSort){
-    std::cout << "values: post sort " << std::bitset<32>(j) << std::endl;
-  }
-  */
-
   // return the 6 highest ET TOBs from the efex
+  if (tobsSort.size() > 6) tobsSort.resize(6);
+  return tobsSort;
+}
+
+
+std::vector<uint32_t> eFEXSim::getTauTOBs()
+{
+
+  std::vector<uint32_t> tobsSort;
+  tobsSort.clear();
+  bool first = true;
+
+  // concatenate tobs from the fpgas
+  for( auto &j : m_tauTobWords ){
+    if (first) tobsSort = j;
+    else tobsSort.insert(tobsSort.end(), j.begin(), j.end());
+    first = false;
+  }
+
+  ATH_MSG_DEBUG("number of tau tobs: " << tobsSort.size() << " in eFEX: " << m_id);
+
+  // sort the tobs from the fpgas by their et (last 12 bits of 32 bit word)
+  std::sort( tobsSort.begin(), tobsSort.end(), etSort);
+
+  // return the tob 6 highest ET TOBs from the efex
   if (tobsSort.size() > 6) tobsSort.resize(6);
   return tobsSort;
 }
