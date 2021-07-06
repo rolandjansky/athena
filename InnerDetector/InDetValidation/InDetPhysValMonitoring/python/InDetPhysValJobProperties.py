@@ -64,6 +64,18 @@ class doValidateGSFTracks(InDetPhysValFlagsJobProperty):
     StoredValue = False
 
 
+class doValidateMuonMatchedTracks(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
+class doValidateElectronMatchedTracks(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
 class doValidateLooseTracks(InDetPhysValFlagsJobProperty):
     statusOn = True
     allowedTypes = ['bool']
@@ -95,6 +107,17 @@ class doValidateTruthToRecoNtuple(InDetPhysValFlagsJobProperty):
 
 
 class doTruthOriginPlots(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
+class doPerAuthorPlots(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doHitLevelPlots(InDetPhysValFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -187,11 +210,15 @@ _list_InDetPhysValJobProperties = [
     doValidateTracksInBJets,
     doValidateTruthToRecoNtuple,
     validateExtraTrackCollections,
+    doValidateMuonMatchedTracks,
+    doValidateElectronMatchedTracks,
     doPhysValOutput,
     doExpertOutput,
     setTruthStrategy,
     doValidateLargeD0Tracks,
-    doTruthOriginPlots
+    doTruthOriginPlots,
+    doPerAuthorPlots,
+    doHitLevelPlots
 ]
 
 for j in _list_InDetPhysValJobProperties:

@@ -81,6 +81,16 @@ def getInDetPhysValMonitoringTool(**kwargs):
                 kwargs,
                 doTruthOriginPlots=True )
 
+        if InDetPhysValFlags.doPerAuthorPlots():
+            kwargs = setDefaults(
+                kwargs,
+                doPerAuthorPlots=True )
+
+        if InDetPhysValFlags.doHitLevelPlots():
+            kwargs = setDefaults(
+                kwargs,
+                doHitLevelPlots=True )
+
         # adding the VeretxTruthMatchingTool
         from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
         kwargs = setDefaults(
@@ -120,11 +130,11 @@ def getInDetPhysValMonitoringTool(**kwargs):
     # Control the number of output histograms
     if InDetPhysValFlags.doPhysValOutput():
         kwargs = setDefaults(kwargs,
-                             SkillLevel=100)
+                             DetailLevel=100)
 
     elif InDetPhysValFlags.doExpertOutput():
         kwargs = setDefaults(kwargs,
-                             SkillLevel=200)
+                             DetailLevel=200)
 
     # hack to remove example physval monitor
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -181,6 +191,30 @@ def getInDetPhysValMonitoringToolGSF(**kwargs):
         SubFolder='GSF/',
         TrackParticleContainerName='GSFTrackParticles',
         useTrackSelection=True)
+
+    return getInDetPhysValMonitoringTool(**kwargs)
+
+def getInDetPhysValMonitoringToolElectrons(**kwargs):
+    
+    from InDetPhysValMonitoring.InDetPhysValDecoration import getInDetRttTruthSelectionTool
+    kwargs = setDefaults(
+        kwargs,
+        TruthSelectionTool=getInDetRttTruthSelectionTool(name="AthTruthSelectionToolForIDPVM_Electrons",pdgId=11,minPt=5000.),
+        name='InDetPhysValMonitoringToolElectrons',
+        onlyFillTruthMatched=True,
+        SubFolder='Electrons/')
+
+    return getInDetPhysValMonitoringTool(**kwargs)
+
+def getInDetPhysValMonitoringToolMuons(**kwargs):
+    
+    from InDetPhysValMonitoring.InDetPhysValDecoration import getInDetRttTruthSelectionTool
+    kwargs = setDefaults(
+        kwargs,
+        TruthSelectionTool=getInDetRttTruthSelectionTool(name="AthTruthSelectionToolForIDPVM_Muons",pdgId=13,minPt=5000.),
+        name='InDetPhysValMonitoringToolMuons',
+        onlyFillTruthMatched=True,
+        SubFolder='Muons/')
 
     return getInDetPhysValMonitoringTool(**kwargs)
 
