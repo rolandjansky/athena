@@ -25,10 +25,9 @@ class TruthCaloShowerDecorator
   , public IAugmentationTool
 {
 public:
-  TruthCaloShowerDecorator(
-    const std::string& t,
-    const std::string& n,
-    const IInterface* p);
+  TruthCaloShowerDecorator(const std::string& t,
+                           const std::string& n,
+                           const IInterface* p);
 
   StatusCode initialize();
   StatusCode finalize();
@@ -56,15 +55,11 @@ private:
 
   // Write decoration handle keys
   SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>
-    m_linkDecoratorClusterEtot{
-      "egammaTruthParticles.truthLArClusterEtotLink"
-    };
+    m_linkDecoratorClusterEtot{ this, "truthLArClusterEtotLink", "", "" };
   SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>
-    m_linkDecoratorClusterEvis{
-      "egammaTruthParticles.truthLArClusterEvisLink"
-    };
+    m_linkDecoratorClusterEvis{ this, "truthLArClusterEvisLink", "", "" };
   SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>
-    m_linkDecoratorClusterEem{ "egammaTruthParticles.truthLArClusterEemLink" };
+    m_linkDecoratorClusterEem{ this, "truthLArClusterEemLink", "", "" };
 
   /** @brief barcode cut for egamma helpers **/
   int m_singleParticleBarcode;
