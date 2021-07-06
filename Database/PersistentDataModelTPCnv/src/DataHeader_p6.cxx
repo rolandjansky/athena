@@ -40,7 +40,7 @@ DataHeaderForm_p6::~DataHeaderForm_p6()
 unsigned int DataHeaderForm_p6::insertDb(const DbRecord& rec) {
    unsigned int index = 0U;
    for (std::vector<DbRecord>::const_iterator iter = m_dbRecords.begin(), last = m_dbRecords.end();
-	   iter != last; iter++, index++) {
+	   iter != last; ++iter, ++index) {
       if (*iter == rec) break;
    }
    if (index == m_dbRecords.size()) {
@@ -69,7 +69,7 @@ unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
 {
    unsigned int index = 0U;
    for (std::vector<ObjRecord>::const_iterator iter = m_objRecords.begin(), last = m_objRecords.end();
-           iter != last; iter++, index++) {
+           iter != last; ++iter, ++index) {
       if (*iter == rec) break;
    }
    std::vector<std::string>     aliases( alias.begin(), alias.end() );

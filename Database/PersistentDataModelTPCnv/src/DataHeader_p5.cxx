@@ -120,12 +120,12 @@ void DataHeader_p5::setDhFormToken(const std::string& formToken) {
       m_dhFormToken = formToken;
       std::ostringstream stream;
       for (std::vector<std::string>::const_iterator iter = m_dhForm->map().begin(),
-		      last = m_dhForm->map().end(); iter != last; iter++) {
+		      last = m_dhForm->map().end(); iter != last; ++iter) {
          stream << *iter << "\n";
       }
       for (m_dhForm->start(); m_dhForm->entry() <= m_dhForm->size(); m_dhForm->next()) {
          for (std::vector<unsigned int>::const_iterator iter = m_dhForm->params().begin(),
-		         last = m_dhForm->params().end(); iter != last; iter++) {
+		         last = m_dhForm->params().end(); iter != last; ++iter) {
             stream << *iter << ",";
          }
          stream << "\n";
