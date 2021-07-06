@@ -31,7 +31,10 @@ PrescalingTool::initialize()
 
    if ( !m_monTool.empty() ) ATH_CHECK(m_monTool.retrieve());
 
-   m_prescaleForUnknownChain = { m_keepUnknownChains.value(), 1 };
+   if (m_keepUnknownChains.value()) {
+      ATH_MSG_WARNING(m_keepUnknownChains.name() << " is set to True. This is OK for testing but do not use this in production");
+   }
+   m_prescaleForUnknownChain = { m_keepUnknownChains.value(), (m_keepUnknownChains.value() ? 1.0 : -1.0) };
    m_costChainID = HLT::Identifier("HLT_noalg_CostMonDS_L1All");
    return StatusCode::SUCCESS;
 }
@@ -134,7 +137,12 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
          return hltPrescaleSet->prescale( ch.numeric() );
       } catch(const std::out_of_range & ex) {
          // if chain with that name is not found in the prescale set
-         ATH_MSG_DEBUG("No prescale value for chain " << ch << ", will " << (m_prescaleForUnknownChain.enabled ? "" : "not ") << "keep it.");
+         if (m_keepUnknownChains.value()) {
+            ATH_MSG_DEBUG("No prescale value for chain " << ch << ", keeping it because "
+                          << m_keepUnknownChains.name() << "=" << m_keepUnknownChains.value());
+         } else {
+            ATH_MSG_ERROR("No prescale value for chain " << ch);
+         }
       }
       return m_prescaleForUnknownChain;
    };

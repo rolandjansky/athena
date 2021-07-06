@@ -99,7 +99,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          return StatusCode::FAILURE;
       }
       pss->setPSK(m_psk);
-      m_pssMap[0] = pss;
+      m_pssMap.insert(std::make_pair(0u, std::move(pss)));
 
    } else if( m_psk != 0u ) {
 
@@ -111,7 +111,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          ATH_MSG_ERROR( "Failed loading HLT prescales set " << m_psk << " from the database" );
          return StatusCode::FAILURE;
       }
-      m_pssMap[m_psk] = pss;
+      m_pssMap.insert(std::make_pair(m_psk.value(), std::move(pss)));
    }
 
    return StatusCode::SUCCESS;

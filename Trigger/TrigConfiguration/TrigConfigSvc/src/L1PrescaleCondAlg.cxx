@@ -93,14 +93,14 @@ TrigConf::L1PrescaleCondAlg::initialize() {
 
       // index 0 indicates that the configuration is from a file, a DB
       // PSK is greater than 0
-      m_pssMap[0] = createFromFile( m_filename );
+      m_pssMap.insert(std::make_pair(0u, createFromFile(m_filename)));
 
    } else if( m_psk != 0u ) {
 
       // this is for the case where the reading from the DB was
       // configured and also when we read from COOL online and get a
       // PSK through the JobOptionsSvc
-      m_pssMap[m_psk] = createFromDB( m_psk, true );
+      m_pssMap.insert(std::make_pair(m_psk, createFromDB(m_psk, true)));
 
    }
 
