@@ -16,6 +16,10 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerBuilderCond.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+// InDet
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
+// StoreGate
+#include "StoreGate/ReadCondHandleKey.h"
 // STL
 #include <vector>
 
@@ -74,12 +78,12 @@ namespace InDet {
       const std::string& identification() const;      
       
     private:
-      const InDetDD::TRT_DetectorManager*           m_trtMgr;                   //!< the TRT Manager
-      std::string                                   m_trtMgrLocation;           //!< the location of the TRT Manager     
                    
-      double                                        m_layerStrawRadius;         //!< straw radius                                                                            
+      SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_readKeyTRTContainer{this, "ReadKeyTRTDetectorElements","TRT_DetElementContainer","Key for input TRT detector element container read from cond store"};
+
+      double                                        m_layerStrawRadius;         //!< straw radius
       double                                        m_layerThickness;           //!< modelled layer thickness
-      bool                                          m_modelGeometry;            //!< Build the geometry with model layers      
+      bool                                          m_modelGeometry;            //!< Build the geometry with model layers
       unsigned int                                  m_modelBarrelLayers;        //!< model barrel layers with material
       unsigned int                                  m_modelEndcapLayers;        //!< model endcap layers with material
                                                                                 
@@ -92,7 +96,7 @@ namespace InDet {
       bool                                          m_registerStraws;           //!< register the straws
       int                                           m_barrelSectorAtPiBoundary; //!< this is the barrel Sector where +pi/-pi is within
       
-      std::string                                   m_identification;           //!< string identification                        
+      std::string                                   m_identification;           //!< string identification
       
       
   };
