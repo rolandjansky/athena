@@ -10,7 +10,8 @@ larRODFlags.nSamples.set_Value_and_Lock(4)     # default
 larRODFlags.NumberOfCollisions.set_Value_and_Lock(0) #  no pileup
 larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(False) #  no pileup
 
-jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True)  # use high gain in EMEC IW in nopileup case
+# Not available in 21.0-mc16a but keeping here for consistency
+# jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True)  # use high gain in EMEC IW in nopileup case
 jobproperties.LArDigitizationFlags.useFcalHighGain.set_Value_and_Lock(True)    # use high gain in Fcal in nopileup case
 
 # check if Beam flag is set properly

@@ -3,8 +3,9 @@
 from AthenaCommon.BeamFlags import jobproperties as bf
 bf.Beam.numberOfCollisions.set_Value_and_Lock(20.0)
 
-from LArDigitization.LArDigitizationFlags import jobproperties as lar
-lar.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True)
+# Not available in 21.0-mc16a but keeping here for consistency
+# from LArDigitization.LArDigitizationFlags import jobproperties as lar
+# lar.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True)
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('LArConfiguration/LArConfigRun2Old.py')
