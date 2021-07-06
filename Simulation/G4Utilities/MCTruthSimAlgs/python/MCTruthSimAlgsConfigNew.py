@@ -166,7 +166,7 @@ def MergeTruthParticlesCfg(flags, name="MergeTruthParticlesTool", **kwargs):
         kwargs.setdefault("InTimeOutputTruthParticleCollKey", flags.Overlay.BkgPrefix + "TruthPileupParticles")
     else:
         kwargs.setdefault("InTimeOutputTruthParticleCollKey", "TruthPileupParticles")
-    tool = CompFactory.MergeTruthJetsTool(name, **kwargs)
+    tool = CompFactory.MergeTruthParticlesTool(name, **kwargs)
     acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
