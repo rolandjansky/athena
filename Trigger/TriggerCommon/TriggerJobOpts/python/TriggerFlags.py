@@ -386,7 +386,7 @@ class run2Config(JobProperty):
     """ A flag to specify 2016 or 2017 (tunes, etc) running conditions """
     statusOn=True
     allowedType=['string']
-    StoredValue = '2017'
+    StoredValue = '2016'
     allowedValues = [
         '2016',
         '2017',
