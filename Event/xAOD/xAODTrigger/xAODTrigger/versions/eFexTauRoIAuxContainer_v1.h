@@ -36,6 +36,7 @@ namespace xAOD {
       std::vector< uint32_t > word0;
       std::vector< uint32_t > word1;
       std::vector< uint8_t >  eFexNumber;
+      std::vector< uint8_t >  shelfNumber;
       std::vector< uint16_t > fCoreNumerator;
       std::vector< uint16_t > fCoreDenominator;
 

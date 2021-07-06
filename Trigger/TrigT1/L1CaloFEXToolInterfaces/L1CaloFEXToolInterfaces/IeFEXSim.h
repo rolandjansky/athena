@@ -39,6 +39,7 @@ Interface definition for eFEXSim
 
     virtual StatusCode NewExecute(int tmp[10][18]) = 0;
     virtual std::vector<uint32_t> getEmTOBs() = 0;
+    virtual std::vector<uint32_t> getTauTOBs() = 0;
 
   private:
 

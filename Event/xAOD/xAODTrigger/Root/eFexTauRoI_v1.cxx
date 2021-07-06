@@ -25,14 +25,20 @@ namespace xAOD {
 
    }
 
-   void eFexTauRoI_v1::initialize( uint8_t eFexNumber, uint32_t word0, uint32_t word1 ) {
+   void eFexTauRoI_v1::initialize( uint8_t eFexNumber, uint8_t shelf, uint32_t word0, uint32_t word1 ) {
 
       setWord0( word0 );
       setWord1( word1 );
       seteFexNumber( eFexNumber );
-      setTobEt( etTOB() );
-      setEta( etaIndex() );
-      setPhi( phiIndex() );
+      setShelfNumber( shelf );
+
+      /** Quantities derived from TB data, stored for convenience */
+      setEt( etTOB()*s_tobEtScale );
+      float etaVal = s_minEta + iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4;
+      setEta( etaVal );
+      float phiVal = iPhi() * M_PI/32. + M_PI/64.;
+      if (phiVal > M_PI) phiVal = phiVal - 2.*M_PI;
+      setPhi( phiVal );
 
       /** If the object is a TOB then the isTOB should be true.
           For xTOB default is false, but should be set if a matching TOB is found */
@@ -50,6 +56,8 @@ namespace xAOD {
                                          setWord1 )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, eFexNumber,
                                          seteFexNumber )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, shelfNumber,
+                                         setShelfNumber )
 
    /// Only calculable externally
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fCoreNumerator,
@@ -65,11 +73,11 @@ namespace xAOD {
                                          setIsTOB )
 
    /// Extracted from data words, stored for convenience
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, tobEt,
-                                         setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, iEta,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, float, et,
+                                         setEt )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, float, eta,
                                          setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, iPhi,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, float, phi,
                                          setPhi )
 
 
@@ -161,23 +169,6 @@ namespace xAOD {
      }
    }
 
-   /// Methods that require combining results or applying scales
-   /// ET on TOB scale
-   float eFexTauRoI_v1::et() const {
-     return tobEt()*s_tobEtScale;
-   }
-
-   /// Floating point coordinates
-   float eFexTauRoI_v1::eta() const {
-     return (s_minEta + iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4);
-   }
-
-   float eFexTauRoI_v1::phi() const {
-     float value = iPhi() * M_PI/32. + M_PI/64.;
-     if (value > M_PI) value = value - 2.*M_PI;
-     return value;
-   }
-
    /// Tau condition value. 
    /// Note that this is for convenience & intelligibility, but should
    /// not be used for bitwise-accurate menu studies
@@ -189,40 +180,27 @@ namespace xAOD {
    /// Methods that decode the eFEX number
 
   /// Return phi index in the range 0-63
-  unsigned int eFexTauRoI_v1::phiIndex() const {
+  unsigned int eFexTauRoI_v1::iPhi() const {
 
-     /// Get the eFEX index in phi (1-8, unfortunately)
-     unsigned int eFEX = (eFexNumber() >> s_eFexPhiBit) & s_eFexPhiMask;
+    /// Calculate octant (0-7) from eFEX and shelf numbers
+    unsigned int octant = int(eFexNumber()/3) + shelfNumber()*s_shelfPhiWidth;
 
-     /// Find global phi index (0-63) for this window in this eFEX (the -1 is to correct for the eFEX phi index)
-     unsigned int index = s_eFexPhiWidth*eFEX + s_eFexPhiOffset  + fpgaPhi() -1;
-     if (index >= s_numPhi) index -= s_numPhi;
-     return index;
-   }
+    /// Find global phi index (0-63) for this window in this eFEX
+    unsigned int index = s_eFexPhiWidth*octant + fpgaPhi() + s_eFexPhiOffset;
+    if (index >= s_numPhi) index -= s_numPhi;
 
-   /// Return an eta index in the range 0-49
-   /// Note that this may not be the final format!
-   /// And you need to combine with the seed() value to get full eta precision
-   unsigned int eFexTauRoI_v1::etaIndex() const {
+    return index;
+  }
 
-     /// Get the eFEX number
-     uint8_t eFEX = (eFexNumber() >> s_eFexEtaBit) & s_eFexEtaMask;
+  /// Return an eta index in the range 0-49
+  /// Note that this may not be the final format!
+  /// And you need to combine with the seed() value to get full eta precision
+  unsigned int eFexTauRoI_v1::iEta() const {
 
-     /// FPGA min eta
-     uint8_t index = 99; /// Define a default value in case of invalid eFEX number
+    /// With appropriate constants this should work in one line...
+    unsigned int index = (eFexNumber()%3)*s_eFexEtaWidth + fpga()*s_fpgaEtaWidth + fpgaEta();
 
-     switch (eFEX) {
-       case eFexC: index = s_EtaCOffset + fpga()*s_fpgaEtaWidth + (fpga() > 0 ? 1 : 0);
-                   break;
-       case eFexB: index = s_EtaBOffset + fpga()*s_fpgaEtaWidth;
-                   break;
-       case eFexA: index = s_EtaAOffset + fpga()*s_fpgaEtaWidth;
-                   break;
-     }
-
-     /// Add eta location within the FPGA & return value
-     return index + fpgaEta();
-
+    return index;
    }
 
 
