@@ -40,36 +40,36 @@ class LarEMSamplingFraction  : public ::AthAlgorithm
   
   bool m_docells;
   
-  int m_mc_pdg;
-	double m_mc_eta;
-	double m_mc_phi;
-	double m_mc_e;
-	double m_mc_pt;
+  int m_mc_pdg{};
+	double m_mc_eta{};
+	double m_mc_phi{};
+	double m_mc_e{};
+	double m_mc_pt{};
   
-  std::vector<Long64_t>* m_cell_identifier;
-  std::vector<float>*    m_cell_energy_reco;
-  std::vector<float>*    m_cell_energy_active_total_corrected;
-  std::vector<float>*    m_cell_energy_active_total;
-  std::vector<float>*    m_cell_energy_inactive_total;
-  std::vector<int>*      m_cell_sampling;
-  std::vector<float>*    m_cell_eta;
-  std::vector<float>*    m_cell_phi;
+  std::vector<Long64_t>* m_cell_identifier{};
+  std::vector<float>*    m_cell_energy_reco{};
+  std::vector<float>*    m_cell_energy_active_total_corrected{};
+  std::vector<float>*    m_cell_energy_active_total{};
+  std::vector<float>*    m_cell_energy_inactive_total{};
+  std::vector<int>*      m_cell_sampling{};
+  std::vector<float>*    m_cell_eta{};
+  std::vector<float>*    m_cell_phi{};
 
-  vector<float> *m_energy_reco;
-  vector<float> *m_energy_hit;
+  vector<float> *m_energy_reco{};
+  vector<float> *m_energy_hit{};
 
-  vector<float> *m_energy_inactive_total;
-  vector<float> *m_energy_inactive_em;
-  vector<float> *m_energy_inactive_nonem;
-  vector<float> *m_energy_inactive_inv;
-  vector<float> *m_energy_inactive_esc;
+  vector<float> *m_energy_inactive_total{};
+  vector<float> *m_energy_inactive_em{};
+  vector<float> *m_energy_inactive_nonem{};
+  vector<float> *m_energy_inactive_inv{};
+  vector<float> *m_energy_inactive_esc{};
   
-  vector<float> *m_energy_active_total_corrected;
-  vector<float> *m_energy_active_total;
-  vector<float> *m_energy_active_em;
-  vector<float> *m_energy_active_nonem;
-  vector<float> *m_energy_active_inv;
-  vector<float> *m_energy_active_esc;
+  vector<float> *m_energy_active_total_corrected{};
+  vector<float> *m_energy_active_total{};
+  vector<float> *m_energy_active_em{};
+  vector<float> *m_energy_active_nonem{};
+  vector<float> *m_energy_active_inv{};
+  vector<float> *m_energy_active_esc{};
   
   TTree* m_mytree =0;
 
@@ -79,8 +79,8 @@ class LarEMSamplingFraction  : public ::AthAlgorithm
   
   const CaloCell_ID* m_calo_id;
   
-  const TileInfo *m_tileInfo;
-  const TileID * m_tileID;
+  const TileInfo *m_tileInfo{};
+  const TileID * m_tileID{};
   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
 };
 
