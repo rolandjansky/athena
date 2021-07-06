@@ -40,7 +40,7 @@ void DataHeaderElementCnv_p4::persToTrans(const DataHeaderElement_p4* pers,
    trans->m_hashes.clear();
    trans->m_hashes.reserve(pers->m_hashes.size());
    for (std::vector<uint64_t>::const_iterator iter = pers->m_hashes.begin(),
-		   last = pers->m_hashes.end(); iter != last; iter++) {
+		   last = pers->m_hashes.end(); iter != last; ++iter) {
       trans->m_hashes.push_back((unsigned int)(*iter));
    }
 // Translate PoolToken
@@ -101,13 +101,13 @@ void DataHeaderCnv_p4::persToTrans(const DataHeader_p4* pers, DataHeader* trans)
    trans->m_inputDataHeader.resize(pers->m_provSize);
    std::vector<DataHeaderElement>::iterator it = trans->m_inputDataHeader.begin();
    std::vector<DataHeaderElement_p4>::const_iterator pit = pers->m_dataHeader.begin();
-   for (unsigned int i = 0U; i != pers->m_provSize; i++, it++, pit++) {
+   for (unsigned int i = 0U; i != pers->m_provSize; ++i, ++it, ++pit) {
       m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_guidMap);
    }
    trans->m_dataHeader.resize(pers->m_dataHeader.size() - pers->m_provSize);
    it = trans->m_dataHeader.begin();
    for (std::vector<DataHeaderElement_p4>::const_iterator last = pers->m_dataHeader.end();
-		   pit != last; it++, pit++) {
+		   pit != last; ++it, ++pit) {
       m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_guidMap);
    }
 }
