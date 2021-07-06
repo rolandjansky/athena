@@ -435,26 +435,29 @@ class  ConfiguredNewTrackingSiPattern:
          prob1 = InDetFlags.pixelClusterSplitProb1()
          prob2 = InDetFlags.pixelClusterSplitProb2()
          nhitsToAllowSplitting = 9
-         
+         use_parameterization = False and not NewTrackingCuts.mode() == "DBM"
+
          from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
          if CommonGeometryFlags.Run() == 1:
             prob1 = InDetFlags.pixelClusterSplitProb1_run1()
             prob2 = InDetFlags.pixelClusterSplitProb2_run1() 
             nhitsToAllowSplitting = 8
 
+         drift_circle_cut_tool = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco() if use_parameterization else ''
+
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
          else:
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool as AmbiTrackSelectionTool
          InDetAmbiTrackSelectionTool = AmbiTrackSelectionTool(name                = 'InDetAmbiTrackSelectionTool'+NewTrackingCuts.extension(),
-                                                              DriftCircleCutTool  = InDetTRTDriftCircleCut,
+                                                              DriftCircleCutTool  = drift_circle_cut_tool,
                                                               AssociationTool     = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                               minHits             = NewTrackingCuts.minClusters(),
                                                               minNotShared        = NewTrackingCuts.minSiNotShared(),
                                                               maxShared           = NewTrackingCuts.maxShared(),
                                                               minTRTHits          = 0, # used for Si only tracking !!!
                                                               sharedProbCut       = 0.10,
-                                                              UseParameterization = False,
+                                                              UseParameterization = use_parameterization,
                                                               Cosmics             = InDetFlags.doCosmics(),
                                                               doPixelSplitting    = InDetFlags.doPixelClusterSplitting() and NewTrackingCuts.mode != "DBM")
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
@@ -504,9 +507,9 @@ class  ConfiguredNewTrackingSiPattern:
             InDetAmbiScoringTool = TrackingCommon.getInDetCosmicsScoringTool(NewTrackingCuts)
          elif(NewTrackingCuts.mode() == "R3LargeD0" and InDetFlags.nnCutLargeD0Threshold > 0):
             # Set up NN config
-            InDetAmbiScoringTool = TrackingCommon.getInDetNNScoringTool(NewTrackingCuts)
+            InDetAmbiScoringTool = TrackingCommon.getInDetNNScoringToolSi(NewTrackingCuts)
          else:
-            InDetAmbiScoringTool = TrackingCommon.getInDetAmbiScoringTool(NewTrackingCuts)
+            InDetAmbiScoringTool = TrackingCommon.getInDetAmbiScoringToolSi(NewTrackingCuts)
   
          #
          # --- load Ambiguity Processor

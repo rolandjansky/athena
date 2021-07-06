@@ -61,10 +61,12 @@ class ConfiguredTRTStandalone:
     #
     # --- set up special Scoring Tool for standalone TRT tracks
     #
+    drift_circle_cut_tool = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco() if NewTrackingCuts.useTRTonlyParamCuts() else ''
+
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetTrtTrackScoringTool
     InDetTRT_StandaloneScoringTool = InDet__InDetTrtTrackScoringTool(name                = 'InDetTRT_StandaloneScoringTool'+extension,
                                                                      SummaryTool         = TrackingCommon.getInDetTrackSummaryTool(),
-                                                                     DriftCircleCutTool  = InDetTRTDriftCircleCut,
+                                                                     DriftCircleCutTool  = drift_circle_cut_tool,
                                                                      useAmbigFcn         = True,
                                                                      useSigmaChi2        = False,
                                                                      PtMin               = pTmin,
