@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -33,7 +33,7 @@ void compare (const ZdcRawChannel& p1,
 
 void testit (const ZdcRawChannel& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   ZdcRawChannelCnv_p1 cnv;
   ZdcRawChannel_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

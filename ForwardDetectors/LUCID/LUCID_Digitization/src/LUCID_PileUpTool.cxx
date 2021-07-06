@@ -151,7 +151,7 @@ StatusCode LUCID_PileUpTool::processBunchXing(int bunchXing,
                         << " event number : "   << iEvt->ptr()->eventNumber()
                         << " run number : "     << iEvt->ptr()->runNumber()
                         );
-      const LUCID_SimHitCollection* tmpColl = 0;
+      const LUCID_SimHitCollection* tmpColl = nullptr;
 
       if (!seStore.retrieve(tmpColl,m_SimHitCollectionName).isSuccess())
         {

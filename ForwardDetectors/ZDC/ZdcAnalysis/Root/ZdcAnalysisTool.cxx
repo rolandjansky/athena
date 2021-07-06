@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
@@ -21,7 +21,7 @@ namespace ZDC
   ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name),
 							      m_writeAux(false),
 							      m_runNumber(0), m_lumiBlock(0),
-    m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(0)
+    m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(nullptr)
 {
 
 #ifndef XAOD_STANDALONE
@@ -551,7 +551,7 @@ StatusCode ZdcAnalysisTool::initializeTool()
 
   // If an aux suffix is provided, prepend it with "_" so we don't have to do so at each use
   //
-  if (m_writeAux && m_auxSuffix != "") {
+  if (m_writeAux && !m_auxSuffix.empty()) {
     m_auxSuffix = "_" + m_auxSuffix;
   }
 
@@ -696,11 +696,11 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
   ATH_MSG_DEBUG("Starting event processing");
   m_zdcDataAnalyzer->StartEvent(calibLumiBlock);
 
-  const std::vector<unsigned short>* adcUndelayLG = 0;
-  const std::vector<unsigned short>* adcUndelayHG = 0;
+  const std::vector<unsigned short>* adcUndelayLG = nullptr;
+  const std::vector<unsigned short>* adcUndelayHG = nullptr;
 
-  const std::vector<unsigned short>* adcDelayLG = 0;
-  const std::vector<unsigned short>* adcDelayHG = 0;
+  const std::vector<unsigned short>* adcDelayLG = nullptr;
+  const std::vector<unsigned short>* adcDelayHG = nullptr;
 
   ATH_MSG_DEBUG("Processing modules");
   for (const auto zdcModule : moduleContainer)
@@ -895,8 +895,8 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
   sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcTimeCalibFileName.c_str());
   ATH_MSG_INFO("Opening time calibration file " << name);
   TFile* fCalib = TFile::Open(name);
-  std::array<std::array<TSpline*, 4>, 2> T0HGOffsetSplines;
-  std::array<std::array<TSpline*, 4>, 2> T0LGOffsetSplines;
+  std::array<std::array<TSpline*, 4>, 2> T0HGOffsetSplines{};
+  std::array<std::array<TSpline*, 4>, 2> T0LGOffsetSplines{};
   TSpline3* spline;
   for (int iside=0;iside<2;iside++)
     {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZdcHARDWAREID_H
@@ -24,10 +24,10 @@ class ZdcHardwareID : public AtlasDetectorID {
   // default destructor
   virtual ~ZdcHardwareID();
 
-  int ppm(const HWIdentifier& hwid) const;
-  int channel(const HWIdentifier& hwid) const;
-  HWIdentifier ppm_id(int ppm) const;// {return HWIdentifier(0);}
-  HWIdentifier channel_id(int ppm, int channel) const;// {return HWIdentifier(0);}
+  static int ppm(const HWIdentifier& hwid) ;
+  static int channel(const HWIdentifier& hwid) ;
+  static HWIdentifier ppm_id(int ppm) ;// {return HWIdentifier(0);}
+  static HWIdentifier channel_id(int ppm, int channel) ;// {return HWIdentifier(0);}
 
  private:
 

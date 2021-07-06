@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_HitHelper.h"
 
 #include "LUCID_GeoModel/LUCID_Constants.h"
 
-int LUCID_HitHelper::GetVolNumber(G4String volName) const {
+int LUCID_HitHelper::GetVolNumber(const G4String& volName) {
 
   int volNumber = 100;
 

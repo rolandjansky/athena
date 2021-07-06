@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZdcSincInterp.h"
@@ -8,7 +8,7 @@
 
 namespace ZDC
 {
-  double SincInterp(double* xvec, double* pvec)
+  double SincInterp(const double* xvec, const double* pvec)
   {
     // pvec are the sample values                                                         
     double ret = 0;

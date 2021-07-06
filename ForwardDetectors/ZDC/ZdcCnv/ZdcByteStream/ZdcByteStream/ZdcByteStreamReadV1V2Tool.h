@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_ZDCBYTESTREAMREADV1V2TOOL_H
@@ -172,35 +172,35 @@ private:
   ZdcSubBlockHeader m_subBlockHeader;
   ZdcSubBlockStatus m_subBlockStatus;
 
-  uint8_t m_subDetectorID;
+  uint8_t m_subDetectorID{};
   RequestType m_requestedType;
 
   std::set<uint32_t> m_coolIds;
   std::vector<uint32_t> m_ppmSourceIDs;
-  bool m_ppmIsRetMuon;
+  bool m_ppmIsRetMuon{};
   std::vector<uint32_t> m_ppmSourceIDsMuon;
-  bool m_ppmIsRetSpare;
+  bool m_ppmIsRetSpare{};
   std::vector<uint32_t> m_ppmSourceIDsSpare;
   std::vector<uint32_t> m_cpSourceIDs;
-  ZdcSrcIdMap* m_srcIdMap;
-  const ZdcID* m_zdcID;
+  ZdcSrcIdMap* m_srcIdMap{};
+  const ZdcID* m_zdcID{};
 
-  uint32_t m_rodSourceId;
-  uint32_t m_robSourceId;
-  uint32_t m_rodRunNumber;
-  uint16_t m_rodVer;
-  uint8_t m_verCode;
+  uint32_t m_rodSourceId{};
+  uint32_t m_robSourceId{};
+  uint32_t m_rodRunNumber{};
+  uint16_t m_rodVer{};
+  uint8_t m_verCode{};
 
   // For RUN2
   std::vector<uint32_t> m_ppBlock;
-  uint32_t m_ppPointer;
-  uint32_t m_ppMaxBit;
+  uint32_t m_ppPointer{};
+  uint32_t m_ppMaxBit{};
   // For RUN1
   std::map<uint8_t, std::vector<uint16_t>> m_ppLuts;
   std::map<uint8_t, std::vector<uint16_t>> m_ppFadcs;
 // ==========================================================================
 private:
-  xAOD::TriggerTowerContainer* m_triggerTowers;
+  xAOD::TriggerTowerContainer* m_triggerTowers{};
 };
 
 

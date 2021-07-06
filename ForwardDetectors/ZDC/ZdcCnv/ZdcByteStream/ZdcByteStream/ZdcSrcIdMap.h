@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCSRCIDMAP_H
@@ -27,35 +27,35 @@ public:
   ZdcSrcIdMap();
 
   /// Make a ROD Source ID
-  uint32_t getRodID (int crate,
+  static uint32_t getRodID (int crate,
 						 int slink,
 						 int daqOrRoi,
                          eformat::SubDetector subdet);
 
   /// ROD -> ROB
-  uint32_t getRobID (uint32_t rod_id);
+  static uint32_t getRobID (uint32_t rod_id);
 
   /// ROB -> ROS
-  uint32_t getRosID (uint32_t rob_id);
+  static uint32_t getRosID (uint32_t rob_id);
 
   /// ROS -> SubDetector
-  uint32_t getDetID (uint32_t ros_id);
+  static uint32_t getDetID (uint32_t ros_id);
 
   /// moduleID -> crate
-  int      crate(uint32_t code);
+  static int      crate(uint32_t code);
 
   // What is this ??
   /// moduleID -> daqOrRoi
-  int      daqOrRoi(uint32_t code);
+  static int      daqOrRoi(uint32_t code);
 
   /// moduleID -> slink
-  int      slink(uint32_t code);
+  static int      slink(uint32_t code);
 
   /// Return the maximum possible number of slinks
-  int      maxSlinks();
+  static int      maxSlinks();
 
   /// ID -> sub-detector
-  eformat::SubDetector subDet(uint32_t code);
+  static eformat::SubDetector subDet(uint32_t code);
 };
 
 #endif

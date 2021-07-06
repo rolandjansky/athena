@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -135,9 +135,9 @@ class ZdcSubBlock {
 
    //  Packing utilities
    /// Return the minimum number of bits needed for given data
-   int      minBits(uint32_t datum) const;
+   static int      minBits(uint32_t datum) ;
    /// Return the parity bit for given data
-   int      parityBit(int init, uint32_t datum, int nbits) const;
+   static int      parityBit(int init, uint32_t datum, int nbits) ;
    /// Pack given data into given number of bits
    void     packer(uint32_t datum, int nbits);
    /// Flush the current data word padded with zeros
