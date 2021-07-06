@@ -120,3 +120,4 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonTrackQuery","MuonTrackQ
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidSegmentRegionRecoveryTool","MuidSegmentRegionRecoveryTool")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder","CombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilderFit","CombinedMuonTrackBuilderFit")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidErrorOptimisationTool","MuidErrorOptimisationTool")
