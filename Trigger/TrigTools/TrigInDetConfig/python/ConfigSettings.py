@@ -40,8 +40,9 @@ class _ConfigSettings_electron( _ConfigSettingsBase ):
       self._doSeedRedundancyCheck = True
       self._doTRT               = True
       self._keepTrackParameters = True
+      self._electronPID         = True
 
-
+      
 class _ConfigSettings_muon( _ConfigSettingsBase ):
    def __init__( self ):
       _ConfigSettingsBase.__init__(self)
